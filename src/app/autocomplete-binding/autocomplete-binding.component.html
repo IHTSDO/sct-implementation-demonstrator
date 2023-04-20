@@ -1,0 +1,17 @@
+<mat-form-field>
+  <!-- <mat-label>New SNOMED Problem</mat-label> -->
+  <input type="text" placeholder="{{'Search...'}}" matInput [formControl]="formControl" [matAutocomplete]="auto" [(ngModel)]="term"
+  [value]="selectedConcept.display">
+  <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()">
+    <mat-icon>close</mat-icon>
+  </button>
+  <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="change($event)">
+    <mat-option disabled class="loading" *ngIf="loading">
+      <mat-spinner diameter="35"></mat-spinner>
+    </mat-option>
+    <mat-option *ngFor="let item of (autoFilter | async)?.expansion?.contains"
+      [value]="item">
+      <span class="code">{{item.code}}</span>{{item.display}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
