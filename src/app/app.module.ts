@@ -15,17 +15,26 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatInputModule} from '@angular/material/input';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatCardModule} from '@angular/material/card';
+import {MatTableModule} from '@angular/material/table';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
 import { AutocompleteBindingComponent } from './autocomplete-binding/autocomplete-binding.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AllergiesComponent } from './allergies/allergies.component';
+import { AllergiesProblemListComponent } from './allergies-problem-list/allergies-problem-list.component';
+import { AllergiesAllergyListComponent } from './allergies-allergy-list/allergies-allergy-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoadingDialogComponent,
-    AutocompleteBindingComponent
+    AutocompleteBindingComponent,
+    AllergiesComponent,
+    AllergiesProblemListComponent,
+    AllergiesAllergyListComponent
   ],
   imports: [
     HttpClientModule,
@@ -42,7 +51,10 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatAutocompleteModule,
     MatProgressSpinnerModule,
     MatInputModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatTabsModule,
+    MatCardModule,
+    MatTableModule
   ],
   providers: [],
   bootstrap: [AppComponent]

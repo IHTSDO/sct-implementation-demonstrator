@@ -1,0 +1,28 @@
+<mat-card id="main-card">
+    <div class="container">
+        <div class="item">
+            <app-autocomplete-binding [binding]="eclProblem" [term]="term" (selectionChange)="updateProblem($event)"></app-autocomplete-binding>
+        </div>
+        <div class="item">
+            <button mat-flat-button color="primary" (click)="addProblem()">Add</button>
+        </div>
+    </div>
+    <div class="problem-list">
+        <table mat-table [dataSource]="dataSource">
+            <ng-container matColumnDef="icon">
+              <th mat-header-cell *matHeaderCellDef> Date </th>
+              <td mat-cell *matCellDef="let element"> {{ element.date | date:'short' }} </td>
+            </ng-container>
+            <ng-container matColumnDef="code">
+              <th mat-header-cell *matHeaderCellDef> ConceptId </th>
+              <td mat-cell *matCellDef="let element"> {{element.code}} </td>
+            </ng-container>
+            <ng-container matColumnDef="display">
+              <th mat-header-cell *matHeaderCellDef> Term </th>
+              <td mat-cell *matCellDef="let element"> {{element.display}} </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+</mat-card>

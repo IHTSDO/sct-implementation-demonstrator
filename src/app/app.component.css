@@ -34,3 +34,8 @@ a {
 .mat-mdc-unelevated-button>.mat-icon, .mat-mdc-raised-button>.mat-icon, .mat-mdc-outlined-button>.mat-icon {
     margin: 0px !important;
 }
+
+#demo-selector {
+    margin: 5px 15px 5px 15px;
+    padding: 10px;
+}

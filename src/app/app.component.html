@@ -1,14 +1,14 @@
 <mat-toolbar>
   <img src="assets/img/small_logo.png" height="60px">
-  <span id="title">SNOMED CT Implementation Demonstrators</span>
+  <span id="title">SNOMED CT Implementation Demos</span>
   <span class="example-spacer"></span>
 
-  <button mat-raised-button color="primary" [matMenuTriggerFor]="serverMenu">FHIR Server: {{selectedServer.name}}</button>
+  <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu">FHIR Server: {{selectedServer.name}}</button>
   <mat-menu #serverMenu="matMenu">
     <button mat-menu-item *ngFor="let server of fhirServers" (click)="setFhirServer(server)">{{server.name}}</button>
   </mat-menu>
 
-  <button mat-raised-button color="primary" [matMenuTriggerFor]="editionsMenu">{{selectedEdition}}</button>
+  <button mat-flat-button color="primary" [matMenuTriggerFor]="editionsMenu">{{selectedEdition}}</button>
   <mat-menu #editionsMenu="matMenu" class="wide-menu">
     <ng-container *ngFor="let mainItem of editionsDetails">
       <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>
@@ -18,12 +18,21 @@
     </ng-container>
   </mat-menu>
   
-  <button mat-raised-button color="primary" [matMenuTriggerFor]="menu">{{selectedLanguage}}</button>
+  <button mat-flat-button color="primary" [matMenuTriggerFor]="menu">{{selectedLanguage}}</button>
   <mat-menu #menu="matMenu">
     <button mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">{{language}}</button>
   </mat-menu>
 
-  <a mat-flat-button href="https://github.com/IHTSDO/iid-icd-maps" target="_blank" color="primary">
+  <a mat-flat-button href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" color="primary">
     <mat-icon>info</mat-icon>
   </a>
 </mat-toolbar>
+<div id="demo-selector">
+  <span>Select implementation demo:</span>
+  <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">{{selectedDemo}}</button>
+  <mat-menu #demosMenu="matMenu" class="wide-menu">
+    <button *ngFor="let demo of demos" mat-menu-item (click)="setDemo(demo)">{{ demo }}</button>
+  </mat-menu>
+</div>
+<hr>
+<app-allergies *ngIf="selectedDemo == 'Allergies'"></app-allergies>

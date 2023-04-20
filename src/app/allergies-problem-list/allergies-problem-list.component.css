@@ -1,0 +1,21 @@
+
+#main-card {
+    padding: 10px;
+}
+app-autocomplete-binding {
+    display: block;
+    min-width: 500px;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 10px 0;
+    gap: 10px;
+}
+
+.problem-list {
+    width: 40%;
+}

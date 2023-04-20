@@ -23,6 +23,12 @@ export class AppComponent {
   ];
   selectedServer = this.fhirServers[2];
 
+  demos = [
+    "Allergies",
+    "Epilepsy"
+  ];
+  selectedDemo = this.demos[0];
+
   constructor( private codingSpecService: CodingSpecService, public excelService: ExcelService, private terminologyService: TerminologyService ) { }
 
   ngOnInit(): void {
@@ -91,5 +97,9 @@ export class AppComponent {
   setLanguage(language: string) {
     this.selectedLanguage = language;
     this.terminologyService.setLang(language);
+  }
+
+  setDemo(demo: any) {
+    this.selectedDemo = demo;
   }
 }
