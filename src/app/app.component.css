@@ -1,0 +1,36 @@
+.mat-toolbar {
+    background-color: black;
+    color: white; /* add this line to change the text color to white */
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+button {
+    font-weight: bold;
+}
+
+#title {
+    margin-left: 15px;
+    font-size: 1.4rem;
+}
+
+.example-spacer {
+    flex: 1 1 auto;
+}
+
+button {
+    margin-left: 15px;
+}
+
+a {
+    margin-left: 15px;
+}
+
+::ng-deep.mat-mdc-menu-panel {
+    max-width:fit-content !important;
+    overflow-x: hidden !important;
+}
+
+.mat-mdc-unelevated-button>.mat-icon, .mat-mdc-raised-button>.mat-icon, .mat-mdc-outlined-button>.mat-icon {
+    margin: 0px !important;
+}
