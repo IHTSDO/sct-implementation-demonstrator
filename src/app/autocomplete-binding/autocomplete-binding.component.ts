@@ -27,7 +27,7 @@ export class AutocompleteBindingComponent implements OnInit {
       switchMap((term: string) =>  {
         if (term?.length > 3) {
           this.loading = true;
-          let response = this.terminologyService.expandValueSet(this.binding, term)
+          let response = this.terminologyService.expandValueSet(this.binding, term, 0, 50)
           return response;
         } else {
           return of([]);

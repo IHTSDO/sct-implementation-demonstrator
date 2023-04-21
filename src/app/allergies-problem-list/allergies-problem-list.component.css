@@ -16,6 +16,48 @@ app-autocomplete-binding {
     gap: 10px;
 }
 
+.container-space {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 10px 0;
+    gap: 10px;
+}
+
 .problem-list {
     width: 40%;
 }
+
+.tag {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 5px;
+}
+
+td {
+    position: relative;
+}
+
+.pill {
+    display: inline-block;
+    font-size: 10px;
+    background-color: orange;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.mat-column-display {
+    min-width: 350px;
+}
+
+/* .mat-mdc-cell:first-child {
+    font-size: 12px;
+} */
