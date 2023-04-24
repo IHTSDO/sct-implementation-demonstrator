@@ -1,6 +1,6 @@
-# SctImplementationDemonstrator
+# Implementation Demonstrator
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.6.
+This project hosts a collection of SNOMED Implementation examples using FHIR terminology services. It is expected to grow  with new use cases and user interfaces.
 
 ## Development server
 
