@@ -1,8 +1,8 @@
 <mat-form-field>
-  <!-- <mat-label>New SNOMED Problem</mat-label> -->
+  <mat-label *ngIf="label">{{ label }}</mat-label>
   <input type="text" placeholder="{{'Search...'}}" matInput [formControl]="formControl" [matAutocomplete]="auto" [(ngModel)]="term"
   [value]="selectedConcept.display">
-  <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()">
+  <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()" *ngIf="term">
     <mat-icon>close</mat-icon>
   </button>
   <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="change($event)">

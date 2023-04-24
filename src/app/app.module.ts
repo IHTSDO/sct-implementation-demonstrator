@@ -18,14 +18,17 @@ import {MatInputModule} from '@angular/material/input';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
+import {MatSelectModule} from '@angular/material/select';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
 import { AutocompleteBindingComponent } from './autocomplete-binding/autocomplete-binding.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AllergiesComponent } from './allergies/allergies.component';
 import { AllergiesProblemListComponent } from './allergies-problem-list/allergies-problem-list.component';
 import { AllergiesAllergyListComponent } from './allergies-allergy-list/allergies-allergy-list.component';
+
+import { HighlightJsModule } from 'ngx-highlight-js';
 
 @NgModule({
   declarations: [
@@ -39,6 +42,7 @@ import { AllergiesAllergyListComponent } from './allergies-allergy-list/allergie
   imports: [
     HttpClientModule,
     BrowserModule,
+    HighlightJsModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatToolbarModule,
@@ -54,7 +58,9 @@ import { AllergiesAllergyListComponent } from './allergies-allergy-list/allergie
     ReactiveFormsModule,
     MatTabsModule,
     MatCardModule,
-    MatTableModule
+    MatTableModule,
+    MatSelectModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

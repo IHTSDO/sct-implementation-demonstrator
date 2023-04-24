@@ -12,6 +12,7 @@ import { TerminologyService } from '../services/terminology.service';
 export class AutocompleteBindingComponent implements OnInit {
   @Input() binding: any;
   @Input() term: string = "";
+  @Input() label: string = "";
   @Output() selectionChange = new EventEmitter<any>();
   
   formControl = new UntypedFormControl();

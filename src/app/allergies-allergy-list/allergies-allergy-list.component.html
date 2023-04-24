@@ -1,1 +1,56 @@
-<p>allergies-allergy-list works!</p>
+<mat-card id="main-card">
+    <div class="row">
+        <div class="column">
+            <h4>Allergy Intolerance Form</h4>
+            <mat-form-field class="small-form-field">
+                <mat-label>Clinical Status</mat-label>
+                <mat-select [(ngModel)]="selectedClinicalStatus">
+                    <mat-option *ngFor="let option of clinicalStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="small-form-field">
+                <mat-label>Verification Status</mat-label>
+                <mat-select [(ngModel)]="selectedVerificationStatus">
+                    <mat-option *ngFor="let option of verificationStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="small-form-field">
+                <mat-label>Allergy Intolerance Type</mat-label>
+                <mat-select [(ngModel)]="selectedIntoleranceType">
+                    <mat-option *ngFor="let option of intoleranceTypeOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="small-form-field">
+                <mat-label>Substance Category</mat-label>
+                <mat-select [(ngModel)]="selectedIntoleranceCategory">
+                    <mat-option *ngFor="let option of intoleranceCategoryOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="small-form-field">
+                <mat-label>Reaction Criticality</mat-label>
+                <mat-select>
+                    <mat-option *ngFor="let option of criticalityOptions" [value]="option">{{option.display}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div class="small-form-field">
+                <app-autocomplete-binding [label]="codeLabel" [binding]="codeEcl"></app-autocomplete-binding>
+            </div>
+            <div class="small-form-field">
+                <app-autocomplete-binding [label]="substanceLabel" [binding]="substanceEcl"></app-autocomplete-binding>
+            </div>
+            <div class="small-form-field">
+                <app-autocomplete-binding [label]="reactionManifestationLabel" [binding]="reactionManifestationEcl"></app-autocomplete-binding>
+            </div>
+            <div class="small-form-field">
+                <app-autocomplete-binding [label]="routeLabel" [binding]="routeEcl"></app-autocomplete-binding>
+            </div>
+        </div>
+        <div class="column">
+            <h4>AllergyIntolerance HL7 FHIR Resource</h4>
+            <div id="output">
+                <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="outputAllergyStr" wrap="soft">
+                </textarea>
+            </div>
+        </div>
+      </div>
+</mat-card>
