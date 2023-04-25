@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HighlightJsDirective } from 'ngx-highlight-js';
 import { TerminologyService } from '../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-allergies-allergy-list',
@@ -39,6 +40,7 @@ export class AllergiesAllergyListComponent  implements OnInit{
     { code: 'biologic', display: 'Biologic' }
   ];
   selectedIntoleranceCategories: any = [];
+  public selectedIntoleranceCategoriesControl = new FormControl(this.selectedIntoleranceCategories);
 
   criticalityOptions = [
     { code: 'low', display: 'Low Risk' },
@@ -154,6 +156,7 @@ export class AllergiesAllergyListComponent  implements OnInit{
         this.selectedIntoleranceCategories.push(this.intoleranceCategoryOptions[1]);
       }
     });
+    this.selectedIntoleranceCategoriesControl.setValue(this.selectedIntoleranceCategories);
     this.updateAllergyStr();
   }
 

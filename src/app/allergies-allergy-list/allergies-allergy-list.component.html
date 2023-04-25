@@ -30,7 +30,7 @@
             </div>
             <mat-form-field class="small-form-field">
                 <mat-label>Substance Category</mat-label>
-                <mat-select [(ngModel)]="selectedIntoleranceCategories" [multiple]="true">
+                <mat-select [formControl]="selectedIntoleranceCategoriesControl" [multiple]="true">
                     <mat-option *ngFor="let option of intoleranceCategoryOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
                 </mat-select>
             </mat-form-field>
