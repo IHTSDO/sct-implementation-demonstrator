@@ -2,6 +2,9 @@
     <div class="row">
         <div class="column">
             <h4>Allergy Intolerance Form</h4>
+            <div class="small-form-field">
+                <app-autocomplete-binding [label]="codeLabel" [binding]="codeEcl" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm"></app-autocomplete-binding>
+            </div>
             <mat-form-field class="small-form-field">
                 <mat-label>Allergy Intolerance Type</mat-label>
                 <mat-select [(ngModel)]="selectedIntoleranceType">
@@ -21,9 +24,6 @@
                         <mat-option *ngFor="let option of verificationStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
                     </mat-select>
                 </mat-form-field>
-            </div>
-            <div class="small-form-field">
-                <app-autocomplete-binding [label]="codeLabel" [binding]="codeEcl" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm"></app-autocomplete-binding>
             </div>
             <div class="small-form-field">
                 <app-autocomplete-binding [label]="substanceLabel" [binding]="substanceEcl" (selectionChange)="substanceSelected($event)" [term]="selectedSubstanceTerm"></app-autocomplete-binding>
@@ -56,8 +56,9 @@
             </div>
         </div>
         <div class="column">
-            <h4>AllergyIntolerance HL7 FHIR Resource</h4>
+            <h4>AllergyIntolerance HL7 FHIR Resource (<a href="https://hl7.org/FHIR/allergyintolerance.html" target="_blank">link</a>)</h4>
             <div id="output">
+                <button mat-icon-button (click)="saveFhirResource()" id="save"><mat-icon fontIcon="cloud_download"></mat-icon></button>
                 <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="outputAllergyStr" wrap="soft">
                 </textarea>
             </div>

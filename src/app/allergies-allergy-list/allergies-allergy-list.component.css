@@ -40,10 +40,18 @@
     border-radius: 10px;
     background-color: #282c34;
     padding: 10px;
+    position: relative;
 }
 
 pre > code {
     width: 45%; /* Set the width to 100% */
     white-space: pre-wrap; /* Enable text wrapping */
     word-wrap: break-word; /* Break long words to avoid overflow */
+}
+
+#save {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: rgb(232, 140, 21);
 }

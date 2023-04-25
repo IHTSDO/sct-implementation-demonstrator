@@ -12,7 +12,7 @@
     </div>
     <div class="container-space">
         <div class="problem-list">
-            Problem List
+            <h4>Problem List</h4>
             <table mat-table [dataSource]="dataSource">
                 <ng-container matColumnDef="date">
                   <th mat-header-cell *matHeaderCellDef> Date </th>
@@ -34,7 +34,7 @@
             </table>
         </div>
         <div class="problem-list">
-            Substances the patient is allergic to:
+            <h4>Substances the patient is allergic to:</h4>
             <table mat-table [dataSource]="dataSource2">
                 <ng-container matColumnDef="code">
                   <th mat-header-cell *matHeaderCellDef> ConceptId </th>

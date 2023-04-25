@@ -3,6 +3,7 @@ import { HighlightJsDirective } from 'ngx-highlight-js';
 import { TerminologyService } from '../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-allergies-allergy-list',
@@ -31,7 +32,7 @@ export class AllergiesAllergyListComponent  implements OnInit{
     { system: "http://hl7.org/fhir/allergy-intolerance-type", code: '609433001', display: 'Hypersensitivity disposition (finding)', fhirCode: 'allergy', fhirDisplay: 'Allergy' },
     { system: "http://hl7.org/fhir/allergy-intolerance-type", code: '782197009', display: 'Intolerance to substance (finding)', fhirCode: 'intolerance', fhirDisplay: 'Intolerance' }
   ];
-  selectedIntoleranceType = this.intoleranceTypeOptions[0];
+  selectedIntoleranceType: any = null;
 
   intoleranceCategoryOptions: any = [
     { code: 'food', display: 'Food' },
@@ -61,7 +62,7 @@ export class AllergiesAllergyListComponent  implements OnInit{
   selectedCodeTerm = "";
 
   substanceEcl = '<<105590001 | Substance (substance) | OR <<373873005 | Pharmaceutical / biologic product (product) |';
-  substanceLabel = 'Allergy/Intolerance by substance or product';
+  substanceLabel = 'Allergy/Intolerance substance or product';
   selectedSubstanceTerm = "";
 
   reactionManifestationEcl = '<<404684003 |Clinical finding|';
@@ -130,7 +131,7 @@ export class AllergiesAllergyListComponent  implements OnInit{
   updateAllergyStr() {
     this.outputAllergy.clinicalStatus.coding = [this.selectedClinicalStatus];
     this.outputAllergy.verificationStatus.coding = [this.selectedVerificationStatus];
-    this.outputAllergy.type = this.selectedIntoleranceType.fhirCode;
+    this.outputAllergy.type = (this.selectedIntoleranceType) ? this.selectedIntoleranceType.fhirCode : '';
     this.outputAllergy.category = (this.selectedIntoleranceCategories.length) ? this.selectedIntoleranceCategories.map((option: any) => option.display) : [];
     this.outputAllergy.criticality = (this.selectedCriticality?.code) ? [this.selectedCriticality.code] : {};
     this.outputAllergy.reaction[0].severity = this.selectedSeverity.code;
@@ -148,12 +149,14 @@ export class AllergiesAllergyListComponent  implements OnInit{
     const categories = await this.getSubstanceCategories(substance);
     // Note: (255620007 |Food (substance)| OR 115668003 |Biological substance (substance)| OR 410942007 |Drug or medicament (substance)|)
     categories?.expansion?.contains?.forEach( (element: any) => {
-      if (element.code == '255620007') {
+      if (element.code == '762766007') {
         this.selectedIntoleranceCategories.push(this.intoleranceCategoryOptions[0]);
       } else if (element.code == '115668003') {
         this.selectedIntoleranceCategories.push(this.intoleranceCategoryOptions[3]);
       } else if (element.code == '410942007') {
         this.selectedIntoleranceCategories.push(this.intoleranceCategoryOptions[1]);
+      } else if (element.code == '57795002') {
+        this.selectedIntoleranceCategories.push(this.intoleranceCategoryOptions[2]);
       }
     });
     this.selectedIntoleranceCategoriesControl.setValue(this.selectedIntoleranceCategories);
@@ -167,6 +170,13 @@ export class AllergiesAllergyListComponent  implements OnInit{
   }
 
   async codeSelected(code: any) {
+    let resType: any = await this.getTypes(code);
+    if (resType.expansion?.contains) {
+      // set selectedIntoleranceType to the value from intoleranceTypeOptions that matches code
+      const type = resType.expansion?.contains[0];
+      this.selectedIntoleranceType = this.intoleranceTypeOptions.find((option: any) => option.code === type.code);
+    }
+
     let res: any = await this.getAllergySubstance(code);
     if (!res.expansion.contains) {
       res = await this.getIntoleranceSubstance(code);
@@ -176,9 +186,6 @@ export class AllergiesAllergyListComponent  implements OnInit{
       this.substanceSelected(substance);
       this.selectedCodeTerm = code.display;
       this.selectedSubstanceTerm = substance.display;
-      setTimeout(() => {
-        // this.selectedCodeTerm = "";
-      }, 200);
     }
   }
 
@@ -193,7 +200,12 @@ export class AllergiesAllergyListComponent  implements OnInit{
   }
 
   async getSubstanceCategories(substance: any): Promise<any> {
-    const response = await this.terminologyService.expandValueSet(`> ${substance.code} |${substance.display}| AND (255620007 |Food (substance)| OR 115668003 |Biological substance (substance)| OR 410942007 |Drug or medicament (substance)|)`, '');
+    const response = await this.terminologyService.expandValueSet(`> ${substance.code} |${substance.display}| AND (762766007 |Edible substance| OR 115668003 |Biological substance (substance)| OR 410942007 |Drug or medicament (substance)| OR 57795002 |Chemical element|)`, '');
+    return lastValueFrom(response.pipe(map(res => res)));
+  }
+
+  async getTypes(propensity: any): Promise<any> {
+    const response = await this.terminologyService.expandValueSet(`> ${propensity.code} |${propensity.display}| AND (609433001 |Hypersensitivity disposition| OR 782197009 |Intolerance to substance|)`, '');
     return lastValueFrom(response.pipe(map(res => res)));
   }
 
@@ -201,6 +213,11 @@ export class AllergiesAllergyListComponent  implements OnInit{
     route = Object.assign({ system: 'http://snomed.info/sct' }, route);
     this.outputAllergy.reaction[0].exposureRoute.coding = [route];
     this.updateAllergyStr();
+  }
+
+  saveFhirResource() {
+    var blob = new Blob([this.outputAllergyStr], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "AllergyIntolerance.json");
   }
 
 }
