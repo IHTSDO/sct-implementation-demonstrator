@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { HighlightJsDirective } from 'ngx-highlight-js';
+import { TerminologyService } from '../services/terminology.service';
+import { lastValueFrom, map } from 'rxjs';
 
 @Component({
   selector: 'app-allergies-allergy-list',
   templateUrl: './allergies-allergy-list.component.html',
-  styleUrls: ['./allergies-allergy-list.component.css']
+  styleUrls: ['./allergies-allergy-list.component.css'],
 })
 export class AllergiesAllergyListComponent  implements OnInit{
 
@@ -36,22 +38,30 @@ export class AllergiesAllergyListComponent  implements OnInit{
     { code: 'environment', display: 'Environment' },
     { code: 'biologic', display: 'Biologic' }
   ];
-  selectedIntoleranceCategory: any = null;
+  selectedIntoleranceCategories: any = [];
 
   criticalityOptions = [
-    { code: 'low', display: 'Low' },
-    { code: 'high', display: 'High' },
-    { code: 'unable-to-assess', display: 'Unable to Assess' }
+    { code: 'low', display: 'Low Risk' },
+    { code: 'high', display: 'High Risk' },
+    { code: 'unable-to-assess', display: 'Unable to Assess Risk' }
   ];
+  selectedCriticality: any = null;
+
   severityOptions = [
     { code: 'mild', display: 'Mild', sctCode: '255604002', sctDisplay: 'Mild (qualifier value)' },
     { code: 'moderate', display: 'Moderate', sctCode: '6736007', sctDisplay: 'Moderate (qualifier value)' },
     { code: 'severe', display: 'Severe', sctCode: '24484000', sctDisplay: 'Severe (qualifier value)' }
   ];
+  selectedSeverity: any = {};
+
   codeEcl = '<<418038007 |Propensity to adverse reactions to substance|';
-  codeLabel = 'Allergy/Intolerance';
+  codeLabel = 'Allergy/Intolerance by propensity';
+  selectedCodeTerm = "";
+
   substanceEcl = '<<105590001 | Substance (substance) | OR <<373873005 | Pharmaceutical / biologic product (product) |';
-  substanceLabel = 'Substance';
+  substanceLabel = 'Allergy/Intolerance by substance or product';
+  selectedSubstanceTerm = "";
+
   reactionManifestationEcl = '<<404684003 |Clinical finding|';
   reactionManifestationLabel = 'Reaction Manifestation';
   routeEcl = '<<284009009 |Route of administration value|';
@@ -71,12 +81,24 @@ export class AllergiesAllergyListComponent  implements OnInit{
     "category" : [],
     "criticality" : "high",
     "code" : {
-      "coding" : [{
-        "system" : "http://www.nlm.nih.gov/research/umls/rxnorm",
-        "code" : "7980",
-        "display" : "Penicillin G"
-      }]
+      "coding" : []
     },
+    "reaction" : [{
+      "substance": [{
+        "concept" : {
+          "coding" : []
+        }
+      }],
+      "manifestation" : [{
+        "concept" : {
+          "coding" : []
+        }
+      }],
+      "exposureRoute" : {
+        "coding" : []
+      },
+      "severity" : ""
+    }],
     "patient" : {
       "reference" : "Patient/example"
     },
@@ -92,34 +114,89 @@ export class AllergiesAllergyListComponent  implements OnInit{
       "actor" : {
         "reference" : "Practitioner/example"
       }
-    }],
-    "reaction" : [{
-      "manifestation" : [{
-        "concept" : {
-          "coding" : [{
-            "system" : "http://snomed.info/sct",
-            "code" : "247472004",
-            "display" : "Hives"
-          }]
-        }
-      }]
     }]
   }
 
   outputAllergyStr = '';
 
+  constructor(private terminologyService: TerminologyService) { }
+
+  ngOnInit(): void {
+    this.updateAllergyStr();
+  }
+
   updateAllergyStr() {
     this.outputAllergy.clinicalStatus.coding = [this.selectedClinicalStatus];
     this.outputAllergy.verificationStatus.coding = [this.selectedVerificationStatus];
     this.outputAllergy.type = this.selectedIntoleranceType.fhirCode;
-    this.outputAllergy.category = (this.selectedIntoleranceCategory) ? [this.selectedIntoleranceCategory.code] : [];
+    this.outputAllergy.category = (this.selectedIntoleranceCategories.length) ? this.selectedIntoleranceCategories.map((option: any) => option.display) : [];
+    this.outputAllergy.criticality = (this.selectedCriticality?.code) ? [this.selectedCriticality.code] : {};
+    this.outputAllergy.reaction[0].severity = this.selectedSeverity.code;
     setTimeout(() => {
       this.outputAllergyStr = JSON.stringify(this.outputAllergy, null, 2);
     }
     , 100);
   }
 
-  ngOnInit(): void {
+  async substanceSelected(substance: any) {
+    this.selectedIntoleranceCategories = [];
+    substance = Object.assign({ system: 'http://snomed.info/sct' }, substance);
+    this.outputAllergy.code.coding = [substance];
+    this.outputAllergy.reaction[0].substance[0].concept.coding = [substance];
+    const categories = await this.getSubstanceCategories(substance);
+    // Note: (255620007 |Food (substance)| OR 115668003 |Biological substance (substance)| OR 410942007 |Drug or medicament (substance)|)
+    categories?.expansion?.contains?.forEach( (element: any) => {
+      if (element.code == '255620007') {
+        this.selectedIntoleranceCategories.push(this.intoleranceCategoryOptions[0]);
+      } else if (element.code == '115668003') {
+        this.selectedIntoleranceCategories.push(this.intoleranceCategoryOptions[3]);
+      } else if (element.code == '410942007') {
+        this.selectedIntoleranceCategories.push(this.intoleranceCategoryOptions[1]);
+      }
+    });
+    this.updateAllergyStr();
+  }
+
+  reactionManifestationSelected(reactionManifestation: any) {
+    reactionManifestation = Object.assign({ system: 'http://snomed.info/sct' }, reactionManifestation);
+    this.outputAllergy.reaction[0].manifestation[0].concept.coding = [reactionManifestation];
+    this.updateAllergyStr();
+  }
+
+  async codeSelected(code: any) {
+    let res: any = await this.getAllergySubstance(code);
+    if (!res.expansion.contains) {
+      res = await this.getIntoleranceSubstance(code);
+    }
+    if (res.expansion?.contains) {
+      const substance = res.expansion?.contains[0];
+      this.substanceSelected(substance);
+      this.selectedCodeTerm = code.display;
+      this.selectedSubstanceTerm = substance.display;
+      setTimeout(() => {
+        // this.selectedCodeTerm = "";
+      }, 200);
+    }
+  }
+
+  async getIntoleranceSubstance(allergy: any): Promise<any> {
+    const response = await this.terminologyService.expandValueSet(`${allergy.code} |${allergy.display}| . 47429007 |Associated with (attribute)|`, '');
+    return lastValueFrom(response.pipe(map(res => res)));
+  }
+
+  async getAllergySubstance(allergy: any): Promise<any> {
+    const response = await this.terminologyService.expandValueSet(`${allergy.code} |${allergy.display}| . 246075003 |Causative agent (attribute)|`, '');
+    return lastValueFrom(response.pipe(map(res => res)));
+  }
+
+  async getSubstanceCategories(substance: any): Promise<any> {
+    const response = await this.terminologyService.expandValueSet(`> ${substance.code} |${substance.display}| AND (255620007 |Food (substance)| OR 115668003 |Biological substance (substance)| OR 410942007 |Drug or medicament (substance)|)`, '');
+    return lastValueFrom(response.pipe(map(res => res)));
+  }
+
+  routeSelected(route: any) {
+    route = Object.assign({ system: 'http://snomed.info/sct' }, route);
+    this.outputAllergy.reaction[0].exposureRoute.coding = [route];
     this.updateAllergyStr();
   }
 

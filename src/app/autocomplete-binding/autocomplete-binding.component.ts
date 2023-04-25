@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import {debounceTime, distinctUntilChanged, map, startWith, switchMap,tap} from 'rxjs/operators';
 import {Observable, of, Subject} from 'rxjs';
@@ -9,7 +9,7 @@ import { TerminologyService } from '../services/terminology.service';
   templateUrl: './autocomplete-binding.component.html',
   styleUrls: ['./autocomplete-binding.component.css']
 })
-export class AutocompleteBindingComponent implements OnInit {
+export class AutocompleteBindingComponent implements OnInit, OnChanges {
   @Input() binding: any;
   @Input() term: string = "";
   @Input() label: string = "";
@@ -20,13 +20,19 @@ export class AutocompleteBindingComponent implements OnInit {
   loading = false;
   selectedConcept: any = {};
   constructor(private terminologyService: TerminologyService) { }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['term']) {
+      this.term = changes['term'].currentValue;
+      this.formControl.setValue(this.term);
+    }
+  }
 
   ngOnInit(): void {
     this.autoFilter  = this.formControl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((term: string) =>  {
-        if (term?.length > 3) {
+        if (term?.length >= 3) {
           this.loading = true;
           let response = this.terminologyService.expandValueSet(this.binding, term, 0, 50)
           return response;

@@ -3,46 +3,56 @@
         <div class="column">
             <h4>Allergy Intolerance Form</h4>
             <mat-form-field class="small-form-field">
-                <mat-label>Clinical Status</mat-label>
-                <mat-select [(ngModel)]="selectedClinicalStatus">
-                    <mat-option *ngFor="let option of clinicalStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field class="small-form-field">
-                <mat-label>Verification Status</mat-label>
-                <mat-select [(ngModel)]="selectedVerificationStatus">
-                    <mat-option *ngFor="let option of verificationStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field class="small-form-field">
                 <mat-label>Allergy Intolerance Type</mat-label>
                 <mat-select [(ngModel)]="selectedIntoleranceType">
                     <mat-option *ngFor="let option of intoleranceTypeOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
                 </mat-select>
             </mat-form-field>
+            <div class="row">
+                <mat-form-field class="column">
+                    <mat-label>Clinical Status</mat-label>
+                    <mat-select [(ngModel)]="selectedClinicalStatus">
+                        <mat-option *ngFor="let option of clinicalStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field class="column">
+                    <mat-label>Verification Status</mat-label>
+                    <mat-select [(ngModel)]="selectedVerificationStatus">
+                        <mat-option *ngFor="let option of verificationStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="small-form-field">
+                <app-autocomplete-binding [label]="codeLabel" [binding]="codeEcl" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm"></app-autocomplete-binding>
+            </div>
+            <div class="small-form-field">
+                <app-autocomplete-binding [label]="substanceLabel" [binding]="substanceEcl" (selectionChange)="substanceSelected($event)" [term]="selectedSubstanceTerm"></app-autocomplete-binding>
+            </div>
             <mat-form-field class="small-form-field">
                 <mat-label>Substance Category</mat-label>
-                <mat-select [(ngModel)]="selectedIntoleranceCategory">
+                <mat-select [(ngModel)]="selectedIntoleranceCategories" [multiple]="true">
                     <mat-option *ngFor="let option of intoleranceCategoryOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-form-field class="small-form-field">
-                <mat-label>Reaction Criticality</mat-label>
-                <mat-select>
-                    <mat-option *ngFor="let option of criticalityOptions" [value]="option">{{option.display}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <div class="small-form-field">
-                <app-autocomplete-binding [label]="codeLabel" [binding]="codeEcl"></app-autocomplete-binding>
+            <div class="row">
+                <mat-form-field class="column">
+                    <mat-label>Allergy Criticality</mat-label>
+                    <mat-select [(ngModel)]="selectedCriticality">
+                        <mat-option *ngFor="let option of criticalityOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field class="column">
+                    <mat-label>Reaction Severity</mat-label>
+                    <mat-select [(ngModel)]="selectedSeverity">
+                        <mat-option *ngFor="let option of severityOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
             <div class="small-form-field">
-                <app-autocomplete-binding [label]="substanceLabel" [binding]="substanceEcl"></app-autocomplete-binding>
+                <app-autocomplete-binding [label]="reactionManifestationLabel" [binding]="reactionManifestationEcl" (selectionChange)="reactionManifestationSelected($event)"></app-autocomplete-binding>
             </div>
             <div class="small-form-field">
-                <app-autocomplete-binding [label]="reactionManifestationLabel" [binding]="reactionManifestationEcl"></app-autocomplete-binding>
-            </div>
-            <div class="small-form-field">
-                <app-autocomplete-binding [label]="routeLabel" [binding]="routeEcl"></app-autocomplete-binding>
+                <app-autocomplete-binding [label]="routeLabel" [binding]="routeEcl" (selectionChange)="routeSelected($event)"></app-autocomplete-binding>
             </div>
         </div>
         <div class="column">

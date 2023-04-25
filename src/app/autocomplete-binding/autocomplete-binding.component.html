@@ -1,6 +1,6 @@
 <mat-form-field>
   <mat-label *ngIf="label">{{ label }}</mat-label>
-  <input type="text" placeholder="{{'Search...'}}" matInput [formControl]="formControl" [matAutocomplete]="auto" [(ngModel)]="term"
+  <input type="text" placeholder="{{'Search...'}}" matInput [formControl]="formControl" [matAutocomplete]="auto"
   [value]="selectedConcept.display">
   <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()" *ngIf="term">
     <mat-icon>close</mat-icon>
