@@ -27,6 +27,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AllergiesComponent } from './allergies/allergies.component';
 import { AllergiesProblemListComponent } from './allergies-problem-list/allergies-problem-list.component';
 import { AllergiesAllergyListComponent } from './allergies-allergy-list/allergies-allergy-list.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 import { HighlightJsModule } from 'ngx-highlight-js';
 
@@ -60,7 +61,8 @@ import { HighlightJsModule } from 'ngx-highlight-js';
     MatCardModule,
     MatTableModule,
     MatSelectModule,
-    FormsModule
+    FormsModule,
+    MatTooltipModule
   ],
   providers: [],
   bootstrap: [AppComponent]

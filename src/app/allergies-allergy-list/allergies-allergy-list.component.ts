@@ -4,6 +4,7 @@ import { TerminologyService } from '../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { saveAs } from 'file-saver';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-allergies-allergy-list',
@@ -122,7 +123,7 @@ export class AllergiesAllergyListComponent  implements OnInit{
 
   outputAllergyStr = '';
 
-  constructor(private terminologyService: TerminologyService) { }
+  constructor(private terminologyService: TerminologyService, private clipboard: Clipboard) { }
 
   ngOnInit(): void {
     this.updateAllergyStr();
@@ -218,6 +219,10 @@ export class AllergiesAllergyListComponent  implements OnInit{
   saveFhirResource() {
     var blob = new Blob([this.outputAllergyStr], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "AllergyIntolerance.json");
+  }
+
+  copyToClipboard(text: string) {
+    this.clipboard.copy(text);
   }
 
 }

@@ -58,7 +58,10 @@
         <div class="column">
             <h4>AllergyIntolerance HL7 FHIR Resource (<a href="https://hl7.org/FHIR/allergyintolerance.html" target="_blank">link</a>)</h4>
             <div id="output">
-                <button mat-icon-button (click)="saveFhirResource()" id="save"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                <div id="save">
+                    <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                    <button mat-icon-button (click)="copyToClipboard(outputAllergyStr)" matTooltip="Copy FHIR Resource"><mat-icon fontIcon="content_copy"></mat-icon></button>
+                </div>
                 <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="outputAllergyStr" wrap="soft">
                 </textarea>
             </div>
