@@ -34,6 +34,7 @@ export class AllergiesProblemListComponent {
     // push selectedProblemSct in problemList if it is not already present ion the list
     if (this.selectedProblemSct) {
       this.loading = true;
+      this.term = this.selectedProblemSct.display;
       this.selectedProblemSct.date = new Date();
       const allergyQueryResult: any = await this.getAllergyData();
       if (allergyQueryResult?.expansion?.contains?.length > 0) {
@@ -45,6 +46,7 @@ export class AllergiesProblemListComponent {
         this.dataSource.setData(this.dataToDisplay);
       }
       this.loading = false;
+      this.term = "";
     }
   }
 
