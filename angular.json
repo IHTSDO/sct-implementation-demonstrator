@@ -35,6 +35,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "https://ihtsdo.github.io/sct-implementation-demonstrator/",
               "budgets": [
                 {
                   "type": "initial",
