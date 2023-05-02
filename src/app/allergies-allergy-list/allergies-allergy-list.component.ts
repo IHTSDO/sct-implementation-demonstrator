@@ -5,7 +5,6 @@ import { lastValueFrom, map } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
-
 @Component({
   selector: 'app-allergies-allergy-list',
   templateUrl: './allergies-allergy-list.component.html',
@@ -142,7 +141,10 @@ export class AllergiesAllergyListComponent  implements OnInit{
     , 100);
   }
 
-  async substanceSelected(substance: any) {
+  async substanceSelected(substance: any, clear?: boolean) {
+    if (clear) {
+      this.selectedCodeTerm = '';
+    }
     this.selectedIntoleranceCategories = [];
     substance = Object.assign({ system: 'http://snomed.info/sct' }, substance);
     this.outputAllergy.code.coding = [substance];

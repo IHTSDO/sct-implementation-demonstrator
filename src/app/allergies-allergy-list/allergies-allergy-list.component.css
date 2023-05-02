@@ -17,13 +17,14 @@
 
 .form-field {
     width: 100%;
-    margin: 5px;
+    /* margin: 5px; */
 }
 .small-form-field {
     /* width: 45%;
     margin-right: 10px;
     display: inline-block; */
-    width: 100%;
+    width: 90%;
+    margin: 5px;
 }
 
 .mat-form-field {

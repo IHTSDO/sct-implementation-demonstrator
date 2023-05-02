@@ -44,7 +44,6 @@ export class AppComponent {
   }
 
   updateCodeSystemOptions() {
-    console.log("Initiating updateCodeSystemOptions")
     this.terminologyService.getCodeSystems().subscribe(response => {
       this.editionsDetails = [];
       this.editions = response.entry;
