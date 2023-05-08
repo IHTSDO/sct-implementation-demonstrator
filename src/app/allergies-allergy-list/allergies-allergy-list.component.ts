@@ -64,7 +64,9 @@ export class AllergiesAllergyListComponent  implements OnInit{
   recordPropensity = false;
 
   substanceEcl = '<<105590001 | Substance (substance) | OR <<373873005 | Pharmaceutical / biologic product (product) |';
+  refinedSubstanceEcl = '<<105590001 | Substance (substance) |';
   substanceLabel = 'Allergy/Intolerance substance or product';
+  refinedSubstanceLabel = 'Allergy/Intolerance substance based on propensity';
   selectedSubstanceTerm = "";
 
   reactionManifestationEcl = '<<404684003 |Clinical finding|';
@@ -185,26 +187,31 @@ export class AllergiesAllergyListComponent  implements OnInit{
 
   async codeSelected(code: any) {
     code.system = 'http://snomed.info/sct';
-    this.selectedCode = code;
-    if (this.recordPropensity) {
-      this.outputAllergy.code.coding = [code];
-    }
-    let resType: any = await this.getTypes(code);
-    if (resType.expansion?.contains) {
-      // set selectedIntoleranceType to the value from intoleranceTypeOptions that matches code
-      const type = resType.expansion?.contains[0];
-      this.selectedIntoleranceType = this.intoleranceTypeOptions.find((option: any) => option.code === type.code);
-    }
-
-    let res: any = await this.getAllergySubstance(code);
-    if (!res.expansion.contains) {
-      res = await this.getIntoleranceSubstance(code);
-    }
-    if (res.expansion?.contains) {
-      const substance = res.expansion?.contains[0];
-      this.substanceSelected(substance);
+    if (code) {
       this.selectedCodeTerm = code.display;
-      this.selectedSubstanceTerm = substance.display;
+      this.selectedCode = code;
+      if (this.recordPropensity) {
+        this.outputAllergy.code.coding = [code];
+      }
+      let resType: any = await this.getTypes(code);
+      if (resType.expansion?.contains) {
+        // set selectedIntoleranceType to the value from intoleranceTypeOptions that matches code
+        const type = resType.expansion?.contains[0];
+        this.selectedIntoleranceType = this.intoleranceTypeOptions.find((option: any) => option.code === type.code);
+      }
+  
+      let res: any = await this.getAllergySubstance(code);
+      if (!res.expansion.contains) {
+        res = await this.getIntoleranceSubstance(code);
+      }
+      if (res.expansion?.contains) {
+        const substance = res.expansion?.contains[0];
+        this.refinedSubstanceEcl =`<<${substance.code} | ${substance.display} |`;
+        this.substanceSelected(substance);
+        this.selectedSubstanceTerm = substance.display;
+      } else {
+        this.refinedSubstanceEcl = '<<105590001 | Substance (substance) |';
+      }
     }
   }
 

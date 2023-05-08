@@ -41,7 +41,10 @@
             </div>
             <div class="row-centered">
                 <div class="small-form-field">
-                    <app-autocomplete-binding [label]="substanceLabel" [binding]="substanceEcl" (selectionChange)="substanceSelected($event, true)" [term]="selectedSubstanceTerm"></app-autocomplete-binding>
+                    <app-autocomplete-binding [label]="substanceLabel" [binding]="substanceEcl" (selectionChange)="substanceSelected($event, true)" 
+                    [term]="selectedSubstanceTerm" *ngIf="!recordPropensity"></app-autocomplete-binding>
+                    <app-autocomplete-binding [label]="refinedSubstanceLabel" [binding]="refinedSubstanceEcl" (selectionChange)="substanceSelected($event)" 
+                    [term]="selectedSubstanceTerm" *ngIf="recordPropensity"></app-autocomplete-binding>
                 </div>
                 <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
                     <mat-icon>info</mat-icon>
