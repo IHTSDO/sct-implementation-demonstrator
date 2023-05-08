@@ -8,6 +8,13 @@
     margin: -5px; /* Half of the gap */
     align-items: flex-start;
 }
+
+.row-centered {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px; /* Half of the gap */
+    align-items: center;
+}
   
 .column {
     flex: 1;
@@ -19,6 +26,14 @@
     width: 100%;
     /* margin: 5px; */
 }
+.smallest-form-field {
+    /* width: 45%;
+    margin-right: 10px;
+    display: inline-block; */
+    width: 60%;
+    margin: 5px;
+}
+
 .small-form-field {
     /* width: 45%;
     margin-right: 10px;

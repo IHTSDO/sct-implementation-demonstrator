@@ -19,6 +19,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
 import {MatSelectModule} from '@angular/material/select';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -62,7 +63,8 @@ import { HighlightJsModule } from 'ngx-highlight-js';
     MatTableModule,
     MatSelectModule,
     FormsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSlideToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]

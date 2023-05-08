@@ -59,7 +59,9 @@ export class AllergiesAllergyListComponent  implements OnInit{
 
   codeEcl = '<<418038007 |Propensity to adverse reactions to substance|';
   codeLabel = 'Allergy/Intolerance by propensity';
+  selectedCode: any = null;
   selectedCodeTerm = "";
+  recordPropensity = false;
 
   substanceEcl = '<<105590001 | Substance (substance) | OR <<373873005 | Pharmaceutical / biologic product (product) |';
   substanceLabel = 'Allergy/Intolerance substance or product';
@@ -147,7 +149,9 @@ export class AllergiesAllergyListComponent  implements OnInit{
     }
     this.selectedIntoleranceCategories = [];
     substance = Object.assign({ system: 'http://snomed.info/sct' }, substance);
-    this.outputAllergy.code.coding = [substance];
+    if (!this.recordPropensity) {
+      this.outputAllergy.code.coding = [substance];
+    }
     this.outputAllergy.reaction[0].substance[0].concept.coding = [substance];
     const categories = await this.getSubstanceCategories(substance);
     // Note: (255620007 |Food (substance)| OR 115668003 |Biological substance (substance)| OR 410942007 |Drug or medicament (substance)|)
@@ -172,7 +176,19 @@ export class AllergiesAllergyListComponent  implements OnInit{
     this.updateAllergyStr();
   }
 
+  propensityRecordChanged() {
+    this.outputAllergy.code.coding = [];
+    if (this.selectedCode) {
+      this.codeSelected(this.selectedCode);
+    }
+  }
+
   async codeSelected(code: any) {
+    code.system = 'http://snomed.info/sct';
+    this.selectedCode = code;
+    if (this.recordPropensity) {
+      this.outputAllergy.code.coding = [code];
+    }
     let resType: any = await this.getTypes(code);
     if (resType.expansion?.contains) {
       // set selectedIntoleranceType to the value from intoleranceTypeOptions that matches code
