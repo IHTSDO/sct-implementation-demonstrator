@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { HighlightJsDirective } from 'ngx-highlight-js';
 import { TerminologyService } from '../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
@@ -8,9 +8,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
 @Component({
   selector: 'app-allergies-allergy-list',
   templateUrl: './allergies-allergy-list.component.html',
-  styleUrls: ['./allergies-allergy-list.component.css'],
+  styleUrls: ['./allergies-allergy-list.component.css']
 })
-export class AllergiesAllergyListComponent  implements OnInit{
+export class AllergiesAllergyListComponent  implements OnInit {
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
@@ -71,10 +71,14 @@ export class AllergiesAllergyListComponent  implements OnInit{
 
   reactionManifestationEcl = '<<404684003 |Clinical finding|';
   reactionManifestationLabel = 'Reaction Manifestation';
+  selectedReactionManifestation: any = null;
+  selectedReactionManifestationTerm = "";
   routeEcl = '<<284009009 |Route of administration value|';
   routeLabel = 'Exposure Route';
+  selectedRoute: any = null;
+  selectedRouteTerm = "";
 
-  outputAllergy: any = {
+  outputAllergyBase: any = {
     "resourceType" : "AllergyIntolerance",
     "id" : "medication",
     "text" : {},
@@ -123,6 +127,7 @@ export class AllergiesAllergyListComponent  implements OnInit{
       }
     }]
   }
+  outputAllergy: any = JSON.parse(JSON.stringify(this.outputAllergyBase));
 
   outputAllergyStr = '';
 
@@ -132,17 +137,43 @@ export class AllergiesAllergyListComponent  implements OnInit{
     this.updateAllergyStr();
   }
 
+  clear() {
+    this.selectedClinicalStatus = this.clinicalStatusOptions[0];
+    this.selectedVerificationStatus = this.verificationStatusOptions[0];
+    this.selectedIntoleranceType = null;
+    this.selectedIntoleranceCategories = [];
+    this.selectedIntoleranceCategoriesControl = new FormControl(this.selectedIntoleranceCategories);
+    this.selectedCriticality = null;
+    this.selectedSeverity = {};
+    this.selectedCode = null;
+    this.selectedCodeTerm = "";
+    this.recordPropensity = false;
+    this.selectedSubstanceTerm = "";
+    this.selectedReactionManifestation = null;
+    this.selectedReactionManifestationTerm = " ";
+    this.selectedRoute = null;
+    this.selectedRouteTerm = " ";
+    this.outputAllergy = JSON.parse(JSON.stringify(this.outputAllergyBase));
+    this.updateAllergyStr();
+    setTimeout(() => {
+      this.selectedReactionManifestationTerm = "";
+      this.selectedRouteTerm = "";
+    }
+    , 100);
+    console.log('selectedReactionManifestationTerm',this.selectedReactionManifestationTerm);
+  }
+
   updateAllergyStr() {
     this.outputAllergy.clinicalStatus.coding = [this.selectedClinicalStatus];
     this.outputAllergy.verificationStatus.coding = [this.selectedVerificationStatus];
     this.outputAllergy.type = (this.selectedIntoleranceType) ? this.selectedIntoleranceType.fhirCode : '';
     this.outputAllergy.category = (this.selectedIntoleranceCategories.length) ? this.selectedIntoleranceCategories.map((option: any) => option.display) : [];
     this.outputAllergy.criticality = (this.selectedCriticality?.code) ? [this.selectedCriticality.code] : {};
-    this.outputAllergy.reaction[0].severity = this.selectedSeverity.code;
+    this.outputAllergy.reaction[0].severity = (this.selectedSeverity?.code) ? [this.selectedSeverity.code] : "";
     setTimeout(() => {
-      this.outputAllergyStr = JSON.stringify(this.outputAllergy, null, 2);
-    }
-    , 100);
+        this.outputAllergyStr = JSON.stringify(this.outputAllergy, null, 2);
+      }
+      , 100);
   }
 
   async substanceSelected(substance: any, clear?: boolean) {

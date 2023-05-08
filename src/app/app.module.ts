@@ -31,6 +31,7 @@ import { AllergiesAllergyListComponent } from './allergies-allergy-list/allergie
 import {MatTooltipModule} from '@angular/material/tooltip';
 
 import { HighlightJsModule } from 'ngx-highlight-js';
+import { AllergiesAllergyListReactionComponent } from './allergies-allergy-list/allergies-allergy-list-reaction/allergies-allergy-list-reaction.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { HighlightJsModule } from 'ngx-highlight-js';
     AutocompleteBindingComponent,
     AllergiesComponent,
     AllergiesProblemListComponent,
-    AllergiesAllergyListComponent
+    AllergiesAllergyListComponent,
+    AllergiesAllergyListReactionComponent,
   ],
   imports: [
     HttpClientModule,

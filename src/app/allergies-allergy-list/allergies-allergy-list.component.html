@@ -2,6 +2,7 @@
     <div class="row">
         <div class="column">
             <h4>Allergy Intolerance Form</h4>
+            <button mat-flat-button color="accent" (click)="clear()" id="clear">Clear</button>
             <div class="row-centered">
                 <div class="smallest-form-field">
                     <app-autocomplete-binding [label]="codeLabel" [binding]="codeEcl" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm"></app-autocomplete-binding>
@@ -52,7 +53,8 @@
                 <mat-menu #substancePopoverMenu="matMenu" >
                     <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
                         <p>Terminology binding:</p>
-                        <pre>{{ substanceEcl }}</pre>
+                        <pre *ngIf="!recordPropensity">{{ substanceEcl }}</pre>
+                        <pre *ngIf="recordPropensity">{{ refinedSubstanceEcl }}</pre>
                     </span>
                 </mat-menu>
             </div>
@@ -70,10 +72,14 @@
                     </mat-select>
                 </mat-form-field>
             </div>
+            <!-- Support for multiple reactions in development
+                <app-allergies-allergy-list-reaction [(ngModel)]="outputAllergy.reaction[0]" (ngModelChange)="updateReaction()"></app-allergies-allergy-list-reaction> 
+            -->
             <div class="reaction">
                 <div class="row-centered">
                     <div class="small-form-field">
-                        <app-autocomplete-binding [label]="reactionManifestationLabel" [binding]="reactionManifestationEcl" (selectionChange)="reactionManifestationSelected($event)"></app-autocomplete-binding>
+                        <app-autocomplete-binding [label]="reactionManifestationLabel" [binding]="reactionManifestationEcl" [term]="selectedReactionManifestationTerm"
+                        (selectionChange)="reactionManifestationSelected($event)"></app-autocomplete-binding>
                     </div>
                     <button mat-icon-button color="primary" [matMenuTriggerFor]="reactionPopoverMenu">
                         <mat-icon>info</mat-icon>
@@ -93,7 +99,8 @@
                 </mat-form-field>
                 <div class="row-centered">
                     <div class="small-form-field">
-                        <app-autocomplete-binding [label]="routeLabel" [binding]="routeEcl" (selectionChange)="routeSelected($event)"></app-autocomplete-binding>
+                        <app-autocomplete-binding [label]="routeLabel" [binding]="routeEcl" [term]="selectedRouteTerm"
+                        (selectionChange)="routeSelected($event)"></app-autocomplete-binding>
                     </div>
                     <button mat-icon-button color="primary" [matMenuTriggerFor]="routePopoverMenu">
                         <mat-icon>info</mat-icon>

@@ -17,7 +17,6 @@
 }
   
 .column {
-    position: relative;
     flex: 1;
     margin: 5px; /* Half of the gap */
     box-sizing: border-box;
@@ -77,10 +76,4 @@ pre > code {
     right: 0;
     top: 0;
     color: rgb(232, 140, 21);
-}
-
-#clear {
-    position: absolute;
-    right: 20px;
-    top: 20px;
 }
