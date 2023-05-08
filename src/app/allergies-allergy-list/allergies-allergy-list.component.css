@@ -52,6 +52,12 @@
     padding-top: 0; /* Reduce the top padding for outlined fields */
 }
 
+.reaction {
+    border-radius: 10px;
+    background-color: #a9bee9;
+    padding: 10px;
+}
+
 #output {
     border-radius: 10px;
     background-color: #282c34;
