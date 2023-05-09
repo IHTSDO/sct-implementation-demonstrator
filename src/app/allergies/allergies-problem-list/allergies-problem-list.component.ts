@@ -1,7 +1,7 @@
 import { DataSource } from '@angular/cdk/collections';
 import { Component } from '@angular/core';
 import { ReplaySubject, Observable, lastValueFrom, map } from 'rxjs';
-import { TerminologyService } from '../services/terminology.service';
+import { TerminologyService } from '../../services/terminology.service';
 
 const ELEMENT_DATA: any[] = [];
 const ELEMENT_DATA2: any[] = [];

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { HighlightJsDirective } from 'ngx-highlight-js';
-import { TerminologyService } from '../services/terminology.service';
+import { TerminologyService } from '../../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { saveAs } from 'file-saver';
@@ -217,7 +217,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
   }
 
   async codeSelected(code: any) {
-    code.system = 'http://snomed.info/sct';
+    code = Object.assign({ system: 'http://snomed.info/sct' }, code);
     if (code) {
       this.selectedCodeTerm = code.display;
       this.selectedCode = code;

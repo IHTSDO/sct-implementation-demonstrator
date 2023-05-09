@@ -26,12 +26,12 @@ import { LoadingDialogComponent } from './alerts/loading-dialog.component';
 import { AutocompleteBindingComponent } from './autocomplete-binding/autocomplete-binding.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AllergiesComponent } from './allergies/allergies.component';
-import { AllergiesProblemListComponent } from './allergies-problem-list/allergies-problem-list.component';
-import { AllergiesAllergyListComponent } from './allergies-allergy-list/allergies-allergy-list.component';
+import { AllergiesProblemListComponent } from './allergies/allergies-problem-list/allergies-problem-list.component';
+import { AllergiesAllergyListComponent } from './allergies/allergies-allergy-list/allergies-allergy-list.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 
 import { HighlightJsModule } from 'ngx-highlight-js';
-import { AllergiesAllergyListReactionComponent } from './allergies-allergy-list/allergies-allergy-list-reaction/allergies-allergy-list-reaction.component';
+import { AllergiesAllergyListReactionComponent } from './allergies/allergies-allergy-list/allergies-allergy-list-reaction/allergies-allergy-list-reaction.component';
 
 @NgModule({
   declarations: [
