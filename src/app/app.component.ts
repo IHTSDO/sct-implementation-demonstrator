@@ -24,8 +24,8 @@ export class AppComponent {
   selectedServer = this.fhirServers[2];
 
   demos = [
-    "Bindings Sandbox",
-    "Allergies"
+    "Allergies",
+    "Bindings Sandbox"
   ];
   selectedDemo = this.demos[0];
 
