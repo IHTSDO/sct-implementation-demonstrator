@@ -1,0 +1,45 @@
+#main-panel {
+    padding: 10px;
+}
+
+h3 {
+    margin-top: 0px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px; /* Half of the gap */
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.grow {
+    flex-grow: 4; /* default 0 */
+}
+
+.input-field {
+    width: calc(50% - 5px);
+}
+
+mat-hint, mat-error {
+    font-size: 12px;
+}
+
+.editPanel {
+    width: 70%;
+    margin: 5px;
+    margin-bottom: 25px;
+    padding: 10px;
+    border: 1px solid #cccccc00;
+    border-radius: 5px;
+    background-color: #a0c8e5;
+}
+
+.control {
+    margin-bottom: 30px;
+}
+
+.output-panel {
+    width: 60%;
+}

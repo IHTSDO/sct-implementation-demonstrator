@@ -24,8 +24,8 @@ export class AppComponent {
   selectedServer = this.fhirServers[2];
 
   demos = [
-    "Allergies",
-    "Epilepsy"
+    "Bindings Sandbox",
+    "Allergies"
   ];
   selectedDemo = this.demos[0];
 

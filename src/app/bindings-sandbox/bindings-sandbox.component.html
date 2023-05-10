@@ -1,0 +1,80 @@
+<div id="main-panel">
+    <h3>Terminology Bindings Sandbox
+        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+            <mat-icon>info</mat-icon>
+        </button>
+        <mat-menu #substancePopoverMenu="matMenu" >
+            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+                <h4>Terminology Bindings Sandbox</h4>
+                <p>This is a sandbox for creating terminology bindings, designed to support education activities.</p>
+            </span>
+        </mat-menu>
+    </h3>
+    <mat-expansion-panel (opened)="panelOpenState = true"
+                       (closed)="panelOpenState = false" class="editPanel" #newPanel>
+        <mat-expansion-panel-header>
+        <mat-panel-title>
+            <h4>New binding:</h4>
+        </mat-panel-title>
+        <mat-panel-description *ngIf="!panelOpenState">
+            Click to add new binding
+        </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div>
+            <form [formGroup]="newBindingForm" class="row">
+                <mat-form-field class="input-field">
+                    <mat-label>Title</mat-label>
+                    <input matInput type="text" formControlName="title" placeholder="Enter title...">
+                    <button *ngIf="newBindingForm.get('title')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('title')?.reset()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                    <mat-error>{{ getErrorMessage('title')}}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="input-field">
+                    <mat-label>Type</mat-label>
+                    <mat-select formControlName="type">
+                        <mat-option *ngFor="let type of controlTypes" [value]="type">
+                            {{type}}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error>{{ getErrorMessage('type')}}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="input-field">
+                    <mat-label>ECL Expression</mat-label>
+                    <input matInput type="text" formControlName="ecl" placeholder="Enter ECL...">
+                    <button *ngIf="newBindingForm.get('ecl')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('ecl')?.reset()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                    <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="input-field">
+                    <mat-label>Note</mat-label>
+                    <input matInput type="text" formControlName="note" placeholder="Enter a description...">
+                    <button *ngIf="newBindingForm.get('note')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('note')?.reset()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                    <mat-error>{{ getErrorMessage('note')}}</mat-error>
+                </mat-form-field>
+            </form>
+            <br>
+            <div class="row">
+                <span class="grow"></span>
+                <button mat-flat-button color="primary" (click)="addBinding()">Add binding</button>
+            </div>
+        </div>
+    </mat-expansion-panel>
+    <div *ngFor="let binding of bindings" class="output-panel">
+        <div class="row control" *ngIf="binding.type == 'Autocomplete'">
+            <app-autocomplete-binding [binding]="binding.ecl" [label]="binding.title" [hint]="binding.note" class="grow"></app-autocomplete-binding>
+            <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+                <mat-icon>info</mat-icon>
+            </button>
+            <mat-menu #substancePopoverMenu="matMenu" >
+                <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+                    <h4>Terminology binding</h4>
+                    <pre>{{ binding.ecl }}</pre>
+                </span>
+            </mat-menu>
+        </div>
+    </div>
+</div>

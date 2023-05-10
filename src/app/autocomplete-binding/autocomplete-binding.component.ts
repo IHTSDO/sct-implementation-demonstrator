@@ -13,6 +13,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges {
   @Input() binding: any;
   @Input() term: string = "";
   @Input() label: string = "";
+  @Input() hint: string = "";
   @Output() selectionChange = new EventEmitter<any>();
   
   formControl = new UntypedFormControl();

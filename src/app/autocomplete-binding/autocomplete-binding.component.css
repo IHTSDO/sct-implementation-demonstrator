@@ -43,3 +43,7 @@ mat-form-field {
     margin-left: 10px;
     color: seagreen;
 }
+
+mat-hint {
+    font-size: 12px;
+}

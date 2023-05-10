@@ -20,6 +20,8 @@ import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -28,10 +30,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AllergiesComponent } from './allergies/allergies.component';
 import { AllergiesProblemListComponent } from './allergies/allergies-problem-list/allergies-problem-list.component';
 import { AllergiesAllergyListComponent } from './allergies/allergies-allergy-list/allergies-allergy-list.component';
-import {MatTooltipModule} from '@angular/material/tooltip';
 
 import { HighlightJsModule } from 'ngx-highlight-js';
 import { AllergiesAllergyListReactionComponent } from './allergies/allergies-allergy-list/allergies-allergy-list-reaction/allergies-allergy-list-reaction.component';
+import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +44,7 @@ import { AllergiesAllergyListReactionComponent } from './allergies/allergies-all
     AllergiesProblemListComponent,
     AllergiesAllergyListComponent,
     AllergiesAllergyListReactionComponent,
+    BindingsSandboxComponent,
   ],
   imports: [
     HttpClientModule,
@@ -66,7 +69,8 @@ import { AllergiesAllergyListReactionComponent } from './allergies/allergies-all
     MatSelectModule,
     FormsModule,
     MatTooltipModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatExpansionModule
   ],
   providers: [],
   bootstrap: [AppComponent]

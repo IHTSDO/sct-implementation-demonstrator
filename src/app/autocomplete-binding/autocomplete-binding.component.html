@@ -2,6 +2,7 @@
   <mat-label *ngIf="label">{{ label }}</mat-label>
   <input type="text" placeholder="{{'Search...'}}" matInput [formControl]="formControl" [matAutocomplete]="auto"
   [value]="(formControl.value?.display) ? formControl.value.display : ''">
+  <mat-hint>{{ hint }}</mat-hint>
   <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()" *ngIf="formControl.value">
     <mat-icon>close</mat-icon>
   </button>
