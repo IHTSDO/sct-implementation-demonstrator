@@ -57,24 +57,19 @@ export class AllergiesAllergyListComponent  implements OnInit {
   ];
   selectedSeverity: any = {};
 
-  codeEcl = '<<418038007 |Propensity to adverse reactions to substance|';
-  codeLabel = 'Allergy/Intolerance by propensity';
+  codeBinding = { ecl: '<<418038007 |Propensity to adverse reactions to substance|', title: 'Allergy/Intolerance by propensity' };
   selectedCode: any = null;
   selectedCodeTerm = "";
   recordPropensity = false;
 
-  substanceEcl = '<<105590001 | Substance (substance) | OR <<373873005 | Pharmaceutical / biologic product (product) |';
-  refinedSubstanceEcl = '<<105590001 | Substance (substance) |';
-  substanceLabel = 'Allergy/Intolerance substance or product';
-  refinedSubstanceLabel = 'Allergy/Intolerance substance based on propensity';
+  substanceBinding = { ecl: '<<105590001 | Substance (substance) | OR <<373873005 | Pharmaceutical / biologic product (product) |', title: 'Allergy/Intolerance substance or product' };
+  refinedSubstanceBinding = { ecl: '<<105590001 | Substance (substance) |', title: 'Allergy/Intolerance substance based on propensity' };
   selectedSubstanceTerm = "";
 
-  reactionManifestationEcl = '<<404684003 |Clinical finding|';
-  reactionManifestationLabel = 'Reaction Manifestation';
+  reactionManifestationBinding = { ecl: '<<404684003 |Clinical finding|', title: 'Reaction Manifestation' };
   selectedReactionManifestation: any = null;
   selectedReactionManifestationTerm = "";
-  routeEcl = '<<284009009 |Route of administration value|';
-  routeLabel = 'Exposure Route';
+  routeBinding = { ecl: '<<284009009 |Route of administration value|', title: 'Exposure Route' };
   selectedRoute: any = null;
   selectedRouteTerm = "";
 
@@ -237,11 +232,11 @@ export class AllergiesAllergyListComponent  implements OnInit {
       }
       if (res.expansion?.contains) {
         const substance = res.expansion?.contains[0];
-        this.refinedSubstanceEcl =`<<${substance.code} | ${substance.display} |`;
+        this.refinedSubstanceBinding.ecl =`<<${substance.code} | ${substance.display} |`;
         this.substanceSelected(substance);
         this.selectedSubstanceTerm = substance.display;
       } else {
-        this.refinedSubstanceEcl = '<<105590001 | Substance (substance) |';
+        this.refinedSubstanceBinding.ecl = '<<105590001 | Substance (substance) |';
       }
     }
   }

@@ -39,7 +39,7 @@ export class BindingsSandboxComponent {
   indexInEdit = -1;
   panelOpenState = false;
 
-  controlTypes = ['Autocomplete', 'Select', 'Text'];
+  controlTypes = ['Autocomplete', 'Select (Single)'];
 
   addBinding() {
     this.newBindingForm.markAllAsTouched();

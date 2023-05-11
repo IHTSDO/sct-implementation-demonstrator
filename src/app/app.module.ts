@@ -35,6 +35,7 @@ import { AllergiesAllergyListComponent } from './allergies/allergies-allergy-lis
 import { HighlightJsModule } from 'ngx-highlight-js';
 import { AllergiesAllergyListReactionComponent } from './allergies/allergies-allergy-list/allergies-allergy-list-reaction/allergies-allergy-list-reaction.component';
 import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.component';
+import { DropdownBindingComponent } from './dropdown-binding/dropdown-binding.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.co
     AllergiesAllergyListComponent,
     AllergiesAllergyListReactionComponent,
     BindingsSandboxComponent,
+    DropdownBindingComponent
   ],
   imports: [
     HttpClientModule,

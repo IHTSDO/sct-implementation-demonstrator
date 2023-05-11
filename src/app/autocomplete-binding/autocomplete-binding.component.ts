@@ -12,8 +12,6 @@ import { TerminologyService } from '../services/terminology.service';
 export class AutocompleteBindingComponent implements OnInit, OnChanges {
   @Input() binding: any;
   @Input() term: string = "";
-  @Input() label: string = "";
-  @Input() hint: string = "";
   @Output() selectionChange = new EventEmitter<any>();
   
   formControl = new UntypedFormControl();
@@ -35,7 +33,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges {
       switchMap((term: string) =>  {
         if (term?.length >= 3) {
           this.loading = true;
-          let response = this.terminologyService.expandValueSet(this.binding, term, 0, 50)
+          let response = this.terminologyService.expandValueSet(this.binding.ecl, term, 0, 50)
           return response;
         } else {
           return of([]);

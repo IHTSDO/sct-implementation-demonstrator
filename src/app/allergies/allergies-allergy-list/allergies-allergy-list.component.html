@@ -5,7 +5,7 @@
             <button mat-flat-button color="accent" (click)="clear()" id="clear">Clear</button>
             <div class="row-centered">
                 <div class="smallest-form-field">
-                    <app-autocomplete-binding [label]="codeLabel" [binding]="codeEcl" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm"></app-autocomplete-binding>
+                    <app-autocomplete-binding [binding]="codeBinding" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm"></app-autocomplete-binding>
                 </div>
                 <button mat-icon-button color="primary" [matMenuTriggerFor]="codePopoverMenu">
                     <mat-icon>info</mat-icon>
@@ -13,7 +13,7 @@
                 <mat-menu #codePopoverMenu="matMenu" >
                     <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
                         <p>Terminology binding:</p>
-                        <pre>{{ codeEcl }}</pre>
+                        <pre>{{ codeBinding.ecl }}</pre>
                     </span>
                 </mat-menu>
                 <mat-slide-toggle [(ngModel)]="recordPropensity" (click)="propensityRecordChanged()" matTooltip="Defines wether to use a propensity based model or a substance based model. Defines which one is recorded in the code element of the AllergyIntolerance resource.">
@@ -42,9 +42,9 @@
             </div>
             <div class="row-centered">
                 <div class="small-form-field">
-                    <app-autocomplete-binding [label]="substanceLabel" [binding]="substanceEcl" (selectionChange)="substanceSelected($event, true)" 
+                    <app-autocomplete-binding [binding]="substanceBinding" (selectionChange)="substanceSelected($event, true)" 
                     [term]="selectedSubstanceTerm" *ngIf="!recordPropensity"></app-autocomplete-binding>
-                    <app-autocomplete-binding [label]="refinedSubstanceLabel" [binding]="refinedSubstanceEcl" (selectionChange)="substanceSelected($event)" 
+                    <app-autocomplete-binding [binding]="refinedSubstanceBinding" (selectionChange)="substanceSelected($event)" 
                     [term]="selectedSubstanceTerm" *ngIf="recordPropensity"></app-autocomplete-binding>
                 </div>
                 <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
@@ -53,8 +53,8 @@
                 <mat-menu #substancePopoverMenu="matMenu" >
                     <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
                         <p>Terminology binding:</p>
-                        <pre *ngIf="!recordPropensity">{{ substanceEcl }}</pre>
-                        <pre *ngIf="recordPropensity">{{ refinedSubstanceEcl }}</pre>
+                        <pre *ngIf="!recordPropensity">{{ substanceBinding.ecl }}</pre>
+                        <pre *ngIf="recordPropensity">{{ refinedSubstanceBinding.ecl }}</pre>
                     </span>
                 </mat-menu>
             </div>
@@ -78,7 +78,7 @@
             <div class="reaction">
                 <div class="row-centered">
                     <div class="small-form-field">
-                        <app-autocomplete-binding [label]="reactionManifestationLabel" [binding]="reactionManifestationEcl" [term]="selectedReactionManifestationTerm"
+                        <app-autocomplete-binding [binding]="reactionManifestationBinding" [term]="selectedReactionManifestationTerm"
                         (selectionChange)="reactionManifestationSelected($event)"></app-autocomplete-binding>
                     </div>
                     <button mat-icon-button color="primary" [matMenuTriggerFor]="reactionPopoverMenu">
@@ -87,7 +87,7 @@
                     <mat-menu #reactionPopoverMenu="matMenu" >
                         <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
                             <p>Terminology binding:</p>
-                            <pre>{{ reactionManifestationEcl }}</pre>
+                            <pre>{{ reactionManifestationBinding.ecl }}</pre>
                         </span>
                     </mat-menu>
                 </div>
@@ -99,7 +99,7 @@
                 </mat-form-field>
                 <div class="row-centered">
                     <div class="small-form-field">
-                        <app-autocomplete-binding [label]="routeLabel" [binding]="routeEcl" [term]="selectedRouteTerm"
+                        <app-autocomplete-binding [binding]="routeBinding" [term]="selectedRouteTerm"
                         (selectionChange)="routeSelected($event)"></app-autocomplete-binding>
                     </div>
                     <button mat-icon-button color="primary" [matMenuTriggerFor]="routePopoverMenu">
@@ -108,7 +108,7 @@
                     <mat-menu #routePopoverMenu="matMenu" >
                         <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
                             <p>Terminology binding:</p>
-                            <pre>{{ routeEcl }}</pre>
+                            <pre>{{ routeBinding.ecl }}</pre>
                         </span>
                     </mat-menu>
                 </div>

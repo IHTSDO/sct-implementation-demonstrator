@@ -68,7 +68,7 @@
         <div *ngFor="let binding of bindings; let i = index" class="output-panel" cdkDrag>
             <div class="row control" *ngIf="binding.type == 'Autocomplete'">
                 <mat-icon cdkDragHandle class="tool drag-handle">drag_indicator</mat-icon>
-                <app-autocomplete-binding [binding]="binding.ecl" [label]="binding.title" [hint]="binding.note" class="grow"></app-autocomplete-binding>
+                <app-autocomplete-binding [binding]="binding" class="grow"></app-autocomplete-binding>
                 <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
                     <mat-icon>info</mat-icon>
                 </button>
