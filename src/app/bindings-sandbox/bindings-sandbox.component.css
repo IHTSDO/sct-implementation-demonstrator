@@ -43,3 +43,13 @@ mat-hint, mat-error {
 .output-panel {
     width: 60%;
 }
+
+.row .tool {
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.row:hover .tool {
+    opacity: 1;
+}
+  

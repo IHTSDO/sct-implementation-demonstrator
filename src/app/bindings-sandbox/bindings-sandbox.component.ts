@@ -12,7 +12,14 @@ export class BindingsSandboxComponent {
 
   bindings: any[] = [
     {
-      title: 'Diagnosis',
+      title: 'Diagnosis 1',
+      type: 'Autocomplete',
+      ecl: `<< 404684003 |Clinical finding (finding)|`,
+      value: '',
+      note: 'The diagnosis for the clinical encounter.'
+    },
+    {
+      title: 'Diagnosis 2',
       type: 'Autocomplete',
       ecl: `<< 404684003 |Clinical finding (finding)|`,
       value: '',
@@ -28,6 +35,7 @@ export class BindingsSandboxComponent {
     note: new FormControl('', [Validators.maxLength(500)])
   });
 
+  indexInEdit = -1;
   panelOpenState = false;
 
   controlTypes = ['Autocomplete', 'Select', 'Text'];
@@ -38,15 +46,34 @@ export class BindingsSandboxComponent {
       return;
     }
     const { title, type, ecl, value, note } = this.newBindingForm.controls;
-    this.bindings.push({
+    let binding = {
       title: title.value,
       type: type.value,
       ecl: ecl.value,
       value: value.value,
       note: note.value
-    });
+    }
+    if (this.indexInEdit > -1) {
+      this.bindings[this.indexInEdit] = binding;
+    } else {
+      this.bindings.push(binding);
+    }
     this.newBindingForm.reset();
     this.newPanel.close();
+    this.indexInEdit = -1;
+  }
+
+  edit(i: number) {
+    this.indexInEdit = i;
+    const binding = this.bindings[i];
+    this.newBindingForm.setValue({
+      title: binding.title,
+      type: binding.type,
+      ecl: binding.ecl,
+      value: binding.value,
+      note: binding.note
+    });
+    this.newPanel.open();
   }
 
   getErrors(controlName: string) {

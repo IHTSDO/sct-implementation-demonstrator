@@ -59,22 +59,29 @@
             <br>
             <div class="row">
                 <span class="grow"></span>
-                <button mat-flat-button color="primary" (click)="addBinding()">Add binding</button>
+                <button mat-flat-button color="primary" (click)="addBinding()" *ngIf="indexInEdit == -1">Add binding</button>
+                <button mat-flat-button color="primary" (click)="addBinding()" *ngIf="indexInEdit > -1">Update binding</button>
             </div>
         </div>
     </mat-expansion-panel>
-    <div *ngFor="let binding of bindings" class="output-panel">
+    <div *ngFor="let binding of bindings; let i = index" class="output-panel">
         <div class="row control" *ngIf="binding.type == 'Autocomplete'">
             <app-autocomplete-binding [binding]="binding.ecl" [label]="binding.title" [hint]="binding.note" class="grow"></app-autocomplete-binding>
             <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
                 <mat-icon>info</mat-icon>
             </button>
-            <mat-menu #substancePopoverMenu="matMenu" >
+            <mat-menu #substancePopoverMenu="matMenu">
                 <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
                     <h4>Terminology binding</h4>
                     <pre>{{ binding.ecl }}</pre>
                 </span>
             </mat-menu>
+            <button mat-icon-button color="primary" (click)="bindings.splice(i,1)" class="tool">
+                <mat-icon>delete</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" (click)="edit(i)" class="tool">
+                <mat-icon>edit</mat-icon>
+            </button>
         </div>
     </div>
 </div>

@@ -27,7 +27,7 @@ export class AppComponent {
     "Allergies",
     "Bindings Sandbox"
   ];
-  selectedDemo = this.demos[0];
+  selectedDemo = this.demos[1];
 
   constructor( private codingSpecService: CodingSpecService, public excelService: ExcelService, private terminologyService: TerminologyService ) { }
 
