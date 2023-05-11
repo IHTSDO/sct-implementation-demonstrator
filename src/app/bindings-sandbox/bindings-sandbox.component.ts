@@ -1,3 +1,4 @@
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatExpansionPanel } from '@angular/material/expansion';
@@ -76,6 +77,10 @@ export class BindingsSandboxComponent {
     this.newPanel.open();
   }
 
+  onDrop(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.bindings, event.previousIndex, event.currentIndex);
+  }
+  
   getErrors(controlName: string) {
     const control = this.newBindingForm.get(controlName);
     if (control) {

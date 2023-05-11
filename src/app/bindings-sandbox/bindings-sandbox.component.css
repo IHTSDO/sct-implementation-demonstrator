@@ -10,7 +10,7 @@ h3 {
     display: flex;
     flex-wrap: wrap;
     margin: -5px; /* Half of the gap */
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
 }
 
@@ -51,5 +51,10 @@ mat-hint, mat-error {
 
 .row:hover .tool {
     opacity: 1;
+}
+
+.drag-handle {
+    cursor: move;
+    color: #616161;
 }
   

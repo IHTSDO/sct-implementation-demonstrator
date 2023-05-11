@@ -64,24 +64,27 @@
             </div>
         </div>
     </mat-expansion-panel>
-    <div *ngFor="let binding of bindings; let i = index" class="output-panel">
-        <div class="row control" *ngIf="binding.type == 'Autocomplete'">
-            <app-autocomplete-binding [binding]="binding.ecl" [label]="binding.title" [hint]="binding.note" class="grow"></app-autocomplete-binding>
-            <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
-                <mat-icon>info</mat-icon>
-            </button>
-            <mat-menu #substancePopoverMenu="matMenu">
-                <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
-                    <h4>Terminology binding</h4>
-                    <pre>{{ binding.ecl }}</pre>
-                </span>
-            </mat-menu>
-            <button mat-icon-button color="primary" (click)="bindings.splice(i,1)" class="tool">
-                <mat-icon>delete</mat-icon>
-            </button>
-            <button mat-icon-button color="primary" (click)="edit(i)" class="tool">
-                <mat-icon>edit</mat-icon>
-            </button>
+    <div cdkDropList (cdkDropListDropped)="onDrop($event)">
+        <div *ngFor="let binding of bindings; let i = index" class="output-panel" cdkDrag>
+            <div class="row control" *ngIf="binding.type == 'Autocomplete'">
+                <mat-icon cdkDragHandle class="tool drag-handle">drag_indicator</mat-icon>
+                <app-autocomplete-binding [binding]="binding.ecl" [label]="binding.title" [hint]="binding.note" class="grow"></app-autocomplete-binding>
+                <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+                    <mat-icon>info</mat-icon>
+                </button>
+                <mat-menu #substancePopoverMenu="matMenu">
+                    <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+                        <h4>Terminology binding</h4>
+                        <pre>{{ binding.ecl }}</pre>
+                    </span>
+                </mat-menu>
+                <button mat-icon-button color="primary" (click)="bindings.splice(i,1)" class="tool">
+                    <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="edit(i)" class="tool">
+                    <mat-icon>edit</mat-icon>
+                </button>
+            </div>
         </div>
     </div>
 </div>

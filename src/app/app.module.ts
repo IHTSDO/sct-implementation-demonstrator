@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
@@ -52,6 +53,7 @@ import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.co
     HighlightJsModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    DragDropModule,
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
