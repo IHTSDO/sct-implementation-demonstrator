@@ -1,6 +1,6 @@
-<mat-form-field appearance="fill">
+<mat-form-field>
     <mat-label>{{ binding.title }}</mat-label>
-    <mat-select>
+    <mat-select [multiple]="binding.type == 'Select (Multiple)'">
       <mat-option *ngFor="let item of options" [value]="item.code">
         {{item.display}}
       </mat-option>

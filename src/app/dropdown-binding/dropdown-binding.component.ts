@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { TerminologyService } from '../services/terminology.service';
 
 @Component({
@@ -12,7 +11,7 @@ export class DropdownBindingComponent implements OnInit {
 
   options: any[] | undefined;
 
-  constructor(private terminologyService: TerminologyService, public dialog: MatDialog) { }
+  constructor(private terminologyService: TerminologyService) { }
 
   ngOnInit(): void {
     this.terminologyService.expandValueSet(this.binding.ecl, '').subscribe(response => this.options = response.expansion.contains)

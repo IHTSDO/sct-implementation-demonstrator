@@ -2,6 +2,8 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatExpansionPanel } from '@angular/material/expansion';
+import { TerminologyService } from '../services/terminology.service';
+import { lastValueFrom, map } from 'rxjs';
 
 @Component({
   selector: 'app-bindings-sandbox',
@@ -12,20 +14,27 @@ export class BindingsSandboxComponent {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
 
   bindings: any[] = [
-    {
-      title: 'Diagnosis 1',
-      type: 'Autocomplete',
-      ecl: `<< 404684003 |Clinical finding (finding)|`,
-      value: '',
-      note: 'The diagnosis for the clinical encounter.'
-    },
-    {
-      title: 'Diagnosis 2',
-      type: 'Autocomplete',
-      ecl: `<< 404684003 |Clinical finding (finding)|`,
-      value: '',
-      note: 'The diagnosis for the clinical encounter.'
-    }
+    // {
+    //   title: 'Diagnosis 1',
+    //   type: 'Autocomplete',
+    //   ecl: `<< 404684003 |Clinical finding (finding)|`,
+    //   value: '',
+    //   note: 'The diagnosis for the clinical encounter.'
+    // },
+    // {
+    //   title: 'Appendicitis type',
+    //   type: 'Select (Single)',
+    //   ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
+    //   value: '',
+    //   note: 'The type of appendicitis.'
+    // },
+    // {
+    //   title: 'Appendicitis type (M)',
+    //   type: 'Select (Multiple)',
+    //   ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
+    //   value: '',
+    //   note: 'The type of appendicitis.'
+    // }
   ];
 
   newBindingForm = new FormGroup({
@@ -38,10 +47,13 @@ export class BindingsSandboxComponent {
 
   indexInEdit = -1;
   panelOpenState = false;
+  maxSelectCount = 15;
 
-  controlTypes = ['Autocomplete', 'Select (Single)'];
+  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)'];
 
-  addBinding() {
+  constructor(private terminologyService: TerminologyService) { }
+
+  async addBinding() {
     this.newBindingForm.markAllAsTouched();
     if (this.newBindingForm.invalid) {
       return;
@@ -54,6 +66,19 @@ export class BindingsSandboxComponent {
       value: value.value,
       note: note.value
     }
+    let errors = false;
+    if (ecl.value) {
+        if (typeof binding.type?.indexOf('Select') !== 'undefined' && binding.type?.indexOf('Select') > -1) {
+          let results = await this.getEclPreview(ecl.value);
+          if (results.expansion.contains.length > this.maxSelectCount) {
+            errors = true;
+            ecl.setErrors({ tooManyResults: true });
+          }
+        }
+      }
+    if (errors) {
+      return;
+    }
     if (this.indexInEdit > -1) {
       this.bindings[this.indexInEdit] = binding;
     } else {
@@ -62,6 +87,11 @@ export class BindingsSandboxComponent {
     this.newBindingForm.reset();
     this.newPanel.close();
     this.indexInEdit = -1;
+  }
+
+  async getEclPreview(ecl: string): Promise<any> {
+    const response = await this.terminologyService.expandValueSet(ecl, '');
+    return lastValueFrom(response.pipe(map(res => res)));
   }
 
   edit(i: number) {
@@ -97,6 +127,9 @@ export class BindingsSandboxComponent {
       }
       if (errors['maxlength']) {
         return `This field must be less than ${errors['maxlength'].requiredLength} characters`;
+      }
+      if (errors['tooManyResults']) {
+        return `Too many results (Max = ${ this.maxSelectCount })`;
       }
     }
     return null;

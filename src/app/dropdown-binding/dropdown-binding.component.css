@@ -38,3 +38,7 @@ mat-form-field {
     font-weight: lighter;
     margin-right: 15px;
 }
+
+mat-hint {
+    font-size: 12px;
+}
