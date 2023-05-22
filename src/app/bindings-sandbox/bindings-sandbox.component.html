@@ -68,9 +68,11 @@
         <div *ngFor="let binding of bindings; let i = index" class="output-panel" cdkDrag>
             <div class="row control">
                 <mat-icon cdkDragHandle class="tool drag-handle">drag_indicator</mat-icon>
-                <app-autocomplete-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Autocomplete'"></app-autocomplete-binding>
-                <app-dropdown-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Select (Single)' || binding.type == 'Select (Multiple)'"></app-dropdown-binding>
-                <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+                <app-autocomplete-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Autocomplete'" (selectionChange)="optionSelected(binding.title, $event)"></app-autocomplete-binding>
+                <app-dropdown-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Select (Single)' || binding.type == 'Select (Multiple)'" (selectionChange)="optionSelected(binding.title, $event)"></app-dropdown-binding>
+                <app-radios-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Options'" (selectionChange)="optionSelected(binding.title, $event)"></app-radios-binding>
+                <span class="title grow" *ngIf="binding.type == 'Title'">{{ binding.title }}</span>
+                <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Title'">
                     <mat-icon>info</mat-icon>
                 </button>
                 <mat-menu #substancePopoverMenu="matMenu">

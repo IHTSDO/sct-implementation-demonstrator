@@ -14,33 +14,47 @@ export class BindingsSandboxComponent {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
 
   bindings: any[] = [
-    // {
-    //   title: 'Diagnosis 1',
-    //   type: 'Autocomplete',
-    //   ecl: `<< 404684003 |Clinical finding (finding)|`,
-    //   value: '',
-    //   note: 'The diagnosis for the clinical encounter.'
-    // },
-    // {
-    //   title: 'Appendicitis type',
-    //   type: 'Select (Single)',
-    //   ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
-    //   value: '',
-    //   note: 'The type of appendicitis.'
-    // },
-    // {
-    //   title: 'Appendicitis type (M)',
-    //   type: 'Select (Multiple)',
-    //   ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
-    //   value: '',
-    //   note: 'The type of appendicitis.'
-    // }
+    {
+      title: 'Clinical data entry form',
+      type: 'Title',
+      ecl: ``,
+      value: '',
+      note: ''
+    },
+    {
+      title: 'Diagnosis 1',
+      type: 'Autocomplete',
+      ecl: `<< 404684003 |Clinical finding (finding)|`,
+      value: '',
+      note: 'The diagnosis for the clinical encounter.'
+    },
+    {
+      title: 'Appendicitis type',
+      type: 'Select (Single)',
+      ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
+      value: '',
+      note: 'The type of appendicitis.'
+    },
+    {
+      title: 'Appendicitis type (M)',
+      type: 'Select (Multiple)',
+      ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
+      value: '',
+      note: 'The type of appendicitis.'
+    },
+    {
+      title: 'Appendicectomy type',
+      type: 'Options',
+      ecl: `<< 174036004 |Emergency appendectomy (procedure)|`,
+      value: '',
+      note: 'The type of appendicectomy.'
+    }
   ];
 
   newBindingForm = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.maxLength(50)]),
     type: new FormControl('', [Validators.required]),
-    ecl: new FormControl('', [Validators.required]),
+    ecl: new FormControl('', []),
     value: new FormControl('', []),
     note: new FormControl('', [Validators.maxLength(500)])
   });
@@ -48,8 +62,9 @@ export class BindingsSandboxComponent {
   indexInEdit = -1;
   panelOpenState = false;
   maxSelectCount = 15;
+  maxOptionsCount = 5;
 
-  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)'];
+  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Title'];
 
   constructor(private terminologyService: TerminologyService) { }
 
@@ -72,10 +87,19 @@ export class BindingsSandboxComponent {
           let results = await this.getEclPreview(ecl.value);
           if (results.expansion.contains.length > this.maxSelectCount) {
             errors = true;
-            ecl.setErrors({ tooManyResults: true });
+            ecl.setErrors({ selectTooManyResults: true });
+          }
+        } else if (typeof binding.type?.indexOf('Options') !== 'undefined' && binding.type?.indexOf('Options') > -1) {
+          let results = await this.getEclPreview(ecl.value);
+          if (results.expansion.contains.length > this.maxOptionsCount) {
+            errors = true;
+            ecl.setErrors({ optionsTooManyResults: true });
           }
         }
-      }
+    } else if (binding.type != 'Title') {
+      errors = true;
+      ecl.setErrors({ required: true });
+    }
     if (errors) {
       return;
     }
@@ -128,11 +152,18 @@ export class BindingsSandboxComponent {
       if (errors['maxlength']) {
         return `This field must be less than ${errors['maxlength'].requiredLength} characters`;
       }
-      if (errors['tooManyResults']) {
+      if (errors['selectTooManyResults']) {
         return `Too many results (Max = ${ this.maxSelectCount })`;
+      }
+      if (errors['optionsTooManyResults']) {
+        return `Too many results (Max = ${ this.maxOptionsCount })`;
       }
     }
     return null;
+  }
+
+  optionSelected(title: string, event: any) {
+    console.log(title, event)
   }
 
 }

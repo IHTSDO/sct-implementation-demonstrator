@@ -23,6 +23,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {MatRadioModule} from '@angular/material/radio';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -36,6 +37,7 @@ import { HighlightJsModule } from 'ngx-highlight-js';
 import { AllergiesAllergyListReactionComponent } from './allergies/allergies-allergy-list/allergies-allergy-list-reaction/allergies-allergy-list-reaction.component';
 import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.component';
 import { DropdownBindingComponent } from './dropdown-binding/dropdown-binding.component';
+import { RadiosBindingComponent } from './radios-binding/radios-binding.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,8 @@ import { DropdownBindingComponent } from './dropdown-binding/dropdown-binding.co
     AllergiesAllergyListComponent,
     AllergiesAllergyListReactionComponent,
     BindingsSandboxComponent,
-    DropdownBindingComponent
+    DropdownBindingComponent,
+    RadiosBindingComponent
   ],
   imports: [
     HttpClientModule,
@@ -74,7 +77,8 @@ import { DropdownBindingComponent } from './dropdown-binding/dropdown-binding.co
     FormsModule,
     MatTooltipModule,
     MatSlideToggleModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatRadioModule
   ],
   providers: [],
   bootstrap: [AppComponent]

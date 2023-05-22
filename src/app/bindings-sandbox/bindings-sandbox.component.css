@@ -57,4 +57,10 @@ mat-hint, mat-error {
     cursor: move;
     color: #616161;
 }
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
   
