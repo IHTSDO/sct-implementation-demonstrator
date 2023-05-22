@@ -27,7 +27,7 @@ import {MatRadioModule} from '@angular/material/radio';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
-import { AutocompleteBindingComponent } from './autocomplete-binding/autocomplete-binding.component';
+import { AutocompleteBindingComponent } from './bindings/autocomplete-binding/autocomplete-binding.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AllergiesComponent } from './allergies/allergies.component';
 import { AllergiesProblemListComponent } from './allergies/allergies-problem-list/allergies-problem-list.component';
@@ -36,8 +36,8 @@ import { AllergiesAllergyListComponent } from './allergies/allergies-allergy-lis
 import { HighlightJsModule } from 'ngx-highlight-js';
 import { AllergiesAllergyListReactionComponent } from './allergies/allergies-allergy-list/allergies-allergy-list-reaction/allergies-allergy-list-reaction.component';
 import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.component';
-import { DropdownBindingComponent } from './dropdown-binding/dropdown-binding.component';
-import { RadiosBindingComponent } from './radios-binding/radios-binding.component';
+import { DropdownBindingComponent } from './bindings/dropdown-binding/dropdown-binding.component';
+import { RadiosBindingComponent } from './bindings/radios-binding/radios-binding.component';
 
 @NgModule({
   declarations: [

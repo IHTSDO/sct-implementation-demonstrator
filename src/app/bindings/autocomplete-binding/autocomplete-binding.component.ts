@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, 
 import { UntypedFormControl } from '@angular/forms';
 import {debounceTime, distinctUntilChanged, map, startWith, switchMap,tap} from 'rxjs/operators';
 import {Observable, of, Subject} from 'rxjs';
-import { TerminologyService } from '../services/terminology.service';
+import { TerminologyService } from '../../services/terminology.service';
 
 @Component({
   selector: 'app-autocomplete-binding',
