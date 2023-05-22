@@ -1,7 +1,7 @@
 <mat-card id="main-card">
     <div class="container">
         <div class="item">
-            <app-autocomplete-binding [binding]="eclProblem" [term]="term" (selectionChange)="updateProblem($event)"></app-autocomplete-binding>
+            <app-autocomplete-binding [binding]="problemBinding" [term]="term" (selectionChange)="updateProblem($event)"></app-autocomplete-binding>
         </div>
         <div class="item">
             <button mat-flat-button color="primary" (click)="addProblem()">Add problem</button>

@@ -13,6 +13,7 @@ const ELEMENT_DATA2: any[] = [];
   styleUrls: ['./allergies-problem-list.component.css']
 })
 export class AllergiesProblemListComponent {
+  problemBinding = { ecl: '< 404684003 |Clinical finding|', title: 'Search...' };
   eclProblem = '< 404684003 |Clinical finding|';
   selectedProblemSct: any;
   term: string = '';
