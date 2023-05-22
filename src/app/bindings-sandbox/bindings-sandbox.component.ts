@@ -14,41 +14,41 @@ export class BindingsSandboxComponent {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
 
   bindings: any[] = [
-    {
-      title: 'Clinical data entry form',
-      type: 'Title',
-      ecl: ``,
-      value: '',
-      note: ''
-    },
-    {
-      title: 'Diagnosis 1',
-      type: 'Autocomplete',
-      ecl: `<< 404684003 |Clinical finding (finding)|`,
-      value: '',
-      note: 'The diagnosis for the clinical encounter.'
-    },
-    {
-      title: 'Appendicitis type',
-      type: 'Select (Single)',
-      ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
-      value: '',
-      note: 'The type of appendicitis.'
-    },
-    {
-      title: 'Appendicitis type (M)',
-      type: 'Select (Multiple)',
-      ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
-      value: '',
-      note: 'The type of appendicitis.'
-    },
-    {
-      title: 'Appendicectomy type',
-      type: 'Options',
-      ecl: `<< 174036004 |Emergency appendectomy (procedure)|`,
-      value: '',
-      note: 'The type of appendicectomy.'
-    }
+    // {
+    //   title: 'Clinical data entry form',
+    //   type: 'Title',
+    //   ecl: ``,
+    //   value: '',
+    //   note: ''
+    // },
+    // {
+    //   title: 'Diagnosis 1',
+    //   type: 'Autocomplete',
+    //   ecl: `<< 404684003 |Clinical finding (finding)|`,
+    //   value: '',
+    //   note: 'The diagnosis for the clinical encounter.'
+    // },
+    // {
+    //   title: 'Appendicitis type',
+    //   type: 'Select (Single)',
+    //   ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
+    //   value: '',
+    //   note: 'The type of appendicitis.'
+    // },
+    // {
+    //   title: 'Appendicitis type (M)',
+    //   type: 'Select (Multiple)',
+    //   ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
+    //   value: '',
+    //   note: 'The type of appendicitis.'
+    // },
+    // {
+    //   title: 'Appendicectomy type',
+    //   type: 'Options',
+    //   ecl: `<< 174036004 |Emergency appendectomy (procedure)|`,
+    //   value: '',
+    //   note: 'The type of appendicectomy.'
+    // }
   ];
 
   newBindingForm = new FormGroup({
