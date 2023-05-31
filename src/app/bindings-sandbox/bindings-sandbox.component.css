@@ -27,7 +27,7 @@ mat-hint, mat-error {
 }
 
 .editPanel {
-    width: 70%;
+    width: calc(50% - 5px);
     margin: 5px;
     margin-bottom: 25px;
     padding: 10px;
@@ -41,7 +41,7 @@ mat-hint, mat-error {
 }
 
 .output-panel {
-    width: 60%;
+    width: 100%;
 }
 
 .row .tool {
@@ -63,4 +63,39 @@ mat-hint, mat-error {
     font-weight: bold;
     margin-bottom: 10px;
 }
-  
+
+.action-button {
+    position: absolute;
+    right: 0px;
+    margin-right: 20px;
+}
+
+.action-button button {
+    margin: 5px;;
+}
+
+.row-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.row-container-item {
+    width: 50%; /* Adjust the width as per your requirements */
+    padding: 10px;
+}
+
+#output {
+    border-radius: 10px;
+    background-color: #282c34;
+    padding: 10px;
+    position: relative;
+}
+
+#save {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: rgb(232, 140, 21);
+}
