@@ -57,7 +57,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
   ];
   selectedSeverity: any = {};
 
-  codeBinding = { ecl: '<<418038007 |Propensity to adverse reactions to substance|', title: 'Allergy/Intolerance by propensity' };
+  codeBinding = { ecl: '<<418038007 |Propensity to adverse reactions to substance| OR <<420134006 |Propensity to adverse reaction (finding)|', title: 'Allergy/Intolerance by propensity' };
   selectedCode: any = null;
   selectedCodeTerm = "";
   recordPropensity = false;

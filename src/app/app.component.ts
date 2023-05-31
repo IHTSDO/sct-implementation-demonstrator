@@ -21,13 +21,7 @@ export class AppComponent {
     { name: "SNOMED Public", url: "https://snowstorm.ihtsdotools.org/fhir"},
     { name: "SNOMED Dev 2", url: "https://snowstorm-temp.kaicode.io/fhir"},
   ];
-  selectedServer = this.fhirServers[2];
-
-  demos = [
-    "Allergies",
-    "Bindings Sandbox"
-  ];
-  selectedDemo = this.demos[0];
+  selectedServer = this.fhirServers[1];
 
   constructor( private codingSpecService: CodingSpecService, public excelService: ExcelService, private terminologyService: TerminologyService ) { }
 
@@ -98,7 +92,4 @@ export class AppComponent {
     this.terminologyService.setLang(language);
   }
 
-  setDemo(demo: any) {
-    this.selectedDemo = demo;
-  }
 }

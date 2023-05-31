@@ -3,6 +3,12 @@
   <span id="title">SNOMED CT Implementation Demos</span>
   <span class="example-spacer"></span>
 
+  <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">Select Demonstrator</button>
+  <mat-menu #demosMenu="matMenu" class="wide-menu">
+    <a routerLink="/allergies" mat-menu-item>Allergies CRG</a>
+    <a routerLink="/sandbox" mat-menu-item>Terminology Bindings Sandbox</a>
+  </mat-menu>
+
   <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu">FHIR Server: {{selectedServer.name}}</button>
   <mat-menu #serverMenu="matMenu">
     <button mat-menu-item *ngFor="let server of fhirServers" (click)="setFhirServer(server)">{{server.name}}</button>
@@ -27,13 +33,9 @@
     <mat-icon>info</mat-icon>
   </a>
 </mat-toolbar>
-<div id="demo-selector">
+<!-- <div id="demo-selector">
   <span>Select implementation demo:</span>
-  <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">{{selectedDemo}}</button>
-  <mat-menu #demosMenu="matMenu" class="wide-menu">
-    <button *ngFor="let demo of demos" mat-menu-item (click)="setDemo(demo)">{{ demo }}</button>
-  </mat-menu>
+  
 </div>
-<hr>
-<app-allergies *ngIf="selectedDemo == 'Allergies'"></app-allergies>
-<app-bindings-sandbox *ngIf="selectedDemo == 'Bindings Sandbox'"></app-bindings-sandbox>
+<hr> -->
+<router-outlet></router-outlet>
