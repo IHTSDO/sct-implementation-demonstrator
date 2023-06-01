@@ -102,6 +102,7 @@
             </div>
         </div>
         <div class="row-container-item">
+            <span class="title" *ngIf="bindings.length > 0">Data collected from form</span><br><br>
             <div id="output" *ngIf="bindings.length > 0">
                 <div id="save">
                     <button mat-icon-button (click)="saveOutput()" matTooltip="Download Output"><mat-icon fontIcon="cloud_download"></mat-icon></button>
