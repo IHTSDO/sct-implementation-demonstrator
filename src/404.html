@@ -5,14 +5,21 @@
   <title>Page Not Found</title>
   <script>
     (function() {
-      var path = window.location.href.replace(/\/$/, '');
-      var hasExtension = path.indexOf('.') !== -1;
-      if (!hasExtension) {
-        window.location.href = path + '/';
+      var protocol = window.location.protocol;
+      var domain = window.location.hostname;
+      var url = protocol + '//' + domain;
+      if (url != window.location.href) {
+        window.location.href = '/';
       }
-      else {
-        window.location.href = '/'; // fallback to the homepage
-      }
+
+      // var path = window.location.href.replace(/\/$/, '');
+      // var hasExtension = path.indexOf('.') !== -1;
+      // if (!hasExtension) {
+      //   window.location.href = path + '/';
+      // }
+      // else {
+      //   window.location.href = '/'; // fallback to the homepage
+      // }
     })();
   </script>
 </head>
