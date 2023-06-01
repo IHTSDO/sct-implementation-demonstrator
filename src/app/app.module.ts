@@ -38,6 +38,7 @@ import { AllergiesAllergyListReactionComponent } from './allergies/allergies-all
 import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.component';
 import { DropdownBindingComponent } from './bindings/dropdown-binding/dropdown-binding.component';
 import { RadiosBindingComponent } from './bindings/radios-binding/radios-binding.component';
+import { TextBoxBindingComponent } from './bindings/textbox-binding/textbox-binding.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { RadiosBindingComponent } from './bindings/radios-binding/radios-binding
     AllergiesAllergyListReactionComponent,
     BindingsSandboxComponent,
     DropdownBindingComponent,
-    RadiosBindingComponent
+    RadiosBindingComponent,
+    TextBoxBindingComponent
   ],
   imports: [
     HttpClientModule,

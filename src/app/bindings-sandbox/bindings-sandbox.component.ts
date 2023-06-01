@@ -34,6 +34,13 @@ export class BindingsSandboxComponent {
       note: 'An autocomplete field to select between all descendants of appendicitis.'
     },
     {
+      title: 'Clinical note',
+      type: 'Text box',
+      ecl: `74400008 |Appendicitis|`,
+      value: '',
+      note: 'A text box for entering free text clinical information.'
+    },
+    {
       title: 'Appendicitis type',
       type: 'Select (Single)',
       ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
@@ -66,10 +73,10 @@ export class BindingsSandboxComponent {
 
   indexInEdit = -1;
   panelOpenState = false;
-  maxSelectCount = 15;
-  maxOptionsCount = 5;
+  maxSelectCount = 50;
+  maxOptionsCount = 10;
 
-  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Title'];
+  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Title', 'Text box'];
 
   constructor(private terminologyService: TerminologyService, private clipboard: Clipboard) { }
 
@@ -185,7 +192,10 @@ export class BindingsSandboxComponent {
   clearOutput() {
     this.output = {};
     this.outputStr = '{}';
-
+    // Clone bindings
+    const savedBindings = JSON.parse(JSON.stringify(this.bindings));
+    this.bindings = [];
+    this.bindings = savedBindings;
   }
 
   saveForm() {
