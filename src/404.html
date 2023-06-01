@@ -4,12 +4,16 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <title>Page Not Found</title>
   <script>
-    if (!window.location.href.endsWith('/')) {
-      window.location.href = window.location.href + '/';
-    }
-    else {
-      window.location.href = '/'; // fallback to the homepage
-    }
+    (function() {
+      var path = window.location.href.replace(/\/$/, '');
+      var hasExtension = path.indexOf('.') !== -1;
+      if (!hasExtension) {
+        window.location.href = path + '/';
+      }
+      else {
+        window.location.href = '/'; // fallback to the homepage
+      }
+    })();
   </script>
 </head>
 <body>
