@@ -22,6 +22,6 @@ export class EclBuilderDialogComponent {
 
   eclChanged(event: any) {
     // this.localEcl = event?.detail[0];
-    // this.data.ecl = event?.detail[0];
+    this.data.ecl = event?.detail[0];
   }
 }

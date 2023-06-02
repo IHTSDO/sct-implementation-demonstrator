@@ -243,9 +243,11 @@ export class BindingsSandboxComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      const control = this.newBindingForm.get(controlName);
-      if (control) {
-        control.setValue(result.ecl);
+      if (result) {
+        const control = this.newBindingForm.get(controlName);
+        if (control) {
+          control.setValue(result.ecl);
+        }
       }
     });
   }
