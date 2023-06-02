@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -24,6 +24,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatRadioModule} from '@angular/material/radio';
+import {MatDialogModule} from '@angular/material/dialog';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -39,6 +40,7 @@ import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.co
 import { DropdownBindingComponent } from './bindings/dropdown-binding/dropdown-binding.component';
 import { RadiosBindingComponent } from './bindings/radios-binding/radios-binding.component';
 import { TextBoxBindingComponent } from './bindings/textbox-binding/textbox-binding.component';
+import { EclBuilderDialogComponent } from './bindings/ecl-builder-dialog/ecl-builder-dialog.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +54,8 @@ import { TextBoxBindingComponent } from './bindings/textbox-binding/textbox-bind
     BindingsSandboxComponent,
     DropdownBindingComponent,
     RadiosBindingComponent,
-    TextBoxBindingComponent
+    TextBoxBindingComponent,
+    EclBuilderDialogComponent
   ],
   imports: [
     HttpClientModule,
@@ -80,9 +83,11 @@ import { TextBoxBindingComponent } from './bindings/textbox-binding/textbox-bind
     MatTooltipModule,
     MatSlideToggleModule,
     MatExpansionModule,
-    MatRadioModule
+    MatRadioModule,
+    MatDialogModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }

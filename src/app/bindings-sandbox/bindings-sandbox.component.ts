@@ -6,6 +6,8 @@ import { TerminologyService } from '../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
 import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { MatDialog } from '@angular/material/dialog';
+import { EclBuilderDialogComponent } from '../bindings/ecl-builder-dialog/ecl-builder-dialog.component';
 @Component({
   selector: 'app-bindings-sandbox',
   templateUrl: './bindings-sandbox.component.html',
@@ -78,7 +80,7 @@ export class BindingsSandboxComponent {
 
   controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Title', 'Text box'];
 
-  constructor(private terminologyService: TerminologyService, private clipboard: Clipboard) { }
+  constructor(private terminologyService: TerminologyService, private clipboard: Clipboard, public dialog: MatDialog) { }
 
   async addBinding() {
     this.newBindingForm.markAllAsTouched();
@@ -187,6 +189,7 @@ export class BindingsSandboxComponent {
   clear() {
     this.bindings = [];
     this.clearOutput();
+    this.newBindingForm.reset();
   }
 
   clearOutput() {
@@ -226,6 +229,25 @@ export class BindingsSandboxComponent {
       };
       reader.readAsText(event.target.files[0]);
     }
+  }
+
+  // eclChanged(event: any) {
+  //   console.log(event);
+  // }
+
+  openEclBuilder(ecl: any, controlName: string) {
+    const dialogRef = this.dialog.open(EclBuilderDialogComponent, {
+      data: { ecl },
+      width: '80%',
+      height: '80%'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      const control = this.newBindingForm.get(controlName);
+      if (control) {
+        control.setValue(result.ecl);
+      }
+    });
   }
 
 }

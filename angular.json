@@ -29,7 +29,9 @@
               "src/custom-theme.scss",
               "src/styles.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/snomed-ecl-builder-vue/dist/snomed-ecl-builder.js"
+            ],
             "allowedCommonJsDependencies": [
               "file-saver"
             ]

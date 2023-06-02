@@ -99,3 +99,10 @@ mat-hint, mat-error {
     top: 0;
     color: rgb(232, 140, 21);
 }
+
+.top-right-link {
+    position: absolute;
+    top: 5px;
+    right: 0;
+    font-size: smaller;
+}

@@ -24,6 +24,7 @@
     "highlight.js": "^11.7.0",
     "ngx-highlight-js": "^15.0.0",
     "rxjs": "~7.8.0",
+    "snomed-ecl-builder-vue": "^0.2.1",
     "tslib": "^2.3.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz",
     "zone.js": "~0.12.0"
