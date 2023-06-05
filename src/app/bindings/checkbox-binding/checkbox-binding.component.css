@@ -1,0 +1,14 @@
+#hint {
+    font-size: 12px;
+}
+
+.check-group {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0;
+    align-items: flex-start;
+  }
+  
+.check {
+    margin: 0px;
+  }

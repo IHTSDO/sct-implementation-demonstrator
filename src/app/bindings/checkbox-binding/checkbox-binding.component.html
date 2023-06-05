@@ -1,0 +1,4 @@
+<div>{{ binding.title }}</div>
+<form [formGroup]="checkboxes" class="check-group">
+  <mat-checkbox *ngFor="let item of options" formControlName="{{ item.display}}" class="check" (click)="optionClicked()">{{ item.display }}</mat-checkbox><br>
+</form>

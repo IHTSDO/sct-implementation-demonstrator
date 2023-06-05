@@ -78,7 +78,7 @@ export class BindingsSandboxComponent {
   maxSelectCount = 50;
   maxOptionsCount = 10;
 
-  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Title', 'Text box'];
+  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Title', 'Text box', 'Checkbox'].sort((a, b) => a.localeCompare(b));
 
   constructor(private terminologyService: TerminologyService, private clipboard: Clipboard, public dialog: MatDialog) { }
 
@@ -110,7 +110,7 @@ export class BindingsSandboxComponent {
             ecl.setErrors({ optionsTooManyResults: true });
           }
         }
-    } else if (binding.type != 'Title') {
+    } else if (binding.type != 'Title' && binding.type != 'Text box') {
       errors = true;
       ecl.setErrors({ required: true });
     }
@@ -177,7 +177,6 @@ export class BindingsSandboxComponent {
   }
 
   optionSelected(title: string, event: any) {
-    console.log(title, event)
     this.output[title] = event;
     this.outputStr = JSON.stringify(this.output, null, 2);
   }

@@ -83,6 +83,7 @@
                         <app-radios-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Options'" (selectionChange)="optionSelected(binding.title, $event)"></app-radios-binding>
                         <span class="title grow" *ngIf="binding.type == 'Title'">{{ binding.title }}</span>
                         <app-textbox-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Text box'" (textChange)="optionSelected(binding.title, $event)"></app-textbox-binding>
+                        <app-checkbox-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox'" (selectionChange)="optionSelected(binding.title, $event)"></app-checkbox-binding>
                         <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Title'">
                             <mat-icon>info</mat-icon>
                         </button>

@@ -11,8 +11,7 @@ export class EclBuilderDialogComponent {
   localEcl = '';
   constructor(
     public dialogRef: MatDialogRef<EclBuilderDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {
+    @Inject(MAT_DIALOG_DATA) public data: any) {
     this.localEcl = data.ecl;
   }
 

@@ -25,6 +25,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -41,6 +42,7 @@ import { DropdownBindingComponent } from './bindings/dropdown-binding/dropdown-b
 import { RadiosBindingComponent } from './bindings/radios-binding/radios-binding.component';
 import { TextBoxBindingComponent } from './bindings/textbox-binding/textbox-binding.component';
 import { EclBuilderDialogComponent } from './bindings/ecl-builder-dialog/ecl-builder-dialog.component';
+import { CheckBoxBindingComponent } from './bindings/checkbox-binding/checkbox-binding.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +57,8 @@ import { EclBuilderDialogComponent } from './bindings/ecl-builder-dialog/ecl-bui
     DropdownBindingComponent,
     RadiosBindingComponent,
     TextBoxBindingComponent,
-    EclBuilderDialogComponent
+    EclBuilderDialogComponent,
+    CheckBoxBindingComponent
   ],
   imports: [
     HttpClientModule,
@@ -84,7 +87,8 @@ import { EclBuilderDialogComponent } from './bindings/ecl-builder-dialog/ecl-bui
     MatSlideToggleModule,
     MatExpansionModule,
     MatRadioModule,
-    MatDialogModule
+    MatDialogModule,
+    MatCheckboxModule
   ],
   providers: [],
   bootstrap: [AppComponent],
