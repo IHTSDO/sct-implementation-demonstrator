@@ -82,7 +82,7 @@ mat-hint, mat-error {
 }
 
 .row-container-item {
-    width: 50%; /* Adjust the width as per your requirements */
+    width: 100%; /* Adjust the width as per your requirements */
     padding: 10px;
 }
 

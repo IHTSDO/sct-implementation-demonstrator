@@ -11,6 +11,9 @@
         </mat-menu>
     </h3>
     <div class="action-button">
+        <button mat-flat-button color="accent" (click)="showRightContainer = !showRightContainer" *ngIf="bindings.length">
+            {{ (showRightContainer ? 'Close data panel' : 'Open data panel') }}
+        </button>
         <input hidden (change)="uploadFile($event)" #fileInput type="file" id="file">
         <button mat-flat-button color="accent" (click)="saveForm()">Download form</button>
         <button mat-flat-button color="accent" (click)="fileInput.click()">Upload form</button>
@@ -73,7 +76,7 @@
         </div>
     </mat-expansion-panel>
     <div class="row-container">
-        <div class="row-container-item">
+        <div [@growShrink]="stateName" class="row-container-item">
             <div cdkDropList (cdkDropListDropped)="onDrop($event)">
                 <div *ngFor="let binding of bindings; let i = index" class="output-panel" cdkDrag>
                     <div class="row control">
@@ -103,10 +106,10 @@
                 </div>
             </div>
         </div>
-        <div class="row-container-item">
+        <div class="row-container-item" [@openClose]="stateName">
             <span class="title" *ngIf="bindings.length > 0">Data collected from form</span><br><br>
             <div id="output" *ngIf="bindings.length > 0">
-                <div id="save">
+                <div id="save" *ngIf="showRightContainer">
                     <button mat-icon-button (click)="saveOutput()" matTooltip="Download Output"><mat-icon fontIcon="cloud_download"></mat-icon></button>
                     <button mat-icon-button (click)="copyOutputToClipboard(outputStr)" matTooltip="Copy Output"><mat-icon fontIcon="content_copy"></mat-icon></button>
                 </div>

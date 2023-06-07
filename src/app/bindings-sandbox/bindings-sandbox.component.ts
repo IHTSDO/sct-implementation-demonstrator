@@ -6,12 +6,45 @@ import { TerminologyService } from '../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
 import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { EclBuilderDialogComponent } from '../bindings/ecl-builder-dialog/ecl-builder-dialog.component';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
 @Component({
   selector: 'app-bindings-sandbox',
   templateUrl: './bindings-sandbox.component.html',
-  styleUrls: ['./bindings-sandbox.component.css']
+  styleUrls: ['./bindings-sandbox.component.css'],
+  animations: [
+    trigger('openClose', [
+      state('open', style({
+        opacity: 1,
+        width: '50%'
+      })),
+      state('closed', style({
+        opacity: 0,
+        width: '0'
+      })),
+      transition('open <=> closed', [
+        animate('0.5s')
+      ]),
+    ]),
+    trigger('growShrink', [
+      state('open', style({
+        width: '50%'
+      })),
+      state('closed', style({
+        width: '100%'
+      })),
+      transition('open <=> closed', [
+        animate('0.5s')
+      ]),
+    ]),
+  ]
 })
 export class BindingsSandboxComponent {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
@@ -80,7 +113,13 @@ export class BindingsSandboxComponent {
 
   controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Title', 'Text box', 'Checkbox'].sort((a, b) => a.localeCompare(b));
 
+  showRightContainer = false;
+
   constructor(private terminologyService: TerminologyService, private clipboard: Clipboard, public dialog: MatDialog) { }
+
+  get stateName() {
+    return this.showRightContainer ? 'open' : 'closed';
+  }
 
   async addBinding() {
     this.newBindingForm.markAllAsTouched();
