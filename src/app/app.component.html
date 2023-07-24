@@ -5,9 +5,14 @@
 
   <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">Select Demonstrator</button>
   <mat-menu #demosMenu="matMenu" class="wide-menu">
+    <button mat-menu-item (click)="navigate('/allergies')">Allergies CRG</button>
+    <button mat-menu-item (click)="navigate('/sandbox')">Terminology Bindings Sandbox</button>
+  </mat-menu>
+  
+  <!-- <mat-menu #demosMenu="matMenu" class="wide-menu">
     <a routerLink="/allergies" mat-menu-item>Allergies CRG</a>
     <a routerLink="/sandbox" mat-menu-item>Terminology Bindings Sandbox</a>
-  </mat-menu>
+  </mat-menu> -->
 
   <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu">FHIR Server: {{selectedServer.name}}</button>
   <mat-menu #serverMenu="matMenu">

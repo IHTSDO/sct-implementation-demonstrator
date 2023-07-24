@@ -51,6 +51,10 @@ export class AppComponent {
     this.updateCodeSystemOptions();
   }
 
+  navigate(route: string) {
+    this.router.navigate([route]);
+  }
+  
   updateCodeSystemOptions() {
     this.terminologyService.getCodeSystems().subscribe(response => {
       this.editionsDetails = [];
