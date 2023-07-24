@@ -29,12 +29,11 @@ export class AppComponent {
   constructor( private codingSpecService: CodingSpecService, public excelService: ExcelService, private terminologyService: TerminologyService, public router: Router ) { 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
+        // console.log("Analytics code", event.urlAfterRedirects)
         // Send pageview event to Google Analytics on each route change.
-        if (window.location.hostname !== 'localhost') {
-          gtag('config', 'G-7SK998GPMX', {
-            'page_path': event.urlAfterRedirects
-          });
-        }
+        gtag('config', 'G-7SK998GPMX', {
+          'page_path': event.urlAfterRedirects
+        });
       }
     });
   }
@@ -54,7 +53,7 @@ export class AppComponent {
   navigate(route: string) {
     this.router.navigate([route]);
   }
-  
+
   updateCodeSystemOptions() {
     this.terminologyService.getCodeSystems().subscribe(response => {
       this.editionsDetails = [];
