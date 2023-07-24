@@ -11,6 +11,17 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/atom-one-dark.min.css" />
   <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7SK998GPMX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    // Track a page view to '/home'
+    if (window.location.hostname !== 'localhost') {
+      gtag('config', 'G-7SK998GPMX', { 'page_path': '/home' });
+    }
+  </script>
 </head>
 <body class="mat-typography">
   <app-root></app-root>

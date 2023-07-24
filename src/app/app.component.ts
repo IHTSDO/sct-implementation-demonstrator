@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { CodingSpecService } from './services/coding-spec.service';
 import { ExcelService } from './services/excel.service';
 import { TerminologyService } from './services/terminology.service';
+import { Router, NavigationEnd } from '@angular/router';
+
+declare let gtag: Function;
 
 @Component({
   selector: 'app-root',
@@ -23,7 +26,18 @@ export class AppComponent {
   ];
   selectedServer = this.fhirServers[1];
 
-  constructor( private codingSpecService: CodingSpecService, public excelService: ExcelService, private terminologyService: TerminologyService ) { }
+  constructor( private codingSpecService: CodingSpecService, public excelService: ExcelService, private terminologyService: TerminologyService, public router: Router ) { 
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Send pageview event to Google Analytics on each route change.
+        if (window.location.hostname !== 'localhost') {
+          gtag('config', 'G-7SK998GPMX', {
+            'page_path': event.urlAfterRedirects
+          });
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.setFhirServer(this.selectedServer);
