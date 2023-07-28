@@ -224,6 +224,12 @@ export class BindingsSandboxComponent {
     this.bindings = this.example1;
   }
 
+  cancelEdit() {
+    this.newBindingForm.reset();
+    this.newPanel.close();
+    this.indexInEdit = -1;
+  }
+
   clear() {
     this.bindings = [];
     this.clearOutput();
