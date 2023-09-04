@@ -43,6 +43,8 @@ import { RadiosBindingComponent } from './bindings/radios-binding/radios-binding
 import { TextBoxBindingComponent } from './bindings/textbox-binding/textbox-binding.component';
 import { EclBuilderDialogComponent } from './bindings/ecl-builder-dialog/ecl-builder-dialog.component';
 import { CheckBoxBindingComponent } from './bindings/checkbox-binding/checkbox-binding.component';
+import { PrescriptionMainComponent } from './prescription/prescription-main/prescription-main.component';
+import { QuestionnairesMainComponent } from './questionnaires/questionnaires-main/questionnaires-main.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +60,9 @@ import { CheckBoxBindingComponent } from './bindings/checkbox-binding/checkbox-b
     RadiosBindingComponent,
     TextBoxBindingComponent,
     EclBuilderDialogComponent,
-    CheckBoxBindingComponent
+    CheckBoxBindingComponent,
+    PrescriptionMainComponent,
+    QuestionnairesMainComponent
   ],
   imports: [
     HttpClientModule,

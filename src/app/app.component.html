@@ -7,6 +7,8 @@
   <mat-menu #demosMenu="matMenu" class="wide-menu">
     <button mat-menu-item (click)="navigate('/allergies')">Allergies CRG</button>
     <button mat-menu-item (click)="navigate('/sandbox')">Terminology Bindings Sandbox</button>
+    <!-- <button mat-menu-item (click)="navigate('/prescription')">Prescription Demo</button> -->
+    <!-- <button mat-menu-item (click)="navigate('/questionnaires')">FHIR Questionnaires</button> -->
   </mat-menu>
   
   <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu">FHIR Server: {{selectedServer.name}}</button>
@@ -33,9 +35,4 @@
     <mat-icon>info</mat-icon>
   </a>
 </mat-toolbar>
-<!-- <div id="demo-selector">
-  <span>Select implementation demo:</span>
-  
-</div>
-<hr> -->
 <router-outlet></router-outlet>
