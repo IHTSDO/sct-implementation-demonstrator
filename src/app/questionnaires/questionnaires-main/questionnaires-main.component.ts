@@ -24,8 +24,7 @@ export class QuestionnairesMainComponent implements OnInit{
   ngOnInit(): void {}
 
   loadExampleQuestionnaire() {
-    lastValueFrom(this.http.get('/assets/questionnaires/Carcinoma-of-the-Exocrine-Pancreas-Histopathology-Reporting-Form.R4 (11).json')).then(data => {
-      console.log('Questionnaire loaded');
+    lastValueFrom(this.http.get('assets/questionnaires/Carcinoma-of-the-Exocrine-Pancreas-Histopathology-Reporting-Form.R4 (11).json')).then(data => {
       this.loadQuestionnaire(data);
     });
   }
