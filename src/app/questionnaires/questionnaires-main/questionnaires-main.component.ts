@@ -13,6 +13,7 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 })
 export class QuestionnairesMainComponent implements OnInit{
 
+  loading = false;
   validating = false;
   displayedColumns: string[] = ['readablePath', 'code', 'display', 'system', 'status'];
   dataSource = new MatTableDataSource<any>();
@@ -30,9 +31,16 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   loadQuestionnaire(data: any) {
-    this.questionnaire = data;
-    let extracted = this.extractObjects(data);
-    this.dataSource.data = extracted; //.slice(0, 5);
+    this.loading = true;
+    this.questionnaire = null;
+    this.dataSource.data = [];
+    // wait a second to show the loading spinner
+    setTimeout(() => {
+      this.loading = false;
+      this.questionnaire = data;
+      let extracted = this.extractObjects(data);
+      this.dataSource.data = extracted; //.slice(0, 5);
+    }, 700);
   }
 
   validate() {

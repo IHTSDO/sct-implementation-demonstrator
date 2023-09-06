@@ -26,34 +26,29 @@
     display: inline-block;
   }
   
-  /* Styles for different pill types */
-  .pill.Active {
+/* Styles for different pill types */
+.pill.Active {
     background-color: #4CAF50; /* green */
     color: white;
-  }
-  
-  .pill.Inactive {
+}
+
+.pill.Inactive {
     background-color: #FFC107; /* amber */
     color: white;
-  }
-  
-  .pill.Error {
+}
+
+.pill.Error {
     background-color: #F44336; /* red */
     color: white;
-  }
-  
-  /* mat-progress-bar {
-    margin-top: 1rem;
-    width: 50%;
-  } */
+}
 
-  .progress-container {
+.progress-container {
     margin-top: 1rem;
     position: relative;
     width: 30%;
-  }
-  
-  .progress-label {
+}
+
+.progress-label {
     position: absolute;
     width: 100%;
     text-align: center;
@@ -61,9 +56,14 @@
     transform: translateY(-50%);
     font-size: 0.9rem; /* Adjust font size as necessary */
     font-weight: bold;
-  }
-  
-  .bindingsCount {
+}
+
+.bindingsCount {
     font-size: 1rem;
     font-weight: lighter;
+}
+
+.loading-spinner {
+    margin-left: 2rem;
+    margin-top: 2rem;
 }

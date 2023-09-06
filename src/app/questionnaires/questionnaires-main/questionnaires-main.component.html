@@ -1,11 +1,9 @@
 <h3 class="header">FHIR Questionnaire Terminology Bindings Validation Tool</h3>
 <div class="button-container">
-    <!-- <mat-progress-bar mode="determinate" [value]="validatingProgress" *ngIf="validating"></mat-progress-bar> -->
     <div class="progress-container" *ngIf="validating">
         <mat-progress-bar mode="determinate" [value]="validatingProgress"></mat-progress-bar>
         <div class="progress-label">{{ validatingProgress }}%</div>
     </div>
-      
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
     <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload FHIR Questionnaire</button>
     <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Load example</button>
@@ -60,4 +58,5 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+    <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
 </div>
