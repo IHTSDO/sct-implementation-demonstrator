@@ -1,0 +1,65 @@
+.header {
+    margin-left: 2rem;
+}
+
+.table-container {
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end; /* This will align the items to the right */
+    gap: 1rem;
+    margin-right: 2rem;
+    margin-bottom: 2rem;
+}
+
+
+/* Base pill style */
+.pill {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+  }
+  
+  /* Styles for different pill types */
+  .pill.Active {
+    background-color: #4CAF50; /* green */
+    color: white;
+  }
+  
+  .pill.Inactive {
+    background-color: #FFC107; /* amber */
+    color: white;
+  }
+  
+  .pill.Error {
+    background-color: #F44336; /* red */
+    color: white;
+  }
+  
+  /* mat-progress-bar {
+    margin-top: 1rem;
+    width: 50%;
+  } */
+
+  .progress-container {
+    margin-top: 1rem;
+    position: relative;
+    width: 30%;
+  }
+  
+  .progress-label {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 60%;
+    transform: translateY(-50%);
+    font-size: 0.9rem; /* Adjust font size as necessary */
+    font-weight: bold;
+  }
+  

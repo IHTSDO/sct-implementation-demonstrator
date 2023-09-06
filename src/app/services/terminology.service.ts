@@ -89,9 +89,10 @@ export class TerminologyService {
     };
   }
 
-  lookupConcept(conceptId: string) {
+  lookupConcept(conceptId: string, system?: string) {
     // https://dev-is-browser.ihtsdotools.org/fhir/CodeSystem/$lookup?system=http://snomed.info/sct&code=313307000
-    let requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=http://snomed.info/sct&code=${conceptId}&property=normalForm`;
+    if (!system) system = this.fhirUrlParam;
+    let requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=${system}&code=${conceptId}&property=normalForm`;
     return this.http.get<any>(requestUrl)
       .pipe(
         catchError(this.handleError<any>('lookupConcept', {}))
