@@ -15,7 +15,7 @@
     </button>
 </div>
 <p  class="header" *ngIf="questionnaire">
-    <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>)
+    <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span>
 </p>
 <div class="table-container">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">

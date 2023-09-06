@@ -63,3 +63,7 @@
     font-weight: bold;
   }
   
+  .bindingsCount {
+    font-size: 1rem;
+    font-weight: lighter;
+}
