@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorComponent } from '../alerts/http-error';
 import { SnackAlertComponent } from '../alerts/snack-alert';
@@ -89,15 +89,23 @@ export class TerminologyService {
     };
   }
 
-  lookupConcept(conceptId: string, system?: string) {
-    // https://dev-is-browser.ihtsdotools.org/fhir/CodeSystem/$lookup?system=http://snomed.info/sct&code=313307000
-    if (!system) system = this.fhirUrlParam;
-    let requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=${system}&code=${conceptId}&property=normalForm`;
-    return this.http.get<any>(requestUrl)
-      .pipe(
-        catchError(this.handleError<any>('lookupConcept', {}))
-      );
+  private conceptCache = new Map<string, any>();
+
+lookupConcept(conceptId: string, system?: string) {
+  if (!system) system = this.fhirUrlParam;
+  const cacheKey = `${system}:${conceptId}`;
+  const cachedConcept = this.conceptCache.get(cacheKey);
+  if (cachedConcept) {
+    return of(cachedConcept);
   }
+  const requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=${system}&code=${conceptId}&property=normalForm`;
+  return this.http.get<any>(requestUrl).pipe(
+    tap(concept => {
+      this.conceptCache.set(cacheKey, concept);
+    }),
+    catchError(this.handleError<any>('lookupConcept', {}))
+  );
+}
 
   getMRCMAttributes(conceptId: string) {
     // https://snowstorm.ihtsdotools.org/snowstorm/snomed-ct/mrcm/MAIN/domain-attributes?parentIds=195967001&proximalPrimitiveModeling=false&contentType=POSTCOORDINATED

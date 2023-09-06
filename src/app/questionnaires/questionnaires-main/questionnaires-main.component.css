@@ -42,6 +42,33 @@
     color: white;
 }
 
+.mini-pill {
+    padding: 5px 10px;
+    border-radius: 20px;
+    text-align: center;
+    font-weight: bold;
+    /* display: inline-block; */
+    font-size: 0.9rem;
+    margin-right: 2rem;
+    float: right;
+  }
+  
+/* Styles for different pill types */
+.mini-pill.Active {
+    background-color: #4CAF50; /* green */
+    color: white;
+}
+
+.mini-pill.Inactive {
+    background-color: #FFC107; /* amber */
+    color: white;
+}
+
+.mini-pill.Error {
+    background-color: #F44336; /* red */
+    color: white;
+}
+
 .progress-container {
     margin-top: 1rem;
     position: relative;

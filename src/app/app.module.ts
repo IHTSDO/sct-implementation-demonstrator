@@ -27,6 +27,7 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatListModule} from '@angular/material/list';
+import {MatSortModule} from '@angular/material/sort';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -94,7 +95,8 @@ import { QuestionnairesMainComponent } from './questionnaires/questionnaires-mai
     MatRadioModule,
     MatDialogModule,
     MatCheckboxModule,
-    MatListModule
+    MatListModule,
+    MatSortModule
   ],
   providers: [],
   bootstrap: [AppComponent],
