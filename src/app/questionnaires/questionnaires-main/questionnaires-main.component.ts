@@ -45,6 +45,12 @@ export class QuestionnairesMainComponent implements OnInit{
     this.questionnaire = null;
     this.dataSource.data = [];
     this.orderCounter = 0;
+    this.loadResults = {
+      total: 0,
+      active: 0,
+      inactive: 0,
+      error: 0
+    };
   }
 
   loadQuestionnaire(data: any) {
@@ -61,6 +67,16 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   validate() {
+    this.loadResults = {
+      total: 0,
+      active: 0,
+      inactive: 0,
+      error: 0
+    };
+    // Set all statuses to "Not checked"
+    this.dataSource.data.forEach((item: any) => {
+      item.status = "Not checked";
+    });
     this.validating = true;
     let length = this.dataSource.data.length;
     let count = 0;
@@ -71,7 +87,25 @@ export class QuestionnairesMainComponent implements OnInit{
       this.validatingProgress = Math.round((count / length) * 100);
       try {
         const data = await this.terminologyService.lookupConcept(item.code, item.system).pipe(first()).toPromise();
+        let designations: string[] = [];
+        let fsn: string = "";
         for (const param of data.parameter) {
+            if (param.name === "designation") {
+              let term = "";
+              let type = "";
+              for (const part of param.part) {
+                if (part.name === "value") {
+                  term = part.valueString;
+                }
+                if (part.name === "use") {
+                  type = part.valueCoding?.code;
+                }
+              }
+              designations.push(term);
+              if (type === "900000000000003001") {
+                fsn = term;
+              }
+            }
             if (param.name === "inactive") {
                 if (param.valueBoolean) {
                     item.status = "Inactive";
@@ -81,12 +115,16 @@ export class QuestionnairesMainComponent implements OnInit{
                     this.loadResults.active++;
                 }
             }
-            if (param.name === "display") {
-                const serverDisplay = param.valueString;
-                if (!item.display || this.removeSemanticTag(item.display) !== this.removeSemanticTag(serverDisplay)) {
-                  item.serverDisplay = param.valueString;
-                }
-            }
+            // if (param.name === "display") {
+            //     const serverDisplay = param.valueString;
+            //     if (!item.display || this.removeSemanticTag(item.display) !== this.removeSemanticTag(serverDisplay)) {
+            //       item.serverDisplay = param.valueString;
+            //     }
+            // }
+        }
+        // check if item.display is in the designations array
+        if (!item.display || !designations.includes(item.display)) {
+          item.serverDisplay = fsn;
         }
       } catch (error) {
           item.status = "Error";
