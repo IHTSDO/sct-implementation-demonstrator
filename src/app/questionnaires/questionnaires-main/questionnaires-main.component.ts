@@ -41,11 +41,15 @@ export class QuestionnairesMainComponent implements OnInit{
     });
   }
 
-  loadQuestionnaire(data: any) {
-    this.loading = true;
+  clearQuestionnaire() {
     this.questionnaire = null;
     this.dataSource.data = [];
     this.orderCounter = 0;
+  }
+
+  loadQuestionnaire(data: any) {
+    this.loading = true;
+    this.clearQuestionnaire();
     // wait a second to show the loading spinner
     setTimeout(() => {
       this.loading = false;
@@ -77,6 +81,12 @@ export class QuestionnairesMainComponent implements OnInit{
                     this.loadResults.active++;
                 }
             }
+            if (param.name === "display") {
+                const serverDisplay = param.valueString;
+                if (!item.display || this.removeSemanticTag(item.display) !== this.removeSemanticTag(serverDisplay)) {
+                  item.serverDisplay = param.valueString;
+                }
+            }
         }
       } catch (error) {
           item.status = "Error";
@@ -85,6 +95,10 @@ export class QuestionnairesMainComponent implements OnInit{
     }).then(() => {
       this.validating = false;
     });
+  }
+
+  removeSemanticTag(term: string) {
+    return term.replace(/\s*\([^)]+\)\s*$/, '').trim().toLowerCase();
   }
 
   async asyncForEach(array: any[], callback: (item: any, index: number, array: any[]) => Promise<void>): Promise<void> {

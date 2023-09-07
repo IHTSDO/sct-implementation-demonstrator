@@ -7,10 +7,11 @@
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
     <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload FHIR Questionnaire</button>
     <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Load example</button>
-    <button mat-flat-button color="accent" (click)="validate()" [disabled]="validating">
+    <button mat-flat-button color="accent" (click)="validate()" [disabled]="validating || !questionnaire">
         <span *ngIf="!validating">Validate</span>
         <mat-spinner diameter="20" *ngIf="validating"></mat-spinner>
     </button>
+    <button mat-flat-button color="accent" (click)="clearQuestionnaire()" [disabled]="validating || !questionnaire">Clear</button>
 </div>
 <p  class="header" *ngIf="questionnaire">
     <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span>
@@ -38,12 +39,17 @@
 
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Code </th>
-          <td mat-cell *matCellDef="let element"> {{element.code}} </td>
+          <td mat-cell *matCellDef="let element">
+            <a href="http://snomed.info/id/{{element.code}}" target="_blank" class="code-link">{{element.code}}</a>
+          </td>
         </ng-container>
       
         <ng-container matColumnDef="display">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Display </th>
-          <td mat-cell *matCellDef="let element"> {{element.display}} </td>
+          <td mat-cell *matCellDef="let element"> 
+            {{element.display}}
+            <span *ngIf="element.serverDisplay" class="server-name"><br>Server term is different: {{element.serverDisplay}}</span>
+        </td>
         </ng-container>
       
         <ng-container matColumnDef="system">

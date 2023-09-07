@@ -24,6 +24,7 @@
     font-weight: bold;
     text-align: center;
     display: inline-block;
+    font-size: 0.8rem;
   }
   
 /* Styles for different pill types */
@@ -93,4 +94,14 @@
 .loading-spinner {
     margin-left: 2rem;
     margin-top: 2rem;
+}
+
+.code-link {
+    font-size: 0.8rem;
+}
+
+.server-name {
+    font-weight: lighter;
+    font-style: italic;
+    color: rgb(128, 0, 0);
 }
