@@ -48,7 +48,10 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Display </th>
           <td mat-cell *matCellDef="let element"> 
             {{element.display}}
-            <span *ngIf="element.serverDisplay" class="server-name"><br>Concept FSN: {{element.serverDisplay}}</span>
+            <p *ngIf="element.serverDisplay" class="server-name">Concept FSN: {{element.serverDisplay}}</p>
+            <p class="replacement" *ngFor="let replacement of element.replacements">
+                Replacement: {{replacement.equivalence}} to {{replacement.replacement.code}} |{{replacement.replacement.display}}|
+            </p>
         </td>
         </ng-container>
       

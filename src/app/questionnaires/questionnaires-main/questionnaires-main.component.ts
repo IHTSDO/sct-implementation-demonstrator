@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { first, lastValueFrom } from 'rxjs';
+import { first, lastValueFrom, map } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
 import { TerminologyService } from 'src/app/services/terminology.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -61,7 +61,7 @@ export class QuestionnairesMainComponent implements OnInit{
       this.loading = false;
       this.questionnaire = data;
       let extracted = this.extractObjects(data);
-      this.dataSource.data = extracted; //.slice(0, 5);
+      this.dataSource.data = extracted; //.slice(0, 11);
       this.dataSource.sort = this.sort;
     }, 700);
   }
@@ -115,16 +115,19 @@ export class QuestionnairesMainComponent implements OnInit{
                     this.loadResults.active++;
                 }
             }
-            // if (param.name === "display") {
-            //     const serverDisplay = param.valueString;
-            //     if (!item.display || this.removeSemanticTag(item.display) !== this.removeSemanticTag(serverDisplay)) {
-            //       item.serverDisplay = param.valueString;
-            //     }
-            // }
         }
-        // check if item.display is in the designations array
         if (!item.display || !designations.includes(item.display)) {
           item.serverDisplay = fsn;
+        }
+        // Search replacements for inactive concepts
+        if (item.status == "Inactive") {
+          const sameAsReplacement = await this.getHistoricalAssociationsTarget("900000000000527005", item.code);
+          const alternativeReplacement = await this.getHistoricalAssociationsTarget("900000000000530003", item.code);
+          const possibilyEquivalentReplacement = await this.getHistoricalAssociationsTarget("900000000000523009", item.code);
+          const replacedBy = await this.getHistoricalAssociationsTarget("900000000000526001", item.code);
+          // join all arrays
+          const replacements = sameAsReplacement.concat(alternativeReplacement, possibilyEquivalentReplacement, replacedBy);
+          item.replacements = replacements;
         }
       } catch (error) {
           item.status = "Error";
@@ -133,6 +136,40 @@ export class QuestionnairesMainComponent implements OnInit{
     }).then(() => {
       this.validating = false;
     });
+  }
+
+  async getHistoricalAssociationsTarget(mapId: string, code: string) {
+    let result: any[] = [];
+    const response = this.terminologyService.translate(mapId, code);
+    let lastValue = await lastValueFrom(response.pipe(map(res => res)));
+    if (lastValue.parameter) {
+      for (const parameter of lastValue.parameter) {
+        if (parameter.name === "match") {
+          let resultItem: any = {
+            replacement: {},
+            equivalence: ""
+          }
+          for (const part of parameter.part) {
+            if (part.name === "concept") {
+              if (part.valueCoding) {
+                resultItem.replacement = {
+                  code: part.valueCoding.code,
+                  display: part.valueCoding.display,
+                  system: part.valueCoding.system
+                };
+              }
+            }
+            if (part.name === "equivalence") {
+              if (part.valueCode) {
+                resultItem.equivalence = part.valueCode;
+              }
+            }
+          }
+          result.push(resultItem);
+        }
+      }
+    }
+    return result;
   }
 
   removeSemanticTag(term: string) {

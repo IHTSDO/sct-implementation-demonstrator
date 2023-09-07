@@ -54,6 +54,15 @@ export class TerminologyService {
       );
   }
 
+  translate(conceptMapId: string, code: string, system?: string) {
+    if (!system) system = this.defaultFhirUrlParam;
+    let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?url=http://snomed.info/sct?fhir_cm=${conceptMapId}&code=${code}&system=${system}`;
+    return this.http.get<any>(requestUrl)
+      .pipe(
+        catchError(this.handleError<any>('translate', {}))
+      );
+  }
+
   expandValueSetFromServer(fhirBase: string, fhirUrl: string, ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
     if (!offset) offset = 0;
     if (!count) count = 20;

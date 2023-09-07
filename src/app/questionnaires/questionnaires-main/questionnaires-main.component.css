@@ -105,3 +105,9 @@
     font-style: italic;
     color: rgb(128, 0, 0);
 }
+
+.replacement {
+    font-weight: lighter;
+    font-style: italic;
+    color: rgb(0, 128, 11);
+}
