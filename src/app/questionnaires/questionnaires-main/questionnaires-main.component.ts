@@ -6,6 +6,7 @@ import { TerminologyService } from 'src/app/services/terminology.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { MatSort } from '@angular/material/sort';
+import * as saveAs from 'file-saver';
 
 
 @Component({
@@ -45,6 +46,7 @@ export class QuestionnairesMainComponent implements OnInit{
     this.questionnaire = null;
     this.dataSource.data = [];
     this.orderCounter = 0;
+    this.validatingProgress = 0;
     this.loadResults = {
       total: 0,
       active: 0,
@@ -255,6 +257,78 @@ export class QuestionnairesMainComponent implements OnInit{
     }
 
     return result;
+  }
+  replaceInactiveConcept(item: any, replacement: any) {
+    console.log('starting searchAndReplace');
+    let changesMade = this.searchAndReplace(this.questionnaire, item, replacement, false);
+    console.log('finished searchAndReplace', changesMade);
+    if (changesMade) {
+      this.loadQuestionnaire(this.questionnaire);
+    }
+  }
+
+  searchAndReplace(data:any, item: any, replacement: any, changesMade: boolean): boolean {
+    // Base case: if data is not an object or array, return
+    if (typeof data !== 'object' || data === null) {
+        return changesMade;
+    }
+
+    // Check if the current data object is the one to be replaced
+    if (data.system == item.system && data.code == item.code && data.display == item.display) {
+      console.log('found match');
+      data.system = replacement.system;
+      data.code = replacement.code;
+      data.display = replacement.display;
+      changesMade = true;
+    }
+
+    // Check if this has an ECL
+    if (data.answerValueSet) {
+      const url = new URL(data.answerValueSet);
+      const fhir_vs = url.searchParams.get("fhir_vs");
+      if (fhir_vs) {
+          const unescapedValue = decodeURIComponent(fhir_vs);
+          // check if unscapedValue contains item.code as a whole word, separated by spaces or a pipe at the end
+          const pattern = new RegExp(`(\\s|^)${item.code}(\\s|$|\\|)`, 'g');
+          if (pattern.test(unescapedValue)) {
+            // replace the code in the ECL
+            const newEcl = unescapedValue.replace(pattern, `$1${replacement.code}$2`);
+            changesMade = true;
+            // now replace item.display if it exists bewteen pipes, with or without spaces
+            const pattern2 = new RegExp(`\\|\\s*${item.display}\\s*\\|`, 'g');
+            if (pattern2.test(newEcl)) {
+              // replace the display in the ECL
+              const newEcl2 = newEcl.replace(pattern2, `| ${replacement.display} |`);
+              // replace the ECL in the answerValueSet
+              url.searchParams.set("fhir_vs", encodeURIComponent(newEcl2));
+              data.answerValueSet = url.toString();
+            }
+            // replace the ECL in the answerValueSet
+            url.searchParams.set("fhir_vs", encodeURIComponent(newEcl));
+            data.answerValueSet = url.toString();
+          }
+      }
+    }
+
+    // If the current data object is an array, recursively search and replace objects from its items
+    if (Array.isArray(data)) {
+      for (let index in data) {
+        changesMade = this.searchAndReplace(data[index], item, replacement, changesMade);
+      }
+    } else {
+        // If the current data object is not an array, check all its properties
+        for (let key in data) {
+            if (data.hasOwnProperty(key)) {
+              changesMade = this.searchAndReplace(data[key], item, replacement, changesMade);
+            }
+        }
+    }
+    return changesMade;
+  }
+
+  saveQuestionnaire() {
+    var blob = new Blob([JSON.stringify(this.questionnaire, null, 2)], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, `${this.questionnaire.title}.json`);
   }
 
   onFileSelected(event: Event) {

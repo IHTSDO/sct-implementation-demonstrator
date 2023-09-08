@@ -110,4 +110,14 @@
     font-weight: lighter;
     font-style: italic;
     color: rgb(0, 128, 11);
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-left: 2rem;
+}
+
+.concept-is-inactive {
+    color: rgb(128, 0, 0);
+    font-size: 0.9rem;
+    margin-bottom: 0rem;
 }

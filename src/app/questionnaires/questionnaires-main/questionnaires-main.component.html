@@ -7,6 +7,7 @@
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
     <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload FHIR Questionnaire</button>
     <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Load example</button>
+    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating">Save FHIR Questionnaire</button>
     <button mat-flat-button color="accent" (click)="validate()" [disabled]="validating || !questionnaire">
         <span *ngIf="!validating">Validate</span>
         <mat-spinner diameter="20" *ngIf="validating"></mat-spinner>
@@ -49,8 +50,13 @@
           <td mat-cell *matCellDef="let element"> 
             {{element.display}}
             <p *ngIf="element.serverDisplay" class="server-name">Concept FSN: {{element.serverDisplay}}</p>
+            <p class="concept-is-inactive" *ngIf="element.status == 'Inactive'">Concept is inactive</p>
             <p class="replacement" *ngFor="let replacement of element.replacements">
                 Replacement: {{replacement.equivalence}} to {{replacement.replacement.code}} |{{replacement.replacement.display}}|
+                <button mat-icon-button color="primary" (click)="replaceInactiveConcept(element, replacement.replacement)" 
+                matTooltip="Replace using this concept" [disabled]="validating">
+                    <mat-icon>arrow_forward</mat-icon>
+                </button>
             </p>
         </td>
         </ng-container>
