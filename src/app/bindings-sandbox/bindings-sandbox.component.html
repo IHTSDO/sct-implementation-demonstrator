@@ -108,15 +108,37 @@
             </div>
         </div>
         <div class="row-container-item" [@openClose]="stateName">
-            <span class="title" *ngIf="bindings.length > 0">Data collected from form</span><br><br>
-            <div id="output" *ngIf="bindings.length > 0">
+            <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+                <mat-tab label="Data collected from form">
+                    <div class="output" *ngIf="bindings.length > 0">
+                        <div id="save" *ngIf="showRightContainer">
+                            <button mat-icon-button (click)="saveOutput(outputStr)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                            <button mat-icon-button (click)="copyOutputToClipboard(outputStr)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
+                        </div>
+                        <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="outputStr" wrap="soft">
+                        </textarea>
+                    </div>
+                </mat-tab>
+                <mat-tab label="FHIR Questionnaire">
+                    <div class="output" *ngIf="bindings.length > 0">
+                        <div id="save" *ngIf="showRightContainer">
+                            <button mat-icon-button (click)="saveOutput(fhirQuestionnaireStr)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                            <button mat-icon-button (click)="copyOutputToClipboard(fhirQuestionnaireStr)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
+                        </div>
+                        <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirQuestionnaireStr" wrap="soft">
+                        </textarea>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+            <!-- <span class="title" *ngIf="bindings.length > 0">Data collected from form</span><br><br> -->
+            <!-- <div id="output" *ngIf="bindings.length > 0">
                 <div id="save" *ngIf="showRightContainer">
                     <button mat-icon-button (click)="saveOutput()" matTooltip="Download Output"><mat-icon fontIcon="cloud_download"></mat-icon></button>
                     <button mat-icon-button (click)="copyOutputToClipboard(outputStr)" matTooltip="Copy Output"><mat-icon fontIcon="content_copy"></mat-icon></button>
                 </div>
                 <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="outputStr" wrap="soft">
                 </textarea>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

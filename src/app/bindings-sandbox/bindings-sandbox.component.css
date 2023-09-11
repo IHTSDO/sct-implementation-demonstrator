@@ -86,11 +86,12 @@ mat-hint, mat-error {
     padding: 10px;
 }
 
-#output {
+.output {
     border-radius: 10px;
     background-color: #282c34;
     padding: 10px;
     position: relative;
+    margin: 2rem;
 }
 
 #save {

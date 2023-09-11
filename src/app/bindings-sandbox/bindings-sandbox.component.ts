@@ -52,6 +52,8 @@ export class BindingsSandboxComponent {
   bindings: any[] = [];
   output: any = {};
   outputStr: string = '{}';
+  fhirQuestionnaire: any = {};
+  fhirQuestionnaireStr: string = '{}';
 
   example1 = [
     {
@@ -164,6 +166,108 @@ export class BindingsSandboxComponent {
     this.newBindingForm.reset();
     this.newPanel.close();
     this.indexInEdit = -1;
+    this.refreshFhirQuestionnaire();
+  }
+
+  refreshFhirQuestionnaire() {
+    this.fhirQuestionnaire = {
+      "resourceType": "Questionnaire",
+      "title": "Test form ALO",
+      "status": "draft",
+      "item": []
+    };
+    for (let [index, binding] of this.bindings.entries()) {
+      if (binding.type == 'Title') {
+        let item = {
+          "linkId": index*100,
+          "type": "display",
+          "text": binding.title
+        };
+        this.fhirQuestionnaire.item.push(item);
+      }
+      if (binding.type == 'Select (Single)' || binding.type == 'Options') {
+        let item = {
+          "linkId": index*100,
+          "type": "choice",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
+              "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
+            }
+          ],
+          "text": binding.title,
+          "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
+        };
+        this.fhirQuestionnaire.item.push(item);
+      }
+      if (binding.type == 'Select (Multiple)') {
+        let item = {
+          "linkId": index*100,
+          "type": "choice",
+          "repeats": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
+              "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
+            }
+          ],
+          "text": binding.title,
+          "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
+        };
+        this.fhirQuestionnaire.item.push(item);
+      }
+      if (binding.type == 'Autocomplete') {
+        let item = {
+          "linkId": index*100,
+          "type": "choice",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
+              "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "autocomplete",
+                    "display": "Auto-complete"
+                  }
+                ]
+              }
+            }
+          ],
+          "text": binding.title,
+          "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
+        };
+        this.fhirQuestionnaire.item.push(item);
+      }
+      if (binding.type == 'Text box') {
+        let item = {
+          "linkId": index*100,
+          "type": "text",
+          "text": binding.title
+        };
+        this.fhirQuestionnaire.item.push(item);
+      }
+      // if (binding.type == 'Checkbox') {
+      //   let item = {
+      //     "linkId": index*100,
+      //     "type": "boolean",
+      //     "text": binding.title,
+      //     "code": [
+      //       {
+      //         "system": "Asthma",
+      //         "code": "195967001",
+      //         "display": "http://snomed.info/sct"
+      //       }
+      //     ]
+      //   };
+      //   this.fhirQuestionnaire.item.push(item);
+      // }
+    }
+    this.fhirQuestionnaireStr = JSON.stringify(this.fhirQuestionnaire, null, 2);
   }
 
   async getEclPreview(ecl: string): Promise<any> {
@@ -222,6 +326,7 @@ export class BindingsSandboxComponent {
 
   loadExample1() {
     this.bindings = this.example1;
+    this.refreshFhirQuestionnaire();
   }
 
   cancelEdit() {
@@ -250,9 +355,9 @@ export class BindingsSandboxComponent {
     saveAs(blob, "Sandbox-form.json");
   }
 
-  saveOutput() {
-    var blob = new Blob([this.outputStr], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "AllergyIntolerance.json");
+  saveOutput(text: string) {
+    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "export.json");
   }
 
   copyOutputToClipboard(text: string) {
