@@ -59,8 +59,11 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
   }
   
   writeValue(value: any): void {
-    this.term = value;
-    this.formControl.setValue(value, { emitEvent: false });  // use emitEvent to avoid triggering valueChanges again.
+    if (value && typeof value === 'object' && value.display) {
+        this.formControl.setValue(value.display, { emitEvent: false });
+    } else {
+        this.formControl.setValue(value, { emitEvent: false });
+    }
   }
 
   registerOnChange(fn: (value: any) => void): void {
@@ -73,10 +76,16 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['term']) {
-      this.term = changes['term'].currentValue;
-      this.formControl.setValue(this.term);
+        this.term = changes['term'].currentValue;
+
+        if (this.term && typeof this.term === 'object' && this.term["display"]) {
+            this.formControl.setValue(this.term["display"]);
+        } else {
+            this.formControl.setValue(this.term);
+        }
     }
-  }
+}
+
 
   ngOnInit(): void {
     this.autoFilter  = this.formControl.valueChanges.pipe(
@@ -117,6 +126,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
     const item = event?.option?.value;
     if (item) {
       this.optionSelected({ code: item.code, display: item.display });
+      this.formControl.setValue(item.display); // Set the form control's value to the selected option's display
     }
   }
 
