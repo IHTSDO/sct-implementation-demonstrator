@@ -7,8 +7,16 @@
     flex-direction: column;
     margin: 20px 0;
     align-items: flex-start;
-  }
+}
   
 .check {
     margin: 0px;
-  }
+}
+
+.hint {
+    font-size: 0.8rem;
+    color: #999;
+    margin: 0;
+    padding: 0;
+    margin-left: 5px;
+}

@@ -31,19 +31,28 @@ export class CheckBoxBindingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.terminologyService.expandValueSet(this.binding.ecl, '').subscribe(response => {
-      this.options = response.expansion.contains;
-      // convert options to an array of form controls (display : false )
-      this.options?.forEach((o: any) => {
-        this.checkboxes.addControl(o.display, this._formBuilder.control(false));
-      });
-    });
-  }
+    // this.terminologyService.expandValueSet(this.binding.ecl, '').subscribe(response => {
+    //   this.options = response.expansion.contains;
+    //   // convert options to an array of form controls (display : false )
+    //   this.options?.forEach((o: any) => {
+    //     this.checkboxes.addControl(o.display, this._formBuilder.control(false));
+    //   });
+    // });
+    this.options = [ { display: this.binding.title } ];
+    this.options?.forEach((o: any) => {
+      this.checkboxes.addControl(o.display, this._formBuilder.control(false));
+    });  }
 
   optionClicked() {
+    // let result: any[] = [];
+    // this.options?.forEach((o: any) => {
+    //   result.push( {code: o, value : (this.checkboxes.value[o.display]) ? this.present : this.absent} );
+    // });
     let result: any[] = [];
-    this.options?.forEach((o: any) => {
-      result.push( {code: o, value : (this.checkboxes.value[o.display]) ? this.present : this.absent} );
+    result.push({
+      title: this.binding.title,
+      code: this.binding.ecl,
+      value: (this.checkboxes.value[this.binding.title]) ? this.present : this.absent
     });
     this.selectionChange.emit(result);
   }

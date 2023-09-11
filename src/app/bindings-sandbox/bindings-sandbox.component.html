@@ -49,13 +49,18 @@
                     </mat-select>
                     <mat-error>{{ getErrorMessage('type')}}</mat-error>
                 </mat-form-field>
-                <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value != 'Title' && newBindingForm.controls.type.value != 'Text box'">
+                <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value != 'Title' && newBindingForm.controls.type.value != 'Text box' && newBindingForm.controls.type.value != 'Checkbox'">
                     <mat-label>ECL Expression</mat-label>
                     <input matInput type="text" formControlName="ecl" placeholder="Enter ECL...">
                     <a href="javascript:void(0)" class="top-right-link" (click)="openEclBuilder(newBindingForm.get('ecl')?.value, 'ecl')">ECL Builder</a>
                     <button *ngIf="newBindingForm.get('ecl')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('ecl')?.reset()">
                         <mat-icon>close</mat-icon>
                     </button>
+                    <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value == 'Checkbox'">
+                    <!-- <mat-label>Question code</mat-label> -->
+                    <app-autocomplete-binding [binding]="observableBinding" class="grow" formControlName="ecl"></app-autocomplete-binding>
                     <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
                 </mat-form-field>
                 <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value != 'Title'">

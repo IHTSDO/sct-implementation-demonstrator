@@ -55,6 +55,14 @@ export class BindingsSandboxComponent {
   fhirQuestionnaire: any = {};
   fhirQuestionnaireStr: string = '{}';
 
+  observableBinding: any = {
+    title: 'Question code',
+    type: 'Autocomplete',
+    ecl: `<< 363787002 |Observable entity (observable entity)|`,
+    value: '',
+    // note: 'Select observable for question code.'
+  };
+
   example1 = [
     {
       title: 'Appendicitis data entry form (example)',
@@ -179,7 +187,7 @@ export class BindingsSandboxComponent {
     for (let [index, binding] of this.bindings.entries()) {
       if (binding.type == 'Title') {
         let item = {
-          "linkId": index*100,
+          "linkId": index+1,
           "type": "display",
           "text": binding.title
         };
@@ -187,7 +195,7 @@ export class BindingsSandboxComponent {
       }
       if (binding.type == 'Select (Single)' || binding.type == 'Options') {
         let item = {
-          "linkId": index*100,
+          "linkId": index+1,
           "type": "choice",
           "extension": [
             {
@@ -202,7 +210,7 @@ export class BindingsSandboxComponent {
       }
       if (binding.type == 'Select (Multiple)') {
         let item = {
-          "linkId": index*100,
+          "linkId": index+1,
           "type": "choice",
           "repeats": true,
           "extension": [
@@ -218,7 +226,7 @@ export class BindingsSandboxComponent {
       }
       if (binding.type == 'Autocomplete') {
         let item = {
-          "linkId": index*100,
+          "linkId": index+1,
           "type": "choice",
           "extension": [
             {
@@ -245,27 +253,27 @@ export class BindingsSandboxComponent {
       }
       if (binding.type == 'Text box') {
         let item = {
-          "linkId": index*100,
+          "linkId": index+1,
           "type": "text",
           "text": binding.title
         };
         this.fhirQuestionnaire.item.push(item);
       }
-      // if (binding.type == 'Checkbox') {
-      //   let item = {
-      //     "linkId": index*100,
-      //     "type": "boolean",
-      //     "text": binding.title,
-      //     "code": [
-      //       {
-      //         "system": "Asthma",
-      //         "code": "195967001",
-      //         "display": "http://snomed.info/sct"
-      //       }
-      //     ]
-      //   };
-      //   this.fhirQuestionnaire.item.push(item);
-      // }
+      if (binding.type == 'Checkbox') {
+        let item = {
+          "linkId": index+1,
+          "type": "boolean",
+          "text": binding.title,
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.ecl.code,
+              "display": binding.ecl.display
+            }
+          ]
+        };
+        this.fhirQuestionnaire.item.push(item);
+      }
     }
     this.fhirQuestionnaireStr = JSON.stringify(this.fhirQuestionnaire, null, 2);
   }
