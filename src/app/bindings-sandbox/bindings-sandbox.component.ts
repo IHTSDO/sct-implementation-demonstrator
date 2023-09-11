@@ -366,7 +366,7 @@ export class BindingsSandboxComponent {
 
   saveOutput(text: string) {
     var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "export.json");
+    saveAs(blob, `${this.formTitle}.json`);
   }
 
   copyOutputToClipboard(text: string) {
