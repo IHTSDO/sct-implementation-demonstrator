@@ -49,6 +49,7 @@ import {
 export class BindingsSandboxComponent {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
 
+  formTitle: string = 'My new form';
   bindings: any[] = [];
   output: any = {};
   outputStr: string = '{}';
@@ -180,7 +181,7 @@ export class BindingsSandboxComponent {
   refreshFhirQuestionnaire() {
     this.fhirQuestionnaire = {
       "resourceType": "Questionnaire",
-      "title": "Test form ALO",
+      "title": this.formTitle,
       "status": "draft",
       "item": []
     };

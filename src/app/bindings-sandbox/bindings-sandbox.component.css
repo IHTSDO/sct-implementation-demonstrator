@@ -107,3 +107,7 @@ mat-hint, mat-error {
     right: 0;
     font-size: smaller;
 }
+
+.form-title {
+    margin-left: 1rem;
+}

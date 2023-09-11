@@ -81,6 +81,15 @@
             </div>
         </div>
     </mat-expansion-panel>
+    <form class="row form-title">
+        <mat-form-field class="input-field">
+            <mat-label>Title</mat-label>
+            <input matInput type="text" [(ngModel)]="formTitle" placeholder="Enter title..." [ngModelOptions]="{standalone: true}">
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="formTitle = ''">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+    </form>
     <div class="row-container">
         <div [@growShrink]="stateName" class="row-container-item">
             <div cdkDropList (cdkDropListDropped)="onDrop($event)">
