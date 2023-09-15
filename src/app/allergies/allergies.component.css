@@ -9,3 +9,10 @@ h3 {
 #guideLink {
     font-size: smaller;
 }
+
+.long-tooltip {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    font-weight: lighter;
+    font-size: 0.9rem;
+}

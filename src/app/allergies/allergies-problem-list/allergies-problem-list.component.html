@@ -1,18 +1,52 @@
 <mat-card id="main-card">
-    <div class="container">
-        <div class="item">
-            <app-autocomplete-binding [binding]="problemBinding" [term]="term" (selectionChange)="updateProblem($event)"></app-autocomplete-binding>
-        </div>
-        <div class="item">
-            <button mat-flat-button color="primary" (click)="addProblem()">Add problem</button>
-        </div>
-        <div class="item">
-            <mat-spinner diameter="35" *ngIf="loading"></mat-spinner>
-        </div>
-    </div>
     <div class="container-space">
         <div class="problem-list">
-            <h4>Problem List</h4>
+            <h4>Problem List
+              <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+                <mat-icon>info</mat-icon>
+              </button>
+              <mat-menu #substancePopoverMenu="matMenu" >
+                  <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
+                      <h4>Problem list</h4>
+                      <p>Allergy or intolerance can also be recorded in the EHR as a problem. The problem list is normally restricted to SNOMED CT 
+                        concepts from three hierarchies – Clinical finding, Event and Finding with explicit context. This corresponds either to the 
+                        FHIR finding based AllergyIntolerance resource data model or the FHIR Condition resource.</p>
+                      <p>For practical guidance using SNOMED CT to document hypersensitivity to specific substances in a problem list, it is suggested 
+                        to map to the appropriate concepts under the 473011001 |Allergic condition (finding)|hierarchies. This is due to the lack of 
+                        sufficient content under 609433001 |Hypersensitivity disposition (finding)|and 421961002 |Hypersensitivity reaction (disorder)| 
+                        and that many of the concepts under 609328004 |Allergic disposition (finding)|and 419076005 |Allergic reaction (disorder)| have unclear 
+                        mechanisms which may actually represent non-allergic hypersensitivity. Please note that SNOMED international does not plan to create 
+                        new children concepts of hypersensitivity disposition to specific substances unless more than one Member country would submit a 
+                        request for them to answer to an active use-case.</p>
+                      <p>Almost all allergy concepts are modeled by substances in SNOMED CT. A very small number of allergy concepts are modeled by 
+                        products but with explicit description for the specific intended meaning. Records of allergy to multiple substances or to 
+                        multi-ingredient products should be recoded at the product level and updated when more specific information becomes available 
+                        (e.g., positive sensitivity test to one specific ingredient of the mix).</p>
+                      <p>Vaccine allergy is an example where allergy concepts are modeled using a product concept.  For example, ‘Allergy to component 
+                        of vaccine product (finding)’ with a synonym ‘vaccine allergy’ has been modeled by vaccine product. The concept represents 
+                        that allergy is caused by any substance in a vaccine product.</p>
+                      <p>To record the level of certainty or verification status, it is recommended to use additional data elements in the EHR information 
+                        model. Even though it is possible to utilize the SNOMED CT model for ‘situation with explicit context’ to express certainty, 
+                        this is not recommended due to potential ambiguity. For example, “suspected penicillin allergy” can mean uncertainty with 
+                        the condition (is it real allergy?) or with the causative agent (is it penicillin?). Even though SNOMED CT editorial 
+                        guideline is clear that the first interpretation is correct, it is better to use other methods to represent the uncertainty 
+                        to avoid confusion.</p>
+                      <p>For more information check the <a href="https://confluence.ihtsdotools.org/x/PaDICg" target="_blank">Implementation Guide</a>
+                        developed by the SNOMED International Allergy Clinical Reference Group.</p>
+                  </span>
+              </mat-menu>
+            </h4>
+            <div class="container">
+              <div class="item">
+                  <app-autocomplete-binding [binding]="problemBinding" [term]="term" (selectionChange)="updateProblem($event)"></app-autocomplete-binding>
+              </div>
+              <div class="item">
+                  <button mat-flat-button color="primary" (click)="addProblem()">Add problem</button>
+              </div>
+              <div class="item">
+                  <mat-spinner diameter="35" *ngIf="loading"></mat-spinner>
+              </div>
+            </div>
             <table mat-table [dataSource]="dataSource">
                 <ng-container matColumnDef="date">
                   <th mat-header-cell *matHeaderCellDef> Date </th>
@@ -25,7 +59,7 @@
                 <ng-container matColumnDef="display">
                   <th mat-header-cell *matHeaderCellDef> Term </th>
                   <td mat-cell *matCellDef="let element">
-                    <span class="tag pill" *ngIf="element.allergy">Allergic condition</span>
+                    <span class="tag pill" *ngIf="element.allergy">Allergy / Intolerance condition</span>
                     {{element.display}} 
                   </td>
                 </ng-container>

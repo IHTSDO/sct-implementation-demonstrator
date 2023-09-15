@@ -1,7 +1,40 @@
 <mat-card id="main-card">
     <div class="row">
         <div class="column">
-            <h4>Allergy Intolerance Form</h4>
+            <h4>Allergy Intolerance Form
+                <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+                    <mat-icon>info</mat-icon>
+                  </button>
+                  <mat-menu #substancePopoverMenu="matMenu" >
+                      <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
+                          <h4>Allergy list</h4>
+                          <p>Allergy or intolerance can be recorded in a specific section (e.g., “Drug Allergy and Intolerance”) of the 
+                            EHR, which records the causative agent together with other details, including type (allergy, non-allergic 
+                            hypersensitivity, intolerance), certainty, manifestation, and severity. This corresponds to the FHIR substance 
+                            based AllergyIntolerance resource data model.</p>
+                          <p>In terms of documenting  sensitivity type in the allergy list there is the option to map to 609433001 |Hypersensitivity 
+                            disposition which in SNOMED CT represents both immune-mediated and non-immune mediated hypersensitivity or to map to 
+                            609328004 |Allergic disposition (finding)|which is common clinical parlance for what many clinicians would mean by 
+                            allergic or non-allergic hypersensitivity. In addition, as recommended in the FHIR documentation if one is unclear 
+                            as to whether a condition represents hypersensitivity or intolerance, one can just omit the type element from the resource.</p>
+                          <p>If SNOMED CT concepts are used to document the causative agent, it is preferable to use concepts from the Substance rather 
+                            than Pharmaceutical/biologic product hierarchy since this will facilitate the downstream use of data, e.g., clinical 
+                            decision support, data exchange.</p>
+                          <p>Almost all allergy and intolerance finding concepts are modeled using substance concepts in SNOMED CT. The SNOMED CT 
+                            substance hierarchy has grouper concepts that are based on structure (e.g., Macrolide) or disposition (e.g., substance 
+                            with histamine receptor antagonist mechanism of action). Clinical decision support systems can utilize these grouper concepts to 
+                            access information at the desired level of granularity. Clinicians can also record a class of substance instead of a specific 
+                            drug or substance (e.g., angiotensin II receptor antagonist).  Note that substance grouper concepts based on therapeutic role 
+                            (e.g., anticonvulsant) is not recommended for use because they are currently under review and may be retired in future.</p>
+                          <p>There are situations in which it is difficult to determine the specific substance as a true cause or most likely cause of a 
+                            condition. This is the case for allergy/intolerance to a product containing multiple substances.</p>
+                          <p>Records of allergy to multiple substances or to multi-ingredient products should be recorded at the product level and updated 
+                            when more specific information becomes available (e.g., positive sensitivity test to one specific ingredient of the mix).</p>
+                          <p>For more information check the <a href="https://confluence.ihtsdotools.org/x/PaDICg" target="_blank">Implementation Guide</a>
+                            developed by the SNOMED International Allergy Clinical Reference Group.</p>
+                      </span>
+                  </mat-menu>
+            </h4>
             <button mat-flat-button color="accent" (click)="clear()" id="clear">Clear</button>
             <div class="row-centered">
                 <div class="smallest-form-field">

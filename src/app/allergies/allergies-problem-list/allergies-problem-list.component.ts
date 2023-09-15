@@ -62,12 +62,14 @@ export class AllergiesProblemListComponent {
   }
 
   async getAllergyData(): Promise<any> {
-    const response = await this.terminologyService.expandValueSet('<<473011001 |Allergic condition (finding)|', this.selectedProblemSct.code,0,1);
+    // <<418038007 |Propensity to adverse reactions to substance| OR <<420134006 |Propensity to adverse reaction (finding)|
+    // <<473011001 |Allergic condition (finding)|
+    const response = await this.terminologyService.expandValueSet('<<418038007 |Propensity to adverse reactions to substance| OR <<420134006 |Propensity to adverse reaction (finding)|', this.selectedProblemSct.code,0,1);
     return lastValueFrom(response.pipe(map(res => res)));
   }
 
   async getAllergySubstance(allergy: any): Promise<any> {
-    const response = await this.terminologyService.expandValueSet(`${allergy.code} |${allergy.display}| . 246075003 |Causative agent (attribute)|`, '');
+    const response = await this.terminologyService.expandValueSet(`${allergy.code} |${allergy.display}| . (246075003 |Causative agent (attribute)| OR 47429007 |Associated with (attribute)|)`, '');
     return lastValueFrom(response.pipe(map(res => res)));
   }
 }

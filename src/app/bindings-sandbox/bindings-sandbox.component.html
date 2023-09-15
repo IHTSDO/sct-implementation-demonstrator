@@ -15,7 +15,14 @@
             {{ (showRightContainer ? 'Close data panel' : 'Open data panel') }}
         </button>
         <input hidden (change)="uploadFile($event)" #fileInput type="file" id="file">
-        <button mat-flat-button color="accent" (click)="saveForm()">Download form</button>
+        <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu" *ngIf="bindings.length">
+            Download form
+        </button>
+        <mat-menu #demosMenu="matMenu" class="wide-menu">
+            <button mat-menu-item (click)="saveForm()">Download</button>
+            <button mat-menu-item (click)="saveOutput(fhirQuestionnaireStr)">Download as FHIR Questionnaire</button>
+        </mat-menu>
+
         <button mat-flat-button color="accent" (click)="fileInput.click()">Upload form</button>
         <button mat-flat-button color="accent" (click)="loadExample1()">Example</button>
         <button mat-flat-button color="accent" (click)="clear()">Clear</button>
@@ -81,15 +88,26 @@
             </div>
         </div>
     </mat-expansion-panel>
-    <form class="row form-title">
-        <mat-form-field class="input-field">
-            <mat-label>Title</mat-label>
-            <input matInput type="text" [(ngModel)]="formTitle" placeholder="Enter title..." [ngModelOptions]="{standalone: true}" (ngModelChange)="refreshFhirQuestionnaire()">
-            <button matSuffix mat-icon-button aria-label="Clear" (click)="formTitle = ''">
-                <mat-icon>close</mat-icon>
-            </button>
-        </mat-form-field>
-    </form>
+    <div *ngIf="!titleEditMode" class="compact-row-container">
+        <p class="title">{{formTitle}}</p>
+        <button mat-icon-button color="primary" (click)="titleEditMode = true" class="tool">
+            <mat-icon>edit</mat-icon>
+        </button>
+    </div>
+    <div *ngIf="titleEditMode" class="compact-row-container">
+        <form class="row form-title">
+            <mat-form-field>
+                <mat-label>Title</mat-label>
+                <input matInput type="text" [(ngModel)]="formTitle" placeholder="Enter title..." [ngModelOptions]="{standalone: true}" (ngModelChange)="refreshFhirQuestionnaire()">
+                <button matSuffix mat-icon-button aria-label="Clear" (click)="formTitle = ''">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+        </form>
+        <button mat-icon-button color="primary" (click)="titleEditMode = false" class="tool">
+            <mat-icon>save</mat-icon>
+        </button>
+    </div>
     <div class="row-container">
         <div [@growShrink]="stateName" class="row-container-item">
             <div cdkDropList (cdkDropListDropped)="onDrop($event)">

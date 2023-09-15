@@ -50,6 +50,7 @@ export class BindingsSandboxComponent {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
 
   formTitle: string = 'My new form';
+  titleEditMode = false;
   bindings: any[] = [];
   output: any = {};
   outputStr: string = '{}';
@@ -64,50 +65,46 @@ export class BindingsSandboxComponent {
     // note: 'Select observable for question code.'
   };
 
-  example1 = [
-    {
-      title: 'Appendicitis data entry form (example)',
-      type: 'Title',
-      ecl: ``,
-      value: '',
-      note: ''
-    },
-    {
-      title: 'Diagnosis (type of appendicitis)',
-      type: 'Autocomplete',
-      ecl: `<< 74400008 |Appendicitis|`,
-      value: '',
-      note: 'An autocomplete field to select between all descendants of appendicitis.'
-    },
-    {
-      title: 'Clinical note',
-      type: 'Text box',
-      ecl: `74400008 |Appendicitis|`,
-      value: '',
-      note: 'A text box for entering free text clinical information.'
-    },
-    {
-      title: 'Appendicitis type',
-      type: 'Select (Single)',
-      ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
-      value: '',
-      note: 'A single selection dropdown field for a shorter selection of the type of appendicitis.'
-    },
-    {
-      title: 'Appendicitis type (M)',
-      type: 'Select (Multiple)',
-      ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
-      value: '',
-      note: 'A multiple selection dropdown field for a shorter selection of the type of appendicitis.'
-    },
-    {
-      title: 'Appendicectomy type',
-      type: 'Options',
-      ecl: `<< 174036004 |Emergency appendectomy (procedure)|`,
-      value: '',
-      note: 'A radio buttons selector for the type of appendicectomy procedure.'
-    }
-  ];
+  example1 = {
+    title: 'Appendicitis data entry form (example)',
+    bindings: [
+      {
+        title: 'Diagnosis (type of appendicitis)',
+        type: 'Autocomplete',
+        ecl: `<< 74400008 |Appendicitis|`,
+        value: '',
+        note: 'An autocomplete field to select between all descendants of appendicitis.'
+      },
+      {
+        title: 'Clinical note',
+        type: 'Text box',
+        ecl: `74400008 |Appendicitis|`,
+        value: '',
+        note: 'A text box for entering free text clinical information.'
+      },
+      {
+        title: 'Appendicitis type',
+        type: 'Select (Single)',
+        ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
+        value: '',
+        note: 'A single selection dropdown field for a shorter selection of the type of appendicitis.'
+      },
+      {
+        title: 'Appendicitis type (M)',
+        type: 'Select (Multiple)',
+        ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
+        value: '',
+        note: 'A multiple selection dropdown field for a shorter selection of the type of appendicitis.'
+      },
+      {
+        title: 'Appendicectomy type',
+        type: 'Options',
+        ecl: `<< 174036004 |Emergency appendectomy (procedure)|`,
+        value: '',
+        note: 'A radio buttons selector for the type of appendicectomy procedure.'
+      }
+    ]
+  };
 
   newBindingForm = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.maxLength(50)]),
@@ -334,7 +331,8 @@ export class BindingsSandboxComponent {
   }
 
   loadExample1() {
-    this.bindings = this.example1;
+    this.formTitle = this.example1.title;
+    this.bindings = this.example1.bindings;
     this.refreshFhirQuestionnaire();
   }
 
@@ -360,13 +358,13 @@ export class BindingsSandboxComponent {
   }
 
   saveForm() {
-    var blob = new Blob([JSON.stringify(this.bindings, null, 2)], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "Sandbox-form.json");
+    var blob = new Blob([JSON.stringify({ title: this.formTitle, bindings: this.bindings }, null, 2)], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, `${this.formTitle}.json`);
   }
 
   saveOutput(text: string) {
     var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, `${this.formTitle}.json`);
+    saveAs(blob, `${this.formTitle}-fhir.json`);
   }
 
   copyOutputToClipboard(text: string) {
@@ -381,7 +379,15 @@ export class BindingsSandboxComponent {
       reader.onloadend = (e) => {
         if (reader.result) {
           const uploadedVersion = JSON.parse(reader.result?.toString());
-          this.bindings = uploadedVersion;
+          // if uploaded version is array, assume it's the bindings
+          if (Array.isArray(uploadedVersion)) {
+            this.bindings = uploadedVersion;
+            this.formTitle = 'My new form';
+          } else {
+            this.bindings = [];
+            this.bindings = uploadedVersion.bindings;
+            this.formTitle = uploadedVersion.title;
+          }
           this.clearOutput();
         }
       };

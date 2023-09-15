@@ -84,3 +84,10 @@ pre > code {
     right: 20px;
     top: 20px;
 }
+
+.long-tooltip {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    font-weight: lighter;
+    font-size: 0.9rem;
+}

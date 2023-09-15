@@ -52,12 +52,16 @@ td {
     position: absolute;
     top: 0;
     right: 0;
+    margin-top: 1rem;
 }
 
 .mat-column-display {
     min-width: 350px;
 }
 
-/* .mat-mdc-cell:first-child {
-    font-size: 12px;
-} */
+.long-tooltip {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    font-weight: lighter;
+    font-size: 0.9rem;
+}
