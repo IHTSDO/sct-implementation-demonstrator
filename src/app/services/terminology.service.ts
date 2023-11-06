@@ -25,6 +25,10 @@ export class TerminologyService {
     this.fhirUrlParam = url;
   }
 
+  getFhirUrlParam() {
+    return this.fhirUrlParam;
+  }
+
   setLang(lang: string) {
     this.lang = lang;
   }

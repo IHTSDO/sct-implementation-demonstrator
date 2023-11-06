@@ -1,0 +1,40 @@
+/* subset-validator.component.css */
+:host {
+    display: block;
+    height: calc(100% - 65px);
+  }
+  
+  .layout-container {
+    display: flex;
+    height: 100%;
+  }
+  
+  .left-column {
+    flex: 0 0 58%; 
+    display: flex;
+    flex-direction: column; 
+    height: 100%;
+  }
+  
+  .right-column {
+    flex: 0 0 38%;
+  }
+  
+  .upload-controls, .table-container {
+    width: 100%; /* Take up the whole width of the left column */
+    margin-bottom: 20px; /* Optional: space between the card and table */
+  }
+  
+  /* Optional: Style to ensure the table container has a scrolling capability if content overflows */
+  .table-container {
+    overflow-y: auto;
+  }
+
+  .upload-controls {
+    margin-left: 20px;
+  }
+  
+  /* Ensure the table fills its container */
+  table {
+    width: 100%;
+  }

@@ -1,0 +1,63 @@
+<!-- subset-validator.component.html -->
+<div class="layout-container">
+    <div class="left-column">
+        <div class="upload-controls">
+            <h3>Subset Members Validator</h3>
+            <p>Validating against {{ terminologyService.getFhirUrlParam() }}</p>
+            <input type="file" #fileInput style="display: none" (change)="onSubsetmembersFileSelected($event)" />
+            <button mat-flat-button color="primary" (click)="fileInput.click()">Upload File</button>
+            <mat-progress-bar *ngIf="loadingSubsetmembers" mode="indeterminate"></mat-progress-bar>
+        </div>
+        <!-- Table to display the data -->
+        <div *ngIf="!loadingSubsetmembers && studentSubsetMembersDataSource.data.length" class="table-container">
+          <table mat-table [dataSource]="studentSubsetMembersDataSource">
+            <!-- Referenced Component ID Column -->
+            <ng-container matColumnDef="referencedComponentId">
+              <th mat-header-cell *matHeaderCellDef>ID</th>
+              <td mat-cell *matCellDef="let element">{{ element.referencedComponentId }}</td>
+            </ng-container>
+      
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+            </ng-container>
+
+            <!-- Result Column -->
+            <ng-container matColumnDef="result">
+                <th mat-header-cell *matHeaderCellDef>Result</th>
+                <td mat-cell *matCellDef="let element">{{ element.result.value }}</td>
+              </ng-container>
+      
+            <!-- Header and Rows -->
+            <tr mat-header-row *matHeaderRowDef="studentSubsetMembersDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: studentSubsetMembersDisplayedColumns;"></tr>
+          </table>
+        </div>
+    </div>
+    <div class="right-column">
+        <div class="upload-controls">
+            <h3>Reference Data</h3>
+        </div>
+        <div *ngIf="referenceDataDataSource.data.length" class="table-container">
+            <table mat-table [dataSource]="referenceDataDataSource">
+              <!-- Referenced Component ID Column -->
+              <ng-container matColumnDef="referencedComponentId">
+                <th mat-header-cell *matHeaderCellDef>ID</th>
+                <td mat-cell *matCellDef="let element">{{ element.referencedComponentId }}</td>
+              </ng-container>
+        
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
+  
+              <!-- Header and Rows -->
+              <tr mat-header-row *matHeaderRowDef="referenceDataDisplayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: referenceDataDisplayedColumns;"></tr>
+            </table>
+          </div>
+    </div>
+  </div>
+  

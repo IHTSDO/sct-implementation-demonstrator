@@ -47,6 +47,7 @@ import { EclBuilderDialogComponent } from './bindings/ecl-builder-dialog/ecl-bui
 import { CheckBoxBindingComponent } from './bindings/checkbox-binding/checkbox-binding.component';
 import { PrescriptionMainComponent } from './prescription/prescription-main/prescription-main.component';
 import { QuestionnairesMainComponent } from './questionnaires/questionnaires-main/questionnaires-main.component';
+import { SubsetValidatorComponent } from './implementation-course/subset-validator/subset-validator.component';
 
 @NgModule({
   declarations: [
@@ -64,7 +65,8 @@ import { QuestionnairesMainComponent } from './questionnaires/questionnaires-mai
     EclBuilderDialogComponent,
     CheckBoxBindingComponent,
     PrescriptionMainComponent,
-    QuestionnairesMainComponent
+    QuestionnairesMainComponent,
+    SubsetValidatorComponent
   ],
   imports: [
     HttpClientModule,
