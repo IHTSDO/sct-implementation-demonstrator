@@ -14,7 +14,7 @@ import { TerminologyService } from 'src/app/services/terminology.service';
 export class SubsetValidatorComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
-  studentSubsetMembersDisplayedColumns: string[] = ['referencedComponentId', 'name', 'result'];
+  studentSubsetMembersDisplayedColumns: string[] = ['referencedComponentId', 'name', 'result', 'scope'];
   studentSubsetMembersDataSource = new MatTableDataSource<any>();
   studentSubsetmembers: any[] = [];
   studentSubsetDefinition: string = "";
@@ -91,10 +91,19 @@ export class SubsetValidatorComponent implements AfterViewInit {
     let referenceExpansion = await this.terminologyService.expandValueSet(this.referenceDefinition, "").toPromise();
     // calculate the numer of concepts in the student expansion that are not in the reference expansion
     let notFound = 0;
-    studentExpansinon.expansion.contains.forEach((studentExpansionMember: any) => {
-      const found = referenceExpansion.expansion.contains.find((referenceExpansionMember: any) => referenceExpansionMember.code === studentExpansionMember.code);
+    this.studentSubsetMembersDataSource.data.forEach((studentExpansionMember: any) => {
+      const found = referenceExpansion.expansion.contains.find((referenceExpansionMember: any) => referenceExpansionMember.code === studentExpansionMember.referencedComponentId);
       if (!found) {
+        studentExpansionMember.scope = {
+          value: 'Out of scope',
+          message: ''
+        };
         notFound++;
+      } else {
+        studentExpansionMember.scope = {
+          value: 'In scope',
+          message: ''
+        };
       }
     });
     // calculate the percentage of concepts in the student expansion that are not in the reference expansion
@@ -135,6 +144,10 @@ export class SubsetValidatorComponent implements AfterViewInit {
             subsetMember.referencedComponentId = line[referencedComponentIdIndex];
             subsetMember.name = line[nameIndex];
             subsetMember.result = {
+              value: 'Not validated',
+              message: ''
+            };
+            subsetMember.scope = {
               value: 'Not validated',
               message: ''
             };
