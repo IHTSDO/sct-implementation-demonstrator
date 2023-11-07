@@ -18,9 +18,15 @@ export class SubsetValidatorComponent implements AfterViewInit {
   studentSubsetMembersDataSource = new MatTableDataSource<any>();
   studentSubsetmembers: any[] = [];
   studentSubsetDefinition: string = "";
-  loadingSubsetmembers: boolean = false;
+  definitionValidationResult: string = "";
+  membersValidationResult: string = "";
+  validatingMembers: boolean = false;
+  validatingDefinition: boolean = false;
+  loading: boolean = false;
 
-  referenceData: any[] = [
+  referenceData: any[] = []
+
+  moduleDReferenceData: any[] = [
     { referencedComponentId: "403197009", name: "Sun-induced wrinkles" },
     { referencedComponentId: "279002006", name: "Lichenification of skin" },
     { referencedComponentId: "274672009", name: "Changes in skin texture" },
@@ -31,19 +37,77 @@ export class SubsetValidatorComponent implements AfterViewInit {
 
   referenceDataDisplayedColumns: string[] = ['referencedComponentId', 'name'];
   referenceDataDataSource = new MatTableDataSource<any>(this.referenceData);
+  referenceDefinition: string = "";
+  moduleDReferenceDefinition: string = "< 185823004 |Finding of skin texture (finding)|";
+
+  selectedAssignment = "Module D";
 
   constructor(private http: HttpClient, public terminologyService: TerminologyService, private _snackBar: MatSnackBar) { }
 
   ngAfterViewInit() {
-    this.studentSubsetMembersDataSource.sort = this.sort;
+    this.setAssignment("Module D");
+  }
+
+  setAssignment(assignment: string) {
+    if (assignment === "Module D") {
+      this.referenceData = this.moduleDReferenceData;
+      this.referenceDefinition = this.moduleDReferenceDefinition;
+    }
+  }
+
+  validateSubsetMembers() {
+    this.validatingMembers = true;
+    this.membersValidationResult = "";
+    if (this.studentSubsetDefinition) {
+      this.validateExpansion();
+    }
+    let correct = 0;
+    let notAcceptable = 0;
+    // Loop thorugh subset members and check if they are present in reference data
+    this.studentSubsetMembersDataSource.data.forEach(subsetMember => {
+      const found = this.referenceData.find(referenceMember => referenceMember.referencedComponentId === subsetMember.referencedComponentId);
+      if (found) {
+        subsetMember.result = {
+          value: 'Correct',
+          message: ''
+        };
+        correct++;
+      } else {
+        subsetMember.result = {
+          value: 'Not acceptable',
+          message: 'Subset member not found in reference data'
+        };
+        notAcceptable++;
+      }
+    });
+    this.validatingMembers = false;
+    this.membersValidationResult = `The student Members list containes ${correct} concepts, and ${notAcceptable} incorrect concepts, based on the exercise reference data`;
+  }
+
+  async validateExpansion() {
+    this.validatingDefinition = true;
+    this.definitionValidationResult = "";
+    let studentExpansinon = await this.terminologyService.expandValueSet(this.studentSubsetDefinition, "").toPromise();
+    let referenceExpansion = await this.terminologyService.expandValueSet(this.referenceDefinition, "").toPromise();
+    // calculate the numer of concepts in the student expansion that are not in the reference expansion
+    let notFound = 0;
+    studentExpansinon.expansion.contains.forEach((studentExpansionMember: any) => {
+      const found = referenceExpansion.expansion.contains.find((referenceExpansionMember: any) => referenceExpansionMember.code === studentExpansionMember.code);
+      if (!found) {
+        notFound++;
+      }
+    });
+    // calculate the percentage of concepts in the student expansion that are not in the reference expansion
+    const percentage = Math.round(notFound / studentExpansinon.expansion.contains.length * 100);
+    this.validatingDefinition = false;
+    this.definitionValidationResult = `The student ECL Definition contains ${notFound} concepts that are not in the reference definition (${percentage}%)`;
   }
 
   onSubsetmembersFileSelected(event: Event) {
     this.studentSubsetmembers = [];
-    this.studentSubsetDefinition = "";
     this.studentSubsetMembersDataSource = new MatTableDataSource<any>();
     this.studentSubsetMembersDataSource.sort = this.sort;
-    this.loadingSubsetmembers = true;
+    this.loading = true;
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -82,14 +146,14 @@ export class SubsetValidatorComponent implements AfterViewInit {
           });
           // Set the data source's data to the parsed subset members.
           this.studentSubsetMembersDataSource.data = subsetMembers;
-          this.loadingSubsetmembers = false; // Set loading to false as the operation is complete.
+          this.loading = false; // Set loading to false as the operation is complete.
         } catch (error: any) {
           this._snackBar.openFromComponent(SnackAlertComponent, {
             duration: 5 * 1000,
             data: "Error reading file: " + error.message,
             panelClass: ['red-snackbar']
           });
-          this.loadingSubsetmembers = false; // Set loading to false as there was an error.
+          this.loading = false; // Set loading to false as there was an error.
         }
       };
       reader.onerror = (error) => {
@@ -99,12 +163,62 @@ export class SubsetValidatorComponent implements AfterViewInit {
           data: "Error reading file: " + error,
           panelClass: ['red-snackbar']
         });
-        this.loadingSubsetmembers = false; // Set loading to false as there was an error.
+        this.loading = false; // Set loading to false as there was an error.
       };
       reader.readAsText(file);
     } else {
       // No file was selected
-      this.loadingSubsetmembers = false;
+      this.loading = false;
+    }
+  }
+
+  onDefinitionFileSelected(event: Event) {
+    this.studentSubsetDefinition = "";
+    this.loading = true;
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          // validate if it is a TSV txt file
+          const content = reader.result as string;
+          // remove all appreviations of \r
+          const contentWithoutCarriageReturn = content.replace(/\r/g, '');
+          const lines = contentWithoutCarriageReturn.split('\n');
+          const header = lines[0].split('\t');
+          console.log(header)
+          if (header.length < 2) {
+            throw new Error("Invalid file format");
+          }
+          const referencedComponentIdIndex = header.indexOf("referencedComponentId");
+          const definitionIndex = header.indexOf("definition");
+          if (referencedComponentIdIndex < 0 || definitionIndex < 0) {
+            throw new Error("Invalid file format");
+          }
+          this.studentSubsetDefinition = lines[1].split('\t')[definitionIndex];
+          this.loading = false; // Set loading to false as the operation is complete.
+        } catch (error: any) {
+          this._snackBar.openFromComponent(SnackAlertComponent, {
+            duration: 5 * 1000,
+            data: "Error reading file: " + error.message,
+            panelClass: ['red-snackbar']
+          });
+          this.loading = false; // Set loading to false as there was an error.
+        }
+      };
+      reader.onerror = (error) => {
+        // Handle file read errors
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: "Error reading file: " + error,
+          panelClass: ['red-snackbar']
+        });
+        this.loading = false; // Set loading to false as there was an error.
+      };
+      reader.readAsText(file);
+    } else {
+      // No file was selected
+      this.loading = false;
     }
   }
 }
