@@ -19,10 +19,14 @@ export class SubsetValidatorComponent implements AfterViewInit {
   studentSubsetmembers: any[] = [];
   studentSubsetDefinition: string = "";
   definitionValidationResult: string = "";
+  definitionVsMembersValudationResult: string = "";
   membersValidationResult: string = "";
   validatingMembers: boolean = false;
   validatingDefinition: boolean = false;
   loading: boolean = false;
+
+  ok: string = "✅";
+  error: string = "🟥";
 
   referenceData: any[] = []
 
@@ -55,7 +59,7 @@ export class SubsetValidatorComponent implements AfterViewInit {
     }
   }
 
-  validateSubsetMembers() {
+  async validateSubsetMembers() {
     this.validatingMembers = true;
     this.membersValidationResult = "";
     if (this.studentSubsetDefinition) {
@@ -64,6 +68,27 @@ export class SubsetValidatorComponent implements AfterViewInit {
     let correct = 0;
     let notAcceptable = 0;
     // Loop thorugh subset members and check if they are present in reference data
+    const studentSubsetDefinitionExpansion = await this.terminologyService.expandValueSet(this.studentSubsetDefinition, "").toPromise();
+    // create a list with all the codes in the expansion
+    const studentSubsetDefinitionExpansionCodes = studentSubsetDefinitionExpansion.expansion.contains.map((member: any) => member.code);
+    // sort the list alphabetically
+    studentSubsetDefinitionExpansionCodes.sort((a: any, b: any) => {
+      return a.localeCompare(b);
+    });
+    // create a list with all the codes in the studentSubsetMembersDataSource.data
+    const studentSubsetMembersDataSourceCodes = this.studentSubsetMembersDataSource.data.map((member: any) => member.referencedComponentId);
+    // sort the list alphabetically
+    studentSubsetMembersDataSourceCodes.sort((a, b) => {
+      return a.localeCompare(b);
+    });
+    // check if the lists contain exactly the same codes or not, regardless of the order
+    const sameCodes = studentSubsetDefinitionExpansionCodes.length === 
+      studentSubsetMembersDataSourceCodes.length && studentSubsetDefinitionExpansionCodes.every((value:string, index: number) => value === studentSubsetMembersDataSourceCodes[index]);
+    if (sameCodes) {
+      this.definitionVsMembersValudationResult = `${this.ok}  The members list contains exactly the same concepts as the definition expansion`;
+    } else {
+      this.definitionVsMembersValudationResult = `${this.error}  The members list does not contain exactly the same concepts as the definition expansion`;
+    }
     this.studentSubsetMembersDataSource.data.forEach(subsetMember => {
       const found = this.referenceData.find(referenceMember => referenceMember.referencedComponentId === subsetMember.referencedComponentId);
       if (found) {
@@ -81,7 +106,8 @@ export class SubsetValidatorComponent implements AfterViewInit {
       }
     });
     this.validatingMembers = false;
-    this.membersValidationResult = `The student Members list containes ${correct} concepts, and ${notAcceptable} incorrect concepts, based on the exercise reference data`;
+    const icon = notAcceptable > 0 ? this.error : this.ok;
+    this.membersValidationResult = `${icon}  The student Members list contains ${correct} correct concepts, and ${notAcceptable} incorrect concepts, based on the exercise reference data`;
   }
 
   async validateExpansion() {
@@ -109,7 +135,8 @@ export class SubsetValidatorComponent implements AfterViewInit {
     // calculate the percentage of concepts in the student expansion that are not in the reference expansion
     const percentage = Math.round(notFound / studentExpansinon.expansion.contains.length * 100);
     this.validatingDefinition = false;
-    this.definitionValidationResult = `The student ECL Definition contains ${notFound} concepts that are not in the reference definition (${percentage}%)`;
+    const icon = notFound > 0 ? this.error : this.ok;
+    this.definitionValidationResult = `${icon}  The student ECL Definition contains ${notFound} concepts that are not in the reference definition (${percentage}%)`;
   }
 
   onSubsetmembersFileSelected(event: Event) {

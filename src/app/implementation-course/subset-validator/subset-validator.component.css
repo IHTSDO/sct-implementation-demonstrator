@@ -46,8 +46,8 @@
   }
 
 .validation-result {
-    font-style: italic;
-    font-weight: lighter;
+    font-weight: normal;
+    font-size: smaller;
 }
 
 .blue-rounded-div {
