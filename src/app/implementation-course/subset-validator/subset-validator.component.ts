@@ -121,13 +121,13 @@ export class SubsetValidatorComponent implements AfterViewInit {
       const found = referenceExpansion.expansion.contains.find((referenceExpansionMember: any) => referenceExpansionMember.code === studentExpansionMember.referencedComponentId);
       if (!found) {
         studentExpansionMember.scope = {
-          value: 'Out of scope',
+          value: 'In expansion',
           message: ''
         };
         notFound++;
       } else {
         studentExpansionMember.scope = {
-          value: 'In scope',
+          value: 'Not in expansion',
           message: ''
         };
       }
@@ -136,7 +136,7 @@ export class SubsetValidatorComponent implements AfterViewInit {
     const percentage = Math.round(notFound / studentExpansinon.expansion.contains.length * 100);
     this.validatingDefinition = false;
     const icon = notFound > 0 ? this.error : this.ok;
-    this.definitionValidationResult = `${icon}  The student ECL Definition contains ${notFound} concepts that are not in the reference definition (${percentage}%)`;
+    this.definitionValidationResult = `${icon}  The student ECL Definition Expasion contains ${notFound} concepts that out of scope from expected answer (${percentage}%)`;
   }
 
   onSubsetmembersFileSelected(event: Event) {
