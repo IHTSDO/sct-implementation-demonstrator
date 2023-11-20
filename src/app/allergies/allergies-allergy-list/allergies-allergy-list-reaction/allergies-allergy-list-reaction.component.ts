@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -15,7 +15,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class AllergiesAllergyListReactionComponent implements ControlValueAccessor {
 
-  @Output() ngModelChange = new EventEmitter();
+  @Input() reactions: any[] = [];
 
   severityOptions = [
     { code: 'mild', display: 'Mild', sctCode: '255604002', sctDisplay: 'Mild (qualifier value)' },
@@ -27,47 +27,54 @@ export class AllergiesAllergyListReactionComponent implements ControlValueAccess
   routeBinding = { ecl: '<<284009009 |Route of administration value|', title: 'Exposure Route' };
 
   reaction: any = {};
+
   private onChangeCallback: (_: any) => void = () => {};
   private onTouchedCallback: () => void = () => {};
 
-  writeValue(value: any) {
-    this.reaction = value;
+  constructor() { }
+
+  writeValue(obj: any): void {
+    if (obj !== undefined) {
+      this.reactions = obj;
+    }
   }
 
-  registerOnChange(fn: any) {
+  setDisabledState?(isDisabled: boolean): void {
+    // TODO: implement this
+  }
+
+  addNewReaction() {
+    this.reactions.push(this.reaction);
+    this.reaction = {};
+    this.onChangeCallback(this.reactions);
+  }
+
+  removeReaction(index: number) {
+    this.reactions.splice(index, 1);
+    this.onChangeCallback(this.reactions);
+  }
+
+  reactionManifestationSelected(reaction: any, event: any) {
+    reaction.manifestation = event;
+    this.onChangeCallback(this.reactions);
+  }
+
+  reactionSeveritySelected(reaction: any, event: any) {
+    reaction.severity = event;
+    this.onChangeCallback(this.reactions);
+  }
+
+  reactionRouteSelected(reaction: any, event: any) {
+    reaction.route = event;
+    this.onChangeCallback(this.reactions);
+  }
+
+  registerOnChange(fn: any): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: any): void {
     this.onTouchedCallback = fn;
-  }
-
-  onChange() {
-    this.onChangeCallback(this.reaction);
-  }
-
-  onTouched() {
-    this.onTouchedCallback();
-  }
-
-  onModelChange(newValue: any) {
-    this.reaction = newValue;
-    this.onChangeCallback(newValue);
-    this.ngModelChange.emit(newValue);
-  }
-
-  updateAllergyStr() {
-    this.reaction.severity = this.selectedSeverity.code;
-  }
-
-  reactionManifestationSelected(reactionManifestation: any) {
-    reactionManifestation = Object.assign({ system: 'http://snomed.info/sct' }, reactionManifestation);
-    this.reaction.manifestation[0].concept.coding = [reactionManifestation];
-  }
-
-  routeSelected(route: any) {
-    route = Object.assign({ system: 'http://snomed.info/sct' }, route);
-    this.reaction.exposureRoute.coding = [route];
   }
 
 }

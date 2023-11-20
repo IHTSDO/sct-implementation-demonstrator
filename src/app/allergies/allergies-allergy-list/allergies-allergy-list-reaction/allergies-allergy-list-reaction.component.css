@@ -56,6 +56,7 @@
     border-radius: 10px;
     background-color: #a9bee9;
     padding: 10px;
+    margin-bottom: 10px;
 }
 
 #output {
@@ -77,3 +78,10 @@ pre > code {
     top: 0;
     color: rgb(232, 140, 21);
 }
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+

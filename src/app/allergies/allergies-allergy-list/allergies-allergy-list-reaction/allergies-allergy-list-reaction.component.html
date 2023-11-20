@@ -1,7 +1,12 @@
-<div class="reaction">
+<div class="reaction" *ngFor="let reaction of reactions; let i = index">
+    <div class="button-container">
+        <button mat-icon-button color="primary" (click)="removeReaction(i)" *ngIf="i > 0" class="remove" matTooltip="Remove reaction">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
     <div class="row-centered">
         <div class="small-form-field">
-            <app-autocomplete-binding [binding]="reactionManifestationBinding" (selectionChange)="reactionManifestationSelected($event)"></app-autocomplete-binding>
+            <app-autocomplete-binding [binding]="reactionManifestationBinding" (selectionChange)="reactionManifestationSelected(reaction, $event)"></app-autocomplete-binding>
         </div>
         <button mat-icon-button color="primary" [matMenuTriggerFor]="reactionPopoverMenu">
             <mat-icon>info</mat-icon>
@@ -15,13 +20,13 @@
     </div>
     <mat-form-field class="form-field">
         <mat-label>Reaction Severity</mat-label>
-        <mat-select [(ngModel)]="selectedSeverity">
-            <mat-option *ngFor="let option of severityOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+        <mat-select>
+            <mat-option *ngFor="let option of severityOptions" [value]="option" (click)="reactionSeveritySelected(reaction, option)">{{option.display}}</mat-option>
         </mat-select>
     </mat-form-field>
     <div class="row-centered">
         <div class="small-form-field">
-            <app-autocomplete-binding [binding]="routeBinding" (selectionChange)="routeSelected($event)"></app-autocomplete-binding>
+            <app-autocomplete-binding [binding]="routeBinding" (selectionChange)="reactionRouteSelected(reaction, $event)"></app-autocomplete-binding>
         </div>
         <button mat-icon-button color="primary" [matMenuTriggerFor]="routePopoverMenu">
             <mat-icon>info</mat-icon>
@@ -33,4 +38,9 @@
             </span>
         </mat-menu>
     </div>
+</div>
+<div>
+    <button mat-icon-button color="primary" (click)="addNewReaction()" matTooltip="Add reaction">
+        <mat-icon>add</mat-icon>
+    </button>
 </div>
