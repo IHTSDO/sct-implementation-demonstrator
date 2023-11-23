@@ -259,9 +259,7 @@ export class QuestionnairesMainComponent implements OnInit{
     return result;
   }
   replaceInactiveConcept(item: any, replacement: any) {
-    console.log('starting searchAndReplace');
     let changesMade = this.searchAndReplace(this.questionnaire, item, replacement, false);
-    console.log('finished searchAndReplace', changesMade);
     if (changesMade) {
       this.loadQuestionnaire(this.questionnaire);
     }
@@ -275,7 +273,6 @@ export class QuestionnairesMainComponent implements OnInit{
 
     // Check if the current data object is the one to be replaced
     if (data.system == item.system && data.code == item.code && data.display == item.display) {
-      console.log('found match');
       data.system = replacement.system;
       data.code = replacement.code;
       data.display = replacement.display;

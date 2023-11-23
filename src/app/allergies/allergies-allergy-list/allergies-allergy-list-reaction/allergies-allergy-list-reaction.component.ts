@@ -17,6 +17,9 @@ export class AllergiesAllergyListReactionComponent implements ControlValueAccess
 
   @Input() reactions: any[] = [];
 
+  // add emitter for new problem
+  @Output() newManifestation = new EventEmitter<any>();
+
   severityOptions = [
     { code: 'mild', display: 'Mild', sctCode: '255604002', sctDisplay: 'Mild (qualifier value)' },
     { code: 'moderate', display: 'Moderate', sctCode: '6736007', sctDisplay: 'Moderate (qualifier value)' },
@@ -56,6 +59,7 @@ export class AllergiesAllergyListReactionComponent implements ControlValueAccess
 
   reactionManifestationSelected(reaction: any, event: any) {
     reaction.manifestation = event;
+    this.newManifestation.emit(event);
     this.onChangeCallback(this.reactions);
   }
 

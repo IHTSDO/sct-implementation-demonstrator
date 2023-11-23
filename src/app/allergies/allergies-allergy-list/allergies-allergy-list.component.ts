@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { HighlightJsDirective } from 'ngx-highlight-js';
 import { TerminologyService } from '../../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
@@ -11,6 +11,8 @@ import { Clipboard } from '@angular/cdk/clipboard';
   styleUrls: ['./allergies-allergy-list.component.css']
 })
 export class AllergiesAllergyListComponent  implements OnInit {
+
+  @Output() newManifestation = new EventEmitter<any>();
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
@@ -167,7 +169,6 @@ export class AllergiesAllergyListComponent  implements OnInit {
       this.selectedRouteTerm = "";
     }
     , 100);
-    console.log('selectedReactionManifestationTerm',this.selectedReactionManifestationTerm);
   }
 
   updateAllergyStr() {
@@ -178,7 +179,8 @@ export class AllergiesAllergyListComponent  implements OnInit {
     this.outputAllergy.criticality = (this.selectedCriticality?.code) ? [this.selectedCriticality.code] : {};
     this.outputAllergy.reaction = [];
     this.selectedReactions.forEach((reaction: any) => {
-      console.log(reaction);
+      if (reaction.manifestation.code) { reaction.manifestation.system = 'http://snomed.info/sct'; }
+      if (reaction.route.code) { reaction.route.system = 'http://snomed.info/sct'; }
       const newReaction = {
         substance: [{
           coding: [this.selectedSubstance]

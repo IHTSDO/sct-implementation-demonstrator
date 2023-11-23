@@ -31,19 +31,19 @@ export class AllergiesProblemListComponent {
     this.selectedProblemSct = event;
   }
 
-  async addProblem() {
-    // push selectedProblemSct in problemList if it is not already present ion the list
-    if (this.selectedProblemSct) {
+  async addProblem(problem?: any) {
+    if (this.selectedProblemSct || problem) {
+      let newProblem = problem ? problem : this.selectedProblemSct; 
       this.loading = true;
-      this.term = this.selectedProblemSct.display;
-      this.selectedProblemSct.date = new Date();
-      const allergyQueryResult: any = await this.getAllergyData();
+      this.term = newProblem.display;
+      newProblem.date = new Date();
+      const allergyQueryResult: any = await this.getAllergyData(problem);
       if (allergyQueryResult?.expansion?.contains?.length > 0) {
-        this.selectedProblemSct.allergy = true;
-        this.addAllergySubstanceToList(this.selectedProblemSct);
+        newProblem.allergy = true;
+        this.addAllergySubstanceToList(newProblem);
       }
-      if (!this.dataToDisplay.find((x) => x.code === this.selectedProblemSct.code)) {
-        this.dataToDisplay = [...this.dataToDisplay, this.selectedProblemSct];
+      if (!this.dataToDisplay.find((x) => x.code === newProblem.code)) {
+        this.dataToDisplay = [...this.dataToDisplay, newProblem];
         this.dataSource.setData(this.dataToDisplay);
       }
       this.loading = false;
@@ -61,10 +61,10 @@ export class AllergiesProblemListComponent {
     });
   }
 
-  async getAllergyData(): Promise<any> {
+  async getAllergyData(allergy: any): Promise<any> {
     // <<418038007 |Propensity to adverse reactions to substance| OR <<420134006 |Propensity to adverse reaction (finding)|
     // <<473011001 |Allergic condition (finding)|
-    const response = await this.terminologyService.expandValueSet('<<418038007 |Propensity to adverse reactions to substance| OR <<420134006 |Propensity to adverse reaction (finding)|', this.selectedProblemSct.code,0,1);
+    const response = await this.terminologyService.expandValueSet('<<418038007 |Propensity to adverse reactions to substance| OR <<420134006 |Propensity to adverse reaction (finding)|', allergy.code,0,1);
     return lastValueFrom(response.pipe(map(res => res)));
   }
 

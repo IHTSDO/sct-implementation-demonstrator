@@ -226,7 +226,6 @@ export class SubsetValidatorComponent implements AfterViewInit {
           const contentWithoutCarriageReturn = content.replace(/\r/g, '');
           const lines = contentWithoutCarriageReturn.split('\n');
           const header = lines[0].split('\t');
-          console.log(header)
           if (header.length < 2) {
             throw new Error("Invalid file format");
           }
