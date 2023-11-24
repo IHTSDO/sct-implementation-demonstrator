@@ -1,5 +1,5 @@
 import { DataSource } from '@angular/cdk/collections';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ReplaySubject, Observable, lastValueFrom, map } from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
 
@@ -37,11 +37,23 @@ export class AllergiesProblemListComponent {
       this.loading = true;
       this.term = newProblem.display;
       newProblem.date = new Date();
-      const allergyQueryResult: any = await this.getAllergyData(problem);
-      if (allergyQueryResult?.expansion?.contains?.length > 0) {
+      
+      // check if new problem code contains the character :
+      if (newProblem.code.indexOf(':') > -1) {
         newProblem.allergy = true;
-        this.addAllergySubstanceToList(newProblem);
+        let substance = newProblem.substance;
+        if (!this.dataToDisplay2.find((x) => x.code === substance.code)) {
+          this.dataToDisplay2 = [...this.dataToDisplay2, substance];
+          this.dataSource2.setData(this.dataToDisplay2);
+        }
+      } else {
+        const allergyQueryResult: any = await this.getAllergyData(newProblem);
+        if (allergyQueryResult?.expansion?.contains?.length > 0) {
+          newProblem.allergy = true;
+          this.addAllergySubstanceToList(newProblem);
+        }
       }
+
       if (!this.dataToDisplay.find((x) => x.code === newProblem.code)) {
         this.dataToDisplay = [...this.dataToDisplay, newProblem];
         this.dataSource.setData(this.dataToDisplay);

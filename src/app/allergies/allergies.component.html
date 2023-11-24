@@ -20,7 +20,7 @@
     </h3>
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
         <mat-tab label="Allergy List Approach (AllergyIntolerance FHIR resource)">
-            <app-allergies-allergy-list (newManifestation)="addProblem($event)"></app-allergies-allergy-list>
+            <app-allergies-allergy-list (newProblem)="addProblem($event)"></app-allergies-allergy-list>
         </mat-tab>
         <mat-tab label="Problem List Approach (Condition FHIR resource)">
             <app-allergies-problem-list></app-allergies-problem-list>

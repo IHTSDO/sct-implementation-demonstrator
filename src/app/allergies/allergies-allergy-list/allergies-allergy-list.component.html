@@ -105,7 +105,8 @@
                     </mat-select>
                 </mat-form-field>
             </div>
-            <app-allergies-allergy-list-reaction [(ngModel)]="selectedReactions" (ngModelChange)="onReactionsChange($event)" (newManifestation)="newManifestation.emit($event)"></app-allergies-allergy-list-reaction> 
+            <app-allergies-allergy-list-reaction [(ngModel)]="selectedReactions" (ngModelChange)="onReactionsChange($event)" (newManifestation)="newProblem.emit($event)"></app-allergies-allergy-list-reaction> 
+            <button mat-flat-button color="accent" (click)="addToProblemsList()">Save</button>
         </div>
         <div class="column">
             <h4>AllergyIntolerance HL7 FHIR Resource (<a href="https://hl7.org/FHIR/allergyintolerance.html" target="_blank">link</a>)</h4>

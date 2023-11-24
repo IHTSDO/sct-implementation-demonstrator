@@ -5,6 +5,8 @@ import { lastValueFrom, map } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 @Component({
   selector: 'app-allergies-allergy-list',
   templateUrl: './allergies-allergy-list.component.html',
@@ -12,7 +14,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 })
 export class AllergiesAllergyListComponent  implements OnInit {
 
-  @Output() newManifestation = new EventEmitter<any>();
+  @Output() newProblem = new EventEmitter<any>();
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
@@ -134,7 +136,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
 
   outputAllergyStr = '';
 
-  constructor(private terminologyService: TerminologyService, private clipboard: Clipboard) { }
+  constructor(private terminologyService: TerminologyService, private clipboard: Clipboard, private _snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.updateAllergyStr();
@@ -162,6 +164,14 @@ export class AllergiesAllergyListComponent  implements OnInit {
     this.selectedReactionManifestationTerm = " ";
     this.selectedRoute = null;
     this.selectedRouteTerm = " ";
+    this.selectedReactions = [
+      {
+        suibstance: {},
+        manifestation: {},
+        severity: {},
+        route: {}
+      }
+    ];
     this.outputAllergy = JSON.parse(JSON.stringify(this.outputAllergyBase));
     this.updateAllergyStr();
     setTimeout(() => {
@@ -293,6 +303,34 @@ export class AllergiesAllergyListComponent  implements OnInit {
 
   copyToClipboard(text: string) {
     this.clipboard.copy(text);
+  }
+
+  addToProblemsList() {
+    if (this.selectedCode) {
+      this.newProblem.emit(this.selectedCode);
+    } else if (this.selectedSubstance && this.selectedIntoleranceType) {
+      let pcAllerTerm = '';
+      if (this.selectedIntoleranceType.code === '609433001') {
+        pcAllerTerm = 'Allergy to ';
+      } else if (this.selectedIntoleranceType.code === '782197009') {
+        pcAllerTerm = 'Intolerance to ';
+      }
+      pcAllerTerm += this.selectedSubstance.display;
+      let newPostcoodinatedProblem = {
+        code: `${this.selectedIntoleranceType.code}:246075003=${this.selectedSubstance.code}`,
+        display: pcAllerTerm,
+        substance: this.selectedSubstance
+      }
+      this.newProblem.emit(newPostcoodinatedProblem);
+    } else {
+      // Nothing to add
+      this._snackBar.openFromComponent(SnackAlertComponent, {
+        duration: 1 * 1000,
+        data: "Nothing to add to problem list",
+        panelClass: ['yellow-snackbar']
+      });
+    }
+    this.clear();
   }
 
 }
