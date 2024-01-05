@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class FhirService {
-  private baseUrlSubject = new BehaviorSubject<string>('http://hapi.fhir.org/baseR4');
+  private baseUrlSubject = new BehaviorSubject<string>('https://hapi.fhir.org/baseR4');
   baseUrl$ = this.baseUrlSubject.asObservable();
 
   private userTagSubject = new BehaviorSubject<string>('snomed-qtag');
