@@ -1,0 +1,19 @@
+.form-container {
+    margin: auto; /* Centers the form container */
+    padding: 20px; /* Optional padding for aesthetics */
+  }
+  
+  mat-form-field {
+    width: 100%; /* Makes each form field occupy full width */
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Adjusts the space between form fields */
+  }
+  
+  button {
+    align-self: flex-end; /* Aligns the Save button to the right */
+  }
+  

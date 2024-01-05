@@ -48,6 +48,8 @@ import { CheckBoxBindingComponent } from './bindings/checkbox-binding/checkbox-b
 import { PrescriptionMainComponent } from './prescription/prescription-main/prescription-main.component';
 import { QuestionnairesMainComponent } from './questionnaires/questionnaires-main/questionnaires-main.component';
 import { SubsetValidatorComponent } from './implementation-course/subset-validator/subset-validator.component';
+import { LoadQuestionnaireModalComponent } from './questionnaires/load-questionnaire-modal/load-questionnaire-modal.component';
+import { FhirServerSettingsModalComponent } from './questionnaires/fhir-server-settings-modal/fhir-server-settings-modal.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +68,9 @@ import { SubsetValidatorComponent } from './implementation-course/subset-validat
     CheckBoxBindingComponent,
     PrescriptionMainComponent,
     QuestionnairesMainComponent,
-    SubsetValidatorComponent
+    SubsetValidatorComponent,
+    LoadQuestionnaireModalComponent,
+    FhirServerSettingsModalComponent
   ],
   imports: [
     HttpClientModule,

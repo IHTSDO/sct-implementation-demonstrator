@@ -5,14 +5,20 @@
         <div class="progress-label">{{ validatingProgress }}%</div>
     </div>
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
-    <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload FHIR Questionnaire</button>
     <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Load example</button>
-    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating">Save FHIR Questionnaire</button>
+    <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload FHIR Questionnaire</button>
+    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire">Download FHIR Questionnaire</button>
     <button mat-flat-button color="accent" (click)="validate()" [disabled]="validating || !questionnaire">
         <span *ngIf="!validating">Validate</span>
         <mat-spinner diameter="20" *ngIf="validating"></mat-spinner>
     </button>
     <button mat-flat-button color="accent" (click)="clearQuestionnaire()" [disabled]="validating || !questionnaire">Clear</button>
+</div>
+<div class="button-container">
+  <span>Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"</span>
+  <button mat-flat-button color="accent" (click)="postQuestionnaire()" [disabled]="validating || !questionnaire">Save</button>
+  <button mat-flat-button color="accent" (click)="openDialog()" [disabled]="validating">Load</button>
+  <button mat-flat-button color="accent" (click)="setupFhirServer()">Setup</button>
 </div>
 <p  class="header" *ngIf="questionnaire">
     <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span>

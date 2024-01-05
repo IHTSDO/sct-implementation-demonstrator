@@ -1,0 +1,16 @@
+<div class="form-container">
+    <h2>Configure FHIR Server</h2>
+    <form (ngSubmit)="updateSettings()">
+        <mat-form-field>
+            <mat-label>Base URL</mat-label>
+            <input matInput [(ngModel)]="baseUrl" name="baseUrl">
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>User Tag</mat-label>
+            <input matInput [(ngModel)]="userTag" name="userTag">
+        </mat-form-field>
+
+        <button mat-flat-button color="accent" type="submit" mat-dialog-close>Save</button>
+    </form>
+</div>

@@ -22,7 +22,6 @@
     "@angular/router": "^15.2.0",
     "file-saver": "^2.0.5",
     "highlight.js": "^11.7.0",
-    "lforms": "^34.0.1",
     "ngx-highlight-js": "^15.0.0",
     "rxjs": "~7.8.0",
     "snomed-ecl-builder-vue": "^0.2.1",

@@ -1,0 +1,20 @@
+<mat-dialog-content>
+    <h2>Available Questionnaires</h2>
+    <mat-list>
+        <mat-list-item *ngFor="let questionnaire of questionnaires" class="list-item">
+            <span matLine class="list-text">{{ questionnaire.title || 'No Title' }}</span>
+            <button mat-icon-button color="accent" (click)="selectAndDownload(questionnaire)" class="action-button">
+                <mat-icon>cloud_download</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="deleteQuestionnaire(questionnaire)" class="action-button">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </mat-list-item>
+    </mat-list>
+    <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+<button mat-flat-button color="accent" mat-dialog-close>Close</button>
+</mat-dialog-actions>
+  

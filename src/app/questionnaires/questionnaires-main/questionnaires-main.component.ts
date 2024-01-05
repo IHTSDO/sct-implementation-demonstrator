@@ -7,6 +7,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { MatSort } from '@angular/material/sort';
 import * as saveAs from 'file-saver';
+import { FhirService } from 'src/app/services/fhir.service';
+import { MatDialog } from '@angular/material/dialog';
+import { LoadQuestionnaireModalComponent } from '../load-questionnaire-modal/load-questionnaire-modal.component';
+import { FhirServerSettingsModalComponent } from '../fhir-server-settings-modal/fhir-server-settings-modal.component';
 
 
 @Component({
@@ -29,11 +33,26 @@ export class QuestionnairesMainComponent implements OnInit{
     active: 0,
     inactive: 0,
     error: 0
-  }
+  };
 
-  constructor(private http: HttpClient, private terminologyService: TerminologyService, private _snackBar: MatSnackBar) { }
+  selectedFhirServer: string = "";
+  selectedUserTag: string = "";
 
-  ngOnInit(): void {
+  showFhirSetupModal = false;
+
+  constructor(private http: HttpClient, 
+    private terminologyService: TerminologyService,
+    private fhirService: FhirService,
+    public dialog: MatDialog,
+    private _snackBar: MatSnackBar) { }
+
+  ngOnInit() {
+    this.fhirService.baseUrl$.subscribe(url => {
+      this.selectedFhirServer = url;
+    });
+    this.fhirService.userTag$.subscribe(tag => {
+      this.selectedUserTag = tag;
+    });
   }
 
   loadExampleQuestionnaire() {
@@ -356,4 +375,64 @@ export class QuestionnairesMainComponent implements OnInit{
     }
   }
 
+  postQuestionnaire() {
+    this.questionnaire.meta = {
+      tag: [
+          {
+              system: "http://snomed.org/tags",
+              code: "snomed-qtag",
+              display: "Test tag"
+          }
+      ]
+  };
+    this.fhirService.postQuestionnaire(this.questionnaire).pipe(first()).subscribe(
+      (data: any) => {
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: "Questionnaire saved successfully",
+          panelClass: ['green-snackbar']
+        });
+        console.log(data)
+      },
+      (error: any) => {
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: "Error saving questionnaire",
+          panelClass: ['red-snackbar']
+        });
+      });
+  }
+
+  listQuestionnaires() {
+    this.fhirService.getQuestionnairesByTag("snomed-qtag").pipe(first()).subscribe(
+      (data: any) => {
+        console.log(data);
+      },
+      (error: any) => {
+        console.log(error);
+      });
+  }
+
+  openDialog(): void {
+    const dialogRef = this.dialog.open(LoadQuestionnaireModalComponent, {
+      width: '70%'
+      // additional configuration if needed
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      this.loadQuestionnaire(result);
+    });
+  }
+
+  setFhirServer() {
+    this.fhirService.setBaseUrl(this.selectedFhirServer);
+    this.fhirService.setUserTag(this.selectedUserTag);
+  }
+
+  setupFhirServer(): void {
+    this.dialog.open(FhirServerSettingsModalComponent, {
+      width: '60%',
+      // additional configurations if needed
+    });
+  }
 }
