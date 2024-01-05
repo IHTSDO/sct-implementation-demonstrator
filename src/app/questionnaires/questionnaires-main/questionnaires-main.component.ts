@@ -11,6 +11,7 @@ import { FhirService } from 'src/app/services/fhir.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadQuestionnaireModalComponent } from '../load-questionnaire-modal/load-questionnaire-modal.component';
 import { FhirServerSettingsModalComponent } from '../fhir-server-settings-modal/fhir-server-settings-modal.component';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 
 
 @Component({
@@ -39,6 +40,7 @@ export class QuestionnairesMainComponent implements OnInit{
   selectedUserTag: string = "";
 
   showFhirSetupModal = false;
+  renderTabVisible = false;
 
   constructor(private http: HttpClient, 
     private terminologyService: TerminologyService,
@@ -53,6 +55,42 @@ export class QuestionnairesMainComponent implements OnInit{
     this.fhirService.userTag$.subscribe(tag => {
       this.selectedUserTag = tag;
     });
+    this.loadScript();
+  }
+
+  loadScript() {
+    const script = document.createElement('script');
+    script.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/34.3.1/webcomponent/lhc-forms.js'; // Replace with the actual URL of your JS library
+    script.onload = () => {
+      const script2 = document.createElement('script');
+      script2.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/34.0.0/fhir/R4/lformsFHIR.min.js'; // Replace with the actual URL of your JS library
+      script2.onload = () => {
+        // Script has loaded
+        // Initialize or use the library here, if necessary
+      };
+      document.head.appendChild(script2);
+    };
+    document.head.appendChild(script);
+
+  }
+
+  renderForm() {
+    if (this.renderTabVisible) {
+      if (this.questionnaire) {
+        LForms.Util.addFormToPage(this.questionnaire, 'myFormContainer');
+      } else {
+        LForms.Util.addFormToPage({}, 'myFormContainer');
+      }
+    }
+  }
+
+  onTabChange(event: MatTabChangeEvent) {
+    if (event.tab.textLabel === 'Render') {
+      this.renderTabVisible = true;
+      this.renderForm();
+    } else {
+      this.renderTabVisible = false;
+    }
   }
 
   loadExampleQuestionnaire() {
@@ -72,6 +110,7 @@ export class QuestionnairesMainComponent implements OnInit{
       inactive: 0,
       error: 0
     };
+    this.renderForm();
   }
 
   loadQuestionnaire(data: any) {
@@ -84,6 +123,7 @@ export class QuestionnairesMainComponent implements OnInit{
       let extracted = this.extractObjects(data);
       this.dataSource.data = extracted; //.slice(0, 11);
       this.dataSource.sort = this.sort;
+      this.renderForm();
     }, 700);
   }
 

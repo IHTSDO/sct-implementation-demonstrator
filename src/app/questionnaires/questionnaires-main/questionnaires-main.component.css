@@ -13,8 +13,11 @@
     justify-content: flex-end; /* This will align the items to the right */
     gap: 1rem;
     margin-right: 2rem;
-    margin-bottom: 2rem;
     align-items: center;
+}
+
+.bottom-spacer {
+    margin-bottom: 1rem;
 }
 
 
@@ -121,4 +124,12 @@
     color: rgb(128, 0, 0);
     font-size: 0.9rem;
     margin-bottom: 0rem;
+}
+
+#myFormContainer {
+    margin-top: 1rem;
+}
+
+#tab-header {
+    margin-top: 1rem;
 }
