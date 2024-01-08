@@ -1,0 +1,15 @@
+<div>
+    <mat-list>
+        <mat-list-item *ngFor="let questionnaire of questionnaires" class="list-item">
+            <span matLine class="list-text">{{ questionnaire.title || 'No Title' }}</span>
+            <button mat-icon-button color="accent" (click)="selectQuestionnaire(questionnaire)" class="action-button">
+                <mat-icon>cloud_download</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="deleteQuestionnaire(questionnaire)" class="action-button">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </mat-list-item>
+    </mat-list>
+    <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
+    <p *ngIf="notFound"><i>No questionnaires found</i></p>
+</div>

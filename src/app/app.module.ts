@@ -50,6 +50,7 @@ import { QuestionnairesMainComponent } from './questionnaires/questionnaires-mai
 import { SubsetValidatorComponent } from './implementation-course/subset-validator/subset-validator.component';
 import { LoadQuestionnaireModalComponent } from './questionnaires/load-questionnaire-modal/load-questionnaire-modal.component';
 import { FhirServerSettingsModalComponent } from './questionnaires/fhir-server-settings-modal/fhir-server-settings-modal.component';
+import { ListQuestionnairesComponent } from './questionnaires/list-questionnaires/list-questionnaires.component';
 
 @NgModule({
   declarations: [
@@ -70,7 +71,8 @@ import { FhirServerSettingsModalComponent } from './questionnaires/fhir-server-s
     QuestionnairesMainComponent,
     SubsetValidatorComponent,
     LoadQuestionnaireModalComponent,
-    FhirServerSettingsModalComponent
+    FhirServerSettingsModalComponent,
+    ListQuestionnairesComponent
   ],
   imports: [
     HttpClientModule,

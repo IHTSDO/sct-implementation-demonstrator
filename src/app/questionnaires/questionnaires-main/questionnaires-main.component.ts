@@ -420,7 +420,7 @@ export class QuestionnairesMainComponent implements OnInit{
       tag: [
           {
               system: "http://snomed.org/tags",
-              code: "snomed-qtag",
+              code: this.selectedUserTag,
               display: "Test tag"
           }
       ]
@@ -444,7 +444,7 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   listQuestionnaires() {
-    this.fhirService.getQuestionnairesByTag("snomed-qtag").pipe(first()).subscribe(
+    this.fhirService.getQuestionnairesByTag(this.selectedUserTag).pipe(first()).subscribe(
       (data: any) => {
         console.log(data);
       },

@@ -18,8 +18,16 @@ export class FhirService {
     this.baseUrlSubject.next(url);
   }
 
+  getBaseUrl(): string {
+    return this.baseUrlSubject.getValue();
+  }
+
   setUserTag(tag: string): void {
     this.userTagSubject.next(tag);
+  }
+
+  getUserTag(): string {
+    return this.userTagSubject.getValue();
   }
 
   // POST a questionnaire
