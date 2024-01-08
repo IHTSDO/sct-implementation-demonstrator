@@ -2,8 +2,17 @@
     <mat-list>
         <mat-list-item *ngFor="let questionnaire of questionnaires" class="list-item">
             <span matLine class="list-text">{{ questionnaire.title || 'No Title' }}</span>
-            <button mat-icon-button color="accent" (click)="selectQuestionnaire(questionnaire)" class="action-button">
+            <button mat-icon-button color="accent" (click)="selectQuestionnaire(questionnaire)" class="action-button"
+            *ngIf="config.select">
                 <mat-icon>cloud_download</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="validate(questionnaire)" class="action-button"
+            *ngIf="config.validate">
+                <mat-icon>done</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="preview(questionnaire)" class="action-button"
+            *ngIf="config.preview">
+                <mat-icon>visibility</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="deleteQuestionnaire(questionnaire)" class="action-button">
                 <mat-icon>delete</mat-icon>

@@ -8407,7 +8407,6 @@ var ExpressionConstraint = __webpack_require__(7974);
       this.stringToModel(newModel => this.model = newModel);
     },
     stringToModel: function (callback) {
-      console.log('this.eclstring = "' + this.eclstring + '"');
       let eclString = this.eclstring;
       if (!eclString) {
         eclString = '*';

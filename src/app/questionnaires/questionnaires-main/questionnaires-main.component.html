@@ -22,6 +22,12 @@
 </div>
 
 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedTabChange)="onTabChange($event)">
+  <mat-tab label="My Questionnaires">
+    <app-list-questionnaires [config]="listConfig"
+      (validateQuestionnaire)="switchToValidateTab($event)"
+      (previewQuestionnaire)="switchToPreviewTab($event)">
+    </app-list-questionnaires>
+  </mat-tab>
   <mat-tab label="Validation">
     <p  class="header" *ngIf="questionnaire" id="tab-header">
       <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span>
@@ -93,7 +99,7 @@
       <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
   </div>
   </mat-tab>
-  <mat-tab label="Render">
+  <mat-tab label="Preview">
     <div id="myFormContainer"></div>
   </mat-tab>
 </mat-tab-group>

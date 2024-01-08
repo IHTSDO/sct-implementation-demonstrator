@@ -10,6 +10,8 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class LoadQuestionnaireModalComponent {
 
+  listConfig = { select : true };
+
   constructor(public dialogRef: MatDialogRef<LoadQuestionnaireModalComponent>) { }
 
   selectAndDownload(questionnaire: any) {

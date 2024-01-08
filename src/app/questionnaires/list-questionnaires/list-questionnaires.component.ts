@@ -1,4 +1,5 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Subject, combineLatest, debounceTime, distinctUntilChanged } from 'rxjs';
 import { FhirService } from 'src/app/services/fhir.service';
 
 @Component({
@@ -6,26 +7,53 @@ import { FhirService } from 'src/app/services/fhir.service';
   templateUrl: './list-questionnaires.component.html',
   styleUrls: ['./list-questionnaires.component.css']
 })
-export class ListQuestionnairesComponent implements OnInit {
+export class ListQuestionnairesComponent implements OnInit, OnChanges {
 
   @Output() questionnaireSelected = new EventEmitter<any>();
+  @Output() validateQuestionnaire = new EventEmitter<any>();
+  @Output() previewQuestionnaire = new EventEmitter<any>();
+
+  @Input() config: any = {};
+
   questionnaires: any[] = [];
   loading = false;
   selectedFhirServer: string = "";
   selectedUserTag: string = "";
   notFound = false;
 
+  private baseUrlChanged = new Subject<string>();
+  private userTagChanged = new Subject<string>();
+
   constructor(private fhirService: FhirService) { }
 
   ngOnInit() {
-    this.selectedFhirServer = this.fhirService.getBaseUrl();
-    this.selectedUserTag = this.fhirService.getUserTag();
-    this.loadQuestionnaires();
+    combineLatest([
+      this.fhirService.baseUrl$.pipe(
+        debounceTime(1000),
+        distinctUntilChanged()
+      ),
+      this.fhirService.userTag$.pipe(
+        debounceTime(1000),
+        distinctUntilChanged()
+      )
+    ]).subscribe(([baseUrl, userTag]) => {
+      if (this.selectedFhirServer !== baseUrl || this.selectedUserTag !== userTag) {
+        this.selectedFhirServer = baseUrl;
+        this.selectedUserTag = userTag;
+        if (this.selectedUserTag && this.selectedFhirServer) {
+          this.loadQuestionnaires();
+        }
+      }
+    });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
   }
 
   loadQuestionnaires() {
     this.loading = true;
-    console.log(`Loading questionnaires with tag ${this.selectedUserTag} from ${this.selectedFhirServer}`);
+    this.notFound = false;
+    this.questionnaires = [];
     this.fhirService.getQuestionnairesByTag(this.selectedUserTag).subscribe((data: any) => {
       if (data['entry']) {
         this.questionnaires = data['entry'].map((entry: any) => entry.resource);
@@ -47,5 +75,13 @@ export class ListQuestionnairesComponent implements OnInit {
 
   selectQuestionnaire(questionnaire: any) {
     this.questionnaireSelected.emit(questionnaire);
+  }
+
+  validate(questionnaire: any) {
+    this.validateQuestionnaire.emit(questionnaire);
+  }
+
+  preview(questionnaire: any) {
+    this.previewQuestionnaire.emit(questionnaire);
   }
 }

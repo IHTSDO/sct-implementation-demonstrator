@@ -85,7 +85,7 @@ export class TerminologyService {
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error("There was an error!");
-      console.log(error);
+      console.error(error);
       this._snackBar.openFromComponent(SnackAlertComponent, {
         duration: 5 * 1000,
         data: error.message,

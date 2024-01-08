@@ -11,7 +11,7 @@ import { FhirService } from 'src/app/services/fhir.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadQuestionnaireModalComponent } from '../load-questionnaire-modal/load-questionnaire-modal.component';
 import { FhirServerSettingsModalComponent } from '../fhir-server-settings-modal/fhir-server-settings-modal.component';
-import { MatTabChangeEvent } from '@angular/material/tabs';
+import { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
 
 
 @Component({
@@ -21,6 +21,7 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 })
 export class QuestionnairesMainComponent implements OnInit{
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
 
   loading = false;
   validating = false;
@@ -40,7 +41,9 @@ export class QuestionnairesMainComponent implements OnInit{
   selectedUserTag: string = "";
 
   showFhirSetupModal = false;
-  renderTabVisible = false;
+  previewTabVisible = false;
+
+  listConfig = { validate : true, preview: true };
 
   constructor(private http: HttpClient, 
     private terminologyService: TerminologyService,
@@ -74,8 +77,8 @@ export class QuestionnairesMainComponent implements OnInit{
 
   }
 
-  renderForm() {
-    if (this.renderTabVisible) {
+  previewForm() {
+    if (this.previewTabVisible) {
       if (this.questionnaire) {
         LForms.Util.addFormToPage(this.questionnaire, 'myFormContainer');
       } else {
@@ -85,11 +88,11 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   onTabChange(event: MatTabChangeEvent) {
-    if (event.tab.textLabel === 'Render') {
-      this.renderTabVisible = true;
-      this.renderForm();
+    if (event.tab.textLabel === 'Preview') {
+      this.previewTabVisible = true;
+      this.previewForm();
     } else {
-      this.renderTabVisible = false;
+      this.previewTabVisible = false;
     }
   }
 
@@ -110,7 +113,7 @@ export class QuestionnairesMainComponent implements OnInit{
       inactive: 0,
       error: 0
     };
-    this.renderForm();
+    this.previewForm();
   }
 
   loadQuestionnaire(data: any) {
@@ -123,7 +126,7 @@ export class QuestionnairesMainComponent implements OnInit{
       let extracted = this.extractObjects(data);
       this.dataSource.data = extracted; //.slice(0, 11);
       this.dataSource.sort = this.sort;
-      this.renderForm();
+      this.previewForm();
     }, 700);
   }
 
@@ -432,7 +435,6 @@ export class QuestionnairesMainComponent implements OnInit{
           data: "Questionnaire saved successfully",
           panelClass: ['green-snackbar']
         });
-        console.log(data)
       },
       (error: any) => {
         this._snackBar.openFromComponent(SnackAlertComponent, {
@@ -446,10 +448,9 @@ export class QuestionnairesMainComponent implements OnInit{
   listQuestionnaires() {
     this.fhirService.getQuestionnairesByTag(this.selectedUserTag).pipe(first()).subscribe(
       (data: any) => {
-        console.log(data);
       },
       (error: any) => {
-        console.log(error);
+        console.error(error);
       });
   }
 
@@ -475,4 +476,15 @@ export class QuestionnairesMainComponent implements OnInit{
       // additional configurations if needed
     });
   }
+
+  switchToValidateTab(questionnaire: any) {
+    this.loadQuestionnaire(questionnaire);
+    this.tabGroup.selectedIndex = 1;
+  }
+
+  switchToPreviewTab(questionnaire: any) {
+    this.loadQuestionnaire(questionnaire);
+    this.tabGroup.selectedIndex = 2;
+  }
+
 }

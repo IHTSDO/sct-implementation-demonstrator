@@ -1,6 +1,6 @@
 <mat-dialog-content>
     <h2>Available Questionnaires</h2>
-    <app-list-questionnaires (questionnaireSelected)="selectAndDownload($event)"></app-list-questionnaires>
+    <app-list-questionnaires [config]="listConfig" (questionnaireSelected)="selectAndDownload($event)"></app-list-questionnaires>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
