@@ -260,6 +260,7 @@ export class QuestionnairesMainComponent implements OnInit{
 
     // Check if the current data object has the desired properties and system starts with "http://snomed.info/sct"
     if (data.system && data.system.startsWith("http://snomed.info/sct") && data.code && data.display) {
+    // if (data.system && data.code && data.display) {
         this.orderCounter++;
         const newObj: any = {
             order: this.orderCounter,
