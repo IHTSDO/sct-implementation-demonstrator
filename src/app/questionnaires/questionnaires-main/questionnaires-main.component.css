@@ -137,3 +137,9 @@
 .tab-container {
     padding: 2rem;
 }
+
+.outgoing-link {
+    font-size: 0.8rem;
+    float: right;
+    margin-right: 2rem;
+}

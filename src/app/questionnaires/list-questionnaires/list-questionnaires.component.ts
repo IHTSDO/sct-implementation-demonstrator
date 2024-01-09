@@ -66,6 +66,10 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
     });
   }
 
+  addQuestionnaire(questionnaire: any) {
+    this.questionnaires.push(questionnaire);
+  }
+
   deleteQuestionnaire(questionnaire: any) {
     this.loading = true;
     this.fhirService.deleteQuestionnaire(questionnaire.id).subscribe(() => {
@@ -83,5 +87,10 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
 
   preview(questionnaire: any) {
     this.previewQuestionnaire.emit(questionnaire);
+  }
+
+  openInNewTab(questionnaire: any) {
+    let url = this.selectedFhirServer + '/Questionnaire/' + questionnaire.id;
+    window.open(url, '_blank');
   }
 }

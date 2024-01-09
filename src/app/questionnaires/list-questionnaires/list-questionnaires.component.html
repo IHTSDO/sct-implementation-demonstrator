@@ -1,20 +1,30 @@
 <div>
     <mat-list>
         <mat-list-item *ngFor="let questionnaire of questionnaires" class="list-item">
-            <span matLine class="list-text">{{ questionnaire.title || 'No Title' }}</span>
+            <span matLine class="list-text">
+                {{ questionnaire.title || 'No Title' }}
+                <span class="list-subtext">Version: {{ questionnaire.meta.versionId }}</span>
+                <span [ngClass]="['status-pill', questionnaire.status]">{{ questionnaire.status | uppercase }}</span>
+            </span>
+            
             <button mat-icon-button color="accent" (click)="selectQuestionnaire(questionnaire)" class="action-button"
-            *ngIf="config.select">
+            *ngIf="config.select" matTooltip="Load Questionnaire">
                 <mat-icon>cloud_download</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="validate(questionnaire)" class="action-button"
-            *ngIf="config.validate">
+            *ngIf="config.validate" matTooltip="Validate Questionnaire">
                 <mat-icon>done</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="preview(questionnaire)" class="action-button"
-            *ngIf="config.preview">
+            *ngIf="config.preview" matTooltip="Preview Questionnaire">
                 <mat-icon>visibility</mat-icon>
             </button>
-            <button mat-icon-button color="accent" (click)="deleteQuestionnaire(questionnaire)" class="action-button">
+            <button mat-icon-button color="accent" (click)="openInNewTab(questionnaire)" class="action-button"
+            *ngIf="config.preview" matTooltip="Open resource in new tab">
+                <mat-icon>open_in_new</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="deleteQuestionnaire(questionnaire)" class="action-button"
+            matTooltip="Delete Questionnaire">
                 <mat-icon>delete</mat-icon>
             </button>
         </mat-list-item>

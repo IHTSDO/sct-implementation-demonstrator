@@ -23,7 +23,7 @@ import { ListQuestionnairesComponent } from '../list-questionnaires/list-questio
 export class QuestionnairesMainComponent implements OnInit{
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
-  @ViewChild('childComponent') childComponent!: ListQuestionnairesComponent;
+  @ViewChild('questionnairesList') questionnairesList!: ListQuestionnairesComponent;
 
   loading = false;
   validating = false;
@@ -470,7 +470,7 @@ export class QuestionnairesMainComponent implements OnInit{
         setTimeout(() => {
           this.tabGroup.selectedIndex = 0;
           setTimeout(() => {
-            this.childComponent.loadQuestionnaires();
+            this.questionnairesList.addQuestionnaire(this.questionnaire);
           }, 300);
         }, 300);
         this._snackBar.openFromComponent(SnackAlertComponent, {

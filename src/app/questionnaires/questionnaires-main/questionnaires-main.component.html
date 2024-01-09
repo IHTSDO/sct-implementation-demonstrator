@@ -1,4 +1,9 @@
-<h3 class="header">FHIR Questionnaire Terminology Bindings Validation Tool</h3>
+<h3 class="header">
+  FHIR Questionnaire Terminology Bindings Validation Tool
+  <a href="https://lhcformbuilder.nlm.nih.gov/" target="_blank" class="outgoing-link">
+    Open NLM Form Editor >
+  </a>
+</h3>
 <div class="button-container bottom-spacer">
     <div class="progress-container" *ngIf="validating">
         <mat-progress-bar mode="determinate" [value]="validatingProgress"></mat-progress-bar>
@@ -26,7 +31,7 @@
 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedTabChange)="onTabChange($event)">
   <mat-tab label="My Questionnaires" *ngIf="mode === 'Manager'">
     <div class="tab-container">
-      <app-list-questionnaires #childComponent [config]="listConfig"
+      <app-list-questionnaires #questionnairesList [config]="listConfig"
         (validateQuestionnaire)="switchToValidateTab($event)"
         (previewQuestionnaire)="switchToPreviewTab($event)">
       </app-list-questionnaires>
