@@ -104,7 +104,8 @@ import { ListQuestionnairesComponent } from './questionnaires/list-questionnaire
     MatDialogModule,
     MatCheckboxModule,
     MatListModule,
-    MatSortModule
+    MatSortModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent],

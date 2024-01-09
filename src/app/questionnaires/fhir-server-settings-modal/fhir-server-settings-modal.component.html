@@ -1,16 +1,25 @@
 <div class="form-container">
-    <h2>Configure FHIR Server</h2>
-    <form (ngSubmit)="updateSettings()">
-        <mat-form-field>
-            <mat-label>Base URL</mat-label>
-            <input matInput [(ngModel)]="baseUrl" name="baseUrl">
-        </mat-form-field>
+    <h2>FHIR Server Connection</h2>
+    <p>Manager mode allows you to store questionnares in a FHIR Server. Enter the FHIR server URL and your <b>User Tag</b>, this value will be used to identify your questionnaires.</p>
+    <p class="warning">Warning: using the default public FHIR server will not ensure the persistence of your information, always save your questionnaires to your computer as a backup.</p>
+    <form (ngSubmit)="updateSettings()" #settingsForm="ngForm">
 
+        <mat-form-field>
+            <mat-label>Base URL of the FHIR Server</mat-label>
+            <input matInput [(ngModel)]="baseUrl" name="baseUrl" required #baseUrlField="ngModel">
+            <mat-error *ngIf="baseUrlField.invalid && baseUrlField.touched">Base URL is required</mat-error>
+        </mat-form-field>
+    
         <mat-form-field>
             <mat-label>User Tag</mat-label>
-            <input matInput [(ngModel)]="userTag" name="userTag">
+            <input matInput [(ngModel)]="userTag" name="userTag" required minlength="3" #userTagField="ngModel">
+            <mat-error *ngIf="userTagField.invalid && userTagField.touched">User Tag is required and must be at least 3 characters</mat-error>
         </mat-form-field>
-
-        <button mat-flat-button color="accent" type="submit" mat-dialog-close>Save</button>
+        
+        <div class="button-container">
+            <button mat-flat-button color="accent" type="submit" [disabled]="!settingsForm.valid">Save</button>
+            <button mat-flat-button color="primary" mat-dialog-close>Close</button>
+        </div>
     </form>
 </div>
+

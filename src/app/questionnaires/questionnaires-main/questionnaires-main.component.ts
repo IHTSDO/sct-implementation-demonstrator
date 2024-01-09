@@ -12,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { LoadQuestionnaireModalComponent } from '../load-questionnaire-modal/load-questionnaire-modal.component';
 import { FhirServerSettingsModalComponent } from '../fhir-server-settings-modal/fhir-server-settings-modal.component';
 import { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
+import { ListQuestionnairesComponent } from '../list-questionnaires/list-questionnaires.component';
 
 
 @Component({
@@ -22,6 +23,7 @@ import { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
 export class QuestionnairesMainComponent implements OnInit{
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
+  @ViewChild('childComponent') childComponent!: ListQuestionnairesComponent;
 
   loading = false;
   validating = false;
@@ -44,6 +46,7 @@ export class QuestionnairesMainComponent implements OnInit{
   previewTabVisible = false;
 
   listConfig = { validate : true, preview: true };
+  mode = "Validator";
 
   constructor(private http: HttpClient, 
     private terminologyService: TerminologyService,
@@ -77,6 +80,28 @@ export class QuestionnairesMainComponent implements OnInit{
 
   }
 
+  toggleMode() {
+    if (this.mode === "Validator") {
+      const dialogRef = this.dialog.open(FhirServerSettingsModalComponent, {
+        width: '60%',
+        disableClose: true
+      });
+    
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === 'save') {
+          this.mode = "Manager";
+          setTimeout(() => {
+            this.tabGroup.selectedIndex = 0;
+          }, 500);
+        } else if (result === 'close') {
+          // Nothing
+        }
+      });
+    } else {
+      this.mode = "Validator";
+    }
+  }
+
   previewForm() {
     if (this.previewTabVisible) {
       if (this.questionnaire) {
@@ -99,6 +124,9 @@ export class QuestionnairesMainComponent implements OnInit{
   loadExampleQuestionnaire() {
     lastValueFrom(this.http.get('assets/questionnaires/Carcinoma-of-the-Exocrine-Pancreas-Histopathology-Reporting-Form.R4 (11).json')).then(data => {
       this.loadQuestionnaire(data);
+      if (this.mode === "Manager") {
+        this.tabGroup.selectedIndex = 1;
+      }
     });
   }
 
@@ -400,6 +428,9 @@ export class QuestionnairesMainComponent implements OnInit{
           const jsonData = JSON.parse(e.target?.result as string);
           if (jsonData.resourceType === "Questionnaire") {
             this.loadQuestionnaire(jsonData);
+            if (this.mode === "Manager") {
+              this.tabGroup.selectedIndex = 1;
+            }
           } else {
             this._snackBar.openFromComponent(SnackAlertComponent, {
               duration: 5 * 1000,
@@ -426,11 +457,22 @@ export class QuestionnairesMainComponent implements OnInit{
               system: "http://snomed.org/tags",
               code: this.selectedUserTag,
               display: "Test tag"
-          }
+          },
+          {
+            system: "http://snomed.org/tags",
+            code: this.selectedUserTag,
+            display: "questionnaireManagerTool"
+        }
       ]
   };
     this.fhirService.postQuestionnaire(this.questionnaire).pipe(first()).subscribe(
       (data: any) => {
+        setTimeout(() => {
+          this.tabGroup.selectedIndex = 0;
+          setTimeout(() => {
+            this.childComponent.loadQuestionnaires();
+          }, 300);
+        }, 300);
         this._snackBar.openFromComponent(SnackAlertComponent, {
           duration: 5 * 1000,
           data: "Questionnaire saved successfully",

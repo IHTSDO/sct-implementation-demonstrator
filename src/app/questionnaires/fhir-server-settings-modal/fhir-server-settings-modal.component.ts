@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FhirService } from '../../services/fhir.service';
+import { NgForm } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-fhir-server-settings-modal',
@@ -10,15 +12,33 @@ export class FhirServerSettingsModalComponent implements OnInit {
   baseUrl: string = '';
   userTag: string = '';
 
-  constructor(private fhirService: FhirService) {}
+  constructor(private fhirService: FhirService, private dialogRef: MatDialogRef<FhirServerSettingsModalComponent>) {}
+
+  @ViewChild('settingsForm') settingsForm!: NgForm;
+
+  ngAfterViewInit() {
+    this.triggerValidation();
+  }
+
+  triggerValidation() {
+    Object.keys(this.settingsForm.controls).forEach(field => {
+      const control = this.settingsForm.control.get(field);
+      control?.markAsTouched({ onlySelf: true });
+      control?.markAsDirty({ onlySelf: true });
+    });
+  }
 
   ngOnInit() {
-    this.fhirService.baseUrl$.subscribe(url => this.baseUrl = url);
-    this.fhirService.userTag$.subscribe(tag => this.userTag = tag);
+    this.baseUrl = this.fhirService.getBaseUrl()
+    this.userTag = '';
   }
 
   updateSettings() {
-    this.fhirService.setBaseUrl(this.baseUrl);
-    this.fhirService.setUserTag(this.userTag);
+    if (this.settingsForm.valid) {
+      this.fhirService.setBaseUrl(this.baseUrl);
+      this.fhirService.setUserTag(this.userTag);
+      this.dialogRef.close('save');
+    }
+    
   }
 }

@@ -133,3 +133,7 @@
 #tab-header {
     margin-top: 1rem;
 }
+
+.tab-container {
+    padding: 2rem;
+}

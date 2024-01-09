@@ -13,8 +13,10 @@
         <mat-spinner diameter="20" *ngIf="validating"></mat-spinner>
     </button>
     <button mat-flat-button color="accent" (click)="clearQuestionnaire()" [disabled]="validating || !questionnaire">Clear</button>
+    <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Validator'">Manager Mode</button>
+    <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Manager'">Validator Mode</button>
 </div>
-<div class="button-container">
+<div class="button-container" *ngIf="mode === 'Manager'">
   <span>Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"</span>
   <button mat-flat-button color="accent" (click)="postQuestionnaire()" [disabled]="validating || !questionnaire">Save</button>
   <button mat-flat-button color="accent" (click)="openDialog()" [disabled]="validating">Load</button>
@@ -22,11 +24,13 @@
 </div>
 
 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedTabChange)="onTabChange($event)">
-  <mat-tab label="My Questionnaires">
-    <app-list-questionnaires [config]="listConfig"
-      (validateQuestionnaire)="switchToValidateTab($event)"
-      (previewQuestionnaire)="switchToPreviewTab($event)">
-    </app-list-questionnaires>
+  <mat-tab label="My Questionnaires" *ngIf="mode === 'Manager'">
+    <div class="tab-container">
+      <app-list-questionnaires #childComponent [config]="listConfig"
+        (validateQuestionnaire)="switchToValidateTab($event)"
+        (previewQuestionnaire)="switchToPreviewTab($event)">
+      </app-list-questionnaires>
+    </div>
   </mat-tab>
   <mat-tab label="Validation">
     <p  class="header" *ngIf="questionnaire" id="tab-header">
@@ -100,6 +104,8 @@
   </div>
   </mat-tab>
   <mat-tab label="Preview">
-    <div id="myFormContainer"></div>
+    <div class="tab-container">
+      <div id="myFormContainer"></div>
+    </div>
   </mat-tab>
 </mat-tab-group>

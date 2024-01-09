@@ -13,7 +13,17 @@
     gap: 20px; /* Adjusts the space between form fields */
   }
   
-  button {
-    align-self: flex-end; /* Aligns the Save button to the right */
+  .button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end; /* This will align the items to the right */
+    gap: 1rem;
+    margin-right: 2rem;
+    align-items: center;
   }
-  
+
+  .warning {
+    color: rgb(255, 149, 0);
+    font-weight: lighter;
+    font-style: italic;
+  }
