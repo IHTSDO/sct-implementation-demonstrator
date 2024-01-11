@@ -1,0 +1,146 @@
+.header {
+    margin-left: 2rem;
+    margin-top: 1rem;
+}
+
+.table-container {
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end; /* This will align the items to the right */
+    gap: 1rem;
+    margin-right: 2rem;
+    align-items: center;
+}
+
+.bottom-spacer {
+    margin-bottom: 1rem;
+}
+
+
+/* Base pill style */
+.pill {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+    font-size: 0.8rem;
+  }
+  
+/* Styles for different pill types */
+.pill.Active {
+    background-color: #4CAF50; /* green */
+    color: white;
+}
+
+.pill.Inactive {
+    background-color: #FFC107; /* amber */
+    color: white;
+}
+
+.pill.Error {
+    background-color: #F44336; /* red */
+    color: white;
+}
+
+.mini-pill {
+    padding: 5px 10px;
+    border-radius: 20px;
+    text-align: center;
+    font-weight: bold;
+    /* display: inline-block; */
+    font-size: 0.9rem;
+    margin-right: 2rem;
+    float: right;
+  }
+  
+/* Styles for different pill types */
+.mini-pill.Active {
+    background-color: #4CAF50; /* green */
+    color: white;
+}
+
+.mini-pill.Inactive {
+    background-color: #FFC107; /* amber */
+    color: white;
+}
+
+.mini-pill.Error {
+    background-color: #F44336; /* red */
+    color: white;
+}
+
+.progress-container {
+    margin-top: 1rem;
+    position: relative;
+    width: 30%;
+}
+
+.progress-label {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 60%;
+    transform: translateY(-50%);
+    font-size: 0.9rem; /* Adjust font size as necessary */
+    font-weight: bold;
+}
+
+.bindingsCount {
+    font-size: 1rem;
+    font-weight: lighter;
+}
+
+.loading-spinner {
+    margin-left: 2rem;
+    margin-top: 2rem;
+}
+
+.code-link {
+    font-size: 0.8rem;
+}
+
+.server-name {
+    font-weight: lighter;
+    font-style: italic;
+    color: rgb(128, 0, 0);
+}
+
+.replacement {
+    font-weight: lighter;
+    font-style: italic;
+    color: rgb(0, 128, 11);
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-left: 2rem;
+}
+
+.concept-is-inactive {
+    color: rgb(128, 0, 0);
+    font-size: 0.9rem;
+    margin-bottom: 0rem;
+}
+
+#myFormContainer {
+    margin-top: 1rem;
+}
+
+#tab-header {
+    margin-top: 1rem;
+}
+
+.tab-container {
+    padding: 2rem;
+}
+
+.outgoing-link {
+    font-size: 0.8rem;
+    float: right;
+    margin-right: 2rem;
+}
