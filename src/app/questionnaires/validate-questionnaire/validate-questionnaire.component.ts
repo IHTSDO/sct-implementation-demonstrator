@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTabGroup } from '@angular/material/tabs';
@@ -17,6 +17,8 @@ export class ValidateQuestionnaireComponent implements OnChanges {
   @ViewChild('questionnairesList') questionnairesList!: ListQuestionnairesComponent;
 
   @Input() questionnaire: any;
+  @Output() questionnaireUpdated = new EventEmitter<any>();
+  @Output() validatingQuestionnaire = new EventEmitter<boolean>();
 
   loading = false;
   validating = false;
@@ -81,6 +83,7 @@ export class ValidateQuestionnaireComponent implements OnChanges {
       item.status = "Not checked";
     });
     this.validating = true;
+    this.validatingQuestionnaire.emit(true);
     let length = this.dataSource.data.length;
     let count = 0;
     this.asyncForEach(this.dataSource.data, async (item) => {
@@ -138,6 +141,7 @@ export class ValidateQuestionnaireComponent implements OnChanges {
       }
     }).then(() => {
       this.validating = false;
+      this.validatingQuestionnaire.emit(false);
     });
   }
 
@@ -264,6 +268,7 @@ export class ValidateQuestionnaireComponent implements OnChanges {
     let changesMade = this.searchAndReplace(this.questionnaire, item, replacement, false);
     if (changesMade) {
       this.loadQuestionnaire(this.questionnaire);
+      this.questionnaireUpdated.emit(this.questionnaire);
     }
   }
 

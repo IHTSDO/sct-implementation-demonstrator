@@ -2,10 +2,6 @@
   FHIR Questionnaire Manager
 </h3>
 <div class="button-container bottom-spacer">
-    <div class="progress-container" *ngIf="validating">
-        <mat-progress-bar mode="determinate" [value]="validatingProgress"></mat-progress-bar>
-        <div class="progress-label">{{ validatingProgress }}%</div>
-    </div>
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
     <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Example form</button>
     <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload</button>
@@ -39,80 +35,7 @@
     </div>
   </mat-tab>
   <mat-tab label="Validate SNOMED Bindings">
-    <div class="button-container bottom-spacer">
-      <button mat-flat-button color="accent" (click)="validate()" [disabled]="validating || !questionnaire">
-        <span *ngIf="!validating">Run validation</span>
-        <mat-spinner diameter="20" *ngIf="validating"></mat-spinner>
-      </button>
-    </div>
-    <p  class="header" *ngIf="questionnaire" id="tab-header">
-      <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span>
-      <span class="mini-pill Error" *ngIf="loadResults.total > 0">Error: {{loadResults.error}}</span>
-      <span class="mini-pill Inactive" *ngIf="loadResults.total > 0">Inactive: {{loadResults.inactive}}</span>
-      <span class="mini-pill Active" *ngIf="loadResults.total > 0">Active: {{loadResults.active}}</span>
-  </p>
-  <div class="table-container">
-      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
-  
-          <ng-container matColumnDef="order">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> # </th>
-              <td mat-cell *matCellDef="let element"> {{element.order}} </td>
-            </ng-container>
-  
-          <ng-container matColumnDef="path">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> FHIRPath </th>
-            <td mat-cell *matCellDef="let element"> {{element.path}} </td>
-          </ng-container>
-  
-          <ng-container matColumnDef="readablePath">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Path </th>
-              <td mat-cell *matCellDef="let element"> {{element.readablePath}} </td>
-            </ng-container>
-  
-          <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Code </th>
-            <td mat-cell *matCellDef="let element">
-              <a href="http://snomed.info/id/{{element.code}}" target="_blank" class="code-link">{{element.code}}</a>
-            </td>
-          </ng-container>
-        
-          <ng-container matColumnDef="display">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Display </th>
-            <td mat-cell *matCellDef="let element"> 
-              {{element.display}}
-              <p *ngIf="element.serverDisplay" class="server-name">Concept FSN: {{element.serverDisplay}}</p>
-              <p class="concept-is-inactive" *ngIf="element.status == 'Inactive'">Concept is inactive</p>
-              <p class="replacement" *ngFor="let replacement of element.replacements">
-                  Replacement: {{replacement.equivalence}} to {{replacement.replacement.code}} |{{replacement.replacement.display}}|
-                  <button mat-icon-button color="primary" (click)="replaceInactiveConcept(element, replacement.replacement)" 
-                  matTooltip="Replace using this concept" [disabled]="validating">
-                      <mat-icon>arrow_forward</mat-icon>
-                  </button>
-              </p>
-          </td>
-          </ng-container>
-        
-          <ng-container matColumnDef="system">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> System </th>
-            <td mat-cell *matCellDef="let element"> {{element.system}} </td>
-          </ng-container>
-        
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-            <td mat-cell *matCellDef="let element">
-              <span *ngIf="element.status == 'Validating'">
-                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-              </span>
-              <span *ngIf="element.status != 'Validating'">
-                  <span class="pill" [ngClass]="element.status">{{ element.status }}</span>
-              </span>
-             </td>
-          </ng-container>
-        
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-      <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
-  </div>
+    <app-validate-questionnaire #validateQuestionnaire [questionnaire]="questionnaire" 
+    (questionnaireUpdated)="loadQuestionnaire($event)" (validatingQuestionnaire)="validating = $event"></app-validate-questionnaire>
   </mat-tab>
 </mat-tab-group>
