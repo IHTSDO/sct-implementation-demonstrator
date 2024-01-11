@@ -66,8 +66,21 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
     });
   }
 
+  updateQuestionnairesList(newQuestionnaire: any): void {
+    // Find the index of the existing questionnaire
+    const index = this.questionnaires.findIndex(q => q.id === newQuestionnaire.id);
+  
+    if (index !== -1) {
+      // Questionnaire exists, replace it
+      this.questionnaires[index] = newQuestionnaire;
+    } else {
+      // Questionnaire does not exist, add it to the array
+      this.questionnaires.push(newQuestionnaire);
+    }
+  }
+
   addQuestionnaire(questionnaire: any) {
-    this.questionnaires.push(questionnaire);
+    this.updateQuestionnairesList(questionnaire);
   }
 
   deleteQuestionnaire(questionnaire: any) {

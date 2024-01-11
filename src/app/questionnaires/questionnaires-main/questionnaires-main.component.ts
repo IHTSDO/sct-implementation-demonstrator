@@ -28,6 +28,7 @@ export class QuestionnairesMainComponent implements OnInit{
   validating = false;
   questionnaire: any;
   orderCounter = 0;
+  savingQuestionnaire = false;
 
   selectedFhirServer: string = "";
   selectedUserTag: string = "";
@@ -174,25 +175,28 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   postQuestionnaire() {
-    this.questionnaire.meta = {
-      tag: [
-          {
-              system: "http://snomed.org/tags",
-              code: this.selectedUserTag,
-              display: "Test tag"
-          },
-          {
-            system: "http://snomed.org/tags",
-            code: this.selectedUserTag,
-            display: "questionnaireManagerTool"
-        }
-      ]
-  };
-    this.fhirService.postQuestionnaire(this.questionnaire).pipe(first()).subscribe(
+    this.savingQuestionnaire = true;
+    if (!this.questionnaire.meta) {
+      this.questionnaire.meta = {};
+    }
+    this.questionnaire.meta.tag = [
+      {
+          system: "http://snomed.org/tags",
+          code: this.selectedUserTag,
+          display: this.selectedUserTag
+      },
+      {
+        system: "http://snomed.org/tags",
+        code: "questionnaireManagerTool",
+        display: "questionnaireManagerTool"
+      }
+    ];
+    this.fhirService.updateOrCreateQuestionnaire(this.questionnaire, this.selectedUserTag).pipe(first()).subscribe(
       (data: any) => {
         setTimeout(() => {
           this.tabGroup.selectedIndex = 0;
           setTimeout(() => {
+            this.savingQuestionnaire = false;
             this.questionnairesList.addQuestionnaire(data);
           }, 300);
         }, 300);
@@ -203,6 +207,7 @@ export class QuestionnairesMainComponent implements OnInit{
         });
       },
       (error: any) => {
+        this.savingQuestionnaire = false;
         this._snackBar.openFromComponent(SnackAlertComponent, {
           duration: 5 * 1000,
           data: "Error saving questionnaire",

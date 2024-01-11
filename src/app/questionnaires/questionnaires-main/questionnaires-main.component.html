@@ -15,7 +15,10 @@
 </div>
 <div class="button-container" *ngIf="mode === 'Manager'">
   <span>Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"</span>
-  <button mat-flat-button color="accent" (click)="postQuestionnaire()" [disabled]="validating || !questionnaire">Save</button>
+  <button mat-flat-button color="accent" (click)="postQuestionnaire()" [disabled]="validating || !questionnaire">
+    <span *ngIf="!savingQuestionnaire">Save</span>
+    <mat-spinner diameter="20" *ngIf="savingQuestionnaire"></mat-spinner>
+  </button>
   <!-- <button mat-flat-button color="accent" (click)="openDialog()" [disabled]="validating">Load</button> -->
   <button mat-flat-button color="accent" (click)="setupFhirServer()" [disabled]="validating">Setup</button>
 </div>
