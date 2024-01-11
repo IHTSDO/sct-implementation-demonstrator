@@ -470,7 +470,7 @@ export class QuestionnairesMainComponent implements OnInit{
         setTimeout(() => {
           this.tabGroup.selectedIndex = 0;
           setTimeout(() => {
-            this.questionnairesList.addQuestionnaire(this.questionnaire);
+            this.questionnairesList.addQuestionnaire(data);
           }, 300);
         }, 300);
         this._snackBar.openFromComponent(SnackAlertComponent, {
@@ -522,12 +522,12 @@ export class QuestionnairesMainComponent implements OnInit{
 
   switchToValidateTab(questionnaire: any) {
     this.loadQuestionnaire(questionnaire);
-    this.tabGroup.selectedIndex = 1;
+    this.tabGroup.selectedIndex = 2;
   }
 
   switchToPreviewTab(questionnaire: any) {
     this.loadQuestionnaire(questionnaire);
-    this.tabGroup.selectedIndex = 2;
+    this.tabGroup.selectedIndex = 1;
   }
 
 }

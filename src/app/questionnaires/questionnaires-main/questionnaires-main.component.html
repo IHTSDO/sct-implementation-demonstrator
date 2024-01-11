@@ -1,8 +1,5 @@
 <h3 class="header">
-  FHIR Questionnaire Terminology Bindings Validation Tool
-  <a href="https://lhcformbuilder.nlm.nih.gov/" target="_blank" class="outgoing-link">
-    Open NLM Form Editor >
-  </a>
+  FHIR Questionnaire Manager
 </h3>
 <div class="button-container bottom-spacer">
     <div class="progress-container" *ngIf="validating">
@@ -10,21 +7,20 @@
         <div class="progress-label">{{ validatingProgress }}%</div>
     </div>
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
-    <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Load example</button>
-    <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload FHIR Questionnaire</button>
-    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire">Download FHIR Questionnaire</button>
-    <button mat-flat-button color="accent" (click)="validate()" [disabled]="validating || !questionnaire">
-        <span *ngIf="!validating">Validate</span>
-        <mat-spinner diameter="20" *ngIf="validating"></mat-spinner>
-    </button>
+    <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Example form</button>
+    <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload</button>
+    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire">Download</button>
     <button mat-flat-button color="accent" (click)="clearQuestionnaire()" [disabled]="validating || !questionnaire">Clear</button>
+    <a mat-flat-button color="accent" href="https://lhcformbuilder.nlm.nih.gov/" target="_blank">
+      Open NLM Form Editor
+    </a>
     <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Validator'">Manager Mode</button>
     <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Manager'">Validator Mode</button>
 </div>
 <div class="button-container" *ngIf="mode === 'Manager'">
   <span>Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"</span>
   <button mat-flat-button color="accent" (click)="postQuestionnaire()" [disabled]="validating || !questionnaire">Save</button>
-  <button mat-flat-button color="accent" (click)="openDialog()" [disabled]="validating">Load</button>
+  <!-- <button mat-flat-button color="accent" (click)="openDialog()" [disabled]="validating">Load</button> -->
   <button mat-flat-button color="accent" (click)="setupFhirServer()" [disabled]="validating">Setup</button>
 </div>
 
@@ -37,7 +33,18 @@
       </app-list-questionnaires>
     </div>
   </mat-tab>
-  <mat-tab label="Validation">
+  <mat-tab label="Preview">
+    <div class="tab-container">
+      <div id="myFormContainer"></div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Validate SNOMED Bindings">
+    <div class="button-container bottom-spacer">
+      <button mat-flat-button color="accent" (click)="validate()" [disabled]="validating || !questionnaire">
+        <span *ngIf="!validating">Run validation</span>
+        <mat-spinner diameter="20" *ngIf="validating"></mat-spinner>
+      </button>
+    </div>
     <p  class="header" *ngIf="questionnaire" id="tab-header">
       <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span>
       <span class="mini-pill Error" *ngIf="loadResults.total > 0">Error: {{loadResults.error}}</span>
@@ -107,10 +114,5 @@
       </table>
       <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
   </div>
-  </mat-tab>
-  <mat-tab label="Preview">
-    <div class="tab-container">
-      <div id="myFormContainer"></div>
-    </div>
   </mat-tab>
 </mat-tab-group>
