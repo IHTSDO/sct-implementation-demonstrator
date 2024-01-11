@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, throwError } from 'rxjs';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,29 @@ export class FhirService {
   private baseUrlSubject = new BehaviorSubject<string>('https://hapi.fhir.org/baseR4');
   baseUrl$ = this.baseUrlSubject.asObservable();
 
-  private userTagSubject = new BehaviorSubject<string>('snomed-qtag');
+  private userTagSubject = new BehaviorSubject<string>('');
   userTag$ = this.userTagSubject.asObservable();
   
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private storageService: StorageService) {
+    this.initialize();
+  }
+  
+  private initialize(): void {
+    if (this.storageService.isLocalStorageSupported()) {
+      const baseUrl = this.storageService.getItem('baseUrl');
+      if (baseUrl) {
+        this.baseUrlSubject.next(baseUrl);
+      }
+      const userTag = this.storageService.getItem('userTag');
+      if (userTag) {
+        this.userTagSubject.next(userTag);
+      }
+    }
+  }
 
   setBaseUrl(url: string): void {
     this.baseUrlSubject.next(url);
+    this.storageService.saveItem('baseUrl', url);
   }
 
   getBaseUrl(): string {
@@ -24,6 +41,7 @@ export class FhirService {
 
   setUserTag(tag: string): void {
     this.userTagSubject.next(tag);
+    this.storageService.saveItem('userTag', tag);
   }
 
   getUserTag(): string {

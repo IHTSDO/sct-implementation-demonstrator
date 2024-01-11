@@ -30,7 +30,7 @@ export class FhirServerSettingsModalComponent implements OnInit {
 
   ngOnInit() {
     this.baseUrl = this.fhirService.getBaseUrl()
-    this.userTag = '';
+    this.userTag = this.fhirService.getUserTag();
   }
 
   updateSettings() {

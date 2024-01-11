@@ -225,7 +225,7 @@ export class QuestionnairesMainComponent implements OnInit{
       });
   }
 
-  openDialog(): void {
+  openLoadQuestionnairesDialog(): void {
     const dialogRef = this.dialog.open(LoadQuestionnaireModalComponent, {
       width: '70%'
       // additional configuration if needed
