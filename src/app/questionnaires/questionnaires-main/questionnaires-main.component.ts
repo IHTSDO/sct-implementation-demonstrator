@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { first, lastValueFrom, map } from 'rxjs';
 import { TerminologyService } from 'src/app/services/terminology.service';
@@ -23,6 +23,7 @@ export class QuestionnairesMainComponent implements OnInit{
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
   @ViewChild('questionnairesList') questionnairesList!: ListQuestionnairesComponent;
+  @ViewChild('fileInput') uploadInput!: ElementRef;
 
   loading = false;
   validating = false;
@@ -34,10 +35,10 @@ export class QuestionnairesMainComponent implements OnInit{
   selectedUserTag: string = "";
 
   showFhirSetupModal = false;
-  previewTabVisible = true;
 
   listConfig = { validate : true, preview: true };
-  mode = "Validator";
+  mode = "step1";
+  step1Response: any;
 
   constructor(private http: HttpClient, 
     private terminologyService: TerminologyService,
@@ -94,21 +95,12 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   previewForm() {
-    if (this.previewTabVisible) {
+    if (this.getCurrentTabName() == "Preview") {
       if (this.questionnaire) {
         LForms.Util.addFormToPage(this.questionnaire, 'myFormContainer');
       } else {
         LForms.Util.addFormToPage({}, 'myFormContainer');
       }
-    }
-  }
-
-  onTabChange(event: MatTabChangeEvent) {
-    if (event.tab.textLabel === 'Preview') {
-      this.previewTabVisible = true;
-      this.previewForm();
-    } else {
-      this.previewTabVisible = false;
     }
   }
 
@@ -153,7 +145,10 @@ export class QuestionnairesMainComponent implements OnInit{
           if (jsonData.resourceType === "Questionnaire") {
             this.loadQuestionnaire(jsonData);
             if (this.mode === "Manager") {
-              this.tabGroup.selectedIndex = 1;
+              setTimeout(() => {
+                this.postQuestionnaire();
+                // this.tabGroup.selectedIndex = 1;
+              }, 1000);
             }
           } else {
             this._snackBar.openFromComponent(SnackAlertComponent, {
@@ -163,6 +158,7 @@ export class QuestionnairesMainComponent implements OnInit{
             });
           }
         } catch (error) {
+          console.error(error);
           this._snackBar.openFromComponent(SnackAlertComponent, {
             duration: 5 * 1000,
             data: "Invalid JSON file",
@@ -176,6 +172,11 @@ export class QuestionnairesMainComponent implements OnInit{
 
   postQuestionnaire() {
     this.savingQuestionnaire = true;
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 5 * 1000,
+      data: "Saving Questionnaire...",
+      panelClass: ['green-snackbar']
+    });
     if (!this.questionnaire.meta) {
       this.questionnaire.meta = {};
     }
@@ -257,5 +258,37 @@ export class QuestionnairesMainComponent implements OnInit{
     this.loadQuestionnaire(questionnaire);
     this.tabGroup.selectedIndex = 1;
   }
+
+  advanceFromStep1() {
+    if (this.step1Response == "edit") {
+      window.open('https://lhcformbuilder.nlm.nih.gov/', '_blank');
+    } else if (this.step1Response == "validate") {
+      this.mode = "Validator";
+      setTimeout(() => {
+        this.uploadInput.nativeElement.click();
+      }, 200);
+    } else if (this.step1Response == "repository") {
+      const dialogRef = this.dialog.open(FhirServerSettingsModalComponent, {
+        width: '60%'
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.mode = "Manager";
+        }
+      });
+    }
+  }
+
+  getCurrentTabName(): string {
+    const tabIndex = this.tabGroup.selectedIndex;
+    if (tabIndex) {
+      const tab = this.tabGroup._tabs.toArray()[tabIndex];
+      return tab.textLabel;
+    } else {
+      return "";
+    }
+  }
+  
 
 }

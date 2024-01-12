@@ -1,44 +1,75 @@
-<h3 class="header">
-  FHIR Questionnaire Manager
-</h3>
-<div class="button-container bottom-spacer">
-    <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
-    <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Example form</button>
-    <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">Upload</button>
-    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire">Download</button>
-    <button mat-flat-button color="accent" (click)="clearQuestionnaire()" [disabled]="validating || !questionnaire">Clear</button>
-    <a mat-flat-button color="accent" href="https://lhcformbuilder.nlm.nih.gov/" target="_blank">
-      Open NLM Form Editor
-    </a>
-    <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Validator'">Manager Mode</button>
-    <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Manager'">Validator Mode</button>
+<div class="header-container">
+  <h3 class="header">
+    FHIR Questionnaire Manager
+  </h3>
+
+  <div class="breadcrumb">
+    <span>
+      <a href="javascript:void(0)" (click)="mode = 'step1'">Home</a>
+      <span *ngIf="mode == 'Validator'"> / Validator</span>
+      <span *ngIf="mode == 'Manager'"> / Questionnaires repository</span>
+    </span>
+  </div>
 </div>
-<div class="button-container" *ngIf="mode === 'Manager'">
-  <span>Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"</span>
-  <button mat-flat-button color="accent" (click)="postQuestionnaire()" [disabled]="validating || !questionnaire">
-    <span *ngIf="!savingQuestionnaire">Save</span>
-    <mat-spinner diameter="20" *ngIf="savingQuestionnaire"></mat-spinner>
-  </button>
-  <!-- <button mat-flat-button color="accent" (click)="openDialog()" [disabled]="validating">Load</button> -->
-  <button mat-flat-button color="accent" (click)="setupFhirServer()" [disabled]="validating">Setup</button>
+<div *ngIf="mode == 'step1'" id="step1">
+  <p>What do you want to do today?</p>
+  <mat-radio-group aria-label="Select an option" [(ngModel)]="step1Response">
+    <mat-radio-button value="edit">Edit a questionnaire in the NLM Form Builder</mat-radio-button>
+    <mat-radio-button value="validate">Upload and validate a questionnaire</mat-radio-button>
+    <mat-radio-button value="repository">Work with your questionnaires from a FHIR server</mat-radio-button>
+  </mat-radio-group>
+  <div class="step-button-container">
+    <button mat-flat-button color="accent" (click)="advanceFromStep1()">Next</button>
+  </div>
 </div>
 
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedTabChange)="onTabChange($event)">
-  <mat-tab label="My Questionnaires" *ngIf="mode === 'Manager'">
-    <div class="tab-container">
-      <app-list-questionnaires #questionnairesList [config]="listConfig"
-        (validateQuestionnaire)="switchToValidateTab($event)"
-        (previewQuestionnaire)="switchToPreviewTab($event)">
-      </app-list-questionnaires>
-    </div>
-  </mat-tab>
-  <mat-tab label="Preview">
-    <div class="tab-container">
-      <div id="myFormContainer"></div>
-    </div>
-  </mat-tab>
-  <mat-tab label="Validate SNOMED Bindings">
-    <app-validate-questionnaire #validateQuestionnaire [questionnaire]="questionnaire" 
-    (questionnaireUpdated)="loadQuestionnaire($event)" (validatingQuestionnaire)="validating = $event"></app-validate-questionnaire>
-  </mat-tab>
-</mat-tab-group>
+<div *ngIf="mode == 'Manager' || mode == 'Validator'">
+  <div class="button-container bottom-spacer">
+    <span *ngIf="mode == 'Manager'">
+      Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"
+    </span>
+    <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
+    <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Example form</button>
+    <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">
+      Upload
+      <!-- <span *ngIf="!savingQuestionnaire">Upload</span>
+      <mat-spinner diameter="20" *ngIf="savingQuestionnaire" style="color: white;"></mat-spinner> -->
+    </button>
+    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire">Download</button>
+    <!-- <button mat-flat-button color="accent" (click)="clearQuestionnaire()" [disabled]="validating || !questionnaire">Clear</button> -->
+    <!-- <button mat-flat-button color="accent" (click)="mode = 'step1'">Back</button> -->
+    <!-- <a mat-flat-button color="accent" href="https://lhcformbuilder.nlm.nih.gov/" target="_blank">
+      Open NLM Form Editor
+    </a> -->
+    <!-- <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Validator'">Manager Mode</button>
+    <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Manager'">Validator Mode</button> -->
+  </div>
+  <!-- <div class="button-container" *ngIf="mode === 'Manager'">
+    <button mat-flat-button color="accent" (click)="postQuestionnaire()" [disabled]="validating || !questionnaire">
+      <span *ngIf="!savingQuestionnaire">Save</span>
+      <mat-spinner diameter="20" *ngIf="savingQuestionnaire"></mat-spinner>
+    </button>
+    <button mat-flat-button color="accent" (click)="openDialog()" [disabled]="validating">Load</button>
+    <button mat-flat-button color="accent" (click)="setupFhirServer()" [disabled]="validating">Setup</button>
+  </div> -->
+
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+    <mat-tab label="My Questionnaires" *ngIf="mode === 'Manager'">
+      <div class="tab-container">
+        <app-list-questionnaires #questionnairesList [config]="listConfig"
+          (validateQuestionnaire)="switchToValidateTab($event)"
+          (previewQuestionnaire)="switchToPreviewTab($event)">
+        </app-list-questionnaires>
+      </div>
+    </mat-tab>
+    <mat-tab label="Preview">
+      <div class="tab-container">
+        <div id="myFormContainer"></div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Validate SNOMED Bindings">
+      <app-validate-questionnaire #validateQuestionnaire [questionnaire]="questionnaire" 
+      (questionnaireUpdated)="loadQuestionnaire($event)" (validatingQuestionnaire)="validating = $event"></app-validate-questionnaire>
+    </mat-tab>
+  </mat-tab-group>
+</div>

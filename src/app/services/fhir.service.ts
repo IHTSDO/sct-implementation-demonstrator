@@ -82,26 +82,25 @@ export class FhirService {
   }
 
   // Attempt to update, and if not found, create a new Questionnaire
-updateOrCreateQuestionnaire(questionnaire: any, tag: string) {
-  if (!questionnaire.id) {
-    return this.postQuestionnaire(questionnaire);
-  } else {
-    const conditionalUrl = `${this.baseUrlSubject.value}/Questionnaire?_id=${questionnaire.id}&_tag=${tag}`;
-    return this.http.put(conditionalUrl, questionnaire).pipe(
-      catchError(error => {
-        // Check if the error indicates that no matching resource was found
-        if (error.status === 404) {
-          // Create a new Questionnaire resource
-          return this.postQuestionnaire(questionnaire);
-        } else {
-          // If the error is not a 404, rethrow it
-          return throwError(error);
-        }
-      })
-    );
+  updateOrCreateQuestionnaire(questionnaire: any, tag: string) {
+    if (!questionnaire.id) {
+      return this.postQuestionnaire(questionnaire);
+    } else {
+      const conditionalUrl = `${this.baseUrlSubject.value}/Questionnaire?_id=${questionnaire.id}&_tag=${tag}`;
+      return this.http.put(conditionalUrl, questionnaire).pipe(
+        catchError(error => {
+          // Check if the error indicates that no matching resource was found
+          if (error.status === 404) {
+            // Create a new Questionnaire resource
+            return this.postQuestionnaire(questionnaire);
+          } else {
+            // If the error is not a 404, rethrow it
+            return throwError(error);
+          }
+        })
+      );
+    }
+    
   }
-  
-}
-
 
 }

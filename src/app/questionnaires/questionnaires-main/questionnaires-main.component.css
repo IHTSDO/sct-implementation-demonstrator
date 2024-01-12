@@ -144,3 +144,34 @@
     float: right;
     margin-right: 2rem;
 }
+
+#step1 {
+    margin-top: 2rem;
+    margin-left: 2rem;
+    font-size: large;
+}
+
+#step1 mat-radio-group {
+    margin-left: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.step-button-container {
+    margin-left: 30rem;
+    margin-top: 2rem;
+}
+
+.breadcrumb {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 2rem;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+  

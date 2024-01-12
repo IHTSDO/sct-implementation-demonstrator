@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, combineLatest, debounceTime, distinctUntilChanged } from 'rxjs';
+import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { FhirService } from 'src/app/services/fhir.service';
 
 @Component({
@@ -24,7 +26,7 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
   private baseUrlChanged = new Subject<string>();
   private userTagChanged = new Subject<string>();
 
-  constructor(private fhirService: FhirService) { }
+  constructor(private fhirService: FhirService, private _snackBar: MatSnackBar) { }
 
   ngOnInit() {
     combineLatest([
@@ -84,9 +86,19 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
   }
 
   deleteQuestionnaire(questionnaire: any) {
-    this.loading = true;
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 5 * 1000,
+      data: "Deleting Questionnaire...",
+      panelClass: ['green-snackbar']
+    });
     this.fhirService.deleteQuestionnaire(questionnaire.id).subscribe(() => {
-      this.loadQuestionnaires();
+      // remove from the list by id
+      this.questionnaires = this.questionnaires.filter((q) => q.id !== questionnaire.id);
+      this._snackBar.openFromComponent(SnackAlertComponent, {
+        duration: 5 * 1000,
+        data: "Questionnaire deleted successfully",
+        panelClass: ['green-snackbar']
+      });
     });
   }
 
