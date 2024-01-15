@@ -30,31 +30,13 @@
       Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"
     </span>
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
-    <!-- <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Example form</button> -->
     <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">
       Upload
-      <!-- <span *ngIf="!savingQuestionnaire">Upload</span>
-      <mat-spinner diameter="20" *ngIf="savingQuestionnaire" style="color: white;"></mat-spinner> -->
     </button>
     <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire">Download</button>
-    <!-- <button mat-flat-button color="accent" (click)="clearQuestionnaire()" [disabled]="validating || !questionnaire">Clear</button> -->
-    <!-- <button mat-flat-button color="accent" (click)="mode = 'step1'">Back</button> -->
-    <!-- <a mat-flat-button color="accent" href="https://lhcformbuilder.nlm.nih.gov/" target="_blank">
-      Open NLM Form Editor
-    </a> -->
-    <!-- <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Validator'">Manager Mode</button>
-    <button mat-flat-button color="accent" (click)="toggleMode()" [disabled]="validating" *ngIf="mode === 'Manager'">Validator Mode</button> -->
   </div>
-  <!-- <div class="button-container" *ngIf="mode === 'Manager'">
-    <button mat-flat-button color="accent" (click)="postQuestionnaire()" [disabled]="validating || !questionnaire">
-      <span *ngIf="!savingQuestionnaire">Save</span>
-      <mat-spinner diameter="20" *ngIf="savingQuestionnaire"></mat-spinner>
-    </button>
-    <button mat-flat-button color="accent" (click)="openDialog()" [disabled]="validating">Load</button>
-    <button mat-flat-button color="accent" (click)="setupFhirServer()" [disabled]="validating">Setup</button>
-  </div> -->
 
-  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedIndexChange)="onTabChange($event)">
     <mat-tab label="My Questionnaires" *ngIf="mode === 'Manager'">
       <div class="tab-container">
         <app-list-questionnaires #questionnairesList [config]="listConfig"
@@ -65,7 +47,7 @@
     </mat-tab>
     <mat-tab label="Preview">
       <div class="tab-container">
-        <div id="myFormContainer"></div>
+        <div id="myFormContainer" [class.hidden]="!questionnaire"></div>
       </div>
     </mat-tab>
     <mat-tab label="Validate SNOMED Bindings">

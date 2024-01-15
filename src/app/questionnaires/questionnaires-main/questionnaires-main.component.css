@@ -136,7 +136,9 @@
 }
 
 .tab-container {
-    padding: 2rem;
+    padding-top: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
 }
 
 .outgoing-link {
@@ -173,5 +175,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.hidden {
+    visibility: hidden;
 }
   

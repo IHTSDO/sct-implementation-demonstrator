@@ -284,6 +284,7 @@ export class QuestionnairesMainComponent implements OnInit{
         this.loadExampleQuestionnaire();
       }, 300);
     }
+    this.step1Response = "";
   }
 
   getCurrentTabName(): string {
@@ -293,6 +294,15 @@ export class QuestionnairesMainComponent implements OnInit{
       return tab.textLabel;
     } else {
       return "";
+    }
+  }
+
+  onTabChange(index: number) {
+    const tabLabel = this.tabGroup._tabs.toArray()[index].textLabel;
+    if (tabLabel === "Preview") {
+      setTimeout(() => {
+        this.previewForm();
+      }, 300);
     }
   }
   
