@@ -144,12 +144,13 @@ export class QuestionnairesMainComponent implements OnInit{
           const jsonData = JSON.parse(e.target?.result as string);
           if (jsonData.resourceType === "Questionnaire") {
             this.loadQuestionnaire(jsonData);
-            if (this.mode === "Manager") {
               setTimeout(() => {
+                if (this.mode === "Manager") {
                 this.postQuestionnaire();
-                // this.tabGroup.selectedIndex = 1;
+                } else {
+                  this.tabGroup.selectedIndex = 1;
+                }
               }, 1000);
-            }
           } else {
             this._snackBar.openFromComponent(SnackAlertComponent, {
               duration: 5 * 1000,
