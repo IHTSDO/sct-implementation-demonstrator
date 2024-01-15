@@ -278,12 +278,17 @@ export class QuestionnairesMainComponent implements OnInit{
           this.mode = "Manager";
         }
       });
+    } else if (this.step1Response == "example") {
+      this.mode = "Validator";
+      setTimeout(() => {
+        this.loadExampleQuestionnaire();
+      }, 300);
     }
   }
 
   getCurrentTabName(): string {
     const tabIndex = this.tabGroup.selectedIndex;
-    if (tabIndex) {
+    if (tabIndex !== null && tabIndex !== undefined) {
       const tab = this.tabGroup._tabs.toArray()[tabIndex];
       return tab.textLabel;
     } else {

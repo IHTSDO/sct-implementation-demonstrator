@@ -15,11 +15,12 @@
   <p>What do you want to do today?</p>
   <mat-radio-group aria-label="Select an option" [(ngModel)]="step1Response">
     <mat-radio-button value="edit">Edit a questionnaire in the NLM Form Builder</mat-radio-button>
+    <mat-radio-button value="example">Load an example questionnaire</mat-radio-button>
     <mat-radio-button value="validate">Upload and validate a questionnaire</mat-radio-button>
     <mat-radio-button value="repository">Work with your questionnaires from a FHIR server</mat-radio-button>
   </mat-radio-group>
   <div class="step-button-container">
-    <button mat-flat-button color="accent" (click)="advanceFromStep1()">Next</button>
+    <button mat-flat-button color="accent" (click)="advanceFromStep1()" [disabled]="!step1Response">Next</button>
   </div>
 </div>
 
@@ -29,7 +30,7 @@
       Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"
     </span>
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
-    <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Example form</button>
+    <!-- <button mat-flat-button color="accent" (click)="loadExampleQuestionnaire()" [disabled]="validating">Example form</button> -->
     <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">
       Upload
       <!-- <span *ngIf="!savingQuestionnaire">Upload</span>
