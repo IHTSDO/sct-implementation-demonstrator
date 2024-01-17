@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, combineLatest, debounceTime, distinctUntilChanged } from 'rxjs';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { FhirService } from 'src/app/services/fhir.service';
 import * as saveAs from 'file-saver';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-list-questionnaires',
@@ -12,11 +14,16 @@ import * as saveAs from 'file-saver';
 })
 export class ListQuestionnairesComponent implements OnInit, OnChanges {
 
+  @ViewChild(MatSort) sort!: MatSort;
+
   @Output() questionnaireSelected = new EventEmitter<any>();
   @Output() validateQuestionnaire = new EventEmitter<any>();
   @Output() previewQuestionnaire = new EventEmitter<any>();
 
   @Input() config: any = {};
+
+  displayedColumns: string[] = ['title','status', 'version', 'actions'];
+  dataSource = new MatTableDataSource<any>();
 
   questionnaires: any[] = [];
   loading = false;
@@ -60,9 +67,12 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
     this.fhirService.getQuestionnairesByTag(this.selectedUserTag).subscribe((data: any) => {
       if (data['entry']) {
         this.questionnaires = data['entry'].map((entry: any) => entry.resource);
+        this.dataSource.data = this.questionnaires; //.slice(0, 11);
+        this.dataSource.sort = this.sort;
         this.loading = false;
       } else {
         this.questionnaires = [];
+        this.dataSource.data = this.questionnaires;
         this.loading = false;
         this.notFound = true;
       }
@@ -76,9 +86,11 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
     if (index !== -1) {
       // Questionnaire exists, replace it
       this.questionnaires[index] = newQuestionnaire;
+      this.dataSource.data = this.questionnaires;
     } else {
       // Questionnaire does not exist, add it to the array
       this.questionnaires.push(newQuestionnaire);
+      this.dataSource.data = this.questionnaires;
     }
   }
 
@@ -95,6 +107,7 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
     this.fhirService.deleteQuestionnaire(questionnaire.id).subscribe(() => {
       // remove from the list by id
       this.questionnaires = this.questionnaires.filter((q) => q.id !== questionnaire.id);
+      this.dataSource.data = this.questionnaires;
       this._snackBar.openFromComponent(SnackAlertComponent, {
         duration: 5 * 1000,
         data: "Questionnaire deleted successfully",

@@ -52,3 +52,7 @@
 .status-pill.retired {
     background-color: #dc3545; /* Red for retired status */
 }
+
+#table-container {
+    padding-bottom: 2rem;
+}
