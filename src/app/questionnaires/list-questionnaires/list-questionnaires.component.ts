@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, combineLatest, debounceTime, distinctUntilChanged } from 'rxjs';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { FhirService } from 'src/app/services/fhir.service';
+import * as saveAs from 'file-saver';
 
 @Component({
   selector: 'app-list-questionnaires',
@@ -118,4 +119,10 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
     let url = this.selectedFhirServer + '/Questionnaire/' + questionnaire.id;
     window.open(url, '_blank');
   }
+
+  saveQuestionnaire(questionnaire: any) {
+    var blob = new Blob([JSON.stringify(questionnaire, null, 2)], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, `${questionnaire.title}-v${questionnaire.meta.versionId}.json`);
+  }
+
 }

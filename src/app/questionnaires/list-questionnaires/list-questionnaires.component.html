@@ -6,7 +6,10 @@
                 <span class="list-subtext">Version: {{ questionnaire.meta.versionId }}</span>
                 <span [ngClass]="['status-pill', questionnaire.status]">{{ questionnaire.status | uppercase }}</span>
             </span>
-            
+            <button mat-icon-button color="accent" (click)="selectQuestionnaire(questionnaire)" class="action-button"
+            *ngIf="config.select" matTooltip="Load Questionnaire">
+                <mat-icon>cloud_download</mat-icon>
+            </button>
             <button mat-icon-button color="accent" (click)="selectQuestionnaire(questionnaire)" class="action-button"
             *ngIf="config.select" matTooltip="Load Questionnaire">
                 <mat-icon>cloud_download</mat-icon>
@@ -22,6 +25,10 @@
             <button mat-icon-button color="accent" (click)="openInNewTab(questionnaire)" class="action-button"
             *ngIf="config.preview" matTooltip="Open resource in new tab">
                 <mat-icon>open_in_new</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="saveQuestionnaire(questionnaire)" class="action-button"
+            matTooltip="Download Questionnaire">
+                <mat-icon>cloud_download</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="deleteQuestionnaire(questionnaire)" class="action-button"
             matTooltip="Delete Questionnaire">
