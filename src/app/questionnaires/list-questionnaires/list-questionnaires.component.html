@@ -14,17 +14,29 @@
         <ng-container matColumnDef="version">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Version </th>
             <td mat-cell *matCellDef="let element"> {{element.meta.versionId}} </td>
-          </ng-container>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="!isRootQuestionnaire(element)" [ngClass]="['status-pill', 'active']">QUESTIONNAIRE</span>
+            <span *ngIf="isRootQuestionnaire(element)" [ngClass]="['status-pill', 'draft']">MODULAR ROOT</span>
+          </td>
+        </ng-container>
 
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Actions </th>
           <td mat-cell *matCellDef="let element">
+            <button mat-icon-button color="accent" (click)="assemble(element)" class="action-button"
+            *ngIf="isRootQuestionnaire(element)" matTooltip="Assemble Questionnaire">
+                <mat-icon>build</mat-icon>
+            </button>
             <button mat-icon-button color="accent" (click)="validate(element)" class="action-button"
-            *ngIf="config.validate" matTooltip="Validate Questionnaire">
+            *ngIf="config.validate && !isRootQuestionnaire(element)" matTooltip="Validate Questionnaire">
                 <mat-icon>done</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="preview(element)" class="action-button"
-            *ngIf="config.preview" matTooltip="Preview Questionnaire">
+            *ngIf="config.preview && !isRootQuestionnaire(element)" matTooltip="Preview Questionnaire">
                 <mat-icon>visibility</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="openInNewTab(element)" class="action-button"
@@ -34,6 +46,10 @@
             <button mat-icon-button color="accent" (click)="saveQuestionnaire(element)" class="action-button"
             matTooltip="Download Questionnaire">
                 <mat-icon>cloud_download</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="editQuestionnaire(element)" class="action-button"
+            matTooltip="Edit Questionnaire">
+                <mat-icon>edit</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="deleteQuestionnaire(element)" class="action-button"
             matTooltip="Delete Questionnaire">

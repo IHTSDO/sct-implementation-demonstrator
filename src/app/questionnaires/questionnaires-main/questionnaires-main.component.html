@@ -18,6 +18,10 @@
     <mat-radio-button value="example">Load an example questionnaire</mat-radio-button>
     <mat-radio-button value="validate">Upload and validate a questionnaire</mat-radio-button>
     <mat-radio-button value="repository">Work with your questionnaires from a FHIR server</mat-radio-button>
+    <mat-radio-button value="reconnect" *ngIf="selectedFhirServer && selectedUserTag">
+      Reconnect to last FHIR Server: <span class="muted"> {{ selectedFhirServer }} as "<i>{{ selectedUserTag }}</i>" </span>
+    </mat-radio-button>
+
   </mat-radio-group>
   <div class="step-button-container">
     <button mat-flat-button color="accent" (click)="advanceFromStep1()" [disabled]="!step1Response">Next</button>
@@ -34,6 +38,9 @@
       Upload
     </button>
     <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire">Download</button>
+    <button mat-flat-button color="accent" (click)="openQuestionnaireModal()" [disabled]="validating" *ngIf="mode == 'Manager'">
+      Create Modular Questionnaire
+    </button>
   </div>
 
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedIndexChange)="onTabChange($event)">

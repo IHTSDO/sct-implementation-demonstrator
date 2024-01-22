@@ -180,4 +180,7 @@
 .hidden {
     visibility: hidden;
 }
-  
+
+.muted {
+    color: #8f9397;
+}

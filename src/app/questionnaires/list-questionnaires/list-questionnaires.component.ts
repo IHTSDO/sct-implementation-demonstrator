@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, combineLatest, debounceTime, distinctUntilChanged } from 'rxjs';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
@@ -6,13 +6,14 @@ import { FhirService } from 'src/app/services/fhir.service';
 import * as saveAs from 'file-saver';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { QuestionnaireService } from 'src/app/services/questionnaire.service';
 
 @Component({
   selector: 'app-list-questionnaires',
   templateUrl: './list-questionnaires.component.html',
   styleUrls: ['./list-questionnaires.component.css']
 })
-export class ListQuestionnairesComponent implements OnInit, OnChanges {
+export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterViewInit {
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -22,7 +23,7 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
 
   @Input() config: any = {};
 
-  displayedColumns: string[] = ['title','status', 'version', 'actions'];
+  displayedColumns: string[] = ['title','status', 'version', 'type', 'actions'];
   dataSource = new MatTableDataSource<any>();
 
   questionnaires: any[] = [];
@@ -34,7 +35,7 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
   private baseUrlChanged = new Subject<string>();
   private userTagChanged = new Subject<string>();
 
-  constructor(private fhirService: FhirService, private _snackBar: MatSnackBar) { }
+  constructor(private fhirService: FhirService, private questionnaireService: QuestionnaireService, private _snackBar: MatSnackBar) { }
 
   ngOnInit() {
     combineLatest([
@@ -58,6 +59,23 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'type':
+          return this.isRootQuestionnaire(item) ? 'Modular root' : 'Questionnaire';
+        case 'version':
+          return item.meta && item.meta.versionId ? item.meta.versionId : '';
+        default:
+          return item[property];
+      }
+    };
+    if (this.selectedUserTag && this.selectedFhirServer) {
+      this.loadQuestionnaires();
+    }
   }
 
   loadQuestionnaires() {
@@ -138,4 +156,32 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges {
     saveAs(blob, `${questionnaire.title}-v${questionnaire.meta.versionId}.json`);
   }
 
+  isRootQuestionnaire(questionnaire: any): boolean {
+    if (questionnaire.extension && Array.isArray(questionnaire.extension)) {
+      return questionnaire.extension.some( (ext: any) => 
+        ext.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation" &&
+        ext.valueCode === "assemble-root"
+      );
+    } else return false;
+  }
+  
+  assemble(questionnaire: any) {
+    // In your component
+    this.questionnaireService.assembleQuestionnaire(questionnaire).then(assembledQuestionnaire => {
+      // Use the assembled questionnaire as needed
+      // console.log('Assembled questionnaire:', assembledQuestionnaire);
+      // var blob = new Blob([JSON.stringify(assembledQuestionnaire, null, 2)], {type: "text/plain;charset=utf-8"});
+      // saveAs(blob, `${assembledQuestionnaire.title}-v${assembledQuestionnaire.meta.versionId}.json`);
+      assembledQuestionnaire.title = questionnaire.title + " (assembled)";
+      this.previewQuestionnaire.emit(assembledQuestionnaire);
+    }).catch(error => {
+      console.error('Error assembling questionnaire:', error);
+      // Handle the error
+    });
+  }
+
+  editQuestionnaire(questionnaire: any) {
+    this.saveQuestionnaire(questionnaire);
+    window.open('https://lhcformbuilder.nlm.nih.gov/', '_blank');
+  }
 }

@@ -1,0 +1,39 @@
+<mat-dialog-content>
+    <h2>Create a modular Questionnaire</h2>
+    <form [formGroup]="questionnaireForm" class="form-layout">
+        <div class="form-row">
+        <mat-form-field class="full-width">
+            <mat-label>Assign Name</mat-label>
+            <input matInput formControlName="assignedName">
+        </mat-form-field>
+        </div>
+        <div class="form-row">
+            <mat-form-field class="half-width">
+                <mat-label>Select Child Questionnaire</mat-label>
+                <mat-select formControlName="selectedQuestionnaire">
+                <mat-option *ngFor="let questionnaire of availableQuestionnaires" [value]="questionnaire">
+                    {{ questionnaire.title }}
+                </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button mat-raised-button color="primary" class="add-button" (click)="addQuestionnaire()" [disabled]="loading">Add questionnaire</button>
+            <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
+        </div>
+    </form>
+    <div class="questionnaire-list">
+        <cdk-drop-list class="list" (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let item of addedQuestionnaires; let i = index" cdkDrag class="cdk-drag">
+            <span class="drag-handle">≡</span>
+            {{ item.title }}
+            <button mat-icon-button (click)="deleteQuestionnaire(i)" aria-label="Delete questionnaire">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </div>
+        </cdk-drop-list>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions class="button-container">
+<button mat-flat-button color="primary" mat-dialog-close>Cancel</button>
+<button mat-flat-button color="accent" [disabled]="isSaveDisabled()" (click)="closeModal()">Save</button>
+</mat-dialog-actions>
+  

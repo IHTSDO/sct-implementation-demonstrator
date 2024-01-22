@@ -1,0 +1,62 @@
+.questionnaire-list {
+    width: 100%;
+    max-height: 400px; /* Adjust based on your needs */
+    overflow: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    padding: 10px;
+  }
+  
+  .list .cdk-drag {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    margin-bottom: 10px; /* Space between rows */
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .drag-handle {
+    cursor: move;
+    margin-right: 15px;
+    font-size: 20px; /* Adjust size as needed */
+    color: #666;
+  }
+  
+  /* Optional: Change the background color when dragging */
+  .cdk-drag-preview {
+    background-color: #e0e0e0;
+  }
+  
+  /* Optional: Style for the placeholder */
+  .cdk-drag-placeholder {
+    opacity: 0;
+  }
+  
+  .button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end; /* This will align the items to the right */
+    gap: 1rem;
+    margin-right: 2rem;
+    align-items: center;
+  }
+
+  .form-layout .form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .form-layout .full-width {
+    width: 100%;
+  }
+  
+  .form-layout .half-width {
+    width: 50%;
+    margin-right: 15px; /* Space between the select and button */
+  }

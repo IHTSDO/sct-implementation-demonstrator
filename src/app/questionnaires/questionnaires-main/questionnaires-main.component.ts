@@ -12,6 +12,8 @@ import { LoadQuestionnaireModalComponent } from '../load-questionnaire-modal/loa
 import { FhirServerSettingsModalComponent } from '../fhir-server-settings-modal/fhir-server-settings-modal.component';
 import { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
 import { ListQuestionnairesComponent } from '../list-questionnaires/list-questionnaires.component';
+import { CreateRootModuleComponent } from '../create-root-module/create-root-module.component';
+import { QuestionnaireService } from 'src/app/services/questionnaire.service';
 
 
 @Component({
@@ -43,6 +45,7 @@ export class QuestionnairesMainComponent implements OnInit{
   constructor(private http: HttpClient, 
     private terminologyService: TerminologyService,
     private fhirService: FhirService,
+    private questionnaireService: QuestionnaireService,
     public dialog: MatDialog,
     private _snackBar: MatSnackBar) { }
 
@@ -146,7 +149,7 @@ export class QuestionnairesMainComponent implements OnInit{
             this.loadQuestionnaire(jsonData);
               setTimeout(() => {
                 if (this.mode === "Manager") {
-                this.postQuestionnaire();
+                this.postCurrentQuestionnaire();
                 } else {
                   this.tabGroup.selectedIndex = 1;
                 }
@@ -171,17 +174,21 @@ export class QuestionnairesMainComponent implements OnInit{
     }
   }
 
-  postQuestionnaire() {
+  postCurrentQuestionnaire() {
+    this.postQuestionnaire(this.questionnaire);
+  }
+
+  postQuestionnaire(questionnaire: any) {
     this.savingQuestionnaire = true;
     this._snackBar.openFromComponent(SnackAlertComponent, {
       duration: 5 * 1000,
       data: "Saving Questionnaire...",
       panelClass: ['green-snackbar']
     });
-    if (!this.questionnaire.meta) {
-      this.questionnaire.meta = {};
+    if (!questionnaire.meta) {
+      questionnaire.meta = {};
     }
-    this.questionnaire.meta.tag = [
+    questionnaire.meta.tag = [
       {
           system: "http://snomed.org/tags",
           code: this.selectedUserTag,
@@ -193,7 +200,7 @@ export class QuestionnairesMainComponent implements OnInit{
         display: "questionnaireManagerTool"
       }
     ];
-    this.fhirService.updateOrCreateQuestionnaire(this.questionnaire, this.selectedUserTag).pipe(first()).subscribe(
+    this.fhirService.updateOrCreateQuestionnaire(questionnaire, this.selectedUserTag).pipe(first()).subscribe(
       (data: any) => {
         setTimeout(() => {
           this.tabGroup.selectedIndex = 0;
@@ -283,6 +290,8 @@ export class QuestionnairesMainComponent implements OnInit{
       setTimeout(() => {
         this.loadExampleQuestionnaire();
       }, 300);
+    } else if (this.step1Response == "reconnect") {
+      this.mode = "Manager";
     }
     this.step1Response = "";
   }
@@ -305,6 +314,23 @@ export class QuestionnairesMainComponent implements OnInit{
       }, 300);
     }
   }
-  
+
+  openQuestionnaireModal() {
+    const dialogRef = this.dialog.open(CreateRootModuleComponent, {
+      width: '75%'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Process the result here
+        this.questionnaireService.generateRootQuestionnaire(result.title, result.questionnaires).then(rootForm => {
+          this.postQuestionnaire(rootForm);
+        }).catch(error => {
+          console.error('Error:', error);
+          // Handle error
+        });
+      }
+    });
+  }
 
 }

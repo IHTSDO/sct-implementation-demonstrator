@@ -1,0 +1,86 @@
+import { Component, OnInit } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { FhirService } from 'src/app/services/fhir.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+
+@Component({
+  selector: 'app-create-root-module',
+  templateUrl: './create-root-module.component.html',
+  styleUrls: ['./create-root-module.component.css']
+})
+export class CreateRootModuleComponent {
+
+  questionnaireForm!: FormGroup;
+  allQuestionnaires: any[] = []; // Holds all questionnaires
+  availableQuestionnaires: any[] = [];
+  addedQuestionnaires: any[] = [];
+  userTag: string = '';
+  loading = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private fhirService: FhirService,
+    public dialogRef: MatDialogRef<CreateRootModuleComponent>
+  ) {}
+
+  ngOnInit() {
+    this.questionnaireForm = this.fb.group({
+      selectedQuestionnaire: [{value: '', disabled: true}],
+      assignedName: [{value: '', disabled: true}]
+    });
+
+    this.userTag = this.fhirService.getUserTag();
+
+    this.loadAvailableQuestionnaires();
+  }
+
+  updateAvailableQuestionnaires() {
+    this.availableQuestionnaires = this.allQuestionnaires.filter(q => 
+      !this.addedQuestionnaires.some(addedQ => addedQ.id === q.id));
+  }
+
+  loadAvailableQuestionnaires() {
+    this.loading = true;
+    this.fhirService.getQuestionnairesByTag(this.userTag).subscribe((data: any) => {
+      this.allQuestionnaires = data['entry'].map((entry: any) => entry.resource);
+      this.allQuestionnaires.sort((a, b) => a.title.localeCompare(b.title));
+      this.updateAvailableQuestionnaires();
+      this.loading = false;
+      this.questionnaireForm?.get('selectedQuestionnaire')?.enable();
+      this.questionnaireForm?.get('assignedName')?.enable();
+    });
+  }
+
+  addQuestionnaire() {
+    const formValue = this.questionnaireForm.value;
+    if (formValue.selectedQuestionnaire) {
+      this.addedQuestionnaires.push({
+        ...formValue.selectedQuestionnaire,
+        assignedName: formValue.assignedName
+      });
+      this.questionnaireForm.get('selectedQuestionnaire')?.reset();
+      this.updateAvailableQuestionnaires();
+    }
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.addedQuestionnaires, event.previousIndex, event.currentIndex);
+  }
+
+  deleteQuestionnaire(index: number) {
+    if (index > -1) {
+      this.addedQuestionnaires.splice(index, 1);
+      this.updateAvailableQuestionnaires();
+    }
+  }
+
+  isSaveDisabled(): boolean {
+    return (!this.questionnaireForm.get('assignedName')?.value || !this.addedQuestionnaires.length);
+  }
+
+  closeModal() {
+    this.dialogRef.close({ title: this.questionnaireForm.get('assignedName')?.value, questionnaires: this.addedQuestionnaires } );
+  }
+
+}
