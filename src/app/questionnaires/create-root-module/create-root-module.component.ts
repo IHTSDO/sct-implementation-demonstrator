@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { FhirService } from 'src/app/services/fhir.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -21,6 +21,7 @@ export class CreateRootModuleComponent {
   constructor(
     private fb: FormBuilder,
     private fhirService: FhirService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<CreateRootModuleComponent>
   ) {}
 
@@ -29,15 +30,23 @@ export class CreateRootModuleComponent {
       selectedQuestionnaire: [{value: '', disabled: true}],
       assignedName: [{value: '', disabled: true}]
     });
-
+    if (this.data) {
+      this.addedQuestionnaires = this.data.questionnaires;
+      this.questionnaireForm.get('assignedName')?.setValue(this.data.title);
+    }
+    this.questionnaireForm.get('selectedQuestionnaire')
     this.userTag = this.fhirService.getUserTag();
 
     this.loadAvailableQuestionnaires();
   }
 
   updateAvailableQuestionnaires() {
-    this.availableQuestionnaires = this.allQuestionnaires.filter(q => 
-      !this.addedQuestionnaires.some(addedQ => addedQ.id === q.id));
+    if (this.addedQuestionnaires) {
+      this.availableQuestionnaires = this.allQuestionnaires.filter(q => 
+        !this.addedQuestionnaires.some(addedQ => addedQ.id === q.id));
+    } else {
+      this.availableQuestionnaires = this.allQuestionnaires;
+    }
   }
 
   loadAvailableQuestionnaires() {

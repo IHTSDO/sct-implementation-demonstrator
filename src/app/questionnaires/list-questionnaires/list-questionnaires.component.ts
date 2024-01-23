@@ -1,12 +1,14 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, combineLatest, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, combineLatest, debounceTime, distinctUntilChanged, first } from 'rxjs';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { FhirService } from 'src/app/services/fhir.service';
 import * as saveAs from 'file-saver';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { QuestionnaireService } from 'src/app/services/questionnaire.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CreateRootModuleComponent } from '../create-root-module/create-root-module.component';
 
 @Component({
   selector: 'app-list-questionnaires',
@@ -35,7 +37,11 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   private baseUrlChanged = new Subject<string>();
   private userTagChanged = new Subject<string>();
 
-  constructor(private fhirService: FhirService, private questionnaireService: QuestionnaireService, private _snackBar: MatSnackBar) { }
+  constructor(
+    private fhirService: FhirService, 
+    private questionnaireService: QuestionnaireService,
+    public dialog: MatDialog,
+    private _snackBar: MatSnackBar) { }
 
   ngOnInit() {
     combineLatest([
@@ -166,12 +172,12 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   }
   
   assemble(questionnaire: any) {
-    // In your component
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 2 * 1000,
+      data: "Assembling Questionnaire...",
+      panelClass: ['green-snackbar']
+    });
     this.questionnaireService.assembleQuestionnaire(questionnaire).then(assembledQuestionnaire => {
-      // Use the assembled questionnaire as needed
-      // console.log('Assembled questionnaire:', assembledQuestionnaire);
-      // var blob = new Blob([JSON.stringify(assembledQuestionnaire, null, 2)], {type: "text/plain;charset=utf-8"});
-      // saveAs(blob, `${assembledQuestionnaire.title}-v${assembledQuestionnaire.meta.versionId}.json`);
       assembledQuestionnaire.title = questionnaire.title + " (assembled)";
       this.previewQuestionnaire.emit(assembledQuestionnaire);
     }).catch(error => {
@@ -184,4 +190,53 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     this.saveQuestionnaire(questionnaire);
     window.open('https://lhcformbuilder.nlm.nih.gov/', '_blank');
   }
+
+  async openModularQuestionnaireModal(modularQuestionnaire: any) {
+    let data = await this.questionnaireService.getRootQuestionnaireData(modularQuestionnaire);
+    const dialogRef = this.dialog.open(CreateRootModuleComponent, {
+      data: data,
+      width: '75%'
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.handleDialogResult(result, modularQuestionnaire);
+      }
+    });
+  }
+  
+  async handleDialogResult(result: any, modularQuestionnaire: any) {
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 5 * 1000,
+      data: "Updating questionnaire...",
+      panelClass: ['green-snackbar']
+    });
+    try {
+      let newRootQuestionnaire = await this.questionnaireService.generateRootQuestionnaire(result.title, result.questionnaires);
+      if (newRootQuestionnaire) {
+        modularQuestionnaire.title = result.title;
+        modularQuestionnaire.item = newRootQuestionnaire.item;
+        this.addQuestionnaire(modularQuestionnaire);
+        this.fhirService.updateOrCreateQuestionnaire(modularQuestionnaire, this.selectedUserTag).pipe(first()).subscribe(
+          (data: any) => {
+            this._snackBar.openFromComponent(SnackAlertComponent, {
+              duration: 5 * 1000,
+              data: "Questionnaire updated successfully",
+              panelClass: ['green-snackbar']
+            });
+          },
+          (error: any) => {
+            this._snackBar.openFromComponent(SnackAlertComponent, {
+              duration: 5 * 1000,
+              data: "Error saving questionnaire",
+              panelClass: ['red-snackbar']
+            });
+          });
+      }
+    } catch (error) {
+      console.error('Error handling dialog result:', error);
+      // Handle the error
+    }
+  }
+  
 }

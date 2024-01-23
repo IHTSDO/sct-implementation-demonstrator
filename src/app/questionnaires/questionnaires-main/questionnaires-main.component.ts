@@ -315,7 +315,7 @@ export class QuestionnairesMainComponent implements OnInit{
     }
   }
 
-  openQuestionnaireModal() {
+  openModularQuestionnaireModal() {
     const dialogRef = this.dialog.open(CreateRootModuleComponent, {
       width: '75%'
     });

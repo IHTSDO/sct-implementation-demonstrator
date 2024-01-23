@@ -48,6 +48,32 @@ export class QuestionnaireService {
     }
   }
 
+  async getRootQuestionnaireData(rootQuestionnaire: any): Promise<{ title: string, questionnaires: any[] }> {
+    if (!rootQuestionnaire || !Array.isArray(rootQuestionnaire.item)) {
+      throw new Error('Invalid root questionnaire');
+    }
+  
+    const title = rootQuestionnaire.title;
+    const questionnairePromises = rootQuestionnaire.item
+      .filter((item: any) => item.type === 'group' && item.item && Array.isArray(item.item))
+      .flatMap((groupItem: any) => groupItem.item)
+      .map(async (subItem: any) => {
+        const subQuestionnaireExtension = subItem.extension?.find((ext: any) => 
+          ext.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire"
+        );
+        if (subQuestionnaireExtension) {
+          const url = subQuestionnaireExtension.valueCanonical;
+          return this.getQuestionnaireFromUrl(url);
+        }
+        return null;
+      });
+  
+    const questionnaires = (await Promise.all(questionnairePromises)).filter(q => q !== null);
+  
+    return { title, questionnaires };
+  }
+  
+
   checkForAssembleRoot(questionnaire: any): boolean {
     if (!questionnaire || !questionnaire.extension || !Array.isArray(questionnaire.extension)) {
         return false;
@@ -89,6 +115,31 @@ export class QuestionnaireService {
     questionnaire.extension = questionnaire.extension.filter((ext:any) => ext.valueCode !== "assemble-root");
     return questionnaire;
   }
+
+  async disassembleQuestionnaire(rootQuestionnaire: any): Promise<{ title: any, questionnaires: any[] }> {
+    if (!rootQuestionnaire || !rootQuestionnaire.item || !Array.isArray(rootQuestionnaire.item)) {
+      throw new Error('Invalid root questionnaire');
+    }
+  
+    const title = rootQuestionnaire.title;
+    const disassembledQuestionnaires = [];
+  
+    for (const item of rootQuestionnaire.item) {
+      if (item.type === 'group' && item.extension && Array.isArray(item.extension)) {
+        const assembledFromExtension = item.extension.find( (ext: any) => ext.url === 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assembledFrom');
+        if (assembledFromExtension) {
+          const subQuestionnaireUrl = assembledFromExtension.valueCanonical;
+          const subQuestionnaire = await this.getQuestionnaireFromUrl(subQuestionnaireUrl);
+          if (subQuestionnaire) {
+            disassembledQuestionnaires.push(subQuestionnaire);
+          }
+        }
+      }
+    }
+  
+    return { title, questionnaires: disassembledQuestionnaires };
+  }
+  
 
   async getQuestionnaireFromUrl(url: string): Promise<any> {
     try {
