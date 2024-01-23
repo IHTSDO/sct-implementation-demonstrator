@@ -180,6 +180,11 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     this.questionnaireService.assembleQuestionnaire(questionnaire).then(assembledQuestionnaire => {
       assembledQuestionnaire.title = questionnaire.title + " (assembled)";
       this.previewQuestionnaire.emit(assembledQuestionnaire);
+      this._snackBar.openFromComponent(SnackAlertComponent, {
+        duration: 2 * 1000,
+        data: "Questionnaire ready",
+        panelClass: ['green-snackbar']
+      });
     }).catch(error => {
       console.error('Error assembling questionnaire:', error);
       // Handle the error
