@@ -184,3 +184,13 @@
 .muted {
     color: #8f9397;
 }
+
+#reconnect {
+    margin-left: 5rem;
+}
+
+#reconnect-link {
+    display: flex;
+    vertical-align: middle;
+    flex-direction: row;
+}

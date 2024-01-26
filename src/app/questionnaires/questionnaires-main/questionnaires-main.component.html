@@ -18,9 +18,11 @@
     <mat-radio-button value="example">Load an example questionnaire</mat-radio-button>
     <mat-radio-button value="validate">Upload and validate a questionnaire</mat-radio-button>
     <mat-radio-button value="repository">Work with your questionnaires from a FHIR server</mat-radio-button>
-    <mat-radio-button value="reconnect" *ngIf="selectedFhirServer && selectedUserTag">
-      Reconnect to last FHIR Server: <span class="muted"> {{ selectedFhirServer }} as "<i>{{ selectedUserTag }}</i>" </span>
-    </mat-radio-button>
+    <span *ngIf="selectedFhirServer && selectedUserTag" id="reconnect">
+      <a href="javascript:void(0)" (click)="mode = 'Manager'" id="reconnect-link">
+        <mat-icon>play_arrow</mat-icon><span>Reconnect to last FHIR Server</span></a>
+      <span class="muted">  ( {{ selectedFhirServer }} as "<i>{{ selectedUserTag }}</i>" )</span>
+    </span>
 
   </mat-radio-group>
   <div class="step-button-container">
