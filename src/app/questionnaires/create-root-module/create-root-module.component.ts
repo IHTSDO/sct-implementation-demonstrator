@@ -47,6 +47,9 @@ export class CreateRootModuleComponent {
     } else {
       this.availableQuestionnaires = this.allQuestionnaires;
     }
+    // remove questionnaires that have an assembly exptantion equals to root
+    this.availableQuestionnaires = this.availableQuestionnaires.filter(q => 
+      !q.extension || !q.extension.some((ext: any) => ext.url === 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation' && ext.valueCode === 'assemble-root'));
   }
 
   loadAvailableQuestionnaires() {

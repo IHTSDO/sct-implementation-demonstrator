@@ -65,6 +65,10 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-    <p *ngIf="notFound && !questionnaires.length"><i>No questionnaires found</i></p>
+    <p *ngIf="notFound && !questionnaires.length" class="not-found">
+      <i>
+        No questionnaires found. Upload your questionnaires to start.
+      </i>
+    </p>
     <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
 </div>
