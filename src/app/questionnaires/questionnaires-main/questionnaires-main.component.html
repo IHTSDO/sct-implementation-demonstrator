@@ -39,7 +39,7 @@
     <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">
       Upload
     </button>
-    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire">Download</button>
+    <button mat-flat-button color="accent" (click)="saveQuestionnaireToDisk()" [disabled]="validating || !questionnaire">Download</button>
     <button mat-flat-button color="accent" (click)="openModularQuestionnaireModal()" [disabled]="validating" *ngIf="mode == 'Manager'">
       Create Modular Questionnaire
     </button>

@@ -14,6 +14,7 @@ import { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
 import { ListQuestionnairesComponent } from '../list-questionnaires/list-questionnaires.component';
 import { CreateRootModuleComponent } from '../create-root-module/create-root-module.component';
 import { QuestionnaireService } from 'src/app/services/questionnaire.service';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 
 @Component({
@@ -133,7 +134,7 @@ export class QuestionnairesMainComponent implements OnInit{
     }, 700);
   }
 
-  saveQuestionnaire() {
+  saveQuestionnaireToDisk() {
     var blob = new Blob([JSON.stringify(this.questionnaire, null, 2)], {type: "text/plain;charset=utf-8"});
     saveAs(blob, `${this.questionnaire.title}.json`);
   }
@@ -179,6 +180,60 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   postQuestionnaire(questionnaire: any) {
+    const index = this.questionnairesList.questionnaires.findIndex((q: any) => q.title === questionnaire.title && q.id !== questionnaire.id);
+    if (index !== -1) {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        width: '400px',
+        data: {
+          title: 'Confirm Action',
+          message: 'A questionnaire with the same title and different ID already exists. Do you want to proceed?'
+        }
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.saveQuestionnaire(questionnaire);
+        } else {
+          this._snackBar.openFromComponent(SnackAlertComponent, {
+            duration: 5 * 1000,
+            data: "Questionnaire save action cancelled",
+            panelClass: ['red-snackbar']
+          });
+          console.log("User cancelled the action");
+        }
+      });
+    } else {
+      // find if there is a questionnaire with the same title, same id, and newer version
+      const index2 = this.questionnairesList.questionnaires.findIndex((q: any) => q.title === questionnaire.title && q.id === questionnaire.id && q.meta.versionId > questionnaire.meta.versionId);
+      let newerQuestionnaire = this.questionnairesList.questionnaires[index2];
+      if (index2 !== -1) {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+          width: '400px',
+          data: {
+            title: 'Confirm Action',
+            message: 'A newer version of this questionnaire already exists. Do you want to proceed?'
+          }
+        });
+    
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.saveQuestionnaire(questionnaire);
+          } else {
+            this._snackBar.openFromComponent(SnackAlertComponent, {
+              duration: 5 * 1000,
+              data: "Questionnaire save action cancelled",
+              panelClass: ['red-snackbar']
+            });
+            console.log("User cancelled the action");
+          }
+        });
+      } else {
+        this.saveQuestionnaire(questionnaire);
+      }
+    }
+  }
+
+  saveQuestionnaire(questionnaire: any) {
     this.savingQuestionnaire = true;
     this._snackBar.openFromComponent(SnackAlertComponent, {
       duration: 5 * 1000,

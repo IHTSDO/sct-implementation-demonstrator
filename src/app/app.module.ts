@@ -53,6 +53,7 @@ import { FhirServerSettingsModalComponent } from './questionnaires/fhir-server-s
 import { ListQuestionnairesComponent } from './questionnaires/list-questionnaires/list-questionnaires.component';
 import { ValidateQuestionnaireComponent } from './questionnaires/validate-questionnaire/validate-questionnaire.component';
 import { CreateRootModuleComponent } from './questionnaires/create-root-module/create-root-module.component';
+import { ConfirmationDialogComponent } from './questionnaires/confirmation-dialog/confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -76,7 +77,8 @@ import { CreateRootModuleComponent } from './questionnaires/create-root-module/c
     FhirServerSettingsModalComponent,
     ListQuestionnairesComponent,
     ValidateQuestionnaireComponent,
-    CreateRootModuleComponent
+    CreateRootModuleComponent,
+    ConfirmationDialogComponent
   ],
   imports: [
     HttpClientModule,
