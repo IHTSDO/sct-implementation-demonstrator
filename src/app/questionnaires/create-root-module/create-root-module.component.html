@@ -34,6 +34,6 @@
 </mat-dialog-content>
 <mat-dialog-actions class="button-container">
 <button mat-flat-button color="primary" mat-dialog-close>Cancel</button>
-<button mat-flat-button color="accent" [disabled]="isSaveDisabled()" (click)="closeModal()">Save</button>
+<button mat-flat-button color="accent" [disabled]="isSaveDisabled() || loading" (click)="closeModal()">Save</button>
 </mat-dialog-actions>
   

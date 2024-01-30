@@ -229,6 +229,7 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
               data: "Questionnaire updated successfully",
               panelClass: ['green-snackbar']
             });
+            this.updateQuestionnairesList(data);
           },
           (error: any) => {
             this._snackBar.openFromComponent(SnackAlertComponent, {
@@ -242,6 +243,24 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
       console.error('Error handling dialog result:', error);
       // Handle the error
     }
+  }
+
+  // Download the questionnaires array as a bundle
+  downloadAllQuestionnaires() {
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 5 * 1000,
+      data: "Downloading Questionnaires...",
+      panelClass: ['green-snackbar']
+    });
+    this.fhirService.getQuestionnairesByTag(this.selectedUserTag).subscribe((data: any) => {
+      var blob = new Blob([JSON.stringify(data, null, 2)], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, `questionnaires-bundle.json`);
+      this._snackBar.openFromComponent(SnackAlertComponent, {
+        duration: 5 * 1000,
+        data: "Questionnaires downloaded successfully",
+        panelClass: ['green-snackbar']
+      });
+    });
   }
   
 }

@@ -60,3 +60,14 @@
 .not-found {
     margin-top: 2rem;
 }
+
+#outer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Aligns child elements to the right */
+}
+
+.download-button-container {
+    margin-top: 10px; /* Adds some space between the table and the button */
+}
+
