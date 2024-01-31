@@ -50,8 +50,6 @@ import { AutocompleteBindingComponent } from '../bindings/autocomplete-binding/a
 export class BindingsSandboxComponent {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
 
-  @ViewChild('codeBinding') codeBinding!: AutocompleteBindingComponent;
-
   formTitle: string = 'My new form';
   titleEditMode = false;
   bindings: any[] = [];
@@ -70,7 +68,7 @@ export class BindingsSandboxComponent {
     // note: 'Select observable for question code.'
   };
 
-  checkboxBinding: any = {
+  codeBinding: any = {
     title: 'Question code',
     type: 'Autocomplete',
     ecl: `<< 363787002 |Observable entity (observable entity)| OR << 404684003 |Clinical finding (finding)| OR << 71388002 |Procedure (procedure)|`,
@@ -78,7 +76,14 @@ export class BindingsSandboxComponent {
     // note: 'Select observable for question code.'
   };
 
-  selectedQuestionCode: any;
+  checkboxBinding: any = {
+    title: 'Checkbox code',
+    type: 'Autocomplete',
+    ecl: `<< 363787002 |Observable entity (observable entity)| OR << 404684003 |Clinical finding (finding)| OR << 71388002 |Procedure (procedure)|`,
+    value: '',
+    // note: 'Select observable for question code.'
+  };
+
 
   example1 = {
     title: 'Appendicitis data entry form (example)',
@@ -123,6 +128,7 @@ export class BindingsSandboxComponent {
 
   newBindingForm = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.maxLength(50)]),
+    code: new FormControl('', []),
     type: new FormControl('', [Validators.required]),
     ecl: new FormControl('', []),
     value: new FormControl('', []),
@@ -144,19 +150,15 @@ export class BindingsSandboxComponent {
     return this.showRightContainer ? 'open' : 'closed';
   }
 
-  setSelectedQuestionCode(event: any) {
-    this.selectedQuestionCode = event;
-  }
-
   async addBinding() {
     this.newBindingForm.markAllAsTouched();
     if (this.newBindingForm.invalid) {
       return;
     }
-    const { title, type, ecl, value, note } = this.newBindingForm.controls;
+    const { title, code, type, ecl, value, note } = this.newBindingForm.controls;
     let binding = {
       title: title.value,
-      code: this.selectedQuestionCode,
+      code: code.value,
       type: type.value,
       ecl: ecl.value,
       value: value.value,
@@ -193,9 +195,7 @@ export class BindingsSandboxComponent {
     this.newPanel.close();
     this.indexInEdit = -1;
     this.refreshFhirQuestionnaire();
-    this.selectedQuestionCode = null;
-    console.log('clearInput intent');
-    this.codeBinding.clearInput();
+    this.refreshResponse();
   }
 
   refreshFhirQuestionnaire() {
@@ -366,6 +366,7 @@ export class BindingsSandboxComponent {
     const binding = this.bindings[i];
     this.newBindingForm.setValue({
       title: binding.title,
+      code: binding.code,
       type: binding.type,
       ecl: binding.ecl,
       value: binding.value,

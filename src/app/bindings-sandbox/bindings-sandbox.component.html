@@ -47,7 +47,12 @@
                     </button>
                     <mat-error>{{ getErrorMessage('title')}}</mat-error>
                 </mat-form-field>
-                <app-autocomplete-binding #codeBinding [binding]="checkboxBinding" class="grow" (selectionChange)="setSelectedQuestionCode($event)"></app-autocomplete-binding>
+                <mat-form-field class="input-field autocomplete-field">
+                    <!-- <mat-label>Question code</mat-label> -->
+                    <app-autocomplete-binding [binding]="codeBinding" class="grow" formControlName="code"></app-autocomplete-binding>
+                    <mat-error>{{ getErrorMessage('code')}}</mat-error>
+                </mat-form-field>
+                <!-- <app-autocomplete-binding #codeBinding [binding]="checkboxBinding" class="grow" (selectionChange)="setSelectedQuestionCode($event)"></app-autocomplete-binding> -->
                 <mat-form-field class="input-field">
                     <mat-label>Answer Type</mat-label>
                     <mat-select formControlName="type">

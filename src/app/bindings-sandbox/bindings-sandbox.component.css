@@ -119,3 +119,8 @@ mat-hint, mat-error {
 .form-title {
     margin-left: 1rem;
 }
+
+.mat-mdc-form-field-infix {
+    padding: 0px !important;
+}
+
