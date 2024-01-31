@@ -148,7 +148,7 @@
                             <button mat-icon-button (click)="saveOutput(outputStr)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
                             <button mat-icon-button (click)="copyOutputToClipboard(outputStr)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
                         </div>
-                        <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="outputStr" wrap="soft">
+                        <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="responseStr" wrap="soft">
                         </textarea>
                     </div>
                 </mat-tab>

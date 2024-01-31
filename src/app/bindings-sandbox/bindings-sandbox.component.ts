@@ -57,6 +57,8 @@ export class BindingsSandboxComponent {
   bindings: any[] = [];
   output: any = {};
   outputStr: string = '{}';
+  response: any = {};
+  responseStr: string = '{}';
   fhirQuestionnaire: any = {};
   fhirQuestionnaireStr: string = '{}';
 
@@ -198,6 +200,7 @@ export class BindingsSandboxComponent {
 
   refreshFhirQuestionnaire() {
     // TODO: Add question code
+    console.log('refreshFhirQuestionnaire');
 
     this.fhirQuestionnaire = {
       "resourceType": "Questionnaire",
@@ -207,15 +210,24 @@ export class BindingsSandboxComponent {
     };
     for (let [index, binding] of this.bindings.entries()) {
       if (binding.type == 'Section header') {
-        let item = {
+        let item: any = {
           "linkId": index+1,
           "type": "display",
           "text": binding.title
         };
+        if (binding.code) {
+          item['code'] = [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.code.code,
+              "display": binding.code.display
+            }
+          ];
+        }
         this.fhirQuestionnaire.item.push(item);
       }
       if (binding.type == 'Select (Single)' || binding.type == 'Options') {
-        let item = {
+        let item: any = {
           "linkId": index+1,
           "type": "choice",
           "extension": [
@@ -227,10 +239,19 @@ export class BindingsSandboxComponent {
           "text": binding.title,
           "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
         };
+        if (binding.code) {
+          item['code'] = [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.code.code,
+              "display": binding.code.display
+            }
+          ];
+        }
         this.fhirQuestionnaire.item.push(item);
       }
       if (binding.type == 'Select (Multiple)') {
-        let item = {
+        let item: any = {
           "linkId": index+1,
           "type": "choice",
           "repeats": true,
@@ -243,10 +264,19 @@ export class BindingsSandboxComponent {
           "text": binding.title,
           "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
         };
+        if (binding.code) {
+          item['code'] = [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.code.code,
+              "display": binding.code.display
+            }
+          ];
+        }
         this.fhirQuestionnaire.item.push(item);
       }
       if (binding.type == 'Autocomplete') {
-        let item = {
+        let item: any = {
           "linkId": index+1,
           "type": "choice",
           "extension": [
@@ -270,18 +300,36 @@ export class BindingsSandboxComponent {
           "text": binding.title,
           "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
         };
+        if (binding.code) {
+          item['code'] = [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.code.code,
+              "display": binding.code.display
+            }
+          ];
+        }
         this.fhirQuestionnaire.item.push(item);
       }
       if (binding.type == 'Text box') {
-        let item = {
+        let item: any = {
           "linkId": index+1,
           "type": "text",
           "text": binding.title
         };
+        if (binding.code) {
+          item['code'] = [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.code.code,
+              "display": binding.code.display
+            }
+          ];
+        }
         this.fhirQuestionnaire.item.push(item);
       }
       if (binding.type == 'Checkbox') {
-        let item = {
+        let item: any = {
           "linkId": index+1,
           "type": "boolean",
           "text": binding.title,
@@ -293,6 +341,15 @@ export class BindingsSandboxComponent {
             }
           ]
         };
+        if (binding.code) {
+          item['code'] = [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.code.code,
+              "display": binding.code.display
+            }
+          ];
+        }
         this.fhirQuestionnaire.item.push(item);
       }
     }
@@ -348,6 +405,25 @@ export class BindingsSandboxComponent {
     return null;
   }
 
+  refreshResponse() {
+    this.response = {};
+    for (let binding of this.bindings) {
+      this.response[binding.title] = {};
+      if (binding.code) {
+        this.response[binding.title].code = binding.code;
+      }
+    }
+    for (let [key, value] of Object.entries(this.output)) {
+        if (this.output[key].code) {
+          this.response[key].code = this.output[key].code;
+        }
+        if (this.output[key].value) {
+          this.response[key].value = this.output[key].value;
+        }
+    }
+    this.responseStr = JSON.stringify(this.response, null, 2);
+  }
+
   optionSelected(title: string, code: string, event: any) {
     this.output[title] = {
       code: code,
@@ -360,12 +436,15 @@ export class BindingsSandboxComponent {
     }
    
     this.outputStr = JSON.stringify(this.output, null, 2);
+    this.refreshResponse();
   }
 
   loadExample1() {
     this.formTitle = this.example1.title;
     this.bindings = this.example1.bindings;
     this.refreshFhirQuestionnaire();
+    this.clearOutput();
+    this.refreshResponse();
   }
 
   cancelEdit() {
@@ -423,6 +502,8 @@ export class BindingsSandboxComponent {
             this.formTitle = uploadedVersion.title;
           }
           this.clearOutput();
+          this.refreshResponse();
+          this.refreshFhirQuestionnaire();
         }
       };
       reader.readAsText(event.target.files[0]);
