@@ -15,6 +15,7 @@ import {
   animate,
   transition
 } from '@angular/animations';
+import { AutocompleteBindingComponent } from '../bindings/autocomplete-binding/autocomplete-binding.component';
 @Component({
   selector: 'app-bindings-sandbox',
   templateUrl: './bindings-sandbox.component.html',
@@ -49,6 +50,8 @@ import {
 export class BindingsSandboxComponent {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
 
+  @ViewChild('codeBinding') codeBinding!: AutocompleteBindingComponent;
+
   formTitle: string = 'My new form';
   titleEditMode = false;
   bindings: any[] = [];
@@ -64,6 +67,16 @@ export class BindingsSandboxComponent {
     value: '',
     // note: 'Select observable for question code.'
   };
+
+  checkboxBinding: any = {
+    title: 'Question code',
+    type: 'Autocomplete',
+    ecl: `<< 363787002 |Observable entity (observable entity)| OR << 404684003 |Clinical finding (finding)| OR << 71388002 |Procedure (procedure)|`,
+    value: '',
+    // note: 'Select observable for question code.'
+  };
+
+  selectedQuestionCode: any;
 
   example1 = {
     title: 'Appendicitis data entry form (example)',
@@ -119,7 +132,7 @@ export class BindingsSandboxComponent {
   maxSelectCount = 50;
   maxOptionsCount = 10;
 
-  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Title', 'Text box', 'Checkbox'].sort((a, b) => a.localeCompare(b));
+  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Section header', 'Text box', 'Checkbox'].sort((a, b) => a.localeCompare(b));
 
   showRightContainer = false;
 
@@ -127,6 +140,10 @@ export class BindingsSandboxComponent {
 
   get stateName() {
     return this.showRightContainer ? 'open' : 'closed';
+  }
+
+  setSelectedQuestionCode(event: any) {
+    this.selectedQuestionCode = event;
   }
 
   async addBinding() {
@@ -137,6 +154,7 @@ export class BindingsSandboxComponent {
     const { title, type, ecl, value, note } = this.newBindingForm.controls;
     let binding = {
       title: title.value,
+      code: this.selectedQuestionCode,
       type: type.value,
       ecl: ecl.value,
       value: value.value,
@@ -157,7 +175,7 @@ export class BindingsSandboxComponent {
             ecl.setErrors({ optionsTooManyResults: true });
           }
         }
-    } else if (binding.type != 'Title' && binding.type != 'Text box') {
+    } else if (binding.type != 'Section header' && binding.type != 'Text box') {
       errors = true;
       ecl.setErrors({ required: true });
     }
@@ -173,9 +191,14 @@ export class BindingsSandboxComponent {
     this.newPanel.close();
     this.indexInEdit = -1;
     this.refreshFhirQuestionnaire();
+    this.selectedQuestionCode = null;
+    console.log('clearInput intent');
+    this.codeBinding.clearInput();
   }
 
   refreshFhirQuestionnaire() {
+    // TODO: Add question code
+
     this.fhirQuestionnaire = {
       "resourceType": "Questionnaire",
       "title": this.formTitle,
@@ -183,7 +206,7 @@ export class BindingsSandboxComponent {
       "item": []
     };
     for (let [index, binding] of this.bindings.entries()) {
-      if (binding.type == 'Title') {
+      if (binding.type == 'Section header') {
         let item = {
           "linkId": index+1,
           "type": "display",
@@ -325,8 +348,17 @@ export class BindingsSandboxComponent {
     return null;
   }
 
-  optionSelected(title: string, event: any) {
-    this.output[title] = event;
+  optionSelected(title: string, code: string, event: any) {
+    this.output[title] = {
+      code: code,
+      value: event
+    }
+
+    // remove code property if null
+    if (!code) {
+      delete this.output[title].code;
+    }
+   
     this.outputStr = JSON.stringify(this.output, null, 2);
   }
 
@@ -346,6 +378,8 @@ export class BindingsSandboxComponent {
     this.bindings = [];
     this.clearOutput();
     this.newBindingForm.reset();
+    this.formTitle = 'My new form';
+    this.showRightContainer = false;
   }
 
   clearOutput() {
