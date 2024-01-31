@@ -140,7 +140,7 @@ export class BindingsSandboxComponent {
   maxSelectCount = 50;
   maxOptionsCount = 10;
 
-  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Section header', 'Text box', 'Checkbox'].sort((a, b) => a.localeCompare(b));
+  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Section header', 'Text box', 'Integer', 'Decimal', 'Checkbox'].sort((a, b) => a.localeCompare(b));
 
   showRightContainer = false;
 
@@ -179,7 +179,7 @@ export class BindingsSandboxComponent {
             ecl.setErrors({ optionsTooManyResults: true });
           }
         }
-    } else if (binding.type != 'Section header' && binding.type != 'Text box') {
+    } else if (binding.type != 'Section header' && binding.type != 'Text box' && binding.type != 'Integer' && binding.type != 'Decimal') {
       errors = true;
       ecl.setErrors({ required: true });
     }
@@ -194,8 +194,10 @@ export class BindingsSandboxComponent {
     this.newBindingForm.reset();
     this.newPanel.close();
     this.indexInEdit = -1;
-    this.refreshFhirQuestionnaire();
-    this.refreshResponse();
+    setTimeout(() => {
+      this.refreshFhirQuestionnaire();
+      this.refreshResponse();
+    },100);
   }
 
   refreshFhirQuestionnaire() {
@@ -407,6 +409,7 @@ export class BindingsSandboxComponent {
   }
 
   refreshResponse() {
+    console.log('refreshResponse');
     this.response = {};
     for (let binding of this.bindings) {
       this.response[binding.title] = {};

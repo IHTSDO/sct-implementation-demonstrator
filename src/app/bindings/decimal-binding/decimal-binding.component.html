@@ -1,0 +1,13 @@
+<mat-form-field class="example-full-width">
+     <mat-label>{{ binding.title }}</mat-label>
+     <input matInput
+            type="number"
+            placeholder="Enter decimal value..."
+            [(ngModel)]="value"
+            (ngModelChange)="onValueChange($event)"
+            pattern="^-?[0-9]*\.?[0-9]+$"
+            title="Only decimal values are allowed"
+            step="any">
+     <mat-hint>{{ binding.note }}</mat-hint>
+</mat-form-field>
+   

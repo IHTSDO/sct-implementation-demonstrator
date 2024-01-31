@@ -54,6 +54,8 @@ import { ListQuestionnairesComponent } from './questionnaires/list-questionnaire
 import { ValidateQuestionnaireComponent } from './questionnaires/validate-questionnaire/validate-questionnaire.component';
 import { CreateRootModuleComponent } from './questionnaires/create-root-module/create-root-module.component';
 import { ConfirmationDialogComponent } from './questionnaires/confirmation-dialog/confirmation-dialog.component';
+import { IntegerBindingComponent } from './bindings/integer-binding/integer-binding.component';
+import { DecimalBindingComponent } from './bindings/decimal-binding/decimal-binding.component';
 
 @NgModule({
   declarations: [
@@ -78,7 +80,9 @@ import { ConfirmationDialogComponent } from './questionnaires/confirmation-dialo
     ListQuestionnairesComponent,
     ValidateQuestionnaireComponent,
     CreateRootModuleComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    IntegerBindingComponent,
+    DecimalBindingComponent
   ],
   imports: [
     HttpClientModule,
