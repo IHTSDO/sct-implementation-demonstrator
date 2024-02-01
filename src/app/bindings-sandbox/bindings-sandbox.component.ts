@@ -201,7 +201,6 @@ export class BindingsSandboxComponent {
   }
 
   refreshFhirQuestionnaire() {
-    // TODO: Add question code
     console.log('refreshFhirQuestionnaire');
 
     this.fhirQuestionnaire = {
@@ -210,186 +209,101 @@ export class BindingsSandboxComponent {
       "status": "draft",
       "item": []
     };
-    for (let [index, binding] of this.bindings.entries()) {
-      if (binding.type == 'Section header') {
-        let item: any = {
-          "linkId": index+1,
-          "type": "display",
-          "text": binding.title
-        };
-        if (binding.code) {
-          item['code'] = [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.code.code,
-              "display": binding.code.display
-            }
-          ];
-        }
+
+    this.bindings.forEach((binding, index) => {
+      const item = this.createItemForBinding(binding, index);
+      if (item) {
         this.fhirQuestionnaire.item.push(item);
       }
-      if (binding.type == 'Select (Single)' || binding.type == 'Options') {
-        let item: any = {
-          "linkId": index+1,
-          "type": "choice",
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
-              "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
-            }
-          ],
-          "text": binding.title,
-          "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
-        };
-        if (binding.code) {
-          item['code'] = [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.code.code,
-              "display": binding.code.display
-            }
-          ];
-        }
-        this.fhirQuestionnaire.item.push(item);
-      }
-      if (binding.type == 'Select (Multiple)') {
-        let item: any = {
-          "linkId": index+1,
-          "type": "choice",
-          "repeats": true,
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
-              "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
-            }
-          ],
-          "text": binding.title,
-          "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
-        };
-        if (binding.code) {
-          item['code'] = [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.code.code,
-              "display": binding.code.display
-            }
-          ];
-        }
-        this.fhirQuestionnaire.item.push(item);
-      }
-      if (binding.type == 'Autocomplete') {
-        let item: any = {
-          "linkId": index+1,
-          "type": "choice",
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
-              "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
-            },
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
-              "valueCodeableConcept": {
-                "coding": [
-                  {
-                    "system": "http://hl7.org/fhir/questionnaire-item-control",
-                    "code": "autocomplete",
-                    "display": "Auto-complete"
-                  }
-                ]
-              }
-            }
-          ],
-          "text": binding.title,
-          "answerValueSet": `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`
-        };
-        if (binding.code) {
-          item['code'] = [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.code.code,
-              "display": binding.code.display
-            }
-          ];
-        }
-        this.fhirQuestionnaire.item.push(item);
-      }
-      if (binding.type == 'Text box') {
-        let item: any = {
-          "linkId": index+1,
-          "type": "text",
-          "text": binding.title
-        };
-        if (binding.code) {
-          item['code'] = [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.code.code,
-              "display": binding.code.display
-            }
-          ];
-        }
-        this.fhirQuestionnaire.item.push(item);
-      }
-      if (binding.type == 'Integer') {
-        let item: any = {
-          "linkId": index+1,
-          "type": "integer",
-          "text": binding.title
-        };
-        if (binding.code) {
-          item['code'] = [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.code.code,
-              "display": binding.code.display
-            }
-          ];
-        }
-        this.fhirQuestionnaire.item.push(item);
-      }
-      if (binding.type == 'Text box') {
-        let item: any = {
-          "linkId": index+1,
-          "type": "text",
-          "text": binding.title
-        };
-        if (binding.code) {
-          item['code'] = [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.code.code,
-              "display": binding.code.display
-            }
-          ];
-        }
-        this.fhirQuestionnaire.item.push(item);
-      }
-      if (binding.type == 'Decimal') {
-        let item: any = {
-          "linkId": index+1,
-          "type": "boolean",
-          "text": binding.title,
-          "code": [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.ecl.code,
-              "display": binding.ecl.display
-            }
-          ]
-        };
-        if (binding.code) {
-          item['code'] = [
-            {
-              "system": "http://snomed.info/sct",
-              "code": binding.code.code,
-              "display": binding.code.display
-            }
-          ];
-        }
-        this.fhirQuestionnaire.item.push(item);
-      }
-    }
+    });
+
     this.fhirQuestionnaireStr = JSON.stringify(this.fhirQuestionnaire, null, 2);
+  }
+
+  createItemForBinding(binding: any, index: number) {
+    const baseItem: any = this.initializeBaseItem(binding, index);
+
+    if (['Select (Single)', 'Select (Multiple)', 'Options', 'Autocomplete'].includes(binding.type)) {
+      baseItem['extension'] = this.getExtensionForSelectableTypes();
+      baseItem['answerValueSet'] = this.getAnswerValueSet(binding);
+    }
+
+    if (binding.type === 'Autocomplete') {
+      baseItem['extension'].push(this.getAutocompleteExtension());
+    }
+
+    if (binding.type === 'Select (Multiple)') {
+      baseItem['repeats'] = true;
+    }
+
+    return baseItem;
+  }
+
+  initializeBaseItem(binding: any, index: number) {
+    const item: any = {
+      "linkId": index + 1,
+      "text": binding.title,
+      "type": this.getQuestionnaireItemType(binding.type)
+    };
+
+    if (binding.code) {
+      item['code'] = [
+        {
+          "system": "http://snomed.info/sct",
+          "code": binding.code.code,
+          "display": binding.code.display
+        }
+      ];
+    }
+
+    return item;
+  }
+
+  getQuestionnaireItemType(type: any) {
+    switch (type) {
+      case 'Section header': 
+        return 'display';
+      case 'Select (Single)': 
+      case 'Select (Multiple)': 
+      case 'Options': 
+      case 'Autocomplete': 
+        return 'choice';
+      case 'Text box': 
+        return 'text';
+      case 'Integer': 
+        return 'integer';
+      case 'Decimal': 
+        return 'decimal';
+      default: 
+        console.warn(`Unhandled binding type: ${type}`);
+        return null;
+    }
+  }
+
+  getExtensionForSelectableTypes() {
+    return [{
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
+      "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
+    }];
+  }
+
+  getAutocompleteExtension() {
+    return {
+      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/questionnaire-item-control",
+            "code": "autocomplete",
+            "display": "Auto-complete"
+          }
+        ]
+      }
+    };
+  }
+
+  getAnswerValueSet(binding: any) {
+    return `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`;
   }
 
   async getEclPreview(ecl: string): Promise<any> {
@@ -547,10 +461,6 @@ export class BindingsSandboxComponent {
       reader.readAsText(event.target.files[0]);
     }
   }
-
-  // eclChanged(event: any) {
-  //   console.log(event);
-  // }
 
   openEclBuilder(ecl: any, controlName: string) {
     const dialogRef = this.dialog.open(EclBuilderDialogComponent, {
