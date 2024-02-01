@@ -330,7 +330,41 @@ export class BindingsSandboxComponent {
         }
         this.fhirQuestionnaire.item.push(item);
       }
-      if (binding.type == 'Checkbox') {
+      if (binding.type == 'Integer') {
+        let item: any = {
+          "linkId": index+1,
+          "type": "integer",
+          "text": binding.title
+        };
+        if (binding.code) {
+          item['code'] = [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.code.code,
+              "display": binding.code.display
+            }
+          ];
+        }
+        this.fhirQuestionnaire.item.push(item);
+      }
+      if (binding.type == 'Text box') {
+        let item: any = {
+          "linkId": index+1,
+          "type": "text",
+          "text": binding.title
+        };
+        if (binding.code) {
+          item['code'] = [
+            {
+              "system": "http://snomed.info/sct",
+              "code": binding.code.code,
+              "display": binding.code.display
+            }
+          ];
+        }
+        this.fhirQuestionnaire.item.push(item);
+      }
+      if (binding.type == 'Decimal') {
         let item: any = {
           "linkId": index+1,
           "type": "boolean",
