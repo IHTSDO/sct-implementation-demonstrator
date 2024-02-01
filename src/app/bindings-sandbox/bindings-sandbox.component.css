@@ -124,3 +124,9 @@ mat-hint, mat-error {
     padding: 0px !important;
 }
 
+.bottom-right-link {
+    position: absolute;
+    bottom: 5px; /* Align to the bottom */
+    right: 0;
+    font-size: smaller;
+}

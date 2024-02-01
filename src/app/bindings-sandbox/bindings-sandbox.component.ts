@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { TerminologyService } from '../services/terminology.service';
@@ -47,7 +47,7 @@ import { AutocompleteBindingComponent } from '../bindings/autocomplete-binding/a
     ]),
   ]
 })
-export class BindingsSandboxComponent {
+export class BindingsSandboxComponent implements OnInit {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
 
   formTitle: string = 'My new form';
@@ -68,22 +68,25 @@ export class BindingsSandboxComponent {
     // note: 'Select observable for question code.'
   };
 
-  codeBinding: any = {
-    title: 'Question code',
+  codeBindingObservables: any = {
+    title: 'Question code (Observables)',
+    type: 'Autocomplete',
+    ecl: `<< 363787002 |Observable entity (observable entity)|`,
+    value: '',
+    // note: 'Select observable for question code.'
+  };
+
+  codeBindingAll: any = {
+    title: 'Question code (Observables + Findings + Procedures)',
     type: 'Autocomplete',
     ecl: `<< 363787002 |Observable entity (observable entity)| OR << 404684003 |Clinical finding (finding)| OR << 71388002 |Procedure (procedure)|`,
     value: '',
     // note: 'Select observable for question code.'
   };
 
-  checkboxBinding: any = {
-    title: 'Checkbox code',
-    type: 'Autocomplete',
-    ecl: `<< 363787002 |Observable entity (observable entity)| OR << 404684003 |Clinical finding (finding)| OR << 71388002 |Procedure (procedure)|`,
-    value: '',
-    // note: 'Select observable for question code.'
-  };
+  codeBinding: any = this.codeBindingAll;
 
+  checkboxBinding: any = JSON.parse(JSON.stringify(this.codeBindingAll));
 
   example1 = {
     title: 'Appendicitis data entry form (example)',
@@ -145,6 +148,9 @@ export class BindingsSandboxComponent {
   showRightContainer = false;
 
   constructor(private terminologyService: TerminologyService, private clipboard: Clipboard, public dialog: MatDialog) { }
+  ngOnInit(): void {
+    this.checkboxBinding.title = this.checkboxBinding.title.replace('Question', 'Checkbox');
+  }
 
   get stateName() {
     return this.showRightContainer ? 'open' : 'closed';
@@ -477,6 +483,15 @@ export class BindingsSandboxComponent {
         }
       }
     });
+  }
+
+  toggleCodeBinding() {
+    this.codeBinding = this.codeBinding === this.codeBindingAll ? this.codeBindingObservables : this.codeBindingAll;
+  }
+
+  toggleCheckboxBinding() {
+    this.checkboxBinding = this.checkboxBinding.ecl === this.codeBindingAll.ecl ? JSON.parse(JSON.stringify(this.codeBindingObservables)) : JSON.parse(JSON.stringify(this.codeBindingAll))
+    this.checkboxBinding.title = this.checkboxBinding.title.replace('Question', 'Checkbox');
   }
 
 }

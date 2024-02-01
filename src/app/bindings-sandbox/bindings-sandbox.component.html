@@ -50,6 +50,10 @@
                 <mat-form-field class="input-field autocomplete-field">
                     <!-- <mat-label>Question code</mat-label> -->
                     <app-autocomplete-binding [binding]="codeBinding" class="grow" formControlName="code"></app-autocomplete-binding>
+                    <a href="javascript:void(0)" class="bottom-right-link" (click)="toggleCodeBinding()">
+                        <span *ngIf="codeBinding === codeBindingAll">Restrict to Observables</span>
+                        <span *ngIf="codeBinding != codeBindingAll">Open to Observables + Findings + Procedures</span>
+                    </a>
                     <mat-error>{{ getErrorMessage('code')}}</mat-error>
                 </mat-form-field>
                 <!-- <app-autocomplete-binding #codeBinding [binding]="checkboxBinding" class="grow" (selectionChange)="setSelectedQuestionCode($event)"></app-autocomplete-binding> -->
@@ -74,6 +78,10 @@
                 <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value == 'Checkbox'">
                     <!-- <mat-label>Question code</mat-label> -->
                     <app-autocomplete-binding [binding]="checkboxBinding" class="grow" formControlName="ecl"></app-autocomplete-binding>
+                    <a href="javascript:void(0)" class="bottom-right-link" (click)="toggleCheckboxBinding()">
+                        <span *ngIf="checkboxBinding.ecl === codeBindingAll.ecl">Restrict to Observables</span>
+                        <span *ngIf="checkboxBinding.ecl != codeBindingAll.ecl">Open to Observables + Findings + Procedures</span>
+                    </a>
                     <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
                 </mat-form-field>
                 <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value != 'Section header'">
@@ -128,7 +136,7 @@
                         <app-integer-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Integer'" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-integer-binding>
                         <app-decimal-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Decimal'" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-decimal-binding>
                         <app-checkbox-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-binding>
-                        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Section header'" [disabled]="binding.type == 'Text box'">
+                        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Section header'" [disabled]="binding.type == 'Text box' || binding.type == 'Integer' || binding.type == 'Decimal'">
                             <mat-icon>info</mat-icon>
                         </button>
                         <mat-menu #substancePopoverMenu="matMenu">
