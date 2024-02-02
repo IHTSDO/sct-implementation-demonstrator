@@ -207,8 +207,6 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   refreshFhirQuestionnaire() {
-    console.log('refreshFhirQuestionnaire');
-
     this.fhirQuestionnaire = {
       "resourceType": "Questionnaire",
       "title": this.formTitle,
@@ -363,7 +361,6 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   refreshResponse() {
-    console.log('refreshResponse');
     this.response = {};
     for (let binding of this.bindings) {
       this.response[binding.title] = {};

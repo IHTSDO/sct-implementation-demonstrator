@@ -120,7 +120,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
   clearInput() {
     this.formControl.reset();
     this.selectedConcept = { code: '', display:''};
-    console.log('clearInput');
+    this.selectionChange.emit(this.selectedConcept);
   }
 
   change(event: any) {

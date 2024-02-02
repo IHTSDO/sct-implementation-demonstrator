@@ -136,12 +136,16 @@
                         <app-integer-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Integer'" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-integer-binding>
                         <app-decimal-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Decimal'" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-decimal-binding>
                         <app-checkbox-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-binding>
-                        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Section header'" [disabled]="binding.type == 'Text box' || binding.type == 'Integer' || binding.type == 'Decimal'">
+                        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Section header'" [disabled]="!binding.code  && !binding.ecl">
                             <mat-icon>info</mat-icon>
                         </button>
                         <mat-menu #substancePopoverMenu="matMenu">
-                            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
-                                <h4>Terminology binding</h4>
+                            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.code">
+                                <h4>Question terminology binding</h4>
+                                <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
+                            </span>
+                            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.ecl">
+                                <h4>Answer terminology binding</h4>
                                 <pre>{{ binding.ecl }}</pre>
                             </span>
                         </mat-menu>
