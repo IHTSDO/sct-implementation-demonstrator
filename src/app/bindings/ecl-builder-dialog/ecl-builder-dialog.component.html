@@ -1,7 +1,7 @@
 <h1 mat-dialog-title>ECL Builder</h1>
 <div mat-dialog-content class="full-height">
     <snomed-ecl-builder (eclOutput)="eclChanged($event)"
-    apiurl="https://dev-is-browser.ihtsdotools.org/snowstorm/snomed-ct"
+    apiurl="https://snowstorm.ihtsdotools.org/snowstorm/snomed-ct"
     branch="MAIN/2023-01-31"
     :eclstring="{{ localEcl }}"
     v-on:eclOutput="eclChange"
