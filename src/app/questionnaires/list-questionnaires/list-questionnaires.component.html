@@ -55,10 +55,14 @@
             *ngIf="isRootQuestionnaire(element)" matTooltip="Edit Modular Questionnaire">
                 <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button color="accent" (click)="deleteQuestionnaire(element)" class="action-button"
-            matTooltip="Delete Questionnaire">
-                <mat-icon>delete</mat-icon>
-            </button>
+            <span matTooltip="{{ getDeleteTooltip(element) }}">
+              <button mat-icon-button color="accent" (click)="deleteQuestionnaire(element)"
+                      [disabled]="getReferencingQuestionnaires(element).length > 0">
+                  <mat-icon>delete</mat-icon>
+              </button>
+            </span>
+            
+
           </td>
         </ng-container>
       

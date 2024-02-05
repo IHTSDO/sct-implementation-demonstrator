@@ -9,6 +9,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { QuestionnaireService } from 'src/app/services/questionnaire.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateRootModuleComponent } from '../create-root-module/create-root-module.component';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-list-questionnaires',
@@ -262,5 +263,35 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
       });
     });
   }
+
+  getReferencingQuestionnaires(questionnaire: any): any[] {
+    let baseUrl = this.fhirService.getBaseUrl();
+    let urlToMatch = `${baseUrl}/Questionnaire/${questionnaire.id}`;
+  
+    let referencingQuestionnaires = this.dataSource.data.filter((q) => {
+      // Check if any top-level item has subitems with the specified extension
+      return q.item && Array.isArray(q.item) && q.item.some((item: any) => {
+        return item.item && Array.isArray(item.item) && item.item.some((subItem: any) => {
+          return subItem.extension && Array.isArray(subItem.extension) && subItem.extension.some((ext: any) => {
+            return ext.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire" && ext.valueCanonical === urlToMatch;
+          });
+        });
+      });
+    });
+  
+    return referencingQuestionnaires;
+  }
+
+  getDeleteTooltip(element: any): string {
+    const referencingQuestionnaires = this.getReferencingQuestionnaires(element);
+    if (referencingQuestionnaires.length === 0) {
+      return 'Delete Questionnaire'; // No referencing questionnaires
+    } else {
+      // Adding quotes around each title and then joining them
+      const titles = referencingQuestionnaires.map(q => `"${q.title}"`).join(', ');
+      return `Cannot delete: Referenced by ${titles}`;
+    }
+  }
+  
   
 }
