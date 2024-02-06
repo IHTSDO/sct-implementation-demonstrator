@@ -320,7 +320,7 @@ export class BindingsSandboxComponent implements OnInit {
     const binding = this.bindings[i];
     this.newBindingForm.setValue({
       title: binding.title,
-      code: binding.code,
+      code: (binding.code) ? binding.code : '',
       type: binding.type,
       ecl: binding.ecl,
       value: binding.value,
