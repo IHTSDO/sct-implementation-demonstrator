@@ -18,10 +18,6 @@ h3 {
     flex-grow: 4; /* default 0 */
 }
 
-.input-field {
-    width: calc(50% - 5px);
-}
-
 mat-hint, mat-error {
     font-size: 12px;
 }
@@ -130,3 +126,39 @@ mat-hint, mat-error {
     right: 0;
     font-size: smaller;
 }
+
+.form-layout {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Set the form layout to take the full width */
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap; /* This allows form fields to wrap when the screen size is too small */
+    margin-right: -10px; /* Adjust these negative margins to match the sum of your gap */
+    margin-left: -10px; /* Adjust these negative margins to match the sum of your gap */
+    width: 100%;
+}
+
+.form-column {
+    flex: 1 1 0px; /* This will allow the columns to grow and fill the space */
+    padding-right: 10px; /* This padding should be half of your desired gap */
+    padding-left: 10px; /* This padding should be half of your desired gap */
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Set the column to take the full width */
+}
+
+.input-field.full-width {
+    width: calc(100% - 20px); /* Adjust the width based on padding */
+    margin-bottom: 20px; /* Spacing between the rows */
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+

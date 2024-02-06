@@ -39,52 +39,62 @@
         </mat-expansion-panel-header>
         <div>
             <form [formGroup]="newBindingForm" class="row">
-                <mat-form-field class="input-field">
-                    <mat-label>Question text</mat-label>
-                    <input matInput type="text" formControlName="title" placeholder="Enter title...">
-                    <button *ngIf="newBindingForm.get('title')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('title')?.reset()">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                    <mat-error>{{ getErrorMessage('title')}}</mat-error>
-                </mat-form-field>
-                <mat-form-field class="input-field autocomplete-field">
-                    <!-- <mat-label>Question code</mat-label> -->
-                    <app-autocomplete-binding [binding]="codeBinding" class="grow" formControlName="code"></app-autocomplete-binding>
-                    <a href="javascript:void(0)" class="bottom-right-link" (click)="toggleCodeBinding()">
-                        <span *ngIf="codeBinding === codeBindingAll">Restrict to Observables</span>
-                        <span *ngIf="codeBinding != codeBindingAll">Open to Observables + Findings + Procedures</span>
-                    </a>
-                    <mat-error>{{ getErrorMessage('code')}}</mat-error>
-                </mat-form-field>
-                <!-- <app-autocomplete-binding #codeBinding [binding]="checkboxBinding" class="grow" (selectionChange)="setSelectedQuestionCode($event)"></app-autocomplete-binding> -->
-                <mat-form-field class="input-field">
-                    <mat-label>Answer Type</mat-label>
-                    <mat-select formControlName="type">
-                        <mat-option *ngFor="let type of controlTypes" [value]="type">
-                            {{type}}
-                        </mat-option>
-                    </mat-select>
-                    <mat-error>{{ getErrorMessage('type')}}</mat-error>
-                </mat-form-field>
-                <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value != 'Section header' && newBindingForm.controls.type.value != 'Text box' && newBindingForm.controls.type.value != 'Checkbox' && newBindingForm.controls.type.value != 'Integer' && newBindingForm.controls.type.value != 'Decimal'">
-                    <mat-label>Answer options: ECL Expression</mat-label>
-                    <input matInput type="text" formControlName="ecl" placeholder="Enter ECL...">
-                    <a href="javascript:void(0)" class="top-right-link" (click)="openEclBuilder(newBindingForm.get('ecl')?.value, 'ecl')">ECL Builder</a>
-                    <button *ngIf="newBindingForm.get('ecl')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('ecl')?.reset()">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                    <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
-                </mat-form-field>
-                <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value == 'Checkbox'">
-                    <!-- <mat-label>Question code</mat-label> -->
-                    <app-autocomplete-binding [binding]="checkboxBinding" class="grow" formControlName="ecl"></app-autocomplete-binding>
-                    <a href="javascript:void(0)" class="bottom-right-link" (click)="toggleCheckboxBinding()">
-                        <span *ngIf="checkboxBinding.ecl === codeBindingAll.ecl">Restrict to Observables</span>
-                        <span *ngIf="checkboxBinding.ecl != codeBindingAll.ecl">Open to Observables + Findings + Procedures</span>
-                    </a>
-                    <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
-                </mat-form-field>
-                <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value != 'Section header'">
+                <div class="form-row">
+                    <!-- Column 1 for Questions -->
+                    <div class="form-column">
+                        <h5>Question</h5>
+                        <mat-form-field class="input-field">
+                            <mat-label>Question text</mat-label>
+                            <input matInput type="text" formControlName="title" placeholder="Enter title...">
+                            <button *ngIf="newBindingForm.get('title')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('title')?.reset()">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                            <mat-error>{{ getErrorMessage('title')}}</mat-error>
+                        </mat-form-field>
+                        <mat-form-field class="input-field autocomplete-field">
+                            <!-- <mat-label>Question code</mat-label> -->
+                            <app-autocomplete-binding [binding]="codeBinding" class="grow" formControlName="code"></app-autocomplete-binding>
+                            <a href="javascript:void(0)" class="bottom-right-link" (click)="toggleCodeBinding()">
+                                <span *ngIf="codeBinding === codeBindingAll">Restrict to Observables</span>
+                                <span *ngIf="codeBinding != codeBindingAll">Open to Observables + Findings + Procedures</span>
+                            </a>
+                            <mat-error>{{ getErrorMessage('code')}}</mat-error>
+                        </mat-form-field>
+                    </div>
+                    <!-- Column 2 for Answers -->
+                    <div class="form-column">
+                        <h5>Answer</h5>
+                        <mat-form-field class="input-field">
+                            <mat-label>Answer Type</mat-label>
+                            <mat-select formControlName="type">
+                                <mat-option *ngFor="let type of controlTypes" [value]="type">
+                                    {{type}}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error>{{ getErrorMessage('type')}}</mat-error>
+                        </mat-form-field>
+                        <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value != 'Section header' && newBindingForm.controls.type.value != 'Text box' && newBindingForm.controls.type.value != 'Checkbox' && newBindingForm.controls.type.value != 'Integer' && newBindingForm.controls.type.value != 'Decimal'">
+                            <mat-label>Answer options: ECL Expression</mat-label>
+                            <input matInput type="text" formControlName="ecl" placeholder="Enter ECL...">
+                            <a href="javascript:void(0)" class="top-right-link" (click)="openEclBuilder(newBindingForm.get('ecl')?.value, 'ecl')">ECL Builder</a>
+                            <button *ngIf="newBindingForm.get('ecl')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('ecl')?.reset()">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                            <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
+                        </mat-form-field>
+                        <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value == 'Checkbox'">
+                            <!-- <mat-label>Question code</mat-label> -->
+                            <app-autocomplete-binding [binding]="checkboxBinding" class="grow" formControlName="ecl"></app-autocomplete-binding>
+                            <a href="javascript:void(0)" class="bottom-right-link" (click)="toggleCheckboxBinding()">
+                                <span *ngIf="checkboxBinding.ecl === codeBindingAll.ecl">Restrict to Observables</span>
+                                <span *ngIf="checkboxBinding.ecl != codeBindingAll.ecl">Open to Observables + Findings + Procedures</span>
+                            </a>
+                            <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <!-- Full-width Note Field -->
+                <mat-form-field class="input-field full-width" *ngIf="newBindingForm.controls.type.value != 'Section header'">
                     <mat-label>Note</mat-label>
                     <input matInput type="text" formControlName="note" placeholder="Enter a description...">
                     <button *ngIf="newBindingForm.get('note')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('note')?.reset()">
