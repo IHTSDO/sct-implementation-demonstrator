@@ -135,5 +135,74 @@
     font-size: 1.6rem; /* Adjust the font size as needed */
     font-weight: bold;
   }
+
+  .score-progression-panel {
+    margin-top: 2rem;
+  }
   
+  .progress-bar-container {
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+    background-color: #e0e0e0; /* Background of the progress bar container */
+    border-radius: 5px; /* Optional: adds rounded corners */
+  }
+  
+  .goal-indicator {
+    position: absolute;
+    bottom: 0px; /* Adjust based on the desired placement relative to the progress bar */
+    width: 2px; /* Width of the indicator */
+    height: 10px; /* Height of the indicator */
+    background-color: #000; /* Default color, in case it's needed */
+  }
+  
+  /* Individual styles for each goal level */
+  .goal-indicator.bronze {
+    background-color: #cd7f32; /* Bronze color */
+  }
+  
+  .goal-indicator.silver {
+    background-color: #C0C0C0; /* Silver color */
+  }
+  
+  .goal-indicator.gold {
+    background-color: #FFD700; /* Gold color */
+  }
+  
+  .goal-indicator.platinum {
+    background-color: #E5E4E2; /* Platinum color */
+  }
+  
+  .goal-indicator.diamond {
+    background-color: #3b49c4; /* Diamond color, resembling a bright light blue */
+  }
+  
+  .trophy-icon {
+    position: absolute;
+    bottom: -35px; /* Position below the goal indicators */
+    font-size: 24px; /* Icon size */
+    width: 24px; /* Ensure a consistent width for alignment */
+  }
+  
+  .trophy-icon.bronze {
+    color: #cd7f32; /* Bronze color */
+  }
+  
+  .trophy-icon.silver {
+    color: #C0C0C0; /* Silver color */
+  }
+
+  .trophy-icon.gold {
+    color: #FFD700; /* Silver color */
+  }
+
+  .trophy-icon.platinum {
+    color: #E5E4E2; /* Silver color */
+  }
+
+  .trophy-icon.diamond {
+    color: #3b49c4; /* Silver color */
+  }
+  
+  /* Add classes for gold, platinum, and diamond colors */
   

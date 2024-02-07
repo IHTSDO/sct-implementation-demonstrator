@@ -30,6 +30,14 @@ export class SnoguessService {
   hitpointsAwardedForGuessingfullTerm: number = 1;
   revealFirstHintFree: boolean = false;
 
+  goals: any[] = [
+    { name: 'Bronze', score: 100 },
+    { name: 'Silver', score: 200 },
+    { name: 'Gold', score: 300 },
+    { name: 'Platinum', score: 400 },
+    { name: 'Diamond', score: 500 }
+  ];
+
   fsn: string = '';
   scg: string = '';
   focusConcepts: SnomedConcept[] = [];
