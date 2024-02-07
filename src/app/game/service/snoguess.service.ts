@@ -25,8 +25,11 @@ export class SnoguessService {
 
   private game: BehaviorSubject<Game>;
 
+  // Rules and settings for the game
   maxHitPoints: number = 5;
-  hitpointsAwardedForGuessingfullTerm: number = 2;
+  hitpointsAwardedForGuessingfullTerm: number = 1;
+  revealFirstHintFree: boolean = false;
+
   fsn: string = '';
   scg: string = '';
   focusConcepts: SnomedConcept[] = [];
@@ -193,6 +196,10 @@ export class SnoguessService {
       state: 'playing',
       score: reset ? 0 : this.game.value.score
     });
+
+    if (this.revealFirstHintFree) {
+      this.revealHint(true);
+    }
   }
   
   
@@ -260,7 +267,7 @@ export class SnoguessService {
     }
   }
 
-  revealHint(): void {
+  revealHint(isFree?: boolean): void {
     let newState = { ...this.game.value };
     let newHint = '';
 
@@ -297,7 +304,9 @@ export class SnoguessService {
     // Update the game state with the new hint and decrement hit points
     this.usedHints.add(newHint); // Track used hint
     newState.hints.push(newHint);
-    newState.hitPoints -= 1;
+    if (!isFree) {
+      newState.hitPoints -= 1;
+    }
     newState.hintsAvailable = this.focusConcepts.length > 0 || this.attributePairs.length > 0;
     this.game.next(newState);
 

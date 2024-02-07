@@ -14,7 +14,7 @@
   
   <div class="hit-points">
     <span class="score">
-      Score: {{ gameState.score }}
+      Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
     </span>
     <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
         <mat-icon [@heartAnimation]="gameState.hitPoints > i ? 'filled' : 'empty'">favorite</mat-icon>
@@ -125,7 +125,7 @@
     </div>
     <div class="message lost">You have lost!</div>
     <div class="reveal lost">{{ gameState.term }}</div>
-    <div class="reveal lost">Score: {{ gameState.score }}</div>
+    <div class="reveal lost">Final Score: {{ gameState.score }}</div>
     <button mat-flat-button color="warn" (click)="initialize()">Try Again</button>
   </div>
 </div>

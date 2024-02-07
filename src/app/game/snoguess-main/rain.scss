@@ -17,7 +17,7 @@
     height: var(--drop-height);
     background: linear-gradient(
       rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0.25)
+      rgb(255, 255, 255)
     );
     animation: fall var(--drop-fall-duration, 1s) var(--drop-fall-delay, 0s)
       linear infinite;
