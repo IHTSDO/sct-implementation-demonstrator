@@ -11,6 +11,11 @@ export interface Game {
   state: 'playing' | 'won' | 'lost' | 'loading'; // Game state
 }
 
+interface SnomedConcept {
+  code: string;
+  display: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,6 +24,11 @@ export class SnoguessService {
   private game: BehaviorSubject<Game>;
 
   maxHitPoints: number = 5;
+
+  fsn: string = '';
+  scg: string = '';
+  focusConcepts: SnomedConcept[] = [];
+  attributePairs: { type: SnomedConcept, target: SnomedConcept }[] = [];
 
   @Output() guessResult: EventEmitter<boolean> = new EventEmitter();
 
@@ -38,9 +48,15 @@ export class SnoguessService {
     const fullConcept: any = await lastValueFrom(
       this.terminologyService.lookupConcept(response.expansion.contains[0].code)
     );
-    console.log(this.extractFSN(fullConcept))
     let fsn = this.extractFSN(fullConcept);
-
+    this.fsn = fsn? fsn : '';
+    console.log(fsn) 
+    let scg = this.extractScg(fullConcept);
+    this.scg = scg? scg : '';
+    let focusConcepts = this.extractFocusConcepts(scg? scg : '');
+    this.focusConcepts = focusConcepts? focusConcepts : [];
+    let attributePairs = this.extractAttributePairs(scg? scg : '');
+    this.attributePairs = attributePairs? attributePairs : [];
     if (fsn) {
       this.initializeGame(fsn);
     } else {
@@ -62,6 +78,70 @@ export class SnoguessService {
       }
     });
     return fsn;
+  }
+
+  extractScg(data: any): string | undefined {
+    let scg: string | undefined;
+    data.parameter.forEach((parameter: any) => {
+      if (parameter.name === 'property') {
+        // and has some part that is a "valueString": "normalForm"
+        if (parameter.part.some((part: any) => part.name === 'code' && part.valueString === 'normalForm')) {
+          // then find the part that is a "valueString" and return it
+          scg = parameter.part.find((part: any) => part.name === 'valueString')?.valueString;
+        }
+      }
+    });
+    return scg;
+  }
+
+  extractFocusConcepts(scg: string): SnomedConcept[] {
+    // Extract the part of the SCG before the first colon (if it exists)
+    const [focusPart] = scg.split(':').map(part => part.trim());
+    // Use a regex to match all SNOMED CT concept patterns in the focus part
+    const regex = /\d+\|.*?\|/g; // Adjusted to match any character inside the description
+    const matches = focusPart.match(regex);
+    
+    // Transform each match into a SnomedConcept object
+    const concepts: SnomedConcept[] = matches ? matches.map(match => {
+      const concept = this.transformSnomedConcept(match.trim());
+      // Return a dummy object if transformation fails, which should not happen if regex is correct
+      return concept ? concept : { code: "", display: "" };
+    }).filter(concept => concept.code !== "") : []; // Filter out any dummy objects
+    
+    return concepts;
+  }
+
+  extractAttributePairs(scg: string): { type: SnomedConcept, target: SnomedConcept }[] {
+    const partsAfterColon = scg.split(':').slice(1).join(':').trim();
+    // Use a regex to match patterns of the form "123456|Description| = 123457|Description2|"
+    const regex = /(\d+\|.*?\|)\s*=\s*(\d+\|.*?\|)/g;
+    let matches;
+    const attributes: { type: SnomedConcept, target: SnomedConcept }[] = [];
+  
+    while ((matches = regex.exec(partsAfterColon)) !== null) {
+      const type = this.transformSnomedConcept(matches[1].trim());
+      const target = this.transformSnomedConcept(matches[2].trim());
+  
+      if (type && target) {
+        attributes.push({ type, target });
+      }
+    }
+  
+    return attributes;
+  }
+
+  transformSnomedConcept(concept: string): SnomedConcept | null {
+    const regex = /^(\d+)\|(.+?)\|$/;
+    const match = concept.match(regex);
+  
+    if (match) {
+      return {
+        code: match[1],
+        display: match[2]
+      };
+    } else {
+      return null;
+    }
   }
 
   // Resets and initializes the game state
@@ -160,7 +240,21 @@ export class SnoguessService {
   }
 
   // Reveal a hint
-  revealHint(newHint: string): void {
+  revealHint(): void {
+    let newHint = '';
+    // throw a coin to decide if it is oging to generate a hint from the focus concepts or the attribute pairs
+    let coin = Math.random();
+    if (coin < 0.5) {
+      // choose a random concept from the focus concepts
+      let randomFocusConceptIndex = Math.floor(Math.random() * this.focusConcepts.length);
+      newHint = `One of the parent concepts is: ${this.focusConcepts[randomFocusConceptIndex].display}`;
+    } else {
+      // choose a random attribute pair
+      let randomAttributePairIndex = Math.floor(Math.random() * this.attributePairs.length);
+      let randomAttributePair = this.attributePairs[randomAttributePairIndex];
+      newHint = `This concept ${randomAttributePair.type.display} of ${randomAttributePair.target.display}`;
+    }
+
     let newState = { ...this.game.value };
     newState.hints.push(newHint);
     newState.hitPoints -= 1;

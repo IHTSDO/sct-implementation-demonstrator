@@ -79,7 +79,6 @@ export class SnoguessMainComponent implements OnInit {
 
   revealHint(): void {
     // Assume you have a method to fetch or calculate the next hint
-    const newHint = 'This is a hint';
-    this.snoguessMainService.revealHint(newHint);
+    this.snoguessMainService.revealHint();
   }
 }

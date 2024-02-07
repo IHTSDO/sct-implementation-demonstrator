@@ -9,7 +9,7 @@
   
   .term-display {
     font-size: 24px; /* Larger font for the term display */
-    letter-spacing: 8px; /* Adds space between letters */
+    letter-spacing: 4px; /* Adds space between letters */
     word-break: break-all; /* Ensures the term wraps if it's too long for the container */
     margin-bottom: 20px; /* Adds some space before the next section */
   }
@@ -54,8 +54,6 @@
     margin-right: 8px; /* Adds spacing between buttons if they're side by side */
   }
   
-  /* If you're using Angular Material, you might not need to style buttons and input fields much,
-     since Material provides its own styling. Adjust styles here if you want to override Material's styles. */
   .guess-field {
     display: flex; 
     align-items: flex-start;
