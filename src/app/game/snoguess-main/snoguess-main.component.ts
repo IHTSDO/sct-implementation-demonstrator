@@ -95,17 +95,13 @@ export class SnoguessMainComponent implements OnInit {
   }
 
   calculateProgress(score: number): number {
-    // This function calculates the progress towards the current goal
-    const currentGoal = this.findCurrentGoal(score); // Implement this based on your goals array
-    const previousGoalScore = currentGoal.previousGoalScore || 0; // Handle the first goal case
-    const progress = ((score - previousGoalScore) / (currentGoal.score - previousGoalScore)) * 100;
+    const maxScore = this.goals[this.goals.length - 1].score;
+    const progress = (score / maxScore) * 100;
     return Math.min(progress, 100); // Ensure it doesn't go over 100%
   }
   
   calculateGoalPosition(goalScore: number): number {
-    // This would calculate where to position the goal indicator on the progress bar
-    // For simplicity, this might just be a static percentage based on the goal score vs. max score
-    const maxScore = 500 + 2; // Assuming Platinum is the max goal
+    const maxScore = this.goals[this.goals.length - 1].score;
     const position = (goalScore / maxScore) * 100;
     return position;
   }

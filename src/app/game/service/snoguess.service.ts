@@ -29,6 +29,7 @@ export class SnoguessService {
   maxHitPoints: number = 5;
   hitpointsAwardedForGuessingfullTerm: number = 1;
   revealFirstHintFree: boolean = false;
+  pointsPerGuessedLetter: number = 10;
 
   goals: any[] = [
     { name: 'Bronze', score: 100 },
@@ -227,7 +228,7 @@ export class SnoguessService {
         if (char.toLowerCase() === letter.toLowerCase()) {
           newState.displayTerm[index] = char; // Reveal the correctly guessed letter
           found = true;
-          newState.score += 1; // Increment the score
+          newState.score += this.pointsPerGuessedLetter; // Increment the score
         }
       }
     });

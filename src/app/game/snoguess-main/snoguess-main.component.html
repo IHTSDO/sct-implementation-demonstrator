@@ -135,22 +135,12 @@
   <div class="score-progression-panel">
     <h3>Score Progression</h3>
     <div class="progress-bar-container">
-      <mat-progress-bar mode="determinate" [value]="calculateProgress(gameState.score)"></mat-progress-bar>
-      <!-- Goal Indicators -->
-      <div class="goal-indicator bronze" [style.left.%]="calculateGoalPosition(100)"></div>
-      <div class="goal-indicator silver" [style.left.%]="calculateGoalPosition(200)"></div>
-      <div class="goal-indicator gold" [style.left.%]="calculateGoalPosition(300)"></div>
-      <div class="goal-indicator platinum" [style.left.%]="calculateGoalPosition(400)"></div>
-      <div class="goal-indicator diamond" [style.left.%]="calculateGoalPosition(500)"></div>
-
-      <!-- Trophy icons -->
-      <mat-icon class="trophy-icon bronze" [style.left.%]="calculateGoalPosition(100-3)">emoji_events</mat-icon>
-      <mat-icon class="trophy-icon silver" [style.left.%]="calculateGoalPosition(200-3)">emoji_events</mat-icon>
-      <mat-icon class="trophy-icon gold" [style.left.%]="calculateGoalPosition(300-3)">emoji_events</mat-icon>
-      <mat-icon class="trophy-icon platinum" [style.left.%]="calculateGoalPosition(400-3)">emoji_events</mat-icon>
-      <mat-icon class="trophy-icon diamond" [style.left.%]="calculateGoalPosition(500-3)">emoji_events</mat-icon>
-
-      <!-- Repeat for gold, platinum, and diamond -->
+      <mat-progress-bar mode="determinate" [value]="calculateProgress(gameState.score)" color="accent"></mat-progress-bar>
+      <!-- Goal Indicators and Trophy icons generated dynamically -->
+      <ng-container *ngFor="let goal of goals">
+        <div class="goal-indicator" [class]="goal.name.toLowerCase()" [style.left.%]="calculateGoalPosition(goal.score)"></div>
+        <mat-icon class="trophy-icon" [class]="goal.name.toLowerCase()" [style.left.%]="calculateGoalPosition(goal.score-3)">emoji_events</mat-icon>
+      </ng-container>
     </div>
   </div>
 
