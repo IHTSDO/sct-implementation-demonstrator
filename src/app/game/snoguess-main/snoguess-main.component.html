@@ -135,13 +135,17 @@
   <div class="score-progression-panel">
     <h3>Score Progression</h3>
     <div class="progress-bar-container">
-      <mat-progress-bar mode="determinate" [value]="calculateProgress(gameState.score)" color="accent"></mat-progress-bar>
+      <mat-progress-bar mode="determinate" [value]="calculateProgress(gameState.score)"></mat-progress-bar>
       <!-- Goal Indicators and Trophy icons generated dynamically -->
       <ng-container *ngFor="let goal of goals">
         <div class="goal-indicator" [class]="goal.name.toLowerCase()" [style.left.%]="calculateGoalPosition(goal.score)"></div>
-        <mat-icon class="trophy-icon" [class]="goal.name.toLowerCase()" [style.left.%]="calculateGoalPosition(goal.score-3)">emoji_events</mat-icon>
+        <mat-icon *ngIf="gameState.score >= goal.score" class="star-icon left-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-5)">grade</mat-icon>
+        <mat-icon class="trophy-icon" [ngClass]="[goal.name.toLowerCase(), (gameState.score >= goal.score) ? 'trophy-large' : '']" [style.left.%]="calculateGoalPosition(goal.score-3)">emoji_events</mat-icon>
+        <mat-icon *ngIf="gameState.score >= goal.score" class="star-icon right-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-1)">grade</mat-icon>
+        <div *ngIf="gameState.score >= goal.score" class="goal-name" [style.left.%]="calculateGoalPosition(goal.score)" [ngClass]="[goal.name.toLowerCase()]">{{ goal.name }} trophy!</div>
       </ng-container>
     </div>
+    
   </div>
 
 </div>

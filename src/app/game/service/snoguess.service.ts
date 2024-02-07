@@ -29,7 +29,7 @@ export class SnoguessService {
   maxHitPoints: number = 5;
   hitpointsAwardedForGuessingfullTerm: number = 1;
   revealFirstHintFree: boolean = false;
-  pointsPerGuessedLetter: number = 10;
+  pointsPerGuessedLetter: number = 50;
 
   goals: any[] = [
     { name: 'Bronze', score: 100 },

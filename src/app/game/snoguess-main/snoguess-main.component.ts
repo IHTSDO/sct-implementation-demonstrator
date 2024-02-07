@@ -128,6 +128,5 @@ export class SnoguessMainComponent implements OnInit {
     // This case might not be needed if you always expect the score to be within the goals
     return { ...this.goals[this.goals.length - 1], previousGoalScore: this.goals[this.goals.length - 2].score };
   }
-  
 
 }

@@ -142,7 +142,7 @@
   
   .progress-bar-container {
     margin-top: 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 5rem;
     position: relative;
     background-color: #e0e0e0; /* Background of the progress bar container */
     border-radius: 5px; /* Optional: adds rounded corners */
@@ -182,27 +182,58 @@
     bottom: -35px; /* Position below the goal indicators */
     font-size: 24px; /* Icon size */
     width: 24px; /* Ensure a consistent width for alignment */
+    transition: transform 0.3s ease; /* Optional: smooth transition for scaling and moving */
   }
   
-  .trophy-icon.bronze {
+  .trophy-large {
+    /* Scale the icon and move it 3px down and 2px to the left */
+    transform: scale(2.5) translate(-2px, 3px); /* Adjust scale and translation values as needed */
+  }  
+
+  .bronze {
     color: #cd7f32; /* Bronze color */
   }
   
-  .trophy-icon.silver {
+  .silver {
     color: #C0C0C0; /* Silver color */
   }
 
-  .trophy-icon.gold {
+  .gold {
     color: #FFD700; /* Silver color */
   }
 
-  .trophy-icon.platinum {
+  .platinum {
     color: #E5E4E2; /* Silver color */
   }
 
-  .trophy-icon.diamond {
+  .diamond {
     color: #3b49c4; /* Silver color */
   }
   
-  /* Add classes for gold, platinum, and diamond colors */
+  .star-icon {
+    position: absolute;
+    bottom: -40px; /* Adjust this value based on your layout */
+    font-size: 30px; /* Size of the star icons */
+    width: 30px; /* Ensure a consistent width for alignment */
+    transition: transform 0.3s ease; /* Optional: for a smooth appearance */
+  }
+  
+  .left-star {
+    transform: translateX(-50px); /* Adjust left positioning */
+  }
+  
+  .right-star {
+    transform: translateX(30px); /* Adjust right positioning */
+  }
+    
+  .goal-name {
+    position: absolute;
+    bottom: -75px; /* Adjust this value based on your layout */
+    width: 100px; /* Adjust width as needed to accommodate the text */
+    margin-left: -50px; /* Half of the width to center the text */
+    text-align: center;
+    font-size: 12px; /* Adjust font size as needed */
+    font-weight: bold;
+    color: #000; /* Adjust text color as needed */
+  }
   
