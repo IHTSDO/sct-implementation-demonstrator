@@ -59,13 +59,67 @@
       <div class="before"></div>
       <div class="after"></div>
     </div>
-    <div class="message won">Won!</div>
+    <div class="message won">You won!</div>
+    <div class="reveal won">{{ gameState.term }}</div>
     <button mat-flat-button color="primary" (click)="initialize()">Try Again</button>
   </div>
 
   <!-- Overlay for "Lost" state -->
   <div *ngIf="gameState.state === 'lost'" class="overlay">
-    <div class="message lost">Lost</div>
+    <div class="fixed top-0 left-0 z-5">
+      <div class="drop" style="--i:1"></div>
+      <div class="drop" style="--i:2"></div>
+      <div class="drop" style="--i:3"></div>
+      <div class="drop" style="--i:4"></div>
+      <div class="drop" style="--i:5"></div>
+      <div class="drop" style="--i:6"></div>
+      <div class="drop" style="--i:7"></div>
+      <div class="drop" style="--i:8"></div>
+      <div class="drop" style="--i:9"></div>
+      <div class="drop" style="--i:10"></div>
+      <div class="drop" style="--i:11"></div>
+      <div class="drop" style="--i:12"></div>
+      <div class="drop" style="--i:13"></div>
+      <div class="drop" style="--i:14"></div>
+      <div class="drop" style="--i:15"></div>
+      <div class="drop" style="--i:16"></div>
+      <div class="drop" style="--i:17"></div>
+      <div class="drop" style="--i:18"></div>
+      <div class="drop" style="--i:19"></div>
+      <div class="drop" style="--i:20"></div>
+      <div class="drop" style="--i:21"></div>
+      <div class="drop" style="--i:22"></div>
+      <div class="drop" style="--i:23"></div>
+      <div class="drop" style="--i:24"></div>
+      <div class="drop" style="--i:25"></div>
+      <div class="drop" style="--i:26"></div>
+      <div class="drop" style="--i:27"></div>
+      <div class="drop" style="--i:28"></div>
+      <div class="drop" style="--i:29"></div>
+      <div class="drop" style="--i:30"></div>
+      <div class="drop" style="--i:31"></div>
+      <div class="drop" style="--i:32"></div>
+      <div class="drop" style="--i:33"></div>
+      <div class="drop" style="--i:34"></div>
+      <div class="drop" style="--i:35"></div>
+      <div class="drop" style="--i:36"></div>
+      <div class="drop" style="--i:37"></div>
+      <div class="drop" style="--i:38"></div>
+      <div class="drop" style="--i:39"></div>
+      <div class="drop" style="--i:40"></div>
+      <div class="drop" style="--i:41"></div>
+      <div class="drop" style="--i:42"></div>
+      <div class="drop" style="--i:43"></div>
+      <div class="drop" style="--i:44"></div>
+      <div class="drop" style="--i:45"></div>
+      <div class="drop" style="--i:46"></div>
+      <div class="drop" style="--i:47"></div>
+      <div class="drop" style="--i:48"></div>
+      <div class="drop" style="--i:49"></div>
+      <div class="drop" style="--i:50"></div>
+    </div>
+    <div class="message lost">You have lost!</div>
+    <div class="reveal lost">{{ gameState.term }}</div>
     <button mat-flat-button color="warn" (click)="initialize()">Try Again</button>
   </div>
 </div>

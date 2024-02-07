@@ -6,7 +6,7 @@ import { trigger, state, style, transition, animate, keyframes } from "@angular/
 @Component({
   selector: 'app-snoguess-main',
   templateUrl: './snoguess-main.component.html',
-  styleUrls: ['./snoguess-main.component.css', './fireworks.scss'],
+  styleUrls: ['./snoguess-main.component.css', './fireworks.scss', './rain.scss'],
   animations: [
     trigger('heartAnimation', [
       state('filled', style({

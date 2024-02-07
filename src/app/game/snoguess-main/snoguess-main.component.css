@@ -81,13 +81,22 @@
     margin-bottom: 20px; /* Space between message and button */
     font-weight: bolder;
   }
+
+  .reveal {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px; /* Space between message and button */
+    font-weight: bolder;
+  }
   
   .won {
     color: #4CAF50; /* Green color for "Won" */
+    text-shadow: black 2px 2px 2px;
   }
   
   .lost {
     color: #F44336; /* Red color for "Lost" */
+    text-shadow: black 2px 2px 2px;
   }
   
   /* Optional: Style the button if needed */
