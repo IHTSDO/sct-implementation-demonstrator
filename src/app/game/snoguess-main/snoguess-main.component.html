@@ -60,18 +60,17 @@
           </ul>
       </div>
   </div>
-  <div *ngIf="gameState.state === 'won'" class="overlay">
+  <div *ngIf="termGuessed" class="overlay overlay-transparent">
     <div class="pyro">
       <div class="before"></div>
       <div class="after"></div>
     </div>
-    <div class="message won">You won!</div>
+    <div class="message won">Correct!</div>
     <div class="reveal won">{{ gameState.term }}</div>
-    <button mat-flat-button color="primary" (click)="initialize()">Try Again</button>
   </div>
 
   <!-- Overlay for "Lost" state -->
-  <div *ngIf="gameState.state === 'lost'" class="overlay">
+  <div *ngIf="gameState.state === 'gameOver'" class="overlay overlay-dark">
     <div class="fixed top-0 left-0 z-5">
       <div class="drop" style="--i:1"></div>
       <div class="drop" style="--i:2"></div>
@@ -126,6 +125,7 @@
     </div>
     <div class="message lost">You have lost!</div>
     <div class="reveal lost">{{ gameState.term }}</div>
+    <div class="reveal lost">Score: {{ gameState.score }}</div>
     <button mat-flat-button color="warn" (click)="initialize()">Try Again</button>
   </div>
 </div>

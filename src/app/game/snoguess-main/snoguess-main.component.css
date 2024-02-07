@@ -67,12 +67,21 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column; /* Stack message and button vertically */
     justify-content: center;
     align-items: center;
     z-index: 1000;
+  }
+  
+  /* Dark overlay style */
+  .overlay-dark {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  }
+  
+  /* Transparent overlay style */
+  .overlay-transparent {
+    background-color: rgba(0, 0, 0, 0); /* Fully transparent */
   }
   
   .message {

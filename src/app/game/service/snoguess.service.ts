@@ -9,7 +9,7 @@ export interface Game {
   hitPoints: number; // Number of attempts left
   hints: string[]; // Hints that have been revealed
   hintsAvailable: boolean; // Whether hints are available
-  state: 'playing' | 'won' | 'lost' | 'loading'; // Game state,
+  state: 'playing' | 'gameOver' | 'loading'; // Game state,
   score: number; // Score of the game
 }
 
@@ -26,6 +26,7 @@ export class SnoguessService {
   private game: BehaviorSubject<Game>;
 
   maxHitPoints: number = 5;
+  hitpointsAwardedForGuessingfullTerm: number = 2;
   fsn: string = '';
   scg: string = '';
   focusConcepts: SnomedConcept[] = [];
@@ -36,15 +37,15 @@ export class SnoguessService {
   randomLimit: number = 4000;
 
   @Output() guessResult: EventEmitter<boolean> = new EventEmitter();
-
+  @Output() termResult: EventEmitter<boolean> = new EventEmitter();
 
   constructor(private terminologyService: TerminologyService) {
     // Initialize the game with default values
     this.game = new BehaviorSubject<Game>(this.resetGame());
   }
 
-  async getRandomConcept() {
-    this.game.next({ ...this.game.value, state: 'loading' });
+  async getRandomConcept(reset?: boolean) {
+    this.game.next({ ...this.game.value, state: 'loading', score: reset ? 0 : this.game.value.score });
     const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
     const response = await lastValueFrom(
       this.terminologyService.expandValueSet('^ 816080008 |International Patient Summary| {{ C definitionStatus = defined }}', '', randomIndex, 1)
@@ -63,7 +64,7 @@ export class SnoguessService {
     let attributePairs = this.extractAttributePairs(scg? scg : '');
     this.attributePairs = attributePairs? attributePairs : [];
     if (fsn) {
-      this.initializeGame(fsn);
+      this.initializeGame(fsn, reset);
     } else {
       this.initializeGame('No term found');
     }
@@ -165,32 +166,35 @@ export class SnoguessService {
   }
 
   // Initializes or restarts the game with a new term
-  initializeGame(term: string): void {
+  initializeGame(term: string, reset?: boolean): void {
     // Use a regular expression to find the semantic tag, which is the last set of parentheses
     const semanticTagMatch = term.match(/\(.*\)$/);
     const semanticTag = semanticTagMatch ? semanticTagMatch[0] : '';
-  
+    
     // Calculate the starting index of the semantic tag, or set it to the term's length if not found
     const semanticTagIndex = semanticTag ? term.indexOf(semanticTag) : term.length;
-  
-    // Replace all characters except the semantic tag with underscores
+    
+    // Replace letters and numbers outside the semantic tag with underscores, keep other characters unchanged
     const displayTerm = term.split('').map((char, index) => {
       if (index >= semanticTagIndex) {
         return char; // Keep the semantic tag visible
       }
-      return char === ' ' ? ' ' : '_'; // Replace other characters with underscores
+      // Use a regular expression to test if the character is a letter or a number
+      return /[a-zA-Z0-9]/.test(char) ? '_' : char;
     });
-  
+    
     this.game.next({
       ...this.game.value,
       term: term,
       displayTerm: displayTerm,
       maxHitPoints: this.maxHitPoints,
-      hitPoints: this.maxHitPoints,
+      hitPoints: reset ? this.maxHitPoints : this.game.value.hitPoints,
       hints: [],
-      state: 'playing'
+      state: 'playing',
+      score: reset ? 0 : this.game.value.score
     });
   }
+  
   
 
   // Guess a single letter
@@ -219,13 +223,20 @@ export class SnoguessService {
       // Check if the game is lost
       if (newState.hitPoints <= 0) {
         newState.hitPoints = 0; // Ensure hit points don't go negative
-        newState.state = 'lost'; // Update the state to 'lost'
+        newState.state = 'gameOver'; // Update the state to 'gameOver'
       }
     } else {
-      // Check if the game is won by verifying if there are no more '_' characters before the semantic tag
-      const isGameWon = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
-      if (isGameWon) {
-        newState.state = 'won'; // Update the state to 'won'
+      // Check if the term was guessed by verifying if there are no more '_' characters before the semantic tag
+      const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
+      if (isTermGessed) {
+        this.termResult.emit(true); // Emit true for correct term guesses
+        newState.hitPoints = newState.hitPoints + this.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
+        if (newState.hitPoints > this.maxHitPoints) {
+          newState.hitPoints = this.maxHitPoints;
+        }
+        setTimeout(() => {
+          this.getRandomConcept();
+        }, 1500);
       }
     }
   
@@ -237,12 +248,13 @@ export class SnoguessService {
   // Guess the full term
   guessTerm(guess: string): boolean {
     if (guess.toLowerCase() === this.game.value.term.toLowerCase()) {
-      this.game.next({ ...this.game.value, displayTerm: this.game.value.term.split(''), state: 'won' });
+      this.termResult.emit(true); // Emit true for correct term guesses
+      this.game.next({ ...this.game.value, displayTerm: this.game.value.term.split('') });
       return true;
     } else {
       this.game.next({ ...this.game.value, hitPoints: this.game.value.hitPoints - 1 });
       if (this.game.value.hitPoints <= 0) {
-        this.game.next({ ...this.game.value, hitPoints: 0, state: 'lost' });
+        this.game.next({ ...this.game.value, hitPoints: 0, state: 'gameOver' });
       }
       return false;
     }
@@ -292,7 +304,7 @@ export class SnoguessService {
     // Check for loss condition
     if (newState.hitPoints <= 0) {
         newState.hitPoints = 0;
-        newState.state = 'lost';
+        newState.state = 'gameOver';
         this.game.next(newState);
     }
   }

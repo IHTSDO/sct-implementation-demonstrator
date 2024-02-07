@@ -45,6 +45,7 @@ import { trigger, state, style, transition, animate, keyframes } from "@angular/
 export class SnoguessMainComponent implements OnInit {
   game!: Observable<Game>;
   shakeState = 'normal';
+  termGuessed = false;
 
   constructor(private snoguessMainService: SnoguessService) {}
 
@@ -58,10 +59,19 @@ export class SnoguessMainComponent implements OnInit {
         setTimeout(() => this.shakeState = 'normal', 200);
       }
     });
+
+    this.snoguessMainService.termResult.subscribe((result: boolean) => {
+      if (result) {
+        this.termGuessed = true;
+        setTimeout(() => {
+          this.termGuessed = false;
+        }, 3000);
+      }
+    });
   }
 
   initialize(): void {
-    this.snoguessMainService.getRandomConcept();
+    this.snoguessMainService.getRandomConcept(true);
   }
 
   guessLetter(letter: string): void {
