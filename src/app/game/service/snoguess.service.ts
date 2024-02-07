@@ -8,7 +8,9 @@ export interface Game {
   maxHitPoints: number; // Maximum number of attempts
   hitPoints: number; // Number of attempts left
   hints: string[]; // Hints that have been revealed
-  state: 'playing' | 'won' | 'lost' | 'loading'; // Game state
+  hintsAvailable: boolean; // Whether hints are available
+  state: 'playing' | 'won' | 'lost' | 'loading'; // Game state,
+  score: number; // Score of the game
 }
 
 interface SnomedConcept {
@@ -24,11 +26,14 @@ export class SnoguessService {
   private game: BehaviorSubject<Game>;
 
   maxHitPoints: number = 5;
-
   fsn: string = '';
   scg: string = '';
   focusConcepts: SnomedConcept[] = [];
   attributePairs: { type: SnomedConcept, target: SnomedConcept }[] = [];
+
+  usedHints: Set<string> = new Set();
+
+  randomLimit: number = 4000;
 
   @Output() guessResult: EventEmitter<boolean> = new EventEmitter();
 
@@ -40,11 +45,11 @@ export class SnoguessService {
 
   async getRandomConcept() {
     this.game.next({ ...this.game.value, state: 'loading' });
-    // generate a random number between 1 and 4000
-    const randomIndex = Math.floor(Math.random() * 4000) + 1;
+    const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
     const response = await lastValueFrom(
       this.terminologyService.expandValueSet('^ 816080008 |International Patient Summary| {{ C definitionStatus = defined }}', '', randomIndex, 1)
     );
+    this.randomLimit = response.expansion.total -1;
     const fullConcept: any = await lastValueFrom(
       this.terminologyService.lookupConcept(response.expansion.contains[0].code)
     );
@@ -63,6 +68,7 @@ export class SnoguessService {
       this.initializeGame('No term found');
     }
     this.game.next({ ...this.game.value, state: 'playing' });
+    this.usedHints.clear();
   }
 
   extractFSN(data: any): string | undefined {
@@ -151,8 +157,10 @@ export class SnoguessService {
       displayTerm: [],
       maxHitPoints: this.maxHitPoints,
       hitPoints: this.maxHitPoints,
+      hintsAvailable: true,
       hints: [],
-      state: 'playing'
+      state: 'playing',
+      score: 0
     };
   }
 
@@ -178,7 +186,7 @@ export class SnoguessService {
       term: term,
       displayTerm: displayTerm,
       maxHitPoints: this.maxHitPoints,
-      hitPoints: 5,
+      hitPoints: this.maxHitPoints,
       hints: [],
       state: 'playing'
     });
@@ -200,6 +208,7 @@ export class SnoguessService {
         if (char.toLowerCase() === letter.toLowerCase()) {
           newState.displayTerm[index] = char; // Reveal the correctly guessed letter
           found = true;
+          newState.score += 1; // Increment the score
         }
       }
     });
@@ -239,30 +248,55 @@ export class SnoguessService {
     }
   }
 
-  // Reveal a hint
   revealHint(): void {
+    let newState = { ...this.game.value };
     let newHint = '';
-    // throw a coin to decide if it is oging to generate a hint from the focus concepts or the attribute pairs
-    let coin = Math.random();
-    if (coin < 0.5) {
-      // choose a random concept from the focus concepts
-      let randomFocusConceptIndex = Math.floor(Math.random() * this.focusConcepts.length);
-      newHint = `One of the parent concepts is: ${this.focusConcepts[randomFocusConceptIndex].display}`;
-    } else {
-      // choose a random attribute pair
-      let randomAttributePairIndex = Math.floor(Math.random() * this.attributePairs.length);
-      let randomAttributePair = this.attributePairs[randomAttributePairIndex];
-      newHint = `This concept ${randomAttributePair.type.display} of ${randomAttributePair.target.display}`;
+
+    // Check if there are hints available
+    if (this.focusConcepts.length === 0 && this.attributePairs.length === 0) {
+        newState.hints.push("No more hints available.");
+        this.game.next(newState);
+        return;
     }
 
-    let newState = { ...this.game.value };
+    let useFocusConcepts = this.focusConcepts.length > 0;
+    let useAttributePairs = this.attributePairs.length > 0;
+
+    // Use the coin flip logic only if both types of hints are available
+    if (useFocusConcepts && useAttributePairs) {
+        let coin = Math.random();
+        useFocusConcepts = coin < 0.5;
+    }
+
+    if (useFocusConcepts) {
+        let randomIndex = Math.floor(Math.random() * this.focusConcepts.length);
+        let selectedConcept = this.focusConcepts[randomIndex];
+        newHint = `One of the focus concepts is: <i>${selectedConcept.display}</i>`;
+        // Remove used hint to avoid repetition
+        this.focusConcepts.splice(randomIndex, 1);
+    } else if (useAttributePairs) {
+        let randomIndex = Math.floor(Math.random() * this.attributePairs.length);
+        let selectedPair = this.attributePairs[randomIndex];
+        newHint = `This concept has a <i>${selectedPair.type.display}</i> of <i>${selectedPair.target.display}</i>`;
+        // Remove used hint to avoid repetition
+        this.attributePairs.splice(randomIndex, 1);
+    }
+
+    // Update the game state with the new hint and decrement hit points
+    this.usedHints.add(newHint); // Track used hint
     newState.hints.push(newHint);
     newState.hitPoints -= 1;
+    newState.hintsAvailable = this.focusConcepts.length > 0 || this.attributePairs.length > 0;
     this.game.next(newState);
-    if (this.game.value.hitPoints <= 0) {
-      this.game.next({ ...this.game.value, hitPoints: 0, state: 'lost' });
+
+    // Check for loss condition
+    if (newState.hitPoints <= 0) {
+        newState.hitPoints = 0;
+        newState.state = 'lost';
+        this.game.next(newState);
     }
   }
+
 
   // Get the current state as an Observable for subscription in components
   getGameState() {

@@ -13,6 +13,9 @@
   </div>
   
   <div class="hit-points">
+    <span class="score">
+      Score: {{ gameState.score }}
+    </span>
     <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
         <mat-icon [@heartAnimation]="gameState.hitPoints > i ? 'filled' : 'empty'">favorite</mat-icon>
     </span>
@@ -26,31 +29,34 @@
     <div class="guess-field">
       <mat-form-field appearance="fill" [@shake]="shakeState">
         <mat-label>Guess a letter</mat-label>
-        <input matInput #letterInput maxlength="1" (input)="letterInput.value = letterInput.value.slice(0, 1)" (keyup.enter)="guessLetter(letterInput.value); letterInput.value=''" [disabled]="gameState.state !== 'playing'">
+        <input matInput #letterInput maxlength="1" (input)="letterInput.value = letterInput.value.slice(0, 1)" 
+          (keyup.enter)="letterInput.value ? guessLetter(letterInput.value) : null; letterInput.value=''"
+          [disabled]="gameState.state !== 'playing'">
       </mat-form-field>
-      <button mat-flat-button color="accent" (click)="guessLetter(letterInput.value); letterInput.value=''" [disabled]="gameState.state !== 'playing'">Guess</button>
+      <button mat-flat-button color="accent" 
+        (click)="letterInput.value ? guessLetter(letterInput.value) : null; letterInput.value=''" 
+        [disabled]="gameState.state !== 'playing' || !letterInput.value">Guess</button>
     </div>
       
-      <div class="guess-field">
+      <!-- <div class="guess-field">
         <mat-form-field appearance="fill">
           <mat-label>Guess the full term</mat-label>
-          <!-- Disable the input field when the game state is not 'playing' -->
           <input matInput #fullTermInput (keyup.enter)="guessTerm(fullTermInput.value); fullTermInput.value=''" [disabled]="gameState.state !== 'playing'">
         </mat-form-field>
-        <!-- Disable the button when the game state is not 'playing' -->
         <button mat-flat-button color="accent" (click)="guessTerm(fullTermInput.value); fullTermInput.value=''" [disabled]="gameState.state !== 'playing'">Guess</button>
-      </div>
+      </div> -->
+
       <br>
       <div class="guess-field">
-        <!-- Disable the button when the game state is not 'playing' -->
-        <button mat-flat-button color="accent" (click)="revealHint()" [disabled]="gameState.state !== 'playing'">Reveal Hint</button>
-        <button mat-flat-button color="accent" (click)="initialize()" [disabled]="gameState.state !== 'playing'">Reset</button>
+        <button mat-flat-button color="accent" (click)="revealHint()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing' || !gameState.hintsAvailable">Reveal Hint</button>
+        <button mat-flat-button color="accent" (click)="initialize()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing'">Reset</button>
       </div>
+      
 
       <div *ngIf="gameState.hints.length > 0">
           <h3>Hints</h3>
           <ul>
-              <li *ngFor="let hint of gameState.hints">{{ hint }}</li>
+              <li *ngFor="let hint of gameState.hints" [innerHTML]="hint"></li>
           </ul>
       </div>
   </div>
