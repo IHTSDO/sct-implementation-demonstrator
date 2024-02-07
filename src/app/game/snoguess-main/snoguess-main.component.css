@@ -1,0 +1,119 @@
+/* snoguess-main.component.css */
+.snoguess-game {
+    padding: 20px; /* Adjust padding as needed */
+    border-radius: 8px;
+    max-width: 80%; /* Set a max-width for larger screens */
+    margin: auto; /* Center the game container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds a subtle shadow for depth */
+  }
+  
+  .term-display {
+    font-size: 24px; /* Larger font for the term display */
+    letter-spacing: 8px; /* Adds space between letters */
+    word-break: break-all; /* Ensures the term wraps if it's too long for the container */
+    margin-bottom: 20px; /* Adds some space before the next section */
+  }
+  
+  .term-display span {
+    padding: 0 4px; /* Optional: add padding to each character if you want more space */
+  }
+  
+  /* Styles for hints list */
+  .hints {
+    background: #f7f7f7; /* Light background for the hints section */
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 20px; /* Adds some space above the hints section */
+  }
+  
+  .hints ul {
+    list-style-type: none; /* Removes default list styling */
+    padding: 0;
+  }
+  
+  .hints li {
+    margin-bottom: 5px; /* Adds space between hint items */
+    background: #eef; /* Optional: different background for each hint */
+    padding: 5px;
+    border-radius: 4px;
+  }
+  
+  /* Styles for the hit points display */
+  .hit-points {
+    font-weight: bold;
+    color: #d9534f; /* Red color to indicate the importance of hit points */
+  }
+  
+  /* Input and button styling */
+  mat-form-field {
+    width: 100%; /* Makes the input fields full width of the container */
+    margin-bottom: 10px; /* Adds some space below each input field */
+  }
+  
+  button {
+    margin-right: 8px; /* Adds spacing between buttons if they're side by side */
+  }
+  
+  /* If you're using Angular Material, you might not need to style buttons and input fields much,
+     since Material provides its own styling. Adjust styles here if you want to override Material's styles. */
+  .guess-field {
+    display: flex; 
+    align-items: flex-start;
+    vertical-align: middle;
+    gap: 10px;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column; /* Stack message and button vertically */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .message {
+    font-size: 4rem;
+    text-align: center;
+    margin-bottom: 20px; /* Space between message and button */
+    font-weight: bolder;
+  }
+  
+  .won {
+    color: #4CAF50; /* Green color for "Won" */
+  }
+  
+  .lost {
+    color: #F44336; /* Red color for "Lost" */
+  }
+  
+  /* Optional: Style the button if needed */
+  .overlay button {
+    font-size: 1.5rem;
+    padding: 10px 20px;
+  }
+
+  /* Add these styles to your component's CSS file */
+  .loading-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .progress-bar-message {
+    color: black; /* Adjust the color as needed */
+    font-size: larger; /* Adjust the font size as needed */
+    margin-bottom: 10px; /* Adjust the space between the message and the progress bar */
+    font-style: italic;
+    font-weight: lighter;
+  }
+  
+  
+  

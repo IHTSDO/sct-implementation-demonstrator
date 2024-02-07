@@ -56,6 +56,7 @@ import { CreateRootModuleComponent } from './questionnaires/create-root-module/c
 import { ConfirmationDialogComponent } from './questionnaires/confirmation-dialog/confirmation-dialog.component';
 import { IntegerBindingComponent } from './bindings/integer-binding/integer-binding.component';
 import { DecimalBindingComponent } from './bindings/decimal-binding/decimal-binding.component';
+import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { DecimalBindingComponent } from './bindings/decimal-binding/decimal-bind
     CreateRootModuleComponent,
     ConfirmationDialogComponent,
     IntegerBindingComponent,
-    DecimalBindingComponent
+    DecimalBindingComponent,
+    SnoguessMainComponent
   ],
   imports: [
     HttpClientModule,

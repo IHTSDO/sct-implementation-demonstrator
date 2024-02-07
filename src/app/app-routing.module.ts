@@ -5,6 +5,7 @@ import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.co
 import { PrescriptionMainComponent } from './prescription/prescription-main/prescription-main.component';
 import { QuestionnairesMainComponent } from './questionnaires/questionnaires-main/questionnaires-main.component';
 import { SubsetValidatorComponent } from './implementation-course/subset-validator/subset-validator.component';
+import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.component';
 
 const routes: Routes = [
   { path: '', component: AllergiesComponent },
@@ -12,7 +13,9 @@ const routes: Routes = [
   { path: 'sandbox', component: BindingsSandboxComponent },
   { path: 'prescription', component: PrescriptionMainComponent},
   { path: 'questionnaires', component: QuestionnairesMainComponent},
-  { path: 'implementation-course/subset-validator', component: SubsetValidatorComponent}
+  { path: 'implementation-course/subset-validator', component: SubsetValidatorComponent},
+  { path: 'snoguess', component: SnoguessMainComponent},
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({

@@ -1,0 +1,67 @@
+<div class="snoguess-game" *ngIf="(game | async) as gameState">
+  <h2>Guess the SNOMED Term</h2>
+  
+  <div class="term-display" *ngIf="gameState.state != 'loading'">
+      <span *ngFor="let char of gameState.displayTerm">{{ char }}</span>
+  </div>
+  
+  <div *ngIf="gameState.state === 'loading'" class="loading-container">
+    <div class="progress-bar-message">
+      Choosing a random SNOMED CT concept using the FHIR API
+    </div>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+  
+  <div class="hit-points">
+    <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
+        <mat-icon [@heartAnimation]="gameState.hitPoints > i ? 'filled' : 'empty'">favorite</mat-icon>
+    </span>
+    <span *ngFor="let hp of [].constructor(gameState.maxHitPoints - gameState.hitPoints); let i = index">
+        <mat-icon [@heartAnimation]="'empty'">favorite_border</mat-icon>
+    </span>
+  </div>
+
+  
+  <div>
+    <div class="guess-field">
+      <mat-form-field appearance="fill" [@shake]="shakeState">
+        <mat-label>Guess a letter</mat-label>
+        <input matInput #letterInput maxlength="1" (input)="letterInput.value = letterInput.value.slice(0, 1)" (keyup.enter)="guessLetter(letterInput.value); letterInput.value=''" [disabled]="gameState.state !== 'playing'">
+      </mat-form-field>
+      <button mat-flat-button color="accent" (click)="guessLetter(letterInput.value); letterInput.value=''" [disabled]="gameState.state !== 'playing'">Guess</button>
+    </div>
+      
+      <div class="guess-field">
+        <mat-form-field appearance="fill">
+          <mat-label>Guess the full term</mat-label>
+          <!-- Disable the input field when the game state is not 'playing' -->
+          <input matInput #fullTermInput (keyup.enter)="guessTerm(fullTermInput.value); fullTermInput.value=''" [disabled]="gameState.state !== 'playing'">
+        </mat-form-field>
+        <!-- Disable the button when the game state is not 'playing' -->
+        <button mat-flat-button color="accent" (click)="guessTerm(fullTermInput.value); fullTermInput.value=''" [disabled]="gameState.state !== 'playing'">Guess</button>
+      </div>
+      <br>
+      <div class="guess-field">
+        <!-- Disable the button when the game state is not 'playing' -->
+        <button mat-flat-button color="accent" (click)="revealHint()" [disabled]="gameState.state !== 'playing'">Reveal Hint</button>
+        <button mat-flat-button color="accent" (click)="initialize()" [disabled]="gameState.state !== 'playing'">Reset</button>
+      </div>
+
+      <div *ngIf="gameState.hints.length > 0">
+          <h3>Hints</h3>
+          <ul>
+              <li *ngFor="let hint of gameState.hints">{{ hint }}</li>
+          </ul>
+      </div>
+  </div>
+  <div *ngIf="gameState.state === 'won'" class="overlay">
+    <div class="message won">Won!</div>
+    <button mat-flat-button color="primary" (click)="initialize()">Try Again</button>
+  </div>
+
+  <!-- Overlay for "Lost" state -->
+  <div *ngIf="gameState.state === 'lost'" class="overlay">
+    <div class="message lost">Lost</div>
+    <button mat-flat-button color="warn" (click)="initialize()">Try Again</button>
+  </div>
+</div>
