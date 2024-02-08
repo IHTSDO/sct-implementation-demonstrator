@@ -17,10 +17,10 @@
       Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
     </span>
     <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
-        <mat-icon [@heartAnimation]="gameState.hitPoints > i ? 'filled' : 'empty'">favorite</mat-icon>
+        <mat-icon>favorite</mat-icon>
     </span>
     <span *ngFor="let hp of [].constructor(gameState.maxHitPoints - gameState.hitPoints); let i = index">
-        <mat-icon [@heartAnimation]="'empty'">favorite_border</mat-icon>
+        <mat-icon>favorite_border</mat-icon>
     </span>
   </div>
 
@@ -53,7 +53,7 @@
 
       <br>
       <div class="guess-field">
-        <button mat-flat-button color="accent" (click)="revealHint()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing' || !gameState.hintsAvailable">Reveal Hint</button>
+        <button mat-flat-button color="accent" (click)="revealHint()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing' || !gameState.hintsAvailable || gameState.hitPoints <= 1">Reveal Hint</button>
         <button mat-flat-button color="accent" (click)="initialize()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing'">Reset</button>
       </div>
       <div class="note">
@@ -134,7 +134,8 @@
       <div class="drop" style="--i:50"></div>
     </div>
     <div class="message lost">You have lost!</div>
-    <div class="reveal lost">{{ gameState.term }}</div>
+    <div class="reveal lost"> The term was: </div>
+    <div class="reveal lost"> {{ gameState.term }}</div>
     <div class="reveal lost">Final Score: {{ gameState.score }}</div>
     <button mat-flat-button color="warn" (click)="initialize()">Try Again</button>
   </div>

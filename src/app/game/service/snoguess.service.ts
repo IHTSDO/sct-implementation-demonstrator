@@ -69,7 +69,6 @@ export class SnoguessService {
     );
     let fsn = this.extractFSN(fullConcept);
     this.fsn = fsn? fsn : '';
-    console.log(fsn) 
     let scg = this.extractScg(fullConcept);
     this.scg = scg? scg : '';
     let focusConcepts = this.extractFocusConcepts(scg? scg : '');

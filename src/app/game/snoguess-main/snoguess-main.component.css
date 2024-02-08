@@ -87,11 +87,11 @@
   
   .lost {
     color: #F44336; /* Red color for "Lost" */
-    text-shadow: black 2px 2px 2px;
+    text-shadow: rgb(255, 255, 255) 2px 2px 2px;
   }
   
   /* Optional: Style the button if needed */
-  .overlay button {
+  .overlay button { 
     font-size: 1.5rem;
     padding: 10px 20px;
   }

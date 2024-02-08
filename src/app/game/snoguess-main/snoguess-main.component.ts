@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, firstValueFrom } from "rxjs";
 import { Game, SnoguessService } from "../service/snoguess.service";
 import { trigger, state, style, transition, animate, keyframes } from "@angular/animations";
 import { KeyboardComponent } from "../keyboard/keyboard.component";
@@ -9,28 +9,6 @@ import { KeyboardComponent } from "../keyboard/keyboard.component";
   templateUrl: './snoguess-main.component.html',
   styleUrls: ['./snoguess-main.component.css', './fireworks.scss', './rain.scss'],
   animations: [
-    trigger('heartAnimation', [
-      state('filled', style({
-        opacity: 1,
-      })),
-      state('empty', style({
-        opacity: 0.5,
-      })),
-      transition('filled => empty', [
-        animate('0.5s', keyframes([
-          style({transform: 'scale(1)', opacity: 1, offset: 0}),
-          style({transform: 'scale(1.5)', opacity: 0.7, offset: 0.5}),
-          style({transform: 'scale(1)', opacity: 0.5, offset: 1.0}),
-        ]))
-      ]),
-      transition('empty => filled', [
-        animate('0.5s', keyframes([
-          style({transform: 'scale(1)', opacity: 0.5, offset: 0}),
-          style({transform: 'scale(1.5)', opacity: 0.7, offset: 0.5}),
-          style({transform: 'scale(1)', opacity: 1, offset: 1.0}),
-        ]))
-      ]),
-    ]),
     trigger('shake', [
       transition('normal => shake', animate(200, keyframes([
         style({transform: 'translateX(0)'}),
@@ -86,8 +64,11 @@ export class SnoguessMainComponent implements OnInit {
     this.snoguessMainService.getRandomConcept(true);
   }
 
-  guessLetter(letter: string): void {
-    this.snoguessMainService.guessLetter(letter);
+  async guessLetter(letter: string) {
+    let game = await firstValueFrom(this.game);
+    if (game?.state === 'playing') {
+      this.snoguessMainService.guessLetter(letter);
+    }
   }
 
   guessTerm(term: string): void {
