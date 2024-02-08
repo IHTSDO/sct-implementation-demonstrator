@@ -18,26 +18,6 @@
     padding: 0 4px; /* Optional: add padding to each character if you want more space */
   }
   
-  /* Styles for hints list */
-  .hints {
-    background: #f7f7f7; /* Light background for the hints section */
-    border-radius: 4px;
-    padding: 10px;
-    margin-top: 20px; /* Adds some space above the hints section */
-  }
-  
-  .hints ul {
-    list-style-type: none; /* Removes default list styling */
-    padding: 0;
-  }
-  
-  .hints li {
-    margin-bottom: 5px; /* Adds space between hint items */
-    background: #eef; /* Optional: different background for each hint */
-    padding: 5px;
-    border-radius: 4px;
-  }
-  
   /* Styles for the hit points display */
   .hit-points {
     font-weight: bold;
@@ -248,3 +228,41 @@
     font-weight: lighter;
     margin-top: 1rem;
   }
+
+  .hints-container {
+    position: relative;
+    max-width: 90%; /* Adjust as needed */
+    margin: 20px;
+    padding: 15px;
+    background: #f9f9f9; /* Light background for the callout */
+    border-radius: 10px; /* Rounded corners for the balloon */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  }
+  
+  .hints-callout {
+    position: relative;
+  }
+  
+  .hints-callout::before {
+    content: '';
+    position: absolute;
+    bottom: 100%; /* Position the arrow above the balloon */
+    left: 50%;
+    margin-left: -10px; /* Half the width of the arrow */
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent #f9f9f9 transparent; /* Arrow pointing up */
+  }
+
+  ul {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    margin-bottom: 10px; /* Space between hints */
+    color: #666; /* Lighter text for hints */
+    font-size: 1.2rem; /* Adjust font size as needed */
+  }
+  

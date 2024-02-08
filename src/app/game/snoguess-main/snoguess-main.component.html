@@ -55,13 +55,15 @@
         * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as a SCG grammar expression
       </div>
       
-
-      <div *ngIf="gameState.hints.length > 0">
-          <h3>Hints</h3>
+      <div *ngIf="gameState.hints.length > 0" class="hints-container">
+        <div class="hints-callout">
+          <h2>Hints</h2>
           <ul>
-              <li *ngFor="let hint of gameState.hints" [innerHTML]="hint"></li>
+            <li *ngFor="let hint of gameState.hints" [innerHTML]="hint"></li>
           </ul>
+        </div>
       </div>
+      
   </div>
   <div *ngIf="termGuessed" class="overlay overlay-transparent">
     <div class="pyro">
