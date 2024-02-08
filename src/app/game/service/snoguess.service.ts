@@ -58,7 +58,7 @@ export class SnoguessService {
 
   async getRandomConcept(reset?: boolean) {
     // Do nothing if game state is not playing
-    this.game.next({ ...this.game.value, state: 'loading', score: reset ? 0 : this.game.value.score });
+    this.game.next({ ...this.game.value, state: 'loading', score: reset ? 0 : this.game.value.score, hitPoints: reset ? this.maxHitPoints : this.game.value.hitPoints });
     const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
     const response = await lastValueFrom(
       this.terminologyService.expandValueSet('^ 816080008 |International Patient Summary| {{ C definitionStatus = defined }}', '', randomIndex, 1)
