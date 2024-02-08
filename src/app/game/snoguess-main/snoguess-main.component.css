@@ -87,7 +87,7 @@
   
   .lost {
     color: #F44336; /* Red color for "Lost" */
-    text-shadow: rgb(255, 255, 255) 2px 2px 2px;
+    text-shadow: rgb(0, 0, 0) 2px 2px 2px;
   }
   
   /* Optional: Style the button if needed */
