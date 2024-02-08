@@ -1,7 +1,8 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { Observable } from "rxjs";
 import { Game, SnoguessService } from "../service/snoguess.service";
 import { trigger, state, style, transition, animate, keyframes } from "@angular/animations";
+import { KeyboardComponent } from "../keyboard/keyboard.component";
 
 @Component({
   selector: 'app-snoguess-main',
@@ -43,6 +44,10 @@ import { trigger, state, style, transition, animate, keyframes } from "@angular/
 })
 
 export class SnoguessMainComponent implements OnInit {
+
+  // add viewchild for #keyboard
+  @ViewChild('keyboard') keyboard!: KeyboardComponent;
+
   game!: Observable<Game>;
   shakeState = 'normal';
   termGuessed = false;
@@ -54,16 +59,20 @@ export class SnoguessMainComponent implements OnInit {
     this.game = this.snoguessMainService.getGameState();
     this.goals = this.snoguessMainService.goals;
     this.initialize();
-    this.snoguessMainService.guessResult.subscribe((isCorrect: boolean) => {
-      if (!isCorrect) {
+    this.snoguessMainService.guessResult.subscribe((guess: any) => {
+      if (guess.result === false) {
+        this.keyboard.addGuessedLetter(guess.letter, false);
         this.shakeState = 'shake';
         // Ensure we only shake once per guess
         setTimeout(() => this.shakeState = 'normal', 200);
+      } else {
+        this.keyboard.addGuessedLetter(guess.letter, true);
       }
     });
 
     this.snoguessMainService.termResult.subscribe((result: boolean) => {
       if (result) {
+        this.keyboard.reset();
         this.termGuessed = true;
         setTimeout(() => {
           this.termGuessed = false;
@@ -73,6 +82,7 @@ export class SnoguessMainComponent implements OnInit {
   }
 
   initialize(): void {
+    if (this.keyboard) this.keyboard.reset();
     this.snoguessMainService.getRandomConcept(true);
   }
 

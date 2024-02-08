@@ -1,0 +1,12 @@
+<div class="keyboard-container">
+    <div *ngFor="let row of keyboardLayout" class="keyboard-row">
+      <button mat-button *ngFor="let key of row"
+              [class.guessed-correct]="guessedLetters[key] === 'correct'"
+              [class.guessed-wrong]="guessedLetters[key] === 'wrong'"
+              (click)="guessLetter(key)"
+              [disabled]="isLetterGuessed(key)">
+        {{ key }}
+      </button>
+    </div>
+  </div>
+  

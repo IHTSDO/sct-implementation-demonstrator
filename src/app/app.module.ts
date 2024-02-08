@@ -57,6 +57,7 @@ import { ConfirmationDialogComponent } from './questionnaires/confirmation-dialo
 import { IntegerBindingComponent } from './bindings/integer-binding/integer-binding.component';
 import { DecimalBindingComponent } from './bindings/decimal-binding/decimal-binding.component';
 import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.component';
+import { KeyboardComponent } from './game/keyboard/keyboard.component';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.compon
     ConfirmationDialogComponent,
     IntegerBindingComponent,
     DecimalBindingComponent,
-    SnoguessMainComponent
+    SnoguessMainComponent,
+    KeyboardComponent
   ],
   imports: [
     HttpClientModule,

@@ -48,7 +48,7 @@ export class SnoguessService {
 
   randomLimit: number = 4000;
 
-  @Output() guessResult: EventEmitter<boolean> = new EventEmitter();
+  @Output() guessResult: EventEmitter<any> = new EventEmitter();
   @Output() termResult: EventEmitter<boolean> = new EventEmitter();
 
   constructor(private terminologyService: TerminologyService) {
@@ -58,9 +58,6 @@ export class SnoguessService {
 
   async getRandomConcept(reset?: boolean) {
     // Do nothing if game state is not playing
-    if (this.game.value.state != 'playing') {
-      return;
-    }
     this.game.next({ ...this.game.value, state: 'loading', score: reset ? 0 : this.game.value.score });
     const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
     const response = await lastValueFrom(
@@ -243,7 +240,7 @@ export class SnoguessService {
     });
   
     if (!found) {
-      this.guessResult.emit(false); // Emit false for incorrect guesses
+      this.guessResult.emit({ letter: letter, result: false }); // Emit false for incorrect guesses
       newState.hitPoints -= 1;
       // Check if the game is lost
       if (newState.hitPoints <= 0) {
@@ -251,6 +248,7 @@ export class SnoguessService {
         newState.state = 'gameOver'; // Update the state to 'gameOver'
       }
     } else {
+      this.guessResult.emit({ letter: letter, result: true });
       // Check if the term was guessed by verifying if there are no more '_' characters before the semantic tag
       const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
       if (isTermGessed && newState.state === 'playing') {

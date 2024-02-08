@@ -22,6 +22,7 @@
   .hit-points {
     font-weight: bold;
     color: #d9534f; /* Red color to indicate the importance of hit points */
+    text-align: center;
   }
   
   /* Input and button styling */
@@ -36,8 +37,9 @@
   
   .guess-field {
     display: flex; 
-    align-items: flex-start;
+    align-items: center;
     vertical-align: middle;
+    justify-content: center;
     gap: 10px;
   }
 
@@ -264,5 +266,11 @@
     margin-bottom: 10px; /* Space between hints */
     color: #666; /* Lighter text for hints */
     font-size: 1.2rem; /* Adjust font size as needed */
+  }
+
+  .guess-message {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 1.2rem;
   }
   

@@ -1,0 +1,31 @@
+.keyboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .keyboard-row {
+    display: flex;
+    justify-content: center;
+    margin: 5px;
+  }
+  
+  button {
+    margin: 2px;
+    padding: 10px 15px; /* Adjust padding to ensure keys are comfortably sized */
+    border-radius: 8px; /* This adds rounded corners to your buttons */
+    border: 1px solid #000; /* Optional: Adds a border around the buttons */
+    transition: background-color 0.3s ease; /* Optional: Adds a smooth transition for color changes */
+  }
+  
+  button.guessed-correct {
+    background-color: green;
+    color: white;
+  }
+  
+  button.guessed-wrong {
+    background-color: red;
+    color: white;
+  }
+
+  

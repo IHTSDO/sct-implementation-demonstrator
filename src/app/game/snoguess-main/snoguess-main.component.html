@@ -26,7 +26,7 @@
 
   
   <div>
-    <div class="guess-field">
+    <!-- <div class="guess-field">
       <mat-form-field appearance="fill" [@shake]="shakeState">
         <mat-label>Guess a letter</mat-label>
         <input matInput #letterInput maxlength="1" (input)="letterInput.value = letterInput.value.slice(0, 1)" 
@@ -36,8 +36,13 @@
       <button mat-flat-button color="accent" 
         (click)="letterInput.value ? guessLetter(letterInput.value) : null; letterInput.value=''" 
         [disabled]="gameState.state !== 'playing' || !letterInput.value">Guess</button>
-    </div>
-      
+    </div> -->
+
+    <p class="guess-message">Click the keys to guess the letters of the term!</p>
+    <div [@shake]="shakeState">
+      <app-keyboard #keyboard (letterGuessed)="guessLetter($event)"></app-keyboard>
+    </div>  
+
       <!-- <div class="guess-field">
         <mat-form-field appearance="fill">
           <mat-label>Guess the full term</mat-label>
