@@ -236,4 +236,15 @@
     font-weight: bold;
     color: #000; /* Adjust text color as needed */
   }
+
+  .large-icon {
+    font-size: 5rem; /* Adjust the font size as needed */
+    width: 5rem; /* Ensure a consistent width for alignment */
+    height: 5rem; /* Ensure a consistent height for alignment */
+  }
   
+  .note {
+    font-size: 0.8rem;
+    font-weight: lighter;
+    margin-top: 1rem;
+  }

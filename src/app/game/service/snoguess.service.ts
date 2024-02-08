@@ -9,7 +9,7 @@ export interface Game {
   hitPoints: number; // Number of attempts left
   hints: string[]; // Hints that have been revealed
   hintsAvailable: boolean; // Whether hints are available
-  state: 'playing' | 'gameOver' | 'loading'; // Game state,
+  state: 'playing' | 'gameOver' | 'loading' | 'won'; // Game state,
   score: number; // Score of the game
 }
 
@@ -29,7 +29,7 @@ export class SnoguessService {
   maxHitPoints: number = 5;
   hitpointsAwardedForGuessingfullTerm: number = 1;
   revealFirstHintFree: boolean = false;
-  pointsPerGuessedLetter: number = 50;
+  pointsPerGuessedLetter: number = 1;
 
   goals: any[] = [
     { name: 'Bronze', score: 100 },
@@ -57,6 +57,10 @@ export class SnoguessService {
   }
 
   async getRandomConcept(reset?: boolean) {
+    // Do nothing if game state is not playing
+    if (this.game.value.state != 'playing') {
+      return;
+    }
     this.game.next({ ...this.game.value, state: 'loading', score: reset ? 0 : this.game.value.score });
     const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
     const response = await lastValueFrom(
@@ -229,6 +233,11 @@ export class SnoguessService {
           newState.displayTerm[index] = char; // Reveal the correctly guessed letter
           found = true;
           newState.score += this.pointsPerGuessedLetter; // Increment the score
+          // check if won, score >= max goal score, but waiting until there are no more _ before semantic tag
+          const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
+          if (isTermGessed && newState.score >= this.goals[this.goals.length - 1].score) {
+            newState.state = 'won';
+          }
         }
       }
     });
@@ -244,7 +253,7 @@ export class SnoguessService {
     } else {
       // Check if the term was guessed by verifying if there are no more '_' characters before the semantic tag
       const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
-      if (isTermGessed) {
+      if (isTermGessed && newState.state === 'playing') {
         this.termResult.emit(true); // Emit true for correct term guesses
         newState.hitPoints = newState.hitPoints + this.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
         if (newState.hitPoints > this.maxHitPoints) {

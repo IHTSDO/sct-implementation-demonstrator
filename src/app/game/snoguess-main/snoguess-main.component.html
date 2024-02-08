@@ -51,6 +51,9 @@
         <button mat-flat-button color="accent" (click)="revealHint()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing' || !gameState.hintsAvailable">Reveal Hint</button>
         <button mat-flat-button color="accent" (click)="initialize()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing'">Reset</button>
       </div>
+      <div class="note">
+        * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as a SCG grammar expression
+      </div>
       
 
       <div *ngIf="gameState.hints.length > 0">
@@ -127,6 +130,20 @@
     <div class="reveal lost">{{ gameState.term }}</div>
     <div class="reveal lost">Final Score: {{ gameState.score }}</div>
     <button mat-flat-button color="warn" (click)="initialize()">Try Again</button>
+  </div>
+
+  <div *ngIf="gameState.state == 'won'" class="overlay overlay-dark">
+    <div class="pyro">
+      <div class="before"></div>
+      <div class="after"></div>
+    </div>
+    <div class="message won">You won!!!</div>
+    <div class="message won">
+      <mat-icon class="large-icon">grade</mat-icon>
+      <mat-icon class="large-icon">emoji_events</mat-icon>
+      <mat-icon class="large-icon">grade</mat-icon>
+    </div>
+    <div class="reveal won">Final score: {{ gameState.score }}</div>
   </div>
 
   <!-- Existing Game Panels Here -->
