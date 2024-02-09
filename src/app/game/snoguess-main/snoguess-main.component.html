@@ -57,7 +57,7 @@
         <button mat-flat-button color="accent" (click)="initialize()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing'">Reset</button>
       </div>
       <div class="note">
-        * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as a SCG grammar expression
+        * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as an SCG grammar expression
       </div>
       
       <div *ngIf="gameState.hints.length > 0" class="hints-container">

@@ -23,7 +23,7 @@ mat-hint, mat-error {
 }
 
 .editPanel {
-    width: calc(60% - 5px);
+    width: calc(50% - 5px);
     margin: 5px;
     margin-bottom: 25px;
     padding: 10px;

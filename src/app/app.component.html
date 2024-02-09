@@ -8,7 +8,8 @@
     <button mat-menu-item (click)="navigate('/allergies')">Allergies CRG</button>
     <button mat-menu-item (click)="navigate('/sandbox')">Terminology Bindings Sandbox</button>
     <!-- <button mat-menu-item (click)="navigate('/prescription')">Prescription Demo</button> -->
-    <button mat-menu-item (click)="navigate('/questionnaires')">FHIR Questionnaire Validation Tool</button>
+    <button mat-menu-item (click)="navigate('/questionnaires')">SNOMED & FHIR Questionnaires</button>
+    <button mat-menu-item (click)="navigate('/snoguess')">Playground</button>
   </mat-menu>
   
   <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu">FHIR Server: {{selectedServer.name}}</button>

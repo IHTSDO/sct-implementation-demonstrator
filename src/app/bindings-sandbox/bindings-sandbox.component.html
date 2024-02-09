@@ -181,6 +181,16 @@
                         </textarea>
                     </div>
                 </mat-tab>
+                <mat-tab label="Data collected (FHIR Bundle)">
+                    <div class="output" *ngIf="bindings.length > 0">
+                        <div id="save" *ngIf="showRightContainer">
+                            <button mat-icon-button (click)="saveOutput(outputStr)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                            <button mat-icon-button (click)="copyOutputToClipboard(outputStr)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
+                        </div>
+                        <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="responseBundleStr" wrap="soft">
+                        </textarea>
+                    </div>
+                </mat-tab>
                 <mat-tab label="FHIR Questionnaire">
                     <div class="output" *ngIf="bindings.length > 0">
                         <div id="save" *ngIf="showRightContainer">
