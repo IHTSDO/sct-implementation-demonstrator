@@ -502,7 +502,12 @@ export class BindingsSandboxComponent implements OnInit {
 
   saveOutput(text: string) {
     var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, `${this.formTitle}-fhir.json`);
+    saveAs(blob, `${this.formTitle}-data.json`);
+  }
+
+  saveBundleOutput(text: string) {
+    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, `${this.formTitle}-fhir-bundle.json`);
   }
 
   copyOutputToClipboard(text: string) {

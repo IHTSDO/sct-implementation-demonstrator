@@ -184,8 +184,8 @@
                 <mat-tab label="Data collected (FHIR Bundle)">
                     <div class="output" *ngIf="bindings.length > 0">
                         <div id="save" *ngIf="showRightContainer">
-                            <button mat-icon-button (click)="saveOutput(outputStr)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
-                            <button mat-icon-button (click)="copyOutputToClipboard(outputStr)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
+                            <button mat-icon-button (click)="saveBundleOutput(responseBundleStr)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                            <button mat-icon-button (click)="copyOutputToClipboard(responseBundleStr)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
                         </div>
                         <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="responseBundleStr" wrap="soft">
                         </textarea>
