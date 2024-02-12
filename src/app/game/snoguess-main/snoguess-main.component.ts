@@ -120,4 +120,15 @@ export class SnoguessMainComponent implements OnInit {
     return { ...this.goals[this.goals.length - 1], previousGoalScore: this.goals[this.goals.length - 2].score };
   }
 
+  getMaxTrophyObtained(score: number): string {
+    let maxTrophy = '';
+    this.goals.forEach((goal) => {
+      if (score >= goal.score) {
+        maxTrophy = goal.name;
+      }
+    });
+    console.log(maxTrophy);
+    return maxTrophy;
+  }
+
 }

@@ -137,6 +137,17 @@
     <div class="reveal lost"> The term was: </div>
     <div class="reveal lost"> {{ gameState.term }}</div>
     <div class="reveal lost">Final Score: {{ gameState.score }}</div>
+    <div *ngIf="getMaxTrophyObtained(gameState.score)" class="reveal lost">
+      Trophy: {{ getMaxTrophyObtained(gameState.score) }}
+    </div>
+    <div *ngIf="getMaxTrophyObtained(gameState.score)" class="reveal">
+      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow']">grade</mat-icon>
+      &nbsp;&nbsp;
+      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'trophy-large', 'shadow']">emoji_events</mat-icon>
+      &nbsp;
+      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow']">grade</mat-icon>
+    </div>
+    <br>
     <button mat-flat-button color="warn" (click)="initialize()">Try Again</button>
   </div>
 

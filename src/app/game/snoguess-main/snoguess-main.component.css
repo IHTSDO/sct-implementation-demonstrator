@@ -191,6 +191,10 @@
   .diamond {
     color: #3b49c4; /* Silver color */
   }
+
+  .shadow {
+    text-shadow: black 2px 2px 2px;
+  }
   
   .star-icon {
     position: absolute;
