@@ -58,6 +58,8 @@ import { IntegerBindingComponent } from './bindings/integer-binding/integer-bind
 import { DecimalBindingComponent } from './bindings/decimal-binding/decimal-binding.component';
 import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.component';
 import { KeyboardComponent } from './game/keyboard/keyboard.component';
+import { SituationMapComponent } from './context/situation-map/situation-map.component';
+import { ContextMainComponent } from './context/context-main/context-main.component';
 
 @NgModule({
   declarations: [
@@ -86,7 +88,9 @@ import { KeyboardComponent } from './game/keyboard/keyboard.component';
     IntegerBindingComponent,
     DecimalBindingComponent,
     SnoguessMainComponent,
-    KeyboardComponent
+    KeyboardComponent,
+    SituationMapComponent,
+    ContextMainComponent
   ],
   imports: [
     HttpClientModule,

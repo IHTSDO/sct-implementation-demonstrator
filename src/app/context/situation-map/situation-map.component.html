@@ -1,0 +1,22 @@
+<div class="p-8">
+    <h2>Consistent Context Representation for Situations with Explicit Context</h2>
+    <div class="flex flex-wrap gap-4"> <!-- Flex container with gap -->
+        <div class="w-1/3"> <!-- First column: tight to its content, removed p-4 -->
+            <app-autocomplete-binding [binding]="situationsBinding" class="w-auto" (selectionChange)="findingWithExplicitContextSelected($event)"></app-autocomplete-binding> <!-- Width auto to fit content -->
+            <h3 class="mt-8">Examples</h3>
+            <ul>
+                <li *ngFor="let example of examples"><a href="javascript:void(0);" (click)="findingWithExplicitContextSelected(example)">{{example.display}}</a></li>
+            </ul>
+        </div>
+        <div class="flex-grow min-w-1/2"> <!-- Second column: grows with min 50% width, removed p-4 -->
+            <div class="output">
+                <div id="save" *ngIf="fhirRepresentationString.length > 15">
+                    <button mat-icon-button (click)="saveOutput(fhirRepresentationString)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                    <button mat-icon-button (click)="copyOutputToClipboard(fhirRepresentationString)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
+                </div>
+                <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirRepresentationString" wrap="soft">
+                </textarea>
+            </div>
+        </div>
+    </div>
+</div>

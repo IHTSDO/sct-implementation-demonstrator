@@ -5,10 +5,27 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorComponent } from '../alerts/http-error';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 
+
+type ConceptType = {
+  code: string;
+  display: string;
+};
+
+type Relationship = {
+  type: ConceptType;
+  target: ConceptType;
+};
+
+type NormalForm = {
+  groups: Relationship[][];
+};
+
 @Injectable({
   providedIn: 'root'
 })
+
 export class TerminologyService {
+  
 
   snowstormFhirBase = 'https://snowstorm.ihtsdotools.org/fhir';
   defaultFhirUrlParam = 'http://snomed.info/sct'; // 'http://snomed.info/sct/11000221109/version/20211130'
@@ -168,5 +185,53 @@ lookupConcept(conceptId: string, system?: string) {
       .pipe(
         catchError(this.handleError<any>('lookup', {}))
       );
+  }
+
+  getNormalForm(concept: any): string {
+    if (concept.parameter) {
+      for (let param of concept.parameter) {
+        let found = false;
+        if (param.name == 'property') {
+          for (let part of param.part) {
+            if (part.name == 'code' && part.valueString == 'normalForm') {
+              found = true;
+            }
+          }
+          if (found) {
+            for (let part of param.part) {
+              if (part.name == 'valueString') {
+                return part.valueString;
+              }
+            }
+          }
+        }
+      }
+    }
+    return '';
+  }
+
+  parseNormmalForm(input: string): NormalForm {
+    const groups: Relationship[][] = [];
+    const relationshipBlocks = input.split('} {');
+  
+    relationshipBlocks.forEach((block) => {
+      const relationships = block.match(/\d+\|[^\|]+\|\s*=\s*\d+\|[^\|]+\|/g);
+      if (!relationships) return;
+  
+      const group: Relationship[] = relationships.map((relationship) => {
+        const [typePart, targetPart] = relationship.split('=').map(part => part.trim());
+        const [typeCode, typeDisplay] = typePart.split('|').map(part => part.trim());
+        const [targetCode, targetDisplay] = targetPart.split('|').map(part => part.trim());
+  
+        return {
+          type: { code: typeCode, display: typeDisplay.replace(/\(.*\)/, '').trim() },
+          target: { code: targetCode, display: targetDisplay.replace(/\(.*\)/, '').trim() }
+        };
+      });
+  
+      groups.push(group);
+    });
+  
+    return { groups };
   }
 }

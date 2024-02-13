@@ -1,4 +1,36 @@
 /* You can add global styles to this file, and also import other style files */
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+@layer base {
+    h1 {
+      @apply text-2xl;
+      @apply mb-6;
+      @apply font-bold;
+    }
+    h2 {
+      @apply text-xl;
+      @apply mb-6;
+      @apply font-bold;
+    }
+    h3 {
+      @apply text-lg;
+      @apply mb-6;
+      @apply font-bold;
+    }
+    h4 {
+      @apply text-base;
+      @apply mb-6;
+      @apply font-bold;
+    }
+
+    a {
+      @apply text-blue-500;
+      @apply hover:text-blue-700;
+    }
+  }

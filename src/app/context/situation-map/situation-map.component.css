@@ -1,0 +1,15 @@
+.output {
+    border-radius: 10px;
+    background-color: #282c34;
+    padding: 10px;
+    position: relative;
+    margin: 2rem;
+    min-height: 45rem;
+}
+
+#save {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: rgb(232, 140, 21);
+}
