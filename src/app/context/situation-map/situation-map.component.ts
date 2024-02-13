@@ -114,15 +114,15 @@ export class SituationMapComponent implements OnInit {
       const isCurrentOrSpecifiedTime = this.SituationConstants.CurrentOrSpecifiedTime.selfAndDescendants.includes(temporalContextValue?.code);
     
       if (isKnownPresent && isSubjectOfRecord && isInThePast) {
-        this.updateFhirRepresentation(this.createInactiveFhirCondition(associatedFinding, 'inactive'));
+        this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'inactive'));
       } else if (isKnownPresent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-        this.updateFhirRepresentation(this.createInactiveFhirCondition(associatedFinding, 'active'));
+        this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'active'));
       } else if (isKnownPresent && !isSubjectOfRecord) {
         this.updateFhirRepresentation(this.createFamilyMemberHistoryForFinding(associatedFinding, subjectRelationshipContextValue));
       } else if (isKnownAbsent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
         this.updateFhirRepresentation(this.createFhirObservationForAbsentFinding(associatedFinding));
       } else if (isKnownPossible && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-        this.updateFhirRepresentation(this.createInactiveFhirCondition(associatedFinding, 'unconfirmed'));
+        this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'unconfirmed'));
       } else {
         this.fhirRepresentationString = 'No FHIR representation for this situation';
       }
@@ -143,7 +143,7 @@ export class SituationMapComponent implements OnInit {
     }
   }
 
-  createInactiveFhirCondition( finding: any, status: string) {
+  createFhirCondition( finding: any, status: string) {
     let fhirCondition = {
       resourceType: 'Condition',
       subject: {
