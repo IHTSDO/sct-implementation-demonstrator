@@ -42,6 +42,9 @@ export class SituationMapComponent implements OnInit {
     { "code": "401204006", "display": "Suspected autism" }
   ];
 
+  displayedColumns: string[] = ['type', 'targetCode', 'targetDisplay'];
+  dataSource: any[] = [];
+
   constructor( private terminologyService: TerminologyService, private clipboard: Clipboard) { }
 
   ngOnInit(): void {
@@ -76,6 +79,7 @@ export class SituationMapComponent implements OnInit {
     this.selectedSituation = situation;
     this.fhirRepresentation = null;
     this.fhirRepresentationString = 'Loading...';
+    this.dataSource = [];
 
     let concept = await lastValueFrom(this.terminologyService.lookupConcept(situation.code));
     let normalForm = this.terminologyService.getNormalForm(concept);
@@ -89,18 +93,22 @@ export class SituationMapComponent implements OnInit {
     normalFormFhir.groups.forEach((group: any[]) => {
       const subjectRelationshipContext = group.find((relationship) => relationship.type.code === "408732007");
       if (subjectRelationshipContext) {
+        this.dataSource = [...this.dataSource, subjectRelationshipContext];
         subjectRelationshipContextValue = subjectRelationshipContext.target;
       }
       const findingContext = group.find((relationship) => relationship.type.code === "408729009");
       if (findingContext) {
+        this.dataSource = [...this.dataSource, findingContext];
         findingContextValue = findingContext.target;
       }
       const temporalContext = group.find((relationship) => relationship.type.code === "408731000");
       if (temporalContext) {
+        this.dataSource = [...this.dataSource, temporalContext];
         temporalContextValue = temporalContext.target;
       }
       const associatedFindingRelationship = group.find((relationship) => relationship.type.code === "246090004");
       if (associatedFindingRelationship) {
+        this.dataSource = [...this.dataSource, associatedFindingRelationship];
         associatedFinding = associatedFindingRelationship.target;
       }
     });
