@@ -30,6 +30,13 @@
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                   </table>
             </div>
+            <div class="mt-8" *ngIf="resourceType">
+                <h3>Resource Type</h3>
+                <a [href]="'https://hl7.org/fhir/R4/' + resourceType + '.html'" target="_blank" class="flex flex-row align-middle gap-2">
+                    <span>FHIR R4 {{resourceType}}</span>
+                    <mat-icon>open_in_new</mat-icon>
+                </a>
+            </div>
         </div>
         <div class="flex-grow"> <!-- Second column: grows with min 50% width, removed p-4 -->
             <div class="output">

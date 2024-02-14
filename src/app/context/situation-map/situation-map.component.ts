@@ -14,6 +14,8 @@ export class SituationMapComponent implements OnInit {
   selectedSituation: any;
   fhirRepresentation: any;
   fhirRepresentationString: string = '{}';
+  resourceType: 'Condition' | 'Observation' | 'FamilyMemberHistory' | undefined;
+
 
   situationsBinding: any = {
     title: 'Finding with explicit context',
@@ -80,6 +82,7 @@ export class SituationMapComponent implements OnInit {
     this.fhirRepresentation = null;
     this.fhirRepresentationString = 'Loading...';
     this.dataSource = [];
+    this.resourceType = undefined;
 
     let concept = await lastValueFrom(this.terminologyService.lookupConcept(situation.code));
     let normalForm = this.terminologyService.getNormalForm(concept);
@@ -152,6 +155,7 @@ export class SituationMapComponent implements OnInit {
   }
 
   createFhirCondition( finding: any, status: string) {
+    this.resourceType = 'Condition';
     let fhirCondition = {
       resourceType: 'Condition',
       subject: {
@@ -179,6 +183,7 @@ export class SituationMapComponent implements OnInit {
   }
 
   createFhirObservationForAbsentFinding( finding: any ) {
+    this.resourceType = 'Observation';
     let fhirObservation = {
       resourceType: 'Observation',
       subject: {
@@ -208,6 +213,7 @@ export class SituationMapComponent implements OnInit {
   }
 
   createFamilyMemberHistoryForFinding( finding: any, subjet: any ) {
+    this.resourceType = 'FamilyMemberHistory';
     let familyMemberHistory = {
       resourceType: 'FamilyMemberHistory',
       status: 'completed',
