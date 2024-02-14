@@ -31,7 +31,7 @@
                   </table>
             </div>
         </div>
-        <div class="flex-grow min-w-1/2"> <!-- Second column: grows with min 50% width, removed p-4 -->
+        <div class="flex-grow"> <!-- Second column: grows with min 50% width, removed p-4 -->
             <div class="output">
                 <div id="save" *ngIf="fhirRepresentationString.length > 15">
                     <button mat-icon-button (click)="saveOutput(fhirRepresentationString)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>

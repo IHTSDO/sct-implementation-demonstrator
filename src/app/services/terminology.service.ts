@@ -225,7 +225,7 @@ lookupConcept(conceptId: string, system?: string) {
   
         return {
           type: { code: typeCode, display: typeDisplay.replace(/\(.*\)/, '').trim() },
-          target: { code: targetCode, display: targetDisplay.replace(/\(.*\)/, '').trim() }
+          target: { code: targetCode, display: targetDisplay } // .replace(/\(.*\)/, '').trim()
         };
       });
   
