@@ -48,6 +48,7 @@ export class SnoguessMainComponent implements OnInit {
   goals: any[] = [];
   loadingAssetsProgress = 0;
   loadingAssets = true;
+  showInstructions = false;
 
   constructor(private snoguessMainService: SnoguessService, private preloadService: PreloadService) {}
 
@@ -81,6 +82,7 @@ export class SnoguessMainComponent implements OnInit {
       'assets/img/congratulations.png',
       'assets/img/correct.png',
       'assets/img/game-over.png',
+      'assets/img/instructions.png',
     ];
 
     this.preloadService.preloadImages(imageUrls).then(() => {
@@ -97,6 +99,14 @@ export class SnoguessMainComponent implements OnInit {
 
   loadMenu(): void {
     this.snoguessMainService.loadMenu();
+  }
+
+  showInstructionsPanel(): void {
+    this.showInstructions = true;
+  }
+
+  hideInstructionsPanel(): void {
+    this.showInstructions = false;
   }
 
   startGame(): void {

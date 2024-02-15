@@ -77,14 +77,53 @@
   </div>
   
 
-  <div *ngIf="gameState.state === 'menu'" class="flex flex-col items-center gap-4">
+  <div *ngIf="gameState.state === 'menu' && !showInstructions" class="flex flex-col items-center gap-4">
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
     <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
     <p class="text-center">Welcome to SnoGuess!<br>A fun way to learn about SNOMED CT concepts and their definitions.</p>
     <div (click)="startGame()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
-    rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
+    rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 text-3xl">
       New game
+    </div>
+    <div (click)="showInstructionsPanel()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
+      Instructions
+    </div>
+  </div>
+
+  <div *ngIf="showInstructions" class="flex flex-col items-center gap-4">
+    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+    <img src="assets/img/instructions.png" alt="Game Logo" class="w-1/4 mt-8 mb-12" [@popIn]>
+    <ul class="text-left">
+      <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>Click the keys on the screen to guess the letters of the term <mat-icon class="text-blue-900">keyboard</mat-icon>
+      </li>
+      <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>You have five lives 
+        <span class="text-red-500"><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon></span>
+      </li>
+      <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>You will loose one life if the guess is wrong <mat-icon class="text-red-500">favorite_border</mat-icon>
+      </li>
+      <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>You earn points for each correct guess <mat-icon class="text-blue-900">plus_one</mat-icon>
+      </li>
+      <li class="flex flex-row align-middle gap-4">
+        <mat-icon>check</mat-icon>You can request a hint, but it will cost one life <mat-icon class="text-red-500">favorite_border</mat-icon>
+      </li>
+      <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>If you guess the whole term you earn one life<mat-icon class="text-red-500">favorite</mat-icon>
+      </li>
+      <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>Keep guessing terms to increase your score and earn trophies!!! <mat-icon class="text-yellow-500">emoji_events</mat-icon>
+      </li>
+    </ul>
+    <div (click)="hideInstructionsPanel()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
+      Back
     </div>
   </div>
 
@@ -99,8 +138,8 @@
     
     <div class="text-xl text-pretty text-center">
       <div> The term was: </div>
-      <div> {{ gameState.term }}</div>
-      <div>Final Score: {{ gameState.score }}</div>
+      <div class="font-bold"> {{ gameState.term }}</div>
+      <div class="mt-12">Final Score: {{ gameState.score }}</div>
       <div *ngIf="getMaxTrophyObtained(gameState.score)">
         Trophy: {{ getMaxTrophyObtained(gameState.score) }}
       </div>
