@@ -309,8 +309,15 @@
   gap: 10px;
 }
 
+@media (max-width: 1300px) {
+  .menu-buttons {
+    font-size: large;
+  }
+}
+
+
 /* Media query for devices with a max width of 768px (common breakpoint for tablets and below) */
-@media (max-width: 768px) {
+@media (max-width: 876px) {
   .snoguess-game,
   .snoguess-game .bg-gradient-to-b,
   .snoguess-game .progress-bar-container,
