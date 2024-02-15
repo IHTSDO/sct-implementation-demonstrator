@@ -69,9 +69,9 @@
 
   <div *ngIf="gameState.state === 'menu'" class="flex flex-col items-center gap-4">
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
-    <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8">
-    <p class="text-center">Welcome to SnoGuess! A fun way to learn about SNOMED CT concepts and their definitions.</p>
-    <div (click)="startGame()"
+    <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
+    <p class="text-center">Welcome to SnoGuess!<br>A fun way to learn about SNOMED CT concepts and their definitions.</p>
+    <div (click)="startGame()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
       New game
@@ -87,93 +87,56 @@
     <div class="reveal won">{{ termGuessed }}</div>
   </div>
 
-  <!-- Overlay for "Lost" state -->
-  <div *ngIf="gameState.state === 'gameOver'" class="overlay overlay-dark">
-    <div class="fixed top-0 left-0 z-5">
-      <div class="drop" style="--i:1"></div>
-      <div class="drop" style="--i:2"></div>
-      <div class="drop" style="--i:3"></div>
-      <div class="drop" style="--i:4"></div>
-      <div class="drop" style="--i:5"></div>
-      <div class="drop" style="--i:6"></div>
-      <div class="drop" style="--i:7"></div>
-      <div class="drop" style="--i:8"></div>
-      <div class="drop" style="--i:9"></div>
-      <div class="drop" style="--i:10"></div>
-      <div class="drop" style="--i:11"></div>
-      <div class="drop" style="--i:12"></div>
-      <div class="drop" style="--i:13"></div>
-      <div class="drop" style="--i:14"></div>
-      <div class="drop" style="--i:15"></div>
-      <div class="drop" style="--i:16"></div>
-      <div class="drop" style="--i:17"></div>
-      <div class="drop" style="--i:18"></div>
-      <div class="drop" style="--i:19"></div>
-      <div class="drop" style="--i:20"></div>
-      <div class="drop" style="--i:21"></div>
-      <div class="drop" style="--i:22"></div>
-      <div class="drop" style="--i:23"></div>
-      <div class="drop" style="--i:24"></div>
-      <div class="drop" style="--i:25"></div>
-      <div class="drop" style="--i:26"></div>
-      <div class="drop" style="--i:27"></div>
-      <div class="drop" style="--i:28"></div>
-      <div class="drop" style="--i:29"></div>
-      <div class="drop" style="--i:30"></div>
-      <div class="drop" style="--i:31"></div>
-      <div class="drop" style="--i:32"></div>
-      <div class="drop" style="--i:33"></div>
-      <div class="drop" style="--i:34"></div>
-      <div class="drop" style="--i:35"></div>
-      <div class="drop" style="--i:36"></div>
-      <div class="drop" style="--i:37"></div>
-      <div class="drop" style="--i:38"></div>
-      <div class="drop" style="--i:39"></div>
-      <div class="drop" style="--i:40"></div>
-      <div class="drop" style="--i:41"></div>
-      <div class="drop" style="--i:42"></div>
-      <div class="drop" style="--i:43"></div>
-      <div class="drop" style="--i:44"></div>
-      <div class="drop" style="--i:45"></div>
-      <div class="drop" style="--i:46"></div>
-      <div class="drop" style="--i:47"></div>
-      <div class="drop" style="--i:48"></div>
-      <div class="drop" style="--i:49"></div>
-      <div class="drop" style="--i:50"></div>
-    </div>
-    <div class="message lost">You have lost!</div>
-    <div class="reveal lost"> The term was: </div>
-    <div class="reveal lost"> {{ gameState.term }}</div>
-    <div class="reveal lost">Final Score: {{ gameState.score }}</div>
-    <div *ngIf="getMaxTrophyObtained(gameState.score)" class="reveal lost">
+  <div *ngIf="gameState.state === 'gameOver'" class="flex flex-col items-center gap-4">
+    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+    <img src="assets/img/game-over.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
+    
+    <div> The term was: </div>
+    <div> {{ gameState.term }}</div>
+    <div>Final Score: {{ gameState.score }}</div>
+    <div *ngIf="getMaxTrophyObtained(gameState.score)">
       Trophy: {{ getMaxTrophyObtained(gameState.score) }}
     </div>
-    <div *ngIf="getMaxTrophyObtained(gameState.score)" class="reveal">
-      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow']">grade</mat-icon>
+    <div *ngIf="getMaxTrophyObtained(gameState.score)">
+      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
       &nbsp;&nbsp;
-      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'trophy-large', 'shadow']">emoji_events</mat-icon>
+      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'trophy-large', 'shadow-local']">emoji_events</mat-icon>
       &nbsp;
-      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow']">grade</mat-icon>
+      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
     </div>
-    <br>
-    <div class="flex gap-4">
-      <button mat-flat-button color="warn" (click)="startGame()">Try Again</button>
-      <button mat-flat-button color="warn" (click)="loadMenu()">Back to menu</button>
+
+    <div (click)="startGame()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
+      New game
+    </div>
+    <div (click)="loadMenu()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-2xl">
+      Main menu
     </div>
   </div>
 
-  <div *ngIf="gameState.state == 'won'" class="overlay overlay-dark">
-    <div class="pyro">
-      <div class="before"></div>
-      <div class="after"></div>
-    </div>
-    <div class="message won">You won!!!</div>
-    <div class="message won">
-      <mat-icon class="large-icon">grade</mat-icon>
-      <mat-icon class="large-icon">emoji_events</mat-icon>
-      <mat-icon class="large-icon">grade</mat-icon>
+  <div *ngIf="gameState.state == 'won'" class="flex flex-col items-center gap-4">
+    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+    <img src="assets/img/congratulations.png" alt="Game Logo" class="w-1/3 mt-8" [@popIn]>
+    <div class="">
+      <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
+      <mat-icon class="large-icon diamond shadow-local">emoji_events</mat-icon>
+      <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
     </div>
     <div class="reveal won">Final score: {{ gameState.score }}</div>
+
+    <div (click)="startGame()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
+      New game
+    </div>
+    <div (click)="loadMenu()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-2xl">
+      Main menu
+    </div>
   </div>
 
 </div>

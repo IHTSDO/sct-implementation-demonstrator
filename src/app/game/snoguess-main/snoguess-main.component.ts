@@ -7,7 +7,7 @@ import { KeyboardComponent } from "../keyboard/keyboard.component";
 @Component({
   selector: 'app-snoguess-main',
   templateUrl: './snoguess-main.component.html',
-  styleUrls: ['./snoguess-main.component.css', './fireworks.scss', './rain.scss'],
+  styleUrls: ['./snoguess-main.component.css'],
   animations: [
     trigger('shake', [
       transition('normal => shake', animate(200, keyframes([
@@ -17,7 +17,22 @@ import { KeyboardComponent } from "../keyboard/keyboard.component";
         style({transform: 'translateX(0)'}),
       ]))),
     ]),
-    
+    trigger('popIn', [
+      transition(':enter', [
+        style({ transform: 'scale(0.8)', opacity: 0 }), // Initial state
+        animate('0.5s cubic-bezier(.8, -0.6, 0.2, 1.5)',
+          style({ transform: 'scale(1.3)', opacity: 1 })),
+        animate('0.2s cubic-bezier(.8, -0.6, 0.2, 1.5)',
+          style({ transform: 'scale(1)', opacity: 1 })) // End state
+      ])
+    ]),
+    trigger('scrollUp', [
+      transition(':enter', [
+        style({ transform: 'translateY(100%)', opacity: 0 }), // Start from below
+        animate('0.5s ease-out',
+          style({ transform: 'translateY(0)', opacity: 1 })) // End at its original position
+      ])
+    ])
   ]
 })
 
