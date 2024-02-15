@@ -11,6 +11,7 @@ export interface Game {
   hintsAvailable: boolean; // Whether hints are available
   state: 'playing' | 'gameOver' | 'choosingTerm' | 'won' | 'menu'; // Game state,
   score: number; // Score of the game
+  round: number; // Round of the game
 }
 
 interface SnomedConcept {
@@ -62,7 +63,12 @@ export class SnoguessService {
 
   async getRandomConcept(reset?: boolean) {
     // Do nothing if game state is not playing
-    this.game.next({ ...this.game.value, state: 'choosingTerm', score: reset ? 0 : this.game.value.score, hitPoints: reset ? this.maxHitPoints : this.game.value.hitPoints });
+    this.game.next({ ...this.game.value, 
+      state: 'choosingTerm', 
+      score: reset ? 0 : this.game.value.score, 
+      hitPoints: reset ? this.maxHitPoints : this.game.value.hitPoints, 
+      round: reset ? 1 : this.game.value.round + 1
+    });
     const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
     const response = await lastValueFrom(
       this.terminologyService.expandValueSet('^ 816080008 |International Patient Summary| {{ C definitionStatus = defined }}', '', randomIndex, 1)
@@ -177,7 +183,8 @@ export class SnoguessService {
       hintsAvailable: true,
       hints: [],
       state: 'playing',
-      score: 0
+      score: 0,
+      round: 0
     };
   }
 

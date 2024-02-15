@@ -28,7 +28,7 @@
     
     <div class="hit-points">
       <span class="score">
-        Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
+        Round: {{ gameState.round }} &nbsp;&nbsp;&nbsp;&nbsp; Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
       </span>
       <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
           <mat-icon>favorite</mat-icon>
@@ -152,7 +152,8 @@
     <div class="text-xl text-pretty text-center">
       <div> The term was: </div>
       <div class="font-bold"> {{ gameState.term }}</div>
-      <div class="mt-12">Final Score: {{ gameState.score }}</div>
+      <div class="mt-12">{{ gameState.round }} {{ (gameState.round == 1) ? 'round' : 'rounds' }}</div>
+      <div class="mt-4">Final Score: {{ gameState.score }} points</div>
       <div *ngIf="getMaxTrophyObtained(gameState.score)">
         Trophy: {{ getMaxTrophyObtained(gameState.score) }}
       </div>
