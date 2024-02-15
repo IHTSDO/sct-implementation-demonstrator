@@ -1,5 +1,15 @@
 <div class="snoguess-game" *ngIf="(game | async) as gameState">
-  <div *ngIf="gameState.state == 'playing' || gameState.state == 'loading'">
+  <div *ngIf="loadingAssets" class="assets-loading-container">
+    <div class="mt-48 mb-48">
+      <div class="progress-bar-message text-center">
+        Loading...
+      </div>
+      <mat-progress-bar class="game-progress-bar" mode="determinate" [value]="loadingAssetsProgress"></mat-progress-bar>
+    </div>
+  </div>
+
+
+  <div *ngIf=" (gameState.state == 'playing' || gameState.state == 'choosingTerm') && !loadingAssets">
 
     <div class="flex justify-center items-center">
       <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8 mb-8">
@@ -9,7 +19,7 @@
         <span *ngFor="let char of gameState.displayTerm">{{ char }}</span>
     </div>
     
-    <div *ngIf="gameState.state === 'loading'" class="loading-container">
+    <div *ngIf="gameState.state === 'choosingTerm'" class="loading-container">
       <div class="progress-bar-message">
         Choosing a random SNOMED CT concept using the FHIR API
       </div>
@@ -87,18 +97,20 @@
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
     <img src="assets/img/game-over.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
     
-    <div> The term was: </div>
-    <div> {{ gameState.term }}</div>
-    <div>Final Score: {{ gameState.score }}</div>
-    <div *ngIf="getMaxTrophyObtained(gameState.score)">
-      Trophy: {{ getMaxTrophyObtained(gameState.score) }}
+    <div class="text-xl text-pretty text-center">
+      <div> The term was: </div>
+      <div> {{ gameState.term }}</div>
+      <div>Final Score: {{ gameState.score }}</div>
+      <div *ngIf="getMaxTrophyObtained(gameState.score)">
+        Trophy: {{ getMaxTrophyObtained(gameState.score) }}
+      </div>
     </div>
     <div *ngIf="getMaxTrophyObtained(gameState.score)">
-      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
+      <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
       &nbsp;&nbsp;
-      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'trophy-large', 'shadow-local']">emoji_events</mat-icon>
+      <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'trophy-large', 'shadow-local']">emoji_events</mat-icon>
       &nbsp;
-      <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
+      <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
     </div>
 
     <div (click)="startGame()" [@scrollUp]

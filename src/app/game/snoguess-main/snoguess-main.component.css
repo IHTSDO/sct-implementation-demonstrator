@@ -280,3 +280,23 @@
     font-size: 1.2rem;
   }
   
+/* Target the container for general styling */
+.assests-loading-container {
+  text-align: center;
+  font-size: 20px; /* Adjust based on your design */
+  color: #FFFFFF; /* Light text color for dark backgrounds or vice versa */
+}
+
+/* Styling the progress bar container */
+.game-progress-bar {
+  border-radius: 22px; /* Rounded corners */
+  overflow: hidden; /* Ensures the inner bar respects the container's border-radius */
+  background-color: #E0E0E0; /* Light grey background for the unfilled portion */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+/* Styling the filled portion of the progress bar */
+.game-progress-bar .mat-progress-bar-fill::after {
+  background-color: #4CAF50; /* Vibrant fill color */
+  border-radius: 22px; /* Ensure the fill also has rounded corners */
+}

@@ -3,6 +3,7 @@ import { Observable, firstValueFrom } from "rxjs";
 import { Game, SnoguessService } from "../service/snoguess.service";
 import { trigger, state, style, transition, animate, keyframes } from "@angular/animations";
 import { KeyboardComponent } from "../keyboard/keyboard.component";
+import { PreloadService } from "src/app/services/preload.service";
 
 @Component({
   selector: 'app-snoguess-main',
@@ -45,13 +46,14 @@ export class SnoguessMainComponent implements OnInit {
   shakeState = 'normal';
   termGuessed = '';
   goals: any[] = [];
+  loadingAssetsProgress = 0;
+  loadingAssets = true;
 
-  constructor(private snoguessMainService: SnoguessService) {}
+  constructor(private snoguessMainService: SnoguessService, private preloadService: PreloadService) {}
 
   ngOnInit(): void {
     this.game = this.snoguessMainService.getGameState();
     this.goals = this.snoguessMainService.goals;
-    this.loadMenu();
     this.snoguessMainService.guessResult.subscribe((guess: any) => {
       if (guess.result === false) {
         this.keyboard.addGuessedLetter(guess.letter, false);
@@ -69,13 +71,32 @@ export class SnoguessMainComponent implements OnInit {
         this.termGuessed = result;
         setTimeout(() => {
           this.termGuessed = '';
-        }, 3000);
+        }, 2000);
       }
+    });
+
+    const imageUrls = [
+      'assets/img/SI_CT_w_tagline.png',
+      'assets/img/snoguess-logo.png',
+      'assets/img/congratulations.png',
+      'assets/img/correct.png',
+      'assets/img/game-over.png',
+    ];
+
+    this.preloadService.preloadImages(imageUrls).then(() => {
+      setTimeout(() => {
+        this.loadingAssets = false;
+        this.loadMenu();
+      }, 500);
+    });
+
+    this.preloadService.loadingProgress.subscribe(progress => {
+      this.loadingAssetsProgress = progress;
     });
   }
 
   loadMenu(): void {
-    this.snoguessMainService.loadGame();
+    this.snoguessMainService.loadMenu();
   }
 
   startGame(): void {
@@ -87,15 +108,6 @@ export class SnoguessMainComponent implements OnInit {
     let game = await firstValueFrom(this.game);
     if (game?.state === 'playing') {
       this.snoguessMainService.guessLetter(letter);
-    }
-  }
-
-  guessTerm(term: string): void {
-    const isCorrect = this.snoguessMainService.guessTerm(term);
-    if (isCorrect) {
-      // Handle correct guess, maybe show a success message
-    } else {
-      // Optionally handle incorrect guess, like updating the UI or showing a message
     }
   }
 
