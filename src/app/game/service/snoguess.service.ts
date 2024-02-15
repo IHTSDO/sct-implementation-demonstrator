@@ -98,12 +98,10 @@ export class SnoguessService {
     let fsn: string | undefined;
     data.parameter.forEach((parameter: any) => {
       if (parameter.name === 'designation') {
-        parameter.part.forEach((part: any) => {
-          if (part.name === 'value' && part.valueString.endsWith(')')) {
-            // if the part is the value and ends in ), return the valueString
-            fsn = part.valueString;
-          }
-        });
+        let isFsn = parameter.part.some((part: any) => part.name === 'use' && part.valueCoding.code === '900000000000003001');
+        if (isFsn) {
+          fsn = parameter.part.find((part: any) => part.name === 'value')?.valueString;
+        }
       }
     });
     return fsn;
@@ -191,39 +189,38 @@ export class SnoguessService {
   // Initializes or restarts the game with a new term
   initializeGame(term: string, reset?: boolean): void {
     // Use a regular expression to find the semantic tag, which is the last set of parentheses
-    const semanticTagMatch = term.match(/\(.*\)$/);
+    const semanticTagMatch = term.match(/\(([^)]+)\)$/);
     const semanticTag = semanticTagMatch ? semanticTagMatch[0] : '';
     
     // Calculate the starting index of the semantic tag, or set it to the term's length if not found
-    const semanticTagIndex = semanticTag ? term.indexOf(semanticTag) : term.length;
+    const semanticTagIndex = semanticTag ? term.lastIndexOf(semanticTag) : term.length;
     
     // Replace letters and numbers outside the semantic tag with underscores, keep other characters unchanged
-    const displayTerm = term.split('').map((char, index) => {
+    // Here, you should keep the map result as an array instead of joining it into a string
+    const displayTermArray: string[] = term.split('').map((char, index) => {
       if (index >= semanticTagIndex) {
         return char; // Keep the semantic tag visible
       }
       // Use a regular expression to test if the character is a letter or a number
       return /[a-zA-Z0-9]/.test(char) ? '_' : char;
-    });
+    }); // Do not join here to match the Game interface expectation
     
     this.game.next({
       ...this.game.value,
       term: term,
-      displayTerm: displayTerm,
+      displayTerm: displayTermArray, // Assigned as an array of strings
       maxHitPoints: this.maxHitPoints,
       hitPoints: reset ? this.maxHitPoints : this.game.value.hitPoints,
       hints: [],
       state: 'playing',
       score: reset ? 0 : this.game.value.score
     });
-
+  
     if (this.revealFirstHintFree) {
       this.revealHint(true);
     }
   }
   
-  
-
   // Guess a single letter
   guessLetter(letter: string): void {
     let newState = { ...this.game.value };
