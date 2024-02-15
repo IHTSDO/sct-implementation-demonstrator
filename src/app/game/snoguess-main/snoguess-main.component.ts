@@ -25,7 +25,7 @@ import { PreloadService } from "src/app/services/preload.service";
           style({ transform: 'scale(1.3)', opacity: 1 })),
         animate('0.2s cubic-bezier(.8, -0.6, 0.2, 1.5)',
           style({ transform: 'scale(1)', opacity: 1 })) // End state
-      ])
+      ]),
     ]),
     trigger('scrollUp', [
       transition(':enter', [
@@ -49,6 +49,7 @@ export class SnoguessMainComponent implements OnInit {
   loadingAssetsProgress = 0;
   loadingAssets = true;
   showInstructions = false;
+  currentYear: Date = new Date();
 
   constructor(private snoguessMainService: SnoguessService, private preloadService: PreloadService) {}
 
