@@ -121,21 +121,30 @@ export class TerminologyService {
 
   private conceptCache = new Map<string, any>();
 
-lookupConcept(conceptId: string, system?: string) {
-  if (!system) system = this.fhirUrlParam;
-  const cacheKey = `${system}:${conceptId}`;
-  const cachedConcept = this.conceptCache.get(cacheKey);
-  if (cachedConcept) {
-    return of(cachedConcept);
+  lookupConcept(conceptId: string, system?: string) {
+    if (!system) system = this.fhirUrlParam;
+    const cacheKey = `${system}:${conceptId}`;
+    const cachedConcept = this.conceptCache.get(cacheKey);
+    if (cachedConcept) {
+      return of(cachedConcept);
+    }
+    const requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=${system}&code=${conceptId}&property=normalForm`;
+  
+    // Define HttpHeaders, including Accept-Language
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Accept-Language': 'en' // Set the desired language here
+      })
+    };
+  
+    return this.http.get<any>(requestUrl, httpOptions).pipe( // Add httpOptions to the request
+      tap(concept => {
+        this.conceptCache.set(cacheKey, concept);
+      }),
+      catchError(this.handleError<any>('lookupConcept', {}))
+    );
   }
-  const requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=${system}&code=${conceptId}&property=normalForm`;
-  return this.http.get<any>(requestUrl).pipe(
-    tap(concept => {
-      this.conceptCache.set(cacheKey, concept);
-    }),
-    catchError(this.handleError<any>('lookupConcept', {}))
-  );
-}
+  
 
   getMRCMAttributes(conceptId: string) {
     // https://snowstorm.ihtsdotools.org/snowstorm/snomed-ct/mrcm/MAIN/domain-attributes?parentIds=195967001&proximalPrimitiveModeling=false&contentType=POSTCOORDINATED
