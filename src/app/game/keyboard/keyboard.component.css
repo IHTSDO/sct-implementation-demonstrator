@@ -1,31 +1,49 @@
 .keyboard-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .keyboard-row {
-    display: flex;
-    justify-content: center;
-    margin: 5px;
-  }
-  
-  button {
-    margin: 2px;
-    padding: 10px 15px; /* Adjust padding to ensure keys are comfortably sized */
-    border-radius: 8px; /* This adds rounded corners to your buttons */
-    border: 1px solid #000; /* Optional: Adds a border around the buttons */
-    transition: background-color 0.3s ease; /* Optional: Adds a smooth transition for color changes */
-  }
-  
-  button.guessed-correct {
-    background-color: green;
-    color: white;
-  }
-  
-  button.guessed-wrong {
-    background-color: red;
-    color: white;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  margin: 5px;
+  flex-wrap: wrap; /* Allow keyboard rows to wrap on smaller screens */
+}
+
+button {
+  margin: 2px;
+  padding: 8px 6px; /* Adjust padding to fit more keys on smaller screens */
+  border-radius: 8px;
+  border: 1px solid #000;
+  transition: background-color 0.3s ease;
+  min-width: 40px; /* Ensure buttons have a minimum width */
+  flex: 1; /* Allow buttons to grow and fill the row */
+}
+
+button.guessed-correct {
+  background-color: green;
+  color: white;
+}
+
+button.guessed-wrong {
+  background-color: red;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .keyboard-row {
+    margin: 1px 0; /* Reduce the margin between rows */
+  }
   
+  .keyboard-row button {
+    margin: 1px; /* Reduce the margin between keys */
+    padding: 8px; /* Reduce padding to fit keys better */
+    min-width: 0; /* Override any min-width set */
+    width: 9%; /* Set the width to a percentage of the row */
+    flex: 1 1 auto; /* Add flexibility to the button sizing */
+    font-size: 14px; /* Adjust font size if necessary */
+  }
+}
+
+

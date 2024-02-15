@@ -40,3 +40,10 @@ a {
     margin: 5px 15px 5px 15px;
     padding: 10px;
 }
+
+@media (max-width: 768px) {
+
+    .mat-toolbar {
+        overflow: hidden;
+    }
+}
