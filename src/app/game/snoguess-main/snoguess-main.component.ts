@@ -28,7 +28,7 @@ export class SnoguessMainComponent implements OnInit {
 
   game!: Observable<Game>;
   shakeState = 'normal';
-  termGuessed = false;
+  termGuessed = '';
   goals: any[] = [];
 
   constructor(private snoguessMainService: SnoguessService) {}
@@ -36,7 +36,7 @@ export class SnoguessMainComponent implements OnInit {
   ngOnInit(): void {
     this.game = this.snoguessMainService.getGameState();
     this.goals = this.snoguessMainService.goals;
-    this.initialize();
+    this.loadMenu();
     this.snoguessMainService.guessResult.subscribe((guess: any) => {
       if (guess.result === false) {
         this.keyboard.addGuessedLetter(guess.letter, false);
@@ -48,18 +48,22 @@ export class SnoguessMainComponent implements OnInit {
       }
     });
 
-    this.snoguessMainService.termResult.subscribe((result: boolean) => {
+    this.snoguessMainService.termResult.subscribe((result: string) => {
       if (result) {
         this.keyboard.reset();
-        this.termGuessed = true;
+        this.termGuessed = result;
         setTimeout(() => {
-          this.termGuessed = false;
+          this.termGuessed = '';
         }, 3000);
       }
     });
   }
 
-  initialize(): void {
+  loadMenu(): void {
+    this.snoguessMainService.loadGame();
+  }
+
+  startGame(): void {
     if (this.keyboard) this.keyboard.reset();
     this.snoguessMainService.getRandomConcept(true);
   }
@@ -127,7 +131,6 @@ export class SnoguessMainComponent implements OnInit {
         maxTrophy = goal.name;
       }
     });
-    console.log(maxTrophy);
     return maxTrophy;
   }
 

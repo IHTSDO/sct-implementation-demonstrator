@@ -9,7 +9,7 @@ export interface Game {
   hitPoints: number; // Number of attempts left
   hints: string[]; // Hints that have been revealed
   hintsAvailable: boolean; // Whether hints are available
-  state: 'playing' | 'gameOver' | 'loading' | 'won'; // Game state,
+  state: 'playing' | 'gameOver' | 'loading' | 'won' | 'menu'; // Game state,
   score: number; // Score of the game
 }
 
@@ -49,11 +49,15 @@ export class SnoguessService {
   randomLimit: number = 4000;
 
   @Output() guessResult: EventEmitter<any> = new EventEmitter();
-  @Output() termResult: EventEmitter<boolean> = new EventEmitter();
+  @Output() termResult: EventEmitter<string> = new EventEmitter();
 
   constructor(private terminologyService: TerminologyService) {
     // Initialize the game with default values
     this.game = new BehaviorSubject<Game>(this.resetGame());
+  }
+
+  loadGame() {
+    this.game.next({ ...this.game.value, state: 'menu' });
   }
 
   async getRandomConcept(reset?: boolean) {
@@ -251,7 +255,7 @@ export class SnoguessService {
       // Check if the term was guessed by verifying if there are no more '_' characters before the semantic tag
       const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
       if (isTermGessed && newState.state === 'playing') {
-        this.termResult.emit(true); // Emit true for correct term guesses
+        this.termResult.emit(newState.term); // Emit true for correct term guesses
         newState.hitPoints = newState.hitPoints + this.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
         if (newState.hitPoints > this.maxHitPoints) {
           newState.hitPoints = this.maxHitPoints;
@@ -270,7 +274,7 @@ export class SnoguessService {
   // Guess the full term
   guessTerm(guess: string): boolean {
     if (guess.toLowerCase() === this.game.value.term.toLowerCase()) {
-      this.termResult.emit(true); // Emit true for correct term guesses
+      this.termResult.emit(guess); // Emit true for correct term guesses
       this.game.next({ ...this.game.value, displayTerm: this.game.value.term.split('') });
       return true;
     } else {

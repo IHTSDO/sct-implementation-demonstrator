@@ -1,82 +1,90 @@
 <div class="snoguess-game" *ngIf="(game | async) as gameState">
-  <h2>Guess the SNOMED Term</h2>
-  
-  <div class="term-display" *ngIf="gameState.state != 'loading'">
-      <span *ngFor="let char of gameState.displayTerm">{{ char }}</span>
-  </div>
-  
-  <div *ngIf="gameState.state === 'loading'" class="loading-container">
-    <div class="progress-bar-message">
-      Choosing a random SNOMED CT concept using the FHIR API
-    </div>
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  </div>
-  
-  <div class="hit-points">
-    <span class="score">
-      Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
-    </span>
-    <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
-        <mat-icon>favorite</mat-icon>
-    </span>
-    <span *ngFor="let hp of [].constructor(gameState.maxHitPoints - gameState.hitPoints); let i = index">
-        <mat-icon>favorite_border</mat-icon>
-    </span>
-  </div>
+  <div *ngIf="gameState.state == 'playing' || gameState.state == 'loading'">
 
-  
-  <div>
-    <!-- <div class="guess-field">
-      <mat-form-field appearance="fill" [@shake]="shakeState">
-        <mat-label>Guess a letter</mat-label>
-        <input matInput #letterInput maxlength="1" (input)="letterInput.value = letterInput.value.slice(0, 1)" 
-          (keyup.enter)="letterInput.value ? guessLetter(letterInput.value) : null; letterInput.value=''"
-          [disabled]="gameState.state !== 'playing'">
-      </mat-form-field>
-      <button mat-flat-button color="accent" 
-        (click)="letterInput.value ? guessLetter(letterInput.value) : null; letterInput.value=''" 
-        [disabled]="gameState.state !== 'playing' || !letterInput.value">Guess</button>
-    </div> -->
+    <div class="flex justify-center items-center">
+      <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8 mb-8">
+    </div>
+
+    <div class="term-display" *ngIf="gameState.state == 'playing'">
+        <span *ngFor="let char of gameState.displayTerm">{{ char }}</span>
+    </div>
+    
+    <div *ngIf="gameState.state === 'loading'" class="loading-container">
+      <div class="progress-bar-message">
+        Choosing a random SNOMED CT concept using the FHIR API
+      </div>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+    
+    <div class="hit-points">
+      <span class="score">
+        Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
+      </span>
+      <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
+          <mat-icon>favorite</mat-icon>
+      </span>
+      <span *ngFor="let hp of [].constructor(gameState.maxHitPoints - gameState.hitPoints); let i = index">
+          <mat-icon>favorite_border</mat-icon>
+      </span>
+    </div>
 
     <p class="guess-message">Click the keys to guess the letters of the term!</p>
     <div [@shake]="shakeState">
       <app-keyboard #keyboard (letterGuessed)="guessLetter($event)"></app-keyboard>
     </div>  
 
-      <!-- <div class="guess-field">
-        <mat-form-field appearance="fill">
-          <mat-label>Guess the full term</mat-label>
-          <input matInput #fullTermInput (keyup.enter)="guessTerm(fullTermInput.value); fullTermInput.value=''" [disabled]="gameState.state !== 'playing'">
-        </mat-form-field>
-        <button mat-flat-button color="accent" (click)="guessTerm(fullTermInput.value); fullTermInput.value=''" [disabled]="gameState.state !== 'playing'">Guess</button>
-      </div> -->
+    <div class="guess-field mt-8">
+      <button mat-flat-button color="accent" (click)="revealHint()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing' || !gameState.hintsAvailable || gameState.hitPoints <= 1">Reveal Hint</button>
+      <button mat-flat-button color="accent" (click)="loadMenu()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing'">Abandon game</button>
+    </div>
+    <div class="note">
+      * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as an SCG grammar expression
+    </div>
+    
+    <div *ngIf="gameState.hints.length > 0" class="hints-container">
+      <div class="hints-callout text-center">
+        <h2>Hints:</h2>
+        <ul>
+          <li *ngFor="let hint of gameState.hints" [innerHTML]="hint"></li>
+        </ul>
+      </div>
+    </div>
 
-      <br>
-      <div class="guess-field">
-        <button mat-flat-button color="accent" (click)="revealHint()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing' || !gameState.hintsAvailable || gameState.hitPoints <= 1">Reveal Hint</button>
-        <button mat-flat-button color="accent" (click)="initialize()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing'">Reset</button>
+    <div class="score-progression-panel">
+      <h3>Score Progression</h3>
+      <div class="progress-bar-container">
+        <mat-progress-bar mode="determinate" [value]="calculateProgress(gameState.score)"></mat-progress-bar>
+        <!-- Goal Indicators and Trophy icons generated dynamically -->
+        <ng-container *ngFor="let goal of goals">
+          <div class="goal-indicator" [class]="goal.name.toLowerCase()" [style.left.%]="calculateGoalPosition(goal.score)"></div>
+          <mat-icon *ngIf="gameState.score >= goal.score" class="star-icon left-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-5)">grade</mat-icon>
+          <mat-icon class="trophy-icon" [ngClass]="[goal.name.toLowerCase(), (gameState.score >= goal.score) ? 'trophy-large' : '']" [style.left.%]="calculateGoalPosition(goal.score-3)">emoji_events</mat-icon>
+          <mat-icon *ngIf="gameState.score >= goal.score" class="star-icon right-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-1)">grade</mat-icon>
+          <div *ngIf="gameState.score >= goal.score" class="goal-name" [style.left.%]="calculateGoalPosition(goal.score)" [ngClass]="[goal.name.toLowerCase()]">{{ goal.name }} trophy!</div>
+        </ng-container>
       </div>
-      <div class="note">
-        * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as an SCG grammar expression
-      </div>
-      
-      <div *ngIf="gameState.hints.length > 0" class="hints-container">
-        <div class="hints-callout">
-          <h2>Hints</h2>
-          <ul>
-            <li *ngFor="let hint of gameState.hints" [innerHTML]="hint"></li>
-          </ul>
-        </div>
-      </div>
-      
+    </div>
   </div>
+  
+
+  <div *ngIf="gameState.state === 'menu'" class="flex flex-col items-center gap-4">
+    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+    <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8">
+    <p class="text-center">Welcome to SnoGuess! A fun way to learn about SNOMED CT concepts and their definitions.</p>
+    <div (click)="startGame()"
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
+      New game
+    </div>
+  </div>
+
   <div *ngIf="termGuessed" class="overlay overlay-transparent">
     <div class="pyro">
       <div class="before"></div>
       <div class="after"></div>
     </div>
     <div class="message won">Correct!</div>
-    <div class="reveal won">{{ gameState.term }}</div>
+    <div class="reveal won">{{ termGuessed }}</div>
   </div>
 
   <!-- Overlay for "Lost" state -->
@@ -148,7 +156,10 @@
       <mat-icon class="" [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow']">grade</mat-icon>
     </div>
     <br>
-    <button mat-flat-button color="warn" (click)="initialize()">Try Again</button>
+    <div class="flex gap-4">
+      <button mat-flat-button color="warn" (click)="startGame()">Try Again</button>
+      <button mat-flat-button color="warn" (click)="loadMenu()">Back to menu</button>
+    </div>
   </div>
 
   <div *ngIf="gameState.state == 'won'" class="overlay overlay-dark">
@@ -163,25 +174,6 @@
       <mat-icon class="large-icon">grade</mat-icon>
     </div>
     <div class="reveal won">Final score: {{ gameState.score }}</div>
-  </div>
-
-  <!-- Existing Game Panels Here -->
-
-  <!-- Score Progression Panel -->
-  <div class="score-progression-panel">
-    <h3>Score Progression</h3>
-    <div class="progress-bar-container">
-      <mat-progress-bar mode="determinate" [value]="calculateProgress(gameState.score)"></mat-progress-bar>
-      <!-- Goal Indicators and Trophy icons generated dynamically -->
-      <ng-container *ngFor="let goal of goals">
-        <div class="goal-indicator" [class]="goal.name.toLowerCase()" [style.left.%]="calculateGoalPosition(goal.score)"></div>
-        <mat-icon *ngIf="gameState.score >= goal.score" class="star-icon left-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-5)">grade</mat-icon>
-        <mat-icon class="trophy-icon" [ngClass]="[goal.name.toLowerCase(), (gameState.score >= goal.score) ? 'trophy-large' : '']" [style.left.%]="calculateGoalPosition(goal.score-3)">emoji_events</mat-icon>
-        <mat-icon *ngIf="gameState.score >= goal.score" class="star-icon right-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-1)">grade</mat-icon>
-        <div *ngIf="gameState.score >= goal.score" class="goal-name" [style.left.%]="calculateGoalPosition(goal.score)" [ngClass]="[goal.name.toLowerCase()]">{{ goal.name }} trophy!</div>
-      </ng-container>
-    </div>
-    
   </div>
 
 </div>
