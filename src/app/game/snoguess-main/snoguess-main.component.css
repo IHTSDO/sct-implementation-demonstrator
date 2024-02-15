@@ -354,6 +354,10 @@
     font-size: 12px; /* Adjust margin for smaller screens */
   }
 
+  .snoguess-game li {
+    font-size: 11px !important; /* Adjust font size for smaller screens */
+  }
+
   .snoguess-game .pt-1,
   .snoguess-game .pb-1,
   .snoguess-game .pl-6,
