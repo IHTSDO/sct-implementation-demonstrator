@@ -54,7 +54,7 @@ export class SituationMapComponent implements OnInit {
   }
 
   async loadOrUpdateConstants() {
-    const cachedConstants = localStorage.getItem('SituationConstants');
+    let cachedConstants = localStorage.getItem('SituationConstants');
     if (cachedConstants) {
       this.SituationConstants = JSON.parse(cachedConstants);
       console.log('Loaded constants from cache.');
@@ -69,13 +69,11 @@ export class SituationMapComponent implements OnInit {
     for (const key in this.SituationConstants) {
       if (Object.prototype.hasOwnProperty.call(this.SituationConstants, key)) {
         const constant = this.SituationConstants[key];
-        let descendants = await lastValueFrom(this.terminologyService.expandValueSet('<< ' + constant.code, ''));
+        let descendants = await lastValueFrom(this.terminologyService.expandValueSet('<< ' + constant.code, '', 0, 1000));
         constant.selfAndDescendants = descendants.expansion.contains.map((concept: any) => concept.code);
       }
     }
   }
-
-  
 
   async convertSituationToFhir(situation: any) {
     this.selectedSituation = situation;
@@ -123,17 +121,18 @@ export class SituationMapComponent implements OnInit {
       const isKnownAbsent = this.SituationConstants.KnownAbsent.selfAndDescendants.includes(findingContextValue?.code);
       const isKnownPossible = this.SituationConstants.KnownPossible.selfAndDescendants.includes(findingContextValue?.code);
       const isCurrentOrSpecifiedTime = this.SituationConstants.CurrentOrSpecifiedTime.selfAndDescendants.includes(temporalContextValue?.code);
+      const isPersonInTheFamily = this.SituationConstants.PersonInTheFamily.selfAndDescendants.includes(subjectRelationshipContextValue?.code);
     
       if (isKnownPresent && isSubjectOfRecord && isInThePast) {
         this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'inactive'));
       } else if (isKnownPresent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
         this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'active'));
-      } else if (isKnownPresent && !isSubjectOfRecord) {
+      } else if (isKnownPossible && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
+        this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'unconfirmed'));
+      } else if (isKnownPresent && isPersonInTheFamily) {  // Should be a mmember of the family
         this.updateFhirRepresentation(this.createFamilyMemberHistoryForFinding(associatedFinding, subjectRelationshipContextValue));
       } else if (isKnownAbsent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
         this.updateFhirRepresentation(this.createFhirObservationForAbsentFinding(associatedFinding));
-      } else if (isKnownPossible && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-        this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'unconfirmed'));
       } else {
         this.fhirRepresentationString = 'No FHIR representation for this situation';
       }
