@@ -300,3 +300,60 @@
   background-color: #4CAF50; /* Vibrant fill color */
   border-radius: 22px; /* Ensure the fill also has rounded corners */
 }
+
+.game-buttons {
+  display: flex; 
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Media query for devices with a max width of 768px (common breakpoint for tablets and below) */
+@media (max-width: 768px) {
+  .snoguess-game,
+  .snoguess-game .bg-gradient-to-b,
+  .snoguess-game .progress-bar-container,
+  .snoguess-game .hints-container,
+  .snoguess-game .score-progression-panel,
+  .snoguess-game .guess-field,
+  .snoguess-game .overlay,
+  .snoguess-game img,
+  .snoguess-game div {
+    width: 100% !important; /* Override width to be 100% */
+    max-width: 100% !important; /* Ensure elements do not exceed the viewport width */
+    margin: 0 auto; /* Center align elements if necessary */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    box-shadow: none; /* Remove shadow for smaller screens */
+  }
+
+  .snoguess-game .game-buttons {
+    flex-direction: column; /* Stack buttons vertically on smaller screens */
+    margin-top: 1rem;
+  }
+
+  .snoguess-game .game-buttons div {
+    width: fit-content !important; /* Make buttons full width on smaller screens */
+    margin-bottom: 1rem;
+  }
+
+  .snoguess-game .goal-indicator {
+    display: none; /* Hide goal indicators on smaller screens */
+  }
+
+  .snoguess-game .pt-1,
+  .snoguess-game .pb-1,
+  .snoguess-game .pl-6,
+  .snoguess-game .pr-6,
+  .snoguess-game .pt-4,
+  .snoguess-game .pb-4,
+  .snoguess-game .pl-12,
+  .snoguess-game .pr-12 {
+    padding: 10px; /* Adjust padding for smaller screens */
+  }
+
+  /* Adjust font sizes if necessary */
+  .snoguess-game .font-bold {
+    font-size: 16px; /* Example to adjust font size on smaller screens */
+  }
+}

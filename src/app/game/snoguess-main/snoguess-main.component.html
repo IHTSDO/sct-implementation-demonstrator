@@ -43,22 +43,17 @@
       <app-keyboard #keyboard (letterGuessed)="guessLetter($event)"></app-keyboard>
     </div>  
 
-    <div class="guess-field mt-4">
-
+    <div class="game-buttons mt-4">
       <div (click)="revealHint()" *ngIf="gameState.state == 'playing' && gameState.hintsAvailable && gameState.hitPoints > 1"
       class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black 
       rounded-3xl pt-1 pb-1 pl-6 pr-6 w-fit text-center cursor-pointer font-bold text-white">
         Reveal Hint
       </div>
-
       <div (click)="loadMenu()" *ngIf="gameState.state == 'playing'"
         class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black 
         rounded-3xl pt-1 pb-1 pl-6 pr-6 w-fit text-center cursor-pointer font-bold text-white">
          Abandon game
       </div>
-
-      <!-- <button mat-flat-button color="accent" (click)="revealHint()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing' || !gameState.hintsAvailable || gameState.hitPoints <= 1">Reveal Hint</button> -->
-      <!-- <button mat-flat-button color="accent" (click)="loadMenu()" (keydown.enter)="$event.preventDefault()" [disabled]="gameState.state !== 'playing'">Abandon game</button> -->
     </div>
     <div class="note">
       * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as an SCG grammar expression
