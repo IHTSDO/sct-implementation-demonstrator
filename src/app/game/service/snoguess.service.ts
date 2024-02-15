@@ -313,7 +313,7 @@ export class SnoguessService {
     if (useFocusConcepts) {
         let randomIndex = Math.floor(Math.random() * this.focusConcepts.length);
         let selectedConcept = this.focusConcepts[randomIndex];
-        newHint = `One of the focus concepts is: <i>${selectedConcept.display}</i>`;
+        newHint = `One of the parents of this concept is: <i>${selectedConcept.display}</i>`;
         // Remove used hint to avoid repetition
         this.focusConcepts.splice(randomIndex, 1);
     } else if (useAttributePairs) {
