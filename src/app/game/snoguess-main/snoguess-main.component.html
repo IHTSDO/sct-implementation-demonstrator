@@ -79,12 +79,8 @@
   </div>
 
   <div *ngIf="termGuessed" class="overlay overlay-transparent">
-    <div class="pyro">
-      <div class="before"></div>
-      <div class="after"></div>
-    </div>
-    <div class="message won">Correct!</div>
-    <div class="reveal won">{{ termGuessed }}</div>
+    <img src="assets/img/correct.png" alt="Correct" class="w-1/5 mt-8" [@popIn]>
+    <!-- <div class="text-xl shadow-local">{{ termGuessed }}</div> -->
   </div>
 
   <div *ngIf="gameState.state === 'gameOver'" class="flex flex-col items-center gap-4">
