@@ -55,7 +55,11 @@ export class SnoguessMainComponent implements OnInit {
 
   ngOnInit(): void {
     this.game = this.snoguessMainService.getGameState();
-    this.goals = this.snoguessMainService.goals;
+    this.game.subscribe((game: Game) => {
+      if (game.state === 'playing') {
+        this.goals = game.rules.goals;
+      }
+    });
     this.snoguessMainService.guessResult.subscribe((guess: any) => {
       if (guess.result === false) {
         this.keyboard.addGuessedLetter(guess.letter, false);

@@ -33,7 +33,7 @@
       <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
           <mat-icon>favorite</mat-icon>
       </span>
-      <span *ngFor="let hp of [].constructor(gameState.maxHitPoints - gameState.hitPoints); let i = index">
+      <span *ngFor="let hp of [].constructor(gameState.rules.maxHitPoints - gameState.hitPoints); let i = index">
           <mat-icon>favorite_border</mat-icon>
       </span>
     </div>
@@ -118,13 +118,13 @@
         <span class="text-red-500"><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon></span>
       </li>
       <li class="flex flex-row align-middle gap-2">
-        <mat-icon>check</mat-icon>You will loose one life if the guess is wrong <mat-icon class="text-red-500">favorite_border</mat-icon>
+        <mat-icon>check</mat-icon>You will loose one life with each wrong guess <mat-icon class="text-red-500">favorite_border</mat-icon>
       </li>
       <li class="flex flex-row align-middle gap-2">
         <mat-icon>check</mat-icon>You earn points for each correct guess <mat-icon class="text-blue-900">plus_one</mat-icon>
       </li>
       <li class="flex flex-row align-middle gap-2">
-        <mat-icon>check</mat-icon>You can request a hint, but it will cost one life <mat-icon class="text-red-500">favorite_border</mat-icon>
+        <mat-icon>check</mat-icon>You can reveal hints, but each hint it will cost one life <mat-icon class="text-red-500">favorite_border</mat-icon>
       </li>
       <li class="flex flex-row align-middle gap-2">
         <mat-icon>check</mat-icon>If you guess the whole term you can recover one life<mat-icon class="text-red-500">favorite</mat-icon>

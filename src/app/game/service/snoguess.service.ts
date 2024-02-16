@@ -5,13 +5,13 @@ import { TerminologyService } from 'src/app/services/terminology.service';
 export interface Game {
   term: string; // The actual SNOMED CT term (FSN)
   displayTerm: string[]; // Representation of the term for display
-  maxHitPoints: number; // Maximum number of attempts
   hitPoints: number; // Number of attempts left
   hints: string[]; // Hints that have been revealed
   hintsAvailable: boolean; // Whether hints are available
   state: 'playing' | 'gameOver' | 'choosingTerm' | 'won' | 'menu'; // Game state,
   score: number; // Score of the game
   round: number; // Round of the game
+  rules: any; // Rules and settings for the game
 }
 
 interface SnomedConcept {
@@ -27,18 +27,19 @@ export class SnoguessService {
   private game: BehaviorSubject<Game>;
 
   // Rules and settings for the game
-  maxHitPoints: number = 5;
-  hitpointsAwardedForGuessingfullTerm: number = 1;
-  revealFirstHintFree: boolean = false;
-  pointsPerGuessedLetter: number = 1;
-
-  goals: any[] = [
-    { name: 'Bronze', score: 100 },
-    { name: 'Silver', score: 200 },
-    { name: 'Gold', score: 300 },
-    { name: 'Platinum', score: 400 },
-    { name: 'Diamond', score: 500 }
-  ];
+  rules: any = {
+    maxHitPoints: 5,
+    hitpointsAwardedForGuessingfullTerm: 1,
+    revealFirstHintFree: false,
+    pointsPerGuessedLetter: 1,
+    goals: [
+      { name: 'Bronze', score: 100 },
+      { name: 'Silver', score: 200 },
+      { name: 'Gold', score: 300 },
+      { name: 'Platinum', score: 400 },
+      { name: 'Diamond', score: 500 }
+    ]
+  };
 
   fsn: string = '';
   scg: string = '';
@@ -66,7 +67,7 @@ export class SnoguessService {
     this.game.next({ ...this.game.value, 
       state: 'choosingTerm', 
       score: reset ? 0 : this.game.value.score, 
-      hitPoints: reset ? this.maxHitPoints : this.game.value.hitPoints, 
+      hitPoints: reset ? this.rules.maxHitPoints : this.game.value.hitPoints, 
       round: reset ? 1 : this.game.value.round + 1
     });
     const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
@@ -176,13 +177,13 @@ export class SnoguessService {
     return {
       term: '', // This should be set to a randomly selected SNOMED CT term
       displayTerm: [],
-      maxHitPoints: this.maxHitPoints,
-      hitPoints: this.maxHitPoints,
+      hitPoints: this.rules.maxHitPoints,
       hintsAvailable: true,
       hints: [],
       state: 'playing',
       score: 0,
-      round: 0
+      round: 0,
+      rules: this.rules
     };
   }
 
@@ -209,14 +210,13 @@ export class SnoguessService {
       ...this.game.value,
       term: term,
       displayTerm: displayTermArray, // Assigned as an array of strings
-      maxHitPoints: this.maxHitPoints,
-      hitPoints: reset ? this.maxHitPoints : this.game.value.hitPoints,
+      hitPoints: reset ? this.rules.maxHitPoints : this.game.value.hitPoints,
       hints: [],
       state: 'playing',
       score: reset ? 0 : this.game.value.score
     });
   
-    if (this.revealFirstHintFree) {
+    if (this.rules.revealFirstHintFree) {
       this.revealHint(true);
     }
   }
@@ -236,10 +236,10 @@ export class SnoguessService {
         if (char.toLowerCase() === letter.toLowerCase()) {
           newState.displayTerm[index] = char; // Reveal the correctly guessed letter
           found = true;
-          newState.score += this.pointsPerGuessedLetter; // Increment the score
+          newState.score += this.rules.pointsPerGuessedLetter; // Increment the score
           // check if won, score >= max goal score, but waiting until there are no more _ before semantic tag
           const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
-          if (isTermGessed && newState.score >= this.goals[this.goals.length - 1].score) {
+          if (isTermGessed && newState.score >= this.rules.goals[this.rules.goals.length - 1].score) {
             newState.state = 'won';
           }
         }
@@ -260,9 +260,9 @@ export class SnoguessService {
       const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
       if (isTermGessed && newState.state === 'playing') {
         this.termResult.emit(newState.term); // Emit true for correct term guesses
-        newState.hitPoints = newState.hitPoints + this.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
-        if (newState.hitPoints > this.maxHitPoints) {
-          newState.hitPoints = this.maxHitPoints;
+        newState.hitPoints = newState.hitPoints + this.rules.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
+        if (newState.hitPoints > this.rules.maxHitPoints) {
+          newState.hitPoints = this.rules.maxHitPoints;
         }
         setTimeout(() => {
           this.getRandomConcept();
