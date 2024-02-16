@@ -35,9 +35,18 @@ export class SnoguessService {
   ];
 
   difficultyLevels: any[] = [
-    { name: 'Easy', rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals }},
-    { name: 'Medium', rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals }},
-    { name: 'Hard', rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals }},
+    { 
+      name: 'Easy',
+      rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals }
+    },
+    { 
+      name: 'Medium', 
+      rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals }
+    },
+    { 
+      name: 'Hard', 
+      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals }
+    }
   ];
 
   // Rules and settings for the game

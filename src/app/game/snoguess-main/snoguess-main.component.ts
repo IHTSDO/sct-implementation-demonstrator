@@ -33,6 +33,13 @@ import { PreloadService } from "src/app/services/preload.service";
         animate('0.5s ease-out',
           style({ transform: 'translateY(0)', opacity: 1 })) // End at its original position
       ])
+    ]),
+    trigger('fadeInDelayed', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        // Delay equal to scroll-up duration
+        animate('1s 0.5s ease-out', style({ opacity: 1 }))
+      ])
     ])
   ]
 })
@@ -108,6 +115,10 @@ export class SnoguessMainComponent implements OnInit {
 
   loadMenu(): void {
     this.snoguessMainService.loadMenu();
+  }
+  
+  backToMenu(): void {
+    this.chooseDifficulty = false;
   }
 
   showInstructionsPanel(): void {

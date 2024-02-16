@@ -63,7 +63,7 @@
       <div class="hints-callout text-center">
         <h2>Hints:</h2>
         <ul>
-          <li *ngFor="let hint of gameState.hints" [innerHTML]="hint"></li>
+          <li *ngFor="let hint of gameState.hints" class="hint-item" [innerHTML]="hint"></li>
         </ul>
       </div>
     </div>
@@ -113,14 +113,23 @@
       <b>Choose the game difficulty</b>
     </p>
 
-    <div *ngFor="let level of difficultyLevels" (click)="startGame(level.name)" [@scrollUp]
-    class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
-    rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-8 text-3xl">
-      {{ level.name }}
+    <div *ngFor="let level of difficultyLevels" class="level-container w-full flex flex-col justify-center items-center">
+      <div (click)="startGame(level.name)" [@scrollUp]
+        class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+        rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-2 text-3xl">
+        {{ level.name }}
+      </div>
+      <p class="level-details text-center mt-3 flex flex-row align-middle" [@fadeInDelayed]>
+        Life: {{ level.rules.maxHitPoints }} <mat-icon class="text-red-500 text-sm">favorite</mat-icon>, 
+        Free hints: {{ level.rules.freeHints }} <mat-icon class="text-yellow-500 text-sm">contact_support</mat-icon>, 
+        Points per letter: {{ level.rules.pointsPerGuessedLetter }}
+      </p>
     </div>
-    <br>
-    <br>
-    <br>
+    <div (click)="backToMenu()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-2 mb-8 text-3xl">
+      Back
+    </div>
   </div>
 
   <div *ngIf="showInstructions" class="flex flex-col items-center gap-4">

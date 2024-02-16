@@ -238,29 +238,27 @@
   }
 
   .hints-container {
-    position: relative;
-    max-width: 90%; /* Adjust as needed */
-    margin: 20px;
-    padding: 15px;
-    background: #f9f9f9; /* Light background for the callout */
-    border-radius: 10px; /* Rounded corners for the balloon */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    background-color: #f9f9f9; /* Light background */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Soft shadow */
+    padding: 20px;
+    margin-top: 20px;
   }
   
-  .hints-callout {
-    position: relative;
+  .hints-callout h2 {
+    color: #333; /* Match the color scheme of the game */
+    font-size: 1.5em; /* Slightly larger for visibility */
   }
   
-  .hints-callout::before {
-    content: '';
-    position: absolute;
-    bottom: 100%; /* Position the arrow above the balloon */
-    left: 50%;
-    margin-left: -10px; /* Half the width of the arrow */
-    border-width: 10px;
-    border-style: solid;
-    border-color: transparent transparent #f9f9f9 transparent; /* Arrow pointing up */
+  .hint-item {
+    color: #555; /* Slightly lighter text for the hints */
+    font-size: 1em;
+    list-style-type: none; /* Removing default bullets */
+    padding: 5px 0; /* Spacing between hints */
+    position: relative; /* To position the bullets correctly */
+    padding-left: 30px; /* Add padding to make space for the custom bullet */
   }
+  
 
   ul {
     list-style-type: none; /* Remove default list styling */
@@ -308,6 +306,15 @@
   justify-content: center;
   gap: 10px;
 }
+
+.level-details {
+  visibility: hidden; /* Hide details by default but keep the space */
+}
+
+.level-container:hover .level-details {
+  visibility: visible; /* Show details on hover */
+}
+
 
 @media (max-width: 1300px) {
   .menu-buttons {
