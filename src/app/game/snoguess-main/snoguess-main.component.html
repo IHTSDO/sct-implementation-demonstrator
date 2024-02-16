@@ -85,7 +85,7 @@
   </div>
   
 
-  <div *ngIf="gameState.state === 'menu' && !showInstructions && !loadingAssets" class="flex flex-col items-center gap-4">
+  <div *ngIf="gameState.state === 'menu' && !chooseDifficulty && !showInstructions && !loadingAssets" class="flex flex-col items-center gap-4">
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
     <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
     <p class="text-center font-light text-lg">
@@ -94,7 +94,7 @@
     <p class="text-center font-light text-lg">
       A fun way to learn about SNOMED CT concepts and their definitions.
     </p>
-    <div (click)="startGame()" [@scrollUp]
+    <div (click)="chooseDifficultyLevel()" [@scrollUp]
     class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 text-3xl">
       New game
@@ -104,6 +104,23 @@
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
       Instructions
     </div>
+  </div>
+
+  <div *ngIf="gameState.state === 'menu' && chooseDifficulty && !showInstructions && !loadingAssets" class="flex flex-col items-center gap-4">
+    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+    <img src="assets/img/difficulty.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
+    <p class="text-center font-light text-lg">
+      <b>Choose the game difficulty</b>
+    </p>
+
+    <div *ngFor="let level of difficultyLevels" (click)="startGame(level.name)" [@scrollUp]
+    class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-8 text-3xl">
+      {{ level.name }}
+    </div>
+    <br>
+    <br>
+    <br>
   </div>
 
   <div *ngIf="showInstructions" class="flex flex-col items-center gap-4">
@@ -166,7 +183,7 @@
       <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
     </div>
 
-    <div (click)="startGame()" [@scrollUp]
+    <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       New game
@@ -188,7 +205,7 @@
     </div>
     <div class="reveal won">Final score: {{ gameState.score }}</div>
 
-    <div (click)="startGame()" [@scrollUp]
+    <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       New game

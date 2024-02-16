@@ -35,9 +35,9 @@ export class SnoguessService {
   ];
 
   difficultyLevels: any[] = [
-    { name: 'Easy', rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, revealFirstHintFree: true, pointsPerGuessedLetter: 1, goals: this.goals }},
-    { name: 'Medium', rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, revealFirstHintFree: false, pointsPerGuessedLetter: 2, goals: this.goals }},
-    { name: 'Hard', rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, revealFirstHintFree: false, pointsPerGuessedLetter: 3, goals: this.goals }},
+    { name: 'Easy', rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals }},
+    { name: 'Medium', rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals }},
+    { name: 'Hard', rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals }},
   ];
 
   // Rules and settings for the game
@@ -62,6 +62,10 @@ export class SnoguessService {
 
   loadMenu() {
     this.game.next({ ...this.game.value, state: 'menu' });
+  }
+
+  getDifficultyLevels() {
+    return this.difficultyLevels;
   }
 
   async newRound(reset?: boolean) {
@@ -190,9 +194,7 @@ export class SnoguessService {
   }
 
   startGame(difficulty: string) {
-    console.log('Starting game with difficulty:', difficulty);
     this.rules = this.difficultyLevels.find(level => level.name.toLowerCase() === difficulty.toLocaleLowerCase())?.rules;
-    console.log('Rules:', this.rules);  
     this.game.next({ 
       term: '', // This should be set to a randomly selected SNOMED CT term
       displayTerm: [],
@@ -236,7 +238,7 @@ export class SnoguessService {
       score: reset ? 0 : this.game.value.score
     });
   
-    if (this.rules.revealFirstHintFree) {
+    for (let i = 0; i < this.rules.freeHints; i++) {
       this.revealHint(true);
     }
   }

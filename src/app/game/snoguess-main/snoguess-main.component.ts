@@ -49,12 +49,15 @@ export class SnoguessMainComponent implements OnInit {
   loadingAssetsProgress = 0;
   loadingAssets = true;
   showInstructions = false;
+  chooseDifficulty = false;
   currentYear: Date = new Date();
+  difficultyLevels: any[] = [];
 
   constructor(private snoguessMainService: SnoguessService, private preloadService: PreloadService) {}
 
   ngOnInit(): void {
     this.game = this.snoguessMainService.getGameState();
+    this.difficultyLevels = this.snoguessMainService.getDifficultyLevels();
     this.game.subscribe((game: Game) => {
       if (game.state === 'playing') {
         this.goals = game.rules.goals;
@@ -88,6 +91,7 @@ export class SnoguessMainComponent implements OnInit {
       'assets/img/correct.png',
       'assets/img/game-over.png',
       'assets/img/instructions.png',
+      'assets/img/difficulty.png',
     ];
 
     this.preloadService.preloadImages(imageUrls).then(() => {
@@ -114,9 +118,14 @@ export class SnoguessMainComponent implements OnInit {
     this.showInstructions = false;
   }
 
-  startGame(): void {
+  chooseDifficultyLevel(): void {
+    this.chooseDifficulty = true;
+  }
+
+  startGame(level: string): void {
+    this.chooseDifficulty = false;
     if (this.keyboard) this.keyboard.reset();
-    this.snoguessMainService.startGame('easy');
+    this.snoguessMainService.startGame(level);
   }
 
   async guessLetter(letter: string) {
