@@ -116,7 +116,7 @@ export class SnoguessMainComponent implements OnInit {
 
   startGame(): void {
     if (this.keyboard) this.keyboard.reset();
-    this.snoguessMainService.getRandomConcept(true);
+    this.snoguessMainService.startGame('easy');
   }
 
   async guessLetter(letter: string) {

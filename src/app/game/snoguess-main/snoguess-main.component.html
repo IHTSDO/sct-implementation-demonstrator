@@ -85,7 +85,7 @@
   </div>
   
 
-  <div *ngIf="gameState.state === 'menu' && !showInstructions" class="flex flex-col items-center gap-4">
+  <div *ngIf="gameState.state === 'menu' && !showInstructions && !loadingAssets" class="flex flex-col items-center gap-4">
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
     <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
     <p class="text-center font-light text-lg">

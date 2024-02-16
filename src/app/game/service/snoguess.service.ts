@@ -26,20 +26,22 @@ export class SnoguessService {
 
   private game: BehaviorSubject<Game>;
 
+  goals: any[] = [
+    { name: 'Bronze', score: 100 },
+    { name: 'Silver', score: 200 },
+    { name: 'Gold', score: 300 },
+    { name: 'Platinum', score: 400 },
+    { name: 'Diamond', score: 500 }
+  ];
+
+  difficultyLevels: any[] = [
+    { name: 'Easy', rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, revealFirstHintFree: true, pointsPerGuessedLetter: 1, goals: this.goals }},
+    { name: 'Medium', rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, revealFirstHintFree: false, pointsPerGuessedLetter: 2, goals: this.goals }},
+    { name: 'Hard', rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, revealFirstHintFree: false, pointsPerGuessedLetter: 3, goals: this.goals }},
+  ];
+
   // Rules and settings for the game
-  rules: any = {
-    maxHitPoints: 5,
-    hitpointsAwardedForGuessingfullTerm: 1,
-    revealFirstHintFree: false,
-    pointsPerGuessedLetter: 1,
-    goals: [
-      { name: 'Bronze', score: 100 },
-      { name: 'Silver', score: 200 },
-      { name: 'Gold', score: 300 },
-      { name: 'Platinum', score: 400 },
-      { name: 'Diamond', score: 500 }
-    ]
-  };
+  rules = this.difficultyLevels[0].rules;
 
   fsn: string = '';
   scg: string = '';
@@ -55,14 +57,14 @@ export class SnoguessService {
 
   constructor(private terminologyService: TerminologyService) {
     // Initialize the game with default values
-    this.game = new BehaviorSubject<Game>(this.resetGame());
+    this.game = new BehaviorSubject<Game>(this.initialize());
   }
 
   loadMenu() {
     this.game.next({ ...this.game.value, state: 'menu' });
   }
 
-  async getRandomConcept(reset?: boolean) {
+  async newRound(reset?: boolean) {
     // Do nothing if game state is not playing
     this.game.next({ ...this.game.value, 
       state: 'choosingTerm', 
@@ -87,9 +89,9 @@ export class SnoguessService {
     let attributePairs = this.extractAttributePairs(scg? scg : '');
     this.attributePairs = attributePairs? attributePairs : [];
     if (fsn) {
-      this.initializeGame(fsn, reset);
+      this.initializeRound(fsn, reset);
     } else {
-      this.initializeGame('No term found');
+      this.initializeRound('No term found');
     }
     this.game.next({ ...this.game.value, state: 'playing' });
     this.usedHints.clear();
@@ -173,8 +175,25 @@ export class SnoguessService {
   }
 
   // Resets and initializes the game state
-  private resetGame(): Game {
+  private initialize(): Game {
     return {
+      term: '', // This should be set to a randomly selected SNOMED CT term
+      displayTerm: [],
+      hitPoints: this.rules.maxHitPoints,
+      hintsAvailable: true,
+      hints: [],
+      state: 'menu',
+      score: 0,
+      round: 0,
+      rules: this.rules
+    };
+  }
+
+  startGame(difficulty: string) {
+    console.log('Starting game with difficulty:', difficulty);
+    this.rules = this.difficultyLevels.find(level => level.name.toLowerCase() === difficulty.toLocaleLowerCase())?.rules;
+    console.log('Rules:', this.rules);  
+    this.game.next({ 
       term: '', // This should be set to a randomly selected SNOMED CT term
       displayTerm: [],
       hitPoints: this.rules.maxHitPoints,
@@ -184,11 +203,12 @@ export class SnoguessService {
       score: 0,
       round: 0,
       rules: this.rules
-    };
+     });
+    this.newRound(true);
   }
 
   // Initializes or restarts the game with a new term
-  initializeGame(term: string, reset?: boolean): void {
+  initializeRound(term: string, reset?: boolean): void {
     // Use a regular expression to find the semantic tag, which is the last set of parentheses
     const semanticTagMatch = term.match(/\(([^)]+)\)$/);
     const semanticTag = semanticTagMatch ? semanticTagMatch[0] : '';
@@ -265,7 +285,7 @@ export class SnoguessService {
           newState.hitPoints = this.rules.maxHitPoints;
         }
         setTimeout(() => {
-          this.getRandomConcept();
+          this.newRound();
         }, 1500);
       }
     }
