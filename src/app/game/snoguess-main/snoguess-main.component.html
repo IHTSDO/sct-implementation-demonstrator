@@ -11,8 +11,13 @@
 
   <div *ngIf=" (gameState.state == 'playing' || gameState.state == 'choosingTerm') && !loadingAssets">
 
-    <div class="flex justify-center items-center">
-      <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8 mb-8">
+    <div class="flex justify-center mt-8 mb-8">
+      <div class="relative w-1/4"> <!-- Set a width and position relative -->
+        <img src="assets/img/snoguess-logo.png" alt="Game Logo">
+        <div class="absolute -bottom-3 right-5 italic text-gray-500"> <!-- Absolutely position the difficulty level -->
+          {{ gameState.difficultyLevel }}
+        </div>
+      </div>
     </div>
 
     <div class="term-display" *ngIf="gameState.state == 'playing'">

@@ -11,6 +11,7 @@ export interface Game {
   state: 'playing' | 'gameOver' | 'choosingTerm' | 'won' | 'menu'; // Game state,
   score: number; // Score of the game
   round: number; // Round of the game
+  difficultyLevel: string; // Difficulty level of the game
   rules: any; // Rules and settings for the game
 }
 
@@ -198,7 +199,8 @@ export class SnoguessService {
       state: 'menu',
       score: 0,
       round: 0,
-      rules: this.rules
+      rules: this.rules,
+      difficultyLevel: ''
     };
   }
 
@@ -213,7 +215,8 @@ export class SnoguessService {
       state: 'playing',
       score: 0,
       round: 0,
-      rules: this.rules
+      rules: this.rules,
+      difficultyLevel: difficulty
      });
     this.newRound(true);
   }
