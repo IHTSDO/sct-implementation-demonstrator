@@ -14,7 +14,7 @@
     <span class="mini-pill Inactive" *ngIf="loadResults.total > 0">Inactive: {{loadResults.inactive}}</span>
     <span class="mini-pill Active" *ngIf="loadResults.total > 0">Active: {{loadResults.active}}</span>
 </p>
-<div class="table-container">
+<div class="table-container mt-4">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
 
         <ng-container matColumnDef="order">

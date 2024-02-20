@@ -122,13 +122,15 @@ export class TerminologyService {
   private conceptCache = new Map<string, any>();
 
   lookupConcept(conceptId: string, version?: string) {
-    if (!version) version = this.fhirUrlParam;
     const cacheKey = `${version}:${conceptId}`;
     const cachedConcept = this.conceptCache.get(cacheKey);
     if (cachedConcept) {
       return of(cachedConcept);
     }
-    const requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=http://snomed.info/sct&version=${version}&code=${conceptId}&property=normalForm`;
+    let requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=http://snomed.info/sct&code=${conceptId}&property=normalForm`;
+    if (version && version != 'http://snomed.info/sct') {
+      requestUrl += `&version=${version}`;
+    }
   
     // Define HttpHeaders, including Accept-Language
     const httpOptions = {
