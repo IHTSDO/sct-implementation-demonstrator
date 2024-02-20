@@ -237,7 +237,7 @@ export class SnoguessService {
         return char; // Keep the semantic tag visible
       }
       // Use a regular expression to test if the character is a letter or a number
-      return /[a-zA-Z0-9]/.test(char) ? '_' : char;
+      return /[a-zA-Z0-9á-úñ]/.test(char) ? '_' : char;
     }); // Do not join here to match the Game interface expectation
     
     this.game.next({
@@ -255,6 +255,10 @@ export class SnoguessService {
     }
   }
   
+  removeAccents(str: string): string {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+  
   // Guess a single letter
   guessLetter(letter: string): void {
     let newState = { ...this.game.value };
@@ -262,20 +266,16 @@ export class SnoguessService {
   
     // Determine the index where the semantic tag begins
     const semanticTagIndex = newState.term.lastIndexOf('(');
-  
+
     newState.term.split('').forEach((char, index) => {
       // Check if the index is within the range before the semantic tag
       // and if the character at that position has not been guessed yet
       if (index < semanticTagIndex && newState.displayTerm[index] === '_') {
-        if (char.toLowerCase() === letter.toLowerCase()) {
+        // Compare normalized versions of the characters
+        if (this.removeAccents(char.toLowerCase()) === this.removeAccents(letter.toLowerCase())) {
           newState.displayTerm[index] = char; // Reveal the correctly guessed letter
           found = true;
           newState.score += this.rules.pointsPerGuessedLetter; // Increment the score
-          // check if won, score >= max goal score, but waiting until there are no more _ before semantic tag
-          const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
-          if (isTermGessed && newState.score >= this.rules.goals[this.rules.goals.length - 1].score) {
-            newState.state = 'won';
-          }
         }
       }
     });
