@@ -1,5 +1,5 @@
 <mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer mode="side" class="example-sidenav">
+  <mat-drawer #drawer mode="over" class="example-sidenav">
     <div class="flex flex-col justify-center">
       <button mat-button [matMenuTriggerFor]="demosMenuN">Select Demonstrator</button>
       <mat-menu #demosMenuN="matMenu" class="wide-menu">
@@ -42,6 +42,7 @@
     </button>
     <img src="assets/img/small_logo.png" class="h-16">
     <span id="title">SNOMED CT Implementation Demos</span>
+    <span id="short-title">SNOMED CT</span>
     <span class="example-spacer"></span>
 
     <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu" class="bar-button">Select Demonstrator</button>

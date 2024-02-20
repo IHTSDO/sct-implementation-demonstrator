@@ -45,9 +45,19 @@ a {
     display: none;
 }
 
+#short-title {
+    display: none;
+} 
+
 @media (max-width: 768px) {
 
     #title {
+        display: none;
+    }
+
+    #short-title {
+        display: block;
+        margin-left: 15px;
         font-size: 0.9rem;
     }
 }
