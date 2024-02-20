@@ -20,8 +20,10 @@
       </div>
     </div>
 
-    <div class="term-display" *ngIf="gameState.state == 'playing'">
-        <span *ngFor="let char of gameState.displayTerm">{{ char }}</span>
+    <div class="term-display flex flex-row flex-wrap justify-center gap-4" *ngIf="gameState.state == 'playing'">
+      <span *ngFor="let segment of gameState.displayTerm.join('').split(' ')" class="whitespace-nowrap">
+        <span *ngFor="let char of segment.split('')">{{ char }}</span>
+      </span>
     </div>
     
     <div *ngIf="gameState.state === 'choosingTerm'" class="loading-container">

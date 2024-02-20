@@ -16,7 +16,7 @@
   }
   
   .term-display span {
-    padding: 0 4px; /* Optional: add padding to each character if you want more space */
+    padding: 0 2px; /* Optional: add padding to each character if you want more space */
   }
   
   /* Styles for the hit points display */
