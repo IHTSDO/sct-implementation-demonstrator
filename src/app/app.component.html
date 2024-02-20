@@ -1,40 +1,84 @@
-<mat-toolbar>
-  <img src="assets/img/small_logo.png" class="h-16">
-  <span id="title">SNOMED CT Implementation Demos</span>
-  <span class="example-spacer"></span>
-
-  <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">Select Demonstrator</button>
-  <mat-menu #demosMenu="matMenu" class="wide-menu">
-    <button mat-menu-item (click)="navigate('/allergies')">Allergies CRG</button>
-    <button mat-menu-item (click)="navigate('/sandbox')">Terminology Bindings Sandbox</button>
-    <!-- <button mat-menu-item (click)="navigate('/prescription')">Prescription Demo</button> -->
-    <button mat-menu-item (click)="navigate('/questionnaires')">SNOMED & FHIR Questionnaires</button>
-    <button mat-menu-item (click)="navigate('/context')">Context Representation</button>
-    <button mat-menu-item (click)="navigate('/snoguess')">Playground</button>
-  </mat-menu>
-  
-  <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu">FHIR Server: {{selectedServer.name}}</button>
-  <mat-menu #serverMenu="matMenu">
-    <button mat-menu-item *ngFor="let server of fhirServers" (click)="setFhirServer(server)">{{server.name}}</button>
-  </mat-menu>
-
-  <button mat-flat-button color="primary" [matMenuTriggerFor]="editionsMenu">{{selectedEdition}}</button>
-  <mat-menu #editionsMenu="matMenu" class="wide-menu">
-    <ng-container *ngFor="let mainItem of editionsDetails">
-      <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>
-      <mat-menu #sub_menu="matMenu">
-         <button *ngFor="let subItem of mainItem.editions" mat-menu-item (click)="setEdition(subItem)">{{ subItem.resource.version }}</button>
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer mode="side" class="example-sidenav">
+    <div class="flex flex-col justify-center">
+      <button mat-button [matMenuTriggerFor]="demosMenuN">Select Demonstrator</button>
+      <mat-menu #demosMenuN="matMenu" class="wide-menu">
+        <button mat-menu-item (click)="navigate('/allergies')">Allergies CRG</button>
+        <button mat-menu-item (click)="navigate('/sandbox')">Terminology Bindings Sandbox</button>
+        <!-- <button mat-menu-item (click)="navigate('/prescription')">Prescription Demo</button> -->
+        <button mat-menu-item (click)="navigate('/questionnaires')">SNOMED & FHIR Questionnaires</button>
+        <button mat-menu-item (click)="navigate('/context')">Context Representation</button>
+        <button mat-menu-item (click)="navigate('/snoguess')">Playground</button>
       </mat-menu>
-    </ng-container>
-  </mat-menu>
-  
-  <button mat-flat-button color="primary" [matMenuTriggerFor]="menu">{{selectedLanguage}}</button>
-  <mat-menu #menu="matMenu">
-    <button mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">{{language}}</button>
-  </mat-menu>
 
-  <a mat-flat-button href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" color="primary">
-    <mat-icon>info</mat-icon>
-  </a>
-</mat-toolbar>
-<router-outlet></router-outlet>
+      <button mat-button [matMenuTriggerFor]="serverMenuN">FHIR Server: {{selectedServer.name}}</button>
+      <mat-menu #serverMenuN="matMenu">
+        <button mat-menu-item *ngFor="let server of fhirServers" (click)="setFhirServer(server)">{{server.name}}</button>
+      </mat-menu>
+
+      <button mat-button [matMenuTriggerFor]="editionsMenuN">Edition: {{selectedEdition}}</button>
+      <mat-menu #editionsMenuN="matMenu" class="wide-menu">
+        <span class="ml-4">Editions</span>
+        <ng-container *ngFor="let mainItem of editionsDetails">
+          <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>
+          <mat-menu #sub_menu="matMenu">
+            <span class="ml-4">Versions / Releases</span>
+            <button *ngFor="let subItem of mainItem.editions" mat-menu-item (click)="setEdition(subItem)">{{ subItem.resource.version }}</button>
+          </mat-menu>
+        </ng-container>
+      </mat-menu>
+      
+      <button mat-button [matMenuTriggerFor]="menuN">Language: {{selectedLanguage}}</button>
+      <mat-menu #menuN="matMenu">
+        <button mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">{{language}}</button>
+      </mat-menu>
+
+    </div>
+  </mat-drawer>
+
+  <mat-toolbar>
+    <button mat-icon-button (click)="drawer.toggle()" id="menu-button">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <img src="assets/img/small_logo.png" class="h-16">
+    <span id="title">SNOMED CT Implementation Demos</span>
+    <span class="example-spacer"></span>
+
+    <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu" class="bar-button">Select Demonstrator</button>
+    <mat-menu #demosMenu="matMenu" class="wide-menu">
+      <button mat-menu-item (click)="navigate('/allergies')">Allergies CRG</button>
+      <button mat-menu-item (click)="navigate('/sandbox')">Terminology Bindings Sandbox</button>
+      <!-- <button mat-menu-item (click)="navigate('/prescription')">Prescription Demo</button> -->
+      <button mat-menu-item (click)="navigate('/questionnaires')">SNOMED & FHIR Questionnaires</button>
+      <button mat-menu-item (click)="navigate('/context')">Context Representation</button>
+      <button mat-menu-item (click)="navigate('/snoguess')">Playground</button>
+    </mat-menu>
+    
+    <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu" class="bar-button">FHIR Server: {{selectedServer.name}}</button>
+    <mat-menu #serverMenu="matMenu">
+      <button mat-menu-item *ngFor="let server of fhirServers" (click)="setFhirServer(server)">{{server.name}}</button>
+    </mat-menu>
+
+    <button mat-flat-button color="primary" [matMenuTriggerFor]="editionsMenu" class="bar-button">{{selectedEdition}}</button>
+    <mat-menu #editionsMenu="matMenu" class="wide-menu">
+      <span class="ml-4">Editions</span>
+      <ng-container *ngFor="let mainItem of editionsDetails">
+        <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>
+        <mat-menu #sub_menu="matMenu">
+          <span class="ml-4">Versions / Releases</span>
+          <button *ngFor="let subItem of mainItem.editions" mat-menu-item (click)="setEdition(subItem)">{{ subItem.resource.version }}</button>
+        </mat-menu>
+      </ng-container>
+    </mat-menu>
+    
+    <button mat-flat-button color="primary" [matMenuTriggerFor]="menu" class="bar-button">{{selectedLanguage}}</button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">{{language}}</button>
+    </mat-menu>
+
+    <a mat-flat-button href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" color="primary">
+      <mat-icon>info</mat-icon>
+    </a>
+  </mat-toolbar>
+  <router-outlet></router-outlet>
+</mat-drawer-container>

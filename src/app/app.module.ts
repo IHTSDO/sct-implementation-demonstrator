@@ -28,6 +28,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatListModule} from '@angular/material/list';
 import {MatSortModule} from '@angular/material/sort';
+import {MatSidenavModule} from '@angular/material/sidenav';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -123,7 +124,8 @@ import { ContextMainComponent } from './context/context-main/context-main.compon
     MatCheckboxModule,
     MatListModule,
     MatSortModule,
-    FormsModule
+    FormsModule,
+    MatSidenavModule
   ],
   providers: [],
   bootstrap: [AppComponent],

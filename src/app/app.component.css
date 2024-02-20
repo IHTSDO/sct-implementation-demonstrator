@@ -10,6 +10,10 @@ button {
     font-size: medium;
 }
 
+.bar-button {
+    margin-left: 15px;
+}
+
 #title {
     margin-left: 15px;
     font-size: 1.4rem;
@@ -17,10 +21,6 @@ button {
 
 .example-spacer {
     flex: 1 1 auto;
-}
-
-button {
-    margin-left: 15px;
 }
 
 a {
@@ -41,9 +41,25 @@ a {
     padding: 10px;
 }
 
+#menu-button {
+    display: none;
+}
+
 @media (max-width: 768px) {
 
-    .mat-toolbar {
-        overflow: hidden;
+    #title {
+        font-size: 0.9rem;
     }
+}
+
+@media (max-width: 1200px) {
+
+    .bar-button {
+        display: none;
+    }
+
+    #menu-button {
+        display: block;
+    }
+
 }
