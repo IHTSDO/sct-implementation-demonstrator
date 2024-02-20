@@ -112,16 +112,28 @@ export class SnoguessService {
   }
 
   extractFSN(data: any): string | undefined {
-    let fsn: string | undefined;
+    let term = this.extractTerm(data, '900000000000003001', this.terminologyService.getLang());
+    if (!term) {
+      term = this.extractTerm(data, '900000000000013009', this.terminologyService.getLang());
+    }
+    if (!term) {
+      term = this.extractTerm(data, '900000000000003001', 'en');
+    }
+    return term;
+  }
+
+  extractTerm(data: any, typeId: string, lang: string): string {
+    let term: string = '';
     data.parameter.forEach((parameter: any) => {
       if (parameter.name === 'designation') {
-        let isFsn = parameter.part.some((part: any) => part.name === 'use' && part.valueCoding.code === '900000000000003001');
-        if (isFsn) {
-          fsn = parameter.part.find((part: any) => part.name === 'value')?.valueString;
+        let isFsn = parameter.part.some((part: any) => part.name === 'use' && part.valueCoding.code === typeId);
+        let isLang = parameter.part.some((part: any) => part.name === 'language' && part.valueCode === lang);
+        if (isFsn && isLang) {
+          term = parameter.part.find((part: any) => part.name === 'value')?.valueString;
         }
       }
     });
-    return fsn;
+    return term;
   }
 
   extractScg(data: any): string | undefined {

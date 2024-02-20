@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpErrorComponent } from '../alerts/http-error';
 import { SnackAlertComponent } from '../alerts/snack-alert';
+import { BehaviorSubject } from 'rxjs';
 
 
 type ConceptType = {
@@ -26,28 +26,48 @@ type NormalForm = {
 
 export class TerminologyService {
   
-
   snowstormFhirBase = 'https://snowstorm.ihtsdotools.org/fhir';
   defaultFhirUrlParam = 'http://snomed.info/sct'; // 'http://snomed.info/sct/11000221109/version/20211130'
   fhirUrlParam = this.defaultFhirUrlParam;
   lang = 'en';
 
+  private snowstormFhirBaseSubject = new BehaviorSubject<string>(this.snowstormFhirBase);
+  private fhirUrlParamSubject = new BehaviorSubject<string>(this.fhirUrlParam);
+  private langSubject = new BehaviorSubject<string>(this.lang);
+
+  // For external components to subscribe to
+  snowstormFhirBase$ = this.snowstormFhirBaseSubject.asObservable();
+  fhirUrlParam$ = this.fhirUrlParamSubject.asObservable();
+  lang$ = this.langSubject.asObservable();
+
+
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) { }
 
   setSnowstormFhirBase(url: string) {
     this.snowstormFhirBase = url;
+    this.snowstormFhirBaseSubject.next(url);
   }
   
   setFhirUrlParam(url: string) {
     this.fhirUrlParam = url;
+    this.fhirUrlParamSubject.next(url);
+  }
+  
+  setLang(lang: string) {
+    this.lang = lang;
+    this.langSubject.next(lang);
+  }
+
+  getSnowstormFhirBase() {
+    return this.snowstormFhirBase;
   }
 
   getFhirUrlParam() {
     return this.fhirUrlParam;
   }
 
-  setLang(lang: string) {
-    this.lang = lang;
+  getLang() {
+    return this.lang;
   }
 
   getCodeSystems() {
@@ -55,6 +75,14 @@ export class TerminologyService {
     return this.http.get<any>(requestUrl)
       .pipe(
         catchError(this.handleError<any>('getCodeSystems', {}))
+      );
+  }
+
+  getCodeSystem(version: string) {
+    let requestUrl = `${this.snowstormFhirBase}/CodeSystem?version=${version}`;
+    return this.http.get<any>(requestUrl)
+      .pipe(
+        catchError(this.handleError<any>('getCodeSystem', {}))
       );
   }
 
@@ -122,16 +150,16 @@ export class TerminologyService {
   private conceptCache = new Map<string, any>();
 
   lookupConcept(conceptId: string, version?: string) {
+    if (!version) version = this.fhirUrlParam;
     const cacheKey = `${version}:${conceptId}`;
     const cachedConcept = this.conceptCache.get(cacheKey);
     if (cachedConcept) {
       return of(cachedConcept);
     }
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=http://snomed.info/sct&code=${conceptId}&property=normalForm`;
-    if (version && version != 'http://snomed.info/sct') {
+    if (version != 'http://snomed.info/sct') {
       requestUrl += `&version=${version}`;
     }
-  
     // Define HttpHeaders, including Accept-Language
     const httpOptions = {
       headers: new HttpHeaders({

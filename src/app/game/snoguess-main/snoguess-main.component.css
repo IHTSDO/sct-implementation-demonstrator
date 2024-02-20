@@ -13,6 +13,7 @@
     word-break: break-all; /* Ensures the term wraps if it's too long for the container */
     margin-bottom: 20px; /* Adds some space before the next section */
     text-align: center; /* Center the term display */
+    font-family: monospace; /* Optional: use a monospace font for consistent character width */
   }
   
   .term-display span {
@@ -386,5 +387,9 @@
   /* Adjust font sizes if necessary */
   .snoguess-game .font-bold {
     font-size: 16px; /* Example to adjust font size on smaller screens */
+  }
+
+  .snoguess-game .diff-label {
+    text-align: right;
   }
 }

@@ -4,6 +4,7 @@ import { Game, SnoguessService } from "../service/snoguess.service";
 import { trigger, state, style, transition, animate, keyframes } from "@angular/animations";
 import { KeyboardComponent } from "../keyboard/keyboard.component";
 import { PreloadService } from "src/app/services/preload.service";
+import { TerminologyService } from "src/app/services/terminology.service";
 
 @Component({
   selector: 'app-snoguess-main',
@@ -60,7 +61,10 @@ export class SnoguessMainComponent implements OnInit {
   currentYear: Date = new Date();
   difficultyLevels: any[] = [];
 
-  constructor(private snoguessMainService: SnoguessService, private preloadService: PreloadService) {}
+  selectedEdition!: string;
+  selectedLanguage!: string;
+
+  constructor(private snoguessMainService: SnoguessService, private preloadService: PreloadService, private terminologyService: TerminologyService) {}
 
   ngOnInit(): void {
     this.game = this.snoguessMainService.getGameState();
@@ -110,6 +114,18 @@ export class SnoguessMainComponent implements OnInit {
 
     this.preloadService.loadingProgress.subscribe(progress => {
       this.loadingAssetsProgress = progress;
+    });
+
+    this.terminologyService.fhirUrlParam$.subscribe(url => {
+      if (url) {
+        this.terminologyService.getCodeSystem(url).subscribe(data => {
+          this.selectedEdition = data?.entry[0]?.resource?.title;
+        });
+      }
+    });
+
+    this.terminologyService.lang$.subscribe(lang => {
+      this.selectedLanguage = lang;
     });
   }
 
