@@ -66,7 +66,7 @@
       * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as an SCG grammar expression
     </div>
     
-    <div *ngIf="gameState.hints.length > 0" class="hints-container">
+    <div *ngIf="gameState.hints.length > 0 && gameState.state == 'playing'" class="hints-container">
       <div class="hints-callout text-center">
         <h2>Hints:</h2>
         <ul>
