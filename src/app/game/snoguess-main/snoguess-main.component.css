@@ -240,16 +240,11 @@
   }
 
   .hints-container {
-    background-color: #f9f9f9; /* Light background */
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Soft shadow */
-    padding: 20px;
-    margin-top: 20px;
+    margin-top: 1rem;
   }
   
   .hints-callout h2 {
-    color: #333; /* Match the color scheme of the game */
-    font-size: 1.5em; /* Slightly larger for visibility */
+    margin-bottom: .5rem ;
   }
   
   .hint-item {
