@@ -13,26 +13,13 @@
 
     <div class="flex justify-center mt-8 mb-8">
       <div class="relative w-1/4"> <!-- Set a width and position relative -->
-        <img src="assets/img/snoguess-logo.png" alt="Game Logo">
+        <img src="assets/img/snoguess-logo.png" alt="Game Logo" [@popIn]>
         <div class="diff-label absolute -bottom-3 right-5 italic text-gray-500"> <!-- Absolutely position the difficulty level -->
           {{ gameState.difficultyLevel }}
         </div>
       </div>
     </div>
 
-    <div class="term-display flex flex-row flex-wrap justify-center gap-4" *ngIf="gameState.state == 'playing'">
-      <span *ngFor="let segment of gameState.displayTerm.join('').split(' ')" class="whitespace-nowrap">
-        <span *ngFor="let char of segment.split('')">{{ char }}</span>
-      </span>
-    </div>
-    
-    <div *ngIf="gameState.state === 'choosingTerm'" class="loading-container">
-      <div class="progress-bar-message">
-        Choosing a random SNOMED CT concept using the FHIR API
-      </div>
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    </div>
-    
     <div class="hit-points">
       <span class="score">
         Round: {{ gameState.round }} &nbsp;&nbsp;&nbsp;&nbsp; Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
@@ -45,6 +32,19 @@
       </span>
     </div>
 
+    <div class="term-display flex flex-row flex-wrap justify-center gap-8" *ngIf="gameState.state == 'playing'">
+      <span *ngFor="let segment of gameState.displayTerm.join('').split(' ')" class="whitespace-nowrap">
+        <span *ngFor="let char of segment.split('')">{{ char }}</span>
+      </span>
+    </div>
+    
+    <div *ngIf="gameState.state === 'choosingTerm'" class="loading-container">
+      <div class="progress-bar-message">
+        Choosing a random SNOMED CT concept using the FHIR API
+      </div>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+    
     <p class="guess-message">Click the keys to guess the letters of the term!</p>
     <div [@shake]="shakeState">
       <app-keyboard #keyboard (letterGuessed)="guessLetter($event)"></app-keyboard>
@@ -94,7 +94,7 @@
 
   <div *ngIf="gameState.state === 'menu' && !chooseDifficulty && !showInstructions && !loadingAssets" class="flex flex-col items-center gap-4">
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
-    <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
+    <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/3 mt-8" [@popIn]>
     <p class="text-center font-light text-lg">
       <b>Welcome to SnoGuess!</b>
     </p>
@@ -192,7 +192,7 @@
       <div> The term was: </div>
       <div class="font-bold"> {{ gameState.term }}</div>
       <div class="mt-12">{{ gameState.round }} {{ (gameState.round == 1) ? 'round' : 'rounds' }}</div>
-      <div class="mt-4">Final Score: {{ gameState.score }} points</div>
+      <div class="mt-4">Final Score: {{ gameState.score }} points - Difficulty: {{ gameState.difficultyLevel }}</div>
       <div *ngIf="getMaxTrophyObtained(gameState.score)">
         Trophy: {{ getMaxTrophyObtained(gameState.score) }}
       </div>
@@ -225,7 +225,7 @@
       <mat-icon class="large-icon diamond shadow-local">emoji_events</mat-icon>
       <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
     </div>
-    <div class="reveal won">Final score: {{ gameState.score }}</div>
+    <div class="reveal won">Final score: {{ gameState.score }} - Difficulty: {{ gameState.difficultyLevel }}</div>
 
     <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 

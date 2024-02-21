@@ -17,7 +17,7 @@
   }
   
   .term-display span {
-    padding: 0 2px; /* Optional: add padding to each character if you want more space */
+    padding: 0 0px; /* Optional: add padding to each character if you want more space */
   }
   
   /* Styles for the hit points display */
@@ -25,6 +25,7 @@
     font-weight: bold;
     color: #d9534f; /* Red color to indicate the importance of hit points */
     text-align: center;
+    margin-bottom: 2rem;;
   }
   
   /* Input and button styling */
@@ -116,7 +117,7 @@
   }
   
   .score {
-    font-size: 1.6rem; /* Adjust the font size as needed */
+    font-size: 1.4rem; /* Adjust the font size as needed */
     font-weight: bold;
   }
 
