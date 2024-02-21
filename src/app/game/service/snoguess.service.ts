@@ -306,13 +306,18 @@ export class SnoguessService {
       const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
       if (isTermGessed && newState.state === 'playing') {
         this.termResult.emit(newState.term); // Emit true for correct term guesses
-        newState.hitPoints = newState.hitPoints + this.rules.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
-        if (newState.hitPoints > this.rules.maxHitPoints) {
-          newState.hitPoints = this.rules.maxHitPoints;
+        // check if the game is won
+        if (newState.score > this.goals[this.goals.length - 1].score) {
+          newState.state = 'won'; // Update the state to 'won'
+        } else {
+          newState.hitPoints = newState.hitPoints + this.rules.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
+          if (newState.hitPoints > this.rules.maxHitPoints) {
+            newState.hitPoints = this.rules.maxHitPoints;
+          }
+          setTimeout(() => {
+            this.newRound();
+          }, 1500);
         }
-        setTimeout(() => {
-          this.newRound();
-        }, 1500);
       }
     }
   
@@ -321,7 +326,7 @@ export class SnoguessService {
   
   
 
-  // Guess the full term
+  // Guess the full term DEPRECATED
   guessTerm(guess: string): boolean {
     if (guess.toLowerCase() === this.game.value.term.toLowerCase()) {
       this.termResult.emit(guess); // Emit true for correct term guesses
