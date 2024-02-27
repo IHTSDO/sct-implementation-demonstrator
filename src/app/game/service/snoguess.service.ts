@@ -13,6 +13,8 @@ export interface Game {
   round: number; // Round of the game
   difficultyLevel: string; // Difficulty level of the game
   rules: any; // Rules and settings for the game
+  startTimestamp: number; // Timestamp when the game started
+  endTimestamp: number; // Timestamp when the game ended
 }
 
 interface SnomedConcept {
@@ -212,7 +214,9 @@ export class SnoguessService {
       score: 0,
       round: 0,
       rules: this.rules,
-      difficultyLevel: ''
+      difficultyLevel: '',
+      startTimestamp: 0,
+      endTimestamp: 0
     };
   }
 
@@ -228,7 +232,9 @@ export class SnoguessService {
       score: 0,
       round: 0,
       rules: this.rules,
-      difficultyLevel: difficulty
+      difficultyLevel: difficulty,
+      startTimestamp: Date.now(),
+      endTimestamp: 0
      });
     this.newRound(true);
   }
@@ -299,6 +305,7 @@ export class SnoguessService {
       if (newState.hitPoints <= 0) {
         newState.hitPoints = 0; // Ensure hit points don't go negative
         newState.state = 'gameOver'; // Update the state to 'gameOver'
+        newState.endTimestamp = Date.now();
       }
     } else {
       this.guessResult.emit({ letter: letter, result: true });

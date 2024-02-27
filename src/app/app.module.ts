@@ -61,6 +61,7 @@ import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.compon
 import { KeyboardComponent } from './game/keyboard/keyboard.component';
 import { SituationMapComponent } from './context/situation-map/situation-map.component';
 import { ContextMainComponent } from './context/context-main/context-main.component';
+import { ElapsedTimePipe } from './pipes/elapsed-time.pipe';
 
 @NgModule({
   declarations: [
@@ -91,7 +92,8 @@ import { ContextMainComponent } from './context/context-main/context-main.compon
     SnoguessMainComponent,
     KeyboardComponent,
     SituationMapComponent,
-    ContextMainComponent
+    ContextMainComponent,
+    ElapsedTimePipe
   ],
   imports: [
     HttpClientModule,

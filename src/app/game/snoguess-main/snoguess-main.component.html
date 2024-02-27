@@ -30,6 +30,7 @@
       <span *ngFor="let hp of [].constructor(gameState.rules.maxHitPoints - gameState.hitPoints); let i = index">
           <mat-icon>favorite_border</mat-icon>
       </span>
+      <span class="score"> &nbsp;&nbsp;&nbsp;&nbsp; Time: {{ (elapsedTime * 1000) | elapsedTime }}</span>
     </div>
 
     <div class="term-display flex flex-row flex-wrap justify-center gap-8" *ngIf="gameState.state == 'playing'">
@@ -191,7 +192,9 @@
       <div> The term was: </div>
       <div class="font-bold"> {{ gameState.term }}</div>
       <div class="mt-12">{{ gameState.round }} {{ (gameState.round == 1) ? 'round' : 'rounds' }}</div>
-      <div class="mt-4">Final Score: {{ gameState.score }} points - Difficulty: {{ gameState.difficultyLevel }}</div>
+      <div class="mt-4">
+        Final Score: {{ gameState.score }} points - Difficulty: {{ gameState.difficultyLevel }} - Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}
+      </div>
       <div *ngIf="getMaxTrophyObtained(gameState.score)">
         Trophy: {{ getMaxTrophyObtained(gameState.score) }}
       </div>
@@ -224,7 +227,7 @@
       <mat-icon class="large-icon diamond shadow-local">emoji_events</mat-icon>
       <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
     </div>
-    <div class="reveal won">Final score: {{ gameState.score }} - Difficulty: {{ gameState.difficultyLevel }}</div>
+    <div class="reveal won">Final score: {{ gameState.score }} - Difficulty: {{ gameState.difficultyLevel }} - Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}</div>
 
     <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
@@ -239,7 +242,7 @@
   </div>
 
 </div>
-<div class="text-center mt-8">
+<div class="text-center mt-8 mb-4">
   Copyright © {{ currentYear | date:'yyyy' }} SNOMED International
 </div>
 

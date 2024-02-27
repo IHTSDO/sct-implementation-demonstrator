@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { Observable, firstValueFrom } from "rxjs";
+import { Observable, Subscription, firstValueFrom, map, takeWhile, timer } from "rxjs";
 import { Game, SnoguessService } from "../service/snoguess.service";
 import { trigger, state, style, transition, animate, keyframes } from "@angular/animations";
 import { KeyboardComponent } from "../keyboard/keyboard.component";
@@ -64,6 +64,11 @@ export class SnoguessMainComponent implements OnInit {
   selectedEdition!: string;
   selectedLanguage!: string;
 
+  private gameTimerSubscription!: Subscription;
+  public elapsedTime: number = 0;
+  private gameInProgress: boolean = false;
+
+
   constructor(private snoguessMainService: SnoguessService, private preloadService: PreloadService, private terminologyService: TerminologyService) {}
 
   ngOnInit(): void {
@@ -72,6 +77,9 @@ export class SnoguessMainComponent implements OnInit {
     this.game.subscribe((game: Game) => {
       if (game.state === 'playing') {
         this.goals = game.rules.goals;
+      }
+      if (game.state === 'gameOver') {
+        this.stopTimer();
       }
     });
     this.snoguessMainService.guessResult.subscribe((guess: any) => {
@@ -152,7 +160,9 @@ export class SnoguessMainComponent implements OnInit {
   startGame(level: string): void {
     this.chooseDifficulty = false;
     if (this.keyboard) this.keyboard.reset();
+    this.stopTimer(); // Ensure any existing timer is stopped before starting a new one
     this.snoguessMainService.startGame(level);
+    this.startTimer(); // Start the game timer
   }
 
   async guessLetter(letter: string) {
@@ -211,5 +221,23 @@ export class SnoguessMainComponent implements OnInit {
     });
     return maxTrophy;
   }
+
+  startTimer(): void {
+    this.elapsedTime = 0;
+    this.gameInProgress = true;
+    const timer$ = timer(0, 1000).pipe(
+      map(tick => this.elapsedTime = tick),
+      takeWhile(() => this.gameInProgress)
+    );
+    this.gameTimerSubscription = timer$.subscribe();
+  }
+  
+  stopTimer(): void {
+    this.gameInProgress = false;
+    if (this.gameTimerSubscription) {
+      this.gameTimerSubscription.unsubscribe();
+    }
+  }
+  
 
 }
