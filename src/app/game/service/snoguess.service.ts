@@ -316,6 +316,7 @@ export class SnoguessService {
         // check if the game is won
         if (newState.score > this.goals[this.goals.length - 1].score) {
           newState.state = 'won'; // Update the state to 'won'
+          newState.endTimestamp = Date.now();
         } else {
           newState.hitPoints = newState.hitPoints + this.rules.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
           if (newState.hitPoints > this.rules.maxHitPoints) {

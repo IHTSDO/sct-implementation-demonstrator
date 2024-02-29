@@ -54,6 +54,8 @@ export class QuestionnaireHistoryComponent implements OnInit, OnChanges {
   }
 
   loadVersions(questionnaire?:any) {
+    this.versions = [];
+    this.dataSource.data = this.versions;
     if (questionnaire) {
       this.questionnaire = questionnaire;
     }

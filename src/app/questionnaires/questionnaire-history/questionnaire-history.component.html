@@ -18,7 +18,7 @@
 
         <ng-container matColumnDef="lastUpdated">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
-            <td mat-cell *matCellDef="let element"> <i>{{element.meta.lastUpdated | date:'fullDate'}}</i></td>
+            <td mat-cell *matCellDef="let element"> <i>{{element.meta.lastUpdated | date:'MMMM d, y, h:mm:ss a'}}</i></td>
         </ng-container>
 
         <ng-container matColumnDef="type">
@@ -46,7 +46,7 @@
             </button>
             <button mat-icon-button color="accent" (click)="restore(element)" class="action-button"
             *ngIf="element?.meta?.versionId != versions[0]?.meta?.versionId"
-             matTooltip="Restore Questionnaire Version">
+             matTooltip="Restore Version">
                 <mat-icon>restore_page</mat-icon>
             </button>
         </td>

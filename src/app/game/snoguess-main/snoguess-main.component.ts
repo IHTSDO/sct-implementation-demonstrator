@@ -78,7 +78,7 @@ export class SnoguessMainComponent implements OnInit {
       if (game.state === 'playing') {
         this.goals = game.rules.goals;
       }
-      if (game.state === 'gameOver') {
+      if (game.state === 'gameOver' || game.state === 'won') {
         this.stopTimer();
       }
     });
