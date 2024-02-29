@@ -51,7 +51,12 @@
             *ngIf="!isRootQuestionnaire(element)" matTooltip="Edit Questionnaire">
                 <mat-icon>edit</mat-icon>
             </button>
+            <button mat-icon-button color="accent" (click)="openModularQuestionnaireModal(element)" class="action-button"
+            *ngIf="isRootQuestionnaire(element)" matTooltip="Edit Modular Questionnaire">
+                <mat-icon>edit</mat-icon>
+            </button>
             <button mat-icon-button color="accent" (click)="viewHistory(element)" class="action-button"
+            [disabled]="element.meta.versionId == 1"
              matTooltip="View Questionnaire History">
                 <mat-icon>history</mat-icon>
             </button>

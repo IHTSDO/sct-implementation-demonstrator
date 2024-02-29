@@ -9,7 +9,7 @@
     </button>
   </div>
   <p  class="header" *ngIf="questionnaire" id="tab-header">
-    <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span>
+    <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span> - - Version: {{ questionnaire.meta.versionId }} ({{ questionnaire.meta.lastUpdated | date:'fullDate' }})
     <span class="mini-pill Error" *ngIf="loadResults.total > 0">Error: {{loadResults.error}}</span>
     <span class="mini-pill Inactive" *ngIf="loadResults.total > 0">Inactive: {{loadResults.inactive}}</span>
     <span class="mini-pill Active" *ngIf="loadResults.total > 0">Active: {{loadResults.active}}</span>
