@@ -69,5 +69,6 @@
 
 .download-button-container {
     margin-top: 10px; /* Adds some space between the table and the button */
+    margin-bottom: 2rem;
 }
 
