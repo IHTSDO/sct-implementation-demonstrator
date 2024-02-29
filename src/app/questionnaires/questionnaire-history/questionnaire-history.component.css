@@ -1,0 +1,73 @@
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+  
+.list-text {
+    flex-grow: 1; /* Ensures the text takes up the available space */
+}
+
+.list-subtext {
+    font-size: 0.8rem;
+    color: #666;
+    margin-left: 1rem;
+}
+  
+.action-button {
+    margin-left: 8px; /* Optional, for some spacing between text and button */
+}
+  
+.loading-spinner {
+    margin-left: 2rem;
+    margin-top: 2rem;
+}
+
+.list-item:hover {
+    background-color: #f5f5f5; /* or any other color you prefer */
+}
+  
+.status-pill {
+    display: inline-block;
+    padding: 3px 8px; /* Adjusted padding for a smaller height */
+    border-radius: 15px;
+    font-size: 10px; /* Smaller font size */
+    color: white;
+    text-align: center;
+    margin-left: 1rem;
+}
+
+.status-pill.draft {
+    background-color: #007bff; /* Blue for draft status */
+}
+
+.status-pill.unknown {
+    background-color: #ffc107; /* Yellow for unknown status */
+}
+
+.status-pill.active {
+    background-color: #28a745; /* Green for active status */
+}
+
+.status-pill.retired {
+    background-color: #dc3545; /* Red for retired status */
+}
+
+.not-found {
+    margin-top: 2rem;
+}
+
+#outer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Aligns child elements to the right */
+}
+
+.download-button-container {
+    margin-top: 10px; /* Adds some space between the table and the button */
+}
+
+.table-container {
+    margin: 2rem;
+    padding-bottom: 2rem;
+}

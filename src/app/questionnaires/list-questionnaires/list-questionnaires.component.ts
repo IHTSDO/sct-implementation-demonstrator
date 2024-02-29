@@ -23,6 +23,8 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   @Output() questionnaireSelected = new EventEmitter<any>();
   @Output() validateQuestionnaire = new EventEmitter<any>();
   @Output() previewQuestionnaire = new EventEmitter<any>();
+  @Output() viewQuestionaireHistory = new EventEmitter<any>();
+
 
   @Input() config: any = {};
 
@@ -92,7 +94,7 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     this.fhirService.getQuestionnairesByTag(this.selectedUserTag).subscribe((data: any) => {
       if (data['entry']) {
         this.questionnaires = data['entry'].map((entry: any) => entry.resource);
-        this.dataSource.data = this.questionnaires; //.slice(0, 11);
+        this.dataSource.data = this.questionnaires; 
         this.dataSource.sort = this.sort;
         this.loading = false;
       } else {
@@ -147,6 +149,10 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
 
   validate(questionnaire: any) {
     this.validateQuestionnaire.emit(questionnaire);
+  }
+
+  viewHistory(questionnaire: any) {
+    this.viewQuestionaireHistory.emit(questionnaire);
   }
 
   preview(questionnaire: any) {

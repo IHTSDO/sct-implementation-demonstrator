@@ -148,7 +148,6 @@ export class SituationMapComponent implements OnInit {
 
   findingWithExplicitContextSelected(situation: any) {
     if (situation && situation.code) {
-      // console.log('Selected situation:', situation);
       this.convertSituationToFhir(situation);
     }
   }

@@ -50,18 +50,27 @@
       <div class="tab-container">
         <app-list-questionnaires #questionnairesList [config]="listConfig"
           (validateQuestionnaire)="switchToValidateTab($event)"
-          (previewQuestionnaire)="switchToPreviewTab($event)">
+          (previewQuestionnaire)="switchToPreviewTab($event)"
+          (viewQuestionaireHistory)="switchToHistoryTab($event)">
         </app-list-questionnaires>
       </div>
     </mat-tab>
     <mat-tab label="Preview">
       <div class="tab-container">
+        <h4 *ngIf="questionnaire">{{ questionnaire.title }} - Version: {{ questionnaire.meta.versionId }} ({{ questionnaire.meta.lastUpdated | date:'fullDate' }})</h4>
         <div id="myFormContainer" [class.hidden]="!questionnaire"></div>
       </div>
     </mat-tab>
     <mat-tab label="Validate SNOMED Bindings">
       <app-validate-questionnaire #validateQuestionnaire [questionnaire]="questionnaire" 
-      (questionnaireUpdated)="loadQuestionnaire($event)" (validatingQuestionnaire)="validating = $event"></app-validate-questionnaire>
+      (questionnaireUpdated)="loadQuestionnaire($event)" 
+      (validatingQuestionnaire)="validating = $event"></app-validate-questionnaire>
+    </mat-tab>
+    <mat-tab label="History">
+      <app-questionnaire-history #questionnaireHistory [questionnaire]="questionnaire"
+        (previewQuestionnaire)="switchToPreviewTab($event)"
+        (restoreQuestionnaireVersion)="saveQuestionnaire($event)">
+      </app-questionnaire-history>
     </mat-tab>
   </mat-tab-group>
 </div>

@@ -1,4 +1,4 @@
-<div id="table-container">
+<div class="table-container">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
 
         <ng-container matColumnDef="title">
@@ -16,6 +16,11 @@
             <td mat-cell *matCellDef="let element"> {{element.meta.versionId}} </td>
         </ng-container>
 
+        <ng-container matColumnDef="lastUpdated">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+            <td mat-cell *matCellDef="let element"> <i>{{element.meta.lastUpdated | date:'fullDate'}}</i></td>
+        </ng-container>
+
         <ng-container matColumnDef="type">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
           <td mat-cell *matCellDef="let element">
@@ -27,60 +32,33 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Actions </th>
           <td mat-cell *matCellDef="let element">
-            <button mat-icon-button color="accent" (click)="validate(element)" class="action-button"
-            *ngIf="config.validate" [disabled]="isRootQuestionnaire(element)" matTooltip="Validate Questionnaire">
-                <mat-icon>done</mat-icon>
-            </button>
-            <button mat-icon-button color="accent" (click)="assemble(element)" class="action-button"
-            *ngIf="isRootQuestionnaire(element)" matTooltip="Assemble Questionnaire">
-                <mat-icon>build</mat-icon>
-            </button>
             <button mat-icon-button color="accent" (click)="preview(element)" class="action-button"
-            *ngIf="config.preview && !isRootQuestionnaire(element)" matTooltip="Preview Questionnaire">
+            matTooltip="Preview Questionnaire">
                 <mat-icon>visibility</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="openInNewTab(element)" class="action-button"
-            *ngIf="config.preview" matTooltip="Open resource in new tab">
+            matTooltip="Open resource in new tab">
                 <mat-icon>open_in_new</mat-icon>
             </button>
             <button mat-icon-button color="accent" (click)="saveQuestionnaire(element)" class="action-button"
             matTooltip="Download Questionnaire">
                 <mat-icon>cloud_download</mat-icon>
             </button>
-            <button mat-icon-button color="accent" (click)="editQuestionnaire(element)" class="action-button"
-            *ngIf="!isRootQuestionnaire(element)" matTooltip="Edit Questionnaire">
-                <mat-icon>edit</mat-icon>
+            <button mat-icon-button color="accent" (click)="restore(element)" class="action-button"
+            *ngIf="questionnaire?.meta?.versionId !== element?.meta?.versionId"
+             matTooltip="Restore Questionnaire Version">
+                <mat-icon>restore_page</mat-icon>
             </button>
-            <button mat-icon-button color="accent" (click)="viewHistory(element)" class="action-button"
-             matTooltip="View Questionnaire History">
-                <mat-icon>history</mat-icon>
-            </button>
-            <span matTooltip="{{ getDeleteTooltip(element) }}">
-              <button mat-icon-button color="accent" (click)="deleteQuestionnaire(element)"
-                      [disabled]="getReferencingQuestionnaires(element).length > 0">
-                  <mat-icon>delete</mat-icon>
-              </button>
-            </span>
-            
-
-          </td>
+        </td>
         </ng-container>
       
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-    <p *ngIf="notFound && !questionnaires.length" class="not-found">
+    <p *ngIf="!questionnaire" class="not-found">
       <i>
-        No questionnaires found. Upload your questionnaires to start.
+        No questionnaire selected.
       </i>
     </p>
     <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
-</div>
-<div id="outer-container">
-  <div class="download-button-container">
-      <button mat-flat-button color="accent" (click)="downloadAllQuestionnaires()"
-          matTooltip="Dowload all Questionnaires" *ngIf="!loading && questionnaires.length > 0">
-          Download bundle
-      </button>
-  </div>
 </div>

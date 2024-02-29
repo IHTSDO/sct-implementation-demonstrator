@@ -103,4 +103,13 @@ export class FhirService {
     
   }
 
+  // Retrieve all previous versions of a specific questionnaire
+  getQuestionnaireHistory(questionnaireId: string) {
+    return this.http.get(`${this.getBaseUrl()}/Questionnaire/${questionnaireId}/_history`);
+  }
+
+  getSpecificQuestionnaireVersion(questionnaireId: string, versionId: string) {
+    return this.http.get(`${this.getBaseUrl()}/Questionnaire/${questionnaireId}/_history/${versionId}`);
+  }
+
 }

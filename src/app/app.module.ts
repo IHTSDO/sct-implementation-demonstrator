@@ -62,6 +62,7 @@ import { KeyboardComponent } from './game/keyboard/keyboard.component';
 import { SituationMapComponent } from './context/situation-map/situation-map.component';
 import { ContextMainComponent } from './context/context-main/context-main.component';
 import { ElapsedTimePipe } from './pipes/elapsed-time.pipe';
+import { QuestionnaireHistoryComponent } from './questionnaires/questionnaire-history/questionnaire-history.component';
 
 @NgModule({
   declarations: [
@@ -93,7 +94,8 @@ import { ElapsedTimePipe } from './pipes/elapsed-time.pipe';
     KeyboardComponent,
     SituationMapComponent,
     ContextMainComponent,
-    ElapsedTimePipe
+    ElapsedTimePipe,
+    QuestionnaireHistoryComponent
   ],
   imports: [
     HttpClientModule,

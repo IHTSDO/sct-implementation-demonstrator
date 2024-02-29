@@ -15,6 +15,7 @@ import { ListQuestionnairesComponent } from '../list-questionnaires/list-questio
 import { CreateRootModuleComponent } from '../create-root-module/create-root-module.component';
 import { QuestionnaireService } from 'src/app/services/questionnaire.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { QuestionnaireHistoryComponent } from '../questionnaire-history/questionnaire-history.component';
 
 
 @Component({
@@ -27,6 +28,7 @@ export class QuestionnairesMainComponent implements OnInit{
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
   @ViewChild('questionnairesList') questionnairesList!: ListQuestionnairesComponent;
   @ViewChild('fileInput') uploadInput!: ElementRef;
+  @ViewChild('questionnaireHistory') questionnaireHistory!: QuestionnaireHistoryComponent;
 
   loading = false;
   validating = false;
@@ -105,6 +107,12 @@ export class QuestionnairesMainComponent implements OnInit{
       } else {
         LForms.Util.addFormToPage({}, 'myFormContainer');
       }
+    }
+  }
+
+  displayHistory(questionnaire: any) {
+    if (questionnaire) {
+      this.questionnaireHistory.loadVersions(questionnaire);
     }
   }
 
@@ -320,6 +328,11 @@ export class QuestionnairesMainComponent implements OnInit{
   switchToPreviewTab(questionnaire: any) {
     this.loadQuestionnaire(questionnaire);
     this.tabGroup.selectedIndex = 1;
+  }
+
+  switchToHistoryTab(questionnaire: any) {
+    this.displayHistory(questionnaire);
+    this.tabGroup.selectedIndex = 3;
   }
 
   advanceFromStep1() {

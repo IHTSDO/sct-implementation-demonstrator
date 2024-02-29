@@ -29,7 +29,6 @@ export class AppComponent {
   constructor( private codingSpecService: CodingSpecService, public excelService: ExcelService, private terminologyService: TerminologyService, public router: Router ) { 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        // console.log("Analytics code", event.urlAfterRedirects)
         // Send pageview event to Google Analytics on each route change.
         gtag('config', 'G-7SK998GPMX', {
           'page_path': event.urlAfterRedirects
