@@ -3,22 +3,22 @@
     <div class="left-column">
         <div class="upload-controls">
             <h3>Subset Members Validator</h3>
-            <p>Validating against {{ terminologyService.getFhirUrlParam() }}</p>
+            <p class="mb-4">Validating against {{ terminologyService.getFhirUrlParam() }}</p>
             <p class="terminal-style" *ngIf="studentSubsetDefinition">{{studentSubsetDefinition}}</p>
             <input type="file" #fileInput style="display: none" (change)="onSubsetmembersFileSelected($event)" />
             <input type="file" #fileInputDefinition style="display: none" (change)="onDefinitionFileSelected($event)" />
             <div class="buttons-panel">
                 <button mat-flat-button color="primary" (click)="fileInputDefinition.click()">Upload Definition File</button>
                 <button mat-flat-button color="primary" (click)="fileInput.click()">Upload Members File</button>
-                <button mat-flat-button color="primary" (click)="validateSubsetMembers()"
-                [disabled]="!studentSubsetDefinition || !studentSubsetMembersDataSource.data.length">Validate</button>
-                <mat-spinner *ngIf="loading || validatingMembers || validatingDefinition" class="spinner" diameter="30"></mat-spinner>
+                <button mat-flat-button color="primary" (click)="validateAssignment()"
+                [disabled]="!studentSubsetMembersDataSource.data.length">Validate</button>
+                <mat-spinner *ngIf="loading" class="spinner" diameter="30"></mat-spinner>
             </div>
-            <div class="blue-rounded-div" *ngIf="definitionValidationResult || membersValidationResult">
-                <h4>Validation Results</h4>
-                <p class="validation-result">{{definitionVsMembersValudationResult}}</p>
-                <p class="validation-result">{{definitionValidationResult}}</p>
-                <p class="validation-result">{{membersValidationResult}}</p>
+            <div class="blue-rounded-div" *ngIf="!loading && membersNotInRefrenceListResult">
+                <h4 class="text-white mb-1">Validation Results</h4>
+                <p class="validation-result">{{definitionVsMembersValidationResult}}</p>
+                <p class="validation-result">{{keyConceptValidationResult}}</p>
+                <p class="validation-result">{{membersNotInRefrenceListResult}}</p>
             </div>
         </div>
         <!-- Table to display the data -->
@@ -39,36 +39,46 @@
             <!-- Result Column -->
             <ng-container matColumnDef="result">
                 <th mat-header-cell *matHeaderCellDef>Result</th>
-                <td mat-cell *matCellDef="let element">{{ element.result.value }}</td>
+                <td mat-cell *matCellDef="let element">
+                  <span *ngIf="membersValidationResult">
+                    <span *ngIf="element?.inReferenceList?.value">OK</span>
+                    <span *ngIf="!element?.inReferenceList?.value && element?.customMessage?.value">
+                      {{ element.customMessage.principle }}, {{ element.customMessage.note }}
+                    </span>
+                    <span *ngIf="!element?.inReferenceList?.value && !element?.customMessage?.value">
+                      Error
+                    </span>
+                  </span>
+                </td>
             </ng-container>
 
             <!-- Result Column -->
-            <ng-container matColumnDef="scope">
+            <!-- <ng-container matColumnDef="scope">
                 <th mat-header-cell *matHeaderCellDef>Definition</th>
                 <td mat-cell *matCellDef="let element">{{ element.scope.value }}</td>
-            </ng-container>
+            </ng-container> -->
       
             <!-- Header and Rows -->
             <tr mat-header-row *matHeaderRowDef="studentSubsetMembersDisplayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: studentSubsetMembersDisplayedColumns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: studentSubsetMembersDisplayedColumns;" [ngClass]="{'bg-pink': !row.inReferenceList?.value && membersValidationResult}"></tr>
           </table>
         </div>
     </div>
     <div class="right-column">
         <h3>Assignment</h3>
 
-        <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">Selected assignment: {{ selectedAssignment }}</button>
+        <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">Selected assignment: {{ selectedAssignment?.name }}</button>
         <mat-menu #demosMenu="matMenu" class="wide-menu">
-            <button mat-menu-item (click)="setAssignment('moduleD')">Module D Assignment</button>
+            <button mat-menu-item *ngFor="let item of assignments" (click)="setAssignment(item)">{{ item.name }}</button>
         </mat-menu>
 
         <h3>Instructions</h3>
         <div class="instructions">
             <ol>
-                <li>Select assignment</li>
-                <li>Upload definition file</li>
-                <li>Upload members file</li>
-                <li>Click validate</li>
+                <li>1- Select assignment</li>
+                <li>2- Upload definition file</li>
+                <li>3- Upload members file</li>
+                <li>4- Click validate</li>
             </ol>
         </div>
         <!-- <div class="upload-controls">

@@ -14,129 +14,204 @@ import { TerminologyService } from 'src/app/services/terminology.service';
 export class SubsetValidatorComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
-  studentSubsetMembersDisplayedColumns: string[] = ['referencedComponentId', 'name', 'result', 'scope'];
+  studentSubsetMembersDisplayedColumns: string[] = ['referencedComponentId', 'name', 'result'];
   studentSubsetMembersDataSource = new MatTableDataSource<any>();
   studentSubsetmembers: any[] = [];
   studentSubsetDefinition: string = "";
-  definitionValidationResult: string = "";
-  definitionVsMembersValudationResult: string = "";
-  membersValidationResult: string = "";
-  validatingMembers: boolean = false;
-  validatingDefinition: boolean = false;
+
+  keyConceptValidationResult: string = "";
+  definitionVsMembersValidationResult: string = "";
+  membersNotInRefrenceListResult: string = "";
+  membersValidationResult = false;
+
+
   loading: boolean = false;
 
   ok: string = "✅";
   error: string = "🟥";
 
-  referenceData: any[] = []
+  assignments = [
+    {
+      "name": "Assignment X",
+      "referenceData": [
+        { "referencedComponentId": "403197009", "name": "Sun-induced wrinkles" },
+        { "referencedComponentId": "279002006", "name": "Lichenification of skin" },
+        { "referencedComponentId": "274672009", "name": "Changes in skin texture" },
+        { "referencedComponentId": "271767006", "name": "Peeling of skin" },
+        { "referencedComponentId": "271761007", "name": "Scaly skin" },
+        { "referencedComponentId": "247434009", "name": "Wrinkled skin" }
+      ],
+      "referenceDefinition": "< 185823004 |Finding of skin texture (finding)|",
+      "keyConceptsInECL": [
+        { "code": "185823004", "display": "Finding of skin texture (finding)"}
+      ],
+      "customMessages": [
+        { "conceptId": "403197009", "note": "wrong hierarchy", "principle": "wrong hierarchy" }, 
+        { "conceptId": "403197009", "note": "wrong hierarchy", "principle": "wrong hierarchy" }
+      ]
+    },
+    {
+      "name": "Assignment Y",
+      "referenceData": [
+        { "referencedComponentId": "403197009", "name": "Sun-induced wrinkles" },
+        { "referencedComponentId": "279002006", "name": "Lichenification of skin" },
+        { "referencedComponentId": "274672009", "name": "Changes in skin texture" },
+        { "referencedComponentId": "271767006", "name": "Peeling of skin" },
+        { "referencedComponentId": "271761007", "name": "Scaly skin" },
+        { "referencedComponentId": "247434009", "name": "Wrinkled skin" }
+      ],
+      "referenceDefinition": "< 185823004 |Finding of skin texture (finding)|",
+      "keyConceptsInECL": [
+        { "code": "185823004", "display": "Finding of skin texture (finding)"}
+      ],
+      "customMessages": [
+        { "conceptId": "403197009", "note": "wrong hierarchy", "principle": "wrong hierarchy" }, 
+        { "conceptId": "403197009", "note": "wrong hierarchy", "principle": "wrong hierarchy" }
+      ]
+    }
+  ];
 
-  moduleDReferenceData: any[] = [
-    { referencedComponentId: "403197009", name: "Sun-induced wrinkles" },
-    { referencedComponentId: "279002006", name: "Lichenification of skin" },
-    { referencedComponentId: "274672009", name: "Changes in skin texture" },
-    { referencedComponentId: "271767006", name: "Peeling of skin" },
-    { referencedComponentId: "271761007", name: "Scaly skin" },
-    { referencedComponentId: "247434009", name: "Wrinkled skin" }
-  ]
+  selectedAssignment: any = this.assignments[0];
 
   referenceDataDisplayedColumns: string[] = ['referencedComponentId', 'name'];
-  referenceDataDataSource = new MatTableDataSource<any>(this.referenceData);
-  referenceDefinition: string = "";
-  moduleDReferenceDefinition: string = "< 185823004 |Finding of skin texture (finding)|";
+  referenceDataDataSource = new MatTableDataSource<any>(this.selectedAssignment.referenceData);
 
-  selectedAssignment = "Module D";
 
   constructor(private http: HttpClient, public terminologyService: TerminologyService, private _snackBar: MatSnackBar) { }
 
   ngAfterViewInit() {
-    this.setAssignment("Module D");
+    // this.setAssignment(this.assignments[0]);
   }
 
-  setAssignment(assignment: string) {
-    if (assignment === "Module D") {
-      this.referenceData = this.moduleDReferenceData;
-      this.referenceDefinition = this.moduleDReferenceDefinition;
+  setAssignment(assignment: any) {
+    if (assignment) {
+      this.selectedAssignment = assignment;
+      this.referenceDataDataSource = new MatTableDataSource<any>(this.selectedAssignment.referenceData);
     }
   }
 
-  async validateSubsetMembers() {
-    this.validatingMembers = true;
-    this.membersValidationResult = "";
-    if (this.studentSubsetDefinition) {
-      this.validateExpansion();
-    }
-    let correct = 0;
-    let notAcceptable = 0;
-    // Loop thorugh subset members and check if they are present in reference data
-    const studentSubsetDefinitionExpansion = await this.terminologyService.expandValueSet(this.studentSubsetDefinition, "").toPromise();
-    // create a list with all the codes in the expansion
-    const studentSubsetDefinitionExpansionCodes = studentSubsetDefinitionExpansion.expansion.contains.map((member: any) => member.code);
-    // sort the list alphabetically
-    studentSubsetDefinitionExpansionCodes.sort((a: any, b: any) => {
-      return a.localeCompare(b);
-    });
-    // create a list with all the codes in the studentSubsetMembersDataSource.data
-    const studentSubsetMembersDataSourceCodes = this.studentSubsetMembersDataSource.data.map((member: any) => member.referencedComponentId);
-    // sort the list alphabetically
-    studentSubsetMembersDataSourceCodes.sort((a, b) => {
-      return a.localeCompare(b);
-    });
-    // check if the lists contain exactly the same codes or not, regardless of the order
-    const sameCodes = studentSubsetDefinitionExpansionCodes.length === 
-      studentSubsetMembersDataSourceCodes.length && studentSubsetDefinitionExpansionCodes.every((value:string, index: number) => value === studentSubsetMembersDataSourceCodes[index]);
-    if (sameCodes) {
-      this.definitionVsMembersValudationResult = `${this.ok}  The members list contains exactly the same concepts as the definition expansion`;
-    } else {
-      this.definitionVsMembersValudationResult = `${this.error}  The members list does not contain exactly the same concepts as the definition expansion`;
-    }
-    this.studentSubsetMembersDataSource.data.forEach(subsetMember => {
-      const found = this.referenceData.find(referenceMember => referenceMember.referencedComponentId === subsetMember.referencedComponentId);
-      if (found) {
-        subsetMember.result = {
-          value: 'Correct',
-          message: ''
-        };
-        correct++;
-      } else {
-        subsetMember.result = {
-          value: 'Not acceptable',
-          message: 'Subset member not found in reference data'
-        };
-        notAcceptable++;
-      }
-    });
-    this.validatingMembers = false;
-    const icon = notAcceptable > 0 ? this.error : this.ok;
-    this.membersValidationResult = `${icon}  The student Members list contains ${correct} correct concepts, and ${notAcceptable} incorrect concepts, based on the exercise reference data`;
-  }
+  //----------- New Logic ------------
 
-  async validateExpansion() {
-    this.validatingDefinition = true;
-    this.definitionValidationResult = "";
-    let studentExpansinon = await this.terminologyService.expandValueSet(this.studentSubsetDefinition, "").toPromise();
-    let referenceExpansion = await this.terminologyService.expandValueSet(this.referenceDefinition, "").toPromise();
-    // calculate the numer of concepts in the student expansion that are not in the reference expansion
+  async checkStudentECLvsStudentList(): Promise<number> {
     let notFound = 0;
-    this.studentSubsetMembersDataSource.data.forEach((studentExpansionMember: any) => {
-      const found = referenceExpansion.expansion.contains.find((referenceExpansionMember: any) => referenceExpansionMember.code === studentExpansionMember.referencedComponentId);
+    if (!this.studentSubsetDefinition) {
+      let studentEclExpansinon = await this.terminologyService.expandValueSet(this.studentSubsetDefinition, "").toPromise();
+      let studentList = this.studentSubsetmembers;
+      let notFound = 0;
+      studentList.forEach((studentMember: any) => {
+        const found = studentEclExpansinon.expansion.contains.find((studentEclMember: any) => studentEclMember.code === studentMember.referencedComponentId);
+        if (!found) {
+          studentMember.inStudentECL = {
+            value: false,
+            message: ''
+          };
+          notFound++;
+        } else {
+          studentMember.inStudentECL = {
+            value: true,
+            message: ''
+          };
+        }
+      });
+    }
+    return notFound;
+  }
+
+  checkStudentECLvsKeyConcept(): boolean {
+    if (!this.studentSubsetDefinition) {
+      let studentEcl = this.studentSubsetDefinition;
+      let keyConcepts = this.selectedAssignment.keyConceptsInECL;
+      let found = true;
+      keyConcepts.forEach((keyConcept: any) => {
+        if (!studentEcl.includes(keyConcept.code)) {
+          found = false;
+        }
+      });
+      return found;
+    } else {
+      return true;
+    }
+  }
+
+  checkStudentListVsReferenceList() {
+    let studentList = this.studentSubsetmembers;
+    let referenceList = this.selectedAssignment.referenceData;
+    let notFound = 0;
+    studentList.forEach((studentMember: any) => {
+      const found = referenceList.find((referenceMember: any) => referenceMember.referencedComponentId === studentMember.referencedComponentId);
       if (!found) {
-        studentExpansionMember.scope = {
-          value: 'In expansion',
+        studentMember.inReferenceList = {
+          value: true,
           message: ''
         };
         notFound++;
       } else {
-        studentExpansionMember.scope = {
-          value: 'Not in expansion',
+        studentMember.inReferenceList = {
+          value: false,
           message: ''
         };
       }
     });
-    // calculate the percentage of concepts in the student expansion that are not in the reference expansion
-    const percentage = Math.round(notFound / studentExpansinon.expansion.contains.length * 100);
-    this.validatingDefinition = false;
-    const icon = notFound > 0 ? this.error : this.ok;
-    this.definitionValidationResult = `${icon}  The student ECL Definition Expasion contains ${notFound} concepts that out of scope from expected answer (${percentage}%)`;
+  }
+
+  checkStudentListVsCustomMessages() {
+    let studentList = this.studentSubsetmembers;
+    let customMessages = this.selectedAssignment.customMessages;
+    studentList.forEach((studentMember: any) => {
+      const found = customMessages.find((customMessage: any) => customMessage.conceptId === studentMember.referencedComponentId);
+      if (found) {
+        studentMember.customMessage = {
+          value: true,
+          principle: found.principle,
+          note: found.note
+        };
+      } else {
+        studentMember.customMessage = {
+          value: false,
+          principle: '',
+          note: ''
+        };
+      }
+    });
+  }
+
+
+  //----------- End New Logic ------------
+
+  async validateAssignment() {
+    this.loading = true;
+    this.keyConceptValidationResult = "";
+    this.definitionVsMembersValidationResult = "";
+    this.membersValidationResult = false;
+    this.loading = true;
+    
+    if (this.studentSubsetDefinition) {
+      let studentECLvsStudentList = await this.checkStudentECLvsStudentList();
+      if (studentECLvsStudentList > 0) {
+        this.definitionVsMembersValidationResult = this.error + " " + studentECLvsStudentList + " members not found in student ECL";
+      } else {
+        this.definitionVsMembersValidationResult = this.ok + " All members found in student ECL";
+      }
+
+      let keyConceptsValidation = this.checkStudentECLvsKeyConcept();
+      if (keyConceptsValidation) {
+        this.keyConceptValidationResult = this.ok + " Student ECL contains all key concepts";
+      } else {
+        this.keyConceptValidationResult = this.error + " Student ECL does not contain all key concepts";
+      }
+    }
+
+    this.checkStudentListVsReferenceList();
+    let countNotInReferenceList = this.studentSubsetmembers.filter((member: any) => !member.inReferenceList.value).length;
+    if (countNotInReferenceList > 0) {
+      this.membersNotInRefrenceListResult = this.error + " " + countNotInReferenceList + " members not found in reference list";
+    } else {
+      this.membersNotInRefrenceListResult = this.ok + " All members found in reference list";
+    }
+
+    this.checkStudentListVsCustomMessages();
+    this.loading = false;
+    this.membersValidationResult = true;
   }
 
   onSubsetmembersFileSelected(event: Event) {
@@ -184,6 +259,7 @@ export class SubsetValidatorComponent implements AfterViewInit {
           subsetMembers.sort((a, b) => {
             return a.name.localeCompare(b.name);
           });
+          this.studentSubsetmembers = subsetMembers;
           // Set the data source's data to the parsed subset members.
           this.studentSubsetMembersDataSource.data = subsetMembers;
           this.loading = false; // Set loading to false as the operation is complete.

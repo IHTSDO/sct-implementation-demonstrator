@@ -24,6 +24,7 @@
     display: flex;
     flex-direction: row;
     gap: 1rem;
+    margin-top: 2rem;
   }
   
   .upload-controls, .table-container {
@@ -47,13 +48,15 @@
 
 .validation-result {
     font-weight: normal;
-    font-size: smaller;
 }
 
 .blue-rounded-div {
     border-radius: 10px;
     background-color: #4d7fb4;
-    padding: 10px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
     width: 80%;
     color: whitesmoke;
     margin-top: 20px;
@@ -79,4 +82,16 @@ h4 {
     margin-bottom: 20px;
     font-weight: lighter;
     font-size: larger;
+}
+
+h3 {
+    margin-top: 20px;
+}
+
+.bg-pink {
+  background-color: pink;
+}
+
+tr.mat-mdc-row:hover {
+  background-color: #aba9a9 !important
 }
