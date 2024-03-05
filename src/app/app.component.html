@@ -36,7 +36,7 @@
     </div>
   </mat-drawer>
 
-  <mat-toolbar>
+  <mat-toolbar *ngIf="!embeddedMode">
     <button mat-icon-button (click)="drawer.toggle()" id="menu-button">
       <mat-icon>menu</mat-icon>
     </button>

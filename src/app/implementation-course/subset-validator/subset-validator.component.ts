@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { TerminologyService } from 'src/app/services/terminology.service';
@@ -12,7 +13,7 @@ import { TerminologyService } from 'src/app/services/terminology.service';
   templateUrl: './subset-validator.component.html',
   styleUrls: ['./subset-validator.component.css']
 })
-export class SubsetValidatorComponent implements AfterViewInit {
+export class SubsetValidatorComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   studentSubsetMembersDisplayedColumns: string[] = ['referencedComponentId', 'name', 'result'];
@@ -25,7 +26,7 @@ export class SubsetValidatorComponent implements AfterViewInit {
   membersNotInRefrenceListResult: string = "";
   membersValidationResult = false;
 
-
+  embeddedMode: boolean = false;
   loading: boolean = false;
 
   ok: string = "✅";
@@ -61,13 +62,27 @@ export class SubsetValidatorComponent implements AfterViewInit {
   referenceDataDataSource = new MatTableDataSource<any>(this.selectedAssignment.referenceData);
 
 
-  constructor(private http: HttpClient, public terminologyService: TerminologyService, private _snackBar: MatSnackBar) { }
+  constructor(private http: HttpClient, 
+    public terminologyService: TerminologyService, 
+    private _snackBar: MatSnackBar,
+    private activatedRoute: ActivatedRoute) { }
 
-  async ngAfterViewInit() {
+  async ngOnInit() {
     const data: any = await lastValueFrom(this.http.get('assets/definitions/assignments.json'));
     this.assignments = data;
     this.assignmentsString = JSON.stringify(this.assignments);
     this.setAssignment(this.assignments[0]);
+    
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['assignment']) {
+        this.setAssignment(this.assignments.find((assignment: any) => assignment.name === params['assignment']));
+      }
+      if (params['embedded'] === 'true') {
+        this.embeddedMode = true;
+      } else {
+        this.embeddedMode = false;
+      }
+    });
   }
 
   setAssignment(assignment: any) {

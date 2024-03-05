@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CodingSpecService } from './services/coding-spec.service';
 import { ExcelService } from './services/excel.service';
 import { TerminologyService } from './services/terminology.service';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 
 declare let gtag: Function;
 
@@ -25,8 +25,13 @@ export class AppComponent {
     { name: "SNOMED Dev 2", url: "https://snowstorm-temp.kaicode.io/fhir"},
   ];
   selectedServer = this.fhirServers[1];
+  embeddedMode: boolean = false;
 
-  constructor( private codingSpecService: CodingSpecService, public excelService: ExcelService, private terminologyService: TerminologyService, public router: Router ) { 
+  constructor( private codingSpecService: CodingSpecService, 
+    public excelService: ExcelService, 
+    private terminologyService: TerminologyService, 
+    public router: Router,
+    private activatedRoute: ActivatedRoute) { 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         // Send pageview event to Google Analytics on each route change.
@@ -47,6 +52,13 @@ export class AppComponent {
       }
     }
     this.updateCodeSystemOptions();
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['embedded'] === 'true') {
+        this.embeddedMode = true;
+      } else {
+        this.embeddedMode = false;
+      }
+    });
   }
 
   navigate(route: string) {

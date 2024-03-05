@@ -8,7 +8,9 @@
             <input type="file" #fileInput style="display: none" (change)="onSubsetmembersFileSelected($event)" />
             <input type="file" #fileInputDefinition style="display: none" (change)="onDefinitionFileSelected($event)" />
             <div class="buttons-panel">
-                <button mat-flat-button color="primary" (click)="fileInputDefinition.click()">Upload Definition File</button>
+                <button mat-flat-button color="primary" (click)="fileInputDefinition.click()" [disabled]="!selectedAssignment.referenceDefinition">
+                  Upload Definition File
+                </button>
                 <button mat-flat-button color="primary" (click)="fileInput.click()">Upload Members File</button>
                 <button mat-flat-button color="primary" (click)="validateAssignment()"
                 [disabled]="!studentSubsetMembersDataSource.data.length">Validate</button>
@@ -65,12 +67,6 @@
         </div>
     </div>
     <div class="right-column">
-        <h3>Assignment</h3>
-
-        <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">Selected assignment: {{ selectedAssignment?.name }}</button>
-        <mat-menu #demosMenu="matMenu" class="wide-menu">
-            <button mat-menu-item *ngFor="let item of assignments" (click)="setAssignment(item)">{{ item.name }}</button>
-        </mat-menu>
 
         <h3>Instructions</h3>
         <div class="instructions">
@@ -81,14 +77,22 @@
                 <li>4- Click validate</li>
             </ol>
         </div>
-        
-        <div>
-            <h3>Reference Data</h3>
-            <mat-form-field appearance="fill">
-              <mat-label>Textarea</mat-label>
-              <textarea matInput [(ngModel)]="assignmentsString"></textarea>
-            </mat-form-field>
-            <button mat-flat-button color="primary" (click)="updateAssignments()">Update Assigments</button>
+        <div *ngIf="!embeddedMode">
+          <h3>Assignment</h3>
+
+          <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu">Selected assignment: {{ selectedAssignment?.name }}</button>
+          <mat-menu #demosMenu="matMenu" class="wide-menu">
+              <button mat-menu-item *ngFor="let item of assignments" (click)="setAssignment(item)">{{ item.name }}</button>
+          </mat-menu>
+          
+          <div>
+              <h3>Reference Data</h3>
+              <mat-form-field appearance="fill">
+                <mat-label>Textarea</mat-label>
+                <textarea matInput [(ngModel)]="assignmentsString"></textarea>
+              </mat-form-field>
+              <button mat-flat-button color="primary" (click)="updateAssignments()">Update Assigments</button>
+          </div>
         </div>
 
         <!-- <div *ngIf="referenceDataDataSource.data.length" class="table-container">
