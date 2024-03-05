@@ -15,7 +15,7 @@
                 <mat-spinner *ngIf="loading" class="spinner" diameter="30"></mat-spinner>
             </div>
             <div class="blue-rounded-div" *ngIf="!loading && membersNotInRefrenceListResult">
-                <h4 class="text-white mb-1">Validation Results</h4>
+                <h3 class="text-white mb-1">Validation Results</h3>
                 <p class="validation-result">{{definitionVsMembersValidationResult}}</p>
                 <p class="validation-result">{{keyConceptValidationResult}}</p>
                 <p class="validation-result">{{membersNotInRefrenceListResult}}</p>
@@ -43,7 +43,7 @@
                   <span *ngIf="membersValidationResult">
                     <span *ngIf="element?.inReferenceList?.value">OK</span>
                     <span *ngIf="!element?.inReferenceList?.value && element?.customMessage?.value">
-                      {{ element.customMessage.principle }}, {{ element.customMessage.note }}
+                      {{ element.customMessage.note }}
                     </span>
                     <span *ngIf="!element?.inReferenceList?.value && !element?.customMessage?.value">
                       Error
@@ -81,6 +81,7 @@
                 <li>4- Click validate</li>
             </ol>
         </div>
+        
         <div>
             <h3>Reference Data</h3>
             <mat-form-field appearance="fill">
@@ -89,6 +90,7 @@
             </mat-form-field>
             <button mat-flat-button color="primary" (click)="updateAssignments()">Update Assigments</button>
         </div>
+
         <!-- <div *ngIf="referenceDataDataSource.data.length" class="table-container">
             <table mat-table [dataSource]="referenceDataDataSource">
               <ng-container matColumnDef="referencedComponentId">

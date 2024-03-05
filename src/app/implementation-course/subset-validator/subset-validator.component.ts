@@ -3,6 +3,7 @@ import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { lastValueFrom } from 'rxjs';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { TerminologyService } from 'src/app/services/terminology.service';
 
@@ -30,7 +31,7 @@ export class SubsetValidatorComponent implements AfterViewInit {
   ok: string = "✅";
   error: string = "🟥";
 
-  assignments = [
+  assignments: any = [
     {
       "name": "Assignment X",
       "referenceData": [
@@ -46,27 +47,8 @@ export class SubsetValidatorComponent implements AfterViewInit {
         { "code": "185823004", "display": "Finding of skin texture (finding)"}
       ],
       "customMessages": [
-        { "conceptId": "403197009", "note": "wrong hierarchy", "principle": "wrong hierarchy" }, 
+        { "conceptId": "85345005", "note": "wrong hierarchy", "principle": "wrong hierarchy" }, 
         { "conceptId": "403197009", "note": "wrong hierarchy", "principle": "wrong hierarchy" }
-      ]
-    },
-    {
-      "name": "Assignment Y",
-      "referenceData": [
-        { "referencedComponentId": "403197009", "name": "Sun-induced wrinkles" },
-        { "referencedComponentId": "279002006", "name": "Lichenification of skin" },
-        { "referencedComponentId": "274672009", "name": "Changes in skin texture" },
-        { "referencedComponentId": "271767006", "name": "Peeling of skin" },
-        { "referencedComponentId": "271761007", "name": "Scaly skin" },
-        { "referencedComponentId": "247434009", "name": "Wrinkled skin" }
-      ],
-      "referenceDefinition": "< 185823004 |Finding of skin texture (finding)|",
-      "keyConceptsInECL": [
-        { "code": "185823004", "display": "Finding of skin texture (finding)"}
-      ],
-      "customMessages": [
-        { "conceptId": "403197009", "note": "Principle 1", "principle": "wrong hierarchy" }, 
-        { "conceptId": "403197009", "note": "Principle 1", "principle": "wrong hierarchy" }
       ]
     }
   ];
@@ -81,8 +63,11 @@ export class SubsetValidatorComponent implements AfterViewInit {
 
   constructor(private http: HttpClient, public terminologyService: TerminologyService, private _snackBar: MatSnackBar) { }
 
-  ngAfterViewInit() {
-    // this.setAssignment(this.assignments[0]);
+  async ngAfterViewInit() {
+    const data: any = await lastValueFrom(this.http.get('assets/definitions/assignments.json'));
+    this.assignments = data;
+    this.assignmentsString = JSON.stringify(this.assignments);
+    this.setAssignment(this.assignments[0]);
   }
 
   setAssignment(assignment: any) {
@@ -143,13 +128,13 @@ export class SubsetValidatorComponent implements AfterViewInit {
       const found = referenceList.find((referenceMember: any) => referenceMember.referencedComponentId === studentMember.referencedComponentId);
       if (!found) {
         studentMember.inReferenceList = {
-          value: true,
+          value: false,
           message: ''
         };
         notFound++;
       } else {
         studentMember.inReferenceList = {
-          value: false,
+          value: true,
           message: ''
         };
       }
@@ -179,8 +164,8 @@ export class SubsetValidatorComponent implements AfterViewInit {
   //----------- End New Logic ------------
 
   updateAssignments() {
-    this.assignments = JSON.parse(this.assignmentsString);
-    this.setAssignment(this.assignments.find((assignment: any) => assignment.name === this.selectedAssignment.name));
+    this.assignments = (JSON.parse(this.assignmentsString));
+    this.setAssignment(this.assignments[0]);
   }
 
   async validateAssignment() {

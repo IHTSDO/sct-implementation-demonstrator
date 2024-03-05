@@ -48,12 +48,13 @@
 
 .validation-result {
     font-weight: normal;
+    font-size: larger;
 }
 
 .blue-rounded-div {
     border-radius: 10px;
     background-color: #4d7fb4;
-    padding-top: 1rem;
+    padding-top: .5rem;
     padding-bottom: 1rem;
     padding-left: 3rem;
     padding-right: 3rem;
@@ -85,7 +86,7 @@ h4 {
 }
 
 h3 {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .bg-pink {
