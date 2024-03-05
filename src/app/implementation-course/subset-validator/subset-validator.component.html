@@ -81,9 +81,14 @@
                 <li>4- Click validate</li>
             </ol>
         </div>
-        <!-- <div class="upload-controls">
+        <div>
             <h3>Reference Data</h3>
-        </div> -->
+            <mat-form-field appearance="fill">
+              <mat-label>Textarea</mat-label>
+              <textarea matInput [(ngModel)]="assignmentsString"></textarea>
+            </mat-form-field>
+            <button mat-flat-button color="primary" (click)="updateAssignments()">Update Assigments</button>
+        </div>
         <!-- <div *ngIf="referenceDataDataSource.data.length" class="table-container">
             <table mat-table [dataSource]="referenceDataDataSource">
               <ng-container matColumnDef="referencedComponentId">

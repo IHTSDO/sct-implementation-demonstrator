@@ -65,11 +65,13 @@ export class SubsetValidatorComponent implements AfterViewInit {
         { "code": "185823004", "display": "Finding of skin texture (finding)"}
       ],
       "customMessages": [
-        { "conceptId": "403197009", "note": "wrong hierarchy", "principle": "wrong hierarchy" }, 
-        { "conceptId": "403197009", "note": "wrong hierarchy", "principle": "wrong hierarchy" }
+        { "conceptId": "403197009", "note": "Principle 1", "principle": "wrong hierarchy" }, 
+        { "conceptId": "403197009", "note": "Principle 1", "principle": "wrong hierarchy" }
       ]
     }
   ];
+
+  assignmentsString = JSON.stringify(this.assignments);
 
   selectedAssignment: any = this.assignments[0];
 
@@ -174,9 +176,12 @@ export class SubsetValidatorComponent implements AfterViewInit {
       }
     });
   }
-
-
   //----------- End New Logic ------------
+
+  updateAssignments() {
+    this.assignments = JSON.parse(this.assignmentsString);
+    this.setAssignment(this.assignments.find((assignment: any) => assignment.name === this.selectedAssignment.name));
+  }
 
   async validateAssignment() {
     this.loading = true;
