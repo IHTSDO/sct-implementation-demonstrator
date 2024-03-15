@@ -212,7 +212,7 @@ export class QuestionnairesMainComponent implements OnInit{
       });
     } else {
       // find if there is a questionnaire with the same title, same id, and newer or equal version
-      const index2 = this.questionnairesList.questionnaires.findIndex((q: any) => q.title === questionnaire.title && q.id === questionnaire.id && q.meta.versionId >= questionnaire.meta.versionId);
+      const index2 = this.questionnairesList.questionnaires.findIndex((q: any) => q.title === questionnaire.title && q.id === questionnaire.id && q.meta?.versionId >= questionnaire.meta?.versionId);
       let newerQuestionnaire = this.questionnairesList.questionnaires[index2];
       if (index2 !== -1) {
         const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
