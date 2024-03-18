@@ -51,12 +51,16 @@ export class AppComponent {
         this.bindingsForExport.push({ section: section.title, title: binding.title, ecl: binding.ecl.replace(/\s\s+/g, ' ') })
       }
     }
-    this.updateCodeSystemOptions();
     this.activatedRoute.queryParams.subscribe(params => {
       if (params['embedded'] === 'true') {
         this.embeddedMode = true;
       } else {
         this.embeddedMode = false;
+      }
+      if (params['edition']) {
+        this.updateCodeSystemOptions(params['edition']);
+      } else {
+        this.updateCodeSystemOptions();
       }
     });
   }
@@ -65,7 +69,7 @@ export class AppComponent {
     this.router.navigate([route]);
   }
 
-  updateCodeSystemOptions() {
+  updateCodeSystemOptions(preselectedEdition?: string) {
     this.terminologyService.getCodeSystems().subscribe(response => {
       this.editionsDetails = [];
       this.editions = response.entry;
@@ -82,8 +86,14 @@ export class AppComponent {
           }
         );
       });
-      const currentVerIndex = this.editionsDetails.findIndex(x => x.editionName === 'International Edition'); //  SNOMED CT release
-      if (currentVerIndex >= 0) {
+      let currentVerIndex = this.editionsDetails.findIndex(x => x.editionName === 'International Edition'); //  SNOMED CT release
+      if (preselectedEdition) {
+        this.editions.forEach(loopEdition => {
+          if (loopEdition.resource.version === preselectedEdition) {
+            this.setEdition(loopEdition);
+          }
+        });
+      } else if (currentVerIndex >= 0) {
         this.setEdition(this.editionsDetails[currentVerIndex].editions[0]);
       } else {
         this.setEdition(this.editions[0]);
