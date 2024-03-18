@@ -79,7 +79,7 @@ export class BindingsSandboxComponent implements OnInit {
   };
 
   codeBindingAll: any = {
-    title: 'Question code (Observables + Findings + Procedures)',
+    title: 'Question code',
     type: 'Autocomplete',
     ecl: `<< 363787002 |Observable entity (observable entity)| OR << 404684003 |Clinical finding (finding)| OR << 71388002 |Procedure (procedure)| OR << 243796009 |Situation with explicit context (situation)|`,
     value: '',

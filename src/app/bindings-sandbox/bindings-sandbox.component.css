@@ -23,10 +23,10 @@ mat-hint, mat-error {
 }
 
 .editPanel {
-    width: calc(50% - 5px);
-    margin: 5px;
+    /* width: calc(50% - 5px); */
+    /* margin: 5px;
     margin-bottom: 25px;
-    padding: 10px;
+    padding: 10px; */
     border: 1px solid #cccccc00;
     border-radius: 5px;
     background-color: #a0c8e5;
