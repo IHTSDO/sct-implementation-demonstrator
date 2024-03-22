@@ -25,6 +25,7 @@ export class SubsetValidatorComponent implements OnInit {
   definitionVsMembersValidationResult: string = "";
   membersNotInRefrenceListResult: string = "";
   membersValidationResult = false;
+  refrenceListVsStudentListResult: string = "";
 
   embeddedMode: boolean = false;
   loading: boolean = false;
@@ -120,7 +121,8 @@ export class SubsetValidatorComponent implements OnInit {
   }
 
   checkStudentECLvsKeyConcept(): boolean {
-    if (!this.studentSubsetDefinition) {
+    if (this.studentSubsetDefinition) {
+      console.log("Student ECL not defined")
       let studentEcl = this.studentSubsetDefinition;
       let keyConcepts = this.selectedAssignment.keyConceptsInECL;
       let found = true;
@@ -154,6 +156,28 @@ export class SubsetValidatorComponent implements OnInit {
         };
       }
     });
+  }
+
+  checkReferenceListVsStudentList() {
+    let studentList = this.studentSubsetmembers;
+    let referenceList = this.selectedAssignment.referenceData;
+    let notFound = 0;
+    referenceList.forEach((referenceMember: any) => {
+      const found = studentList.find((studentMember: any) => studentMember.referencedComponentId === referenceMember.referencedComponentId);
+      if (!found) {
+        referenceMember.inStudentList = {
+          value: false,
+          message: ''
+        };
+        notFound++;
+      } else {
+        referenceMember.inStudentList = {
+          value: true,
+          message: ''
+        };
+      }
+    });
+    return notFound;
   }
 
   checkStudentListVsCustomMessages() {
@@ -215,6 +239,15 @@ export class SubsetValidatorComponent implements OnInit {
     }
 
     this.checkStudentListVsCustomMessages();
+
+    let countNotInStudentList = this.checkReferenceListVsStudentList();
+    if (countNotInStudentList > 0) {
+      let word = countNotInStudentList > 1 ? "concepts are" : "concept is";
+      this.refrenceListVsStudentListResult = this.error + " " + countNotInStudentList + " " + word + " missing in the uploaded member list that would be recommended to be included in this subset";
+    } else {
+      this.refrenceListVsStudentListResult = this.ok + " All recommended concepts are included in this subset";
+    }
+
     this.loading = false;
     this.membersValidationResult = true;
   }

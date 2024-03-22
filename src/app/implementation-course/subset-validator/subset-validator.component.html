@@ -18,9 +18,10 @@
             </div>
             <div class="blue-rounded-div" *ngIf="!loading && membersNotInRefrenceListResult">
                 <h3 class="text-white mb-1">Validation Results</h3>
-                <p class="validation-result">{{definitionVsMembersValidationResult}}</p>
-                <p class="validation-result">{{keyConceptValidationResult}}</p>
+                <p class="validation-result" *ngIf="selectedAssignment.referenceDefinition">{{definitionVsMembersValidationResult}}</p>
+                <p class="validation-result" *ngIf="selectedAssignment.referenceDefinition">{{keyConceptValidationResult}}</p>
                 <p class="validation-result">{{membersNotInRefrenceListResult}}</p>
+                <p class="validation-result">{{refrenceListVsStudentListResult}}</p>
             </div>
         </div>
         <!-- Table to display the data -->
@@ -75,16 +76,19 @@
           </mat-menu>
         </div>
         <h3 *ngIf="embeddedMode">
-          Assigment: {{ selectedAssignment?.name }}
+          Assignment: {{ selectedAssignment?.name }}
         </h3>
         <h3>Instructions</h3>
         <div class="instructions">
-            <ol>
-                <li>1- Select assignment</li>
-                <li>2- Upload definition file</li>
-                <li>3- Upload members file</li>
-                <li>4- Click validate</li>
-            </ol>
+          <ol *ngIf="selectedAssignment.referenceDefinition">
+              <li>1- Upload definition file</li>
+              <li>2- Upload members file</li>
+              <li>3- Click validate</li>
+          </ol>
+          <ol *ngIf="!selectedAssignment.referenceDefinition">
+            <li>1- Upload members file</li>
+            <li>2- Click validate</li>
+          </ol>
         </div>
         <div *ngIf="!embeddedMode">
           <div>
@@ -93,7 +97,7 @@
                 <mat-label>Textarea</mat-label>
                 <textarea matInput [(ngModel)]="assignmentsString"></textarea>
               </mat-form-field>
-              <button mat-flat-button color="primary" (click)="updateAssignments()">Update Assigments</button>
+              <button mat-flat-button color="primary" (click)="updateAssignments()">Update Assignments</button>
           </div>
         </div>
 
