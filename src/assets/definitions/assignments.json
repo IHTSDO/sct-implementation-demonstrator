@@ -1,526 +1,526 @@
 [
-  {
-      "name": "Pain Quality Subset",
-      "referenceData": [
-          {
-              "referencedComponentId": "786837007",
-              "name": "Tingling pain"
-          },
-          {
-              "referencedComponentId": "723316007",
-              "name": "Electric shock type pain"
-          },
-          {
-              "referencedComponentId": "723300005",
-              "name": "Freezing pain"
-          },
-          {
-              "referencedComponentId": "301371003",
-              "name": "Gnawing pain"
-          },
-          {
-              "referencedComponentId": "279098001",
-              "name": "Crushing pain"
-          },
-          {
-              "referencedComponentId": "279097006",
-              "name": "Splitting pain"
-          },
-          {
-              "referencedComponentId": "279095003",
-              "name": "Heavy pain"
-          },
-          {
-              "referencedComponentId": "279093005",
-              "name": "Cramping pain"
-          },
-          {
-              "referencedComponentId": "162505000",
-              "name": "Tightening pain"
-          },
-          {
-              "referencedComponentId": "162503007",
-              "name": "Cutting pain"
-          },
-          {
-              "referencedComponentId": "103013007",
-              "name": "Smarting pain"
-          },
-          {
-              "referencedComponentId": "83644001",
-              "name": "Dull pain"
-          },
-          {
-              "referencedComponentId": "73063007",
-              "name": "Colicky pain"
-          },
-          {
-              "referencedComponentId": "71393004",
-              "name": "Soreness"
-          },
-          {
-              "referencedComponentId": "55145008",
-              "name": "Stabbing pain"
-          },
-          {
-              "referencedComponentId": "49575005",
-              "name": "Shooting pain"
-          },
-          {
-              "referencedComponentId": "36349006",
-              "name": "Burning pain"
-          },
-          {
-              "referencedComponentId": "29695002",
-              "name": "Throbbing pain"
-          },
-          {
-              "referencedComponentId": "27635008",
-              "name": "Aching pain"
-          },
-          {
-              "referencedComponentId": "870800",
-              "name": "Sharp pain"
-          }
-      ],
-      "referenceDefinition": "< 410720000 |Pain by sensation quality (finding)|: [0..0] 363698007 |Finding site| = *",
-      "keyConceptsInECL": [
-          {
-              "code": "410720000",
-              "display": "Pain by sensation quality (finding)"
-          }
-      ],
-      "customMessages": [
-          {
-              "conceptId": "9991008",
-              "name": "Abdominal colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "136571000119109",
-              "name": "Adult colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "4196791007",
-              "name": "Appendicular colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "37389005",
-              "name": "Biliary colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "125661000119107",
-              "name": "Biliary colic with obstruction",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "1264062004",
-              "name": "Burning chest pain",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "21005005",
-              "name": "Burning epigastric pain",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "36031001",
-              "name": "Burning feet",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "279019008",
-              "name": "Central crushing chest pain",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "275488008",
-              "name": "Chronic sore throat",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "371094000",
-              "name": "Colicky hypogastric pain",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "59139008",
-              "name": "Crushing chest pain",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "3368006",
-              "name": "Dull chest pain",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "43231004",
-              "name": "Esophageal colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "247361008",
-              "name": "Evening colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "722876002",
-              "name": "Functional heartburn",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "371102005",
-              "name": "Generalized colicky abdominal pain",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "16331000",
-              "name": "Heartburn",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "35363006",
-              "name": "Infantile colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "699682009",
-              "name": "Localized masticatory muscle soreness",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "60043000",
-              "name": "Midabdominal crampy pain",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "38654001",
-              "name": "Recurrent biliary colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "29330004",
-              "name": "Salivary colic",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "58250006",
-              "name": "Scalding pain on urination",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "162309007",
-              "name": "Shooting headache",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "267102003",
-              "name": "Sore throat",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "162308004",
-              "name": "Throbbing headache",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          }
-      ]
-  },
-  {
-      "name": "Skin Texture Subset Assignment",
-      "referenceData": [
-          {
-              "referencedComponentId": "403197009",
-              "name": "Sun-induced wrinkles"
-          },
-          {
-              "referencedComponentId": "279002006",
-              "name": "Lichenification of skin"
-          },
-          {
-              "referencedComponentId": "274672009",
-              "name": "Changes in skin texture"
-          },
-          {
-              "referencedComponentId": "271767006",
-              "name": "Peeling of skin"
-          },
-          {
-              "referencedComponentId": "271761007",
-              "name": "Scaly skin"
-          },
-          {
-              "referencedComponentId": "370605002",
-              "name": "Epidermal collarette"
-          },
-          {
-              "referencedComponentId": "247434009",
-              "name": "Wrinkled skin"
-          }
-      ],
-      "referenceDefinition": "< 185823004 |Finding of skin texture (finding)| MINUS ( << 366649008 |Finding of thickness of skin (finding)| OR << 297947008 |Finding of consistency of skin (finding)| OR << 248194004 |Wrinkled face (finding)| OR << 238532005 |Finger wrinkling (finding)| OR << 275887009 |Scaly scalp (finding)|)",
-      "keyConceptsInECL": [
-          {
-              "code": "185823004",
-              "display": "Finding of skin texture (finding)"
-          }
-      ],
-      "customMessages": [
-          {
-              "conceptId": "10360000",
-              "name": "Crow's feet",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "429356007",
-              "name": "Rhytide of glabellar skin",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "429193009",
-              "name": "Rhytide of forehead",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "366649008",
-              "name": "Thickness of skin - finding",
-              "note": "The concept itself is a grouper which shouldn’t be used for data capture. The descendants overlap in meaning with the Thickness data element.",
-              "principle": "Grouper"
-          },
-          {
-              "conceptId": "297948003",
-              "name": "Normal skin consistency",
-              "note": "Overlap in meaning with the Consistency data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "297947008",
-              "name": "Finding of consistency of skin",
-              "note": "The concept itself is a grouper which shouldn’t be used for data capture. The descendants overlap in meaning with the Consistency data element.",
-              "principle": "Grouper"
-          },
-          {
-              "conceptId": "277797007",
-              "name": "Thin skin",
-              "note": "Overlap in meaning with the Thickness data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "275887009",
-              "name": "Scaly scalp",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "271815000",
-              "name": "Thick skin",
-              "note": "Overlap in meaning with the Thickness data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "248195003",
-              "name": "Fine wrinkles on face",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "248194004",
-              "name": "Wrinkled face",
-              "note": "The concept itself and its descendants overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "247430000",
-              "name": "Hard skin",
-              "note": "Overlap in meaning with the Consistency data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "85345005",
-              "name": "Increased thickness of skin",
-              "note": "Overlap in meaning with the Thickness data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "9368001",
-              "name": "Circumoral rhytides",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "238532005",
-              "name": "Finger wrinkling",
-              "note": "Overlap in meaning with the Body site data element",
-              "principle": "Overlap"
-          }
-      ]
-  },
-  {
-      "name": "Cardiology Subset",
-      "referenceData": [
-          {
-              "referencedComponentId": "368009",
-              "name": "Heart valve disorder "
-          },
-          {
-              "referencedComponentId": "53741008",
-              "name": "Coronary arteriosclerosis"
-          },
-          {
-              "referencedComponentId": "698247007",
-              "name": "Cardiac arrhythmia"
-          },
-          {
-              "referencedComponentId": "84114007",
-              "name": "Heart failure"
-          },
-          {
-              "referencedComponentId": "22298006",
-              "name": "Myocardial infarction"
-          },
-          {
-              "referencedComponentId": "85898001",
-              "name": "Cardiomyopathy"
-          },
-          {
-              "referencedComponentId": "16055631000119106",
-              "name": "Disorder of cardiovascular system co-occurrent and due to Marfan syndrome"
-          }
-      ],
-      "customMessages": [
-          {
-              "conceptId": "48724000",
-              "name": "Mitral valve regurgitation",
-              "note": "Overlap with more general members of the subset",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "409712001",
-              "name": "Mitral valve prolapse",
-              "note": "Overlap with more general members of the subset",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "56786000",
-              "name": "Pulmonic valve stenosis",
-              "note": "Overlap with more general members of the subset",
-              "principle": "Overlap"
-          },
-          {
-              "conceptId": "233873004",
-              "name": "Hypertrophic cardiomyopathy",
-              "note": "Overlap with more general members of the subset",
-              "principle": "Overlap"
-          }
-      ]
-  },
-  {
-      "name": "Respiratory Subset",
-      "referenceData": [
-          {
-              "referencedComponentId": "195967001",
-              "name": "Asthma"
-          },
-          {
-              "referencedComponentId": "13645005",
-              "name": "Chronic obstructive pulmonary disease"
-          },
-          {
-              "referencedComponentId": "87433001",
-              "name": "Pulmonary emphysema"
-          },
-          {
-              "referencedComponentId": "154283005",
-              "name": "Pulmonary tuberculosis"
-          },
-          {
-              "referencedComponentId": "363358000",
-              "name": "Malignant tumor of lung"
-          },
-          {
-              "referencedComponentId": "275498002",
-              "name": "Respiratory tract infection"
-          },
-          {
-              "referencedComponentId": "233604007",
-              "name": "Pneumonia"
-          },
-          {
-              "referencedComponentId": "471283005",
-              "name": "Air leaking from lung"
-          },
-          {
-              "referencedComponentId": "60046008",
-              "name": "Pleural effusion"
-          },
-          {
-              "referencedComponentId": "36118008",
-              "name": "Pneumothorax"
-          }
-      ],
-      "customMessages": [
-          {
-              "conceptId": "38785003",
-              "name": "Air leakage (morphologic abnormality)",
-              "note": "Ensure that the concept reflects the intended clinical meaning",
-              "principle": "Context"
-          },
-          {
-              "conceptId": "41699000",
-              "name": "Effusion (morphologic abnormality)",
-              "note": "Ensure that the concept reflects the intended clinical meaning",
-              "principle": "Context"
-          },
-          {
-              "conceptId": "1240414004",
-              "name": "Malignant neoplasm (morphologic abnormality)",
-              "note": "Ensure that the concept reflects the intended clinical meaning",
-              "principle": "Context"
-          },
-          {
-              "conceptId": "74497000",
-              "name": "Avian infectious bronchitis virus (organism)",
-              "note": "Ensure that the concept reflects the intended clinical meaning",
-              "principle": "Context"
-          },
-          {
-              "conceptId": "444507004",
-              "name": "Exposure to Mycobacterium tuberculosis (event)",
-              "note": "Ensure that the concept reflects the intended clinical meaning",
-              "principle": "Context"
-          }
-      ]
-  }
+    {
+        "name": "Pain Quality Subset",
+        "referenceData": [
+            {
+                "referencedComponentId": "786837007",
+                "name": "Tingling pain"
+            },
+            {
+                "referencedComponentId": "723316007",
+                "name": "Electric shock type pain"
+            },
+            {
+                "referencedComponentId": "723300005",
+                "name": "Freezing pain"
+            },
+            {
+                "referencedComponentId": "301371003",
+                "name": "Gnawing pain"
+            },
+            {
+                "referencedComponentId": "279098001",
+                "name": "Crushing pain"
+            },
+            {
+                "referencedComponentId": "279097006",
+                "name": "Splitting pain"
+            },
+            {
+                "referencedComponentId": "279095003",
+                "name": "Heavy pain"
+            },
+            {
+                "referencedComponentId": "279093005",
+                "name": "Cramping pain"
+            },
+            {
+                "referencedComponentId": "162505000",
+                "name": "Tightening pain"
+            },
+            {
+                "referencedComponentId": "162503007",
+                "name": "Cutting pain"
+            },
+            {
+                "referencedComponentId": "103013007",
+                "name": "Smarting pain"
+            },
+            {
+                "referencedComponentId": "83644001",
+                "name": "Dull pain"
+            },
+            {
+                "referencedComponentId": "73063007",
+                "name": "Colicky pain"
+            },
+            {
+                "referencedComponentId": "71393004",
+                "name": "Soreness"
+            },
+            {
+                "referencedComponentId": "55145008",
+                "name": "Stabbing pain"
+            },
+            {
+                "referencedComponentId": "49575005",
+                "name": "Shooting pain"
+            },
+            {
+                "referencedComponentId": "36349006",
+                "name": "Burning pain"
+            },
+            {
+                "referencedComponentId": "29695002",
+                "name": "Throbbing pain"
+            },
+            {
+                "referencedComponentId": "27635008",
+                "name": "Aching pain"
+            },
+            {
+                "referencedComponentId": "8708008",
+                "name": "Sharp pain"
+            }
+        ],
+        "referenceDefinition": "< 410720000 |Pain by sensation quality (finding)|: [0..0] 363698007 |Finding site| = *",
+        "keyConceptsInECL": [
+            {
+                "code": "410720000",
+                "display": "Pain by sensation quality (finding)"
+            }
+        ],
+        "customMessages": [
+            {
+                "conceptId": "9991008",
+                "name": "Abdominal colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "136571000119109",
+                "name": "Adult colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "196791007",
+                "name": "Appendicular colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "37389005",
+                "name": "Biliary colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "125661000119107",
+                "name": "Biliary colic with obstruction",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "1264062004",
+                "name": "Burning chest pain",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "21005005",
+                "name": "Burning epigastric pain",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "36031001",
+                "name": "Burning feet",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "279019008",
+                "name": "Central crushing chest pain",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "275488008",
+                "name": "Chronic sore throat",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "371094000",
+                "name": "Colicky hypogastric pain",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "59139008",
+                "name": "Crushing chest pain",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "3368006",
+                "name": "Dull chest pain",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "43231004",
+                "name": "Esophageal colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "247361008",
+                "name": "Evening colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "722876002",
+                "name": "Functional heartburn",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "371102005",
+                "name": "Generalized colicky abdominal pain",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "16331000",
+                "name": "Heartburn",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "35363006",
+                "name": "Infantile colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "699682009",
+                "name": "Localized masticatory muscle soreness",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "60043000",
+                "name": "Midabdominal crampy pain",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "38654001",
+                "name": "Recurrent biliary colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "29330004",
+                "name": "Salivary colic",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "58250006",
+                "name": "Scalding pain on urination",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "162309007",
+                "name": "Shooting headache",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "267102003",
+                "name": "Sore throat",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "162308004",
+                "name": "Throbbing headache",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            }
+        ]
+    },
+    {
+        "name": "Skin Texture Subset Assignment",
+        "referenceData": [
+            {
+                "referencedComponentId": "403197009",
+                "name": "Sun-induced wrinkles"
+            },
+            {
+                "referencedComponentId": "279002006",
+                "name": "Lichenification of skin"
+            },
+            {
+                "referencedComponentId": "274672009",
+                "name": "Changes in skin texture"
+            },
+            {
+                "referencedComponentId": "271767006",
+                "name": "Peeling of skin"
+            },
+            {
+                "referencedComponentId": "271761007",
+                "name": "Scaly skin"
+            },
+            {
+                "referencedComponentId": "370605002",
+                "name": "Epidermal collarette"
+            },
+            {
+                "referencedComponentId": "247434009",
+                "name": "Wrinkled skin"
+            }
+        ],
+        "referenceDefinition": "< 185823004 |Finding of skin texture (finding)| MINUS ( << 366649008 |Finding of thickness of skin (finding)| OR << 297947008 |Finding of consistency of skin (finding)| OR << 248194004 |Wrinkled face (finding)| OR << 238532005 |Finger wrinkling (finding)| OR << 275887009 |Scaly scalp (finding)|)",
+        "keyConceptsInECL": [
+            {
+                "code": "185823004",
+                "display": "Finding of skin texture (finding)"
+            }
+        ],
+        "customMessages": [
+            {
+                "conceptId": "10360000",
+                "name": "Crow's feet",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "429356007",
+                "name": "Rhytide of glabellar skin",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "429193009",
+                "name": "Rhytide of forehead",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "366649008",
+                "name": "Thickness of skin - finding",
+                "note": "The concept itself is a grouper which shouldn’t be used for data capture. The descendants overlap in meaning with the Thickness data element.",
+                "principle": "Grouper"
+            },
+            {
+                "conceptId": "297948003",
+                "name": "Normal skin consistency",
+                "note": "Overlap in meaning with the Consistency data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "297947008",
+                "name": "Finding of consistency of skin",
+                "note": "The concept itself is a grouper which shouldn’t be used for data capture. The descendants overlap in meaning with the Consistency data element.",
+                "principle": "Grouper"
+            },
+            {
+                "conceptId": "277797007",
+                "name": "Thin skin",
+                "note": "Overlap in meaning with the Thickness data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "275887009",
+                "name": "Scaly scalp",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "271815000",
+                "name": "Thick skin",
+                "note": "Overlap in meaning with the Thickness data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "248195003",
+                "name": "Fine wrinkles on face",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "248194004",
+                "name": "Wrinkled face",
+                "note": "The concept itself and its descendants overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "247430000",
+                "name": "Hard skin",
+                "note": "Overlap in meaning with the Consistency data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "85345005",
+                "name": "Increased thickness of skin",
+                "note": "Overlap in meaning with the Thickness data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "9368001",
+                "name": "Circumoral rhytides",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "238532005",
+                "name": "Finger wrinkling",
+                "note": "Overlap in meaning with the Body site data element",
+                "principle": "Overlap"
+            }
+        ]
+    },
+    {
+        "name": "Cardiology Subset",
+        "referenceData": [
+            {
+                "referencedComponentId": "368009",
+                "name": "Heart valve disorder "
+            },
+            {
+                "referencedComponentId": "53741008",
+                "name": "Coronary arteriosclerosis"
+            },
+            {
+                "referencedComponentId": "698247007",
+                "name": "Cardiac arrhythmia"
+            },
+            {
+                "referencedComponentId": "84114007",
+                "name": "Heart failure"
+            },
+            {
+                "referencedComponentId": "22298006",
+                "name": "Myocardial infarction"
+            },
+            {
+                "referencedComponentId": "85898001",
+                "name": "Cardiomyopathy"
+            },
+            {
+                "referencedComponentId": "16055631000119106",
+                "name": "Disorder of cardiovascular system co-occurrent and due to Marfan syndrome"
+            }
+        ],
+        "customMessages": [
+            {
+                "conceptId": "48724000",
+                "name": "Mitral valve regurgitation",
+                "note": "Overlap with more general members of the subset",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "409712001",
+                "name": "Mitral valve prolapse",
+                "note": "Overlap with more general members of the subset",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "56786000",
+                "name": "Pulmonic valve stenosis",
+                "note": "Overlap with more general members of the subset",
+                "principle": "Overlap"
+            },
+            {
+                "conceptId": "233873004",
+                "name": "Hypertrophic cardiomyopathy",
+                "note": "Overlap with more general members of the subset",
+                "principle": "Overlap"
+            }
+        ]
+    },
+    {
+        "name": "Respiratory Subset",
+        "referenceData": [
+            {
+                "referencedComponentId": "195967001",
+                "name": "Asthma"
+            },
+            {
+                "referencedComponentId": "13645005",
+                "name": "Chronic obstructive pulmonary disease"
+            },
+            {
+                "referencedComponentId": "87433001",
+                "name": "Pulmonary emphysema"
+            },
+            {
+                "referencedComponentId": "154283005",
+                "name": "Pulmonary tuberculosis"
+            },
+            {
+                "referencedComponentId": "363358000",
+                "name": "Malignant tumor of lung"
+            },
+            {
+                "referencedComponentId": "275498002",
+                "name": "Respiratory tract infection"
+            },
+            {
+                "referencedComponentId": "233604007",
+                "name": "Pneumonia"
+            },
+            {
+                "referencedComponentId": "471283005",
+                "name": "Air leaking from lung"
+            },
+            {
+                "referencedComponentId": "60046008",
+                "name": "Pleural effusion"
+            },
+            {
+                "referencedComponentId": "36118008",
+                "name": "Pneumothorax"
+            }
+        ],
+        "customMessages": [
+            {
+                "conceptId": "38785003",
+                "name": "Air leakage (morphologic abnormality)",
+                "note": "Ensure that the concept reflects the intended clinical meaning",
+                "principle": "Context"
+            },
+            {
+                "conceptId": "41699000",
+                "name": "Effusion (morphologic abnormality)",
+                "note": "Ensure that the concept reflects the intended clinical meaning",
+                "principle": "Context"
+            },
+            {
+                "conceptId": "1240414004",
+                "name": "Malignant neoplasm (morphologic abnormality)",
+                "note": "Ensure that the concept reflects the intended clinical meaning",
+                "principle": "Context"
+            },
+            {
+                "conceptId": "74497000",
+                "name": "Avian infectious bronchitis virus (organism)",
+                "note": "Ensure that the concept reflects the intended clinical meaning",
+                "principle": "Context"
+            },
+            {
+                "conceptId": "444507004",
+                "name": "Exposure to Mycobacterium tuberculosis (event)",
+                "note": "Ensure that the concept reflects the intended clinical meaning",
+                "principle": "Context"
+            }
+        ]
+    }
 ]
