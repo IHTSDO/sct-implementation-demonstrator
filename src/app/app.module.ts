@@ -64,6 +64,12 @@ import { ContextMainComponent } from './context/context-main/context-main.compon
 import { ElapsedTimePipe } from './pipes/elapsed-time.pipe';
 import { QuestionnaireHistoryComponent } from './questionnaires/questionnaire-history/questionnaire-history.component';
 
+import { initializeApp } from 'firebase/app';
+import { firebaseConfig } from '../environments/firebase.config';
+import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
+
+const app = initializeApp(firebaseConfig);
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -95,7 +101,8 @@ import { QuestionnaireHistoryComponent } from './questionnaires/questionnaire-hi
     SituationMapComponent,
     ContextMainComponent,
     ElapsedTimePipe,
-    QuestionnaireHistoryComponent
+    QuestionnaireHistoryComponent,
+    ScoreboardComponent
   ],
   imports: [
     HttpClientModule,
@@ -135,4 +142,5 @@ import { QuestionnaireHistoryComponent } from './questionnaires/questionnaire-hi
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
+
 export class AppModule { }

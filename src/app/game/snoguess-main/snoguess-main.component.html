@@ -108,9 +108,15 @@
     </div>
     <div (click)="showInstructionsPanel()" [@scrollUp]
     class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
-    rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
+    rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 text-3xl">
       Instructions
     </div>
+    <div (click)="openScoreboard()" [@scrollUp]
+    class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
+      High Scores
+    </div>
+
     <p class="text-center font-light italic text-lg">
       Playing with: {{ selectedEdition}}, Language: {{ selectedLanguage }}
     </p>
@@ -212,6 +218,11 @@
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       New game
     </div>
+    <div (click)="openScoreboard()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
+      High Scores
+    </div>
     <div (click)="loadMenu()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-2xl">
@@ -228,11 +239,26 @@
       <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
     </div>
     <div class="reveal won">Final score: {{ gameState.score }} - Difficulty: {{ gameState.difficultyLevel }} - Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}</div>
-
+    <div *ngIf="highScore" class="flex flex-col items-center gap-4 w-full">
+      <p class="font-bold text-lg text-blue-900">This is High Score! Save a message to the public leaderboard!</p>
+      <div class="flex flex-row align-middle justify-center w-full">
+        <input type="text" class="w-1/3" [(ngModel)]="messageForLeaderboard" placeholder="Your message here">
+        <div (click)="saveScore(gameState)" class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black
+        rounded-3xl pl-4 pr-4 pt-1 pb-1 w-fit text-center cursor-pointer font-bold text-white ml-4">
+          Save
+        </div>
+      </div>
+      <p class="text-sm text-gray-400">No personal information is recorded</p>
+    </div>
     <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       New game
+    </div>
+    <div (click)="openScoreboard()" [@scrollUp]
+    class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+    rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
+      High Scores
     </div>
     <div (click)="loadMenu()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 

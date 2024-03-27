@@ -1,0 +1,60 @@
+<div class="flex flex-col items-center gap-4 pt-6">
+    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+    <img src="assets/img/scoreboard.png" alt="High Scores" class="w-1/4 mt-8" [@popIn]>
+    <div class="mb-8 flex flex-row align-middle gap-1">
+        <span>Messages posted by playes who reached the Diamond trophy</span>
+        <mat-icon class="diamond">emoji_events</mat-icon>
+    </div>
+    <mat-spinner *ngIf="loadingScores" diameter="50"></mat-spinner>
+
+    <!-- Table (hidden while loading) -->
+    <div *ngIf="!loadingScores">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      
+        <!-- Message Column -->
+          <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef> Message </th>
+            <td mat-cell *matCellDef="let element"> {{element.message}} </td>
+          </ng-container>
+
+          <!-- Score Column -->
+          <ng-container matColumnDef="score">
+            <th mat-header-cell *matHeaderCellDef> Score </th>
+            <td mat-cell *matCellDef="let element"> {{element.score}} </td>
+          </ng-container>
+      
+          <!-- Number of Rounds Column -->
+          <ng-container matColumnDef="numberOfRounds">
+            <th mat-header-cell *matHeaderCellDef> Rounds </th>
+            <td mat-cell *matCellDef="let element"> {{element.numberOfRounds}} </td>
+          </ng-container>
+      
+          <!-- Difficulty Column -->
+          <ng-container matColumnDef="difficulty">
+            <th mat-header-cell *matHeaderCellDef> Difficulty </th>
+            <td mat-cell *matCellDef="let element"> {{element.difficulty}} </td>
+          </ng-container>
+      
+          <!-- Seconds Played Column -->
+          <ng-container matColumnDef="secondsPlayed">
+            <th mat-header-cell *matHeaderCellDef> Time Played </th>
+            <td mat-cell *matCellDef="let element"> {{element.elapsed | elapsedTime}} </td>
+          </ng-container>
+      
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Date </th>
+            <td mat-cell *matCellDef="let element"> {{element.date | date:'short'}} </td>
+          </ng-container>
+      
+      
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+      <div (click)="backToGame()" [@scrollUp]
+        class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
+        rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-2xl">
+        Back to game
+    </div>
+</div>

@@ -5,6 +5,9 @@ import { trigger, state, style, transition, animate, keyframes } from "@angular/
 import { KeyboardComponent } from "../keyboard/keyboard.component";
 import { PreloadService } from "src/app/services/preload.service";
 import { TerminologyService } from "src/app/services/terminology.service";
+import { FirebaseService } from "src/app/services/firebase.service";
+import { Router } from "@angular/router";
+import { Timestamp } from "firebase/firestore";
 
 @Component({
   selector: 'app-snoguess-main',
@@ -68,8 +71,17 @@ export class SnoguessMainComponent implements OnInit {
   public elapsedTime: number = 0;
   private gameInProgress: boolean = false;
 
+  messageForLeaderboard = "";
+  highScore: boolean = false;
 
-  constructor(private snoguessMainService: SnoguessService, private preloadService: PreloadService, private terminologyService: TerminologyService) {}
+
+  constructor(
+    private snoguessMainService: SnoguessService, 
+    private preloadService: PreloadService, 
+    private terminologyService: TerminologyService,
+    private firebaseService: FirebaseService,
+    private router: Router
+    ) {}
 
   ngOnInit(): void {
     this.game = this.snoguessMainService.getGameState();
@@ -80,22 +92,30 @@ export class SnoguessMainComponent implements OnInit {
       }
       if (game.state === 'gameOver' || game.state === 'won') {
         this.stopTimer();
+        if (game.state === 'won') {
+          // check if this is a high score
+          this.firebaseService.getScores().then((scores: any) => {
+            if (game.score > scores[scores.length - 1].score) {
+              this.highScore = true;
+            }
+          });
+        }
       }
     });
     this.snoguessMainService.guessResult.subscribe((guess: any) => {
       if (guess.result === false) {
-        this.keyboard.addGuessedLetter(guess.letter, false);
+        this.keyboard?.addGuessedLetter(guess.letter, false);
         this.shakeState = 'shake';
         // Ensure we only shake once per guess
         setTimeout(() => this.shakeState = 'normal', 200);
       } else {
-        this.keyboard.addGuessedLetter(guess.letter, true);
+        this.keyboard?.addGuessedLetter(guess.letter, true);
       }
     });
 
     this.snoguessMainService.termResult.subscribe((result: string) => {
       if (result) {
-        this.keyboard.reset();
+        this.keyboard?.reset();
         this.termGuessed = result;
         setTimeout(() => {
           this.termGuessed = '';
@@ -111,6 +131,7 @@ export class SnoguessMainComponent implements OnInit {
       'assets/img/game-over.png',
       'assets/img/instructions.png',
       'assets/img/difficulty.png',
+      'assets/img/scoreboard.png',
     ];
 
     this.preloadService.preloadImages(imageUrls).then(() => {
@@ -135,6 +156,7 @@ export class SnoguessMainComponent implements OnInit {
     this.terminologyService.lang$.subscribe(lang => {
       this.selectedLanguage = lang;
     });
+
   }
 
   loadMenu(): void {
@@ -163,6 +185,7 @@ export class SnoguessMainComponent implements OnInit {
     this.stopTimer(); // Ensure any existing timer is stopped before starting a new one
     this.snoguessMainService.startGame(level);
     this.startTimer(); // Start the game timer
+    this.highScore = false;
   }
 
   async guessLetter(letter: string) {
@@ -238,6 +261,28 @@ export class SnoguessMainComponent implements OnInit {
       this.gameTimerSubscription.unsubscribe();
     }
   }
-  
+
+  openScoreboard(): void {
+    this.router.navigate(['/snoguess/scoreboard']);
+  }
+
+  saveScore(gameState: any): void {
+    let highScore = {
+      "score": gameState.score,
+      "numberOfRounds": gameState.round,
+      "difficulty": gameState.difficultyLevel,
+      "elapsed": gameState.endTimestamp - gameState.startTimestamp,
+      "date": Timestamp.now(),
+      "message": this.messageForLeaderboard
+    }
+    this.firebaseService.addScore(highScore).then(() => {
+      this.messageForLeaderboard = "";
+      this.openScoreboard();
+    }).catch((error) => {
+      this.messageForLeaderboard = "";
+      console.error("Error saving score: ", error);
+      this.loadMenu();
+    });
+  }
 
 }
