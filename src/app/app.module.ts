@@ -67,6 +67,7 @@ import { QuestionnaireHistoryComponent } from './questionnaires/questionnaire-hi
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../environments/firebase.config';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
+import { SafeTextPipe } from './pipes/safe-text.pipe';
 
 const app = initializeApp(firebaseConfig);
 
@@ -102,7 +103,8 @@ const app = initializeApp(firebaseConfig);
     ContextMainComponent,
     ElapsedTimePipe,
     QuestionnaireHistoryComponent,
-    ScoreboardComponent
+    ScoreboardComponent,
+    SafeTextPipe
   ],
   imports: [
     HttpClientModule,

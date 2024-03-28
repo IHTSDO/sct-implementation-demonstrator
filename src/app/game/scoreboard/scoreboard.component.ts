@@ -60,6 +60,7 @@ export class ScoreboardComponent implements OnInit {
         date: doc.date ? doc.date.toDate() : new Date() // Converting Firestore Timestamp to JavaScript Date object
       }));
       this.loadingScores = false;
+      
     });
   }
 
