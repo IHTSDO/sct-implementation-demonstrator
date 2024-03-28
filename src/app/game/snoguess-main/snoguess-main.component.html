@@ -240,7 +240,7 @@
     </div>
     <div class="reveal won">Final score: {{ gameState.score }} - Difficulty: {{ gameState.difficultyLevel }} - Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}</div>
     <div *ngIf="highScore" class="flex flex-col items-center gap-4 w-full">
-      <p class="font-bold text-lg text-blue-900">This is High Score! Save a message to the public leaderboard!</p>
+      <p class="font-bold text-lg text-blue-900">This is a High Score! Save a message to the public leaderboard!</p>
       <div class="flex flex-row align-middle justify-center w-full">
         <input type="text" class="w-1/3" [(ngModel)]="messageForLeaderboard" placeholder="Your message here">
         <div (click)="saveScore(gameState)" class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black
