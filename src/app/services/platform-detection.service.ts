@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class PlatformDetectionService {
-  private readonly iOSKey = 'isIosSafari';
   private readonly tooltipDismissedKey = 'iosSafariTooltipDismissed';
 
   constructor() {}
@@ -23,4 +22,9 @@ export class PlatformDetectionService {
   dismissTooltip(): void {
     localStorage.setItem(this.tooltipDismissedKey, 'true');
   }
+
+  isRunningStandalone(): boolean {
+    return ('standalone' in window.navigator) && ((window.navigator as any)['standalone']);
+  }
+  
 }

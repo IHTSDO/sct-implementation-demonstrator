@@ -14,7 +14,8 @@ export class AddToHomeComponent implements OnInit {
 
   ngOnInit() {
     this.isIosSafari = this.platformDetectionService.isIosSafari();
-    this.tooltipDismissed = this.platformDetectionService.tooltipDismissed();
+    this.tooltipDismissed = this.platformDetectionService.tooltipDismissed() ||
+                            this.platformDetectionService.isRunningStandalone();
   }
 
   dismiss() {
