@@ -40,9 +40,9 @@
     <button mat-icon-button (click)="drawer.toggle()" id="menu-button">
       <mat-icon>menu</mat-icon>
     </button>
-    <img src="assets/img/small_logo.png" class="h-16">
+    <img src="assets/img/small_logo.png" id="logo">
     <span id="title">SNOMED CT Implementation Demos</span>
-    <span id="short-title">SNOMED CT Implementation Demos</span>
+    <span id="short-title">Implementation Demos</span>
     <span class="example-spacer"></span>
 
     <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu" class="bar-button">Select Demonstrator</button>
@@ -77,7 +77,7 @@
       <button mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">{{language}}</button>
     </mat-menu>
 
-    <a mat-flat-button href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" color="primary">
+    <a mat-flat-button href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" color="primary" id="info-button">
       <mat-icon>info</mat-icon>
     </a>
   </mat-toolbar>

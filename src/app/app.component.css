@@ -47,7 +47,11 @@ a {
 
 #short-title {
     display: none;
-} 
+}
+
+#logo {
+    height: 4rem;
+}
 
 @media (max-width: 768px) {
 
@@ -59,6 +63,14 @@ a {
         display: block;
         margin-left: 15px;
         font-size: 0.9rem;
+    }
+
+    #logo {
+        height: 3.5rem;
+    }
+
+    #info-button {
+        display: none;
     }
 }
 
