@@ -238,7 +238,17 @@
       <mat-icon class="large-icon diamond shadow-local">emoji_events</mat-icon>
       <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
     </div>
-    <div class="reveal won">Final score: {{ gameState.score }} - Difficulty: {{ gameState.difficultyLevel }} - Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}</div>
+    <div class="text-lg">Lives left: {{ gameState.hitPoints }} 
+      <span *ngIf="gameState.livesBonus > 0">→ Bonus: {{ gameState.livesBonus }}</span>
+    </div>
+    <div class="text-lg">Difficulty: {{ gameState.difficultyLevel }} 
+      <span *ngIf="gameState.difficultyBonus > 0">→ Bonus: {{ gameState.difficultyBonus }}</span>
+    </div>
+    <div class="text-lg">Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }} 
+      <span *ngIf="gameState.timeBonus > 0">→ Bonus: {{ gameState.timeBonus }}</span>
+    </div>
+    <div class="reveal won">Final score: {{ gameState.score }}</div>
+
     <div *ngIf="highScore" class="flex flex-col items-center gap-4 w-full">
       <p class="font-bold text-lg text-blue-900">This is a High Score! Save a message to the public leaderboard!</p>
       <div class="flex flex-row align-middle justify-center w-full">

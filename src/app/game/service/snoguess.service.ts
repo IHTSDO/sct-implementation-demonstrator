@@ -15,6 +15,9 @@ export interface Game {
   rules: any; // Rules and settings for the game
   startTimestamp: number; // Timestamp when the game started
   endTimestamp: number; // Timestamp when the game ended
+  difficultyBonus: number; // Bonus points for difficulty level
+  livesBonus: number; // Bonus points for remaining lives
+  timeBonus: number; // Bonus points for time remaining
 }
 
 interface SnomedConcept {
@@ -40,15 +43,15 @@ export class SnoguessService {
   difficultyLevels: any[] = [
     { 
       name: 'Easy',
-      rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals }
+      rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals, difficultyBonus: 0 }
     },
     { 
       name: 'Medium', 
-      rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals }
+      rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals, difficultyBonus: 50}
     },
     { 
       name: 'Hard', 
-      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals }
+      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals, difficultyBonus: 100}
     }
   ];
 
@@ -216,7 +219,10 @@ export class SnoguessService {
       rules: this.rules,
       difficultyLevel: '',
       startTimestamp: 0,
-      endTimestamp: 0
+      endTimestamp: 0,
+      difficultyBonus: 0,
+      livesBonus: 0,
+      timeBonus: 0
     };
   }
 
@@ -234,7 +240,10 @@ export class SnoguessService {
       rules: this.rules,
       difficultyLevel: difficulty,
       startTimestamp: Date.now(),
-      endTimestamp: 0
+      endTimestamp: 0,
+      difficultyBonus: 0,
+      livesBonus: 0,
+      timeBonus: 0
      });
     this.newRound(true);
   }
@@ -317,6 +326,12 @@ export class SnoguessService {
         if (newState.score > this.goals[this.goals.length - 1].score) {
           newState.state = 'won'; // Update the state to 'won'
           newState.endTimestamp = Date.now();
+          // Add bonuses to the score
+          newState.difficultyBonus = this.rules.difficultyBonus;
+          newState.livesBonus = newState.hitPoints * 10;
+          const elapsedTime = Math.round((newState.endTimestamp - newState.startTimestamp) / 1000);
+          newState.timeBonus = Math.max(0, 180 - elapsedTime);
+          newState.score += newState.difficultyBonus + newState.livesBonus + newState.timeBonus;
         } else {
           newState.hitPoints = newState.hitPoints + this.rules.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
           if (newState.hitPoints > this.rules.maxHitPoints) {
