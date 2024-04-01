@@ -1,0 +1,55 @@
+.custom-tooltip {
+    position: fixed;
+    bottom: 20px; /* Adjust as necessary to place it above the browser's toolbar */
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-width: 320px; /* You might want to set a max-width */
+    box-sizing: border-box;
+    z-index: 1000;
+  }
+  
+  .custom-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; /* Adjust to match the height of the triangle */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 20px solid white;
+  }
+  
+  .tooltip-icon {
+    background: #007BFF; /* Adjust to match your color theme */
+    color: white;
+    border-radius: 50%;
+    padding: 10px;
+    margin-right: 16px;
+  }
+  
+  .tooltip-text {
+    color: #333;
+    font-size: 16px; /* Adjust to match your design */
+  }
+  
+  .tooltip-dismiss-button {
+    margin-left: auto; /* Push the button to the right */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .tooltip-dismiss-button mat-icon {
+    color: #666;
+    vertical-align: bottom;
+  }
+  

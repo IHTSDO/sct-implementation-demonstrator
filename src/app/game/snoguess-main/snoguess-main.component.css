@@ -5,6 +5,7 @@
     max-width: 80%; /* Set a max-width for larger screens */
     margin: auto; /* Center the game container */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds a subtle shadow for depth */
+    min-height: 85vh !important;
   }
   
   .term-display {

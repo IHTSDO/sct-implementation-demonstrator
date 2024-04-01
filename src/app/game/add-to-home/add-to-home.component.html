@@ -1,0 +1,12 @@
+<div class="custom-tooltip" *ngIf="isIosSafari && !tooltipDismissed">
+    <!-- <div class="tooltip-icon">
+      <mat-icon>add_circle_outline</mat-icon>
+    </div> -->
+    <div class="tooltip-text">
+      Install this webapp on your iPhone: tap <mat-icon>ios_share</mat-icon> and then 'Add to Home Screen'
+    </div>
+    <button class="tooltip-dismiss-button" (click)="dismiss()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  

@@ -68,6 +68,7 @@ import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../environments/firebase.config';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { SafeTextPipe } from './pipes/safe-text.pipe';
+import { AddToHomeComponent } from './game/add-to-home/add-to-home.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -104,7 +105,8 @@ const app = initializeApp(firebaseConfig);
     ElapsedTimePipe,
     QuestionnaireHistoryComponent,
     ScoreboardComponent,
-    SafeTextPipe
+    SafeTextPipe,
+    AddToHomeComponent
   ],
   imports: [
     HttpClientModule,
