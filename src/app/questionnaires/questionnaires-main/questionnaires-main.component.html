@@ -59,6 +59,7 @@
       <div class="tab-container">
         <h4 *ngIf="questionnaire">{{ questionnaire.title }} - Version: {{ questionnaire.meta.versionId }} ({{ questionnaire.meta.lastUpdated | date:'fullDate' }})</h4>
         <div id="myFormContainer" [class.hidden]="!questionnaire"></div>
+        <!-- <button mat-flat-button color="accent" (click)="getFormData()">Data</button> -->
       </div>
     </mat-tab>
     <mat-tab label="Validate SNOMED Bindings">

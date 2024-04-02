@@ -110,6 +110,13 @@ export class QuestionnairesMainComponent implements OnInit{
     }
   }
 
+  getFormData() {
+    if (this.questionnaire) {
+      const formData = LForms.Util.getFormData('myFormContainer', true, true, true);
+      console.log(formData);
+    }
+  }
+
   displayHistory(questionnaire: any) {
     if (questionnaire) {
       this.questionnaireHistory.loadVersions(questionnaire);
