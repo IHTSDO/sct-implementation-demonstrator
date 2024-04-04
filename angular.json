@@ -33,7 +33,8 @@
               "node_modules/snomed-ecl-builder-vue/dist/snomed-ecl-builder.js"
             ],
             "allowedCommonJsDependencies": [
-              "file-saver"
+              "file-saver",
+              "bad-words"
             ]
           },
           "configurations": {
