@@ -73,10 +73,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "sct-implementation-demonstrator:build:production"
+              "buildTarget": "sct-implementation-demonstrator:build:production"
             },
             "development": {
-              "browserTarget": "sct-implementation-demonstrator:build:development"
+              "buildTarget": "sct-implementation-demonstrator:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -84,7 +84,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "sct-implementation-demonstrator:build"
+            "buildTarget": "sct-implementation-demonstrator:build"
           }
         },
         "test": {
