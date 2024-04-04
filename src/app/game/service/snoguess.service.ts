@@ -293,11 +293,12 @@ export class SnoguessService {
   
     // Determine the index where the semantic tag begins
     const semanticTagIndex = newState.term.lastIndexOf('(');
+    const effectiveLength = semanticTagIndex !== -1 ? semanticTagIndex : newState.term.length;
 
     newState.term.split('').forEach((char, index) => {
-      // Check if the index is within the range before the semantic tag
+      // Check if the index is within the effective length (either before the semantic tag or the entire term)
       // and if the character at that position has not been guessed yet
-      if (index < semanticTagIndex && newState.displayTerm[index] === '_') {
+      if (index < effectiveLength && newState.displayTerm[index] === '_') {
         // Compare normalized versions of the characters
         if (this.removeAccents(char.toLowerCase()) === this.removeAccents(letter.toLowerCase())) {
           newState.displayTerm[index] = char; // Reveal the correctly guessed letter

@@ -132,7 +132,7 @@ export class AppComponent {
   }
 
   setEdition(edition: any) {
-    console.log(edition.resource.version);
+    // console.log(edition.resource.version);
     this.selectedEdition = edition.resource.title?.replace('SNOMED CT release ','');
     this.terminologyService.setFhirUrlParam(edition.resource.version);
   }
