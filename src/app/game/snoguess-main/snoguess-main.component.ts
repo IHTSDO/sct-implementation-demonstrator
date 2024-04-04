@@ -285,4 +285,38 @@ export class SnoguessMainComponent implements OnInit {
     });
   }
 
+  getLanguageName(lang: string): string {
+    const languageNames: { [key: string]: string } = {
+      en: 'English',
+      es: 'Spanish',
+      fr: 'French',
+      de: 'German',
+      da: 'Danish',
+      nl: 'Dutch',
+      et: 'Estonian',
+      fi: 'Finnish',
+      no: 'Norwegian',
+      sv: 'Swedish',
+    };
+
+    return languageNames[lang] || lang;
+  }
+  setLanguage(lang: string): void {
+    const editions: { [key: string]: any } = {
+      en: { lang: 'en', fhirUrl: 'http://snomed.info/sct/900000000000207008/version/20240401' },
+      es: { lang: 'es', fhirUrl: 'http://snomed.info/sct/449081005/version/20240331' },
+      fr: { lang: 'fr', fhirUrl: 'http://snomed.info/sct/11000241103/version/20230331' },
+      de: { lang: 'de', fhirUrl: 'http://snomed.info/sct/11000274103/version/20231115' },
+      da: { lang: 'da', fhirUrl: 'http://snomed.info/sct/554471000005108/version/20240331' },
+      nl: { lang: 'nl', fhirUrl: 'http://snomed.info/sct/11000146104/version/20240331' },
+      et: { lang: 'et', fhirUrl: 'http://snomed.info/sct/11000181102/version/20231130' },
+      fi: { lang: 'fi', fhirUrl: 'http://snomed.info/sct/11000229106/version/20231215' },
+      no: { lang: 'no', fhirUrl: 'http://snomed.info/sct/51000202101/version/20231015' },
+      sv: { lang: 'sv', fhirUrl: 'http://snomed.info/sct/45991000052106/version/20231130' }
+    }
+
+    this.terminologyService.setLang(lang);
+    this.terminologyService.setFhirUrlParam(editions[lang].fhirUrl);
+  }
+
 }

@@ -15,7 +15,7 @@
       <div class="relative w-1/4"> <!-- Set a width and position relative -->
         <img src="assets/img/snoguess-logo.png" alt="Game Logo" [@popIn]>
         <div class="diff-label absolute -bottom-3 right-5 italic text-gray-500"> <!-- Absolutely position the difficulty level -->
-          {{ gameState.difficultyLevel }}
+          {{ gameState.difficultyLevel }} - {{ getLanguageName(selectedLanguage) }}
         </div>
       </div>
     </div>
@@ -113,13 +113,25 @@
     </div>
     <div (click)="openScoreboard()" [@scrollUp]
     class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
-    rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
+    rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-12 text-3xl">
       High Scores
     </div>
 
     <p class="text-center font-light italic text-lg">
-      Playing with: {{ selectedEdition}}, Language: {{ selectedLanguage }}
+      Playing with terms in the IPS Reference Set in {{ getLanguageName(selectedLanguage) }}, change language:
     </p>
+    <div class="text-center font-light italic text-sm">
+      <button mat-button (click)="setLanguage('da')">DA</button>
+      <button mat-button (click)="setLanguage('de')">DE</button>
+      <button mat-button (click)="setLanguage('en')">EN</button>
+      <button mat-button (click)="setLanguage('es')">ES</button>
+      <button mat-button (click)="setLanguage('et')">ET</button>
+      <button mat-button (click)="setLanguage('fi')">FI</button>
+      <button mat-button (click)="setLanguage('fr')">FR</button>
+      <button mat-button (click)="setLanguage('nl')">NL</button>
+      <button mat-button (click)="setLanguage('no')">NO</button>
+      <button mat-button (click)="setLanguage('sv')">SV</button>
+    </div>
   </div>
 
   <div *ngIf="gameState.state === 'menu' && chooseDifficulty && !showInstructions && !loadingAssets" class="flex flex-col items-center gap-4">

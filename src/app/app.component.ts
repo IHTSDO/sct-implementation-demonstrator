@@ -16,7 +16,7 @@ export class AppComponent {
   bindingsForExport: any[] = [];
   editions: any[] = [];
   editionsDetails: any[] = [];
-  languages = ['be', 'en', 'es', 'fr', 'no'];
+  languages = ['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv'];
   selectedEdition = 'Edition';
   selectedLanguage = 'en';
   fhirServers = [
@@ -132,6 +132,7 @@ export class AppComponent {
   }
 
   setEdition(edition: any) {
+    console.log(edition.resource.version);
     this.selectedEdition = edition.resource.title?.replace('SNOMED CT release ','');
     this.terminologyService.setFhirUrlParam(edition.resource.version);
   }
