@@ -74,6 +74,20 @@ export class AppComponent {
         this.updateCodeSystemOptions();
       }
     });
+
+    this.terminologyService.lang$.subscribe(lang => {
+      this.selectedLanguage = lang;
+    });
+
+    this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
+      if (this.editions?.length > 0) {
+        this.editions.forEach(loopEdition => {
+          if (loopEdition.resource.version === urlParam) {
+            this.selectedEdition = loopEdition.resource.title?.replace('SNOMED CT release ','');
+          }
+        });
+      }
+    });
   }
 
   navigate(route: string) {
