@@ -42,7 +42,7 @@ import { FirebaseService } from 'src/app/services/firebase.service';
   ]
 })
 export class ScoreboardComponent implements OnInit {
-  displayedColumns: string[] = ['message', 'difficulty', 'score', 'numberOfRounds', 'secondsPlayed', 'date'];
+  displayedColumns: string[] = ['position', 'message', 'difficulty', 'score', 'numberOfRounds', 'secondsPlayed', 'date'];
   dataSource: any[] = [];
   loadingScores = false;
 

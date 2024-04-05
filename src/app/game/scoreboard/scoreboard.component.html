@@ -10,11 +10,20 @@
     <!-- Table (hidden while loading) -->
     <div *ngIf="!loadingScores">
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+        <!-- Position Column -->
+        <ng-container matColumnDef="position">
+          <th mat-header-cell *matHeaderCellDef> Position </th>
+          <td mat-cell *matCellDef="let element; let i = index"> {{i + 1}} </td>
+        </ng-container>
       
         <!-- Message Column -->
           <ng-container matColumnDef="message">
             <th mat-header-cell *matHeaderCellDef> Message </th>
-            <td mat-cell *matCellDef="let element"> {{element.message | safeText}} </td>
+            <td mat-cell *matCellDef="let element"> 
+              <span *ngIf="element.message">{{element.message | safeText}}</span>
+              <span *ngIf="!element.message" class="text-gray-400"><i>No information available (qualifier value)</i></span>
+            </td>
           </ng-container>
 
           <!-- Score Column -->
