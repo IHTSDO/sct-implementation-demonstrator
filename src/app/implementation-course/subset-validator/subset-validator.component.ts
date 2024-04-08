@@ -217,25 +217,25 @@ export class SubsetValidatorComponent implements OnInit {
     if (this.studentSubsetDefinition) {
       let studentECLvsStudentList = await this.checkStudentECLvsStudentList();
       if (studentECLvsStudentList > 0) {
-        this.definitionVsMembersValidationResult = this.error + " " + studentECLvsStudentList + " members not found in student ECL";
+        this.definitionVsMembersValidationResult = this.error + " The uploaded definition and members files are not in alignment";
       } else {
-        this.definitionVsMembersValidationResult = this.ok + " All members found in student ECL";
+        this.definitionVsMembersValidationResult = this.ok + " The uploaded definition and members files are in alignment";
       }
 
       let keyConceptsValidation = this.checkStudentECLvsKeyConcept();
       if (keyConceptsValidation) {
-        this.keyConceptValidationResult = this.ok + " Student ECL contains all key concepts";
+        this.keyConceptValidationResult = this.ok + " The definition of your subset includes the key subhierarchy";
       } else {
-        this.keyConceptValidationResult = this.error + " Student ECL does not contain all key concepts";
+        this.keyConceptValidationResult = this.error + " The definition of your subset does not include the key subhierarchy";
       }
     }
 
     this.checkStudentListVsReferenceList();
     let countNotInReferenceList = this.studentSubsetmembers.filter((member: any) => !member.inReferenceList.value).length;
     if (countNotInReferenceList > 0) {
-      this.membersNotInRefrenceListResult = this.error + " " + countNotInReferenceList + " members not found in reference list";
+      this.membersNotInRefrenceListResult = this.error + " There are " + countNotInReferenceList + " members in your subset that are not recommended to be included";
     } else {
-      this.membersNotInRefrenceListResult = this.ok + " All members found in reference list";
+      this.membersNotInRefrenceListResult = this.ok + " All members match the recommended list of concepts for the subset";
     }
 
     this.checkStudentListVsCustomMessages();
