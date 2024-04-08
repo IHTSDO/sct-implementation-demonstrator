@@ -29,6 +29,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatListModule} from '@angular/material/list';
 import {MatSortModule} from '@angular/material/sort';
 import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatSliderModule} from '@angular/material/slider';
 
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -69,6 +70,8 @@ import { firebaseConfig } from '../environments/firebase.config';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { SafeTextPipe } from './pipes/safe-text.pipe';
 import { AddToHomeComponent } from './game/add-to-home/add-to-home.component';
+import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
+import { MaturityQuestionComponent } from './maturity/maturity-question/maturity-question.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -106,7 +109,9 @@ const app = initializeApp(firebaseConfig);
     QuestionnaireHistoryComponent,
     ScoreboardComponent,
     SafeTextPipe,
-    AddToHomeComponent
+    AddToHomeComponent,
+    MaturityMainComponent,
+    MaturityQuestionComponent
   ],
   imports: [
     HttpClientModule,
@@ -140,7 +145,8 @@ const app = initializeApp(firebaseConfig);
     MatListModule,
     MatSortModule,
     FormsModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatSliderModule
   ],
   providers: [],
   bootstrap: [AppComponent],

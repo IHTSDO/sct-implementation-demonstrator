@@ -1,0 +1,14 @@
+<div class="main">
+    <div *ngFor="let goal of maturityQuestions" class="goal-section">
+        <h2>{{ goal.goal }}</h2>
+
+        <div *ngFor="let component of goal.components" class="component-section">
+            <h3>{{ component.component }}</h3>
+            
+            <div *ngFor="let metric of component.metrics" class="metric-section">
+            <app-maturity-question [metric]="metric"></app-maturity-question>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <button mat-flat-button color="primary" (click)="onNext()">Submit</button> -->

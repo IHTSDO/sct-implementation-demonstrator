@@ -8,6 +8,7 @@ import { SubsetValidatorComponent } from './implementation-course/subset-validat
 import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.component';
 import { ContextMainComponent } from './context/context-main/context-main.component';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
+import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
 
 const routes: Routes = [
   { path: '', component: AllergiesComponent },
@@ -19,6 +20,7 @@ const routes: Routes = [
   { path: 'snoguess', component: SnoguessMainComponent},
   { path: 'snoguess/scoreboard', component: ScoreboardComponent},
   { path: 'context', component: ContextMainComponent},
+  { path: 'maturity', component: MaturityMainComponent},
   { path: '**', redirectTo: '' }
 ];
 
