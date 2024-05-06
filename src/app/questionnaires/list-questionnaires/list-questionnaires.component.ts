@@ -40,6 +40,8 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   private baseUrlChanged = new Subject<string>();
   private userTagChanged = new Subject<string>();
 
+  fbUrl = 'https://formbuilder.nlm.nih.gov';
+
   constructor(
     private fhirService: FhirService, 
     private questionnaireService: QuestionnaireService,
@@ -199,8 +201,44 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   }
 
   editQuestionnaire(questionnaire: any) {
-    this.saveQuestionnaire(questionnaire);
-    window.open('https://lhcformbuilder.nlm.nih.gov/', '_blank');
+    const fbWin = window.open(this.fbUrl + '/window-open?referrer='+encodeURIComponent(window.location.href));
+    window.addEventListener('message', handleFormBuilderMessages, true);
+    let context = this
+    function handleFormBuilderMessages(event: any) {
+      if(event.origin === context.fbUrl) {
+        const eventType = event.data.type;
+        const reveivedQuestionnaire = event.data.questionnaire;
+        switch (eventType) {
+          case 'initialized':
+            fbWin?.postMessage({type: 'initialQuestionnaire', questionnaire: questionnaire}, context.fbUrl);
+            break;
+    
+          case 'updateQuestionnaire':
+            // Use this to get continuous updates. The message is triggered by every
+            // change in the form builder with about 0.5 second debounce.
+            break;
+    
+          case 'closed':
+            context.fhirService.updateOrCreateQuestionnaire(reveivedQuestionnaire, context.selectedUserTag).pipe(first()).subscribe(
+              (data: any) => {
+                context._snackBar.openFromComponent(SnackAlertComponent, {
+                  duration: 5 * 1000,
+                  data: "Questionnaire updated successfully",
+                  panelClass: ['green-snackbar']
+                });
+                context.updateQuestionnairesList(data);
+              },
+              (error: any) => {
+                context._snackBar.openFromComponent(SnackAlertComponent, {
+                  duration: 5 * 1000,
+                  data: "Error saving questionnaire",
+                  panelClass: ['red-snackbar']
+                });
+              });
+            break;
+        }
+      }
+    } 
   }
 
   async openModularQuestionnaireModal(modularQuestionnaire: any) {
