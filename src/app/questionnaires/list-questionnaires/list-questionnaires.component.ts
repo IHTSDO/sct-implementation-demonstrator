@@ -42,6 +42,19 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
 
   fbUrl = 'https://formbuilder.nlm.nih.gov';
 
+  blankQuestionnaire = {
+    "resourceType": "Questionnaire",
+    "title": "New Form",
+    "status": "draft",
+    "item": [
+      {
+        "type": "string",
+        "linkId": "4009522077787",
+        "text": "Item 0"
+      }
+    ]
+  };
+
   constructor(
     private fhirService: FhirService, 
     private questionnaireService: QuestionnaireService,
@@ -200,6 +213,10 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     });
   }
 
+  createQuestionnaire() {
+    this.editQuestionnaire(this.blankQuestionnaire);
+  }
+
   editQuestionnaire(questionnaire: any) {
     const fbWin = window.open(this.fbUrl + '/window-open?referrer='+encodeURIComponent(window.location.href));
     window.addEventListener('message', handleFormBuilderMessages, true);
@@ -336,6 +353,5 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
       return `Cannot delete: Referenced by ${titles}`;
     }
   }
-  
   
 }

@@ -138,6 +138,10 @@ export class QuestionnairesMainComponent implements OnInit{
     this.previewForm();
   }
 
+  createQuestionnaire() {
+    this.questionnairesList.createQuestionnaire();
+  }
+
   loadQuestionnaire(data: any) {
     this.loading = true;
     this.clearQuestionnaire();
