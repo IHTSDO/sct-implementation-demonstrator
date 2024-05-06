@@ -1381,5 +1381,9 @@
   "url": "http://snomed.info/fhir/cancer-synoptic-form/iccr-pancreatic",
   "title": "Carcinoma of the Exocrine Pancreas Histopathology Reporting Form",
   "status": "draft",
-  "description": "An FHIR Questionnaire implementation of the ICCR Exocrine pancreatic cancer form"
+  "description": "An FHIR Questionnaire implementation of the ICCR Exocrine pancreatic cancer form",
+  "meta": {
+    "versionId": "3",
+    "lastUpdated": "2024-05-06T18:24:30.652+00:00"
+  }
 }

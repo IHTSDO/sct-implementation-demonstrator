@@ -61,11 +61,16 @@ export class QuestionnaireHistoryComponent implements OnInit, OnChanges {
     }
     if (this.questionnaire) {
       this.loading = true;
-      this.fhirService.getQuestionnaireHistory(this.questionnaire.id).subscribe((bundle: any) => {
-        this.versions = bundle.entry.map((entry: any) => entry.resource);
-        this.dataSource.data = this.versions;
-        this.loading = false;
-      });
+      this.fhirService.getQuestionnaireHistory(this.questionnaire.id).subscribe(
+        (bundle: any) => {
+          this.versions = bundle.entry.map((entry: any) => entry.resource);
+          this.dataSource.data = this.versions;
+          this.loading = false;
+        },
+        (error: any) => {
+          this.loading = false;
+        }
+      );
     }
   }
 
