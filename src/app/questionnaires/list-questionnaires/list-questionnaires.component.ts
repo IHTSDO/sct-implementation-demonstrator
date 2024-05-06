@@ -214,7 +214,23 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   }
 
   createQuestionnaire() {
-    this.editQuestionnaire(this.blankQuestionnaire);
+    let questionnaire: any = this.blankQuestionnaire;
+    if (!questionnaire.meta) {
+      questionnaire.meta = {};
+    }
+    questionnaire.meta.tag = [
+      {
+          system: "http://snomed.org/tags",
+          code: this.selectedUserTag,
+          display: this.selectedUserTag
+      },
+      {
+        system: "http://snomed.org/tags",
+        code: "questionnaireManagerTool",
+        display: "questionnaireManagerTool"
+      }
+    ];
+    this.editQuestionnaire(questionnaire);
   }
 
   editQuestionnaire(questionnaire: any) {
