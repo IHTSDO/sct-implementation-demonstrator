@@ -16,6 +16,7 @@ import { CreateRootModuleComponent } from '../create-root-module/create-root-mod
 import { QuestionnaireService } from 'src/app/services/questionnaire.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { QuestionnaireHistoryComponent } from '../questionnaire-history/questionnaire-history.component';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -49,6 +50,7 @@ export class QuestionnairesMainComponent implements OnInit{
     private terminologyService: TerminologyService,
     private fhirService: FhirService,
     private questionnaireService: QuestionnaireService,
+    private activatedRoute: ActivatedRoute,
     public dialog: MatDialog,
     private _snackBar: MatSnackBar) { }
 
@@ -58,6 +60,13 @@ export class QuestionnairesMainComponent implements OnInit{
     });
     this.fhirService.userTag$.subscribe(tag => {
       this.selectedUserTag = tag;
+    });
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['utility'] === 'true') {
+        this.mode = 'utility';
+      } else {  
+        this.mode = 'step1';
+      }
     });
     this.loadScript();
   }

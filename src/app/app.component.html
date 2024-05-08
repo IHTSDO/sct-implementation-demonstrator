@@ -47,12 +47,14 @@
 
     <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu" class="bar-button">Select Demonstrator</button>
     <mat-menu #demosMenu="matMenu" class="wide-menu">
-      <button mat-menu-item (click)="navigate('/allergies')">Allergies CRG</button>
+      <button mat-menu-item (click)="navigate('/allergies')">Allergies CRG Demonstrator</button>
       <button mat-menu-item (click)="navigate('/sandbox')">Terminology Bindings Sandbox</button>
-      <!-- <button mat-menu-item (click)="navigate('/prescription')">Prescription Demo</button> -->
-      <button mat-menu-item (click)="navigate('/questionnaires')">SNOMED & FHIR Questionnaires</button>
-      <button mat-menu-item (click)="navigate('/context')">Context Representation</button>
-      <!-- <button mat-menu-item (click)="navigate('/maturity')">Implementation Maturity Index</button> -->
+      <button mat-menu-item (click)="openInNewTab('https://ihtsdo.github.io/iid-icd-maps')">SNOMED Maps Demonstrator</button>
+      <button mat-menu-item (click)="openInNewTab('https://ihtsdo.github.io/iid-postcoordination')">Post-coordination Demonstrator</button>
+      <button mat-menu-item (click)="openInNewTab('https://ihtsdo.github.io/iid-ips/')">IPS Terminology Demonstrator</button>
+      <button mat-menu-item (click)="navigate('/questionnaires')">SNOMED & FHIR Questionnaires Manager Application</button>
+      <button mat-menu-item (click)="this.router.navigate(['/questionnaires'], { queryParams: { utility: true } });">SNOMED & FHIR Questionnaires Utilities</button>
+      <button mat-menu-item (click)="navigate('/context')">Context Representation Transformations</button>
       <button mat-menu-item (click)="navigate('/snoguess')">Snoguess (A SNOMED game)</button>
     </mat-menu>
     

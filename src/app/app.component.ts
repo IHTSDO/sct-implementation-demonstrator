@@ -83,6 +83,10 @@ export class AppComponent {
     this.router.navigate([route]);
   }
 
+  openInNewTab(url: string) {
+    window.open(url, '_blank');
+  }
+
   updateCodeSystemOptions(preselectedEdition?: string) {
     this.terminologyService.getCodeSystems().subscribe(response => {
       this.editionsDetails = [];
