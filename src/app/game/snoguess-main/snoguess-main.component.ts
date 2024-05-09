@@ -92,15 +92,12 @@ export class SnoguessMainComponent implements OnInit {
       }
       if (game.state === 'gameOver' || game.state === 'won') {
         this.stopTimer();
-        if (game.state === 'won') {
-          // check if this is a high score
-          this.firebaseService.getScores().then((scores: any) => {
-            if (game.score > scores[scores.length - 1].score) {
-              this.highScore = true;
-            }
-          });
-        }
-      }
+        this.firebaseService.getScores().then((scores: any) => {
+          if (game.score > scores[scores.length - 1].score) {
+            this.highScore = true;
+          }
+        });
+    }
     });
     this.snoguessMainService.guessResult.subscribe((guess: any) => {
       if (guess.result === false) {

@@ -43,15 +43,19 @@ export class SnoguessService {
   difficultyLevels: any[] = [
     { 
       name: 'Easy',
-      rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals, difficultyBonus: 0 }
+      rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals, difficultyBonus: 0, endless : false}
     },
     { 
       name: 'Medium', 
-      rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals, difficultyBonus: 50}
+      rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals, difficultyBonus: 50, endless : false}
     },
     { 
       name: 'Hard', 
-      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals, difficultyBonus: 100}
+      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals, difficultyBonus: 100, endless : false}
+    },
+    { 
+      name: 'Endless (Hard)', 
+      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals, difficultyBonus: 100, endless : true}
     }
   ];
 
@@ -316,6 +320,8 @@ export class SnoguessService {
         newState.hitPoints = 0; // Ensure hit points don't go negative
         newState.state = 'gameOver'; // Update the state to 'gameOver'
         newState.endTimestamp = Date.now();
+        newState.difficultyBonus = this.rules.difficultyBonus;
+        newState.score += newState.difficultyBonus;
       }
     } else {
       this.guessResult.emit({ letter: letter, result: true });
@@ -324,7 +330,7 @@ export class SnoguessService {
       if (isTermGessed && newState.state === 'playing') {
         this.termResult.emit(newState.term); // Emit true for correct term guesses
         // check if the game is won
-        if (newState.score > this.goals[this.goals.length - 1].score) {
+        if (newState.score > this.goals[this.goals.length - 1].score && this.rules.endless === false) {
           newState.state = 'won'; // Update the state to 'won'
           newState.endTimestamp = Date.now();
           // Add bonuses to the score

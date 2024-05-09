@@ -151,6 +151,7 @@
         Life: {{ level.rules.maxHitPoints }} <mat-icon class="text-red-500 text-sm">favorite</mat-icon>, 
         Free hints: {{ level.rules.freeHints }} <mat-icon class="text-yellow-500 text-sm">contact_support</mat-icon>, 
         Points per letter: {{ level.rules.pointsPerGuessedLetter }}
+        <span *ngIf="level.rules.endless">, Endless</span>
       </p>
     </div>
     <div (click)="backToMenu()" [@scrollUp]
@@ -189,6 +190,9 @@
       <li class="flex flex-row align-middle gap-2">
         <mat-icon>check</mat-icon>Keep guessing terms to increase your score and earn trophies <mat-icon class="text-yellow-500">emoji_events</mat-icon>
       </li>
+      <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>Endless mode will not finish when you reach the Diamond Trophy <mat-icon class="text-blue-500">emoji_events</mat-icon>
+      </li>
     </ul>
     <div (click)="hideInstructionsPanel()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
@@ -223,6 +227,18 @@
       <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'trophy-large', 'shadow-local']">emoji_events</mat-icon>
       &nbsp;
       <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
+    </div>
+
+    <div *ngIf="highScore" class="flex flex-col items-center gap-4 w-full">
+      <p class="font-bold text-lg md:text-xl text-blue-900">
+          This is a High Score! Save a message to the public leaderboard!
+      </p>
+      <!-- Responsive input width -->
+      <input type="text" class="w-full md:w-1/2 text-base md:text-lg" [(ngModel)]="messageForLeaderboard" placeholder="Your message here">
+      <div (click)="saveScore(gameState)" class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black rounded-3xl pl-4 pr-4 pt-1 pb-1 w-fit text-center cursor-pointer font-bold text-white ml-4">
+          Save
+      </div>
+      <p class="text-sm text-gray-400">No personal information is recorded</p>
     </div>
 
     <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
@@ -262,16 +278,17 @@
     <div class="reveal won">Final score: {{ gameState.score }}</div>
 
     <div *ngIf="highScore" class="flex flex-col items-center gap-4 w-full">
-      <p class="font-bold text-lg text-blue-900">This is a High Score! Save a message to the public leaderboard!</p>
-      <div class="flex flex-row align-middle justify-center w-full">
-        <input type="text" class="w-1/3" [(ngModel)]="messageForLeaderboard" placeholder="Your message here">
-        <div (click)="saveScore(gameState)" class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black
-        rounded-3xl pl-4 pr-4 pt-1 pb-1 w-fit text-center cursor-pointer font-bold text-white ml-4">
+      <p class="font-bold text-lg md:text-xl text-blue-900">
+          This is a High Score! Save a message to the public leaderboard!
+      </p>
+      <!-- Responsive input width -->
+      <input type="text" class="w-full md:w-1/2 text-base md:text-lg" [(ngModel)]="messageForLeaderboard" placeholder="Your message here">
+      <div (click)="saveScore(gameState)" class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black rounded-3xl pl-4 pr-4 pt-1 pb-1 w-fit text-center cursor-pointer font-bold text-white ml-4">
           Save
-        </div>
       </div>
       <p class="text-sm text-gray-400">No personal information is recorded</p>
     </div>
+
     <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
