@@ -72,6 +72,7 @@ import { SafeTextPipe } from './pipes/safe-text.pipe';
 import { AddToHomeComponent } from './game/add-to-home/add-to-home.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
 import { MaturityQuestionComponent } from './maturity/maturity-question/maturity-question.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 const app = initializeApp(firebaseConfig);
 
@@ -146,7 +147,8 @@ const app = initializeApp(firebaseConfig);
     MatSortModule,
     FormsModule,
     MatSidenavModule,
-    MatSliderModule
+    MatSliderModule,
+    MatPaginatorModule
   ],
   providers: [],
   bootstrap: [AppComponent],

@@ -10,6 +10,7 @@ import { QuestionnaireService } from 'src/app/services/questionnaire.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateRootModuleComponent } from '../create-root-module/create-root-module.component';
 import { MatTooltip } from '@angular/material/tooltip';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-list-questionnaires',
@@ -18,6 +19,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 })
 export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterViewInit {
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   @Output() questionnaireSelected = new EventEmitter<any>();
@@ -28,7 +30,7 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
 
   @Input() config: any = {};
 
-  displayedColumns: string[] = ['title','status', 'version', 'type', 'actions'];
+  displayedColumns: string[] = ['title','status', 'version', 'lastUpdated', 'type', 'actions'];
   dataSource = new MatTableDataSource<any>();
 
   questionnaires: any[] = [];
@@ -62,6 +64,29 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     private _snackBar: MatSnackBar) { }
 
   ngOnInit() {
+    // Moved to after view init
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'type':
+          return this.isRootQuestionnaire(item) ? 'Modular root' : 'Questionnaire';
+        case 'version':
+          return item.meta && item.meta.versionId ? item.meta.versionId : '';
+        case 'lastUpdated':
+          return item.meta && item.meta.lastUpdated ? new Date(item.meta.lastUpdated) : '';
+        default:
+          return item[property];
+      }
+    };
+
+    if (this.selectedUserTag && this.selectedFhirServer) {
+      this.loadQuestionnaires();
+    }
+
     combineLatest([
       this.fhirService.baseUrl$.pipe(
         debounceTime(1000),
@@ -83,23 +108,6 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-  }
-
-  ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
-    this.dataSource.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case 'type':
-          return this.isRootQuestionnaire(item) ? 'Modular root' : 'Questionnaire';
-        case 'version':
-          return item.meta && item.meta.versionId ? item.meta.versionId : '';
-        default:
-          return item[property];
-      }
-    };
-    if (this.selectedUserTag && this.selectedFhirServer) {
-      this.loadQuestionnaires();
-    }
   }
 
   loadQuestionnaires() {
