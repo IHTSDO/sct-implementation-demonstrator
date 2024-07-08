@@ -200,6 +200,7 @@ export class QuestionnairesMainComponent implements OnInit{
         }
       };
       reader.readAsText(file);
+      (event.target as HTMLInputElement).value = '';
     }
   }
 
@@ -208,6 +209,7 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   postQuestionnaire(questionnaire: any) {
+    console.log("Posting questionnaire", questionnaire);
     const index = this.questionnairesList.questionnaires.findIndex((q: any) => q.title === questionnaire.title && q.id !== questionnaire.id);
     if (index !== -1) {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
@@ -227,7 +229,6 @@ export class QuestionnairesMainComponent implements OnInit{
             data: "Questionnaire save action cancelled",
             panelClass: ['red-snackbar']
           });
-          console.log("User cancelled the action");
         }
       });
     } else {
@@ -252,7 +253,6 @@ export class QuestionnairesMainComponent implements OnInit{
               data: "Questionnaire save action cancelled",
               panelClass: ['red-snackbar']
             });
-            console.log("User cancelled the action");
           }
         });
       } else {
