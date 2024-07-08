@@ -3,7 +3,10 @@
         <mat-progress-bar mode="determinate" [value]="validatingProgress"></mat-progress-bar>
         <div class="progress-label">{{ validatingProgress }}%</div>
     </div>
-    <button mat-flat-button color="accent" (click)="validate()" [disabled]="validating || !questionnaire">
+    <button mat-flat-button color="accent" (click)="saveQuestionnaire()" [disabled]="validating || !questionnaire" *ngIf="requiresSave">
+      Save changes
+    </button>
+    <button mat-flat-button color="accent" (click)="validate()" *ngIf="!validating && questionnaire">
       <span *ngIf="!validating">Run validation</span>
       <mat-spinner diameter="20" *ngIf="validating"></mat-spinner>
     </button>

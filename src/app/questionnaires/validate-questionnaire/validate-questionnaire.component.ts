@@ -5,6 +5,8 @@ import { MatTabGroup } from '@angular/material/tabs';
 import { first, lastValueFrom, map } from 'rxjs';
 import { ListQuestionnairesComponent } from '../list-questionnaires/list-questionnaires.component';
 import { TerminologyService } from 'src/app/services/terminology.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 
 @Component({
   selector: 'app-validate-questionnaire',
@@ -33,7 +35,9 @@ export class ValidateQuestionnaireComponent implements OnChanges {
     error: 0
   };
 
-  constructor(private terminologyService: TerminologyService) { }
+  requiresSave = false;
+
+  constructor(private terminologyService: TerminologyService, private _snackBar: MatSnackBar) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['questionnaire']) {
@@ -267,9 +271,20 @@ export class ValidateQuestionnaireComponent implements OnChanges {
   replaceInactiveConcept(item: any, replacement: any) {
     let changesMade = this.searchAndReplace(this.questionnaire, item, replacement, false);
     if (changesMade) {
-      this.loadQuestionnaire(this.questionnaire);
-      this.questionnaireUpdated.emit(this.questionnaire);
+      // this.loadQuestionnaire(this.questionnaire);
+      // this.questionnaireUpdated.emit(this.questionnaire);
+      this.requiresSave = true;
+      // show snackbar
+      this._snackBar.openFromComponent(SnackAlertComponent, {
+        duration: 5 * 1000,
+        data: "Inactive reference replaced successfully. Save the questionnaire to persist the changes.",
+        panelClass: ['green-snackbar']
+      });
     }
+  }
+
+  saveQuestionnaire() {
+    this.questionnaireUpdated.emit(this.questionnaire);
   }
 
   searchAndReplace(data:any, item: any, replacement: any, changesMade: boolean): boolean {
@@ -314,6 +329,7 @@ export class ValidateQuestionnaireComponent implements OnChanges {
       }
     }
 
+
     // If the current data object is an array, recursively search and replace objects from its items
     if (Array.isArray(data)) {
       for (let index in data) {
@@ -327,6 +343,20 @@ export class ValidateQuestionnaireComponent implements OnChanges {
             }
         }
     }
+
+    if (changesMade && this.dataSource.data) {
+      for (let index in this.dataSource.data) {
+        if (this.dataSource.data[index].system == item.system && this.dataSource.data[index].code == item.code && this.dataSource.data[index].display == item.display) {
+          this.dataSource.data[index].system = replacement.system;
+          this.dataSource.data[index].code = replacement.code;
+          this.dataSource.data[index].display = replacement.display;
+          this.dataSource.data[index].status = 'Active';
+          this.dataSource.data[index].replacements = [];
+
+        }
+      }
+    }
+    
     return changesMade;
   }
 

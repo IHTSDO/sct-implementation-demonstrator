@@ -27,7 +27,7 @@ export class QuestionnaireHistoryComponent implements OnInit, OnChanges {
   constructor(private fhirService: FhirService) { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['questionnaire'] && changes['questionnaire'].currentValue) {
+    if (changes['questionnaire'] && changes['questionnaire'].currentValue && changes['questionnaire'].currentValue.id) {
       this.loadVersions();
     }
   }

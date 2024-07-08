@@ -122,7 +122,6 @@ export class QuestionnairesMainComponent implements OnInit{
   getFormData() {
     if (this.questionnaire) {
       const formData = LForms.Util.getFormData('myFormContainer', true, true, true);
-      console.log(formData);
     }
   }
 
@@ -209,7 +208,6 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   postQuestionnaire(questionnaire: any) {
-    console.log("Posting questionnaire", questionnaire);
     const index = this.questionnairesList.questionnaires.findIndex((q: any) => q.title === questionnaire.title && q.id !== questionnaire.id);
     if (index !== -1) {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
@@ -262,6 +260,14 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   saveQuestionnaire(questionnaire: any) {
+    if (!questionnaire) {
+      this._snackBar.openFromComponent(SnackAlertComponent, {
+        duration: 5 * 1000,
+        data: "No questionnaire to save",
+        panelClass: ['red-snackbar']
+      });
+      return;
+    }
     this.savingQuestionnaire = true;
     this._snackBar.openFromComponent(SnackAlertComponent, {
       duration: 5 * 1000,

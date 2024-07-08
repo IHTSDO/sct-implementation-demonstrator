@@ -94,7 +94,7 @@
     </mat-tab>
     <mat-tab label="Validate SNOMED Bindings">
       <app-validate-questionnaire #validateQuestionnaire [questionnaire]="questionnaire" 
-      (questionnaireUpdated)="loadQuestionnaire($event)" 
+      (questionnaireUpdated)="saveQuestionnaire($event)" 
       (validatingQuestionnaire)="validating = $event"></app-validate-questionnaire>
     </mat-tab>
     <mat-tab label="History">
