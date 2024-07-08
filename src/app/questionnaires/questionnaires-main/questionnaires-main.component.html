@@ -60,7 +60,7 @@
 <div *ngIf="mode == 'Manager' || mode == 'Validator'">
   <div class="button-container bottom-spacer">
     <span *ngIf="mode == 'Manager'">
-      Connected to <a href="selectedFhirServer">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"
+      Connected to <a [href]="selectedFhirServer" target="_blank">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"
     </span>
     <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
     <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">
