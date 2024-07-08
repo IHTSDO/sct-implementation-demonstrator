@@ -120,6 +120,10 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
         this.dataSource.data = this.questionnaires; 
         this.dataSource.sort = this.sort;
         this.loading = false;
+        // Set default sort
+        this.sort.active = 'title';
+        this.sort.direction = 'asc';
+        this.sort.sortChange.emit();
       } else {
         this.questionnaires = [];
         this.dataSource.data = this.questionnaires;
