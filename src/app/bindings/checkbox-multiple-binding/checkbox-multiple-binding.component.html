@@ -1,6 +1,6 @@
 <!-- <div>{{ binding.title }}</div> -->
 <form [formGroup]="checkboxes" class="check-group">
-  <mat-checkbox *ngFor="let item of options" formControlName="{{ item.display }}" class="check" (click)="optionClicked()" labelPosition="before">
+  <mat-checkbox *ngFor="let item of options" formControlName="{{ item.display }}" class="check" (click)="optionClicked()" labelPosition="after">
     {{ item.display }}
   </mat-checkbox>
   <span class="hint">{{ binding.note }}</span>
