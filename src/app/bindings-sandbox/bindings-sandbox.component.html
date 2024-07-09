@@ -154,6 +154,8 @@
                         <app-integer-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Integer'" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-integer-binding>
                         <app-decimal-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Decimal'" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-decimal-binding>
                         <app-checkbox-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-binding>
+                        <app-checkbox-multiple-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox multiple'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-multiple-binding>
+
                         <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Section header'" [disabled]="!binding.code  && !binding.ecl">
                             <mat-icon>info</mat-icon>
                         </button>

@@ -145,7 +145,7 @@ export class BindingsSandboxComponent implements OnInit {
   maxSelectCount = 50;
   maxOptionsCount = 10;
 
-  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Section header', 'Text box', 'Integer', 'Decimal', 'Checkbox'].sort((a, b) => a.localeCompare(b));
+  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Section header', 'Text box', 'Integer', 'Decimal', 'Checkbox', 'Checkbox multiple'].sort((a, b) => a.localeCompare(b));
 
   showRightContainer = false;
 
@@ -180,7 +180,8 @@ export class BindingsSandboxComponent implements OnInit {
             errors = true;
             ecl.setErrors({ selectTooManyResults: true });
           }
-        } else if (typeof binding.type?.indexOf('Options') !== 'undefined' && binding.type?.indexOf('Options') > -1) {
+        } else if ((typeof binding.type?.indexOf('Options') !== 'undefined' && binding.type?.indexOf('Options') > -1) || 
+                   (typeof binding.type?.indexOf('Checkbox multiple') !== 'undefined' && binding.type?.indexOf('Checkbox multiple') > -1)) {
           let results = await this.getEclPreview(ecl.value);
           if (results.expansion.contains.length > this.maxOptionsCount) {
             errors = true;
@@ -271,7 +272,8 @@ export class BindingsSandboxComponent implements OnInit {
         return 'display';
       case 'Select (Single)': 
       case 'Select (Multiple)': 
-      case 'Options': 
+      case 'Options':
+      case 'Checkbox multiple': 
       case 'Autocomplete': 
         return 'choice';
       case 'Text box': 

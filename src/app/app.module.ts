@@ -73,6 +73,7 @@ import { AddToHomeComponent } from './game/add-to-home/add-to-home.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
 import { MaturityQuestionComponent } from './maturity/maturity-question/maturity-question.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { CheckBoxMultipleBindingComponent } from './bindings/checkbox-multiple-binding/checkbox-multiple-binding.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -112,7 +113,8 @@ const app = initializeApp(firebaseConfig);
     SafeTextPipe,
     AddToHomeComponent,
     MaturityMainComponent,
-    MaturityQuestionComponent
+    MaturityQuestionComponent,
+    CheckBoxMultipleBindingComponent
   ],
   imports: [
     HttpClientModule,
