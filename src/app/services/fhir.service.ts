@@ -54,8 +54,11 @@ export class FhirService {
   }
 
   // Retrieve questionnaires by tag
-  getQuestionnairesByTag(tag: string) {
-    return this.http.get(`${this.baseUrlSubject.value}/Questionnaire?_tag=${tag}`);
+  getQuestionnairesByTag(tag: string, count?: number) {
+    if (!count) {
+      count = 100;
+    }
+    return this.http.get(`${this.baseUrlSubject.value}/Questionnaire?_tag=${tag}&_count=${count}`);
   }
 
   tagQuestionnaire(id: string, tag: string) {
