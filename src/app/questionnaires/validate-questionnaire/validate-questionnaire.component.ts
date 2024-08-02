@@ -242,7 +242,8 @@ export class ValidateQuestionnaireComponent implements OnChanges {
     }
 
     // Check if this has an ECL
-    if (data.answerValueSet) {
+    // First check if it has an answerValueSet and is a valid URL
+    if (data.answerValueSet && data.answerValueSet.startsWith("http")) {
       const url = new URL(data.answerValueSet);
       const fhir_vs = url.searchParams.get("fhir_vs");
       if (fhir_vs) {

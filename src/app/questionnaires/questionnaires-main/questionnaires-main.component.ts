@@ -311,6 +311,27 @@ export class QuestionnairesMainComponent implements OnInit{
           data: "Error saving questionnaire",
           panelClass: ['red-snackbar']
         });
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+          width: '400px',
+          data: {
+            title: 'Save error',
+            message: 'This could be an ID conflict. Post again as a new questionnaire?'
+          }
+        });
+    
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            // remove id from the questionnaire object
+            delete questionnaire.id;
+            this.saveQuestionnaire(questionnaire);
+          } else {
+            this._snackBar.openFromComponent(SnackAlertComponent, {
+              duration: 5 * 1000,
+              data: "Questionnaire not saved",
+              panelClass: ['red-snackbar']
+            });
+          }
+        });
       });
   }
 
