@@ -1,0 +1,93 @@
+#main-card {
+    padding: 2rem;
+    width: 100%;
+}
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px; /* Half of the gap */
+    align-items: flex-start;
+}
+
+.row-centered {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px; /* Half of the gap */
+    align-items: center;
+}
+  
+.column {
+    position: relative;
+    flex: 1;
+    margin: 5px; /* Half of the gap */
+    box-sizing: border-box;
+}
+
+.form-field {
+    width: 100%;
+    /* margin: 5px; */
+}
+.smallest-form-field {
+    /* width: 45%;
+    margin-right: 10px;
+    display: inline-block; */
+    width: 60%;
+    margin: 5px;
+}
+
+.small-form-field {
+    /* width: 45%;
+    margin-right: 10px;
+    display: inline-block; */
+    width: 90%;
+    margin: 5px;
+}
+
+.mat-form-field {
+    font-size: 14px; /* Adjust the font size */
+    padding: 4px 8px; /* Adjust the padding */
+    height: 36px; /* Adjust the height */
+  }
+  
+.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-infix {
+    padding-top: 0; /* Reduce the top padding for outlined fields */
+}
+
+.reaction {
+    border-radius: 10px;
+    background-color: #a9bee9;
+    padding: 10px;
+}
+
+#output {
+    border-radius: 10px;
+    background-color: #282c34;
+    padding: 10px;
+    position: relative;
+}
+
+pre > code {
+    width: 45%; /* Set the width to 100% */
+    white-space: pre-wrap; /* Enable text wrapping */
+    word-wrap: break-word; /* Break long words to avoid overflow */
+}
+
+#save {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: rgb(232, 140, 21);
+}
+
+#clear {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+.long-tooltip {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    font-weight: lighter;
+    font-size: 0.9rem;
+}
