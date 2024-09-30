@@ -1,7 +1,8 @@
 import { trigger, transition, animate, keyframes, style } from '@angular/animations';
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FirebaseService } from 'src/app/services/firebase.service';
+import { SnoguessService } from '../service/snoguess.service';
 
 @Component({
   selector: 'app-scoreboard',
@@ -41,20 +42,67 @@ import { FirebaseService } from 'src/app/services/firebase.service';
     ])
   ]
 })
-export class ScoreboardComponent implements OnInit {
+export class ScoreboardComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['position', 'message', 'difficulty', 'score', 'numberOfRounds', 'secondsPlayed', 'date'];
   dataSource: any[] = [];
   loadingScores = false;
+  difficultyLevels: any[] = []
+  selectedLevel: string = '';
+  intervalId: any;
 
-  constructor(private firebaseService: FirebaseService, public router: Router) { }
-
+  constructor(
+    private firebaseService: FirebaseService,
+    public router: Router,
+    private snoguessMainService: SnoguessService,
+    private route: ActivatedRoute // Inject ActivatedRoute
+  ) {}
+  
   ngOnInit() {
-   this.loadScores();
+    this.difficultyLevels = this.snoguessMainService.getDifficultyLevels();
+    
+    this.route.queryParams.subscribe(params => {
+      const levelParam = params['level'];
+      // Check if the levelParam exists and is a valid difficulty level
+      if (levelParam && this.difficultyLevels.some(level => level.name === levelParam)) {
+        this.selectedLevel = levelParam;
+      } else {
+        // Default to the first difficulty level if the parameter is missing or invalid
+        this.selectedLevel = this.difficultyLevels[0].name;
+      }
+      this.loadScores(this.selectedLevel);
+      this.startAutoRefresh();
+    });
   }
 
-  loadScores() {
+  ngOnDestroy() {
+    this.stopAutoRefresh();
+  }
+
+  startAutoRefresh() {
+  // Clear any existing interval to prevent duplicates
+  this.stopAutoRefresh();
+    this.intervalId = setInterval(() => {
+      if (this.selectedLevel == 'Tournament') {
+        this.loadScores(this.selectedLevel);
+      }
+    }, 3000); // Refresh every 30 seconds
+  }
+
+  stopAutoRefresh() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  }
+
+  setLevel(level: string) {
+    this.selectedLevel = level;
+    this.loadScores(level);
+  }
+
+  loadScores(collectionName: string) {
     this.loadingScores = true;
-    this.firebaseService.getScores().then(scores => {
+    this.firebaseService.getScores(collectionName).then(scores => {
       this.dataSource = scores.map((doc: any) => ({
         ...doc,
         date: doc.date ? doc.date.toDate() : new Date() // Converting Firestore Timestamp to JavaScript Date object

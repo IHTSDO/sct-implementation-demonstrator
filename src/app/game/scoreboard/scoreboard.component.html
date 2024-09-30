@@ -2,8 +2,21 @@
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
     <img src="assets/img/scoreboard.png" alt="High Scores" class="w-1/4 mt-8" [@popIn]>
     <div class="mb-8 flex flex-row align-middle gap-1">
-        <span>Messages posted by playes who reached the Diamond trophy</span>
+        <span>Messages posted by players!&nbsp;</span>
         <mat-icon class="diamond">emoji_events</mat-icon>
+    </div>
+    <div class="mb-8 flex flex-row align-middle gap-3">
+      <span *ngFor="let level of difficultyLevels">
+        <a href="javascript:void(0)" class="text-blue-500 underline" *ngIf="selectedLevel != level.name" (click)="setLevel(level.name)">
+          {{level.name}}
+        </a>
+        <b *ngIf="selectedLevel == level.name">{{level.name}}</b>
+      </span>
+      <a href="javascript:void(0)" class="text-blue-500 underline" *ngIf="selectedLevel != 'scoreboard'" (click)="setLevel('scoreboard')">
+        Legacy
+      </a>
+      <b *ngIf="selectedLevel == 'scoreboard'">Legacy</b>
+      
     </div>
     <mat-spinner *ngIf="loadingScores" diameter="50"></mat-spinner>
 

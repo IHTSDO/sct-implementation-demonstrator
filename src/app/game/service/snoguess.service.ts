@@ -8,7 +8,7 @@ export interface Game {
   hitPoints: number; // Number of attempts left
   hints: string[]; // Hints that have been revealed
   hintsAvailable: boolean; // Whether hints are available
-  state: 'playing' | 'gameOver' | 'choosingTerm' | 'won' | 'menu'; // Game state,
+  state: 'playing' | 'gameOver' | 'choosingTerm' | 'won' | 'menu'; // Game state
   score: number; // Score of the game
   round: number; // Round of the game
   difficultyLevel: string; // Difficulty level of the game
@@ -18,6 +18,8 @@ export interface Game {
   difficultyBonus: number; // Bonus points for difficulty level
   livesBonus: number; // Bonus points for remaining lives
   timeBonus: number; // Bonus points for time remaining
+  maxRoundTime: number; // Time to guess the term
+  remainingTime: number; // Remaining time in seconds
 }
 
 interface SnomedConcept {
@@ -32,6 +34,8 @@ export class SnoguessService {
 
   private game: BehaviorSubject<Game>;
 
+  private roundTimer: any; // For storing the interval ID
+
   goals: any[] = [
     { name: 'Bronze', score: 100 },
     { name: 'Silver', score: 200 },
@@ -43,19 +47,23 @@ export class SnoguessService {
   difficultyLevels: any[] = [
     { 
       name: 'Easy',
-      rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals, difficultyBonus: 0, endless : false}
+      rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals, difficultyBonus: 0, endless: false, maxRoundTime: 60 }
     },
     { 
       name: 'Medium', 
-      rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals, difficultyBonus: 50, endless : false}
+      rules: { maxHitPoints: 4, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals, difficultyBonus: 50, endless: false, maxRoundTime: 50 }
     },
     { 
       name: 'Hard', 
-      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals, difficultyBonus: 100, endless : false}
+      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals, difficultyBonus: 100, endless: false, maxRoundTime: 40 }
     },
     { 
-      name: 'Endless (Hard)', 
-      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals, difficultyBonus: 100, endless : true}
+      name: 'Endless', 
+      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 0, pointsPerGuessedLetter: 3, goals: this.goals, difficultyBonus: 100, endless: true, maxRoundTime: 30 }
+    },
+    { 
+      name: 'Tournament', 
+      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals, difficultyBonus: 50, endless: true, maxRoundTime: 25 }
     }
   ];
 
@@ -80,6 +88,7 @@ export class SnoguessService {
   }
 
   loadMenu() {
+    this.clearRoundTimer(); // Clear timer when loading menu
     this.game.next({ ...this.game.value, state: 'menu' });
   }
 
@@ -88,35 +97,43 @@ export class SnoguessService {
   }
 
   async newRound(reset?: boolean) {
-    // Do nothing if game state is not playing
-    this.game.next({ ...this.game.value, 
+    // Clear existing timer
+    this.clearRoundTimer();
+
+    // Set state to 'choosingTerm' and reset necessary properties
+    this.game.next({ 
+      ...this.game.value, 
       state: 'choosingTerm', 
       score: reset ? 0 : this.game.value.score, 
       hitPoints: reset ? this.rules.maxHitPoints : this.game.value.hitPoints, 
-      round: reset ? 1 : this.game.value.round + 1
+      round: reset ? 1 : this.game.value.round + 1,
+      remainingTime: this.rules.maxRoundTime // Ensure remainingTime is at max
     });
+
+    // Fetch a new term asynchronously
     const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
     const response = await lastValueFrom(
       this.terminologyService.expandValueSet('^ 816080008 |International Patient Summary| {{ C definitionStatus = defined }}', '', randomIndex, 1)
     );
-    this.randomLimit = response.expansion.total -1;
+    this.randomLimit = response.expansion.total - 1;
     const fullConcept: any = await lastValueFrom(
       this.terminologyService.lookupConcept(response.expansion.contains[0].code)
     );
     let fsn = this.extractFSN(fullConcept);
-    this.fsn = fsn? fsn : '';
+    this.fsn = fsn ? fsn : '';
     let scg = this.extractScg(fullConcept);
-    this.scg = scg? scg : '';
-    let focusConcepts = this.extractFocusConcepts(scg? scg : '');
-    this.focusConcepts = focusConcepts? focusConcepts : [];
-    let attributePairs = this.extractAttributePairs(scg? scg : '');
-    this.attributePairs = attributePairs? attributePairs : [];
+    this.scg = scg ? scg : '';
+    let focusConcepts = this.extractFocusConcepts(scg ? scg : '');
+    this.focusConcepts = focusConcepts ? focusConcepts : [];
+    let attributePairs = this.extractAttributePairs(scg ? scg : '');
+    this.attributePairs = attributePairs ? attributePairs : [];
+
     if (fsn) {
       this.initializeRound(fsn, reset);
     } else {
       this.initializeRound('No term found');
     }
-    this.game.next({ ...this.game.value, state: 'playing' });
+
     this.usedHints.clear();
   }
 
@@ -149,9 +166,7 @@ export class SnoguessService {
     let scg: string | undefined;
     data.parameter.forEach((parameter: any) => {
       if (parameter.name === 'property') {
-        // and has some part that is a "valueString": "normalForm"
         if (parameter.part.some((part: any) => part.name === 'code' && part.valueString === 'normalForm')) {
-          // then find the part that is a "valueString" and return it
           scg = parameter.part.find((part: any) => part.name === 'valueString')?.valueString;
         }
       }
@@ -160,45 +175,40 @@ export class SnoguessService {
   }
 
   extractFocusConcepts(scg: string): SnomedConcept[] {
-    // Extract the part of the SCG before the first colon (if it exists)
     const [focusPart] = scg.split(':').map(part => part.trim());
-    // Use a regex to match all SNOMED CT concept patterns in the focus part
-    const regex = /\d+\|.*?\|/g; // Adjusted to match any character inside the description
+    const regex = /\d+\|.*?\|/g;
     const matches = focusPart.match(regex);
-    
-    // Transform each match into a SnomedConcept object
+
     const concepts: SnomedConcept[] = matches ? matches.map(match => {
       const concept = this.transformSnomedConcept(match.trim());
-      // Return a dummy object if transformation fails, which should not happen if regex is correct
       return concept ? concept : { code: "", display: "" };
-    }).filter(concept => concept.code !== "") : []; // Filter out any dummy objects
-    
+    }).filter(concept => concept.code !== "") : [];
+
     return concepts;
   }
 
   extractAttributePairs(scg: string): { type: SnomedConcept, target: SnomedConcept }[] {
     const partsAfterColon = scg.split(':').slice(1).join(':').trim();
-    // Use a regex to match patterns of the form "123456|Description| = 123457|Description2|"
     const regex = /(\d+\|.*?\|)\s*=\s*(\d+\|.*?\|)/g;
     let matches;
     const attributes: { type: SnomedConcept, target: SnomedConcept }[] = [];
-  
+
     while ((matches = regex.exec(partsAfterColon)) !== null) {
       const type = this.transformSnomedConcept(matches[1].trim());
       const target = this.transformSnomedConcept(matches[2].trim());
-  
+
       if (type && target) {
         attributes.push({ type, target });
       }
     }
-  
+
     return attributes;
   }
 
   transformSnomedConcept(concept: string): SnomedConcept | null {
     const regex = /^(\d+)\|(.+?)\|$/;
     const match = concept.match(regex);
-  
+
     if (match) {
       return {
         code: match[1],
@@ -212,7 +222,7 @@ export class SnoguessService {
   // Resets and initializes the game state
   private initialize(): Game {
     return {
-      term: '', // This should be set to a randomly selected SNOMED CT term
+      term: '',
       displayTerm: [],
       hitPoints: this.rules.maxHitPoints,
       hintsAvailable: true,
@@ -226,14 +236,17 @@ export class SnoguessService {
       endTimestamp: 0,
       difficultyBonus: 0,
       livesBonus: 0,
-      timeBonus: 0
+      timeBonus: 0,
+      maxRoundTime: 0,
+      remainingTime: 0
     };
   }
 
   startGame(difficulty: string) {
-    this.rules = this.difficultyLevels.find(level => level.name.toLowerCase() === difficulty.toLocaleLowerCase())?.rules;
+    this.clearRoundTimer(); // Clear timer when starting a new game
+    this.rules = this.difficultyLevels.find(level => level.name.toLowerCase() === difficulty.toLowerCase())?.rules;
     this.game.next({ 
-      term: '', // This should be set to a randomly selected SNOMED CT term
+      term: '',
       displayTerm: [],
       hitPoints: this.rules.maxHitPoints,
       hintsAvailable: true,
@@ -247,7 +260,9 @@ export class SnoguessService {
       endTimestamp: 0,
       difficultyBonus: 0,
       livesBonus: 0,
-      timeBonus: 0
+      timeBonus: 0,
+      maxRoundTime: this.rules.maxRoundTime,
+      remainingTime: this.rules.maxRoundTime
      });
     this.newRound(true);
   }
@@ -262,25 +277,28 @@ export class SnoguessService {
     const semanticTagIndex = semanticTag ? term.lastIndexOf(semanticTag) : term.length;
     
     // Replace letters and numbers outside the semantic tag with underscores, keep other characters unchanged
-    // Here, you should keep the map result as an array instead of joining it into a string
     const displayTermArray: string[] = term.split('').map((char, index) => {
       if (index >= semanticTagIndex) {
         return char; // Keep the semantic tag visible
       }
       // Use a regular expression to test if the character is a letter or a number
       return /[a-zA-Z0-9á-úñ]/.test(char) ? '_' : char;
-    }); // Do not join here to match the Game interface expectation
+    });
     
     this.game.next({
       ...this.game.value,
       term: term,
-      displayTerm: displayTermArray, // Assigned as an array of strings
+      displayTerm: displayTermArray,
       hitPoints: reset ? this.rules.maxHitPoints : this.game.value.hitPoints,
       hints: [],
       state: 'playing',
-      score: reset ? 0 : this.game.value.score
+      score: reset ? 0 : this.game.value.score,
+      remainingTime: this.rules.maxRoundTime // Initialize remainingTime when term is set
     });
-  
+
+    // Start the timer after the term is selected and state is 'playing'
+    this.startRoundTimer();
+
     for (let i = 0; i < this.rules.freeHints; i++) {
       this.revealHint(true);
     }
@@ -322,14 +340,17 @@ export class SnoguessService {
         newState.endTimestamp = Date.now();
         newState.difficultyBonus = this.rules.difficultyBonus;
         newState.score += newState.difficultyBonus;
+        this.clearRoundTimer(); // Clear the timer when game is over
       }
     } else {
       this.guessResult.emit({ letter: letter, result: true });
       // Check if the term was guessed by verifying if there are no more '_' characters before the semantic tag
-      const isTermGessed = newState.displayTerm.slice(0, semanticTagIndex).indexOf('_') === -1;
-      if (isTermGessed && newState.state === 'playing') {
-        this.termResult.emit(newState.term); // Emit true for correct term guesses
-        // check if the game is won
+      const isTermGuessed = newState.displayTerm.slice(0, effectiveLength).indexOf('_') === -1;
+      if (isTermGuessed && newState.state === 'playing') {
+        this.termResult.emit(newState.term); // Emit the term when correctly guessed
+        this.clearRoundTimer(); // Stop the timer when term is guessed
+
+        // Check if the game is won
         if (newState.score > this.goals[this.goals.length - 1].score && this.rules.endless === false) {
           newState.state = 'won'; // Update the state to 'won'
           newState.endTimestamp = Date.now();
@@ -340,7 +361,7 @@ export class SnoguessService {
           newState.timeBonus = Math.max(0, 180 - elapsedTime);
           newState.score += newState.difficultyBonus + newState.livesBonus + newState.timeBonus;
         } else {
-          newState.hitPoints = newState.hitPoints + this.rules.hitpointsAwardedForGuessingfullTerm; // Add a hit points for winning
+          newState.hitPoints = newState.hitPoints + this.rules.hitpointsAwardedForGuessingfullTerm; // Add hit points for winning
           if (newState.hitPoints > this.rules.maxHitPoints) {
             newState.hitPoints = this.rules.maxHitPoints;
           }
@@ -353,24 +374,8 @@ export class SnoguessService {
   
     this.game.next(newState);
   }
-  
-  
 
-  // Guess the full term DEPRECATED
-  guessTerm(guess: string): boolean {
-    if (guess.toLowerCase() === this.game.value.term.toLowerCase()) {
-      this.termResult.emit(guess); // Emit true for correct term guesses
-      this.game.next({ ...this.game.value, displayTerm: this.game.value.term.split('') });
-      return true;
-    } else {
-      this.game.next({ ...this.game.value, hitPoints: this.game.value.hitPoints - 1 });
-      if (this.game.value.hitPoints <= 0) {
-        this.game.next({ ...this.game.value, hitPoints: 0, state: 'gameOver' });
-      }
-      return false;
-    }
-  }
-
+  // Reveal a hint
   revealHint(isFree?: boolean): void {
     let newState = { ...this.game.value };
     let newHint = '';
@@ -418,13 +423,41 @@ export class SnoguessService {
     if (newState.hitPoints <= 0) {
         newState.hitPoints = 0;
         newState.state = 'gameOver';
+        newState.endTimestamp = Date.now();
+        this.clearRoundTimer(); // Clear the timer when game is over
         this.game.next(newState);
     }
   }
 
-
   // Get the current state as an Observable for subscription in components
   getGameState() {
     return this.game.asObservable();
+  }
+
+  // Start the round timer
+  private startRoundTimer() {
+    this.roundTimer = setInterval(() => {
+      const currentGameState = this.game.value;
+      const newRemainingTime = currentGameState.remainingTime - 1;
+      const newGameState = { ...currentGameState, remainingTime: newRemainingTime };
+      if (newRemainingTime <= 0) {
+        // Time is up, end the game
+        newGameState.remainingTime = 0;
+        newGameState.state = 'gameOver';
+        newGameState.endTimestamp = Date.now();
+        this.clearRoundTimer();
+        this.game.next(newGameState);
+      } else {
+        this.game.next(newGameState);
+      }
+    }, 1000);
+  }
+
+  // Clear the round timer
+  private clearRoundTimer() {
+    if (this.roundTimer) {
+      clearInterval(this.roundTimer);
+      this.roundTimer = null;
+    }
   }
 }

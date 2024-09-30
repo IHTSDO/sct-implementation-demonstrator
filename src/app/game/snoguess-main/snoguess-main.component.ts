@@ -92,8 +92,8 @@ export class SnoguessMainComponent implements OnInit {
       }
       if (game.state === 'gameOver' || game.state === 'won') {
         this.stopTimer();
-        this.firebaseService.getScores().then((scores: any) => {
-          if (game.score > scores[scores.length - 1].score) {
+        this.firebaseService.getScores(game.difficultyLevel).then((scores: any) => {
+          if (!scores || !scores.length || (game.score > scores[scores.length - 1].score)) {
             this.highScore = true;
           }
         });
@@ -259,9 +259,10 @@ export class SnoguessMainComponent implements OnInit {
     }
   }
 
-  openScoreboard(): void {
-    this.router.navigate(['/snoguess/scoreboard']);
+  openScoreboard(level: string): void {
+    this.router.navigate(['/snoguess/scoreboard'], { queryParams: { level: level } });
   }
+  
 
   saveScore(gameState: any): void {
     let highScore = {
@@ -272,9 +273,9 @@ export class SnoguessMainComponent implements OnInit {
       "date": Timestamp.now(),
       "message": this.messageForLeaderboard
     }
-    this.firebaseService.addScore(highScore).then(() => {
+    this.firebaseService.addScore(gameState.difficultyLevel, highScore).then(() => {
       this.messageForLeaderboard = "";
-      this.openScoreboard();
+      this.openScoreboard(gameState.difficultyLevel);
     }).catch((error) => {
       this.messageForLeaderboard = "";
       console.error("Error saving score: ", error);

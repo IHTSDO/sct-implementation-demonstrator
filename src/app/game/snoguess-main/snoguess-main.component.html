@@ -30,7 +30,8 @@
       <span *ngFor="let hp of [].constructor(gameState.rules.maxHitPoints - gameState.hitPoints); let i = index">
           <mat-icon>favorite_border</mat-icon>
       </span>
-      <span class="score"> &nbsp;&nbsp;&nbsp;&nbsp; Time: {{ (elapsedTime * 1000) | elapsedTime }}</span>
+      <!-- <span class="score"> &nbsp;&nbsp;&nbsp;&nbsp; Time: {{ (elapsedTime * 1000) | elapsedTime }}</span> -->
+      <span class="score"> &nbsp;&nbsp;&nbsp;&nbsp; Time to guess: {{ gameState.remainingTime }}</span>
     </div>
 
     <div class="term-display flex flex-row flex-wrap justify-center gap-8" *ngIf="gameState.state == 'playing'">
@@ -111,7 +112,7 @@
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 text-3xl">
       Instructions
     </div>
-    <div (click)="openScoreboard()" [@scrollUp]
+    <div (click)="openScoreboard('Easy')" [@scrollUp]
     class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-12 text-3xl">
       High Scores
@@ -150,7 +151,8 @@
       <p class="level-details text-center mt-3 flex flex-row align-middle" [@fadeInDelayed]>
         Life: {{ level.rules.maxHitPoints }} <mat-icon class="text-red-500 text-sm">favorite</mat-icon>, 
         Free hints: {{ level.rules.freeHints }} <mat-icon class="text-yellow-500 text-sm">contact_support</mat-icon>, 
-        Points per letter: {{ level.rules.pointsPerGuessedLetter }}
+        Points per letter: {{ level.rules.pointsPerGuessedLetter }},
+        Time to guess: {{ level.rules.maxRoundTime }} <mat-icon class="text-green-500 text-sm">timer</mat-icon>
         <span *ngIf="level.rules.endless">, Endless</span>
       </p>
     </div>
@@ -173,7 +175,14 @@
         <span class="text-red-500"><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon></span>
       </li>
       <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>There is also a maxmimum time to guess each term
+        <mat-icon class="text-green-500">timer</mat-icon>
+      </li>
+      <li class="flex flex-row align-middle gap-2">
         <mat-icon>check</mat-icon>You will loose one life with each wrong guess <mat-icon class="text-red-500">favorite_border</mat-icon>
+      </li>
+      <li class="flex flex-row align-middle gap-2">
+        <mat-icon>check</mat-icon>The game ends when you run out of lives or time<mat-icon class="text-red-500">close</mat-icon>
       </li>
       <li class="flex flex-row align-middle gap-2">
         <mat-icon>check</mat-icon>You earn points for each correct guess <mat-icon class="text-blue-900">plus_one</mat-icon>
@@ -215,7 +224,7 @@
       <div class="font-bold"> {{ gameState.term }}</div>
       <div class="mt-12">{{ gameState.round }} {{ (gameState.round == 1) ? 'round' : 'rounds' }}</div>
       <div class="mt-4">
-        Final Score: {{ gameState.score }} points - Difficulty: {{ gameState.difficultyLevel }} - Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}
+        Final Score: {{ gameState.score }} points - Difficulty: {{ gameState.difficultyLevel }} - Total time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}
       </div>
       <div *ngIf="getMaxTrophyObtained(gameState.score)">
         Trophy: {{ getMaxTrophyObtained(gameState.score) }}
@@ -246,7 +255,7 @@
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       New game
     </div>
-    <div (click)="openScoreboard()" [@scrollUp]
+    <div (click)="openScoreboard('Easy')" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       High Scores
@@ -294,7 +303,7 @@
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       New game
     </div>
-    <div (click)="openScoreboard()" [@scrollUp]
+    <div (click)="openScoreboard('Easy')" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       High Scores
