@@ -70,7 +70,10 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
         this.selectedLevel = this.difficultyLevels[0].name;
       }
       this.loadScores(this.selectedLevel);
-      this.startAutoRefresh();
+      const refresh = params['refresh'];
+      if (refresh) {
+        this.startAutoRefresh();
+      }
     });
   }
 
@@ -82,10 +85,8 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
   // Clear any existing interval to prevent duplicates
   this.stopAutoRefresh();
     this.intervalId = setInterval(() => {
-      if (this.selectedLevel == 'Tournament') {
-        this.loadScores(this.selectedLevel);
-      }
-    }, 60000); // Refresh every 30 seconds
+      this.loadScores(this.selectedLevel);
+    }, 60000); // Refresh every 60 seconds
   }
 
   stopAutoRefresh() {
