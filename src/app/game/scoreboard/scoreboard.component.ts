@@ -85,7 +85,7 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
       if (this.selectedLevel == 'Tournament') {
         this.loadScores(this.selectedLevel);
       }
-    }, 3000); // Refresh every 30 seconds
+    }, 60000); // Refresh every 30 seconds
   }
 
   stopAutoRefresh() {
