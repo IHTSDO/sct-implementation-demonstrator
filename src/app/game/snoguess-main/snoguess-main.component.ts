@@ -59,6 +59,7 @@ export class SnoguessMainComponent implements OnInit {
   goals: any[] = [];
   loadingAssetsProgress = 0;
   loadingAssets = true;
+  highScoresLoading = false;
   showInstructions = false;
   chooseDifficulty = false;
   currentYear: Date = new Date();
@@ -92,7 +93,9 @@ export class SnoguessMainComponent implements OnInit {
       }
       if (game.state === 'gameOver' || game.state === 'won') {
         this.stopTimer();
+        this.highScoresLoading = true;
         this.firebaseService.getScores(game.difficultyLevel).then((scores: any) => {
+          this.highScoresLoading = false;
           if (!scores || scores.length < 20 || (game.score > scores[scores.length - 1].score)) {
             this.highScore = true;
           }
@@ -304,16 +307,16 @@ export class SnoguessMainComponent implements OnInit {
   }
   setLanguage(lang: string): void {
     const editions: { [key: string]: any } = {
-      en: { lang: 'en', fhirUrl: 'http://snomed.info/sct/900000000000207008/version/20240401' },
-      es: { lang: 'es', fhirUrl: 'http://snomed.info/sct/449081005/version/20240331' },
-      fr: { lang: 'fr', fhirUrl: 'http://snomed.info/sct/11000241103/version/20230331' },
-      de: { lang: 'de', fhirUrl: 'http://snomed.info/sct/11000274103/version/20231115' },
-      da: { lang: 'da', fhirUrl: 'http://snomed.info/sct/554471000005108/version/20240331' },
-      nl: { lang: 'nl', fhirUrl: 'http://snomed.info/sct/11000146104/version/20240331' },
-      et: { lang: 'et', fhirUrl: 'http://snomed.info/sct/11000181102/version/20231130' },
-      fi: { lang: 'fi', fhirUrl: 'http://snomed.info/sct/11000229106/version/20231215' },
-      no: { lang: 'no', fhirUrl: 'http://snomed.info/sct/51000202101/version/20231015' },
-      sv: { lang: 'sv', fhirUrl: 'http://snomed.info/sct/45991000052106/version/20231130' }
+      en: { lang: 'en', fhirUrl: 'http://snomed.info/sct/900000000000207008' },
+      es: { lang: 'es', fhirUrl: 'http://snomed.info/sct/449081005' },
+      fr: { lang: 'fr', fhirUrl: 'http://snomed.info/sct/11000241103' },
+      de: { lang: 'de', fhirUrl: 'http://snomed.info/sct/11000274103' },
+      da: { lang: 'da', fhirUrl: 'http://snomed.info/sct/554471000005108' },
+      nl: { lang: 'nl', fhirUrl: 'http://snomed.info/sct/11000146104' },
+      et: { lang: 'et', fhirUrl: 'http://snomed.info/sct/11000181102' },
+      fi: { lang: 'fi', fhirUrl: 'http://snomed.info/sct/11000229106' },
+      no: { lang: 'no', fhirUrl: 'http://snomed.info/sct/51000202101' },
+      sv: { lang: 'sv', fhirUrl: 'http://snomed.info/sct/45991000052106' }
     }
 
     this.terminologyService.setLang(lang);
