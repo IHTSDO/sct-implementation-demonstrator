@@ -112,7 +112,7 @@
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 text-3xl">
       Instructions
     </div>
-    <div (click)="openScoreboard('Easy')" [@scrollUp]
+    <div (click)="openScoreboard()" [@scrollUp]
     class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-12 text-3xl">
       High Scores
@@ -148,7 +148,7 @@
         rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-2 text-3xl">
         {{ level.name }}
       </div>
-      <p class="level-details text-center mt-3 flex flex-row align-middle" [@fadeInDelayed]>
+      <p class="level-details text-center mt-3 flex flex-row items-center" [@fadeInDelayed]>
         Life: {{ level.rules.maxHitPoints }} <mat-icon class="text-red-500 text-sm">favorite</mat-icon>, 
         Free hints: {{ level.rules.freeHints }} <mat-icon class="text-yellow-500 text-sm">contact_support</mat-icon>, 
         Points per letter: {{ level.rules.pointsPerGuessedLetter }},
@@ -167,39 +167,39 @@
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
     <img src="assets/img/instructions.png" alt="Game Logo" class="w-1/4 mt-8 mb-12" [@popIn]>
     <ul class="text-left instructions-text">
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>Click the keys on the screen to guess the letters of the term <mat-icon class="text-blue-900">keyboard</mat-icon>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>You have three to five lives, depending on your difficulty level
         <span class="text-red-500"><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon></span>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>There is also a maxmimum time to guess each term
         <mat-icon class="text-green-500">timer</mat-icon>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>You will loose one life with each wrong guess <mat-icon class="text-red-500">favorite_border</mat-icon>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>The game ends when you run out of lives or time<mat-icon class="text-red-500">close</mat-icon>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>You earn points for each correct guess <mat-icon class="text-blue-900">plus_one</mat-icon>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>In Easy mode you get 2 hints for free, and in Medium mode you get one 💡
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>You can reveal more hints, but each hint it will cost one life <mat-icon class="text-red-500">favorite_border</mat-icon>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>If you guess the whole term you can recover one life<mat-icon class="text-red-500">favorite</mat-icon>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>Keep guessing terms to increase your score and earn trophies <mat-icon class="text-yellow-500">emoji_events</mat-icon>
       </li>
-      <li class="flex flex-row align-middle gap-2">
+      <li class="flex flex-row items-center gap-2">
         <mat-icon>check</mat-icon>Endless mode will not finish when you reach the Diamond Trophy <mat-icon class="text-blue-500">emoji_events</mat-icon>
       </li>
     </ul>
@@ -255,7 +255,7 @@
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       New game
     </div>
-    <div (click)="openScoreboard('Easy')" [@scrollUp]
+    <div (click)="openScoreboard()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       High Scores
@@ -303,7 +303,7 @@
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       New game
     </div>
-    <div (click)="openScoreboard('Easy')" [@scrollUp]
+    <div (click)="openScoreboard()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
       High Scores

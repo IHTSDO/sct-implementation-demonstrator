@@ -93,7 +93,7 @@ export class SnoguessMainComponent implements OnInit {
       if (game.state === 'gameOver' || game.state === 'won') {
         this.stopTimer();
         this.firebaseService.getScores(game.difficultyLevel).then((scores: any) => {
-          if (!scores || !scores.length || (game.score > scores[scores.length - 1].score)) {
+          if (!scores || scores.length < 20 || (game.score > scores[scores.length - 1].score)) {
             this.highScore = true;
           }
         });
@@ -259,7 +259,10 @@ export class SnoguessMainComponent implements OnInit {
     }
   }
 
-  openScoreboard(level: string): void {
+  openScoreboard(level?: string): void {
+    if (!level) {
+      level = this.difficultyLevels[0].name;
+    }
     this.router.navigate(['/snoguess/scoreboard'], { queryParams: { level: level } });
   }
   

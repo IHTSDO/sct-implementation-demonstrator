@@ -1,22 +1,24 @@
 <div class="flex flex-col items-center gap-4 pt-6 snoguess-game">
     <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
     <img src="assets/img/scoreboard.png" alt="High Scores" class="w-1/4 mt-8" [@popIn]>
-    <div class="mb-8 flex flex-row align-middle gap-1">
+    <div class="mb-2 flex flex-row items-center gap-1">
         <span>Messages posted by players!&nbsp;</span>
         <mat-icon class="diamond">emoji_events</mat-icon>
     </div>
-    <div class="mb-8 flex flex-row align-middle gap-3">
+    <div class="mb-3 flex flex-row items-center gap-3">
       <span *ngFor="let level of difficultyLevels">
         <a href="javascript:void(0)" class="text-blue-500 underline" *ngIf="selectedLevel != level.name" (click)="setLevel(level.name)">
           {{level.name}}
         </a>
-        <b *ngIf="selectedLevel == level.name">{{level.name}}</b>
+        <span class="selected-level" *ngIf="selectedLevel == level.name">{{level.name}}</span>
       </span>
       <a href="javascript:void(0)" class="text-blue-500 underline" *ngIf="selectedLevel != 'scoreboard'" (click)="setLevel('scoreboard')">
         Legacy
       </a>
-      <b *ngIf="selectedLevel == 'scoreboard'">Legacy</b>
-      
+      <span class="selected-level" *ngIf="selectedLevel == 'scoreboard'">Legacy</span>
+    </div>
+    <div class="flex flex-row items-center gap-3">
+      <h3>Top 20 {{ selectedLevel }} level scores</h3>
     </div>
     <mat-spinner *ngIf="loadingScores" diameter="50"></mat-spinner>
 
