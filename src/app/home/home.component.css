@@ -1,0 +1,56 @@
+.main-panel {
+    padding: 2rem;
+    height: calc(100vh - 70px);
+}
+
+.intro {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.demos-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem; /* Adjusted for spacing between cards */
+    justify-content: flex-start; /* Aligns items evenly */
+    margin-top: 3rem;
+}
+
+.demo-card-wrapper {
+    width: 300px; /* Fixed width for all cards */
+}
+
+.demo-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+mat-card-title {
+    word-wrap: break-word;
+    font-size: large;
+    font-weight: bold;
+}
+
+mat-card-content {
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+mat-card-actions {
+    border-top: 1px solid #e0e0e0; /* Light gray border */
+    padding-top: 10px; /* Add some padding above the button */
+    margin-top: auto; /* Push the actions to the bottom */
+}
+
+.center-image {
+    text-align: center;
+    margin-top: 4rem;
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+.transparent-image {
+    opacity: 0.5; /* 50% transparency */
+}

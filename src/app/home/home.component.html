@@ -1,0 +1,31 @@
+<div class="main-panel">
+    <h1>SNOMED CT Implementation Demonstrators</h1>
+    <p class="intro">Welcome to our collection of SNOMED CT Implementation Demonstrators! 
+        This curated selection of demos showcases the diverse ways SNOMED CT can be implemented across different use cases. 
+        Each demonstration is <a href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank">open source</a>, 
+        free to explore, and easy to replicate, providing a hands-on learning experience for 
+        developers, implementers, and healthcare professionals.</p>
+    <p class="intro">These implementation demos have been created through the collaboration and expertise of the 
+        <a href="https://confluence.ihtsdotools.org/display/CP/Clinical+Engagement" target="_blank">global SNOMED CT community of clinical experts</a>, 
+        reflecting best practices and innovative use cases. Whether you’re just getting started with SNOMED CT or looking to deepen 
+        your understanding, you’ll find valuable insights here. Explore, learn, and join us in advancing healthcare interoperability.</p>
+    <div class="demos-panel">
+        <div *ngFor="let demo of demos" class="demo-card-wrapper">
+            <mat-card class="demo-card">
+                <mat-card-header>
+                  <mat-card-subtitle>{{ demo.subtitle }}</mat-card-subtitle>
+                  <mat-card-title>{{ demo.name }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <p>{{ demo.description }}</p>
+                </mat-card-content>
+                <mat-card-actions>
+                  <button mat-button color="accent" (click)="navigate(demo)">OPEN</button>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+    </div>
+    <div class="center-image">
+        <img src="assets/img/SI_CT_Logo_Delivered_By.png" alt="SNOMED Logo" class="transparent-image">
+    </div>
+</div>

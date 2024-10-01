@@ -9,9 +9,11 @@ import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.compon
 import { ContextMainComponent } from './context/context-main/context-main.component';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
+import { HomeComponent } from './home/home.component';
 
 const routes: Routes = [
-  { path: '', component: AllergiesComponent },
+  { path: '', component: HomeComponent },
+  { path: 'home', component: HomeComponent },
   { path: 'allergies', component: AllergiesComponent },
   { path: 'sandbox', component: BindingsSandboxComponent },
   { path: 'prescription', component: PrescriptionMainComponent},

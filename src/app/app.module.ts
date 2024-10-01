@@ -74,6 +74,7 @@ import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.co
 import { MaturityQuestionComponent } from './maturity/maturity-question/maturity-question.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CheckBoxMultipleBindingComponent } from './bindings/checkbox-multiple-binding/checkbox-multiple-binding.component';
+import { HomeComponent } from './home/home.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -114,7 +115,8 @@ const app = initializeApp(firebaseConfig);
     AddToHomeComponent,
     MaturityMainComponent,
     MaturityQuestionComponent,
-    CheckBoxMultipleBindingComponent
+    CheckBoxMultipleBindingComponent,
+    HomeComponent
   ],
   imports: [
     HttpClientModule,

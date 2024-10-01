@@ -3,6 +3,7 @@ import { CodingSpecService } from './services/coding-spec.service';
 import { ExcelService } from './services/excel.service';
 import { TerminologyService } from './services/terminology.service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { MenuService } from './services/menu.service';
 
 declare let gtag: Function;
 
@@ -27,10 +28,13 @@ export class AppComponent {
   selectedServer = this.fhirServers[1];
   embeddedMode: boolean = false;
 
+  demos: any[] = [];
+
   constructor( private codingSpecService: CodingSpecService, 
     public excelService: ExcelService, 
     private terminologyService: TerminologyService, 
     public router: Router,
+    private menuService: MenuService,
     private activatedRoute: ActivatedRoute) { 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
@@ -43,6 +47,7 @@ export class AppComponent {
   }
 
   ngOnInit(): void {
+    this.demos = this.menuService.getDemos();
     this.setFhirServer(this.selectedServer);
     this.bindingsForExport = [];
     let spec: any[] = this.codingSpecService.getCodingSpec();
@@ -79,8 +84,12 @@ export class AppComponent {
     });
   }
 
-  navigate(route: string) {
-    this.router.navigate([route]);
+  navigate(demo: any) {
+    if (demo.type === 'internal') {
+      this.router.navigate([demo.url], { queryParams: demo.queryParams });
+    } else {
+      this.openInNewTab(demo.url);
+    }
   }
 
   openInNewTab(url: string) {
