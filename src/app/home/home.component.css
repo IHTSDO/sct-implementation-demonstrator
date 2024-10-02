@@ -12,7 +12,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 2rem; /* Adjusted for spacing between cards */
-    justify-content: flex-start; /* Aligns items evenly */
+    justify-content: center; /* Aligns items evenly */
     margin-top: 3rem;
 }
 
