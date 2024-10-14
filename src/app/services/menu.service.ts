@@ -83,12 +83,19 @@ export class MenuService {
       url: "/snoguess",
       description: "A SNOMED term guessing game, learn about SNOMED content while having fun and competing to achieve the highest score"
     },
-    { 
-      name: "Implementation Support Portal",
-      subtitle: "Support resources",
-      type: "external", 
-      url: "https://implementation.snomed.org",
-      description: "The main resource of guidance, materials and tools for SNOMED CT implementations"
+    // { 
+    //   name: "Implementation Support Portal",
+    //   subtitle: "Support resources",
+    //   type: "external", 
+    //   url: "https://implementation.snomed.org",
+    //   description: "The main resource of guidance, materials and tools for SNOMED CT implementations"
+    // }
+    {
+      name: "SNOMED Implementation Roadmap Generator",
+      subtitle: "Tool",
+      type: "external",
+      url: "https://ihtsdo.github.io/roadmap-generator",
+      description: "A tool designed to promote and support the creation of implementation roadmaps for the adoption of SNOMED CT in countries, regions or organizations."
     }
   ];
 
