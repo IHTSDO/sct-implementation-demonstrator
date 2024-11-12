@@ -1,0 +1,9 @@
+.outer-container {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+}
+
+.container {
+    margin: 2rem;
+    width: calc(100% - 4rem);
+}

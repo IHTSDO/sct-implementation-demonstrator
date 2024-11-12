@@ -1,0 +1,164 @@
+#main-panel {
+    padding: 10px;
+}
+
+h3 {
+    margin-top: 0px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px; /* Half of the gap */
+    align-items: center;
+    gap: 10px;
+}
+
+.grow {
+    flex-grow: 4; /* default 0 */
+}
+
+mat-hint, mat-error {
+    font-size: 12px;
+}
+
+.editPanel {
+    /* width: calc(50% - 5px); */
+    /* margin: 5px;
+    margin-bottom: 25px;
+    padding: 10px; */
+    border: 1px solid #cccccc00;
+    border-radius: 5px;
+    background-color: #a0c8e5;
+}
+
+.control {
+    margin-bottom: 30px;
+}
+
+.output-panel {
+    width: 100%;
+}
+
+.row .tool {
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.row:hover .tool {
+    opacity: 1;
+}
+
+.drag-handle {
+    cursor: move;
+    color: #616161;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-left: 2rem;
+}
+
+.action-button {
+    position: absolute;
+    right: 0px;
+    margin-right: 20px;
+}
+
+.action-button button {
+    margin: 5px;;
+}
+
+.row-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.compact-row-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.row-container-item {
+    width: 100%; /* Adjust the width as per your requirements */
+    padding: 10px;
+}
+
+.output {
+    border-radius: 10px;
+    background-color: #282c34;
+    padding: 10px;
+    position: relative;
+    margin: 2rem;
+}
+
+#save {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: rgb(232, 140, 21);
+}
+
+.top-right-link {
+    position: absolute;
+    top: 5px;
+    right: 0;
+    font-size: smaller;
+}
+
+.form-title {
+    margin-left: 1rem;
+}
+
+.mat-mdc-form-field-infix {
+    padding: 0px !important;
+}
+
+.bottom-right-link {
+    position: absolute;
+    bottom: 5px; /* Align to the bottom */
+    right: 0;
+    font-size: smaller;
+}
+
+.form-layout {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Set the form layout to take the full width */
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap; /* This allows form fields to wrap when the screen size is too small */
+    margin-right: -10px; /* Adjust these negative margins to match the sum of your gap */
+    margin-left: -10px; /* Adjust these negative margins to match the sum of your gap */
+    width: 100%;
+}
+
+.form-column {
+    flex: 1 1 0px; /* This will allow the columns to grow and fill the space */
+    padding-right: 10px; /* This padding should be half of your desired gap */
+    padding-left: 10px; /* This padding should be half of your desired gap */
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Set the column to take the full width */
+}
+
+.input-field.full-width {
+    width: calc(100% - 20px); /* Adjust the width based on padding */
+    margin-bottom: 20px; /* Spacing between the rows */
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+

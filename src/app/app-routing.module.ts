@@ -10,6 +10,7 @@ import { ContextMainComponent } from './context/context-main/context-main.compon
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
 import { HomeComponent } from './home/home.component';
+import { NcptComponent } from './ncpt/ncpt.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'snoguess/scoreboard', component: ScoreboardComponent},
   { path: 'context', component: ContextMainComponent},
   { path: 'maturity', component: MaturityMainComponent},
+  { path: 'ncpt', component: NcptComponent },
   { path: '**', redirectTo: '' }
 ];
 

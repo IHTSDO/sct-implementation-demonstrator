@@ -1,0 +1,44 @@
+{
+  "title": "Example 2",
+  "bindings": [
+    {
+      "title": "Diagnosis (type of appendicitis)",
+      "code": {
+        "code": "58190003",
+        "display": "Vascular flow"
+      },
+      "type": "Autocomplete",
+      "ecl": "<< 74400008 |Appendicitis|",
+      "value": "",
+      "note": "An autocomplete field to select between all descendants of appendicitis."
+    },
+    {
+      "title": "Clinical note",
+      "type": "Text box",
+      "ecl": "74400008 |Appendicitis|",
+      "value": "",
+      "note": "A text box for entering free text clinical information."
+    },
+    {
+      "title": "Appendicitis type",
+      "type": "Select (Single)",
+      "ecl": "<< 196781001 |Acute appendicitis with peritonitis (disorder)|",
+      "value": "",
+      "note": "A single selection dropdown field for a shorter selection of the type of appendicitis."
+    },
+    {
+      "title": "Appendicitis type (M)",
+      "type": "Select (Multiple)",
+      "ecl": "<< 196781001 |Acute appendicitis with peritonitis (disorder)|",
+      "value": "",
+      "note": "A multiple selection dropdown field for a shorter selection of the type of appendicitis."
+    },
+    {
+      "title": "Appendicectomy type",
+      "type": "Options",
+      "ecl": "<< 174036004 |Emergency appendectomy (procedure)|",
+      "value": "",
+      "note": "A radio buttons selector for the type of appendicectomy procedure."
+    }
+  ]
+}
