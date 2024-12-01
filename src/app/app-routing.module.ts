@@ -11,6 +11,7 @@ import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
 import { HomeComponent } from './home/home.component';
 import { NcptComponent } from './ncpt/ncpt.component';
+import { PhaserGameComponent } from './phaser-game/phaser-game.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -25,6 +26,7 @@ const routes: Routes = [
   { path: 'context', component: ContextMainComponent},
   { path: 'maturity', component: MaturityMainComponent},
   { path: 'ncpt', component: NcptComponent },
+  { path: 'phaser', component: PhaserGameComponent },
   { path: '**', redirectTo: '' }
 ];
 

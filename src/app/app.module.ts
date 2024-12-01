@@ -77,6 +77,7 @@ import { CheckBoxMultipleBindingComponent } from './bindings/checkbox-multiple-b
 import { HomeComponent } from './home/home.component';
 import { BindingsViewerComponent } from './bindings-sandbox/bindings-viewer/bindings-viewer.component';
 import { NcptComponent } from './ncpt/ncpt.component';
+import { PhaserGameComponent } from './phaser-game/phaser-game.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -120,7 +121,8 @@ const app = initializeApp(firebaseConfig);
     CheckBoxMultipleBindingComponent,
     HomeComponent,
     BindingsViewerComponent,
-    NcptComponent
+    NcptComponent,
+    PhaserGameComponent
   ],
   imports: [
     HttpClientModule,

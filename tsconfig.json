@@ -26,6 +26,10 @@
       "dom"
     ]
   },
+  "include": [
+    "src/**/*.ts",
+    "src/custom-typings.d.ts"
+  ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

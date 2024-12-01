@@ -1,0 +1,802 @@
+[
+  {
+    "code": 163020007,
+    "display": "On examination - blood pressure reading (finding)"
+  },
+  {
+    "code": 266919005,
+    "display": "Never smoked tobacco (finding)"
+  },
+  {
+    "code": 203031000000107,
+    "display": "Informed consent given (finding)"
+  },
+  {
+    "code": 185210004,
+    "display": "Seen in hospital casualty (finding)"
+  },
+  {
+    "code": 250171008,
+    "display": "Clinical history and observation findings (finding)"
+  },
+  {
+    "code": 270426007,
+    "display": "Did not attend - no reason (finding)"
+  },
+  {
+    "code": 8517006,
+    "display": "Ex-smoker (finding)"
+  },
+  {
+    "code": 751481000000104,
+    "display": "eMED3 (2010) new statement issued, not fit for work (finding)"
+  },
+  {
+    "code": 281399006,
+    "display": "Did not attend (finding)"
+  },
+  {
+    "code": 777791000000102,
+    "display": "Influenza vaccination invitation first short message service text message sent (finding)"
+  },
+  {
+    "code": 162999005,
+    "display": "On examination - pulse rhythm regular (finding)"
+  },
+  {
+    "code": 965831000000103,
+    "display": "Patient allocated named accountable general practitioner (finding)"
+  },
+  {
+    "code": 185340004,
+    "display": "Failed encounter - message left on answer machine (finding)"
+  },
+  {
+    "code": 185324002,
+    "display": "Failed encounter (finding)"
+  },
+  {
+    "code": 185305000,
+    "display": "Seen by practice phlebotomist (finding)"
+  },
+  {
+    "code": 736728004,
+    "display": "Patient identity verified (finding)"
+  },
+  {
+    "code": 840671000000108,
+    "display": "Random sample (finding)"
+  },
+  {
+    "code": 271636001,
+    "display": "Pulse regular (finding)"
+  },
+  {
+    "code": 887641000000105,
+    "display": "National Health Service 111 report received (finding)"
+  },
+  {
+    "code": 822701000000109,
+    "display": "Has authorisation for medication under patient specific direction (finding)"
+  },
+  {
+    "code": 310375005,
+    "display": "Immunization consent given (finding)"
+  },
+  {
+    "code": 105542008,
+    "display": "Current non-drinker of alcohol (finding)"
+  },
+  {
+    "code": 375211000000108,
+    "display": "Bowel cancer screening programme faecal occult blood test normal (finding)"
+  },
+  {
+    "code": 699237001,
+    "display": "Consent given for communication by short message service text messaging (finding)"
+  },
+  {
+    "code": 184229000,
+    "display": "Notes summary on computer (finding)"
+  },
+  {
+    "code": 822991000000104,
+    "display": "Consent given for seasonal influenza vaccination (finding)"
+  },
+  {
+    "code": 1127431000000103,
+    "display": "Seen by clinical pharmacist (finding)"
+  },
+  {
+    "code": 171263007,
+    "display": "Full consent for immunization (finding)"
+  },
+  {
+    "code": 77176002,
+    "display": "Smoker (finding)"
+  },
+  {
+    "code": 394671009,
+    "display": "On examination - Right diabetic foot at low risk (finding)"
+  },
+  {
+    "code": 394675000,
+    "display": "On examination - Left diabetic foot at low risk (finding)"
+  },
+  {
+    "code": 308273005,
+    "display": "Follow-up status (finding)"
+  },
+  {
+    "code": 2051000000104,
+    "display": "Letter sent to patient (finding)"
+  },
+  {
+    "code": 408562003,
+    "display": "Email sent to outside agency (finding)"
+  },
+  {
+    "code": 167261002,
+    "display": "Urine glucose not detected (finding)"
+  },
+  {
+    "code": 185222001,
+    "display": "Seen in ophthalmology clinic (finding)"
+  },
+  {
+    "code": 903081000000107,
+    "display": "Patient contact details verified (finding)"
+  },
+  {
+    "code": 44054006,
+    "display": "Diabetes mellitus type 2 (disorder)"
+  },
+  {
+    "code": 315570003,
+    "display": "Main spoken language English (finding)"
+  },
+  {
+    "code": 59621000,
+    "display": "Essential hypertension (disorder)"
+  },
+  {
+    "code": 755021000000109,
+    "display": "Patient accompanied at encounter (finding)"
+  },
+  {
+    "code": 185252009,
+    "display": "Seen in orthopedic clinic (finding)"
+  },
+  {
+    "code": 167273002,
+    "display": "Urine protein not detected (finding)"
+  },
+  {
+    "code": 49727002,
+    "display": "Cough (finding)"
+  },
+  {
+    "code": 167287002,
+    "display": "Urine ketones not detected (finding)"
+  },
+  {
+    "code": 705025004,
+    "display": "Consent given for communication by email (finding)"
+  },
+  {
+    "code": 711301000000108,
+    "display": "Influenza vaccination invitation short message service text message sent (finding)"
+  },
+  {
+    "code": 50417007,
+    "display": "Lower respiratory tract infection (disorder)"
+  },
+  {
+    "code": 182884001,
+    "display": "Drug compliance good (finding)"
+  },
+  {
+    "code": 314138001,
+    "display": "Nitrite not detected in urine (finding)"
+  },
+  {
+    "code": 225552003,
+    "display": "Wound finding (finding)"
+  },
+  {
+    "code": 777831000000109,
+    "display": "Influenza vaccination invitation second short message service text message sent (finding)"
+  },
+  {
+    "code": 183665006,
+    "display": "Discharged from hospital (finding)"
+  },
+  {
+    "code": 408363009,
+    "display": "Patient understands why taking all medication (finding)"
+  },
+  {
+    "code": 160631001,
+    "display": "Enjoys light exercise (finding)"
+  },
+  {
+    "code": 394669009,
+    "display": "10g monofilament sensation R foot normal (finding)"
+  },
+  {
+    "code": 394670005,
+    "display": "10g monofilament sensation L foot normal (finding)"
+  },
+  {
+    "code": 442101005,
+    "display": "Medically fit for immunization (finding)"
+  },
+  {
+    "code": 310500000,
+    "display": "Diet good (finding)"
+  },
+  {
+    "code": 171164006,
+    "display": "Cervical smear due (finding)"
+  },
+  {
+    "code": 167297006,
+    "display": "Blood not detected in urine (finding)"
+  },
+  {
+    "code": 373251000000108,
+    "display": "No response to bowel cancer screening programme invitation (finding)"
+  },
+  {
+    "code": 195967001,
+    "display": "Asthma (disorder)"
+  },
+  {
+    "code": 170557005,
+    "display": "Chronic disease initial assessment (finding)"
+  },
+  {
+    "code": 170625000,
+    "display": "Inhaler technique - good (finding)"
+  },
+  {
+    "code": 432043003,
+    "display": "Transformation zone of uterine cervix visible (finding)"
+  },
+  {
+    "code": 54150009,
+    "display": "Upper respiratory infection (disorder)"
+  },
+  {
+    "code": 494131000000105,
+    "display": "White British - ethnic category 2001 census (finding)"
+  },
+  {
+    "code": 134417007,
+    "display": "Level of mood - normal (finding)"
+  },
+  {
+    "code": 18321000000106,
+    "display": "Lloyd George record status (finding)"
+  },
+  {
+    "code": 269958004,
+    "display": "Not detected by smear of cervix (finding)"
+  },
+  {
+    "code": 270422009,
+    "display": "Seen in dermatology clinic (finding)"
+  },
+  {
+    "code": 777671000000105,
+    "display": "Lower risk alcohol drinking (finding)"
+  },
+  {
+    "code": 185351004,
+    "display": "Administrative reason for encounter (finding)"
+  },
+  {
+    "code": 183616001,
+    "display": "Follow-up arranged (finding)"
+  },
+  {
+    "code": 408508002,
+    "display": "Has shown no side effects from medication (finding)"
+  },
+  {
+    "code": 408343002,
+    "display": "Indication for each drug checked (finding)"
+  },
+  {
+    "code": 775721000000109,
+    "display": "United Kingdom medical eligibility criteria for contraceptive use 2009 category 1 (finding)"
+  },
+  {
+    "code": 314503007,
+    "display": "Did not attend - hospital appointment (finding)"
+  },
+  {
+    "code": 408373006,
+    "display": "Drug compliance checked (finding)"
+  },
+  {
+    "code": 907131000000101,
+    "display": "Consent given for blood test (finding)"
+  },
+  {
+    "code": 231504006,
+    "display": "Mixed anxiety and depressive disorder (disorder)"
+  },
+  {
+    "code": 143651000000103,
+    "display": "Seen by pharmacy technician (finding)"
+  },
+  {
+    "code": 394717006,
+    "display": "Urine leukocytes not detected (finding)"
+  },
+  {
+    "code": 21522001,
+    "display": "Abdominal pain (finding)"
+  },
+  {
+    "code": 413306008,
+    "display": "Informal referral - signposted to other agency (finding)"
+  },
+  {
+    "code": 888091000000108,
+    "display": "Cervical smear - human papillomavirus negative (finding)"
+  },
+  {
+    "code": 811921000000103,
+    "display": "Asthma self-management plan agreed (finding)"
+  },
+  {
+    "code": 65568007,
+    "display": "Cigarette smoker (finding)"
+  },
+  {
+    "code": 439811001,
+    "display": "Seen by ambulance crew (finding)"
+  },
+  {
+    "code": 185202000,
+    "display": "Seen in general practitioner surgery (finding)"
+  },
+  {
+    "code": 185228002,
+    "display": "Seen in cardiac clinic (finding)"
+  },
+  {
+    "code": 206231000000105,
+    "display": "Informed consent for cervical smear given (finding)"
+  },
+  {
+    "code": 310503003,
+    "display": "Diet average (finding)"
+  },
+  {
+    "code": 319981000000104,
+    "display": "Seen in urgent care centre (finding)"
+  },
+  {
+    "code": 163108001,
+    "display": "On examination - right dorsalis pedis pulse present (finding)"
+  },
+  {
+    "code": 163120009,
+    "display": "On examination - left dorsalis pedis pulse present (finding)"
+  },
+  {
+    "code": 8392000,
+    "display": "Non-smoker (finding)"
+  },
+  {
+    "code": 1239501000000102,
+    "display": "Seen by first contact physiotherapist (finding)"
+  },
+  {
+    "code": 185337004,
+    "display": "Failed encounter - no answer when rang back (finding)"
+  },
+  {
+    "code": 1052411000000101,
+    "display": "Seen by Primary Care Navigator (finding)"
+  },
+  {
+    "code": 160632008,
+    "display": "Enjoys moderate exercise (finding)"
+  },
+  {
+    "code": 185223006,
+    "display": "Seen in ear, nose and throat clinic (finding)"
+  },
+  {
+    "code": 281794004,
+    "display": "Viral upper respiratory tract infection (disorder)"
+  },
+  {
+    "code": 279039007,
+    "display": "Low back pain (finding)"
+  },
+  {
+    "code": 185220009,
+    "display": "Seen in urology clinic (finding)"
+  },
+  {
+    "code": 294631000000100,
+    "display": "Unsuccessful attempt to contact patient by telephone (finding)"
+  },
+  {
+    "code": 773051000000102,
+    "display": "Express consent for core and additional Summary Care Record dataset upload (finding)"
+  },
+  {
+    "code": 285034004,
+    "display": "Able to manage medication (finding)"
+  },
+  {
+    "code": 247602005,
+    "display": "Memory function normal (finding)"
+  },
+  {
+    "code": 390862006,
+    "display": "Good compliance with inhaler (finding)"
+  },
+  {
+    "code": 163106002,
+    "display": "On examination - right posterior tibial pulse present (finding)"
+  },
+  {
+    "code": 163118006,
+    "display": "On examination - left posterior tibial pulse present (finding)"
+  },
+  {
+    "code": 185221008,
+    "display": "Seen in gynecology clinic (finding)"
+  },
+  {
+    "code": 777851000000102,
+    "display": "Influenza vaccination invitation third short message service text message sent (finding)"
+  },
+  {
+    "code": 315421000,
+    "display": "Born in England (finding)"
+  },
+  {
+    "code": 185903001,
+    "display": "Needs influenza immunization (finding)"
+  },
+  {
+    "code": 861931000000100,
+    "display": "No safeguarding issues identified (finding)"
+  },
+  {
+    "code": 275983007,
+    "display": "Influenza immunization advised (finding)"
+  },
+  {
+    "code": 35489007,
+    "display": "Depressive disorder (disorder)"
+  },
+  {
+    "code": 77386006,
+    "display": "Pregnancy (finding)"
+  },
+  {
+    "code": 167221003,
+    "display": "Urinalysis = no abnormality (finding)"
+  },
+  {
+    "code": 163413007,
+    "display": "On examination - vaginal speculum examination - no abnormality detected (finding)"
+  },
+  {
+    "code": 185245007,
+    "display": "Seen in gastroenterology clinic (finding)"
+  },
+  {
+    "code": 185234009,
+    "display": "Seen in pediatric clinic (finding)"
+  },
+  {
+    "code": 413973005,
+    "display": "Depression interim review (finding)"
+  },
+  {
+    "code": 366979004,
+    "display": "Depressed mood (finding)"
+  },
+  {
+    "code": 1324581000000102,
+    "display": "Severe acute respiratory syndrome coronavirus 2 ribonucleic acid not detected (finding)"
+  },
+  {
+    "code": 92391000000108,
+    "display": "British or mixed British - ethnic category 2001 census (finding)"
+  },
+  {
+    "code": 431957001,
+    "display": "Seen in mental health clinic (finding)"
+  },
+  {
+    "code": 148481000000101,
+    "display": "Seen by care coordinator (finding)"
+  },
+  {
+    "code": 408358005,
+    "display": "No significant drug interactions (finding)"
+  },
+  {
+    "code": 976631000000101,
+    "display": "White: English or Welsh or Scottish or Northern Irish or British - England and Wales ethnic category 2011 census (finding)"
+  },
+  {
+    "code": 170638008,
+    "display": "Asthma not limiting activities (finding)"
+  },
+  {
+    "code": 5935008,
+    "display": "Uses oral contraception (finding)"
+  },
+  {
+    "code": 14361000000109,
+    "display": "Lloyd George record received (finding)"
+  },
+  {
+    "code": 751621000000103,
+    "display": "eMED3 (2010) duplicate issued, not fit for work (finding)"
+  },
+  {
+    "code": 200481000000107,
+    "display": "Influenza vaccination invitation first letter sent (finding)"
+  },
+  {
+    "code": 43116000,
+    "display": "Eczema (disorder)"
+  },
+  {
+    "code": 185227007,
+    "display": "Seen in rheumatology clinic (finding)"
+  },
+  {
+    "code": 185230000,
+    "display": "Seen in neurology clinic (finding)"
+  },
+  {
+    "code": 391144006,
+    "display": "Human papillomavirus test consent given (finding)"
+  },
+  {
+    "code": 527171000000103,
+    "display": "Patient has a written asthma personal action plan (finding)"
+  },
+  {
+    "code": 185270007,
+    "display": "Seen in oncology clinic (finding)"
+  },
+  {
+    "code": 164300005,
+    "display": "On examination - temperature normal (finding)"
+  },
+  {
+    "code": 25064002,
+    "display": "Headache (finding)"
+  },
+  {
+    "code": 871691000000100,
+    "display": "Social prescribing offered (finding)"
+  },
+  {
+    "code": 1290311000000106,
+    "display": "Online access to own health record granted following enhanced health record review (finding)"
+  },
+  {
+    "code": 14760008,
+    "display": "Constipation (finding)"
+  },
+  {
+    "code": 185299002,
+    "display": "Seen by receptionist (finding)"
+  },
+  {
+    "code": 700449008,
+    "display": "Non-diabetic hyperglycemia (disorder)"
+  },
+  {
+    "code": 33962009,
+    "display": "Chief complaint (finding)"
+  },
+  {
+    "code": 45326000,
+    "display": "Shoulder pain (finding)"
+  },
+  {
+    "code": 168749009,
+    "display": "Mammography normal (finding)"
+  },
+  {
+    "code": 308021002,
+    "display": "Seen in clinic (finding)"
+  },
+  {
+    "code": 95324001,
+    "display": "Skin lesion (disorder)"
+  },
+  {
+    "code": 762911000000102,
+    "display": "Informed consent given for treatment (finding)"
+  },
+  {
+    "code": 167236000,
+    "display": "Urine looks clear (finding)"
+  },
+  {
+    "code": 197480006,
+    "display": "Anxiety disorder (disorder)"
+  },
+  {
+    "code": 928991000000107,
+    "display": "Referral letter sent by email (finding)"
+  },
+  {
+    "code": 408356009,
+    "display": "Drug side effects checked (finding)"
+  },
+  {
+    "code": 315595002,
+    "display": "Interpreter not needed (finding)"
+  },
+  {
+    "code": 185229005,
+    "display": "Seen in diabetic clinic (finding)"
+  },
+  {
+    "code": 268543007,
+    "display": "Cancer cervix - screening done (finding)"
+  },
+  {
+    "code": 161891005,
+    "display": "Backache (finding)"
+  },
+  {
+    "code": 170661005,
+    "display": "Using inhaled steroids - normal dose (finding)"
+  },
+  {
+    "code": 29857009,
+    "display": "Chest pain (finding)"
+  },
+  {
+    "code": 185279008,
+    "display": "Seen by practice nurse (finding)"
+  },
+  {
+    "code": 170746002,
+    "display": "Diabetic on oral treatment (finding)"
+  },
+  {
+    "code": 298005009,
+    "display": "Finding of wound healing (finding)"
+  },
+  {
+    "code": 13197004,
+    "display": "Uses contraception (finding)"
+  },
+  {
+    "code": 864231000000108,
+    "display": "Failed encounter - short message service text message delivery failure (finding)"
+  },
+  {
+    "code": 415812007,
+    "display": "Verbal consent for examination (finding)"
+  },
+  {
+    "code": 17741008,
+    "display": "Acute tonsillitis (disorder)"
+  },
+  {
+    "code": 366241000000106,
+    "display": "General practice physical activity questionnaire physical activity index: active (finding)"
+  },
+  {
+    "code": 185511000000107,
+    "display": "Seen in out of hours centre (finding)"
+  },
+  {
+    "code": 275736000,
+    "display": "On examination - chest examination normal (finding)"
+  },
+  {
+    "code": 3135009,
+    "display": "Otitis externa (disorder)"
+  },
+  {
+    "code": 773011000000101,
+    "display": "Implied consent for core Summary Care Record dataset upload (finding)"
+  },
+  {
+    "code": 773031000000109,
+    "display": "Express consent for core Summary Care Record dataset upload (finding)"
+  },
+  {
+    "code": 65363002,
+    "display": "Otitis media (disorder)"
+  },
+  {
+    "code": 365689007,
+    "display": "Finding related to casts on urine microscopy (finding)"
+  },
+  {
+    "code": 171290003,
+    "display": "Influenza vaccination consent given (finding)"
+  },
+  {
+    "code": 38341003,
+    "display": "Hypertensive disorder, systemic arterial (disorder)"
+  },
+  {
+    "code": 304387004,
+    "display": "Pill check (finding)"
+  },
+  {
+    "code": 68566005,
+    "display": "Urinary tract infectious disease (disorder)"
+  },
+  {
+    "code": 822721000000100,
+    "display": "Has authorisation for medication under patient group direction (finding)"
+  },
+  {
+    "code": 185408004,
+    "display": "Patient made appointment (finding)"
+  },
+  {
+    "code": 271807003,
+    "display": "Eruption of skin (disorder)"
+  },
+  {
+    "code": 125681006,
+    "display": "Single person (finding)"
+  },
+  {
+    "code": 163074001,
+    "display": "On examination - heart sounds normal (finding)"
+  },
+  {
+    "code": 305788003,
+    "display": "Seen by pharmacist (finding)"
+  },
+  {
+    "code": 1331000000103,
+    "display": "Med3 certificate issued to patient (finding)"
+  },
+  {
+    "code": 301708006,
+    "display": "Chest clear (finding)"
+  },
+  {
+    "code": 163133003,
+    "display": "Abdomen examined - no abnormality detected (finding)"
+  },
+  {
+    "code": 90176007,
+    "display": "Tonsillitis (disorder)"
+  },
+  {
+    "code": 445455005,
+    "display": "Generalized Anxiety Disorder 7 item score (observable entity)"
+  },
+  {
+    "code": 267036007,
+    "display": "Dyspnea (finding)"
+  },
+  {
+    "code": 171175005,
+    "display": "Breast neoplasm screening normal (finding)"
+  },
+  {
+    "code": 370208006,
+    "display": "Asthma never causes daytime symptoms (finding)"
+  }
+]
