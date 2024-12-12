@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import * as Phaser from 'phaser';
+import { TerminologyService } from '../services/terminology.service';
 
 @Component({
   selector: 'app-phaser-game',
@@ -11,13 +12,15 @@ export class PhaserGameComponent implements OnInit, OnDestroy {
 
   @ViewChild('gameContainer', { static: true }) gameContainer!: ElementRef;
 
+  constructor(private terminologyService: TerminologyService) {}
+
   ngOnInit() {
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: 800,
       height: 600,
       parent: this.gameContainer.nativeElement,
-      scene: [CdstdScene],
+      scene: new CdstdScene(this.terminologyService),
       physics: {
         default: 'arcade',
         arcade: {
@@ -38,13 +41,12 @@ export class PhaserGameComponent implements OnInit, OnDestroy {
 
 class CdstdScene extends Phaser.Scene {
 
-  private path!: Phaser.Curves.Path;
-  private queuePath!: Phaser.Curves.Path;
-  private enterPath!: Phaser.Curves.Path;
   private patients!: Phaser.GameObjects.Group;
   private gatekeeper!: Character;
-  private maxPatients: number = 5;
+  private internalTriageDoctor!: Character;
+  private maxPatients: number = 10;
   private spawnedPatients: number = 0;
+  private patientsInQueue: number = 0;
   private queue: Character[] = [];
   private deathCount: number = 0;
   private background!: Phaser.GameObjects.Image;
@@ -52,7 +54,13 @@ class CdstdScene extends Phaser.Scene {
   diagnosisData: any[] = [];
   private showPaths = true;
 
-  constructor() {
+  admissionEcl = "( (<< 386661006) OR (<< 29857009) )";
+  internalTriageRules = [
+    { ecl: "<< 386661006", x: 160, y: 207, message: 'Go to Office 1' },
+    { ecl: "<< 29857009", x: 160, y: 140, message: 'Go to Office 2' },
+  ];
+
+  constructor(private terminologyService: TerminologyService) {
     super({ key: 'CdstdScene' });
   }
 
@@ -125,45 +133,11 @@ class CdstdScene extends Phaser.Scene {
     this.deathCount = 0;
     this.spawnedPatients = 0;
 
-    // Define the path
-    this.path = this.add.path(80, 0);
-    this.path.lineTo(80, 533);
-    this.path.lineTo(350, 533);
-
-    // Optionally, visualize the path
-    const graphics = this.add.graphics();
-    graphics.lineStyle(3, 0xffffff, 1);
-    if (this.showPaths) {
-      this.path.draw(graphics);
-    }
-
-    // Define the queue path
-    this.queuePath = this.add.path(350, 533); // Start at the end of the main path
-    // Add points to the queue path for each queue position
-    for (let i = 1; i <= 15; i++) {
-      this.queuePath.lineTo(350 + (i * 20), 533);
-    }
-    graphics.lineStyle(3, 0xff0000, 1);
-    if (this.showPaths) {
-      this.queuePath.draw(graphics);
-    }
-
-    this.enterPath = this.add.path(350, 538);
-    this.enterPath.lineTo(245, 538);
-    this.enterPath.lineTo(245, 370);
-    graphics.lineStyle(3, 0x0000ff, 1);
-    if (this.showPaths) {
-      this.enterPath.draw(graphics);
-    }
-
     // Initialize the patients group
     this.patients = this.physics.add.group();
     this.spawnPatient();
     this.scheduleRandomPatientSpawn();
-
-    // Add gatekeeper doctor using the new Gatekeeper class
-    const placeholderPath = new Phaser.Curves.Path(320, 533);
-    this.gatekeeper = new Character(this, placeholderPath, 320, 533, 'gatekeeper', 2);
+    this.addDoctors();
   }
 
   override update() {
@@ -262,7 +236,7 @@ class CdstdScene extends Phaser.Scene {
   scheduleRandomPatientSpawn() {
     if (this.spawnedPatients < this.maxPatients) {
       // Generate a random delay between 1000ms and 3000ms
-      const randomDelay = Phaser.Math.Between(2000, 5000);
+      const randomDelay = Phaser.Math.Between(2, 5);
   
       // Schedule the next spawn
       this.time.addEvent({
@@ -275,20 +249,46 @@ class CdstdScene extends Phaser.Scene {
       });
     }
   }
-  
+
+  addDoctors() {
+    this.internalTriageDoctor = new Character(this, 270, 350, 'gatekeeper', 2);
+    this.internalTriageDoctor.flipX = true;
+    this.internalTriageDoctor.idle();
+    const specialist1 = new Character(this, 130, 207, 'gatekeeper', 2);
+    specialist1.idle();
+    const specialist2 = new Character(this, 130, 140, 'gatekeeper', 2);
+    specialist2.idle();
+  }
 
   spawnPatient() {
-    // Get the starting point of the path (t = 0)
-    const startPoint = this.path.getPoint(0);
-
     // Dynamically set the position using the starting point
-    const patient = new Character(this, this.path, startPoint.x, startPoint.y, 'patient', Phaser.Math.Between(1, 3));
+    const patient = new Character(this, 80, 10, 'patient', Phaser.Math.Between(1, 3));
+    this.queue.push(patient);
+    patient.queuePosition = this.queue.length;
     patient.setScale(0.5);
-    patient.startFollow({
-      duration: 10000,
-      rotateToPath: false,
+    // Move to 80, 533 wieh tweens
+    this.tweens.add({
+      targets: patient,
+      x: 80,
+      y: 533,
+      duration: 7, //7000,
+      ease: 'Linear',
       onComplete: () => {
-        this.patientReachedEnd(patient);
+        this.tweens.add({
+          targets: patient,
+          x: 330 + (20 * patient.queuePosition),
+          y: 533,
+          duration: 3000, // 5000,
+          ease: 'Linear',
+          onComplete: () => {
+            patient.idle();
+            patient.flipX = true;
+            this.patientsInQueue++;
+            if (this.patientsInQueue === this.maxPatients) {
+              this.queueComplete();
+            }
+          },
+        });
       },
     });
   
@@ -298,6 +298,55 @@ class CdstdScene extends Phaser.Scene {
     this.patients.add(patient);
     this.spawnedPatients++;
     this.scoreText.setText(`Patients: ${this.spawnedPatients} Deaths: ${this.deathCount}`);
+  }
+
+  queueComplete() {
+    // Add the gatekeeper to the scene
+    this.gatekeeper = new Character(this, 315, 190, 'gatekeeper', 2);
+    this.gatekeeper.setScale(0.5);
+    this.gatekeeper.walk();
+    this.tweens.add({
+      targets: this.gatekeeper,
+      x: 315,
+      y: 350,
+      duration: 2, //2000,
+      ease: 'Linear',
+      onComplete: () => {
+        this.gatekeeper.flipX = true;
+        this.tweens.add({
+          targets: this.gatekeeper,
+          x: 240,
+          y: 350,
+          duration: 2, //2000,
+          ease: 'Linear',
+          onComplete: () => {
+            this.tweens.add({
+              targets: this.gatekeeper,
+              x: 240,
+              y: 533,
+              duration: 2, //2000,
+              ease: 'Linear',
+              onComplete: () => {
+                this.gatekeeper.flipX = false;
+                this.tweens.add({
+                  targets: this.gatekeeper,
+                  x: 310,
+                  y: 533,
+                  duration: 2, //2000,
+                  ease: 'Linear',
+                  onComplete: () => {
+                    this.gatekeeper.idle();
+                    this.gatekeeper.say('We will start soon', 3000);
+                  }
+                });
+              }
+            });
+          },
+        });
+      },
+    });
+    // Register A key listener for admitting patients
+    this.input?.keyboard?.on('keydown-A', this.testNextPatient, this);
   }
 
   patientDied(patient: Character) {
@@ -310,103 +359,175 @@ class CdstdScene extends Phaser.Scene {
   }
 
   patientReachedEnd(patient: Character) {
-    // Stop following the main path
-    patient.stopFollow();
-  
-    // Assign the queue path to the patient
-    patient.path = this.queuePath;
-  
-    // Calculate the `to` parameter based on the queue position
-    const queueSegment = 1 / 15; // Divide the path into 15 segments
-    patient.queuePosition = queueSegment * this.queue.length;
-    this.queue.push(patient);
+    // form queue
+  }
 
-    // Start following the queue path
-    patient.startFollow({
-      duration: 400 * (this.queue.length), // Adjust duration as needed
-      from: 0,
-      to: patient.queuePosition,
-      rotateToPath: false, // No rotation needed for queue
+  testNextPatient() {
+    if (this.queue.length === 0) {
+      return;
+    }
+    
+    
+    const patient = this.queue.shift();
+    if (patient) {
+      let matchesCriteria = false;
+    
+      // Gatekeeper starts by asking a question
+      this.gatekeeper.say('How do you feel?', 1500);
+    
+      // Wait for the gatekeeper to finish speaking before the patient speaks
+      setTimeout(() => {
+        let message = `I have been feeling with:\n`; // `Age: ${patient.clinicalData.age}\n`;
+        message += patient.clinicalData.diagnosis.map((dx: any) => dx.display).join('\n');
+        patient.say(message, 1800);
+    
+        // Wait for the patient to finish speaking before evaluating
+        setTimeout(() => {
+          let ecl = this.admissionEcl + ' AND (';
+          patient?.clinicalData.diagnosis.forEach((dx: any, index: number) => {
+            if (index > 0) {
+              ecl = ecl + ` OR ${dx.code}`;
+            } else {
+              ecl = ecl + ` ${dx.code}`;
+            }
+          });
+          ecl = ecl + ' )';
+          this.terminologyService.expandValueSet(ecl, '').subscribe((data: any) => {
+            if (data.expansion?.total > 0) {
+              matchesCriteria = true;
+            }
+            // After evaluation, gatekeeper decides the outcome
+            if (matchesCriteria) {
+              this.gatekeeper.say('Go in...', 1500);
+              
+              // Wait for the gatekeeper's response before taking action
+              setTimeout(() => {
+                this.enterHospital(patient);
+                this.advanceQueue();
+              }, 1500);
+            } else {
+              this.gatekeeper.say('Go home...', 1500);
+              
+              // Wait for the gatekeeper's response before taking action
+              setTimeout(() => {
+                this.walkAway(patient);
+                this.advanceQueue();
+              }, 500);
+            }
+          });
+        }, 2000); // Time for the patient to finish speaking
+      }, 1500); // Time for the gatekeeper to finish asking
+    }
+    
+  }
+
+  enterHospital(patient: Character) {
+    patient.walk();
+    this.tweens.add({
+      targets: patient,
+      x: 240,
+      y: 533,
+      duration: 500,
+      ease: 'Linear',
       onComplete: () => {
-        patient.stopFollow();
-        // Flip the patient to face left
-        patient.flipX = true;
-  
-        // Play the idle animation
-        patient.idle();
-  
-        // Mark the patient as being in the queue
-        patient.startWaiting();
-
-        if (this.queue.length == 1) {
-          const admitKey = this.input?.keyboard?.addKey('A');
-          if (admitKey) {
-            admitKey.addListener('down', () => {
-              this.admitPatient();
-            });
-          } else {
-            console.error('Keyboard input is not available.');
-          }
-        }
+        this.tweens.add({
+          targets: patient,
+          x: 240,
+          y: 350,
+          duration: 500,
+          ease: 'Linear',
+          onComplete: () => {
+            patient.idle();
+            patient.flipX = false;
+            this.internalTriage(patient);
+          },
+        });
       },
     });
   }
 
-  admitPatient() {
-    this.gatekeeper.say('Go in...', 2500);
-    const patient = this.queue.shift();
+  walkAway(patient: Character) {
+    patient.flipX = false;
+    patient.walk();
+    this.tweens.add({
+      targets: patient,
+      x: 800,
+      y: 533,
+      duration: 5000,
+      ease: 'Linear',
+      onComplete: () => {
+        patient.destroy();
+      },
+    });
+  }
   
-    if (patient) {
-      patient.walk();
-      patient.path = this.enterPath;
-  
-      patient.startFollow({
-        duration: 2000,
-        rotateToPath: false,
-        onComplete: () => {
-          patient.stopFollow();
-          patient.idle();
-          this.spawnedPatients--;
-          this.scoreText.setText(`Patients: ${this.spawnedPatients} Deaths: ${this.deathCount}`);
-          this.patients.remove(patient);
-          this.gatekeeper.say('Next!', 2500);
-        },
-      });
-    }
-  
+  advanceQueue() {
     // Move the remaining patients in the queue
     this.queue.forEach((patient, index) => {
-      console.log('Index: ' + index);
-      console.log('Queue position: ' + patient.queuePosition);
-  
-      // Calculate new position incrementally along the path
-      const queueSegment = 1 / (this.queue.length + 1); // Divide path based on queue size
-      const newPosition = queueSegment * (index + 1);
-      console.log('New position (fraction along path): ' + newPosition);
-  
-      // Get the actual point on the path for the calculated position
-      const newPoint = this.queuePath.getPoint(newPosition);
-      console.log('New point coordinates: ' + newPoint.x, newPoint.y);
-  
-      // Use a tween to manually move the patient to the new point
-      patient.stopFollow(); // Stop any current following to avoid conflict
+      patient.walk();
+      patient.queuePosition = patient.queuePosition - 1;
       this.tweens.add({
         targets: patient,
-        x: newPoint.x,
-        y: newPoint.y,
-        duration: 400,
-        ease: 'Power1',
+        x: 330 + (20 * (index + 1)),
+        y: 533,
+        duration: 1000,
+        ease: 'Linear',
         onComplete: () => {
-          console.log(`Patient ${index} reached new position`);
-          patient.queuePosition = newPosition; // Update the queue position after movement
-          patient.idle(); // Set patient to idle after reaching position
+          patient.idle();
         }
       });
     });
   }
   
-  
-  
+  internalTriage(patient: Character) {
+    if (patient) {
+      for (let rule of this.internalTriageRules) {
+        let matchesCriteria = false;
+        let ecl = rule.ecl + ' AND (';
+        patient?.clinicalData.diagnosis.forEach((dx: any, index: number) => {
+          if (index > 0) {
+            ecl = ecl + ` OR ${dx.code}`;
+          } else {
+            ecl = ecl + ` ${dx.code}`;
+          }
+        });
+        ecl = ecl + ' )';
+        this.terminologyService.expandValueSet(ecl, '').subscribe((data: any) => {
+          if (data.expansion?.total > 0) {
+            matchesCriteria = true;
+          }
+          if (matchesCriteria) {
+            this.internalTriageDoctor.say(rule.message, 1000);
+            setTimeout(() => {
+              // walk to first to Y value, then to X value
+              patient.flipX = true;
+              patient.walk();
+              this.tweens.add({
+                targets: patient,
+                y: rule.y,
+                duration: 500,
+                ease: 'Linear',
+                onComplete: () => {
+                  this.tweens.add({
+                    targets: patient,
+                    x: rule.x,
+                    duration: 500,
+                    ease: 'Linear',
+                    onComplete: () => {
+                      patient.idle();
+                    },
+                  });
+                },
+              });
+            }, 1000);
+          }
+        });
+        if (matchesCriteria) {
+          break;
+        }
+      }
+    }
+  }
 
   gameOver() {
     // Display "Game Over" text
@@ -442,7 +563,7 @@ class CdstdScene extends Phaser.Scene {
   
 }
 
-class Character extends Phaser.GameObjects.PathFollower {
+class Character extends Phaser.Physics.Arcade.Sprite {
   private sceneRef: CdstdScene;
   spriteType: number;
   role: 'patient' | 'gatekeeper';
@@ -455,8 +576,13 @@ class Character extends Phaser.GameObjects.PathFollower {
   previousX: number = 0;
   clinicalData: any = {};
 
-  constructor(scene: CdstdScene, path: Phaser.Curves.Path, x: number, y: number, role: 'patient' | 'gatekeeper', spriteType: number = 1) {
-    super(scene, path, x, y, `${role}_idle_${spriteType}`);
+  constructor(scene: CdstdScene, x: number, y: number, role: 'patient' | 'gatekeeper', spriteType: number = 1) {
+    super(scene, x, y, `${role}_idle_${spriteType}`);
+    scene.add.existing(this);
+    scene.physics.add.existing(this);
+
+    // Set any default properties for the character here
+    this.setCollideWorldBounds(true);
     this.sceneRef = scene; // Reference to the scene
     this.spriteType = spriteType;
     this.role = role;
