@@ -1,0 +1,34 @@
+{
+  "stakeHolders": [
+    {
+      "name": "Vendor",
+      "description": "Description 1",
+      "kpas": [
+        {
+          "name": "KPA 1",
+          "description": "Description 1",
+          "levels": [
+            {
+              "name": "Level 1",
+              "description": "Description 1",
+              "maturity": "1"
+            },
+            {
+              "name": "Level 2",
+              "description": "Description 2",
+              "maturity": "2"
+            }
+          ]
+        },
+        {
+          "name": "KPA 2",
+          "description": "Description 2"
+        }
+      ]
+    },
+    {
+      "name": "MEMBER",
+      "description": "Description 2"
+    }
+  ]
+}

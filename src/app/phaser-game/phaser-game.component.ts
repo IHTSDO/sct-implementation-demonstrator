@@ -41,7 +41,7 @@ export class PhaserGameComponent implements OnInit, OnDestroy {
 
 class CdstdScene extends Phaser.Scene {
 
-  private patients!: Phaser.GameObjects.Group;
+  private patients!: Phaser.GameObjects.Group; 
   private gatekeeper!: Character;
   private internalTriageDoctor!: Character;
   private maxPatients: number = 10;
