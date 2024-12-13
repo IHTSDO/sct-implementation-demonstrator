@@ -45,10 +45,10 @@ export class SnoguessService {
   ];
 
   difficultyLevels: any[] = [
-    { 
-      name: 'Tournament', 
-      rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals, difficultyBonus: 50, endless: true, maxRoundTime: 25 }
-    },
+    // { 
+    //   name: 'Tournament', 
+    //   rules: { maxHitPoints: 3, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 1, pointsPerGuessedLetter: 2, goals: this.goals, difficultyBonus: 50, endless: true, maxRoundTime: 25 }
+    // },
     { 
       name: 'Easy',
       rules: { maxHitPoints: 5, hitpointsAwardedForGuessingfullTerm: 1, freeHints: 2, pointsPerGuessedLetter: 1, goals: this.goals, difficultyBonus: 0, endless: false, maxRoundTime: 60 }
