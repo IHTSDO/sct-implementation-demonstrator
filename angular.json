@@ -34,7 +34,8 @@
             ],
             "allowedCommonJsDependencies": [
               "file-saver",
-              "bad-words"
+              "bad-words",
+              "phaser"
             ]
           },
           "configurations": {

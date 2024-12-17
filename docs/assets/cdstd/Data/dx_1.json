@@ -1,0 +1,35 @@
+[
+    {
+      "code": "267036007",
+      "display": "Dyspnea"
+    },
+    {
+        "code": "386661006",
+        "display": "Fever"
+    },
+    {
+        "code": "49727002",
+        "display": "Cough"
+    },
+    {
+        "code": "44054006",
+        "display": "Diabetes mellitus type 2"
+    },
+    {
+        "code": "59621000",
+        "display": "Essential hypertension"
+    },
+    {
+        "code": "29857009",
+        "display": "Chest pain"
+    },
+    {
+        "code": "404640003",
+        "display": "Dizziness"
+    },
+    {
+        "code": "161891005",
+        "display": "Back pain"
+    }
+
+]
