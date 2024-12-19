@@ -16,12 +16,15 @@ export class PhaserGameComponent implements OnInit, OnDestroy {
   constructor(private terminologyService: TerminologyService) {}
 
   ngOnInit() {
+    const uiScene: UIScene = new UIScene();
+    const cdstdScene: CdstdScene = new CdstdScene(this.terminologyService);
+
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: 800,
       height: 600,
       parent: this.gameContainer.nativeElement,
-      scene: new CdstdScene(this.terminologyService),
+      scene: [cdstdScene, uiScene],
       physics: {
         default: 'arcade',
         arcade: {
@@ -36,6 +39,83 @@ export class PhaserGameComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.game) {
       this.game.destroy(true);
+    }
+  }
+}
+
+class UIScene extends Phaser.Scene {
+  private pauseButton!: Phaser.GameObjects.Image;
+  private gamePaused: boolean = false;
+  private speedButtons: Phaser.GameObjects.Text[] = [];
+  private speedLevels: number[] = [1, 2, 4, 16]; // Speed levels
+  private activeSpeedIndex: number = 0; // Default speed index (1x)
+
+  constructor() {
+    // Define the scene with a key and set it to start immediately
+    super({ key: 'UIScene', active: true });
+  }
+
+  preload() {
+    // Preload the pause and unpause button images
+    this.load.image('pauseButton', 'assets/cdstd/Objects/Buttons/button_pause.png');
+    this.load.image('unpauseButton', 'assets/cdstd/Objects/Buttons/button_unpause.png');
+  }
+
+  create() {
+    // Add the pause button to the UI scene
+    this.pauseButton = this.add.image(75, 50, 'pauseButton').setInteractive();
+
+    // Add a click event listener for the pause button
+    this.pauseButton.on('pointerdown', () => {
+      const cdstdScene = this.scene.get('CdstdScene'); // Reference the CdstdScene by its key
+
+      if (!this.gamePaused) {
+        if (cdstdScene) {
+          cdstdScene.scene.pause(); // Pause the CdstdScene
+          this.gamePaused = true;
+          this.pauseButton.setTexture('unpauseButton'); // Change to unpause button
+        }
+      } else {
+        if (cdstdScene) {
+          cdstdScene.scene.resume(); // Resume the CdstdScene
+          this.gamePaused = false;
+          this.pauseButton.setTexture('pauseButton'); // Change back to pause button
+        }
+      }
+    });
+
+    // Speed Control Buttons
+    this.speedLevels.forEach((speed, index) => {
+      const button = this.add.text(150 + index * 60, 35, `${speed}x`, {
+        fontSize: '18px',
+        color: index === this.activeSpeedIndex ? '#ff0' : '#fff', // Highlight active speed
+        backgroundColor: '#000',
+        padding: { x: 10, y: 5 },
+      })
+        .setInteractive()
+        .on('pointerdown', () => {
+          this.setSpeed(index);
+        });
+
+      this.speedButtons.push(button);
+    });
+  }
+
+  private setSpeed(index: number) {
+    this.activeSpeedIndex = index;
+
+    // Update all button styles
+    this.speedButtons.forEach((button, i) => {
+      button.setStyle({
+        color: i === this.activeSpeedIndex ? '#ff0' : '#fff',
+      });
+    });
+
+    // Adjust the speed of the CdstdScene
+    const cdstdScene = this.scene.get('CdstdScene') as CdstdScene;
+    if (cdstdScene) {
+      cdstdScene.time.timeScale = this.speedLevels[this.activeSpeedIndex];
+      cdstdScene.setSpeedMultiplier(this.speedLevels[this.activeSpeedIndex]);
     }
   }
 }
@@ -56,6 +136,8 @@ class CdstdScene extends Phaser.Scene {
   private scoreText!: Phaser.GameObjects.Text;
   public diagnosisData: any[] = [];
   private admitting: boolean = false;
+  private lastTriageTime: number = 0;
+  private speedMultiplier: number = 1; // Default speed (1x)
   
   private admissionEcl = "( << 386661006 |Fever| OR << 22253000 |Pain (finding)| )";
   private internalTriageRules = [
@@ -70,6 +152,15 @@ class CdstdScene extends Phaser.Scene {
 
   constructor(private terminologyService: TerminologyService) {
     super({ key: 'CdstdScene' });
+    this.terminologyService.setSnowstormFhirBase('https://snowstorm-lite.nw.r.appspot.com/fhir');
+  }
+
+  setSpeedMultiplier(multiplier: number) {
+    this.speedMultiplier = multiplier;
+  }
+
+  getSelectedSpeed() {
+    return this.speedMultiplier;
   }
 
   preload() {
@@ -105,6 +196,7 @@ class CdstdScene extends Phaser.Scene {
         );
       });
     }
+    // this.load.image('pauseButton', 'assets/cdstd/Objects/Buttons/button_pause.png');
   }
 
   create() {
@@ -165,10 +257,16 @@ class CdstdScene extends Phaser.Scene {
       this.testNextPatientForAdmission();
     }
 
-    if (this.insideQueue.length > 0) {
-      setTimeout(() => {
+    const currentTime = Date.now();
+    if (
+      this.insideQueue.length > 0 &&
+      this.attendingDoctors.every(doctor => !doctor.character.info.busy) &&
+      currentTime - this.lastTriageTime >= 2000
+    ) {
+      this.lastTriageTime = Date.now(); // Update the last triage time
+      this.time.delayedCall(1000, () => {
         this.internalTriage();
-      }, 1000);
+      });
     }
   }
 
@@ -264,6 +362,7 @@ class CdstdScene extends Phaser.Scene {
       const specialist = new Character(this, doctor.x, doctor.y, 'gatekeeper', 2);
       specialist.info.ecl = doctor.ecl;
       specialist.info.title = doctor.title;
+      specialist.info.busy = false;
       specialist.idle();
       doctor.character = specialist;
     });
@@ -283,9 +382,9 @@ class CdstdScene extends Phaser.Scene {
 
     this.walkTo(patient, path, () => {
       this.patientsInQueue++;
-      setTimeout(() => {
+      this.time.delayedCall(100, () => {
         patient.flipX = true;
-      }, 100);
+      });
       if (this.patientsInQueue === this.maxPatients) {
         this.queueComplete();
       }
@@ -312,9 +411,9 @@ class CdstdScene extends Phaser.Scene {
 
     this.walkTo(this.gatekeeper, path, () => {
       this.gatekeeper.say('We will start soon', 1000);
-      setTimeout(() => {
+      this.time.delayedCall(1000, () => {
         this.admitting = true;
-      }, 1000);
+      });
     });
     // Register A key listener for admitting patients
     // this.input?.keyboard?.on('keydown-A', this.testNextPatient, this);
@@ -340,40 +439,45 @@ class CdstdScene extends Phaser.Scene {
       this.gatekeeper.say('How do you feel?', 1500);
     
       // Wait for the gatekeeper to finish speaking before the patient speaks
-      setTimeout(() => {
+      this.time.delayedCall(1500, () => {
         let message = `I have been feeling with:\n`; // `Age: ${patient.clinicalData.age}\n`;
         message += patient.clinicalData.diagnosis.map((dx: any) => dx.display).join('\n');
         patient.say(message, 1800);
     
         // Wait for the patient to finish speaking before evaluating
-        setTimeout(() => {
+        this.time.delayedCall(2000, () => {
           this.checkPatientDiagnosisVsEcl(patient, this.admissionEcl).then((result) => {
             // After evaluation, gatekeeper decides the outcome
             if (result.length > 0) {
               this.gatekeeper.say('Go in...', 1500);
+              patient.clinicalData.diagnosis.forEach((dx: any) => {
+                if (result.find((r: any) => r.code === dx.code)) {
+                  dx.status = "admitted";
+                }
+              });
               // Wait for the gatekeeper's response before taking action
-              setTimeout(() => {
+              this.time.delayedCall(1500, () => {
                 this.enterHospital(patient);
-                this.advanceQueue();
-                setTimeout(() => {
+                this.advanceQueue(this.outsideQueue);
+                this.time.delayedCall(1000, () => {
                   this.admitting = true;
-                }, 1000);
-              }, 1500);
+                });
+              });
             } else {
               this.gatekeeper.say('Go home...', 1500);
               
               // Wait for the gatekeeper's response before taking action
-              setTimeout(() => {
+              this.time.delayedCall(500, () => {
                 this.walkAway(patient);
-                this.advanceQueue();
-                setTimeout(() => {
+                this.advanceQueue(this.outsideQueue);
+                this.time.delayedCall(1000, () => {
                   this.admitting = true;
-                }, 1000);
-              }, 500);
+                });
+              });
             }
           });
-        }, 2000); // Time for the patient to finish speaking
-      }, 1500); // Time for the gatekeeper to finish asking
+        }); // Time for the patient to finish speaking
+      }); // Time for the gatekeeper to finish asking
     }
     
   }
@@ -383,14 +487,14 @@ class CdstdScene extends Phaser.Scene {
     patient.queuePosition = this.insideQueue.length;
     patient.walk();
     let path = [
-      { x: 240, y: 533, duration: 500 },
+      { x: 240, y: patient.y, duration: 500 },
       { x: 240, y: 350, duration: 500 },
       { x: 280 + (20 * patient.queuePosition), y: 350, duration: 500 },
     ];
     this.walkTo(patient, path, () => {
-      setTimeout(() => {
+      this.time.delayedCall(100, () => {
         patient.flipX = true;
-      }, 100);
+      });
     });
   }
 
@@ -406,19 +510,24 @@ class CdstdScene extends Phaser.Scene {
     let coin = Phaser.Math.Between(0, 1);
     path.push({ x: coin * 800, y: 533, duration: 1000 });
     this.walkTo(patient, path, () => {
-      setTimeout(() => {
+      this.time.delayedCall(100, () => {
         patient.destroy();
-      }, 100);
+      });
     });
   }
   
-  advanceQueue() {
+  advanceQueue(queue: Character[]) {
+    if (queue.length === 0) {
+      return;
+    }
+    console.log(queue)
+    const queueStart = queue[0].x - 40;
     // Move the remaining patients in the queue
-    this.outsideQueue.forEach((patient, index) => {
+    queue.forEach((patient, index) => {
       patient.walk();
-      patient.queuePosition = patient.queuePosition - 1;
+      patient.queuePosition = index + 1; // Update the queue position based on the index
       let path = [
-        { x: 330 + (20 * patient.queuePosition), y: 533, duration: 500 },
+        { x: queueStart + (20 * patient.queuePosition), y: patient.y, duration: 500 },
       ];
       this.walkTo(patient, path, () => {
         // Nothing
@@ -430,60 +539,117 @@ class CdstdScene extends Phaser.Scene {
     if (this.insideQueue.length === 0) {
       return;
     }
+  
     const patient = this.insideQueue.shift();
     if (patient) {
       for (let rule of this.internalTriageRules) {
+        const doctor: Character = this.attendingDoctors[rule.doctorIndex].character;
+  
+        // Skip busy doctors
+        if (doctor.info.busy) {
+          continue;
+        }
+  
         const result = await this.checkPatientDiagnosisVsEcl(patient, rule.ecl);
         if (result.length > 0) {
-          let doctor: Character = this.attendingDoctors[rule.doctorIndex].character;
-          this.internalTriageDoctor.say('Go to the ' + doctor?.info?.title, 1000);
-          setTimeout(() => {
+          console.log(`${doctor.info.title} is available and will attend to the patient.`);
+          this.internalTriageDoctor.say(`Go to the ${doctor?.info?.title}`, 1000);
+  
+          this.time.delayedCall(1000, () => {
             patient.flipX = true;
-            // Walk using function walkTo
-            let path = [
+  
+            const path = [
               { x: 240, y: patient.y, duration: 200 },
               { x: 240, y: doctor.y, duration: 300 },
               { x: doctor.x + 30, y: doctor.y, duration: 300 },
             ];
+            doctor.info.busy = true; // Mark doctor as busy
             this.walkTo(patient, path, () => {
               patient.idle();
               this.attendPatient(patient, doctor);
             });
-          }, 1000);
-          break; // Exit the loop after finding a match
+          });
+  
+          break; // Exit the loop after assigning the patient
         }
+      }
+  
+      // If no doctor can attend, re-add the patient to the queue
+      if (!patient.active) {
+        this.addToInsideQueue(patient);
       }
     }
   }
 
+  addToInsideQueue(patient: Character) {
+    // Add the patient to the end of the insideQueue
+    this.insideQueue.push(patient);
+  
+    // Update the queue position to the new end of the queue
+    patient.queuePosition = this.insideQueue.length;
+  
+    // Calculate the new position based on the queue layout
+    const newX = 280 + (20 * patient.queuePosition); // X position at the end of the queue
+    const newY = 350; // Fixed Y position for the inside queue
+  
+    // Move the patient to the end of the queue visually
+    const path = [
+      { x: newX, y: newY, duration: 500 / this.speedMultiplier },
+    ];
+  
+    this.walkTo(patient, path, () => {
+      patient.idle(); // Set to idle after moving to the correct position
+    });
+  
+    console.log(`Patient re-added to insideQueue at position ${patient.queuePosition}`);
+  }
+  
+
   attendPatient(patient: Character, doctor: Character) {
-    setTimeout(() => {
+    doctor.info.busy = true; // Set busy when starting to attend
+    this.time.delayedCall(1000, () => {
       this.checkPatientDiagnosisVsEcl(patient, doctor.info.ecl).then((result) => {
         if (result.length > 0) {
           patient.clinicalData.diagnosis.forEach((dx: any) => {
             if (result.find((r: any) => r.code === dx.code)) {
-              dx.treated = true;
+              dx.status = "treated";
             }
           });
-          // this.checkPatientDiagnosisVsEcl(patient, this.admissionEcl).then((result) => {
-          //   if (result.length > 0) {
-          //   }
-          // });
-          doctor.say( doctor.info.title + '\nHave a nice day', 1000);
-          setTimeout(() => {
-            this.goodTriage++;
-            this.walkAway(patient);
-          }, 1000);
+  
+          if (patient.clinicalData.diagnosis.find((dx: any) => dx.status === "admitted")) {
+            doctor.say(`${doctor.info.title}\nGo to the next doctor`, 1000);
+            this.time.delayedCall(1000, () => {
+              this.enterHospital(patient);
+              doctor.info.busy = false; // Only reset when done
+            });
+          } else {
+            doctor.say(`${doctor.info.title}\nHave a nice day`, 1000);
+            this.time.delayedCall(1000, () => {
+              this.goodTriage++;
+              this.walkAway(patient);
+              doctor.info.busy = false; // Only reset when done
+            });
+          }
         } else {
-          doctor.say( doctor.info.title + '\nI can\'t help you...', 1000);
-          setTimeout(() => {
-            this.badTriage++;
-            this.walkAway(patient);
-          }, 1000);
+          if (patient.clinicalData.diagnosis.find((dx: any) => dx.status === "admitted")) {
+            doctor.say(`${doctor.info.title}\nI can't help with this, but go to the next doctor`, 1000);
+            this.time.delayedCall(1000, () => {
+              this.enterHospital(patient);
+              doctor.info.busy = false; // Only reset when done
+            });
+          } else {
+            doctor.say(`${doctor.info.title}\nI can't help you...`, 1000);
+            this.time.delayedCall(1000, () => {
+              this.badTriage++;
+              this.walkAway(patient);
+              doctor.info.busy = false; // Only reset when done
+            });
+          }
         }
       });
-    }, 1000);
+    });
   }
+  
 
   gameOver() {
     // Display "Game Over" text
@@ -534,7 +700,7 @@ class CdstdScene extends Phaser.Scene {
         targets: character,
         x: point.x,
         y: point.y,
-        duration: point.duration,
+        duration: point.duration / this.speedMultiplier,
         ease: 'Linear',
         onComplete: () => {
           createTween(index + 1);
@@ -551,7 +717,7 @@ class CdstdScene extends Phaser.Scene {
       let eclAppendix = '';
   
       patient?.clinicalData.diagnosis.forEach((dx: any, index: number) => {
-        if (!dx.treated) {
+        if (dx.status !== "treated") {
           untreatedDx++;
           if (untreatedDx > 1) {
             eclAppendix += ` OR ${dx.code}`;
@@ -566,7 +732,6 @@ class CdstdScene extends Phaser.Scene {
         return;
       } else {
         ecl = ecl + ' AND (' + eclAppendix + ' )';
-  
         this.terminologyService.expandValueSet(ecl, '').subscribe(
           (data: any) => {
             if (data.expansion?.total > 0) {
@@ -598,7 +763,7 @@ class Character extends Phaser.Physics.Arcade.Sprite {
   clinicalData: any = {};
   info: any = {};
 
-  constructor(scene: CdstdScene, x: number, y: number, role: 'patient' | 'gatekeeper', spriteType: number = 1) {
+  constructor(scene: CdstdScene, x: number, y: number, role: 'patient' | 'gatekeeper', spriteType: number = 1, dxList: any[] = []) {
     super(scene, x, y, `${role}_idle_${spriteType}`);
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -617,15 +782,20 @@ class Character extends Phaser.Physics.Arcade.Sprite {
       this.walk();
       this.clinicalData.age = Phaser.Math.Between(18, 100);
       this.clinicalData.diagnosis = [];
-      // Populate with 1 to 5 diagnosis from the list, no repetitions
-      const diagnosisCount = Phaser.Math.Between(1, 5);
-      for (let i = 0; i < diagnosisCount; i++) {
-        const diagnosis = Phaser.Utils.Array.GetRandom(scene.diagnosisData);
-        diagnosis.treated = false;
-        if (!this.clinicalData.diagnosis.includes(diagnosis)) {
-          this.clinicalData.diagnosis.push(diagnosis);
+      if (dxList && dxList.length > 0) {
+        this.clinicalData.diagnosis = dxList;
+      } else {
+        // Populate with 1 to 5 diagnosis from the list, no repetitions
+        const diagnosisCount = Phaser.Math.Between(1, 5);
+        for (let i = 0; i < diagnosisCount; i++) {
+          const diagnosis = Phaser.Utils.Array.GetRandom(scene.diagnosisData);
+          diagnosis.status = "none";
+          if (!this.clinicalData.diagnosis.includes(diagnosis)) {
+            this.clinicalData.diagnosis.push(diagnosis);
+          }
         }
       }
+      
     } else {
       this.idle(); // Gatekeeper starts idle
     }
@@ -661,7 +831,7 @@ class Character extends Phaser.Physics.Arcade.Sprite {
       targets: damageText,
       y: this.y - 100,
       alpha: 0,
-      duration: 3500,
+      duration: 3500 / this.sceneRef.getSelectedSpeed(),
       ease: 'Power2',
       onComplete: () => damageText.destroy(),
     });
@@ -728,7 +898,7 @@ class Character extends Phaser.Physics.Arcade.Sprite {
     this.sceneRef.tweens.add({
       targets: [this.calloutText, this.calloutLine],
       alpha: 0,
-      duration: 500,
+      duration: 500 / this.sceneRef.getSelectedSpeed(),
       delay: duration,
       onComplete: () => {
         this.calloutText?.destroy();
