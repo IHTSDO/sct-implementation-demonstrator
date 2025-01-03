@@ -1,3 +1,7 @@
+<div class="flex flex-row gap-4 justify-end flex-wrap p-2">
+    <input hidden (change)="uploadFile($event)" #fileInput type="file" id="file">
+    <button mat-flat-button color="accent" (click)="fileInput.click()">Load Maturity Spec</button>
+</div>
 <mat-tab-group>
   <mat-tab *ngFor="let stakeholder of maturityQuestions.stakeHolders" [label]="stakeholder.name">
     <div class="stakeholder-container" [formGroup]="getStakeholderFormGroup(stakeholder.name)">
