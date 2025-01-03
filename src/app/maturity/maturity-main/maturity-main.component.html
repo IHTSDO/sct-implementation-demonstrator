@@ -1,24 +1,32 @@
-<div class="main">
-    <div class="flex flex-row gap-4 justify-end flex-wrap">
-        <input hidden (change)="uploadFile($event)" #fileInput type="file" id="file">
-        <button mat-flat-button color="accent" (click)="fileInput.click()">Load Maturity Spec</button>
-    </div>
-    <mat-tab-group>
-        <mat-tab *ngFor="let stakeholder of maturityQuestions.stakeHolders" [label]="stakeholder.name">
-            <h2>Stakeholder</h2>
-            <p>{{ stakeholder.description }}</p>
-            <h2>Key Process Areas</h2>
-            <div *ngFor="let kpa of stakeholder.kpas">
-                <h3>{{ kpa.name }}</h3>
-                <p>{{ kpa.description }}</p>
-                <div *ngFor="let level of kpa.levels">
-                    <h4>{{ level.name }}</h4>
-                    <p>{{ level.description }}</p>
-                    <mat-list>
-                        <mat-list-item *ngFor="let question of level.questions">{{ question }}</mat-list-item>
-                    </mat-list>
+<mat-tab-group>
+  <mat-tab *ngFor="let stakeholder of maturityQuestions.stakeHolders" [label]="stakeholder.name">
+    <div class="stakeholder-container" [formGroup]="getStakeholderFormGroup(stakeholder.name)">
+        <div class="stakeholder-title">{{ stakeholder.name }}</div>
+        <div class="stakeholder-description">{{ stakeholder.description }}</div>
+        <div class="kpa-container" *ngFor="let kpa of stakeholder.kpas" [formGroupName]="kpa.name">
+            <div class="kpa-title">{{ kpa.name }}</div>
+            <div class="kpa-description">{{ kpa.description }}</div>
+            <div *ngFor="let question of kpa.questions" class="question-container" [ngClass]="{
+                'answered': responseForm.get([stakeholder.name, kpa.name, question.name])?.valid
+                }"> 
+            <p class="question-text">{{ question.question }}</p>
+            <mat-radio-group formControlName="{{ question.name }}" class="options-container">
+                <mat-radio-button *ngFor="let option of question.options" [value]="option.score">
+                {{ option.text }}
+                </mat-radio-button>
+                <div class="error-message" *ngIf="responseForm.get([stakeholder.name, kpa.name, question.name])?.invalid && responseForm.get([stakeholder.name, kpa.name, question.name])?.touched">
+                Please select an option for this question.
                 </div>
+            </mat-radio-group>
             </div>
-        </mat-tab>
-    </mat-tab-group>
-</div>
+        </div>
+        <button mat-raised-button class="submit-button" color="primary" (click)="submitStakeholderResponses(stakeholder.name)" [disabled]="responseForm.get(stakeholder.name)?.invalid">
+            <span *ngIf="getUnansweredCount(stakeholder.name) == 0">Submit</span>
+            <span class="unanswered-message" *ngIf="getUnansweredCount(stakeholder.name) > 0">
+                You have {{ getUnansweredCount(stakeholder.name) }} unanswered question(s).
+            </span>
+        </button>
+        
+    </div>
+  </mat-tab>
+</mat-tab-group>

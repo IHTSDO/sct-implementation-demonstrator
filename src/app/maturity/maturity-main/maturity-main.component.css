@@ -1,28 +1,80 @@
-.main {
-    /* height: 50%;
-    max-height: 50%; */
-    padding: 1rem;
-}
-
-h2, h3, h4 {
-    margin-bottom: 0.5rem;
-    margin-top: 1.5rem;
-}
-
-
-.goal-section {
-    padding: 10px;
-}
-
-.component-section {
-    margin-left: 20px;
-    margin-bottom: 24px;
-}
-
-.metric-section {
-    margin-left: 40px;
-    margin-bottom: 16px;
-}
+.stakeholder-container {
+    padding: 16px;
+    overflow-y: auto; /* Ensure internal scrolling if content overflows */
+    max-height: calc(100vh - 180px); /* Adjust height to fit within the viewport */
+  }
   
-  /* Additional styles for other elements if necessary */
+  .submit-button {
+    position: sticky;
+    bottom: 0;
+    display: block;
+    margin-left: auto;     /* pushes it all the way to the right */
+    margin-right: 16px;    /* some spacing from the right edge */
+    margin-bottom: 16px;   /* spacing from the bottom */
+  }
+  
+  body {
+    margin: 0;
+    overflow: hidden; /* Disable the extra scrollbar caused by body overflow */
+  }
+  
+  form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .stakeholder-title {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  
+  .stakeholder-description {
+    font-size: 14px;
+    color: #757575;
+    margin-bottom: 16px;
+  }
+  
+  .kpa-container {
+    padding: 16px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .kpa-title {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  
+  .kpa-description {
+    font-size: 14px;
+    color: #9e9e9e;
+    margin-bottom: 16px;
+  }
+  
+  .question-container {
+    margin-bottom: 14px;
+  }
+  
+  .question-text {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .options-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .answered {
+    background-color: #e4f2e4; /* light green */
+  }
   

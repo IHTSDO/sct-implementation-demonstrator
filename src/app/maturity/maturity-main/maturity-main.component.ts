@@ -1,16 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
-
-interface MaturityResponse {
-  [goalIndex: string]: {
-    components: {
-      [componentName: string]: {
-        [metricName: string]: string; // Assuming the response is a string corresponding to the value of the radio button
-      };
-    };
-  };
-}
 
 @Component({
   selector: 'app-maturity-main',
@@ -20,13 +11,33 @@ interface MaturityResponse {
 export class MaturityMainComponent implements OnInit {
   
   maturityQuestions: any = {};
+  responseForm: FormGroup;
 
-  constructor(private http: HttpClient) { }
+
+  constructor(private http: HttpClient, private fb: FormBuilder) {
+    this.responseForm = this.fb.group({});
+  }
 
   async ngOnInit() {
-    console.log('Fetching maturity questions...');
     this.maturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
-    console.log('Fetched maturity questions:', this.maturityQuestions);
+    this.initializeForm();
+  }
+
+  private initializeForm(): void {
+    this.maturityQuestions.stakeHolders.forEach((stakeholder: any) => {
+      const stakeholderGroup = this.fb.group({});
+      stakeholder.kpas.forEach((kpa: any) => {
+        const kpaGroup = this.fb.group({});
+        kpa.questions.forEach((question: any) => {
+          kpaGroup.addControl(
+            question.name,
+            new FormControl(null, Validators.required)
+          );
+        });
+        stakeholderGroup.addControl(kpa.name, kpaGroup);
+      });
+      this.responseForm.addControl(stakeholder.name, stakeholderGroup);
+    });
   }
 
   uploadFile(event: any) {
@@ -44,4 +55,42 @@ export class MaturityMainComponent implements OnInit {
       reader.readAsText(event.target.files[0]);
     }
   }
+
+  submitStakeholderResponses(stakeholderName: string): void {
+    const stakeholderResponses = this.responseForm.get(stakeholderName)?.value;
+    if (stakeholderResponses) {
+      console.log(`Responses for ${stakeholderName}:`, stakeholderResponses);
+      // Add your logic to send or process stakeholder responses
+    }
+  }
+
+  getStakeholderFormGroup(stakeholderName: string): FormGroup {
+    return this.responseForm.get(stakeholderName) as FormGroup;
+  }
+
+  getUnansweredCount(stakeholderName: string): number {
+    let count = 0;
+    const stakeholderGroup = this.responseForm.get(stakeholderName) as FormGroup;
+  
+    if (stakeholderGroup) {
+      // Iterate through all KPA groups
+      Object.keys(stakeholderGroup.controls).forEach(kpaName => {
+        const kpaGroup = stakeholderGroup.get(kpaName) as FormGroup;
+        if (kpaGroup) {
+          // Iterate through all question controls
+          Object.keys(kpaGroup.controls).forEach(questionName => {
+            const control = kpaGroup.get(questionName);
+            // If a control is required and hasn't been answered, it's invalid
+            if (control && control.invalid) {
+              count++;
+            }
+          });
+        }
+      });
+    }
+  
+    return count;
+  }
+  
+  
 } 
