@@ -71,13 +71,14 @@ import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { SafeTextPipe } from './pipes/safe-text.pipe';
 import { AddToHomeComponent } from './game/add-to-home/add-to-home.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
-import { MaturityQuestionComponent } from './maturity/maturity-question/maturity-question.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CheckBoxMultipleBindingComponent } from './bindings/checkbox-multiple-binding/checkbox-multiple-binding.component';
 import { HomeComponent } from './home/home.component';
 import { BindingsViewerComponent } from './bindings-sandbox/bindings-viewer/bindings-viewer.component';
 import { NcptComponent } from './ncpt/ncpt.component';
 import { PhaserGameComponent } from './phaser-game/phaser-game.component';
+import { MaturityResultsComponent } from './maturity/maturity-results/maturity-results.component';
+import { MaturityResultsDialogComponent } from './maturity/maturity-results-dialog';
 
 const app = initializeApp(firebaseConfig);
 
@@ -117,12 +118,13 @@ const app = initializeApp(firebaseConfig);
     SafeTextPipe,
     AddToHomeComponent,
     MaturityMainComponent,
-    MaturityQuestionComponent,
     CheckBoxMultipleBindingComponent,
     HomeComponent,
     BindingsViewerComponent,
     NcptComponent,
-    PhaserGameComponent
+    PhaserGameComponent,
+    MaturityResultsComponent,
+    MaturityResultsDialogComponent
   ],
   imports: [
     HttpClientModule,

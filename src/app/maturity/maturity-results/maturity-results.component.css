@@ -1,0 +1,16 @@
+.bordered-table {
+    border: 1px solid #000;
+    border-collapse: collapse;
+    width: 100%;
+}
+  
+.bordered-table td,
+.bordered-table th {
+    border: 1px solid #000;
+    padding: 4px;
+}
+  
+.chart-container {
+    display: flex;
+    justify-content: center;
+}

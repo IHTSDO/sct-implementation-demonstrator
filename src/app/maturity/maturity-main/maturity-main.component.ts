@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { lastValueFrom } from 'rxjs';
+import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
 
 @Component({
   selector: 'app-maturity-main',
@@ -14,7 +16,7 @@ export class MaturityMainComponent implements OnInit {
   responseForm: FormGroup;
 
 
-  constructor(private http: HttpClient, private fb: FormBuilder) {
+  constructor(private http: HttpClient, private fb: FormBuilder, private dialog: MatDialog) {
     this.responseForm = this.fb.group({});
   }
 
@@ -61,6 +63,11 @@ export class MaturityMainComponent implements OnInit {
     if (stakeholderResponses) {
       console.log(`Responses for ${stakeholderName}:`, stakeholderResponses);
       // Add your logic to send or process stakeholder responses
+
+      this.dialog.open(MaturityResultsDialogComponent, {
+        width: '1600px',
+        data: { maturityResponse: stakeholderResponses }
+      });
     }
   }
 
@@ -88,9 +95,6 @@ export class MaturityMainComponent implements OnInit {
         }
       });
     }
-  
     return count;
   }
-  
-  
 } 

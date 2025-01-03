@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "^17.3.3",
     "@angular/router": "^17.3.3",
     "bad-words": "^3.0.4",
+    "chart.js": "^4.4.7",
     "file-saver": "^2.0.5",
     "firebase": "^10.9.0",
     "highlight.js": "^11.7.0",
