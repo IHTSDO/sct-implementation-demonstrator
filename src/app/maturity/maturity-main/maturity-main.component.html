@@ -1,14 +1,24 @@
 <div class="main">
-    <div *ngFor="let goal of maturityQuestions" class="goal-section">
-        <h2>{{ goal.goal }}</h2>
-
-        <div *ngFor="let component of goal.components" class="component-section">
-            <h3>{{ component.component }}</h3>
-            
-            <div *ngFor="let metric of component.metrics" class="metric-section">
-            <app-maturity-question [metric]="metric"></app-maturity-question>
-            </div>
-        </div>
+    <div class="flex flex-row gap-4 justify-end flex-wrap">
+        <input hidden (change)="uploadFile($event)" #fileInput type="file" id="file">
+        <button mat-flat-button color="accent" (click)="fileInput.click()">Load Maturity Spec</button>
     </div>
+    <mat-tab-group>
+        <mat-tab *ngFor="let stakeholder of maturityQuestions.stakeHolders" [label]="stakeholder.name">
+            <h2>Stakeholder</h2>
+            <p>{{ stakeholder.description }}</p>
+            <h2>Key Process Areas</h2>
+            <div *ngFor="let kpa of stakeholder.kpas">
+                <h3>{{ kpa.name }}</h3>
+                <p>{{ kpa.description }}</p>
+                <div *ngFor="let level of kpa.levels">
+                    <h4>{{ level.name }}</h4>
+                    <p>{{ level.description }}</p>
+                    <mat-list>
+                        <mat-list-item *ngFor="let question of level.questions">{{ question }}</mat-list-item>
+                    </mat-list>
+                </div>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
 </div>
-<!-- <button mat-flat-button color="primary" (click)="onNext()">Submit</button> -->

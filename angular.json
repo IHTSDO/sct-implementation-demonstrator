@@ -75,7 +75,6 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "sct-implementation-demonstrator:build:production"
             },
             "development": {
               "buildTarget": "sct-implementation-demonstrator:build:development"

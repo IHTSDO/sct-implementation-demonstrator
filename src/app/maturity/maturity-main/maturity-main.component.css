@@ -1,7 +1,15 @@
 .main {
-    height: 50%;
-    max-height: 50%;
+    /* height: 50%;
+    max-height: 50%; */
+    padding: 1rem;
 }
+
+h2, h3, h4 {
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+
 .goal-section {
     padding: 10px;
 }

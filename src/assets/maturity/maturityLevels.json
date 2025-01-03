@@ -1,0 +1,190 @@
+{
+  "stakeHolders": [
+    {
+      "name": "Vendor",
+      "description": "Vendors who develop and support SNOMED CT-enabled systems.",
+      "kpas": [
+        {
+          "name": "Scope of SNOMED CT Implementation",
+          "description": "The breadth of SNOMED CT integration across relevant clinical and administrative domains.",
+          "levels": [
+            {
+              "name": "Level 1",
+              "description": "SNOMED CT is used in only a few isolated areas.",
+              "maturity": "1",
+              "questions": [
+                "Is SNOMED CT used in only a few clinical modules?",
+                "Are clinical areas mostly using free-text documentation?",
+                "Is there no clear strategy for expanding SNOMED CT use?"
+              ]
+            },
+            {
+              "name": "Level 2",
+              "description": "Initial adoption in several clinical modules, but use is inconsistent.",
+              "maturity": "2",
+              "questions": [
+                "Is SNOMED CT implemented in multiple modules but not consistently?",
+                "Are there gaps in the use of SNOMED CT across workflows?",
+                "Are some clinical areas still not using SNOMED CT?"
+              ]
+            },
+            {
+              "name": "Level 3",
+              "description": "Widespread use across clinical areas with structured processes.",
+              "maturity": "3",
+              "questions": [
+                "Is SNOMED CT used consistently in most clinical areas?",
+                "Are there documented processes for using SNOMED CT?",
+                "Is SNOMED CT integrated into clinical documentation workflows?"
+              ]
+            },
+            {
+              "name": "Level 4",
+              "description": "Seamless integration across clinical and administrative functions.",
+              "maturity": "4",
+              "questions": [
+                "Is SNOMED CT integrated across both clinical and administrative areas?",
+                "Are there defined protocols for ensuring consistent use of SNOMED CT?",
+                "Is SNOMED CT used for reporting, billing, and decision support?"
+              ]
+            },
+            {
+              "name": "Level 5",
+              "description": "Fully integrated with continuous improvements and advanced use.",
+              "maturity": "5",
+              "questions": [
+                "Is SNOMED CT fully integrated with real-time updates and advanced analytics?",
+                "Is there continuous evaluation and improvement of SNOMED CT use?",
+                "Are new clinical domains and use cases regularly identified and integrated?"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Organization",
+      "description": "Organizations that implement SNOMED CT within clinical settings.",
+      "kpas": [
+        {
+          "name": "Governance and Strategy",
+          "description": "Establishing governance frameworks and strategic planning for SNOMED CT adoption.",
+          "levels": [
+            {
+              "name": "Level 1",
+              "description": "Minimal governance; no formal strategy.",
+              "maturity": "1",
+              "questions": [
+                "Is there no formal governance structure for SNOMED CT adoption?",
+                "Are implementation goals unclear or undocumented?",
+                "Is there no dedicated team for overseeing SNOMED CT implementation?"
+              ]
+            },
+            {
+              "name": "Level 2",
+              "description": "Basic governance structures exist but are inconsistent.",
+              "maturity": "2",
+              "questions": [
+                "Are governance practices present but applied inconsistently?",
+                "Are there occasional governance meetings without clear outcomes?",
+                "Is there a lack of documented processes for SNOMED CT governance?"
+              ]
+            },
+            {
+              "name": "Level 3",
+              "description": "Established governance frameworks guide implementation.",
+              "maturity": "3",
+              "questions": [
+                "Is there a documented governance framework in place?",
+                "Are governance practices regularly reviewed and followed?",
+                "Is there a clear strategy for SNOMED CT adoption?"
+              ]
+            },
+            {
+              "name": "Level 4",
+              "description": "Comprehensive governance aligned with organizational priorities.",
+              "maturity": "4",
+              "questions": [
+                "Is governance aligned with organizational priorities and goals?",
+                "Are governance meetings held regularly with documented outcomes?",
+                "Are stakeholders actively involved in governance processes?"
+              ]
+            },
+            {
+              "name": "Level 5",
+              "description": "Dynamic governance with continuous improvements.",
+              "maturity": "5",
+              "questions": [
+                "Is governance continuously improved based on feedback?",
+                "Are strategic goals dynamically updated to align with new initiatives?",
+                "Is there a proactive approach to managing SNOMED CT adoption?"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "description": "SNOMED International Members managing national SNOMED CT adoption.",
+      "kpas": [
+        {
+          "name": "Growth and Adoption",
+          "description": "Increasing the adoption and use of SNOMED CT within national healthcare systems.",
+          "levels": [
+            {
+              "name": "Level 1",
+              "description": "Few affiliates and limited adoption.",
+              "maturity": "1",
+              "questions": [
+                "Are there few or no affiliates actively using SNOMED CT?",
+                "Is SNOMED CT adoption not tracked across healthcare settings?",
+                "Is there limited awareness of SNOMED CT at the national level?"
+              ]
+            },
+            {
+              "name": "Level 2",
+              "description": "Initial promotion, but inconsistent adoption.",
+              "maturity": "2",
+              "questions": [
+                "Are there initial efforts to promote SNOMED CT adoption?",
+                "Is adoption uptake inconsistent across different sectors?",
+                "Are there challenges in engaging affiliates to adopt SNOMED CT?"
+              ]
+            },
+            {
+              "name": "Level 3",
+              "description": "Adoption metrics are tracked with national strategies.",
+              "maturity": "3",
+              "questions": [
+                "Are adoption metrics being tracked consistently?",
+                "Is there a national strategy for promoting SNOMED CT adoption?",
+                "Are affiliates regularly engaged to support adoption goals?"
+              ]
+            },
+            {
+              "name": "Level 4",
+              "description": "Consistent adoption across healthcare sectors.",
+              "maturity": "4",
+              "questions": [
+                "Is SNOMED CT adoption consistent across multiple healthcare sectors?",
+                "Are national adoption goals being met and reviewed?",
+                "Is there widespread awareness and use of SNOMED CT?"
+              ]
+            },
+            {
+              "name": "Level 5",
+              "description": "Continuous monitoring and identification of new use cases.",
+              "maturity": "5",
+              "questions": [
+                "Is SNOMED CT adoption continuously monitored and improved?",
+                "Are new use cases for SNOMED CT regularly identified?",
+                "Is adoption strategy dynamically updated based on feedback?"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

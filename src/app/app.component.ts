@@ -24,6 +24,7 @@ export class AppComponent {
     { name: "SNOMED Dev IS", url: "https://dev-is-browser.ihtsdotools.org/fhir"},
     { name: "SNOMED Public", url: "https://snowstorm.ihtsdotools.org/fhir"},
     { name: "SNOMED Dev 2", url: "https://snowstorm-temp.kaicode.io/fhir"},
+    { name: "SNOMED Lite Demo", url: "https://snowstorm-lite.nw.r.appspot.com/fhir"},
   ];
   selectedServer = this.fhirServers[1];
   embeddedMode: boolean = false;
