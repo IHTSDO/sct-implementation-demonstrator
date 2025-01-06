@@ -2,133 +2,148 @@
   "stakeHolders": [
     {
       "name": "Vendor",
+      "id": "vendor",
       "description": "Vendors providing systems and tools that implement and support SNOMED CT.",
       "kpas": [
         {
           "name": "Scope of SNOMED CT Implementation",
+          "id": "scope",
           "description": "Extent to which SNOMED CT is implemented across various clinical and administrative areas.",
           "questions": [
             {
               "name": "Clinical Domains and Functional Areas",
+              "id": "clinical",
               "question": "How extensively is SNOMED CT implemented across clinical and administrative areas?",
               "options": [
-                { "order": 1, "text": "Used in only a few isolated areas.", "score": 1 },
-                { "order": 2, "text": "Used in several modules but not consistently.", "score": 2 },
-                { "order": 3, "text": "Integrated into most clinical areas with documented use.", "score": 3 },
-                { "order": 4, "text": "Implemented across both clinical and administrative functions.", "score": 4 },
-                { "order": 5, "text": "Fully integrated across all areas with continuous evaluation.", "score": 5 }
+                { "id": 1, "text": "Used in only a few isolated areas.", "score": 1 },
+                { "id": 2, "text": "Used in several modules but not consistently.", "score": 2 },
+                { "id": 3, "text": "Integrated into most clinical areas with documented use.", "score": 3 },
+                { "id": 4, "text": "Implemented across both clinical and administrative functions.", "score": 4 },
+                { "id": 5, "text": "Fully integrated across all areas with continuous evaluation.", "score": 5 }
               ]
             },
             {
               "name": "Consistency of Use",
+              "id": "consistency",
               "question": "Is SNOMED CT consistently used across documentation, decision support, and interoperability?",
               "options": [
-                { "order": 1, "text": "Minimal use in isolated areas.", "score": 1 },
-                { "order": 2, "text": "Some functional areas covered but with gaps.", "score": 2 },
-                { "order": 3, "text": "Consistent use in multiple modules relevant to workflows.", "score": 3 },
-                { "order": 4, "text": "Consistent use for documentation, decision support, and reporting.", "score": 4 },
-                { "order": 5, "text": "Continuous improvement in usage across all domains.", "score": 5 }
+                { "id": 1, "text": "Minimal use in isolated areas.", "score": 1 },
+                { "id": 2, "text": "Some functional areas covered but with gaps.", "score": 2 },
+                { "id": 3, "text": "Consistent use in multiple modules relevant to workflows.", "score": 3 },
+                { "id": 4, "text": "Consistent use for documentation, decision support, and reporting.", "score": 4 },
+                { "id": 5, "text": "Continuous improvement in usage across all domains.", "score": 5 }
               ]
             }
           ]
         },
         {
           "name": "Terminology Provisioning and Maintenance",
+          "id": "provisioning",
           "description": "Processes and systems in place to manage, update, and provision SNOMED CT terminology.",
           "questions": [
             {
               "name": "Update Processes",
+              "id": "update",
               "question": "How structured and automated are the processes for updating SNOMED CT content?",
               "options": [
-                { "order": 1, "text": "Updates are manual and inconsistent.", "score": 1 },
-                { "order": 2, "text": "Basic procedures exist but lack automation.", "score": 2 },
-                { "order": 3, "text": "Standardized procedures and version control are in place.", "score": 3 },
-                { "order": 4, "text": "Updates are tracked, partially automated, and consistently applied.", "score": 4 },
-                { "order": 5, "text": "Fully automated updates with seamless integration.", "score": 5 }
+                { "id": 1, "text": "Updates are manual and inconsistent.", "score": 1 },
+                { "id": 2, "text": "Basic procedures exist but lack automation.", "score": 2 },
+                { "id": 3, "text": "Standardized procedures and version control are in place.", "score": 3 },
+                { "id": 4, "text": "Updates are tracked, partially automated, and consistently applied.", "score": 4 },
+                { "id": 5, "text": "Fully automated updates with seamless integration.", "score": 5 }
               ]
             },
             {
               "name": "Localization and Notification",
+              "id": "localization",
               "question": "How effectively are SNOMED CT updates localized and communicated to users?",
               "options": [
-                { "order": 1, "text": "No localization or update notifications.", "score": 1 },
-                { "order": 2, "text": "Limited localization and inconsistent notifications.", "score": 2 },
-                { "order": 3, "text": "Some localization with standardized notifications.", "score": 3 },
-                { "order": 4, "text": "Users are notified consistently, and localization is systematic.", "score": 4 },
-                { "order": 5, "text": "Seamless integration with real-time notifications.", "score": 5 }
+                { "id": 1, "text": "No localization or update notifications.", "score": 1 },
+                { "id": 2, "text": "Limited localization and inconsistent notifications.", "score": 2 },
+                { "id": 3, "text": "Some localization with standardized notifications.", "score": 3 },
+                { "id": 4, "text": "Users are notified consistently, and localization is systematic.", "score": 4 },
+                { "id": 5, "text": "Seamless integration with real-time notifications.", "score": 5 }
               ]
             }
           ]
         },
         {
           "name": "Usability and Tool Support",
+          "id": "usability",
           "description": "Ease of use and functionality of tools supporting SNOMED CT for end-users.",
           "questions": [
             {
               "name": "Search and Interface Usability",
+              "id": "search",
               "question": "How user-friendly are the search tools and interfaces for SNOMED CT?",
               "options": [
-                { "order": 1, "text": "Basic search tools that are cumbersome to use.", "score": 1 },
-                { "order": 2, "text": "Search tools with filters or autocomplete but inconsistent usability.", "score": 2 },
-                { "order": 3, "text": "Intuitive interfaces with consistent usability standards.", "score": 3 },
-                { "order": 4, "text": "Advanced tools, such as NLP, enhance usability.", "score": 4 },
-                { "order": 5, "text": "System adapts to user preferences with AI-driven features.", "score": 5 }
+                { "id": 1, "text": "Basic search tools that are cumbersome to use.", "score": 1 },
+                { "id": 2, "text": "Search tools with filters or autocomplete but inconsistent usability.", "score": 2 },
+                { "id": 3, "text": "Intuitive interfaces with consistent usability standards.", "score": 3 },
+                { "id": 4, "text": "Advanced tools, such as NLP, enhance usability.", "score": 4 },
+                { "id": 5, "text": "System adapts to user preferences with AI-driven features.", "score": 5 }
               ]
             },
             {
               "name": "Feedback and Usability Metrics",
+              "id": "feedback",
               "question": "How effectively is user feedback integrated to improve tool usability?",
               "options": [
-                { "order": 1, "text": "No usability feedback or metrics tracked.", "score": 1 },
-                { "order": 2, "text": "Occasional feedback is used inconsistently.", "score": 2 },
-                { "order": 3, "text": "Feedback is used to refine usability standards.", "score": 3 },
-                { "order": 4, "text": "Usability metrics and feedback are actively tracked.", "score": 4 },
-                { "order": 5, "text": "Real-time feedback drives continuous usability improvements.", "score": 5 }
+                { "id": 1, "text": "No usability feedback or metrics tracked.", "score": 1 },
+                { "id": 2, "text": "Occasional feedback is used inconsistently.", "score": 2 },
+                { "id": 3, "text": "Feedback is used to refine usability standards.", "score": 3 },
+                { "id": 4, "text": "Usability metrics and feedback are actively tracked.", "score": 4 },
+                { "id": 5, "text": "Real-time feedback drives continuous usability improvements.", "score": 5 }
               ]
             }
           ]
         },
         {
           "name": "Interoperability",
+          "id": "interoperability",
           "description": "Supporting seamless data exchange and collaboration using SNOMED CT.",
           "questions": [
             {
               "name": "Data Exchange",
+              "id": "exchange",
               "question": "How effectively does your system support data exchange using SNOMED CT?",
               "options": [
-                { "order": 1, "text": "Minimal data exchange, no defined standards.", "score": 1 },
-                { "order": 2, "text": "Some external integration but not standardized.", "score": 2 },
-                { "order": 3, "text": "Supports integration with multiple systems using protocols.", "score": 3 },
-                { "order": 4, "text": "Processes are tracked, and issues are proactively resolved.", "score": 4 },
-                { "order": 5, "text": "Seamless, optimized data exchange with real-time feedback.", "score": 5 }
+                { "id": 1, "text": "Minimal data exchange, no defined standards.", "score": 1 },
+                { "id": 2, "text": "Some external integration but not standardized.", "score": 2 },
+                { "id": 3, "text": "Supports integration with multiple systems using protocols.", "score": 3 },
+                { "id": 4, "text": "Processes are tracked, and issues are proactively resolved.", "score": 4 },
+                { "id": 5, "text": "Seamless, optimized data exchange with real-time feedback.", "score": 5 }
               ]
             }
           ]
         },
         {
           "name": "Advanced Decision Support and Analytics",
+          "id": "analytics",
           "description": "Leveraging SNOMED CT for decision support and advanced analytics.",
           "questions": [
             {
               "name": "Decision Support Integration",
+              "id": "decision",
               "question": "How well are decision support tools integrated with SNOMED CT?",
               "options": [
-                { "order": 1, "text": "Minimal or no integration with decision support tools.", "score": 1 },
-                { "order": 2, "text": "Limited tools with inconsistent integration.", "score": 2 },
-                { "order": 3, "text": "Well-defined tools support clinical and operational decisions.", "score": 3 },
-                { "order": 4, "text": "Effectively integrated tools with measurable outcomes.", "score": 4 },
-                { "order": 5, "text": "Dynamic tools continuously improved for real-time insights.", "score": 5 }
+                { "id": 1, "text": "Minimal or no integration with decision support tools.", "score": 1 },
+                { "id": 2, "text": "Limited tools with inconsistent integration.", "score": 2 },
+                { "id": 3, "text": "Well-defined tools support clinical and operational decisions.", "score": 3 },
+                { "id": 4, "text": "Effectively integrated tools with measurable outcomes.", "score": 4 },
+                { "id": 5, "text": "Dynamic tools continuously improved for real-time insights.", "score": 5 }
               ]
             },
             {
               "name": "Analytics Capabilities",
+              "id": "capabilities",
               "question": "What level of analytics capabilities are provided using SNOMED CT?",
               "options": [
-                { "order": 1, "text": "Basic or nonexistent analytics.", "score": 1 },
-                { "order": 2, "text": "Limited insights generated from SNOMED CT data.", "score": 2 },
-                { "order": 3, "text": "Analytics generate actionable insights supporting decisions.", "score": 3 },
-                { "order": 4, "text": "Advanced analytics with metrics to evaluate impact.", "score": 4 },
-                { "order": 5, "text": "Real-time analytics dynamically improve clinical decisions.", "score": 5 }
+                { "id": 1, "text": "Basic or nonexistent analytics.", "score": 1 },
+                { "id": 2, "text": "Limited insights generated from SNOMED CT data.", "score": 2 },
+                { "id": 3, "text": "Analytics generate actionable insights supporting decisions.", "score": 3 },
+                { "id": 4, "text": "Advanced analytics with metrics to evaluate impact.", "score": 4 },
+                { "id": 5, "text": "Real-time analytics dynamically improve clinical decisions.", "score": 5 }
               ]
             }
           ]
@@ -137,128 +152,298 @@
     },
     {
       "name": "User Organization",
-      "description": "Organizations that implement SNOMED CT within clinical settings.",
-      "kpas": [
-      ]
-    },
-    {
-      "name": "Member",
-      "description": "SNOMED International Members managing national SNOMED CT adoption.",
+      "id": "user",
+      "description": "Organizations adopting and utilizing SNOMED CT in their clinical and administrative workflows.",
       "kpas": [
         {
-          "name": "Growth and Adoption",
-          "description": "Increasing the adoption and use of SNOMED CT within national healthcare systems.",
+          "name": "Scope of SNOMED CT Implementation",
+          "id": "scope",
+          "description": "Extent to which SNOMED CT is implemented and integrated across clinical workflows and administrative functions.",
           "questions": [
             {
-              "name": "Number of Affiliates vs Target",
-              "question": "How would you describe the current level of affiliate adoption of SNOMED CT in your region?",
+              "name": "Clinical Areas and Workflows",
+              "id": "clinical",
+              "question": "How extensively is SNOMED CT used across clinical areas and workflows?",
               "options": [
-                { "order": 1, "text": "Few or no affiliates actively using SNOMED CT.", "score": 1 },
-                { "order": 2, "text": "Initial efforts to promote SNOMED CT adoption, but uptake is inconsistent.", "score": 2 },
-                { "order": 3, "text": "Adoption metrics such as affiliate numbers are being tracked.", "score": 3 },
-                { "order": 4, "text": "Adoption strategies are implemented consistently across sectors.", "score": 4 },
-                { "order": 5, "text": "SNOMED CT adoption is continuously monitored and improved.", "score": 5 }
+                { "id": 1, "text": "Used in only a few clinical areas or workflows.", "score": 1 },
+                { "id": 2, "text": "Implemented in select areas but not consistently across workflows.", "score": 2 },
+                { "id": 3, "text": "Actively used across multiple clinical areas.", "score": 3 },
+                { "id": 4, "text": "Comprehensively integrated across all clinical workflows.", "score": 4 },
+                { "id": 5, "text": "Continuously evaluated and improved across workflows.", "score": 5 }
               ]
             },
             {
-              "name": "Monitoring and Metrics Strategy",
-              "question": "Is SNOMED CT adoption tracked and supported with metrics and monitoring strategies?",
+              "name": "Integration and Strategy",
+              "id": "integration",
+              "question": "Is SNOMED CT comprehensively integrated with documented strategies for clinical domains?",
               "options": [
-                { "order": 1, "text": "No tracking or monitoring across healthcare settings.", "score": 1 },
-                { "order": 2, "text": "Minimal monitoring of SNOMED CT use in hospitals or clinical areas.", "score": 2 },
-                { "order": 3, "text": "Metrics such as affiliate usage and hospitals are tracked.", "score": 3 },
-                { "order": 4, "text": "Monitoring is supported by education, courses, and initiatives.", "score": 4 },
-                { "order": 5, "text": "Monitoring and adoption strategies are dynamically improved.", "score": 5 }
+                { "id": 1, "text": "Minimal integration in documentation or clinical processes.", "score": 1 },
+                { "id": 2, "text": "Efforts to standardize data elements exist but with gaps.", "score": 2 },
+                { "id": 3, "text": "Clinical workflows consistently use SNOMED CT for documentation.", "score": 3 },
+                { "id": 4, "text": "Documented goals and strategies guide implementation.", "score": 4 },
+                { "id": 5, "text": "New use cases are identified and integrated regularly.", "score": 5 }
               ]
             }
           ]
         },
         {
           "name": "Governance and Strategy",
-          "description": "Establishing effective governance and strategic frameworks for SNOMED CT implementation and adoption.",
+          "id": "governance",
+          "description": "Establishing effective governance and strategic frameworks for SNOMED CT implementation and use.",
           "questions": [
             {
               "name": "Governance Structure",
-              "question": "Is there a formal governance structure in place for managing SNOMED CT adoption?",
+              "id": "structure",
+              "question": "What is the state of governance structures for SNOMED CT adoption?",
               "options": [
-                { "order": 1, "text": "No formal governance structure exists.", "score": 1 },
-                { "order": 2, "text": "Basic governance structures exist but are inconsistently applied.", "score": 2 },
-                { "order": 3, "text": "Governance frameworks are well-defined and active.", "score": 3 },
-                { "order": 4, "text": "Comprehensive governance practices with regular reviews and stakeholder involvement.", "score": 4 },
-                { "order": 5, "text": "Governance is continuously improved based on feedback.", "score": 5 }
+                { "id": 1, "text": "Minimal or no governance structure exists.", "score": 1 },
+                { "id": 2, "text": "Basic structures are in place but not fully implemented.", "score": 2 },
+                { "id": 3, "text": "Established governance frameworks guide implementation.", "score": 3 },
+                { "id": 4, "text": "Comprehensive practices align with organizational strategies.", "score": 4 },
+                { "id": 5, "text": "Governance is continuously improved and dynamically updated.", "score": 5 }
               ]
             },
             {
               "name": "Strategic Alignment",
+              "id": "alignment",
+              "question": "Are strategic plans for SNOMED CT documented and reviewed?",
+              "options": [
+                { "id": 1, "text": "Implementation goals are unclear or undocumented.", "score": 1 },
+                { "id": 2, "text": "Occasional governance meetings with no formal strategy.", "score": 2 },
+                { "id": 3, "text": "Strategic plans are documented and followed.", "score": 3 },
+                { "id": 4, "text": "Meetings and reviews produce clear outcomes.", "score": 4 },
+                { "id": 5, "text": "Plans are dynamically updated for new priorities.", "score": 5 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "User Proficiency and Training",
+          "id": "training",
+          "description": "Ensuring users are proficient in SNOMED CT through training and support programs.",
+          "questions": [
+            {
+              "name": "Training Programs",
+              "id": "programs",
+              "question": "What level of training is provided to users on SNOMED CT?",
+              "options": [
+                { "id": 1, "text": "Minimal or no training provided.", "score": 1 },
+                { "id": 2, "text": "Basic training available but inconsistent.", "score": 2 },
+                { "id": 3, "text": "Structured training programs are in place.", "score": 3 },
+                { "id": 4, "text": "Comprehensive and regularly updated training programs.", "score": 4 },
+                { "id": 5, "text": "Training programs are continuously improved.", "score": 5 }
+              ]
+            },
+            {
+              "name": "User Support",
+              "id": "support",
+              "question": "Are there champions or proficient users to support SNOMED CT adoption?",
+              "options": [
+                { "id": 1, "text": "No identified champions or proficient users.", "score": 1 },
+                { "id": 2, "text": "Minimal support from proficient users.", "score": 2 },
+                { "id": 3, "text": "Identified champions articulate needs and support others.", "score": 3 },
+                { "id": 4, "text": "Champions actively drive adoption and learning.", "score": 4 },
+                { "id": 5, "text": "Champions support advanced use cases like analytics.", "score": 5 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Interoperability",
+          "id": "interoperability",
+          "description": "Ensuring seamless data exchange and interoperability using SNOMED CT.",
+          "questions": [
+            {
+              "name": "Data Exchange",
+              "id": "exchange",
+              "question": "What is the level of SNOMED CT integration for data exchange?",
+              "options": [
+                { "id": 1, "text": "Minimal or no data exchange using SNOMED CT.", "score": 1 },
+                { "id": 2, "text": "Some interoperability, but inconsistent and unreliable.", "score": 2 },
+                { "id": 3, "text": "Supports data exchange with select external systems.", "score": 3 },
+                { "id": 4, "text": "Seamless exchange aligned with national standards.", "score": 4 },
+                { "id": 5, "text": "Continuously refined, supporting collaboration across systems.", "score": 5 }
+              ]
+            },
+            {
+              "name": "Interoperability Standards",
+              "id": "standards",
+              "question": "Are interoperability processes aligned with national standards?",
+              "options": [
+                { "id": 1, "text": "Clinical systems are isolated using free text.", "score": 1 },
+                { "id": 2, "text": "Mappings to standards are incomplete or outdated.", "score": 2 },
+                { "id": 3, "text": "Processes are documented and standardized for some workflows.", "score": 3 },
+                { "id": 4, "text": "Processes proactively monitored and improved.", "score": 4 },
+                { "id": 5, "text": "Processes are fully reliable and support collaboration.", "score": 5 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Analytics and Decision Support",
+          "id": "analytics",
+          "description": "Leveraging SNOMED CT for analytics and decision support to drive clinical and operational decisions.",
+          "questions": [
+            {
+              "name": "Analytics Tools",
+              "id": "analytics",
+              "question": "How effectively are analytics tools using SNOMED CT data?",
+              "options": [
+                { "id": 1, "text": "No analytics tools use SNOMED CT data.", "score": 1 },
+                { "id": 2, "text": "Basic analytics are available but inconsistent.", "score": 2 },
+                { "id": 3, "text": "Tools generate actionable insights from SNOMED CT data.", "score": 3 },
+                { "id": 4, "text": "Predictive analytics and decision support are integrated.", "score": 4 },
+                { "id": 5, "text": "Tools are continuously refined for real-time insights.", "score": 5 }
+              ]
+            },
+            {
+              "name": "Decision Support",
+              "id": "decision",
+              "question": "Are decision support tools integrated with SNOMED CT?",
+              "options": [
+                { "id": 1, "text": "No decision support tools are in place.", "score": 1 },
+                { "id": 2, "text": "Limited decision support tools exist.", "score": 2 },
+                { "id": 3, "text": "Tools support some clinical workflows.", "score": 3 },
+                { "id": 4, "text": "Metrics evaluate effectiveness of decision tools.", "score": 4 },
+                { "id": 5, "text": "Real-time insights drive clinical decisions.", "score": 5 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "id": "member",
+      "description": "SNOMED International Members managing national SNOMED CT adoption.",
+      "kpas": [
+        {
+          "name": "Growth and Adoption",
+          "id": "adoption",
+          "description": "Increasing the adoption and use of SNOMED CT within national healthcare systems.",
+          "questions": [
+            {
+              "name": "Number of Affiliates vs Target",
+              "id": "affiliates",
+              "question": "How would you describe the current level of affiliate adoption of SNOMED CT in your region?",
+              "options": [
+                { "id": 1, "text": "Few or no affiliates actively using SNOMED CT.", "score": 1 },
+                { "id": 2, "text": "Initial efforts to promote SNOMED CT adoption, but uptake is inconsistent.", "score": 2 },
+                { "id": 3, "text": "Adoption metrics such as affiliate numbers are being tracked.", "score": 3 },
+                { "id": 4, "text": "Adoption strategies are implemented consistently across sectors.", "score": 4 },
+                { "id": 5, "text": "SNOMED CT adoption is continuously monitored and improved.", "score": 5 }
+              ]
+            },
+            {
+              "name": "Monitoring and Metrics Strategy",
+              "id": "monitoring",
+              "question": "Is SNOMED CT adoption tracked and supported with metrics and monitoring strategies?",
+              "options": [
+                { "id": 1, "text": "No tracking or monitoring across healthcare settings.", "score": 1 },
+                { "id": 2, "text": "Minimal monitoring of SNOMED CT use in hospitals or clinical areas.", "score": 2 },
+                { "id": 3, "text": "Metrics such as affiliate usage and hospitals are tracked.", "score": 3 },
+                { "id": 4, "text": "Monitoring is supported by education, courses, and initiatives.", "score": 4 },
+                { "id": 5, "text": "Monitoring and adoption strategies are dynamically improved.", "score": 5 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Governance and Strategy",
+          "id": "governance",
+          "description": "Establishing effective governance and strategic frameworks for SNOMED CT implementation and adoption.",
+          "questions": [
+            {
+              "name": "Governance Structure",
+              "id": "structure",
+              "question": "Is there a formal governance structure in place for managing SNOMED CT adoption?",
+              "options": [
+                { "id": 1, "text": "No formal governance structure exists.", "score": 1, "advice": "An advice about this response" },
+                { "id": 2, "text": "Basic governance structures exist but are inconsistently applied.", "score": 2 },
+                { "id": 3, "text": "Governance frameworks are well-defined and active.", "score": 3 },
+                { "id": 4, "text": "Comprehensive governance practices with regular reviews and stakeholder involvement.", "score": 4 },
+                { "id": 5, "text": "Governance is continuously improved based on feedback.", "score": 5 }
+              ]
+            },
+            {
+              "name": "Strategic Alignment",
+              "id": "alignment",
               "question": "Are strategic goals and governance frameworks aligned with national healthcare priorities?",
               "options": [
-                { "order": 1, "text": "Implementation goals are unclear or undocumented.", "score": 1 },
-                { "order": 2, "text": "Occasional alignment but no formal adoption strategy.", "score": 2 },
-                { "order": 3, "text": "Goals are documented and aligned with priorities.", "score": 3 },
-                { "order": 4, "text": "Goals are aligned with national health initiatives.", "score": 4 },
-                { "order": 5, "text": "Goals are dynamically updated to meet emerging needs.", "score": 5 }
+                { "id": 1, "text": "Implementation goals are unclear or undocumented.", "score": 1 },
+                { "id": 2, "text": "Occasional alignment but no formal adoption strategy.", "score": 2 },
+                { "id": 3, "text": "Goals are documented and aligned with priorities.", "score": 3 },
+                { "id": 4, "text": "Goals are aligned with national health initiatives.", "score": 4 },
+                { "id": 5, "text": "Goals are dynamically updated to meet emerging needs.", "score": 5 }
               ]
             }
           ]
         },
         {
           "name": "Stakeholder Engagement",
+          "id": "engagement",
           "description": "Fostering collaboration and involvement of stakeholders in SNOMED CT adoption and implementation.",
           "questions": [
             {
               "name": "Stakeholder Involvement",
+              "id": "involvement",
               "question": "How engaged are stakeholders in SNOMED CT adoption efforts?",
               "options": [
-                { "order": 1, "text": "Minimal or no engagement with stakeholders.", "score": 1 },
-                { "order": 2, "text": "Occasional meetings with limited documentation.", "score": 2 },
-                { "order": 3, "text": "Stakeholders actively involved in structured discussions.", "score": 3 },
-                { "order": 4, "text": "Comprehensive engagement strategies in place.", "score": 4 },
-                { "order": 5, "text": "Engagement strategies continuously refined.", "score": 5 }
+                { "id": 1, "text": "Minimal or no engagement with stakeholders.", "score": 1 },
+                { "id": 2, "text": "Occasional meetings with limited documentation.", "score": 2 },
+                { "id": 3, "text": "Stakeholders actively involved in structured discussions.", "score": 3 },
+                { "id": 4, "text": "Comprehensive engagement strategies in place.", "score": 4 },
+                { "id": 5, "text": "Engagement strategies continuously refined.", "score": 5 }
               ]
             },
             {
               "name": "Resources for End-Users",
+              "id": "resources",
               "question": "Are resources and support available for end-users?",
               "options": [
-                { "order": 1, "text": "No resources or support for end-users.", "score": 1 },
-                { "order": 2, "text": "Basic resources exist but are limited in scope.", "score": 2 },
-                { "order": 3, "text": "Structured resources such as FAQs and support channels.", "score": 3 },
-                { "order": 4, "text": "Comprehensive resources with ongoing updates.", "score": 4 },
-                { "order": 5, "text": "Resources continuously improved based on feedback.", "score": 5 }
+                { "id": 1, "text": "No resources or support for end-users.", "score": 1 },
+                { "id": 2, "text": "Basic resources exist but are limited in scope.", "score": 2 },
+                { "id": 3, "text": "Structured resources such as FAQs and support channels.", "score": 3 },
+                { "id": 4, "text": "Comprehensive resources with ongoing updates.", "score": 4 },
+                { "id": 5, "text": "Resources continuously improved based on feedback.", "score": 5 }
               ]
             }
           ]
         },
         {
           "name": "National Extension Management",
+          "id": "extension",
           "description": "Managing national extensions, translations, and updates of SNOMED CT content.",
           "questions": [
             {
               "name": "National Extension Processes",
+              "id": "processes",
               "question": "Are processes in place for managing and updating national SNOMED CT content?",
               "options": [
-                { "order": 1, "text": "No national extension or processes for updating content.", "score": 1 },
-                { "order": 2, "text": "Ad hoc efforts to develop extensions.", "score": 2 },
-                { "order": 3, "text": "Regular updates and editorial guidelines exist.", "score": 3 },
-                { "order": 4, "text": "Systematic and consistent processes applied.", "score": 4 },
-                { "order": 5, "text": "Processes dynamically updated to meet evolving needs.", "score": 5 }
+                { "id": 1, "text": "No national extension or processes for updating content.", "score": 1 },
+                { "id": 2, "text": "Ad hoc efforts to develop extensions.", "score": 2 },
+                { "id": 3, "text": "Regular updates and editorial guidelines exist.", "score": 3 },
+                { "id": 4, "text": "Systematic and consistent processes applied.", "score": 4 },
+                { "id": 5, "text": "Processes dynamically updated to meet evolving needs.", "score": 5 }
               ]
             }
           ]
         },
         {
           "name": "Complex Use Cases and Secondary Use",
+          "id": "complex",
           "description": "Supporting complex clinical scenarios and secondary data use through SNOMED CT.",
           "questions": [
             {
               "name": "Use for Secondary Data",
+              "id": "secondary",
               "question": "How effectively is SNOMED CT being used for secondary data purposes?",
               "options": [
-                { "order": 1, "text": "No efforts to support secondary data use.", "score": 1 },
-                { "order": 2, "text": "Initial attempts but with limited impact.", "score": 2 },
-                { "order": 3, "text": "Used for basic analytics and reporting.", "score": 3 },
-                { "order": 4, "text": "Embedded in workflows for advanced use cases.", "score": 4 },
-                { "order": 5, "text": "Continuously refined for advanced analytics and research.", "score": 5 }
+                { "id": 1, "text": "No efforts to support secondary data use.", "score": 1 },
+                { "id": 2, "text": "Initial attempts but with limited impact.", "score": 2 },
+                { "id": 3, "text": "Used for basic analytics and reporting.", "score": 3 },
+                { "id": 4, "text": "Embedded in workflows for advanced use cases.", "score": 4 },
+                { "id": 5, "text": "Continuously refined for advanced analytics and research.", "score": 5 }
               ]
             }
           ]

@@ -1,31 +1,48 @@
 <table class="bordered-table">
-    <thead>
-      <tr>
-        <th>KPA</th>
-        <th>Result</th>
-        <th>Question</th>
-        <th>Response</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let kpa of maturityResponse | keyvalue">
-        <ng-container *ngFor="let question of ($any(kpa.value)) | keyvalue; let i = index">
-          <tr>
-            <td *ngIf="i === 0" [attr.rowspan]="objectKeys($any(kpa.value))">
-              {{ kpa.key }}
-            </td>
-            <td *ngIf="i === 0" [attr.rowspan]="objectKeys($any(kpa.value))">
-              {{ calculateAverage($any(kpa.value)) | number: '1.2-2' }}
-            </td>
-            <td>{{ question.key }}</td>
-            <td>{{ question.value }}</td>
-          </tr>
+  <thead>
+    <tr>
+      <th>Stakeholder</th>
+      <th>KPA</th>
+      <th>Result</th>
+      <!-- <th>Question</th>
+      <th>Response</th> -->
+    </tr>
+  </thead>
+  <tbody>
+    <ng-container *ngFor="let stakeholder of getStakeholders(maturityResponse)">
+      <ng-container *ngIf="stakeholder == maturityResponse.selectedStakeholder">
+        <ng-container *ngFor="let kpa of getKpas(maturityResponse, stakeholder)">
+          <ng-container *ngFor="let question of getQuestions(maturityResponse, stakeholder, kpa) | keyvalue; let i = index">
+            <tr>
+              <!-- Stakeholder Column -->
+              <td *ngIf="isFirstRowInStakeholder(i, stakeholder, kpa)" 
+                  [attr.rowspan]="getStakeholderRowSpan(maturityResponse, stakeholder)">
+                {{ stakeholder }}
+              </td>
+  
+              <!-- KPA Column -->
+              <td *ngIf="isFirstRowInKpa(i)" 
+                  [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)">
+                {{ kpa }}
+              </td>
+  
+              <!-- Result Column -->
+              <td *ngIf="isFirstRowInKpa(i)" 
+                  [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)">
+                {{ calculateAverage(getQuestions(maturityResponse, stakeholder, kpa)) | number: '1.2-2' }}
+              </td>
+  
+              <!-- Question and Response Columns -->
+              <!-- <td>{{ question.key }}</td>
+              <td>{{ question.value }}</td> -->
+            </tr>
+          </ng-container>
         </ng-container>
       </ng-container>
-    </tbody>
-  </table>
-  
-  <div class="chart-container">
-    <canvas #radarCanvas></canvas>
-  </div>
-  
+    </ng-container>
+  </tbody>
+</table>
+
+<div class="chart-container">
+  <canvas #radarCanvas></canvas>
+</div>

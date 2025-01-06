@@ -1,80 +1,130 @@
-.stakeholder-container {
-    padding: 16px;
-    overflow-y: auto; /* Ensure internal scrolling if content overflows */
-    max-height: calc(100vh - 180px); /* Adjust height to fit within the viewport */
-  }
-  
-  .submit-button {
-    position: sticky;
-    bottom: 0;
-    display: block;
-    margin-left: auto;     /* pushes it all the way to the right */
-    margin-right: 16px;    /* some spacing from the right edge */
-    margin-bottom: 16px;   /* spacing from the bottom */
-  }
-  
-  body {
-    margin: 0;
-    overflow: hidden; /* Disable the extra scrollbar caused by body overflow */
-  }
-  
-  form {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .stakeholder-title {
-    font-size: 20px;
-    font-weight: 500;
-    margin-bottom: 16px;
-  }
-  
-  .stakeholder-description {
-    font-size: 14px;
-    color: #757575;
-    margin-bottom: 16px;
-  }
-  
-  .kpa-container {
-    padding: 16px;
-    margin-bottom: 24px;
-    border-bottom: 1px solid #e0e0e0;
-  }
+/* General container styling */
+.question-flow-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  margin: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  .kpa-title {
-    font-size: 20px;
-    font-weight: 500;
-    margin-bottom: 16px;
-  }
-  
-  .kpa-description {
-    font-size: 14px;
-    color: #9e9e9e;
-    margin-bottom: 16px;
-  }
-  
+/* Question container styling */
+.question-container {
+  width: 100%;
+  max-width: 75%;
+  padding: 24px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.question-container h2 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  color: #333;
+  text-align: center;
+}
+
+.question-container h3 {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+  color: #555;
+  text-align: center;
+}
+
+.question-text {
+  font-size: 1rem;
+  margin-bottom: 16px;
+  color: #333;
+  text-align: justify;
+}
+
+/* Options styling */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mat-radio-button {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Error message styling */
+.error-message {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #d32f2f; /* Material red for error */
+  text-align: center;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.progress-bar {
+  margin-top: 20px;
+  height: 8px;
+}
+
+.progress-message {
+  display: flex;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+/* Buttons */
+button[mat-raised-button] {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+button[mat-raised-button][color="primary"] {
+  background-color: #1976d2; /* Material blue */
+  color: #fff;
+}
+
+button[mat-raised-button][color="primary"]:disabled {
+  background-color: #9e9e9e; /* Material grey */
+  color: #fff;
+  cursor: not-allowed;
+}
+
+button[mat-raised-button][color="accent"] {
+  background-color: #ff4081; /* Material pink accent */
+  color: #fff;
+}
+
+button[mat-raised-button][color="accent"]:hover {
+  background-color: #f50057; /* Slightly darker pink */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
   .question-container {
-    margin-bottom: 14px;
-  }
-  
-  .question-text {
-    font-size: 16px;
-    font-weight: 500;
-  }
-  
-  .options-container {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .error-message {
-    color: red;
-    font-size: 12px;
-    margin-top: 4px;
+    padding: 16px;
   }
 
-  .answered {
-    background-color: #e4f2e4; /* light green */
+  .question-container h2 {
+    font-size: 1.2rem;
   }
-  
+
+  .question-container h3 {
+    font-size: 1rem;
+  }
+
+  .question-text {
+    font-size: 0.9rem;
+  }
+}

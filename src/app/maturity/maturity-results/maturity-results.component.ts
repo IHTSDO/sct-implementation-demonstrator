@@ -1,59 +1,66 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-maturity-results',
   templateUrl: './maturity-results.component.html',
-  styleUrl: './maturity-results.component.css'
+  styleUrls: ['./maturity-results.component.css']
 })
-
-export class MaturityResultsComponent {
-
+export class MaturityResultsComponent implements OnChanges, AfterViewInit {
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
-
   @Input() maturityResponse: any;
 
-  objectKeys(obj: Record<string, unknown>): number {
-    return Object.keys(obj).length;
-  }
-
-  calculateAverage(questions: Record<string, number>): number {
-    const values = Object.values(questions);
-    const sum = values.reduce((acc, val) => acc + val, 0);
-    return values.length ? sum / values.length : 0;
-  }
+  private chart!: Chart;
 
   ngAfterViewInit(): void {
-    // Convert the object into an array of [KPA, { questions }]
-    const kpaEntries = Object.entries(this.maturityResponse);
-    // e.g. [ [ 'KPA1', { Q1: 5, Q2: 3, Q3: 8 } ], [ 'KPA2', {...} ] ...]
+    if (this.maturityResponse) {
+      this.generateChart();
+    }
+  }
 
-    // Labels will be the KPA keys: ['KPA1', 'KPA2', 'KPA3']
-    const labels = kpaEntries.map(([kpaKey]) => kpaKey);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.radarCanvas && changes['maturityResponse'] && this.maturityResponse) {
+      this.generateChart();
+    }
+  }
 
-    // Compute the average of questions for each KPA
-    const dataAverages = kpaEntries.map(([_, questions]) => {
-      const values = Object.values(questions as Record<string, number>);
-      const sum = values.reduce((acc, val) => acc + val, 0);
-      return values.length ? sum / values.length : 0;
+  private generateChart(): void {
+    if (this.chart) {
+      this.chart.destroy(); // Destroy existing chart to avoid duplication
+    }
+  
+    // Parse and group the data
+    const groupedData: Record<string, { sum: number, count: number }> = {};
+    Object.entries(this.maturityResponse).forEach(([key, value]) => {
+      const [stakeholder, kpa, question] = key.split('.');
+      if (stakeholder && kpa && question && stakeholder === this.maturityResponse.selectedStakeholder) {
+        groupedData[kpa] = groupedData[kpa] || { sum: 0, count: 0 };
+        groupedData[kpa].sum += value as number || 0;
+        groupedData[kpa].count += 1;
+      }
     });
-
-    // Now create one single Radar chart
-    new Chart(this.radarCanvas.nativeElement, {
+  
+    // Prepare labels (KPAs) and datasets (stakeholders)
+    const kpaLabels = Array.from(new Set(Object.keys(this.maturityResponse)
+      .filter(key => key.startsWith(this.maturityResponse.selectedStakeholder))
+      .map(key => key.split('.')[1]))); // Extract unique KPA names
+  
+    const datasets = [{
+      label: this.maturityResponse.selectedStakeholder,
+      data: kpaLabels.map(kpa => groupedData[kpa] ? groupedData[kpa].sum / groupedData[kpa].count : 0), // Calculate average
+      backgroundColor: 'rgba(54, 162, 235, 0.3)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+      pointBorderColor: '#fff'
+    }];
+  
+    // Create Radar Chart
+    this.chart = new Chart(this.radarCanvas.nativeElement, {
       type: 'radar',
       data: {
-        labels,
-        datasets: [
-          {
-            label: 'KPAs Totals',
-            data: dataAverages,
-            backgroundColor: 'rgba(54, 162, 235, 0.3)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-            pointBorderColor: '#fff'
-          }
-        ]
+        labels: kpaLabels,
+        datasets
       },
       options: {
         aspectRatio: 2.0,
@@ -64,16 +71,13 @@ export class MaturityResultsComponent {
           },
           title: {
             display: true,
-            text: 'Results by KPAs'
+            text: 'Maturity Results by Stakeholder and KPA'
           }
-        },
-        layout: {
-          padding: 0  // or a small numeric value
         },
         scales: {
           r: {
             pointLabels: {
-              padding: 5  // smaller padding = labels closer to the graph
+              padding: 5
             },
             suggestedMin: 0,
             suggestedMax: 5,
@@ -85,4 +89,53 @@ export class MaturityResultsComponent {
       }
     });
   }
+
+  getStakeholders(response: any): string[] {
+    return Array.from(new Set(Object.keys(response).map((key) => key.split('.')[0])));
+  }
+  
+  getKpas(response: any, stakeholder: string): string[] {
+    return Array.from(
+      new Set(
+        Object.keys(response)
+          .filter((key) => key.startsWith(stakeholder))
+          .map((key) => key.split('.')[1])
+      )
+    );
+  }
+  
+  getQuestions(response: any, stakeholder: string, kpa: string): Record<string, number | null> {
+    return Object.keys(response)
+      .filter((key) => key.startsWith(`${stakeholder}.${kpa}`))
+      .reduce((acc, key) => {
+        const questionKey = key.split('.').slice(2).join('.');
+        acc[questionKey] = response[key];
+        return acc;
+      }, {} as Record<string, number | null>);
+  }
+  
+  getStakeholderRowSpan(response: any, stakeholder: string): number {
+    const kpas = this.getKpas(response, stakeholder);
+    return kpas.reduce((total, kpa) => total + this.getKpaRowSpan(response, stakeholder, kpa), 0);
+  }
+  
+  getKpaRowSpan(response: any, stakeholder: string, kpa: string): number {
+    return Object.keys(response).filter((key) => key.startsWith(`${stakeholder}.${kpa}`)).length;
+  }
+  
+  isFirstRowInStakeholder(index: number, stakeholder: string, kpa: string): boolean {
+    const kpaIndex = this.getKpas(this.maturityResponse, stakeholder).indexOf(kpa);
+    return index === 0 && kpaIndex === 0;
+  }
+  
+  isFirstRowInKpa(index: number): boolean {
+    return index === 0;
+  }
+  
+  calculateAverage(questions: Record<string, number | null>): number {
+    const values = Object.values(questions).filter((value) => value !== null) as number[];
+    const sum = values.reduce((acc, val) => acc + val, 0);
+    return values.length > 0 ? sum / values.length : 0;
+  }
+  
 }

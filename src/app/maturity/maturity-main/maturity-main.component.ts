@@ -4,43 +4,101 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { lastValueFrom } from 'rxjs';
 import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-maturity-main',
   templateUrl: './maturity-main.component.html',
-  styleUrl: './maturity-main.component.css'
+  styleUrl: './maturity-main.component.css',
+  animations: [
+    trigger('fadeInOut', [
+      state('void', style({ opacity: 0 })),
+      transition('void <=> *', [
+        animate(300)
+      ])
+    ])
+  ]
 })
 export class MaturityMainComponent implements OnInit {
   
   maturityQuestions: any = {};
   responseForm: FormGroup;
-
+  allQuestions: any[] = [];
+  currentQuestionIndex = -1;
+  currentControl!: FormControl;
+  selectedStakeholder: any = null;
 
   constructor(private http: HttpClient, private fb: FormBuilder, private dialog: MatDialog) {
-    this.responseForm = this.fb.group({});
+    this.responseForm = this.fb.group({
+      selectedStakeholder: new FormControl(null, Validators.required), // Add stakeholder selection control
+    });
+    this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
   }
 
   async ngOnInit() {
     this.maturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
     this.initializeForm();
+    // Flatten all questions into one array for one-at-a-time display
+    // this.flattenQuestions();
   }
 
   private initializeForm(): void {
+    this.responseForm = this.fb.group({
+      selectedStakeholder: new FormControl(null, Validators.required),
+    });
+    this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
     this.maturityQuestions.stakeHolders.forEach((stakeholder: any) => {
-      const stakeholderGroup = this.fb.group({});
       stakeholder.kpas.forEach((kpa: any) => {
-        const kpaGroup = this.fb.group({});
         kpa.questions.forEach((question: any) => {
-          kpaGroup.addControl(
-            question.name,
-            new FormControl(null, Validators.required)
-          );
+          const questionPath = [stakeholder.id, kpa.id, question.id].join('.');
+          // Flatten controls using the full path as the key
+          this.responseForm.addControl(questionPath, new FormControl(null, Validators.required));
         });
-        stakeholderGroup.addControl(kpa.name, kpaGroup);
       });
-      this.responseForm.addControl(stakeholder.name, stakeholderGroup);
     });
   }
+
+  onStakeholderSelected(): void {
+    const stakeholderId = this.responseForm.get('selectedStakeholder')?.value;
+    this.selectedStakeholder = this.maturityQuestions.stakeHolders.find(
+      (stakeholder: any) => stakeholder.id === stakeholderId
+    );
+    this.flattenQuestions(); // Refilter questions for the selected stakeholder
+    this.currentQuestionIndex = 0; // Start showing the first question
+    this.currentControl = this.responseForm.controls[this.allQuestions[this.currentQuestionIndex].questionFullPath] as FormControl;
+  }
+  
+  flattenQuestions(): void {
+    this.allQuestions = [];
+    if (this.selectedStakeholder) {
+      this.selectedStakeholder.kpas.forEach((kpa: any) => {
+        kpa.questions.forEach((question: any) => {
+          const questionPath = [this.selectedStakeholder.id, kpa.id, question.id].join('.');
+          this.allQuestions.push({
+            stakeholderName: this.selectedStakeholder.name,
+            kpaName: kpa.name,
+            question: question,
+            questionFullPath: questionPath,
+          });
+        });
+      });
+    }
+  }
+
+  goToNextQuestion() {
+    if (this.currentQuestionIndex < this.allQuestions.length - 1) {
+      this.currentQuestionIndex++;
+      this.currentControl = this.responseForm.controls[this.allQuestions[this.currentQuestionIndex].questionFullPath] as FormControl;
+    }
+  }
+
+  goToPreviousQuestion() {
+    if (this.currentQuestionIndex > 0) {
+      this.currentQuestionIndex--;
+      this.currentControl = this.responseForm.controls[this.allQuestions[this.currentQuestionIndex].questionFullPath] as FormControl;
+    }
+  }
+  
 
   uploadFile(event: any) {
     if (event.target.files.length !== 1) {
@@ -58,17 +116,11 @@ export class MaturityMainComponent implements OnInit {
     }
   }
 
-  submitStakeholderResponses(stakeholderName: string): void {
-    const stakeholderResponses = this.responseForm.get(stakeholderName)?.value;
-    if (stakeholderResponses) {
-      console.log(`Responses for ${stakeholderName}:`, stakeholderResponses);
-      // Add your logic to send or process stakeholder responses
-
-      this.dialog.open(MaturityResultsDialogComponent, {
-        width: '1600px',
-        data: { maturityResponse: stakeholderResponses }
-      });
-    }
+  submitStakeholderResponses(): void {
+    this.dialog.open(MaturityResultsDialogComponent, {
+      width: '1600px',
+      data: { maturityResponse: this.responseForm.value }
+    });
   }
 
   getStakeholderFormGroup(stakeholderName: string): FormGroup {

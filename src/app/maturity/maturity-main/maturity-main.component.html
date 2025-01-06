@@ -1,36 +1,52 @@
 <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
-    <input hidden (change)="uploadFile($event)" #fileInput type="file" id="file">
+    <input hidden (change)="uploadFile($event)" #fileInput type="file" id="file" />
     <button mat-flat-button color="accent" (click)="fileInput.click()">Load Maturity Spec</button>
 </div>
-<mat-tab-group>
-  <mat-tab *ngFor="let stakeholder of maturityQuestions.stakeHolders" [label]="stakeholder.name">
-    <div class="stakeholder-container" [formGroup]="getStakeholderFormGroup(stakeholder.name)">
-        <div class="stakeholder-title">{{ stakeholder.name }}</div>
-        <div class="stakeholder-description">{{ stakeholder.description }}</div>
-        <div class="kpa-container" *ngFor="let kpa of stakeholder.kpas" [formGroupName]="kpa.name">
-            <div class="kpa-title">{{ kpa.name }}</div>
-            <div class="kpa-description">{{ kpa.description }}</div>
-            <div *ngFor="let question of kpa.questions" class="question-container" [ngClass]="{
-                'answered': responseForm.get([stakeholder.name, kpa.name, question.name])?.valid
-                }"> 
-            <p class="question-text">{{ question.question }}</p>
-            <mat-radio-group formControlName="{{ question.name }}" class="options-container">
-                <mat-radio-button *ngFor="let option of question.options" [value]="option.score">
-                {{ option.text }}
-                </mat-radio-button>
-                <div class="error-message" *ngIf="responseForm.get([stakeholder.name, kpa.name, question.name])?.invalid && responseForm.get([stakeholder.name, kpa.name, question.name])?.touched">
-                Please select an option for this question.
-                </div>
-            </mat-radio-group>
-            </div>
-        </div>
-        <button mat-raised-button class="submit-button" color="primary" (click)="submitStakeholderResponses(stakeholder.name)" [disabled]="responseForm.get(stakeholder.name)?.invalid">
-            <span *ngIf="getUnansweredCount(stakeholder.name) == 0">Submit</span>
-            <span class="unanswered-message" *ngIf="getUnansweredCount(stakeholder.name) > 0">
-                You have {{ getUnansweredCount(stakeholder.name) }} unanswered question(s).
-            </span>
-        </button>
-        
+<div class="question-flow-container" *ngIf="currentQuestionIndex === -1">
+    <div class="question-container" [formGroup]="responseForm" [@fadeInOut]>
+    <h2>Select Stakeholder</h2>
+    <mat-radio-group [formControl]="currentControl" class="options-container">
+      <mat-radio-button *ngFor="let stakeholder of maturityQuestions.stakeHolders" [value]="stakeholder.id">
+        {{ stakeholder.name }}
+      </mat-radio-button>
+    </mat-radio-group>
+    <div class="error-message" *ngIf="responseForm.controls['selectedStakeholder']?.invalid && responseForm.controls['selectedStakeholder']?.touched">
+      Please select a stakeholder.
     </div>
-  </mat-tab>
-</mat-tab-group>
+    <div class="button-container">
+        <button mat-flat-button color="primary" (click)="onStakeholderSelected()" [disabled]="responseForm.controls['selectedStakeholder'].invalid">
+            Start
+        </button>
+    </div>
+  </div>
+</div>
+  
+<div class="question-flow-container" *ngIf="currentQuestionIndex >= 0">
+    <div class="question-container" [formGroup]="responseForm" *ngIf="currentQuestionIndex < allQuestions.length" [@fadeInOut]>
+        <h2>Stakeholder: {{ allQuestions[currentQuestionIndex].stakeholderName }}</h2>
+        <mat-progress-bar mode="determinate" [value]="((currentQuestionIndex + 1) / (allQuestions.length + 1)) * 100" class="progress-bar"></mat-progress-bar>
+        <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
+        <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
+        <p class="question-text">{{ allQuestions[currentQuestionIndex].question.question }}</p>
+        <mat-radio-group [formControl]="currentControl" class="options-container">
+        <mat-radio-button *ngFor="let option of allQuestions[currentQuestionIndex].question.options" [value]="option.score">
+            {{ option.text }}
+        </mat-radio-button>
+        </mat-radio-group>
+        <div class="error-message" *ngIf="currentControl?.invalid && currentControl?.touched">
+        Please select an option for this question.
+        </div>
+        <div class="button-container">
+            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1">
+                Back
+            </button>
+            <button mat-flat-button color="primary" (click)="goToNextQuestion()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1">
+                Next
+            </button>
+            <button mat-flat-button color="accent" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex === allQuestions.length -1" (click)="submitStakeholderResponses()">
+                Submit
+            </button>
+        </div>
+    </div>
+</div>
+  
