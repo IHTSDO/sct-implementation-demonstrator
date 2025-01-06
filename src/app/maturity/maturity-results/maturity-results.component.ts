@@ -18,6 +18,12 @@ export class MaturityResultsComponent {
     return Object.keys(obj).length;
   }
 
+  calculateAverage(questions: Record<string, number>): number {
+    const values = Object.values(questions);
+    const sum = values.reduce((acc, val) => acc + val, 0);
+    return values.length ? sum / values.length : 0;
+  }
+
   ngAfterViewInit(): void {
     // Convert the object into an array of [KPA, { questions }]
     const kpaEntries = Object.entries(this.maturityResponse);
@@ -26,11 +32,12 @@ export class MaturityResultsComponent {
     // Labels will be the KPA keys: ['KPA1', 'KPA2', 'KPA3']
     const labels = kpaEntries.map(([kpaKey]) => kpaKey);
 
-    // Compute the sum of questions for each KPA
-    const dataSums = kpaEntries.map(([_, questions]) => 
-      Object.values(questions as Record<string, number>)
-            .reduce((acc, val) => acc + val, 0)
-    );
+    // Compute the average of questions for each KPA
+    const dataAverages = kpaEntries.map(([_, questions]) => {
+      const values = Object.values(questions as Record<string, number>);
+      const sum = values.reduce((acc, val) => acc + val, 0);
+      return values.length ? sum / values.length : 0;
+    });
 
     // Now create one single Radar chart
     new Chart(this.radarCanvas.nativeElement, {
@@ -40,7 +47,7 @@ export class MaturityResultsComponent {
         datasets: [
           {
             label: 'KPAs Totals',
-            data: dataSums,
+            data: dataAverages,
             backgroundColor: 'rgba(54, 162, 235, 0.3)',
             borderColor: 'rgba(54, 162, 235, 1)',
             pointBackgroundColor: 'rgba(54, 162, 235, 1)',
@@ -69,7 +76,7 @@ export class MaturityResultsComponent {
               padding: 5  // smaller padding = labels closer to the graph
             },
             suggestedMin: 0,
-            suggestedMax: 10,
+            suggestedMax: 5,
             ticks: {
               stepSize: 1
             }

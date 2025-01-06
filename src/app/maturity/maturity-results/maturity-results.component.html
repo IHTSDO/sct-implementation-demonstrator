@@ -2,26 +2,30 @@
     <thead>
       <tr>
         <th>KPA</th>
+        <th>Result</th>
         <th>Question</th>
         <th>Response</th>
       </tr>
     </thead>
     <tbody>
-        <ng-container *ngFor="let kpa of maturityResponse | keyvalue">
-            <!-- Use $any() to silence type errors in templates -->
-            <ng-container *ngFor="let question of ($any(kpa.value)) | keyvalue; let i = index">
-              <tr>
-                <td *ngIf="i === 0" [attr.rowspan]="objectKeys($any(kpa.value))">
-                    {{ kpa.key }}
-                </td>
-                <td>{{ question.key }}</td>
-                <td>{{ question.value }}</td>
-              </tr>
-            </ng-container>
+      <ng-container *ngFor="let kpa of maturityResponse | keyvalue">
+        <ng-container *ngFor="let question of ($any(kpa.value)) | keyvalue; let i = index">
+          <tr>
+            <td *ngIf="i === 0" [attr.rowspan]="objectKeys($any(kpa.value))">
+              {{ kpa.key }}
+            </td>
+            <td *ngIf="i === 0" [attr.rowspan]="objectKeys($any(kpa.value))">
+              {{ calculateAverage($any(kpa.value)) | number: '1.2-2' }}
+            </td>
+            <td>{{ question.key }}</td>
+            <td>{{ question.value }}</td>
+          </tr>
         </ng-container>
+      </ng-container>
     </tbody>
-</table>
-
-<div class="chart-container">
+  </table>
+  
+  <div class="chart-container">
     <canvas #radarCanvas></canvas>
-</div>  
+  </div>
+  
