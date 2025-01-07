@@ -14,3 +14,14 @@
     display: flex;
     justify-content: center;
 }
+
+.centered-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000; /* Adjust the border color and width as needed */
+    padding: 10px; /* Adjust the padding as needed */
+    margin: 20px auto; /* Center the element horizontally */
+    width: fit-content; /* Adjust the width as needed */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+  }

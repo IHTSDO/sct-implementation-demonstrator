@@ -21,7 +21,7 @@
   </div>
 </div>
   
-<div class="question-flow-container" *ngIf="currentQuestionIndex >= 0">
+<div class="question-flow-container" *ngIf="currentQuestionIndex >= 0 && currentQuestionIndex < allQuestions.length">
     <div class="question-container" [formGroup]="responseForm" *ngIf="currentQuestionIndex < allQuestions.length" [@fadeInOut]>
         <h2>Stakeholder: {{ allQuestions[currentQuestionIndex].stakeholderName }}</h2>
         <mat-progress-bar mode="determinate" [value]="((currentQuestionIndex + 1) / (allQuestions.length + 1)) * 100" class="progress-bar"></mat-progress-bar>
@@ -29,9 +29,15 @@
         <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
         <p class="question-text">{{ allQuestions[currentQuestionIndex].question.question }}</p>
         <mat-radio-group [formControl]="currentControl" class="options-container">
-        <mat-radio-button *ngFor="let option of allQuestions[currentQuestionIndex].question.options" [value]="option.score">
-            {{ option.text }}
-        </mat-radio-button>
+            <mat-radio-button *ngFor="let option of allQuestions[currentQuestionIndex].question.options" [value]="option.score">
+                <div class="mat-radio-label-content">
+                    {{ option.text }}
+                    <mat-icon *ngIf="option.example" [matTooltip]="option.example" matTooltipPosition="right">
+                        help_outline
+                    </mat-icon>
+                    <!-- <span class="example-text">{{ option.example }}</span> -->
+                </div> 
+            </mat-radio-button>
         </mat-radio-group>
         <div class="error-message" *ngIf="currentControl?.invalid && currentControl?.touched">
         Please select an option for this question.
@@ -45,6 +51,29 @@
             </button>
             <button mat-flat-button color="accent" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex === allQuestions.length -1" (click)="submitStakeholderResponses()">
                 Submit
+            </button>
+        </div>
+        <div class="button-container">
+            <button mat-flat-button color="primary" (click)="startOver()">
+                Restart assessment
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="question-flow-container" *ngIf="currentQuestionIndex == allQuestions.length">
+    <div class="question-container">
+        <h2>Stakeholder: {{ allQuestions[currentQuestionIndex - 1].stakeholderName }}</h2>
+        <h3>Maturity assessment results</h3>
+
+        <app-maturity-results [maturityResponse]="responseForm.value"></app-maturity-results>
+
+        <div class="button-container">
+            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1">
+                Back
+            </button>
+            <button mat-flat-button color="primary" (click)="startOver()">
+                Start over
             </button>
         </div>
     </div>

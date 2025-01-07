@@ -68,6 +68,7 @@
   display: flex;
   justify-content: center;
   gap: 16px;
+  margin-bottom: 16px;
 }
 
 .progress-bar {
@@ -82,6 +83,28 @@
   font-style: italic;
   margin-bottom: 20px;
 }
+
+.mat-radio-button {
+  display: flex;
+  align-items: flex-start; /* Align items to the top of the container */
+}
+
+.mat-radio-label-content {
+  display: flex;
+  flex-direction: row; /* Stack elements vertically */
+  margin-top: 8px; /* Add spacing between the radio button and the text */
+}
+
+.example-text {
+  font-size: 0.9rem; /* Optional: Adjust the font size */
+  color: gray; /* Optional: Dim the color for secondary text */
+}
+
+.mat-icon {
+  font-size: 16px; /* Adjust icon size */
+  margin-left: 10px; /* Space between the icon and its text */
+}
+
 
 /* Buttons */
 button[mat-raised-button] {

@@ -15,11 +15,11 @@
               "id": "clinical",
               "question": "How extensively is SNOMED CT implemented across clinical and administrative areas?",
               "options": [
-                { "id": 1, "text": "Used in only a few isolated areas.", "score": 1 },
-                { "id": 2, "text": "Used in several modules but not consistently.", "score": 2 },
-                { "id": 3, "text": "Integrated into most clinical areas with documented use.", "score": 3 },
-                { "id": 4, "text": "Implemented across both clinical and administrative functions.", "score": 4 },
-                { "id": 5, "text": "Fully integrated across all areas with continuous evaluation.", "score": 5 }
+                { "id": 1, "text": "Used in only a few isolated areas.", "score": 1, "example": "Only used in the emergy department." },
+                { "id": 2, "text": "Used in several modules but not consistently.", "score": 2, "example": "Used in the emergency department and some outpatient clinics." },
+                { "id": 3, "text": "Integrated into most clinical areas with documented use.", "score": 3, "example": "Integrated into the EHR and used in most clinical notes." },
+                { "id": 4, "text": "Implemented across both clinical and administrative functions.", "score": 4, "example": "Used in clinical notes, billing, and reporting." },
+                { "id": 5, "text": "Fully integrated across all areas with continuous evaluation.", "score": 5, "example": "Integrated into EHR, decision support, and analytics." }
               ]
             },
             {

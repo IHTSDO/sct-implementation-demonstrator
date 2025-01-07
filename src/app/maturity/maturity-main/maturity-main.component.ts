@@ -99,6 +99,12 @@ export class MaturityMainComponent implements OnInit {
     }
   }
   
+  startOver(): void {
+    this.currentQuestionIndex = -1;
+    // reset all responses
+    this.responseForm.reset();
+    this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
+  }
 
   uploadFile(event: any) {
     if (event.target.files.length !== 1) {
@@ -117,10 +123,11 @@ export class MaturityMainComponent implements OnInit {
   }
 
   submitStakeholderResponses(): void {
-    this.dialog.open(MaturityResultsDialogComponent, {
-      width: '1600px',
-      data: { maturityResponse: this.responseForm.value }
-    });
+    this.currentQuestionIndex++;
+    // this.dialog.open(MaturityResultsDialogComponent, {
+    //   width: '1600px',
+    //   data: { maturityResponse: this.responseForm.value }
+    // });
   }
 
   getStakeholderFormGroup(stakeholderName: string): FormGroup {
