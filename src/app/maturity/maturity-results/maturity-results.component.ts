@@ -150,7 +150,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
   calculateOverallAverage(data: Record<string, any>): number {
     // Object to group values by KPA
     const kpas: { [key: string]: number[] } = {};
-    const excludedKeys = ['selectedStakeholder', 'name', 'author', 'timestamp'];
+    const excludedKeys = ['selectedStakeholder', 'name', 'author', 'timestamp', 'selectedKpas'];
   
     // Process the data to group scores by KPA
     for (const key in data) {
@@ -163,15 +163,19 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
       }
     }
   
-    // Calculate the average for each KPA
-    const kpaAverages = Object.keys(kpas).map(kpa => {
-      const values = kpas[kpa];
-      return values.reduce((sum, value) => sum + value, 0) / values.length;
-    });
+    // Calculate the average for each KPA, ignoring empty groups
+    const kpaAverages = Object.keys(kpas)
+      .filter(kpa => kpas[kpa].length > 0) // Ignore empty KPA groups
+      .map(kpa => {
+        const values = kpas[kpa];
+        return values.reduce((sum, value) => sum + value, 0) / values.length;
+      });
   
     // Calculate the overall average of the KPA averages
     const overallAverage =
-      kpaAverages.reduce((sum, avg) => sum + avg, 0) / kpaAverages.length;
+      kpaAverages.length > 0
+        ? kpaAverages.reduce((sum, avg) => sum + avg, 0) / kpaAverages.length
+        : 0; // Return 0 if no KPA averages exist
   
     return overallAverage;
   }
