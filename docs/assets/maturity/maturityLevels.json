@@ -3,7 +3,7 @@
     {
       "name": "Vendor",
       "id": "vendor",
-      "description": "Vendors providing systems and tools that implement and support SNOMED CT.",
+      "description": "A company or developer that provides software or solutions incorporating SNOMED CT for use by user organizations or members.",
       "kpas": [
         {
           "name": "Scope of SNOMED CT Implementation",
@@ -153,7 +153,7 @@
     {
       "name": "User Organization",
       "id": "user",
-      "description": "Organizations adopting and utilizing SNOMED CT in their clinical and administrative workflows.",
+      "description": "An organization (e.g., healthcare provider, government agency) that implements SNOMED CT in its systems or services.",
       "kpas": [
         {
           "name": "Scope of SNOMED CT Implementation",
@@ -315,7 +315,7 @@
     {
       "name": "Member",
       "id": "member",
-      "description": "SNOMED International Members managing national SNOMED CT adoption.",
+      "description": "A country or territory that is a member of SNOMED International, responsible for national or regional implementation.",
       "kpas": [
         {
           "name": "Growth and Adoption",

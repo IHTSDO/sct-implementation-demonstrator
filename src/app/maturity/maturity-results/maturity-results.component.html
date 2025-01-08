@@ -1,9 +1,33 @@
-<h3 class="centered-box">Overall calculated maturity score: {{ calculateOverallAverage(maturityResponse) }}</h3>
-<table class="bordered-table">
+<h3 class="centered-box">
+  {{ calculateOverallAverage(maturityResponse) | number:'1.2-2' }} 
+  - 
+  {{ getScaleLabel(calculateOverallAverage(maturityResponse)) }}
+</h3>
+<br>
+<!-- BEGIN Scale Display -->
+<div class="score-scale-container">
+  <div class="score-scale">
+    <!-- MAIN MARKER: for the dynamic overall average -->
+    <div class="score-marker" [ngStyle]="{'left': 'calc(' + getMarkerPosition(calculateOverallAverage(maturityResponse)) + '% - 3px)'}"></div>
+
+    <!-- FIXED TICKS: for exact integer scores (1,2,3,4) -->
+    <div
+      *ngFor="let level of resultsScale"
+      class="score-tick"
+      [ngStyle]="{ 'left': getMarkerPosition(level.value) + '%' }"
+    >
+      <div class="score-tick-label">{{ level.value }}</div>
+    </div>
+  </div>
+  <div class="score-scale-labels">
+    <span *ngFor="let level of resultsScale | slice:0:resultsScale.length - 1" class="level-label">{{ level.label }}</span>
+  </div>
+</div>
+<!-- END Scale Display --><table class="bordered-table">
   <thead>
-    <tr>
+    <tr>  
       <th>KPA</th>
-      <th>Result</th>
+      <th>Maturity score</th>
     </tr>
   </thead>
   <tbody>

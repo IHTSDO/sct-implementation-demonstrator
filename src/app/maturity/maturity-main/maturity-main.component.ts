@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, timestamp } from 'rxjs';
 import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
@@ -31,6 +31,9 @@ export class MaturityMainComponent implements OnInit {
   allQuestions: any[] = [];
   currentQuestionIndex = -1;
   currentControl!: FormControl;
+  nameControl!: FormControl;
+  authorControl!: FormControl;
+  timestampControl!: FormControl;
   selectedStakeholder: any = null;
   animationState = 'enter';
 
@@ -49,8 +52,14 @@ export class MaturityMainComponent implements OnInit {
   }
 
   private initializeForm(): void {
+    this.nameControl = new FormControl(null);
+    this.authorControl = new FormControl(null);
+    this.timestampControl = new FormControl(new Date().toISOString());
     this.responseForm = this.fb.group({
       selectedStakeholder: new FormControl(null, Validators.required),
+      name: this.nameControl,
+      author: this.authorControl,
+      timestamp: this.timestampControl
     });
     this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
     this.maturityQuestions.stakeHolders.forEach((stakeholder: any) => {
@@ -68,14 +77,19 @@ export class MaturityMainComponent implements OnInit {
     this.animationState = 'leave';
     setTimeout(() => {
       const stakeholderId = this.responseForm.get('selectedStakeholder')?.value;
-      this.selectedStakeholder = this.maturityQuestions.stakeHolders.find(
-        (stakeholder: any) => stakeholder.id === stakeholderId
-      );
+      this.selectedStakeholder = this.getStakeHolder(stakeholderId);
       this.flattenQuestions(); // Refilter questions for the selected stakeholder
       this.currentQuestionIndex = 0; // Start showing the first question
       this.currentControl = this.responseForm.controls[this.allQuestions[this.currentQuestionIndex].questionFullPath] as FormControl;
       this.animationState = 'enter';
     }, 200); // Match the duration of the animation
+  }
+
+  getStakeHolder(stakeholderId: string): any {
+    const stakeholder = this.maturityQuestions.stakeHolders.find(
+      (stakeholder: any) => stakeholder.id === stakeholderId
+    );
+    return stakeholder;
   }
   
   flattenQuestions(): void {
@@ -137,6 +151,7 @@ export class MaturityMainComponent implements OnInit {
   }
 
   submitStakeholderResponses(): void {
+    this.timestampControl.setValue(new Date().toISOString());
     this.animationState = 'leave';
     setTimeout(() => {
       this.currentQuestionIndex++;

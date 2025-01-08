@@ -24,4 +24,73 @@
     margin: 20px auto; /* Center the element horizontally */
     width: fit-content; /* Adjust the width as needed */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
+
+/* Outer container for the scale and ticks */
+.score-scale-container {
+    position: relative;
+    width: 100%;
+    margin: 1rem 0;
   }
+  
+  /* The color-coded scale (4-color gradient) */
+  .score-scale {
+    position: relative;
+    height: 20px;
+    width: 100%;
+    border-radius: 4px;
+    background: linear-gradient(
+      to right,
+      #c03700 0%,   /* Basic (score=1) */
+      #d47f00 33%,  /* Limited (score=2) */
+      #dfc500 66%,  /* Advanced (score=3) */
+      #417505 100%  /* Integrated/Optimizing (score=4-5) */
+    );
+  }
+  
+  /* The main marker for the user's overall average */
+  .score-marker {
+    position: absolute;
+    top: -5px;
+    width: 6px;
+    height: 30px;
+    background-color: #2821eb; /* black vertical line */
+    transition: left 0.3s ease;
+    border-radius: 2px;
+  }
+  
+  /* Ticks for integer values 1,2,3,4 */
+  .score-tick {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 8px;
+    background-color: #000;
+    /* Position them above or below the bar as you wish */
+    transform: translateY(-8px); 
+  }
+  
+  /* Optional label for the tick (e.g., “1” “2” “3” “4”) */
+  .score-tick-label {
+    position: absolute;
+    top: -20px; 
+    left: -4px;  /* Center the text horizontally */
+    font-weight: bold;
+    font-size: small;
+  }
+
+  .score-scale-labels {
+    display: flex;
+    justify-content: space-between; /* evenly distributes the labels */
+    margin-top: 0.5rem;
+    width: 100%; /* ensure it spans the full scale width */
+  }
+  
+  .level-label {
+    text-align: center;
+    font-weight: bold;
+    font-size: small;
+    /* Optional: set a consistent min-width so each label doesn't collapse */
+    flex: 1; 
+  }
+  

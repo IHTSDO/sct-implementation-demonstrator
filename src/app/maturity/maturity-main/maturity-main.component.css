@@ -105,6 +105,10 @@
   margin-left: 10px; /* Space between the icon and its text */
 }
 
+.stakeholder-description {
+  font-size: 0.9rem;
+  color: #757272;
+}
 
 /* Buttons */
 button[mat-raised-button] {

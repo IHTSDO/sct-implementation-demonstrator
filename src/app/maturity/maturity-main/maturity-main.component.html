@@ -5,13 +5,35 @@
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -1">
     <div class="question-container" [formGroup]="responseForm">
     <h2>Select Stakeholder</h2>
-    <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
-      <mat-radio-button *ngFor="let stakeholder of maturityQuestions.stakeHolders" [value]="stakeholder.id">
-        {{ stakeholder.name }}
-      </mat-radio-button>
-    </mat-radio-group>
-    <div class="error-message" *ngIf="responseForm.controls['selectedStakeholder']?.invalid && responseForm.controls['selectedStakeholder']?.touched">
-      Please select a stakeholder.
+    <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
+        <div class="flex-1">
+            <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
+            <mat-radio-button *ngFor="let stakeholder of maturityQuestions.stakeHolders" [value]="stakeholder.id">
+                {{ stakeholder.name }}
+                <p class="stakeholder-description"> {{ stakeholder.description }}</p>
+            </mat-radio-button>
+            </mat-radio-group>
+            <div class="error-message" *ngIf="responseForm.controls['selectedStakeholder']?.invalid && responseForm.controls['selectedStakeholder']?.touched">
+            Please select a stakeholder.
+            </div>
+        </div>
+        <div class="flex-1 mb-10">
+            <div *ngIf="!responseForm.controls['selectedStakeholder'].invalid">
+                <h2>Stakeholder Description</h2>
+                <mat-form-field class="w-full">
+                    <mat-label>{{ getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name | titlecase}} name </mat-label>
+                    <input matInput placeholder="Enter stakeholder name..." [formControl]="nameControl">
+                    <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                    <mat-hint>Stakeholder name to be included in the final assessment report. This information is not stored.</mat-hint>
+                </mat-form-field>
+                <mat-form-field class="w-full mt-10">
+                    <mat-label>User name </mat-label>
+                    <input matInput placeholder="Enter the name of the user conducting the assessment..." [formControl]="authorControl">
+                    <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                    <mat-hint>User name to be included in the final assessment report. This information is not stored.</mat-hint>
+                </mat-form-field>
+            </div>
+        </div>
     </div>
     <div class="button-container">
         <button mat-flat-button color="primary" (click)="onStakeholderSelected()" [disabled]="responseForm.controls['selectedStakeholder'].invalid">
@@ -23,7 +45,7 @@
   
 <div class="question-flow-container" *ngIf="currentQuestionIndex >= 0 && currentQuestionIndex < allQuestions.length">
     <div class="question-container" [formGroup]="responseForm" *ngIf="currentQuestionIndex < allQuestions.length">
-        <h2>Stakeholder: {{ allQuestions[currentQuestionIndex].stakeholderName }}</h2>
+        <h2>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex].stakeholderName }})</h2>
         <mat-progress-bar mode="determinate" [value]="((currentQuestionIndex + 1) / (allQuestions.length + 1)) * 100" class="progress-bar"></mat-progress-bar>
         <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
         <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
@@ -63,8 +85,13 @@
 
 <div class="question-flow-container" *ngIf="currentQuestionIndex == allQuestions.length">
     <div class="question-container" [@questionAnimation]="animationState">
-        <h2>Stakeholder: {{ allQuestions[currentQuestionIndex - 1].stakeholderName }}</h2>
+        <h2>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex - 1].stakeholderName }})</h2>
         <h3>Maturity assessment results</h3>
+        <p class="text-center">Assessment conducted 
+            <span *ngIf="authorControl.value">by {{ authorControl.value }}, </span>
+            on {{ timestampControl.value | date: 'medium' }}
+        </p>
+        <p class="text-center mt-10 text-lg">Based on your responses, the maturity level of the stakeholder is:</p>
 
         <app-maturity-results [maturityResponse]="responseForm.value"></app-maturity-results>
 

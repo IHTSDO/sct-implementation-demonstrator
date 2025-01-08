@@ -14,6 +14,14 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
 
   private chart!: Chart;
 
+  resultsScale = [
+    { value: 1, label: 'Basic' },
+    { value: 2, label: 'Limited' },
+    { value: 3, label: 'Advanced' },
+    { value: 4, label: 'Integrated' },
+    { value: 5, label: 'Optimizing' }
+  ]
+
   ngAfterViewInit(): void {
     if (this.maturityResponse) {
       this.generateChart();
@@ -142,10 +150,11 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
   calculateOverallAverage(data: Record<string, any>): number {
     // Object to group values by KPA
     const kpas: { [key: string]: number[] } = {};
+    const excludedKeys = ['selectedStakeholder', 'name', 'author', 'timestamp'];
   
     // Process the data to group scores by KPA
     for (const key in data) {
-      if (data.hasOwnProperty(key) && data[key] !== null && key !== 'selectedStakeholder') {
+      if (data.hasOwnProperty(key) && data[key] !== null && !excludedKeys.includes(key)) {
         const kpa = key.split('.')[1]; // Extract the KPA from the key
         if (!kpas[kpa]) {
           kpas[kpa] = [];
@@ -165,6 +174,24 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
       kpaAverages.reduce((sum, avg) => sum + avg, 0) / kpaAverages.length;
   
     return overallAverage;
+  }
+
+  getScaleLabel(value: number): string {
+    // round to the lowest whole number
+    value = Math.floor(value);
+    return this.resultsScale.find((scale) => scale.value === value)?.label || '';
+  }
+
+  getMarkerPosition(value: number): number {
+    // Assuming your valid range is 1 through 5
+    const min = 1;
+    const max = 5;
+  
+    if (value < min) value = min;
+    if (value > max) value = max;
+    
+    // Convert the 1–5 score to 0–100%
+    return ((value - min) / (max - min)) * 100;
   }
   
   
