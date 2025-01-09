@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { lastValueFrom, timestamp } from 'rxjs';
 import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import cloneDeep from 'lodash/cloneDeep';
 
 @Component({
   selector: 'app-maturity-main',
@@ -26,6 +27,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 })
 export class MaturityMainComponent implements OnInit {
   
+  baseMaturityQuestions: any = {};
   maturityQuestions: any = {};
   responseForm: FormGroup;
   allQuestions: any[] = [];
@@ -46,13 +48,14 @@ export class MaturityMainComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.baseMaturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
     this.initializeForm();
     // Flatten all questions into one array for one-at-a-time display
     // this.flattenQuestions();
   }
 
   async initializeForm() {
-    this.maturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
+    this.maturityQuestions = cloneDeep(this.baseMaturityQuestions);
     this.nameControl = new FormControl(null);
     this.authorControl = new FormControl(null);
     this.timestampControl = new FormControl(new Date().toISOString());
