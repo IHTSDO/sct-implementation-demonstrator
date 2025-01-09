@@ -183,7 +183,7 @@ export class MaturityMainComponent implements OnInit {
     this.initializeForm();
   }
 
-  uploadFile(event: any) {
+  uploadSpecification(event: any) {
     if (event.target.files.length !== 1) {
       console.error('No file selected');
     } else {
@@ -191,12 +191,23 @@ export class MaturityMainComponent implements OnInit {
       reader.onloadend = (e) => {
         if (reader.result) {
           const uploadedVersion = JSON.parse(reader.result?.toString());
-          console.log('Uploaded version:', uploadedVersion);
           this.maturityQuestions = uploadedVersion;
         }
       };
       reader.readAsText(event.target.files[0]);
     }
+  }
+
+  downloadSpecification(): void {
+    const dataStr = JSON.stringify(this.maturityQuestions, null, 2); // Format JSON with 2-space indentation
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+  
+    const exportFileDefaultName = 'maturity_specification.json';
+  
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
   }
 
   submitStakeholderResponses(): void {
@@ -244,4 +255,153 @@ export class MaturityMainComponent implements OnInit {
     }
     return count;
   }
+
+  /**
+   * Saves the current form state (including stakeholder, selectedKpas, and question responses)
+   * as a JSON file.
+   */
+  saveState(): void {
+    const currentState = {
+      selectedStakeholder: this.responseForm.get('selectedStakeholder')?.value,
+      selectedKpas: this.responseForm.get('selectedKpas')?.value,
+      responses: this.responseForm.value, // includes question responses
+      currentQuestionIndex: this.currentQuestionIndex,
+      currentControl: this.currentControl?.value,
+      animationState: this.animationState,
+      name: this.nameControl.value,
+      author: this.authorControl.value,
+      timestamp: this.timestampControl.value,
+      allQuestions: this.allQuestions
+    };
+
+    const blob = new Blob([JSON.stringify(currentState)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'maturity-assessment-results.json';
+    link.click();
+  }
+
+  /**
+   * Load a previously saved JSON state, re-initialize the form to match it.
+   */
+  loadState(event: any): void {
+    if (event.target.files.length !== 1) {
+      console.error('No file selected');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (!reader.result) {
+        console.error('FileReader result is empty');
+        return;
+      }
+
+      const uploadedState = JSON.parse(reader.result.toString());
+
+      // 1) Reset everything
+      this.responseForm.reset();
+      this.currentQuestionIndex = -2;
+      this.allQuestions = [];
+      this.selectedStakeholder = null;
+      this.currentKpas = [];
+
+      // 2) Re-initialize the form (creates universal controls + all Q controls)
+      //    preserving any updated .json in `this.maturityQuestions`
+      this.initializeForm().then(() => {
+        // 3) Restore meta fields
+        this.nameControl.setValue(uploadedState.name);
+        this.authorControl.setValue(uploadedState.author);
+        this.timestampControl.setValue(uploadedState.timestamp);
+
+        // 4) Set stakeholder & selectedKpas
+        const stakeholderId = uploadedState.selectedStakeholder;
+        const selectedKpasValue = uploadedState.selectedKpas || {};
+
+        this.responseForm.get('selectedStakeholder')?.setValue(stakeholderId);
+
+        // Build the KPA group that was saved
+        const kpaGroup = this.fb.group({});
+        const stakeHolderData = this.getStakeHolder(stakeholderId);
+        this.selectedStakeholder = stakeHolderData;
+
+        if (stakeHolderData?.kpas) {
+          stakeHolderData.kpas.forEach((kpa: any) => {
+            kpaGroup.addControl(
+              kpa.id,
+              this.fb.control(!!selectedKpasValue[kpa.id]) // true or false
+            );
+          });
+        }
+        this.responseForm.setControl('selectedKpas', kpaGroup);
+
+        // 5) Re-add question controls for the chosen stakeholder
+        if (this.selectedStakeholder?.kpas) {
+          this.selectedStakeholder.kpas.forEach((kpa: any) => {
+            kpa.questions.forEach((question: any) => {
+              const questionPath = [
+                this.selectedStakeholder.id,
+                kpa.id,
+                question.id
+              ].join('.');
+              // Only add if it doesn't exist
+              if (!this.responseForm.contains(questionPath)) {
+                this.responseForm.addControl(
+                  questionPath,
+                  new FormControl(null, Validators.required)
+                );
+              }
+            });
+          });
+        }
+
+        // 6) Remove controls for KPA that were *not* selected
+        const selectedKpaIds = Object.keys(selectedKpasValue).filter(kpaId => selectedKpasValue[kpaId]);
+        if (this.selectedStakeholder?.kpas) {
+          this.selectedStakeholder.kpas.forEach((kpa: any) => {
+            if (!selectedKpaIds.includes(kpa.id)) {
+              kpa.questions.forEach((question: any) => {
+                const questionPath = [
+                  this.selectedStakeholder.id,
+                  kpa.id,
+                  question.id
+                ].join('.');
+                if (this.responseForm.contains(questionPath)) {
+                  this.responseForm.removeControl(questionPath);
+                }
+              });
+            }
+          });
+        }
+
+        // 7) Flatten the final questions + filter out unselected KPA
+        this.flattenQuestions();
+        this.allQuestions = this.allQuestions.filter(q => selectedKpaIds.includes(q.kpaId));
+
+        // 8) Restore each question's answer
+        const responses = uploadedState.responses || {};
+        Object.keys(responses).forEach(questionPath => {
+          if (this.responseForm.contains(questionPath)) {
+            this.responseForm.controls[questionPath].setValue(responses[questionPath]);
+          }
+        });
+
+        // 9) Finally, restore the question index + animation + current control
+        this.currentQuestionIndex = uploadedState.currentQuestionIndex || -2;
+        this.animationState = uploadedState.animationState || 'enter';
+
+        // if (this.allQuestions[this.currentQuestionIndex]) {
+        //   const currentQPath = this.allQuestions[this.currentQuestionIndex].questionFullPath;
+        //   this.currentControl = this.responseForm.get(currentQPath) as FormControl;
+        // } else {
+        //   // If there's no valid question index, default back to stakeholder selection
+        //   this.currentControl = this.responseForm.get('selectedStakeholder') as FormControl;
+        // }
+
+      });
+    };
+
+    reader.readAsText(event.target.files[0]);
+  }
+  
 } 

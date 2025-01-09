@@ -1,6 +1,8 @@
 <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
-    <input hidden (change)="uploadFile($event)" #fileInput type="file" id="file" />
-    <button mat-flat-button color="accent" (click)="fileInput.click()">Load Maturity Spec</button>
+    <button mat-flat-button color="primary" (click)="downloadSpecification()">Download Maturiry Spec</button>
+    <!-- Load Maturity Spec Button -->
+    <input hidden (change)="uploadSpecification($event)" #fileInput type="file" id="file" />
+    <button mat-flat-button color="primary" (click)="fileInput.click()">Upload Maturity Spec</button>
 </div>
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -2">
     <div class="question-container" [formGroup]="responseForm">
@@ -39,6 +41,9 @@
         <button mat-flat-button color="primary" (click)="onStakeholderSelected()" [disabled]="responseForm.controls['selectedStakeholder'].invalid">
             Start
         </button>
+        <!-- File input for loading saved state -->
+        <input hidden (change)="loadState($event)" #fileInputState type="file" id="fileState" />
+        <button mat-flat-button color="primary" (click)="fileInputState.click()">Upload assessment</button>
     </div>
   </div>
 </div>
@@ -93,9 +98,9 @@
         Please select an option for this question.
         </div>
         <div class="button-container">
-            <button mat-flat-button color="primary" (click)="startOver()" *ngIf="currentQuestionIndex == 0">
-                Back
-            </button>
+            <!-- <button mat-flat-button color="primary" (click)="startOver()" *ngIf="currentQuestionIndex == 0">
+                Restart
+            </button> -->
             <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" *ngIf="currentQuestionIndex > 0" [disabled]="currentQuestionIndex < 1">
                 Back
             </button>
@@ -133,6 +138,10 @@
             <button mat-flat-button color="primary" (click)="startOver()">
                 Start over
             </button>
+        </div>
+        <div class="button-container">
+            <!-- Save State Button -->
+            <button mat-flat-button color="primary" (click)="saveState()">Save results</button>
         </div>
     </div>
 </div>
