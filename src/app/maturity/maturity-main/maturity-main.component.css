@@ -44,6 +44,15 @@
   text-align: justify;
 }
 
+.kpa-description {
+  font-size: 0.9rem;
+  color: #757272;
+}
+
+.kpa-checkbox {
+  margin-bottom: 10px;
+}
+
 /* Options styling */
 .options-container {
   display: flex;

@@ -46,13 +46,13 @@ export class MaturityMainComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.maturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
     this.initializeForm();
     // Flatten all questions into one array for one-at-a-time display
     // this.flattenQuestions();
   }
 
-  private initializeForm(): void {
+  async initializeForm() {
+    this.maturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
     this.nameControl = new FormControl(null);
     this.authorControl = new FormControl(null);
     this.timestampControl = new FormControl(new Date().toISOString());
@@ -177,7 +177,10 @@ export class MaturityMainComponent implements OnInit {
     this.currentQuestionIndex = -2;
     // reset all responses
     this.responseForm.reset();
-    this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
+    this.currentKpas = [];
+    this.selectedStakeholder = null;
+    this.allQuestions = [];
+    this.initializeForm();
   }
 
   uploadFile(event: any) {

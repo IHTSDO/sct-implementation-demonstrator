@@ -11,6 +11,7 @@ Chart.register(...registerables);
 export class MaturityResultsComponent implements OnChanges, AfterViewInit {
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() maturityResponse: any;
+  @Input() allQuestions: any[] = [];
 
   private chart!: Chart;
 
@@ -51,13 +52,15 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
     });
   
     // Prepare labels (KPAs) and datasets (stakeholders)
-    const kpaLabels = Array.from(new Set(Object.keys(this.maturityResponse)
+    const kpaIds = Array.from(new Set(Object.keys(this.maturityResponse)
       .filter(key => key.startsWith(this.maturityResponse.selectedStakeholder))
-      .map(key => key.split('.')[1]))); // Extract unique KPA names
+      .map(key => key.split('.')[1]))); // Extract unique KPA IDs
+  
+    const kpaLabels = kpaIds.map(kpaId => this.getKpaName(kpaId) || kpaId); // Use getKpaNameById to resolve KPA names
   
     const datasets = [{
-      label: this.maturityResponse.selectedStakeholder,
-      data: kpaLabels.map(kpa => groupedData[kpa] ? groupedData[kpa].sum / groupedData[kpa].count : 0), // Calculate average
+      label: this.getStakeholderName(),
+      data: kpaIds.map(kpa => groupedData[kpa] ? groupedData[kpa].sum / groupedData[kpa].count : 0), // Calculate average
       backgroundColor: 'rgba(54, 162, 235, 0.3)',
       borderColor: 'rgba(54, 162, 235, 1)',
       pointBackgroundColor: 'rgba(54, 162, 235, 1)',
@@ -112,6 +115,18 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
       )
     );
   }
+
+  getStakeholderName(): string {
+    return this.allQuestions[0].stakeholderName;
+  }
+
+  getKpaName(kpaId: string): string {
+    // Find the first matching KPA with the given kpaId
+    const kpa = this.allQuestions.find(item => item.kpaId === kpaId);
+    // Return the KPA name if found, otherwise return null
+    return kpa ? kpa.kpaName : null;
+  }
+  
   
   getQuestions(response: any, stakeholder: string, kpa: string): Record<string, number | null> {
     return Object.keys(response)

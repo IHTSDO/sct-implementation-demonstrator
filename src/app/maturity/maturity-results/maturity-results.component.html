@@ -39,7 +39,7 @@
               <!-- KPA Column -->
               <td *ngIf="isFirstRowInKpa(i)" 
                   [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)">
-                {{ kpa | titlecase }}
+                {{ getKpaName(kpa) | titlecase }}
               </td>
   
               <!-- Result Column -->
@@ -54,7 +54,7 @@
     </ng-container>
   </tbody>
 </table>
-
 <div class="chart-container">
   <canvas #radarCanvas></canvas>
 </div>
+<br>

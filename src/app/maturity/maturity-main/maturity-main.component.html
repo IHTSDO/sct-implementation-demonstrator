@@ -8,7 +8,7 @@
     <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
         <div class="flex-1">
             <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
-            <mat-radio-button *ngFor="let stakeholder of maturityQuestions.stakeHolders" [value]="stakeholder.id">
+            <mat-radio-button *ngFor="let stakeholder of maturityQuestions.stakeHolders" [value]="stakeholder.id" class="mb-5">
                 {{ stakeholder.name }}
                 <p class="stakeholder-description"> {{ stakeholder.description }}</p>
             </mat-radio-button>
@@ -49,11 +49,11 @@
         
         <section class="example-section mt-10">
             <h4>Select Relevant Key Process Areas:</h4>
-            <div *ngFor="let kpa of currentKpas">
+            <div *ngFor="let kpa of currentKpas" class="kpa-checkbox">
               <mat-checkbox 
                 *ngIf="getKpaControl(kpa.id)" 
                 [formControl]="getKpaControl(kpa.id)">
-                {{ kpa.name }}
+                {{ kpa.name }}<br><span class="kpa-description">{{ kpa.description }}</span>
               </mat-checkbox>
             </div>
           </section>
@@ -93,7 +93,10 @@
         Please select an option for this question.
         </div>
         <div class="button-container">
-            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1">
+            <button mat-flat-button color="primary" (click)="startOver()" *ngIf="currentQuestionIndex == 0">
+                Back
+            </button>
+            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" *ngIf="currentQuestionIndex > 0" [disabled]="currentQuestionIndex < 1">
                 Back
             </button>
             <button mat-flat-button color="primary" (click)="goToNextQuestion()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1">
@@ -121,7 +124,7 @@
         </p>
         <p class="text-center mt-10 text-lg">Based on your responses, the maturity level of the stakeholder is:</p>
 
-        <app-maturity-results [maturityResponse]="responseForm.value"></app-maturity-results>
+        <app-maturity-results [maturityResponse]="responseForm.value" [allQuestions]="allQuestions"></app-maturity-results>
 
         <div class="button-container">
             <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1">
