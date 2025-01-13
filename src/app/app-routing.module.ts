@@ -12,6 +12,7 @@ import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.co
 import { HomeComponent } from './home/home.component';
 import { NcptComponent } from './ncpt/ncpt.component';
 import { PhaserGameComponent } from './phaser-game/phaser-game.component';
+import { FsnChangesComponent } from './fsn-changes/fsn-changes.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -27,6 +28,7 @@ const routes: Routes = [
   { path: 'maturity', component: MaturityMainComponent},
   { path: 'ncpt', component: NcptComponent },
   { path: 'phaser', component: PhaserGameComponent },
+  { path: 'fsn', component: FsnChangesComponent },
   { path: '**', redirectTo: '' }
 ];
 

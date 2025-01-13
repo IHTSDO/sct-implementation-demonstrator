@@ -79,6 +79,7 @@ import { NcptComponent } from './ncpt/ncpt.component';
 import { PhaserGameComponent } from './phaser-game/phaser-game.component';
 import { MaturityResultsComponent } from './maturity/maturity-results/maturity-results.component';
 import { MaturityResultsDialogComponent } from './maturity/maturity-results-dialog';
+import { FsnChangesComponent } from './fsn-changes/fsn-changes.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -124,7 +125,8 @@ const app = initializeApp(firebaseConfig);
     NcptComponent,
     PhaserGameComponent,
     MaturityResultsComponent,
-    MaturityResultsDialogComponent
+    MaturityResultsDialogComponent,
+    FsnChangesComponent
   ],
   imports: [
     HttpClientModule,
