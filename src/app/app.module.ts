@@ -79,7 +79,8 @@ import { NcptComponent } from './ncpt/ncpt.component';
 import { PhaserGameComponent } from './phaser-game/phaser-game.component';
 import { MaturityResultsComponent } from './maturity/maturity-results/maturity-results.component';
 import { MaturityResultsDialogComponent } from './maturity/maturity-results-dialog';
-import { FsnChangesComponent } from './fsn-changes/fsn-changes.component';
+import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
+import { InactivationsReportComponent } from './reports/inactivations/inactivations-report.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -126,7 +127,8 @@ const app = initializeApp(firebaseConfig);
     PhaserGameComponent,
     MaturityResultsComponent,
     MaturityResultsDialogComponent,
-    FsnChangesComponent
+    FsnChangesComponent,
+    InactivationsReportComponent
   ],
   imports: [
     HttpClientModule,

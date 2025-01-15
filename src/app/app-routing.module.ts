@@ -12,7 +12,8 @@ import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.co
 import { HomeComponent } from './home/home.component';
 import { NcptComponent } from './ncpt/ncpt.component';
 import { PhaserGameComponent } from './phaser-game/phaser-game.component';
-import { FsnChangesComponent } from './fsn-changes/fsn-changes.component';
+import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
+import { InactivationsReportComponent } from './reports/inactivations/inactivations-report.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -29,6 +30,8 @@ const routes: Routes = [
   { path: 'ncpt', component: NcptComponent },
   { path: 'phaser', component: PhaserGameComponent },
   { path: 'fsn', component: FsnChangesComponent },
+  { path: 'reports/fsn', component: FsnChangesComponent },
+  { path: 'reports/inactivations', component: InactivationsReportComponent },
   { path: '**', redirectTo: '' }
 ];
 
