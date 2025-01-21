@@ -8,6 +8,8 @@ import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 })
 export class InactivationsReportComponent implements OnInit {
 
+  loading = true;
+
   constructor(private http: HttpClient,
     private renderer: Renderer2,
     private elementRef: ElementRef) { }
@@ -15,6 +17,7 @@ export class InactivationsReportComponent implements OnInit {
   ngOnInit(): void {
       // Load the HTML file
       this.http.get('assets/reports/detect_inactivations_by_reason.html', { responseType: 'text' }).subscribe((html) => {
+        this.loading = false;
         // Create a div element to hold the HTML
         const container = this.elementRef.nativeElement.querySelector('#chart-container');
         container.innerHTML = html;

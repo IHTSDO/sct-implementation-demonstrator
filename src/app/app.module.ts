@@ -81,6 +81,8 @@ import { MaturityResultsComponent } from './maturity/maturity-results/maturity-r
 import { MaturityResultsDialogComponent } from './maturity/maturity-results-dialog';
 import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
 import { InactivationsReportComponent } from './reports/inactivations/inactivations-report.component';
+import { ReportsMainComponent } from './reports/reports-main/reports-main.component';
+import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-report.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -128,7 +130,9 @@ const app = initializeApp(firebaseConfig);
     MaturityResultsComponent,
     MaturityResultsDialogComponent,
     FsnChangesComponent,
-    InactivationsReportComponent
+    InactivationsReportComponent,
+    NewConceptsReportComponent,
+    ReportsMainComponent
   ],
   imports: [
     HttpClientModule,

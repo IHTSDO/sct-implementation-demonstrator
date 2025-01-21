@@ -14,6 +14,8 @@ import { NcptComponent } from './ncpt/ncpt.component';
 import { PhaserGameComponent } from './phaser-game/phaser-game.component';
 import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
 import { InactivationsReportComponent } from './reports/inactivations/inactivations-report.component';
+import { ReportsMainComponent } from './reports/reports-main/reports-main.component';
+import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-report.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -32,6 +34,8 @@ const routes: Routes = [
   { path: 'fsn', component: FsnChangesComponent },
   { path: 'reports/fsn', component: FsnChangesComponent },
   { path: 'reports/inactivations', component: InactivationsReportComponent },
+  { path: 'reports/new-concepts', component: NewConceptsReportComponent },
+  { path: 'reports', component: ReportsMainComponent },
   { path: '**', redirectTo: '' }
 ];
 
