@@ -35,7 +35,8 @@
             "allowedCommonJsDependencies": [
               "file-saver",
               "bad-words",
-              "phaser"
+              "phaser",
+              "lodash/cloneDeep"
             ]
           },
           "configurations": {
