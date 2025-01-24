@@ -200,6 +200,10 @@ class CdstdScene extends Phaser.Scene {
   }
 
   create() {
+    this.input.keyboard?.on('keydown-ENTER', () => {
+      this.internalTriage();
+    });
+
     // Retrieve the JSON data
     this.diagnosisData = this.cache.json.get('diagnosisData');
 
@@ -265,7 +269,8 @@ class CdstdScene extends Phaser.Scene {
     ) {
       this.lastTriageTime = Date.now(); // Update the last triage time
       this.time.delayedCall(1000, () => {
-        this.internalTriage();
+        // Disabling internal triage for now
+        // this.internalTriage();
       });
     }
   }
@@ -482,14 +487,29 @@ class CdstdScene extends Phaser.Scene {
     
   }
 
+  walkToInternalTriage(patient: Character) {
+    patient.walk();
+    let path = [
+      { x: 290, y: 350, duration: 500 }
+    ];
+    this.walkTo(patient, path, () => {
+      // this.time.delayedCall(100, () => {
+      //   patient.flipX = true;
+      // });
+    });
+  }
+
   enterHospital(patient: Character) {
     this.insideQueue.push(patient);
     patient.queuePosition = this.insideQueue.length;
     patient.walk();
+    // generate random waiting spot
+    let x = Phaser.Math.Between(350, 500);
+    let y = Phaser.Math.Between(330, 380);
     let path = [
       { x: 240, y: patient.y, duration: 500 },
       { x: 240, y: 350, duration: 500 },
-      { x: 280 + (20 * patient.queuePosition), y: 350, duration: 500 },
+      { x: x, y: y, duration: 500 },
     ];
     this.walkTo(patient, path, () => {
       this.time.delayedCall(100, () => {
@@ -520,7 +540,7 @@ class CdstdScene extends Phaser.Scene {
     if (queue.length === 0) {
       return;
     }
-    console.log(queue)
+    // console.log(queue)
     const queueStart = queue[0].x - 40;
     // Move the remaining patients in the queue
     queue.forEach((patient, index) => {
@@ -539,9 +559,9 @@ class CdstdScene extends Phaser.Scene {
     if (this.insideQueue.length === 0) {
       return;
     }
-  
     const patient = this.insideQueue.shift();
     if (patient) {
+      this.walkToInternalTriage(patient);
       for (let rule of this.internalTriageRules) {
         const doctor: Character = this.attendingDoctors[rule.doctorIndex].character;
   
@@ -552,7 +572,7 @@ class CdstdScene extends Phaser.Scene {
   
         const result = await this.checkPatientDiagnosisVsEcl(patient, rule.ecl);
         if (result.length > 0) {
-          console.log(`${doctor.info.title} is available and will attend to the patient.`);
+          // console.log(`${doctor.info.title} is available and will attend to the patient.`);
           this.internalTriageDoctor.say(`Go to the ${doctor?.info?.title}`, 1000);
   
           this.time.delayedCall(1000, () => {
@@ -732,7 +752,7 @@ class CdstdScene extends Phaser.Scene {
         return;
       } else {
         ecl = ecl + ' AND (' + eclAppendix + ' )';
-        this.terminologyService.expandValueSet(ecl, '').subscribe(
+        this.terminologyService.expandValueSetUsingCache(ecl, '').subscribe(
           (data: any) => {
             if (data.expansion?.total > 0) {
               resolve(data.expansion.contains);
@@ -759,6 +779,7 @@ class Character extends Phaser.Physics.Arcade.Sprite {
   hitPoints: number = 5;
   private calloutText?: Phaser.GameObjects.Text;
   private calloutLine?: Phaser.GameObjects.Line;
+  private diagnosisText?: Phaser.GameObjects.Text;
   previousX: number = 0;
   clinicalData: any = {};
   info: any = {};
@@ -795,10 +816,37 @@ class Character extends Phaser.Physics.Arcade.Sprite {
           }
         }
       }
+      this.setInteractive({ useHandCursor: true });
+      this.on('pointerover', () => this.showDiagnosis());
+      this.on('pointerout', () => this.hideDiagnosis());
       
     } else {
       this.idle(); // Gatekeeper starts idle
     }
+  }
+
+  showDiagnosis() {
+    if (this.diagnosisText) {
+      this.diagnosisText.destroy();
+    }
+
+    let diagnosisList = this.clinicalData.diagnosis.map((dx: any) => dx.display).join('\n');
+    if (!diagnosisList) {
+      diagnosisList = "No diagnosis available";
+    }
+
+    this.diagnosisText = this.sceneRef.add.text(this.x, this.y - 50, diagnosisList, {
+      fontSize: '14px',
+      color: '#ffffff',
+      backgroundColor: '#000000',
+      padding: { x: 5, y: 2 },
+      align: 'center',
+    }).setOrigin(0.5).setDepth(10);
+  }
+
+  hideDiagnosis() {
+    this.diagnosisText?.destroy();
+    this.diagnosisText = undefined;
   }
 
   // Animation methods

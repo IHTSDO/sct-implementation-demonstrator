@@ -35,13 +35,21 @@ export class TerminologyService {
   private fhirUrlParamSubject = new BehaviorSubject<string>(this.fhirUrlParam);
   private langSubject = new BehaviorSubject<string>(this.lang);
 
+  private expandValuesetCache = new Map<string, { timestamp: number, data: any }>();
+  private readonly CACHE_LIMIT = 100;
+  private readonly CACHE_DURATION = 20 * 60 * 60 * 1000; // 20 hours in milliseconds
+  private readonly CACHE_KEY = 'valueSetCache';
+
+
   // For external components to subscribe to
   snowstormFhirBase$ = this.snowstormFhirBaseSubject.asObservable();
   fhirUrlParam$ = this.fhirUrlParamSubject.asObservable();
   lang$ = this.langSubject.asObservable();
 
 
-  constructor(private http: HttpClient, private _snackBar: MatSnackBar) { }
+  constructor(private http: HttpClient, private _snackBar: MatSnackBar) { 
+    this.loadCache();
+  }
 
   setSnowstormFhirBase(url: string) {
     this.snowstormFhirBase = url;
@@ -102,6 +110,61 @@ export class TerminologyService {
         catchError(this.handleError<any>('expandValueSet', {}))
       );
   }
+
+  expandValueSetUsingCache(ecl: string, terms: string, offset?: number, count?: number): Observable<any> {
+      const requestUrl = this.getValueSetExpansionUrl(ecl, terms, offset, count); 
+      console.log('requestUrl', requestUrl);
+      
+      const cachedResponse = this.expandValuesetCache.get(requestUrl);
+
+      if (cachedResponse && (Date.now() - cachedResponse.timestamp) < this.CACHE_DURATION) {
+        // Move accessed item to end (LRU behavior)
+        this.expandValuesetCache.delete(requestUrl);
+        this.expandValuesetCache.set(requestUrl, cachedResponse);
+        this.saveCache(); // Save changes
+        console.log('cache hit');
+        return of(cachedResponse.data);
+      }
+  
+      return this.http.get<any>(requestUrl).pipe(
+        tap(response => {
+          console.log('cache miss');
+          this.manageCacheLimit();
+          this.expandValuesetCache.set(requestUrl, { timestamp: Date.now(), data: response });
+          this.saveCache(); // Persist cache to localStorage
+        }),
+        catchError(this.handleError<any>('expandValueSet', {}))
+      );
+    }
+  
+    private manageCacheLimit(): void {
+      if (this.expandValuesetCache.size >= this.CACHE_LIMIT) {
+        // Remove the oldest entry
+        const oldestKey = this.expandValuesetCache.keys().next().value;
+        if (oldestKey) this.expandValuesetCache.delete(oldestKey);
+      }
+    }
+  
+    private saveCache(): void {
+      try {
+        const cacheArray = Array.from(this.expandValuesetCache.entries());
+        localStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheArray));
+      } catch (error) {
+        console.error('Failed to save cache:', error);
+      }
+    }
+  
+    private loadCache(): void {
+      try {
+        const cacheData = localStorage.getItem(this.CACHE_KEY);
+        if (cacheData) {
+          const parsedData: [string, { timestamp: number, data: any }][] = JSON.parse(cacheData);
+          this.expandValuesetCache = new Map(parsedData);
+        }
+      } catch (error) {
+        console.error('Failed to load cache:', error);
+      }
+    }
 
   translate(conceptMapId: string, code: string, system?: string) {
     if (!system) system = this.defaultFhirUrlParam;
