@@ -113,8 +113,6 @@ export class TerminologyService {
 
   expandValueSetUsingCache(ecl: string, terms: string, offset?: number, count?: number): Observable<any> {
       const requestUrl = this.getValueSetExpansionUrl(ecl, terms, offset, count); 
-      console.log('requestUrl', requestUrl);
-      
       const cachedResponse = this.expandValuesetCache.get(requestUrl);
 
       if (cachedResponse && (Date.now() - cachedResponse.timestamp) < this.CACHE_DURATION) {
@@ -122,13 +120,11 @@ export class TerminologyService {
         this.expandValuesetCache.delete(requestUrl);
         this.expandValuesetCache.set(requestUrl, cachedResponse);
         this.saveCache(); // Save changes
-        console.log('cache hit');
         return of(cachedResponse.data);
       }
   
       return this.http.get<any>(requestUrl).pipe(
         tap(response => {
-          console.log('cache miss');
           this.manageCacheLimit();
           this.expandValuesetCache.set(requestUrl, { timestamp: Date.now(), data: response });
           this.saveCache(); // Persist cache to localStorage
