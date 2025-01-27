@@ -5,7 +5,10 @@
 
 .intro {
     font-size: 1.1rem;
-    margin-bottom: 1.3rem;
+    /* font-family: "Times New Roman", Times, Georgia, "Garamond", serif; */
+    text-align: justify;
+    margin-bottom: 10px;
+    line-height: 1.2;
 }
 
 .demos-panel {
@@ -53,4 +56,26 @@ mat-card-actions {
 
 .transparent-image {
     opacity: 0.5; /* 50% transparency */
+}
+
+.text-container {
+    text-align: justify;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    background-color: white;
+    border: 1px solid #e0e0e0; /* Light gray border */  
+}
+
+.draft-banner {
+    background-color: #ffcc00; /* Yellow background for visibility */
+    color: #333; /* Dark text for contrast */
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    font-size: 1rem;
+    border-bottom: 2px solid #e6b800;
+    position: relative; /* Ensures it stays within the panel */
+    margin-bottom: 1rem;
 }
