@@ -76,13 +76,13 @@ import { CheckBoxMultipleBindingComponent } from './bindings/checkbox-multiple-b
 import { HomeComponent } from './home/home.component';
 import { BindingsViewerComponent } from './bindings-sandbox/bindings-viewer/bindings-viewer.component';
 import { NcptComponent } from './ncpt/ncpt.component';
-import { PhaserGameComponent } from './phaser-game/phaser-game.component';
 import { MaturityResultsComponent } from './maturity/maturity-results/maturity-results.component';
 import { MaturityResultsDialogComponent } from './maturity/maturity-results-dialog';
 import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
 import { InactivationsReportComponent } from './reports/inactivations/inactivations-report.component';
 import { ReportsMainComponent } from './reports/reports-main/reports-main.component';
 import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-report.component';
+import { TriageGameComponent } from './phaser-game/phaser-v2/triage-game.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -126,13 +126,13 @@ const app = initializeApp(firebaseConfig);
     HomeComponent,
     BindingsViewerComponent,
     NcptComponent,
-    PhaserGameComponent,
     MaturityResultsComponent,
     MaturityResultsDialogComponent,
     FsnChangesComponent,
     InactivationsReportComponent,
     NewConceptsReportComponent,
-    ReportsMainComponent
+    ReportsMainComponent,
+    TriageGameComponent
   ],
   imports: [
     HttpClientModule,

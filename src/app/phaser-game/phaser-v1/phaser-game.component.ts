@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import Phaser from 'phaser';
-import { TerminologyService } from '../services/terminology.service';
+import { TerminologyService } from '../../services/terminology.service';
 import { doc } from 'firebase/firestore';
 import { UIScene } from './scenes/ui-scene';
 import { CdstdScene } from './scenes/cdstd-scene';

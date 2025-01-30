@@ -11,11 +11,11 @@ import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
 import { HomeComponent } from './home/home.component';
 import { NcptComponent } from './ncpt/ncpt.component';
-import { PhaserGameComponent } from './phaser-game/phaser-game.component';
 import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
 import { InactivationsReportComponent } from './reports/inactivations/inactivations-report.component';
 import { ReportsMainComponent } from './reports/reports-main/reports-main.component';
 import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-report.component';
+import { TriageGameComponent } from './phaser-game/phaser-v2/triage-game.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,7 +30,7 @@ const routes: Routes = [
   { path: 'context', component: ContextMainComponent},
   { path: 'maturity', component: MaturityMainComponent},
   { path: 'ncpt', component: NcptComponent },
-  { path: 'phaser', component: PhaserGameComponent },
+  { path: 'triage', component: TriageGameComponent },
   { path: 'fsn', component: FsnChangesComponent },
   { path: 'reports/fsn', component: FsnChangesComponent },
   { path: 'reports/inactivations', component: InactivationsReportComponent },
