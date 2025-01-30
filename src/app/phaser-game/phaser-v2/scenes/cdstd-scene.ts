@@ -31,6 +31,7 @@ export class CdstdScene extends Phaser.Scene {
   private internalTriageRules = [
     { ecl: "<< 386661006", doctorIndex: 1 },
     { ecl: "<< 22253000", doctorIndex: 0 },
+    { ecl: "<< 22253000", doctorIndex: 0 },
   ];
 
   attendingDoctors: any[] = [
@@ -89,12 +90,12 @@ export class CdstdScene extends Phaser.Scene {
     this.addDoctors();
 
     // Create the Gatekeeper
-    this.gatekeeper = new TriageRobot(this, 315, 190, [{ ecl: this.admissionEcl }], this.gameService);
+    this.gatekeeper = new TriageRobot(this, 315, 190, [{ ecl: this.admissionEcl, doctorIndex: 0 }], this.gameService);
     this.gatekeeper.setInteractive({ useHandCursor: true });
 
     // 🎮 Open the ECL editor when clicking on Gatekeeper
     this.gatekeeper.on('pointerdown', () => {
-        this.openEclEditor();
+        this.openEclEditor(this.gatekeeper);
     });
 
     this.add.existing(this.gatekeeper);
@@ -149,15 +150,15 @@ export class CdstdScene extends Phaser.Scene {
     }
   }
 
-  private openEclEditor() {
+  private openEclEditor(triageRobot: TriageRobot) {
     // 🛑 Pause the game
     this.scene.pause();
 
     // 🎮 Start the `EclEditorScene`
     this.scene.launch('EclEditorScene', {
-        ecl: this.gatekeeper.triageRules[0].ecl,
-        callback: (newEcl: string) => {
-            this.gatekeeper.setTriageRules([ { ecl: newEcl } ]);
+        rules: triageRobot.triageRules,
+        callback: (updatedRules: any[]) => {
+            triageRobot.setTriageRules(updatedRules);
         }
     });
 }
@@ -181,6 +182,12 @@ export class CdstdScene extends Phaser.Scene {
 
   addDoctors() {  
     this.internalTriageDoctor = new TriageRobot(this, 270, 350, this.internalTriageRules, this.gameService);
+    this.internalTriageDoctor.setInteractive({ useHandCursor: true });
+
+    // 🎮 Open the ECL editor when clicking on Gatekeeper
+    this.internalTriageDoctor.on('pointerdown', () => {
+        this.openEclEditor(this.internalTriageDoctor);
+    });
     this.attendingDoctors.forEach((doctor) => {
       const specialist = new Doctor(this, doctor.x, doctor.y, doctor.ecl, this.gameService);
       specialist.setTitle(doctor.title);
