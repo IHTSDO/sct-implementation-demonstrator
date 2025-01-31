@@ -1,6 +1,6 @@
 import { Character } from "./character";
 import { Patient } from "./patient";
-import { GameService } from "./gameService";
+import { GameService } from "../gameService";
 
 export class TriageRobot extends Character {
     public triageRules: any[] = [];

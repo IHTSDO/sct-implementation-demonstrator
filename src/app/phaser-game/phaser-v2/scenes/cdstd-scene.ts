@@ -3,7 +3,7 @@ import { Patient } from "../characters/patient";
 import { TriageRobot } from "../characters/triage-robot";
 import { Doctor } from "../characters/doctor";
 import { Character } from "../characters/character";
-import { GameService } from "../characters/gameService";
+import { GameService } from "../gameService";
 
 export class CdstdScene extends Phaser.Scene {
 
@@ -207,7 +207,7 @@ export class CdstdScene extends Phaser.Scene {
       { x: 330 + (30 * patient.queuePosition), y: 533, duration: 500 },
     ];
 
-    this.walkTo(patient, path, () => {
+    patient.walkTo(path, () => {
       this.patientsInQueue++;
       this.time.delayedCall(100, () => {
       });
@@ -237,7 +237,7 @@ export class CdstdScene extends Phaser.Scene {
       { x: 310, y: 533, duration: 200 }
     ];
 
-    this.walkTo(this.gatekeeper, path, () => {
+    this.gatekeeper.walkTo(path, () => {
       this.gatekeeper.say('We will start soon', 1100);
     });
   }
@@ -293,7 +293,7 @@ export class CdstdScene extends Phaser.Scene {
     let path = [
       { x: 310, y: 350, duration: 500 }
     ];
-    this.walkTo(patient, path, () => {
+    patient.walkTo(path, () => {
       // this.time.delayedCall(100, () => {
       //   patient.flipX = true;
       // });
@@ -311,7 +311,7 @@ export class CdstdScene extends Phaser.Scene {
       { x: 240, y: 350, duration: 500 },
       { x: x, y: y, duration: 500 },
     ];
-    this.walkTo(patient, path, () => {
+    patient.walkTo(path, () => {
       this.time.delayedCall(100, () => {
       });
     });
@@ -326,7 +326,7 @@ export class CdstdScene extends Phaser.Scene {
     // Throw a coin and set x to 0 or 800
     let coin = Phaser.Math.Between(0, 1);
     path.push({ x: coin * 800, y: 560, duration: 1000 });
-    this.walkTo(patient, path, () => {
+    patient.walkTo(path, () => {
       this.time.delayedCall(100, () => {
         patient.destroy();
       });
@@ -345,7 +345,7 @@ export class CdstdScene extends Phaser.Scene {
       let path = [
         { x: queueStart + (30 * patient.queuePosition), y: patient.y, duration: 500 },
       ];
-      this.walkTo(patient, path, () => {
+      patient.walkTo(path, () => {
         // Nothing
       });
     });
@@ -380,7 +380,7 @@ export class CdstdScene extends Phaser.Scene {
               { x: doctor.x + 30, y: doctor.y, duration: 300 },
             ];
             doctor.busy = true; // Mark doctor as busy
-            this.walkTo(patient, path, () => {
+            patient.walkTo(path, () => {
               this.attendPatient(patient, doctor);
             });
           });
@@ -418,7 +418,7 @@ export class CdstdScene extends Phaser.Scene {
       { x: newX, y: newY, duration: 500 / this.speedMultiplier },
     ];
   
-    this.walkTo(patient, path, () => {
+    patient.walkTo(path, () => {
     });
   
     console.log(`Patient re-added to insideQueue at position ${patient.queuePosition}`);
@@ -500,33 +500,6 @@ export class CdstdScene extends Phaser.Scene {
     } else {
       console.error('Keyboard input is not available.');
     }
-  }
-
-  private walkTo(character: Character, points: { x: number, y: number, duration: number }[], onComplete: () => void): void {
-    if (points.length === 0) {
-      onComplete();
-      return;
-    }
-    const createTween = (index: number) => {
-      if (index >= points.length) {
-        onComplete();
-        return;
-      }
-  
-      const point = points[index];
-      this.tweens.add({
-        targets: character,
-        x: point.x,
-        y: point.y,
-        duration: point.duration / this.speedMultiplier,
-        ease: 'Linear',
-        onComplete: () => {
-          createTween(index + 1);
-        },
-      });
-    };
-  
-    createTween(0);
   }
 
   checkPatientDiagnosisVsEcl(patient: Patient, ecl: string): Promise<any[]> {

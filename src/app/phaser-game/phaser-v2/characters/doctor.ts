@@ -1,6 +1,6 @@
+import { GameService } from "../gameService";
 import { Character } from "./character";
 import { Patient } from "./patient";
-import { GameService } from "./gameService";
 
 export class Doctor extends Character {
     public specialityEcl: string = '';

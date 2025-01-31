@@ -12,6 +12,7 @@ export class Character extends Phaser.GameObjects.Rectangle {
   previousX: number = 0;
   info: any = {};
   speed = 1;
+  moveTween?: Phaser.Tweens.Tween; // Store movement tween
 
   constructor(scene: Scene, x: number, y: number, spriteType: number = 1, color: number = 0x00ff00) {
     super(scene, x, y, 40, 40, color);
@@ -27,18 +28,63 @@ export class Character extends Phaser.GameObjects.Rectangle {
     this.spriteType = spriteType;
   }
 
+  /**
+   * Moves the character along a path of points.
+   * @param points An array of points { x, y, duration } to move along.
+   * @param onComplete A callback function to execute after the movement finishes.
+   */
+  walkTo(points: { x: number; y: number; duration: number }[], onComplete: () => void): void {
+    if (points.length === 0) {
+      onComplete();
+      return;
+    }
+
+    const moveCharacter = (index: number) => {
+      if (index >= points.length) {
+        onComplete();
+        return;
+      }
+      const point = points[index];
+
+      this.sceneRef.tweens.add({
+        targets: this,
+        x: point.x,
+        y: point.y,
+        duration: point.duration / this.speed,
+        ease: 'Linear',
+        onUpdate: () => {
+        },
+        onComplete: () => {
+          moveCharacter(index + 1);
+        },
+      });
+
+      // Extra squish animation while moving
+      this.sceneRef.tweens.add({
+        targets: this,
+        yoyo: true,
+        repeat: point.duration / 150, // Slight bobbing motion
+        duration: 150,
+        onComplete: () => {
+        },
+      });
+    };
+
+    moveCharacter(0);
+  }
+
   hurt() {
     this.hitPoints--;
 
     // Add damage pop-up text
-    const damageText = this.scene.add.text(this.x, this.y - 10, '-1', {
+    const damageText = this.sceneRef.add.text(this.x, this.y - 10, '-1', {
       fontSize: '20px',
       color: '#ff0000',
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
     // Animate the text to float upward and fade out
-    this.scene.tweens.add({
+    this.sceneRef.tweens.add({
       targets: damageText,
       y: this.y - 100,
       alpha: 0,
