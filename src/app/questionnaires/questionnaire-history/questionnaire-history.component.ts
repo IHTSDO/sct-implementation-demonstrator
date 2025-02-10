@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FhirService } from 'src/app/services/fhir.service';
-import * as saveAs from 'file-saver';
+import { saveAs } from 'file-saver';
 import { combineLatest, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({

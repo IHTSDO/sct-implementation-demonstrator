@@ -5,7 +5,7 @@ import { TerminologyService } from 'src/app/services/terminology.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { MatSort } from '@angular/material/sort';
-import * as saveAs from 'file-saver';
+import { saveAs } from 'file-saver';
 import { FhirService } from 'src/app/services/fhir.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadQuestionnaireModalComponent } from '../load-questionnaire-modal/load-questionnaire-modal.component';

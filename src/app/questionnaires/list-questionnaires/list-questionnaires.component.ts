@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, combineLatest, debounceTime, distinctUntilChanged, first } from 'rxjs';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { FhirService } from 'src/app/services/fhir.service';
-import * as saveAs from 'file-saver';
+import { saveAs } from 'file-saver';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { QuestionnaireService } from 'src/app/services/questionnaire.service';
