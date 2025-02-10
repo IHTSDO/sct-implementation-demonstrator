@@ -10,7 +10,7 @@ export class MenuService {
       name: "Clinical User Interface Demo",
       subtitle: "Clinical demo",
       type: "external", 
-      url: "http://snomed.org/ui",
+      url: "https://ihtsdo.github.io/snomed-ui-examples",
       description: "A simulation of clinical data entry on an EHR using SNOMED FHIR Terminology services"
     },
     { 
