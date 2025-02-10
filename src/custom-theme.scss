@@ -10,7 +10,7 @@
 @include mat.core();
 
 // trying to set the font size
-$my-custom-level: mat.define-typography-level(
+$my-custom-level: mat.m2-define-typography-level(
   $font-family: Roboto,
   $font-weight: 400,
   $font-size: .5rem,
@@ -21,15 +21,15 @@ $my-custom-level: mat.define-typography-level(
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$sct-implementation-demonstrator-primary: mat.define-palette(mat.$gray-palette, 700);
-$sct-implementation-demonstrator-accent: mat.define-palette(mat.$light-blue-palette, 800);
+$sct-implementation-demonstrator-primary: mat.m2-define-palette(mat.$m2-gray-palette, 700);
+$sct-implementation-demonstrator-accent: mat.m2-define-palette(mat.$m2-light-blue-palette, 800);
 
 // The warn palette is optional (defaults to red).
-$sct-implementation-demonstrator-warn: mat.define-palette(mat.$red-palette);
+$sct-implementation-demonstrator-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
-$sct-implementation-demonstrator-theme: mat.define-light-theme((
+$sct-implementation-demonstrator-theme: mat.m2-define-light-theme((
   color: (
     primary: $sct-implementation-demonstrator-primary,
     accent: $sct-implementation-demonstrator-accent,
