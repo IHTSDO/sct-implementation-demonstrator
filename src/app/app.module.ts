@@ -83,6 +83,9 @@ import { InactivationsReportComponent } from './reports/inactivations/inactivati
 import { ReportsMainComponent } from './reports/reports-main/reports-main.component';
 import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-report.component';
 import { TriageGameComponent } from './phaser-game/phaser-v2/triage-game.component';
+import { LoincMainComponent } from './loinc/loinc-main/loinc-main.component';
+import { LoincOrderComponent } from './loinc/loinc-order/loinc-order.component';
+import { LoincResultsComponent } from './loinc/loinc-results/loinc-results.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -132,7 +135,10 @@ const app = initializeApp(firebaseConfig);
     InactivationsReportComponent,
     NewConceptsReportComponent,
     ReportsMainComponent,
-    TriageGameComponent
+    TriageGameComponent,
+    LoincMainComponent,
+    LoincOrderComponent,
+    LoincResultsComponent
   ],
   imports: [
     HttpClientModule,

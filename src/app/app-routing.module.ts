@@ -16,6 +16,7 @@ import { InactivationsReportComponent } from './reports/inactivations/inactivati
 import { ReportsMainComponent } from './reports/reports-main/reports-main.component';
 import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-report.component';
 import { TriageGameComponent } from './phaser-game/phaser-v2/triage-game.component';
+import { LoincMainComponent } from './loinc/loinc-main/loinc-main.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -36,6 +37,7 @@ const routes: Routes = [
   { path: 'reports/inactivations', component: InactivationsReportComponent },
   { path: 'reports/new-concepts', component: NewConceptsReportComponent },
   { path: 'reports', component: ReportsMainComponent },
+  { path: 'loinc', component: LoincMainComponent },
   { path: '**', redirectTo: '' }
 ];
 
