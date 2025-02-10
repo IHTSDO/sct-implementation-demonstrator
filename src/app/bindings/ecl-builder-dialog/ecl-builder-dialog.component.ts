@@ -2,9 +2,10 @@ import { Component, Inject } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-ecl-builder-dialog',
-  templateUrl: './ecl-builder-dialog.component.html',
-  styleUrls: ['./ecl-builder-dialog.component.css']
+    selector: 'app-ecl-builder-dialog',
+    templateUrl: './ecl-builder-dialog.component.html',
+    styleUrls: ['./ecl-builder-dialog.component.css'],
+    standalone: false
 })
 
 export class EclBuilderDialogComponent {

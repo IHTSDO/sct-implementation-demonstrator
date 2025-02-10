@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TerminologyService } from '../../services/terminology.service';
 
 @Component({
-  selector: 'app-radios-binding',
-  templateUrl: './radios-binding.component.html',
-  styleUrls: ['./radios-binding.component.css']
+    selector: 'app-radios-binding',
+    templateUrl: './radios-binding.component.html',
+    styleUrls: ['./radios-binding.component.css'],
+    standalone: false
 })
 export class RadiosBindingComponent implements OnInit {
   @Input() binding: any;

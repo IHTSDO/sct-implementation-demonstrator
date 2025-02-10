@@ -4,9 +4,10 @@ import { NgForm } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-fhir-server-settings-modal',
-  templateUrl: './fhir-server-settings-modal.component.html',
-  styleUrls: ['./fhir-server-settings-modal.component.css']
+    selector: 'app-fhir-server-settings-modal',
+    templateUrl: './fhir-server-settings-modal.component.html',
+    styleUrls: ['./fhir-server-settings-modal.component.css'],
+    standalone: false
 })
 export class FhirServerSettingsModalComponent implements OnInit {
   baseUrl: string = '';

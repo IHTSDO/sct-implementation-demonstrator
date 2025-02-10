@@ -2,9 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
-  selector: 'app-inactivations-report',
-  templateUrl: './inactivations-report.component.html',
-  styleUrl: './inactivations-report.component.css'
+    selector: 'app-inactivations-report',
+    templateUrl: './inactivations-report.component.html',
+    styleUrl: './inactivations-report.component.css',
+    standalone: false
 })
 export class InactivationsReportComponent implements OnInit {
 

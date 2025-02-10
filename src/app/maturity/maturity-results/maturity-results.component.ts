@@ -4,9 +4,10 @@ import { TitleCasePipe } from '@angular/common';
 Chart.register(...registerables);
 
 @Component({
-  selector: 'app-maturity-results',
-  templateUrl: './maturity-results.component.html',
-  styleUrls: ['./maturity-results.component.css']
+    selector: 'app-maturity-results',
+    templateUrl: './maturity-results.component.html',
+    styleUrls: ['./maturity-results.component.css'],
+    standalone: false
 })
 export class MaturityResultsComponent implements OnChanges, AfterViewInit {
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;

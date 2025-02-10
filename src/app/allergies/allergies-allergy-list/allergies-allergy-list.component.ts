@@ -8,9 +8,10 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 @Component({
-  selector: 'app-allergies-allergy-list',
-  templateUrl: './allergies-allergy-list.component.html',
-  styleUrls: ['./allergies-allergy-list.component.css']
+    selector: 'app-allergies-allergy-list',
+    templateUrl: './allergies-allergy-list.component.html',
+    styleUrls: ['./allergies-allergy-list.component.css'],
+    standalone: false
 })
 export class AllergiesAllergyListComponent  implements OnInit {
 

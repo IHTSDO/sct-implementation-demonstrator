@@ -5,9 +5,10 @@ import { FhirService } from 'src/app/services/fhir.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
-  selector: 'app-create-root-module',
-  templateUrl: './create-root-module.component.html',
-  styleUrls: ['./create-root-module.component.css']
+    selector: 'app-create-root-module',
+    templateUrl: './create-root-module.component.html',
+    styleUrls: ['./create-root-module.component.css'],
+    standalone: false
 })
 export class CreateRootModuleComponent {
 

@@ -5,9 +5,10 @@ import * as saveAs from 'file-saver';
 import { combineLatest, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
-  selector: 'app-questionnaire-history',
-  templateUrl: './questionnaire-history.component.html',
-  styleUrls: ['./questionnaire-history.component.css']
+    selector: 'app-questionnaire-history',
+    templateUrl: './questionnaire-history.component.html',
+    styleUrls: ['./questionnaire-history.component.css'],
+    standalone: false
 })
 export class QuestionnaireHistoryComponent implements OnInit, OnChanges {
 

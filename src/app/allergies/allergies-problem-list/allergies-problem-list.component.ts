@@ -8,9 +8,10 @@ const ELEMENT_DATA2: any[] = [];
 
 
 @Component({
-  selector: 'app-allergies-problem-list',
-  templateUrl: './allergies-problem-list.component.html',
-  styleUrls: ['./allergies-problem-list.component.css']
+    selector: 'app-allergies-problem-list',
+    templateUrl: './allergies-problem-list.component.html',
+    styleUrls: ['./allergies-problem-list.component.css'],
+    standalone: false
 })
 export class AllergiesProblemListComponent {
   problemBinding = { ecl: '< 404684003 |Clinical finding|', title: 'Search...' };

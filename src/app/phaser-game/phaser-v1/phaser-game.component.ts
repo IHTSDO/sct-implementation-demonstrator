@@ -6,9 +6,10 @@ import { UIScene } from './scenes/ui-scene';
 import { CdstdScene } from './scenes/cdstd-scene';
 
 @Component({
-  selector: 'app-phaser-game',
-  templateUrl: './phaser-game.component.html',
-  styleUrls: ['./phaser-game.component.css']
+    selector: 'app-phaser-game',
+    templateUrl: './phaser-game.component.html',
+    styleUrls: ['./phaser-game.component.css'],
+    standalone: false
 })
 export class PhaserGameComponent implements OnInit, OnDestroy {
   private game!: Phaser.Game;

@@ -7,9 +7,10 @@ import { UIScene } from './scenes/ui-scene';
 import { EclEditorScene } from './scenes/ecl-editor-scene';
 
 @Component({
-  selector: 'app-triage-game',
-  templateUrl: './triage-game.component.html',
-  styleUrls: ['./triage-game.component.css']
+    selector: 'app-triage-game',
+    templateUrl: './triage-game.component.html',
+    styleUrls: ['./triage-game.component.css'],
+    standalone: false
 })
 export class TriageGameComponent implements OnInit, OnDestroy {
   private game!: Phaser.Game;

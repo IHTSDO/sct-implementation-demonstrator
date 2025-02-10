@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TerminologyService } from 'src/app/services/terminology.service';
 
 @Component({
-  selector: 'app-integer-binding',
-  templateUrl: './integer-binding.component.html',
-  styleUrls: ['./integer-binding.component.css']
+    selector: 'app-integer-binding',
+    templateUrl: './integer-binding.component.html',
+    styleUrls: ['./integer-binding.component.css'],
+    standalone: false
 })
 export class IntegerBindingComponent {
   @Input() binding: any;

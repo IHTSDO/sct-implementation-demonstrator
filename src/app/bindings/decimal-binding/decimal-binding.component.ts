@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TerminologyService } from 'src/app/services/terminology.service';
 
 @Component({
-  selector: 'app-decimal-binding',
-  templateUrl: './decimal-binding.component.html',
-  styleUrls: ['./decimal-binding.component.css']
+    selector: 'app-decimal-binding',
+    templateUrl: './decimal-binding.component.html',
+    styleUrls: ['./decimal-binding.component.css'],
+    standalone: false
 })
 export class DecimalBindingComponent {
   @Input() binding: any;

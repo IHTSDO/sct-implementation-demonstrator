@@ -2,9 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
-  selector: 'app-fsn-changes',
-  templateUrl: './fsn-changes.component.html',
-  styleUrl: './fsn-changes.component.css'
+    selector: 'app-fsn-changes',
+    templateUrl: './fsn-changes.component.html',
+    styleUrl: './fsn-changes.component.css',
+    standalone: false
 })
 export class FsnChangesComponent implements OnInit {
 

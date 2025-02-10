@@ -3,9 +3,10 @@ import { TerminologyService } from '../../services/terminology.service';
 import {FormBuilder} from '@angular/forms';
 
 @Component({
-  selector: 'app-checkbox-multiple-binding',
-  templateUrl: './checkbox-multiple-binding.component.html',
-  styleUrls: ['./checkbox-multiple-binding.component.css']
+    selector: 'app-checkbox-multiple-binding',
+    templateUrl: './checkbox-multiple-binding.component.html',
+    styleUrls: ['./checkbox-multiple-binding.component.css'],
+    standalone: false
 })
 export class CheckBoxMultipleBindingComponent implements OnInit {
   @Input() binding: any;

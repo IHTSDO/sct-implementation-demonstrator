@@ -20,9 +20,10 @@ import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
-  selector: 'app-questionnaires-main',
-  templateUrl: './questionnaires-main.component.html',
-  styleUrls: ['./questionnaires-main.component.css']
+    selector: 'app-questionnaires-main',
+    templateUrl: './questionnaires-main.component.html',
+    styleUrls: ['./questionnaires-main.component.css'],
+    standalone: false
 })
 export class QuestionnairesMainComponent implements OnInit{
   @ViewChild(MatSort) sort!: MatSort;

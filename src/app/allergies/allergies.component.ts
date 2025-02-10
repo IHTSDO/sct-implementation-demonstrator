@@ -4,9 +4,10 @@ import { SnackAlertComponent } from '../alerts/snack-alert';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-allergies',
-  templateUrl: './allergies.component.html',
-  styleUrls: ['./allergies.component.css']
+    selector: 'app-allergies',
+    templateUrl: './allergies.component.html',
+    styleUrls: ['./allergies.component.css'],
+    standalone: false
 })
 
 export class AllergiesComponent {

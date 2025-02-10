@@ -2,16 +2,17 @@ import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/cor
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'app-allergies-allergy-list-reaction',
-  templateUrl: './allergies-allergy-list-reaction.component.html',
-  styleUrls: ['./allergies-allergy-list-reaction.component.css'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => AllergiesAllergyListReactionComponent),
-      multi: true
-    }
-  ]
+    selector: 'app-allergies-allergy-list-reaction',
+    templateUrl: './allergies-allergy-list-reaction.component.html',
+    styleUrls: ['./allergies-allergy-list-reaction.component.css'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => AllergiesAllergyListReactionComponent),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class AllergiesAllergyListReactionComponent implements ControlValueAccessor {
 

@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-keyboard',
-  templateUrl: './keyboard.component.html',
-  styleUrls: ['./keyboard.component.css']
+    selector: 'app-keyboard',
+    templateUrl: './keyboard.component.html',
+    styleUrls: ['./keyboard.component.css'],
+    standalone: false
 })
 export class KeyboardComponent {
   keyboardLayout = [

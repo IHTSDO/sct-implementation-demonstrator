@@ -6,20 +6,21 @@ import { TerminologyService } from '../../services/terminology.service';
 import { MatFormFieldControl } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-autocomplete-binding',
-  templateUrl: './autocomplete-binding.component.html',
-  styleUrls: ['./autocomplete-binding.component.css'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => AutocompleteBindingComponent),
-      multi: true
-    },
-    {
-      provide: MatFormFieldControl,
-      useExisting: AutocompleteBindingComponent
-    }
-  ]
+    selector: 'app-autocomplete-binding',
+    templateUrl: './autocomplete-binding.component.html',
+    styleUrls: ['./autocomplete-binding.component.css'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => AutocompleteBindingComponent),
+            multi: true
+        },
+        {
+            provide: MatFormFieldControl,
+            useExisting: AutocompleteBindingComponent
+        }
+    ],
+    standalone: false
 })
 export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlValueAccessor  {
   @Input() binding: any;

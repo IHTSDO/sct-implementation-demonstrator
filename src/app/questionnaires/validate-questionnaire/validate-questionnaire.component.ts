@@ -9,9 +9,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 
 @Component({
-  selector: 'app-validate-questionnaire',
-  templateUrl: './validate-questionnaire.component.html',
-  styleUrls: ['./validate-questionnaire.component.css']
+    selector: 'app-validate-questionnaire',
+    templateUrl: './validate-questionnaire.component.html',
+    styleUrls: ['./validate-questionnaire.component.css'],
+    standalone: false
 })
 export class ValidateQuestionnaireComponent implements OnChanges {
   @ViewChild(MatSort) sort!: MatSort;

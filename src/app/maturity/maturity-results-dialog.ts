@@ -19,8 +19,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
       <div mat-dialog-actions align="end">
         <button mat-button mat-dialog-close>Close</button>
       </div>
-    `
-  })
+    `,
+    standalone: false
+})
   export class MaturityResultsDialogComponent {
     public maturityResponse: any;
   

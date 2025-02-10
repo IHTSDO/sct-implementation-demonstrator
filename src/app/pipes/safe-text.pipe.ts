@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import Filter from 'bad-words';
 
 @Pipe({
-  name: 'safeText'
+    name: 'safeText',
+    standalone: false
 })
 export class SafeTextPipe implements PipeTransform {
   private filter = new Filter();

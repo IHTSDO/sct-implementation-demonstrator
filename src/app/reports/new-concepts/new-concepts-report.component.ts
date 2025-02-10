@@ -2,9 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
-  selector: 'app-inactivations-report',
-  templateUrl: './new-concepts-report.component.html',
-  styleUrl: './new-concepts-report.component.css'
+    selector: 'app-inactivations-report',
+    templateUrl: './new-concepts-report.component.html',
+    styleUrl: './new-concepts-report.component.css',
+    standalone: false
 })
 export class NewConceptsReportComponent implements OnInit {
 

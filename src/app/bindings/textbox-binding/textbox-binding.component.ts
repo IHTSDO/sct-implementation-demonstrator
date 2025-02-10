@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TerminologyService } from '../../services/terminology.service';
 
 @Component({
-  selector: 'app-textbox-binding',
-  templateUrl: './textbox-binding.component.html',
-  styleUrls: ['./textbox-binding.component.css']
+    selector: 'app-textbox-binding',
+    templateUrl: './textbox-binding.component.html',
+    styleUrls: ['./textbox-binding.component.css'],
+    standalone: false
 })
 export class TextBoxBindingComponent implements OnInit {
   @Input() binding: any;

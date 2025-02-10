@@ -9,9 +9,10 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { TerminologyService } from 'src/app/services/terminology.service';
 
 @Component({
-  selector: 'app-subset-validator',
-  templateUrl: './subset-validator.component.html',
-  styleUrls: ['./subset-validator.component.css']
+    selector: 'app-subset-validator',
+    templateUrl: './subset-validator.component.html',
+    styleUrls: ['./subset-validator.component.css'],
+    standalone: false
 })
 export class SubsetValidatorComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;

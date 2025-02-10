@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { PlatformDetectionService } from 'src/app/services/platform-detection.service';
 
 @Component({
-  selector: 'app-add-to-home',
-  templateUrl: './add-to-home.component.html',
-  styleUrls: ['./add-to-home.component.css']
+    selector: 'app-add-to-home',
+    templateUrl: './add-to-home.component.html',
+    styleUrls: ['./add-to-home.component.css'],
+    standalone: false
 })
 export class AddToHomeComponent implements OnInit {
   isIosSafari: boolean = false;

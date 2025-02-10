@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-bindings-viewer',
-  templateUrl: './bindings-viewer.component.html',
-  styleUrl: './bindings-viewer.component.css'
+    selector: 'app-bindings-viewer',
+    templateUrl: './bindings-viewer.component.html',
+    styleUrl: './bindings-viewer.component.css',
+    standalone: false
 })
 export class BindingsViewerComponent {
 

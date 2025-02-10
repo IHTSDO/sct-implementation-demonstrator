@@ -5,9 +5,10 @@ import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
-  selector: 'app-situation-map',
-  templateUrl: './situation-map.component.html',
-  styleUrls: ['./situation-map.component.css']
+    selector: 'app-situation-map',
+    templateUrl: './situation-map.component.html',
+    styleUrls: ['./situation-map.component.css'],
+    standalone: false
 })
 export class SituationMapComponent implements OnInit {
 

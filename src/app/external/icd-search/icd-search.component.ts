@@ -4,9 +4,10 @@ import { catchError, debounceTime, map, Observable, of, switchMap } from 'rxjs';
 import { ExternalService } from 'src/app/services/external.service';
 
 @Component({
-  selector: 'app-icd-search',
-  templateUrl: './icd-search.component.html',
-  styleUrl: './icd-search.component.css'
+    selector: 'app-icd-search',
+    templateUrl: './icd-search.component.html',
+    styleUrl: './icd-search.component.css',
+    standalone: false
 })
 export class IcdSearchComponent {
 

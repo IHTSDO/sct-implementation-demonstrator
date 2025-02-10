@@ -8,22 +8,23 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import cloneDeep from 'lodash/cloneDeep';
 
 @Component({
-  selector: 'app-maturity-main',
-  templateUrl: './maturity-main.component.html',
-  styleUrl: './maturity-main.component.css',
-  animations: [
-    trigger('questionAnimation', [
-      state('enter', style({ opacity: 1 })),
-      state('leave', style({ opacity: 0 })),
-      transition('enter => leave', [
-        animate('200ms ease-in-out', style({ opacity: 0 }))
-      ]),
-      transition('leave => enter', [
-        style({ opacity: 0 }),
-        animate('200ms ease-in-out', style({ opacity: 1 }))
-      ])
-    ])
-  ]
+    selector: 'app-maturity-main',
+    templateUrl: './maturity-main.component.html',
+    styleUrl: './maturity-main.component.css',
+    animations: [
+        trigger('questionAnimation', [
+            state('enter', style({ opacity: 1 })),
+            state('leave', style({ opacity: 0 })),
+            transition('enter => leave', [
+                animate('200ms ease-in-out', style({ opacity: 0 }))
+            ]),
+            transition('leave => enter', [
+                style({ opacity: 0 }),
+                animate('200ms ease-in-out', style({ opacity: 1 }))
+            ])
+        ])
+    ],
+    standalone: false
 })
 export class MaturityMainComponent implements OnInit {
   

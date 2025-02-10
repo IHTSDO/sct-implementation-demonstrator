@@ -3,9 +3,10 @@ import { TerminologyService } from '../../services/terminology.service';
 import {FormBuilder} from '@angular/forms';
 
 @Component({
-  selector: 'app-checkbox-binding',
-  templateUrl: './checkbox-binding.component.html',
-  styleUrls: ['./checkbox-binding.component.css']
+    selector: 'app-checkbox-binding',
+    templateUrl: './checkbox-binding.component.html',
+    styleUrls: ['./checkbox-binding.component.css'],
+    standalone: false
 })
 export class CheckBoxBindingComponent implements OnInit {
   @Input() binding: any;

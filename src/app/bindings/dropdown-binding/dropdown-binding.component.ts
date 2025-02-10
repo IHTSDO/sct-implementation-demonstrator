@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TerminologyService } from '../../services/terminology.service';
 
 @Component({
-  selector: 'app-dropdown-binding',
-  templateUrl: './dropdown-binding.component.html',
-  styleUrls: ['./dropdown-binding.component.css']
+    selector: 'app-dropdown-binding',
+    templateUrl: './dropdown-binding.component.html',
+    styleUrls: ['./dropdown-binding.component.css'],
+    standalone: false
 })
 export class DropdownBindingComponent implements OnInit {
   @Input() binding: any;

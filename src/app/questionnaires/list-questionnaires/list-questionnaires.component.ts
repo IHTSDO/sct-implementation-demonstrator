@@ -13,9 +13,10 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
-  selector: 'app-list-questionnaires',
-  templateUrl: './list-questionnaires.component.html',
-  styleUrls: ['./list-questionnaires.component.css']
+    selector: 'app-list-questionnaires',
+    templateUrl: './list-questionnaires.component.html',
+    styleUrls: ['./list-questionnaires.component.css'],
+    standalone: false
 })
 export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterViewInit {
 

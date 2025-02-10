@@ -3,9 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'app-ncpt',
-  templateUrl: './ncpt.component.html',
-  styleUrl: './ncpt.component.css'
+    selector: 'app-ncpt',
+    templateUrl: './ncpt.component.html',
+    styleUrl: './ncpt.component.css',
+    standalone: false
 })
 export class NcptComponent implements OnInit {
 

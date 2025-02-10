@@ -17,35 +17,36 @@ import {
 } from '@angular/animations';
 import { AutocompleteBindingComponent } from '../bindings/autocomplete-binding/autocomplete-binding.component';
 @Component({
-  selector: 'app-bindings-sandbox',
-  templateUrl: './bindings-sandbox.component.html',
-  styleUrls: ['./bindings-sandbox.component.css'],
-  animations: [
-    trigger('openClose', [
-      state('open', style({
-        opacity: 1,
-        width: '50%'
-      })),
-      state('closed', style({
-        opacity: 0,
-        width: '0'
-      })),
-      transition('open <=> closed', [
-        animate('0.5s')
-      ]),
-    ]),
-    trigger('growShrink', [
-      state('open', style({
-        width: '50%'
-      })),
-      state('closed', style({
-        width: '100%'
-      })),
-      transition('open <=> closed', [
-        animate('0.5s')
-      ]),
-    ]),
-  ]
+    selector: 'app-bindings-sandbox',
+    templateUrl: './bindings-sandbox.component.html',
+    styleUrls: ['./bindings-sandbox.component.css'],
+    animations: [
+        trigger('openClose', [
+            state('open', style({
+                opacity: 1,
+                width: '50%'
+            })),
+            state('closed', style({
+                opacity: 0,
+                width: '0'
+            })),
+            transition('open <=> closed', [
+                animate('0.5s')
+            ]),
+        ]),
+        trigger('growShrink', [
+            state('open', style({
+                width: '50%'
+            })),
+            state('closed', style({
+                width: '100%'
+            })),
+            transition('open <=> closed', [
+                animate('0.5s')
+            ]),
+        ]),
+    ],
+    standalone: false
 })
 export class BindingsSandboxComponent implements OnInit {
   @ViewChild('newPanel') newPanel!: MatExpansionPanel;
