@@ -145,7 +145,7 @@ export class SnoguessMainComponent implements OnInit {
 
     this.terminologyService.fhirUrlParam$.subscribe(url => {
       if (url) {
-        this.terminologyService.getCodeSystem(url).subscribe(data => {
+        this.terminologyService.getCodeSystem(url).subscribe((data: any) => {
           this.selectedEdition = data?.entry[0]?.resource?.title;
         });
       }
@@ -247,7 +247,7 @@ export class SnoguessMainComponent implements OnInit {
     this.elapsedTime = 0;
     this.gameInProgress = true;
     const timer$ = timer(0, 1000).pipe(
-      map(tick => this.elapsedTime = tick),
+      map((tick: number) => this.elapsedTime = tick),
       takeWhile(() => this.gameInProgress)
     );
     this.gameTimerSubscription = timer$.subscribe();

@@ -124,7 +124,7 @@ export class TerminologyService {
       }
   
       return this.http.get<any>(requestUrl).pipe(
-        tap(response => {
+        tap((response: any) => {
           this.manageCacheLimit();
           this.expandValuesetCache.set(requestUrl, { timestamp: Date.now(), data: response });
           this.saveCache(); // Persist cache to localStorage
@@ -227,7 +227,7 @@ export class TerminologyService {
     };
   
     return this.http.get<any>(requestUrl, httpOptions).pipe( // Add httpOptions to the request
-      tap(concept => {
+      tap((concept: any) => {
         this.conceptCache.set(cacheKey, concept);
       }),
       catchError(this.handleError<any>('lookupConcept', {}))

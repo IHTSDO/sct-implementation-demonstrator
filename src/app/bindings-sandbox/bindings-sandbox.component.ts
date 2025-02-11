@@ -317,7 +317,7 @@ export class BindingsSandboxComponent implements OnInit {
 
   async getEclPreview(ecl: string): Promise<any> {
     const response = await this.terminologyService.expandValueSet(ecl, '');
-    return lastValueFrom(response.pipe(map(res => res)));
+    return lastValueFrom(response.pipe(map((res: any) => res)));
   }
 
   edit(i: number) {

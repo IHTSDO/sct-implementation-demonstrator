@@ -28,9 +28,9 @@ export class IcdSearchComponent {
     this.searchControl.valueChanges
       .pipe(
         debounceTime(300), // wait for the user to stop typing for 300ms
-        switchMap(value => this.searchICD(value))
+        switchMap((value: string) => this.searchICD(value))
       )
-      .subscribe(results => {
+      .subscribe((results: any) => {
         this.filteredOptions = results?.['destinationEntities'] || [];
       });
   }
@@ -49,11 +49,11 @@ export class IcdSearchComponent {
 
   searchICD(query: string): Observable<any> {
     return this.externalService.searchICDf(query, true).pipe(
-      map(response => {
+      map((response: any) => {
         // Assuming the response has a structure where 'destinationEntities' is the array of results
         return response?.destinationEntities || [];
       }),
-      catchError(error => {
+      catchError((error: any) => {
         console.error('Error during ICD search', error);
         return of([]); // Return an empty array in case of error
       })

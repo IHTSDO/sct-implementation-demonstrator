@@ -99,7 +99,7 @@ export class AppComponent {
   }
 
   updateCodeSystemOptions(preselectedEdition?: string) {
-    this.terminologyService.getCodeSystems().subscribe(response => {
+    this.terminologyService.getCodeSystems().subscribe((response: any) => {
       this.editionsDetails = [];
       this.editions = response.entry;
       let editionNames = new Set();

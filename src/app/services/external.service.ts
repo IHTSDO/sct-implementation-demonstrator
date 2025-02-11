@@ -32,8 +32,8 @@ export class ExternalService {
     });
 
     return this.http.post<any>(this.tokenEndpoint, body.toString(), { headers }).pipe(
-      map(response => response.access_token),
-      catchError(error => {
+      map((response: any) => response.access_token),
+      catchError((error: any) => {
         console.error('Error fetching access token', error);
         return of(''); // return an empty string in case of an error
       })
@@ -42,7 +42,7 @@ export class ExternalService {
 
   public getICDEntity(): Observable<any> {
     return this.getAccessToken().pipe(
-      switchMap(token => {
+      switchMap((token: any) => {
         if (!token) {
           return of(null); // handle the case where the token couldn't be fetched
         }
@@ -56,7 +56,7 @@ export class ExternalService {
 
         return this.http.get('https://id.who.int/icd/entity', { headers });
       }),
-      catchError(error => {
+      catchError((error: any) => {
         console.error('Error fetching ICD entity', error);
         return of(null); // return null in case of an error
       })
@@ -65,7 +65,7 @@ export class ExternalService {
 
   public searchICDf(query: string, highlighting: boolean): Observable<any> {
     return this.getAccessToken().pipe(
-      switchMap(token => {
+      switchMap((token: any) => {
         if (!token) {
           return of([]); // handle the case where the token couldn't be fetched
         }
@@ -79,7 +79,7 @@ export class ExternalService {
 
         return this.http.get(`https://id.who.int/icd/entity/search?q=${query}&useFlexisearch=false&flatResults=true&highlightingEnabled=${highlighting}`, { headers });
       }),
-      catchError(error => {
+      catchError((error: any) => {
         console.error('Error searching ICD', error);
         return of([]); // return an empty array in case of an error
       })

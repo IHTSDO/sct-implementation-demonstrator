@@ -279,22 +279,22 @@ export class AllergiesAllergyListComponent  implements OnInit {
 
   async getIntoleranceSubstance(allergy: any): Promise<any> {
     const response = await this.terminologyService.expandValueSet(`${allergy.code} |${allergy.display}| . 47429007 |Associated with (attribute)|`, '');
-    return lastValueFrom(response.pipe(map(res => res)));
+    return lastValueFrom(response.pipe(map((res: any) => res)));
   }
 
   async getAllergySubstance(allergy: any): Promise<any> {
     const response = await this.terminologyService.expandValueSet(`${allergy.code} |${allergy.display}| . 246075003 |Causative agent (attribute)|`, '');
-    return lastValueFrom(response.pipe(map(res => res)));
+    return lastValueFrom(response.pipe(map((res: any) => res)));
   }
 
   async getSubstanceCategories(substance: any): Promise<any> {
     const response = await this.terminologyService.expandValueSet(`> ${substance.code} |${substance.display}| AND (762766007 |Edible substance| OR 115668003 |Biological substance (substance)| OR 410942007 |Drug or medicament (substance)| OR 57795002 |Chemical element|)`, '');
-    return lastValueFrom(response.pipe(map(res => res)));
+    return lastValueFrom(response.pipe(map((res: any) => res)));
   }
 
   async getTypes(propensity: any): Promise<any> {
     const response = await this.terminologyService.expandValueSet(`> ${propensity.code} |${propensity.display}| AND (609433001 |Hypersensitivity disposition| OR 782197009 |Intolerance to substance|)`, '');
-    return lastValueFrom(response.pipe(map(res => res)));
+    return lastValueFrom(response.pipe(map((res: any) => res)));
   }
 
   saveFhirResource() {

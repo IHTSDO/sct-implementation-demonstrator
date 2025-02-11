@@ -102,7 +102,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
         }
         
       }),
-      tap(data => {
+      tap((data: any) => {
         this.loading = false;
       })
     );  

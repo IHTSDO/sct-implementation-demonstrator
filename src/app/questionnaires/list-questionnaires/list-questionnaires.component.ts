@@ -97,7 +97,7 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
         debounceTime(1000),
         distinctUntilChanged()
       )
-    ]).subscribe(([baseUrl, userTag]) => {
+    ]).subscribe(([baseUrl, userTag]: [string, string]) => {
       if (this.selectedFhirServer !== baseUrl || this.selectedUserTag !== userTag) {
         this.selectedFhirServer = baseUrl;
         this.selectedUserTag = userTag;
