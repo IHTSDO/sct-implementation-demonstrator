@@ -55,8 +55,12 @@ export class MaturityMainComponent implements OnInit {
     // this.flattenQuestions();
   }
 
-  async initializeForm() {
-    this.maturityQuestions = cloneDeep(this.baseMaturityQuestions);
+  async initializeForm(newQuestions?: any) {
+    if (newQuestions) {
+      this.maturityQuestions = newQuestions;
+    } else {
+      this.maturityQuestions = cloneDeep(this.baseMaturityQuestions);
+    }
     this.nameControl = new FormControl(null);
     this.authorControl = new FormControl(null);
     this.timestampControl = new FormControl(new Date().toISOString());
@@ -195,9 +199,7 @@ export class MaturityMainComponent implements OnInit {
       reader.onloadend = (e) => {
         if (reader.result) {
           const uploadedVersion = JSON.parse(reader.result?.toString());
-          console.log('Uploaded version:', uploadedVersion);
-          this.maturityQuestions = uploadedVersion;
-          this.startOver();
+          this.initializeForm(uploadedVersion);
         }
       };
       reader.readAsText(event.target.files[0]);

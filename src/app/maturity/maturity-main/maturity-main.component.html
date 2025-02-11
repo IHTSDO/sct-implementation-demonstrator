@@ -6,7 +6,7 @@
 </div>
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -2">
     <div class="question-container" [formGroup]="responseForm">
-    <h2>Select Stakeholder</h2>
+    <h2>Select Stakeholder Type</h2>
     <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
         <div class="flex-1">
             <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
@@ -37,14 +37,20 @@
             </div>
         </div>
     </div>
-    <div class="button-container">
-        <button mat-flat-button color="primary" (click)="onStakeholderSelected()" [disabled]="responseForm.controls['selectedStakeholder'].invalid">
-            Start
+    <div class="button-container-first">
+        <button class="start-button" mat-flat-button color="primary" (click)="onStakeholderSelected()"
+          [disabled]="responseForm.controls['selectedStakeholder'].invalid">
+          Select KPAs
         </button>
+      
         <!-- File input for loading saved state -->
         <input hidden (change)="loadState($event)" #fileInputState type="file" id="fileState" />
-        <button mat-flat-button color="primary" (click)="fileInputState.click()">Upload assessment</button>
-    </div>
+      
+        <button class="secondary-button" mat-flat-button (click)="fileInputState.click()">
+          Upload previous results
+        </button>
+      </div>
+      
   </div>
 </div>
 
@@ -64,13 +70,11 @@
           </section>
 
         <div class="button-container">
-            <button mat-flat-button color="primary" (click)="filterKpasAndGoNext()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1">
-                Next
-            </button>
-        </div>
-        <div class="button-container">
             <button mat-flat-button color="primary" (click)="startOver()">
-                Restart assessment
+                Back
+            </button>
+            <button mat-flat-button color="primary" (click)="filterKpasAndGoNext()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1">
+                Start assessment
             </button>
         </div>
     </div>
@@ -111,8 +115,8 @@
                 Submit
             </button>
         </div>
-        <div class="button-container">
-            <button mat-flat-button color="primary" (click)="startOver()">
+        <div class="button-container-first">
+            <button class="secondary-button" mat-flat-button (click)="startOver()">
                 Restart assessment
             </button>
         </div>
@@ -141,7 +145,7 @@
         </div>
         <div class="button-container">
             <!-- Save State Button -->
-            <button mat-flat-button color="primary" (click)="saveState()">Save results</button>
+            <button mat-flat-button color="primary" (click)="saveState()">Download results</button>
         </div>
     </div>
 </div>

@@ -80,6 +80,25 @@
   margin-bottom: 16px;
 }
 
+.button-container-first {
+  position: relative;
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.start-button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.secondary-button {
+  position: absolute;
+  right: 0;
+  font-style: italic;
+}
+
 .progress-bar {
   margin-top: 20px;
   height: 8px;
