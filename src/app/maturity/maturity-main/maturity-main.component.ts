@@ -195,7 +195,9 @@ export class MaturityMainComponent implements OnInit {
       reader.onloadend = (e) => {
         if (reader.result) {
           const uploadedVersion = JSON.parse(reader.result?.toString());
+          console.log('Uploaded version:', uploadedVersion);
           this.maturityQuestions = uploadedVersion;
+          this.startOver();
         }
       };
       reader.readAsText(event.target.files[0]);
