@@ -26,6 +26,8 @@ export class AppComponent {
     { name: "SNOMED Public", url: "https://snowstorm.ihtsdotools.org/fhir"},
     { name: "SNOMED Dev 2", url: "https://snowstorm-temp.kaicode.io/fhir"},
     { name: "SNOMED Lite Demo", url: "https://snowstorm-lite.nw.r.appspot.com/fhir"},
+    { name: "LOINC Ontology Server", url: "https://browser.loincsnomed.org/fhir"},
+    { name: "Ontoserver", url: "https://r4.ontoserver.csiro.au/fhir"},
   ];
   selectedServer = this.fhirServers[1];
   embeddedMode: boolean = false;
@@ -102,6 +104,8 @@ export class AppComponent {
     this.terminologyService.getCodeSystems().subscribe((response: any) => {
       this.editionsDetails = [];
       this.editions = response.entry;
+      // remove all entries that don't include SNOMED in the title
+      this.editions = this.editions.filter( el => (el.resource?.title?.includes('SNOMED')));
       let editionNames = new Set();
       this.editions.forEach(loopEdition => {
         editionNames.add(loopEdition.resource.title);
@@ -111,7 +115,7 @@ export class AppComponent {
         this.editionsDetails.push(
           {
             editionName: editionName,
-            editions: this.editions.filter( el => (el.resource.title.includes(editionName))).sort( this.compare )
+            editions: this.editions.filter( el => (el.resource?.title?.includes(editionName))).sort( this.compare )
           }
         );
       });

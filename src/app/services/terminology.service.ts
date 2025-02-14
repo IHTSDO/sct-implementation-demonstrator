@@ -58,7 +58,13 @@ export class TerminologyService {
   
   setFhirUrlParam(url: string) {
     this.fhirUrlParam = url;
+    console.log('setFhirUrlParam', url);
     this.fhirUrlParamSubject.next(url);
+  }
+
+  setFhirUrlParamLocal(url: string) {
+    this.fhirUrlParam = url;
+    console.log('setFhirUrlParam Local', url);
   }
   
   setLang(lang: string) {

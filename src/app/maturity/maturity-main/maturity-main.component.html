@@ -4,6 +4,76 @@
     <input hidden (change)="uploadSpecification($event)" #fileInput type="file" id="file" />
     <button mat-flat-button color="primary" (click)="fileInput.click()">Upload Maturity Spec</button>
 </div>
+<div class="question-flow-container" *ngIf="currentQuestionIndex === -3">
+    <div class="question-container">
+        <div>
+            <h1 class="text-center">Welcome to SNOMED International’s Implementation Maturity Assessment Tool</h1>
+            <p class="mb-4">
+                The SNOMED International <b>Implementation Maturity Assessment Tool</b> is designed to help <b>Vendors</b>, <b>Members</b> (National Release Centers), 
+                and <b>User Organizations</b> evaluate their progress in adopting and integrating SNOMED CT. This tool provides structured insights 
+                into implementation maturity, highlighting strengths and areas for improvement.
+            </p>
+            <hr>
+            <h1 class="mt-4 mb-4">Why use this tool?</h1>
+            <div class="home-list">
+                <div class="home-list-item">
+                    <mat-icon>done_outline</mat-icon>
+                    <div>Identify Gaps – Assess implementation challenges and pinpoint areas needing further development.</div>
+                </div>
+                <div class="home-list-item">
+                    <mat-icon>done_outline</mat-icon>
+                    <div>Obtain actionable Insights – Receive customized recommendations to advance SNOMED CT adoption.</div>
+                </div>
+                <div class="home-list-item">
+                    <mat-icon>done_outline</mat-icon>
+                    <div>Align with Best Practices – Benchmark your progress against internationally recognized implementation standards.</div>
+                </div>
+                <div class="home-list-item">
+                    <mat-icon>done_outline</mat-icon>
+                    <div>Tailored for Different Stakeholders – Designed to support Vendors, Members, and User Organizations in their SNOMED CT journey.</div>
+                </div>
+            </div>
+            <h1 class="mt-4 mb-4">How does it work?</h1>
+            <div class="home-list">
+                <div class="home-list-item">
+                    <div>1- <b>Select Key Process Areas</b> – Choose the areas most relevant to your role and implementation needs.</div>
+                </div>
+                <div class="home-list-item">
+                    <div>2- <b>Complete the Assessment</b> – Answer structured questions across selected key process areas</div>
+                </div>
+                <div class="home-list-item">
+                    <div>3- <b>Receive a Maturity Score</b> – Get a clear view of your current implementation maturity level.</div>
+                </div>
+                <div class="home-list-item">
+                    <div>4- <b>Access Improvement Recommendations</b> – Receive targeted guidance to enhance your SNOMED CT deployment and interoperability.</div>
+                </div>
+                <div class="home-list-item">
+                    <div>5- <b>Download and Share Your Report</b> – Generate a detailed report which can be stored for internal use or shared with stakeholders for further planning and collaboration.</div>
+                </div>
+            </div>
+            <h1 class="mt-4 mb-4">Who should use it?</h1>
+            <div class="home-list">
+                <div class="home-list-item">
+                    <mat-icon>filter_1</mat-icon>
+                    <div>Vendors – Assess SNOMED CT integration within healthcare software and applications.</div>
+                </div>
+                <div class="home-list-item">
+                    <mat-icon>filter_2</mat-icon>
+                    <div>Members (National Release Centers) – Evaluate national or regional SNOMED CT adoption and management strategies.</div>
+                </div>
+                <div class="home-list-item">
+                    <mat-icon>filter_3</mat-icon>
+                    <div>User Organizations – Analyze SNOMED CT use within healthcare systems, EHRs, and clinical workflows.</div>
+                </div>
+            </div>
+            <div class="button-container-first">
+                <button class="start-button" mat-flat-button color="primary" (click)="startAssessment()">
+                Start
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -2">
     <div class="question-container" [formGroup]="responseForm">
     <h2>Select Stakeholder Type</h2>
@@ -38,10 +108,15 @@
         </div>
     </div>
     <div class="button-container-first">
-        <button class="start-button" mat-flat-button color="primary" (click)="onStakeholderSelected()"
-          [disabled]="responseForm.controls['selectedStakeholder'].invalid">
-          Select KPAs
-        </button>
+        <div class="start-button button-container">
+            <button mat-flat-button color="primary" (click)="startOver()">
+            Back
+            </button>
+            <button mat-flat-button color="primary" (click)="onStakeholderSelected()"
+            [disabled]="responseForm.controls['selectedStakeholder'].invalid">
+            Select KPAs
+            </button>
+        </div>
       
         <!-- File input for loading saved state -->
         <input hidden (change)="loadState($event)" #fileInputState type="file" id="fileState" />

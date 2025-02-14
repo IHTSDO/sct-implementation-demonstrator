@@ -1,4 +1,7 @@
-/* General container styling */
+::ng-deep .mat-list-item {
+  line-height: 18px !important;
+}
+
 .question-flow-container {
   display: flex;
   flex-direction: column;
@@ -163,6 +166,18 @@ button[mat-raised-button][color="accent"] {
 
 button[mat-raised-button][color="accent"]:hover {
   background-color: #f50057; /* Slightly darker pink */
+}
+
+.home-list-item {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row;
+}
+
+.home-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* Responsive adjustments */

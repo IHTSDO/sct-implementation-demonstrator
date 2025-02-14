@@ -32,7 +32,7 @@ export class MaturityMainComponent implements OnInit {
   maturityQuestions: any = {};
   responseForm: FormGroup;
   allQuestions: any[] = [];
-  currentQuestionIndex = -2;
+  currentQuestionIndex = -3;
   currentControl!: FormControl;
   nameControl!: FormControl;
   authorControl!: FormControl;
@@ -80,6 +80,14 @@ export class MaturityMainComponent implements OnInit {
         });
       });
     });
+  }
+
+  startAssessment(): void {
+    this.animationState = 'leave';
+    setTimeout(() => {
+      this.currentQuestionIndex++;
+      this.animationState = 'enter';
+    }, 200);
   }
 
   onStakeholderSelected(): void {
@@ -182,7 +190,7 @@ export class MaturityMainComponent implements OnInit {
   }
   
   startOver(): void {
-    this.currentQuestionIndex = -2;
+    this.currentQuestionIndex = -3;
     // reset all responses
     this.responseForm.reset();
     this.currentKpas = [];
@@ -309,7 +317,7 @@ export class MaturityMainComponent implements OnInit {
 
       // 1) Reset everything
       this.responseForm.reset();
-      this.currentQuestionIndex = -2;
+      this.currentQuestionIndex = -3;
       this.allQuestions = [];
       this.selectedStakeholder = null;
       this.currentKpas = [];
@@ -395,7 +403,7 @@ export class MaturityMainComponent implements OnInit {
         });
 
         // 9) Finally, restore the question index + animation + current control
-        this.currentQuestionIndex = uploadedState.currentQuestionIndex || -2;
+        this.currentQuestionIndex = uploadedState.currentQuestionIndex || -3;
         this.animationState = uploadedState.animationState || 'enter';
 
         // if (this.allQuestions[this.currentQuestionIndex]) {

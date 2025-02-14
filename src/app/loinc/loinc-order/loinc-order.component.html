@@ -1,1 +1,4 @@
-<p>loinc-order works!</p>
+<div class="container">
+    <h2>Order</h2>
+    <app-autocomplete-binding [binding]="loincOrderBinding" (selectionChange)="labItemSelected($event)"></app-autocomplete-binding>
+</div>
