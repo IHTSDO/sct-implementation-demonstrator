@@ -104,8 +104,9 @@ export class AppComponent {
     this.terminologyService.getCodeSystems().subscribe((response: any) => {
       this.editionsDetails = [];
       this.editions = response.entry;
+      console.log('1',this.editions);
       // remove all entries that don't include SNOMED in the title
-      this.editions = this.editions.filter( el => (el.resource?.title?.includes('SNOMED')));
+      // this.editions = this.editions.filter( el => (el.resource?.title?.includes('SNOMED')));
       let editionNames = new Set();
       this.editions.forEach(loopEdition => {
         editionNames.add(loopEdition.resource.title);
@@ -154,7 +155,6 @@ export class AppComponent {
   }
 
   setEdition(edition: any) {
-    // console.log(edition.resource.version);
     this.selectedEdition = edition.resource.title?.replace('SNOMED CT release ','');
     this.terminologyService.setFhirUrlParam(edition.resource.version);
   }

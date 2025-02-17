@@ -117,6 +117,17 @@ export class TerminologyService {
       );
   }
 
+  getLanguageRefsets(moduleId?: string) {
+    let requestUrl = `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/<< 900000000000506000 |Language Reference Set|`;
+    if (moduleId) {
+      requestUrl += ` {{ C moduleId = ${moduleId} }}`;
+    }
+    return this.http.get<any>(requestUrl)
+      .pipe(
+        catchError(this.handleError<any>('getLanguageRefsets', {}))
+      );
+  }
+
   expandValueSetUsingCache(ecl: string, terms: string, offset?: number, count?: number): Observable<any> {
       const requestUrl = this.getValueSetExpansionUrl(ecl, terms, offset, count); 
       const cachedResponse = this.expandValuesetCache.get(requestUrl);
