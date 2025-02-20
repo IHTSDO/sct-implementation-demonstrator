@@ -162,17 +162,27 @@
         <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
         <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
         <p class="question-text" [@questionAnimation]="animationState">{{ allQuestions[currentQuestionIndex].question.question }}</p>
-        <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
-            <mat-radio-button *ngFor="let option of allQuestions[currentQuestionIndex].question.options" [value]="option.score">
-                <div class="mat-radio-label-content">
-                    {{ option.text }}
-                    <mat-icon *ngIf="option.example" [matTooltip]="option.example" matTooltipPosition="right">
-                        help_outline
-                    </mat-icon>
-                    <!-- <span class="example-text">{{ option.example }}</span> -->
-                </div> 
-            </mat-radio-button>
-        </mat-radio-group>
+        <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
+            <div class="flex-1">
+                <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
+                    <mat-radio-button *ngFor="let option of allQuestions[currentQuestionIndex].question.options" [value]="option.score">
+                        <div class="mat-radio-label-content">
+                            {{ option.text }}
+                            <mat-icon *ngIf="option.example" [matTooltip]="option.example" matTooltipPosition="right">
+                                help_outline
+                            </mat-icon>
+                            <!-- <span class="example-text">{{ option.example }}</span> -->
+                        </div> 
+                    </mat-radio-button>
+                </mat-radio-group>
+            </div>
+            <div class="flex-1 w-full">
+                <mat-form-field class="w-full">
+                  <mat-label><i>Optional comment</i></mat-label>
+                  <textarea matInput [formControl]="currentCommentControl" placeholder="Enter your comment" rows="5"></textarea>
+                </mat-form-field>
+            </div>
+        </div>
         <div class="error-message" *ngIf="currentControl?.invalid && currentControl?.touched">
         Please select an option for this question.
         </div>

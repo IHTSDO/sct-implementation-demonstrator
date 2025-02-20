@@ -34,6 +34,7 @@ export class MaturityMainComponent implements OnInit {
   allQuestions: any[] = [];
   currentQuestionIndex = -3;
   currentControl!: FormControl;
+  currentCommentControl!: FormControl;
   nameControl!: FormControl;
   authorControl!: FormControl;
   timestampControl!: FormControl;
@@ -69,12 +70,13 @@ export class MaturityMainComponent implements OnInit {
       name: this.nameControl,
       author: this.authorControl,
       timestamp: this.timestampControl,
+      comment: new FormControl('')
     });
     this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
     this.maturityQuestions.stakeHolders.forEach((stakeholder: any) => {
       stakeholder.kpas.forEach((kpa: any) => {
         kpa.questions.forEach((question: any) => {
-          const questionPath = [stakeholder.id, kpa.id, question.id].join('.');
+          const questionPath = [stakeholder.id, kpa.id, question.id].join('_');
           // Flatten controls using the full path as the key
           this.responseForm.addControl(questionPath, new FormControl(null, Validators.required));
         });
@@ -129,7 +131,19 @@ export class MaturityMainComponent implements OnInit {
     if (this.selectedStakeholder) {
       this.selectedStakeholder.kpas.forEach((kpa: any) => {
         kpa.questions.forEach((question: any) => {
-          const questionPath = [this.selectedStakeholder.id, kpa.id, question.id].join('.');
+          // Ensure each question has a comment property
+          question.comment = question.comment || '';
+          const questionPath = [this.selectedStakeholder.id, kpa.id, question.id].join('_');
+          // Add the question answer control (if not already added)
+          if (!this.responseForm.contains(questionPath)) {
+            this.responseForm.addControl(questionPath, new FormControl(null, Validators.required));
+          }
+          // Add a separate control for the comment (if not already added)
+          const commentControlKey = questionPath + '_comment';
+          if (!this.responseForm.contains(commentControlKey)) {
+            this.responseForm.addControl(commentControlKey, new FormControl(question.comment));
+          }
+          // Push the question data with its unique path into allQuestions
           this.allQuestions.push({
             stakeholderName: this.selectedStakeholder.name,
             kpaName: kpa.name,
@@ -141,6 +155,7 @@ export class MaturityMainComponent implements OnInit {
       });
     }
   }
+  
 
   filterKpasAndGoNext(): void {
     this.animationState = 'leave';
@@ -151,7 +166,7 @@ export class MaturityMainComponent implements OnInit {
     this.selectedStakeholder.kpas.forEach((kpa: any) => {
       if (!selectedKpaIds.includes(kpa.id)) {
         kpa.questions.forEach((question: any) => {
-          const questionPath = [this.selectedStakeholder.id, kpa.id, question.id].join('.');
+          const questionPath = [this.selectedStakeholder.id, kpa.id, question.id].join('_');
           if (this.responseForm.contains(questionPath)) {
             this.responseForm.removeControl(questionPath); // Remove unselected question controls
           }
@@ -165,26 +180,32 @@ export class MaturityMainComponent implements OnInit {
       this.currentQuestionIndex++;
       if (this.allQuestions.length > 0) {
         this.currentControl = this.responseForm.controls[this.allQuestions[this.currentQuestionIndex].questionFullPath] as FormControl;
+        this.currentCommentControl = this.responseForm.controls[this.allQuestions[this.currentQuestionIndex].questionFullPath + '_comment'] as FormControl;
       }
       this.animationState = 'enter';
     }, 200); // Match the animation duration
   }
-  
 
-  goToNextQuestion() {
+  goToNextQuestion(): void {
     this.animationState = 'leave';
     setTimeout(() => {
       this.currentQuestionIndex++;
-      this.currentControl = this.responseForm.controls[this.allQuestions[this.currentQuestionIndex].questionFullPath] as FormControl;
+      const currentQuestion = this.allQuestions[this.currentQuestionIndex];
+      const questionPath = currentQuestion.questionFullPath;
+      this.currentControl = this.responseForm.get(questionPath) as FormControl;
+      this.currentCommentControl = this.responseForm.get(questionPath + '_comment') as FormControl;
       this.animationState = 'enter';
     }, 200);
   }
-
-  goToPreviousQuestion() {
+  
+  goToPreviousQuestion(): void {
     this.animationState = 'leave';
     setTimeout(() => {
       this.currentQuestionIndex--;
-      this.currentControl = this.responseForm.controls[this.allQuestions[this.currentQuestionIndex].questionFullPath] as FormControl;
+      const currentQuestion = this.allQuestions[this.currentQuestionIndex];
+      const questionPath = currentQuestion.questionFullPath;
+      this.currentControl = this.responseForm.get(questionPath) as FormControl;
+      this.currentCommentControl = this.responseForm.get(questionPath + '_comment') as FormControl;
       this.animationState = 'enter';
     }, 200);
   }
@@ -359,7 +380,7 @@ export class MaturityMainComponent implements OnInit {
                 this.selectedStakeholder.id,
                 kpa.id,
                 question.id
-              ].join('.');
+              ].join('_');
               // Only add if it doesn't exist
               if (!this.responseForm.contains(questionPath)) {
                 this.responseForm.addControl(
@@ -381,7 +402,7 @@ export class MaturityMainComponent implements OnInit {
                   this.selectedStakeholder.id,
                   kpa.id,
                   question.id
-                ].join('.');
+                ].join('_');
                 if (this.responseForm.contains(questionPath)) {
                   this.responseForm.removeControl(questionPath);
                 }
