@@ -167,7 +167,7 @@
                 <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
                     <mat-radio-button *ngFor="let option of allQuestions[currentQuestionIndex].question.options" [value]="option.score">
                         <div class="mat-radio-label-content">
-                            {{ option.text }}
+                            {{ option.score }} - {{ option.text }}
                             <mat-icon *ngIf="option.example" [matTooltip]="option.example" matTooltipPosition="right">
                                 help_outline
                             </mat-icon>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { TitleCasePipe } from '@angular/common';
 Chart.register(...registerables);
@@ -9,12 +9,18 @@ Chart.register(...registerables);
     styleUrls: ['./maturity-results.component.css'],
     standalone: false
 })
-export class MaturityResultsComponent implements OnChanges, AfterViewInit {
+
+
+export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnInit {
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() maturityResponse: any;
   @Input() allQuestions: any[] = [];
 
   private chart!: Chart;
+
+  overallAverage: number = 1;
+  kpaAverages: Record<string, number> = {};
+  commentList: any[] = [];
 
   resultsScale = [
     { value: 1, label: 'Basic' },
@@ -23,6 +29,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
     { value: 4, label: 'Integrated' },
     { value: 5, label: 'Optimizing' }
   ]
+  
 
   ngAfterViewInit(): void {
     if (this.maturityResponse) {
@@ -30,8 +37,17 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
     }
   }
 
+  ngOnInit(): void {
+    this.processComments();
+    this.computeKpaAverages();
+    this.overallAverage = this.calculateOverallAverage(this.maturityResponse);
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (this.radarCanvas && changes['maturityResponse'] && this.maturityResponse) {
+      this.processComments();
+      this.computeKpaAverages();
+      this.overallAverage = this.calculateOverallAverage(this.maturityResponse);
       this.generateChart();
     }
   }
@@ -41,32 +57,62 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
       this.chart.destroy(); // Destroy existing chart to avoid duplication
     }
   
-    // Parse and group the data
+    // Parse and group the data (numeric only)
     const groupedData: Record<string, { sum: number, count: number }> = {};
+  
     Object.entries(this.maturityResponse).forEach(([key, value]) => {
-      const [stakeholder, kpa, question] = key.split('.');
-      if (stakeholder && kpa && question && stakeholder === this.maturityResponse.selectedStakeholder) {
+      // 1) Ensure `value` is a finite number (exclude strings, null, etc.)
+      if (typeof value !== 'number' || !isFinite(value)) {
+        return; // Skip non-numeric fields (including comments)
+      }
+  
+      // 2) Decompose the key. Format = stakeholder_kpa_question
+      const [stakeholder, kpa, question] = key.split('_');
+  
+      // 3) Only accumulate data for the selected stakeholder
+      if (
+        stakeholder &&
+        kpa &&
+        question &&
+        stakeholder === this.maturityResponse.selectedStakeholder
+      ) {
         groupedData[kpa] = groupedData[kpa] || { sum: 0, count: 0 };
-        groupedData[kpa].sum += value as number || 0;
+        groupedData[kpa].sum += value;
         groupedData[kpa].count += 1;
       }
     });
   
-    // Prepare labels (KPAs) and datasets (stakeholders)
-    const kpaIds = Array.from(new Set(Object.keys(this.maturityResponse)
-      .filter(key => key.startsWith(this.maturityResponse.selectedStakeholder))
-      .map(key => key.split('.')[1]))); // Extract unique KPA IDs
+    // Extract unique KPA IDs for the selected stakeholder
+    const allKpaIds = Array.from(
+      new Set(
+        Object.keys(this.maturityResponse)
+          .filter(key => key.startsWith(this.maturityResponse.selectedStakeholder))
+          .map(key => key.split('_')[1])
+      )
+    );
   
-    const kpaLabels = kpaIds.map(kpaId => this.getKpaName(kpaId) || kpaId); // Use getKpaNameById to resolve KPA names
+    // Filter KPA IDs based on whether they are marked `true` in `selectedKpas`
+    const kpaIds = allKpaIds.filter(kpaId => this.maturityResponse.selectedKpas?.[kpaId]);
   
-    const datasets = [{
-      label: this.getStakeholderName(),
-      data: kpaIds.map(kpa => groupedData[kpa] ? groupedData[kpa].sum / groupedData[kpa].count : 0), // Calculate average
-      backgroundColor: 'rgba(54, 162, 235, 0.3)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-      pointBorderColor: '#fff'
-    }];
+    // Prepare labels (KPAs) and dataset (stakeholder)
+    const kpaLabels = kpaIds.map(kpaId => this.getKpaName(kpaId) || kpaId);
+    
+    const datasets = [
+      {
+        label: this.getStakeholderName(),
+        data: kpaIds.map(kpa => {
+          const dataObj = groupedData[kpa];
+          if (!dataObj) {
+            return 0;
+          }
+          return dataObj.sum / dataObj.count; // Average
+        }),
+        backgroundColor: 'rgba(54, 162, 235, 0.3)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+        pointBorderColor: '#fff'
+      }
+    ];
   
     // Create Radar Chart
     this.chart = new Chart(this.radarCanvas.nativeElement, {
@@ -102,19 +148,21 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
       }
     });
   }
-
+  
   getStakeholders(response: any): string[] {
-    return Array.from(new Set(Object.keys(response).map((key) => key.split('.')[0])));
+    return Array.from(new Set(Object.keys(response).map((key) => key.split('_')[0])));
   }
   
   getKpas(response: any, stakeholder: string): string[] {
-    return Array.from(
+    const allKpas = Array.from(
       new Set(
         Object.keys(response)
-          .filter((key) => key.startsWith(stakeholder))
-          .map((key) => key.split('.')[1])
+          .filter((key) => key.startsWith(stakeholder + '_'))
+          .map((key) => key.split('_')[1])
       )
     );
+  
+    return allKpas.filter(kpa => response.selectedKpas?.[kpa]);
   }
 
   getStakeholderName(): string {
@@ -131,9 +179,9 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
   
   getQuestions(response: any, stakeholder: string, kpa: string): Record<string, number | null> {
     return Object.keys(response)
-      .filter((key) => key.startsWith(`${stakeholder}.${kpa}`))
+      .filter((key) => key.startsWith(`${stakeholder}_${kpa}`))
       .reduce((acc, key) => {
-        const questionKey = key.split('.').slice(2).join('.');
+        const questionKey = key.split('_').slice(2).join('_');
         acc[questionKey] = response[key];
         return acc;
       }, {} as Record<string, number | null>);
@@ -145,7 +193,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
   }
   
   getKpaRowSpan(response: any, stakeholder: string, kpa: string): number {
-    return Object.keys(response).filter((key) => key.startsWith(`${stakeholder}.${kpa}`)).length;
+    return Object.keys(response).filter((key) => key.startsWith(`${stakeholder}_${kpa}`)).length;
   }
   
   isFirstRowInStakeholder(index: number, stakeholder: string, kpa: string): boolean {
@@ -157,21 +205,66 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
     return index === 0;
   }
   
-  calculateAverage(questions: Record<string, number | null>): number {
-    const values = Object.values(questions).filter((value) => value !== null) as number[];
-    const sum = values.reduce((acc, val) => acc + val, 0);
-    return values.length > 0 ? sum / values.length : 0;
+  calculateAverage(questions: Record<string, any>): number {
+    // Filter out anything that is not a valid finite number
+    const numericValues = Object.values(questions)
+      .filter(val => typeof val === 'number' && isFinite(val));
+  
+    if (numericValues.length === 0) {
+      return 0;
+    }
+  
+    const sum = numericValues.reduce((acc, val) => acc + val, 0);
+    return sum / numericValues.length;
   }
+
+  private computeKpaAverages(): void {
+    this.kpaAverages = {}; // reset
+    
+    // Only compute for the currently selected stakeholder
+    const stakeholder = this.maturityResponse.selectedStakeholder;
+    // Get all selected KPA IDs
+    const selectedKpas = this.getKpas(this.maturityResponse, stakeholder);
+
+    selectedKpas.forEach(kpa => {
+      // 1) Gather the KPA’s questions
+      const questions = this.getQuestions(this.maturityResponse, stakeholder, kpa);
+      // 2) Compute the average
+      this.kpaAverages[kpa] = this.calculateAverage(questions);
+    });
+  }
+  
 
   calculateOverallAverage(data: Record<string, any>): number {
     // Object to group values by KPA
     const kpas: { [key: string]: number[] } = {};
-    const excludedKeys = ['selectedStakeholder', 'name', 'author', 'timestamp', 'selectedKpas'];
+    // You might want to exclude any meta keys or other fields you don't want to process
+    const excludedKeys = ['selectedStakeholder', 'name', 'author', 'timestamp', 'selectedKpas', 'comment'];
   
     // Process the data to group scores by KPA
     for (const key in data) {
-      if (data.hasOwnProperty(key) && data[key] !== null && !excludedKeys.includes(key)) {
-        const kpa = key.split('.')[1]; // Extract the KPA from the key
+      if (!data.hasOwnProperty(key)) {
+        continue;
+      }
+
+      // Skip null values, excluded keys, etc.
+      if (data[key] === null || excludedKeys.includes(key)) {
+        continue;
+      }
+
+      const val = data[key];
+  
+      // Only push if val is a finite number
+      if (typeof val != 'number' || !isFinite(val)) {
+        continue;
+      }
+
+      // key format: stakeholder_kpa_question
+      const [stakeholder, kpa, question] = key.split('_');
+  
+      // Make sure the KPA is in the selectedKpas and is set to true
+      // (Change data.selectedKpas to this.maturityResponse.selectedKpas if needed)
+      if (kpa && data['selectedKpas'] && data['selectedKpas'][kpa]) {
         if (!kpas[kpa]) {
           kpas[kpa] = [];
         }
@@ -196,6 +289,43 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
     return overallAverage;
   }
 
+  private processComments(): void {
+    const newComments: any[] = [];
+
+    for (const key of Object.keys(this.maturityResponse)) {
+      // We only care about keys that end with "_comment"
+      if (!key.endsWith('_comment')) {
+        continue;
+      }
+
+      const text = (this.maturityResponse[key] || '').trim();
+      // Only store if there's a non-empty comment
+      if (!text) {
+        continue;
+      }
+
+      // Example key shape: "member_engagement_involvement_comment"
+      const [stakeholder, kpa, question, suffix] = key.split('_');
+      // suffix should be "comment", so we can ignore it or check for safety
+
+      // get the question path
+      const questionPath = `${stakeholder}_${kpa}_${question}`;
+      // get question text from all questions
+      const questionObj = this.allQuestions.find((q) => q.questionFullPath === questionPath);
+      const questionText = questionObj ? questionObj.question.question : '';
+
+      // Add to our comment array
+      newComments.push({
+        kpa,
+        questionText,
+        text
+      });
+    }
+    console.log(newComments);
+    this.commentList = newComments;
+  }
+  
+
   getScaleLabel(value: number): string {
     // round to the lowest whole number
     value = Math.floor(value);
@@ -213,6 +343,4 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit {
     // Convert the 1–5 score to 0–100%
     return ((value - min) / (max - min)) * 100;
   }
-  
-  
 }

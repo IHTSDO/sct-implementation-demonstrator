@@ -1,14 +1,14 @@
 <h3 class="centered-box">
-  {{ calculateOverallAverage(maturityResponse) | number:'1.2-2' }} 
+  {{ overallAverage | number:'1.2-2' }} 
   - 
-  {{ getScaleLabel(calculateOverallAverage(maturityResponse)) }}
+  {{ getScaleLabel(overallAverage) }}
 </h3>
 <br>
 <!-- BEGIN Scale Display -->
 <div class="score-scale-container">
   <div class="score-scale">
     <!-- MAIN MARKER: for the dynamic overall average -->
-    <div class="score-marker" [ngStyle]="{'left': 'calc(' + getMarkerPosition(calculateOverallAverage(maturityResponse)) + '% - 3px)'}"></div>
+    <div class="score-marker" [ngStyle]="{'left': 'calc(' + getMarkerPosition(overallAverage) + '% - 3px)'}"></div>
 
     <!-- FIXED TICKS: for exact integer scores (1,2,3,4) -->
     <div
@@ -23,7 +23,8 @@
     <span *ngFor="let level of resultsScale | slice:0:resultsScale.length - 1" class="level-label">{{ level.label }}</span>
   </div>
 </div>
-<!-- END Scale Display --><table class="bordered-table">
+<!-- END Scale Display -->
+<table class="bordered-table">
   <thead>
     <tr>  
       <th>KPA</th>
@@ -45,8 +46,19 @@
               <!-- Result Column -->
               <td *ngIf="isFirstRowInKpa(i)" 
                   [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)">
-                {{ calculateAverage(getQuestions(maturityResponse, stakeholder, kpa)) | number: '1.2-2' }}
+                {{ kpaAverages[kpa] | number: '1.2-2' }}
               </td>
+            </tr>
+          </ng-container>
+          <ng-container *ngFor="let comment of commentList">
+            <tr *ngIf="comment.kpa == kpa">
+              <td>
+                <p class="ml-4">
+                  Comment: {{ comment.questionText }}<br>
+                  <i>{{ comment.text }}</i>
+                </p>
+              </td>
+              <td></td>
             </tr>
           </ng-container>
         </ng-container>
