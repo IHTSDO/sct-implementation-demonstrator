@@ -53,6 +53,11 @@ a {
     height: 4rem;
 }
 
+.menu-text {
+    width: 100%;
+    text-align: center;
+}
+
 @media (max-width: 768px) {
 
     #title {

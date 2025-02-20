@@ -4,6 +4,8 @@ import { ExcelService } from './services/excel.service';
 import { TerminologyService } from './services/terminology.service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { MenuService } from './services/menu.service';
+import { MatDialog } from '@angular/material/dialog';
+import { LanguageConfigComponent } from './util/language-config/language-config.component';
 
 declare let gtag: Function;
 
@@ -19,8 +21,10 @@ export class AppComponent {
   editions: any[] = [];
   editionsDetails: any[] = [];
   languages = ['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv'];
+  languageRefsets: any[] = [];
   selectedEdition = 'Edition';
   selectedLanguage = 'en';
+  selectedLanRefsetConcept: any = null;
   fhirServers = [
     { name: "SNOMED Dev IS", url: "https://dev-is-browser.ihtsdotools.org/fhir"},
     { name: "SNOMED Public", url: "https://snowstorm.ihtsdotools.org/fhir"},
@@ -39,6 +43,7 @@ export class AppComponent {
     private terminologyService: TerminologyService, 
     public router: Router,
     private menuService: MenuService,
+    private dialog: MatDialog,
     private activatedRoute: ActivatedRoute) { 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
@@ -77,6 +82,10 @@ export class AppComponent {
       this.selectedLanguage = lang;
     });
 
+    this.terminologyService.languageRefsetConcept$.subscribe(languageRefsetConcept => {
+      this.selectedLanRefsetConcept = languageRefsetConcept;
+    });
+
     this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
       if (this.editions?.length > 0) {
         this.editions.forEach(loopEdition => {
@@ -104,9 +113,8 @@ export class AppComponent {
     this.terminologyService.getCodeSystems().subscribe((response: any) => {
       this.editionsDetails = [];
       this.editions = response.entry;
-      console.log('1',this.editions);
       // remove all entries that don't include SNOMED in the title
-      // this.editions = this.editions.filter( el => (el.resource?.title?.includes('SNOMED')));
+      this.editions = this.editions.filter( el => (el.resource?.url?.includes('snomed.info')));
       let editionNames = new Set();
       this.editions.forEach(loopEdition => {
         editionNames.add(loopEdition.resource.title);
@@ -157,11 +165,37 @@ export class AppComponent {
   setEdition(edition: any) {
     this.selectedEdition = edition.resource.title?.replace('SNOMED CT release ','');
     this.terminologyService.setFhirUrlParam(edition.resource.version);
+    this.updateLanguageRefsets();
+  }
+
+  updateLanguageRefsets() {
+    this.languageRefsets = [];
+    this.terminologyService.getLanguageRefsets().subscribe((response: any) => {
+      this.languageRefsets = response?.expansion?.contains;
+      // sort by language display length
+      this.languageRefsets.sort((a, b) => (a.display.length > b.display.length) ? 1 : -1);
+    });
+  }
+
+  setLanguageRefset(languageRefset: any) {
+    this.terminologyService.setLanguageRefsetConcept(languageRefset);
   }
 
   setLanguage(language: string) {
     this.selectedLanguage = language;
     this.terminologyService.setLang(language);
+  }
+
+  openLanguageDialog(): void {
+    const dialogRef = this.dialog.open(LanguageConfigComponent, {
+      width: '800px',
+      disableClose: false,
+      data: { languageCodes: this.languages, languageRefsets: this.languageRefsets, selectedLanguage: this.selectedLanguage, selectedLanRefsetConcept: this.selectedLanRefsetConcept },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Dialog was closed. Result:', result);
+    });
   }
 
 }

@@ -30,10 +30,12 @@ export class TerminologyService {
   defaultFhirUrlParam = 'http://snomed.info/sct'; // 'http://snomed.info/sct/11000221109/version/20211130'
   fhirUrlParam = this.defaultFhirUrlParam;
   lang = 'en';
+  languageRefsetConcept: any = null;
 
   private snowstormFhirBaseSubject = new BehaviorSubject<string>(this.snowstormFhirBase);
   private fhirUrlParamSubject = new BehaviorSubject<string>(this.fhirUrlParam);
   private langSubject = new BehaviorSubject<string>(this.lang);
+  private languageRefsetConceptSubject = new BehaviorSubject<any>(this.languageRefsetConcept);
 
   private expandValuesetCache = new Map<string, { timestamp: number, data: any }>();
   private readonly CACHE_LIMIT = 100;
@@ -45,6 +47,7 @@ export class TerminologyService {
   snowstormFhirBase$ = this.snowstormFhirBaseSubject.asObservable();
   fhirUrlParam$ = this.fhirUrlParamSubject.asObservable();
   lang$ = this.langSubject.asObservable();
+  languageRefsetConcept$ = this.languageRefsetConceptSubject.asObservable();
 
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) { 
@@ -54,22 +57,29 @@ export class TerminologyService {
   setSnowstormFhirBase(url: string) {
     this.snowstormFhirBase = url;
     this.snowstormFhirBaseSubject.next(url);
+    this.languageRefsetConcept = null;
   }
   
   setFhirUrlParam(url: string) {
     this.fhirUrlParam = url;
-    console.log('setFhirUrlParam', url);
     this.fhirUrlParamSubject.next(url);
+    this.languageRefsetConcept = null;
   }
 
   setFhirUrlParamLocal(url: string) {
     this.fhirUrlParam = url;
-    console.log('setFhirUrlParam Local', url);
+    this.languageRefsetConcept = null;
   }
   
   setLang(lang: string) {
     this.lang = lang;
     this.langSubject.next(lang);
+    this.languageRefsetConcept = null;
+  }
+
+  setLanguageRefsetConcept(languageRefsetConcept: any) {
+    this.languageRefsetConcept = languageRefsetConcept;
+    this.languageRefsetConceptSubject.next(languageRefsetConcept);
   }
 
   getSnowstormFhirBase() {
@@ -84,8 +94,15 @@ export class TerminologyService {
     return this.lang;
   }
 
+  getLanguageRefsetConcept() {
+    return this.languageRefsetConcept;
+  }
+
   getCodeSystems() {
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem`;
+    if (this.snowstormFhirBase.includes('ontoserver')) {
+      requestUrl += `?system=http://snomed.info/sct`;
+    }
     return this.http.get<any>(requestUrl)
       .pipe(
         catchError(this.handleError<any>('getCodeSystems', {}))
@@ -106,7 +123,11 @@ export class TerminologyService {
     if (typeof terms != 'string') {
       terms = '';
     }
-    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${this.lang}&displayLanguage=${this.lang}`;
+    let langParam = this.lang;
+    if (this.languageRefsetConcept) {
+      langParam = `${langParam}-X-${this.languageRefsetConcept.code}`;
+    }
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${this.lang}&displayLanguage=${langParam}`;
   }
 
   expandValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
@@ -118,7 +139,7 @@ export class TerminologyService {
   }
 
   getLanguageRefsets(moduleId?: string) {
-    let requestUrl = `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/<< 900000000000506000 |Language Reference Set|`;
+    let requestUrl = `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/<< 900000000000506000`;
     if (moduleId) {
       requestUrl += ` {{ C moduleId = ${moduleId} }}`;
     }
