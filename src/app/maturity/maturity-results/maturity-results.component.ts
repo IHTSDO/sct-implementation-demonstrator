@@ -40,7 +40,6 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     this.processComments();
     this.computeKpaAverages();
     this.overallAverage = this.calculateOverallAverage(this.maturityResponse);
-    console.log(this.allQuestions);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

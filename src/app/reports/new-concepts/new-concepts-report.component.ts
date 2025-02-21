@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
-    selector: 'app-inactivations-report',
+    selector: 'app-new-concepts-report',
     templateUrl: './new-concepts-report.component.html',
     styleUrl: './new-concepts-report.component.css',
     standalone: false
