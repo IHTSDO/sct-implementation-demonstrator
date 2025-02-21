@@ -6,6 +6,8 @@ import { lastValueFrom, timestamp } from 'rxjs';
 import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import cloneDeep from 'lodash/cloneDeep';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 @Component({
     selector: 'app-maturity-main',
@@ -439,6 +441,62 @@ export class MaturityMainComponent implements OnInit {
     };
 
     reader.readAsText(event.target.files[0]);
+  }
+
+  downloadPdf(): void {
+    // 1) Reference the element you want to capture
+    const dataElement = document.getElementById('pdfReport');
+    if (!dataElement) {
+      console.error('Could not find the pdfReport element.');
+      return;
+    }
+
+    dataElement.classList.add('pdf-mode');
+    // 2) Use html2canvas to render it into a canvas
+    setTimeout(() => {
+      html2canvas(dataElement, { scale: 2 }).then(canvas => {
+        // scale: 2 for better clarity (higher resolution) if desired
+
+        // 3) Convert the canvas to an image
+        const contentDataURL = canvas.toDataURL('image/png');
+
+        // 4) Create a jsPDF instance (A4 page, landscape mode)
+        const pdf = new jsPDF('l', 'mm', 'a4'); // 'l' for landscape
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        // 5) Calculate the image dimensions while maintaining aspect ratio
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const ratio = Math.min(pageWidth / canvasWidth, pageHeight / canvasHeight);
+        const imgWidth = canvasWidth * ratio;
+        const imgHeight = canvasHeight * ratio;
+
+        // 6) Compute X and Y coordinates to center the image
+        const xPos = (pageWidth - imgWidth) / 2;  // Center horizontally
+        const yPos = (pageHeight - imgHeight) / 2; // Center vertically
+
+        // 7) Add the image centered on the page
+        pdf.addImage(contentDataURL, 'PNG', xPos, yPos, imgWidth, imgHeight);
+
+        // FOOTNOTE: Add some text at the bottom
+        const footnote = 'Generated using the SNOMED International Maturity Assessment Tool';
+        pdf.setFontSize(10); // optional, make the footnote smaller
+        pdf.text(
+          footnote,
+          pageWidth / 2,          // X position: half the page width → center
+          pageHeight - 10,        // Y position: 10mm from bottom
+          { align: 'center' }
+        );
+
+        // 8) Save/download the PDF
+        pdf.save('maturity-report.pdf');
+
+      }).catch(error => {
+        console.error('Could not generate PDF', error);
+      });
+      dataElement.classList.remove('pdf-mode');
+    }, 1000); // Wait for the DOM to update before capturing
   }
   
 } 

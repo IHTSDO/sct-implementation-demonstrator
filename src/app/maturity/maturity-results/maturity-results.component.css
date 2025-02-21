@@ -26,6 +26,11 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
 }
 
+.pdf-mode td {
+  padding-bottom: 5px !important;
+  line-height: 2rem !important;
+}
+
 /* Outer container for the scale and ticks */
 .score-scale-container {
     position: relative;

@@ -117,16 +117,16 @@
             Select KPAs
             </button>
         </div>
-      
+    
         <!-- File input for loading saved state -->
         <input hidden (change)="loadState($event)" #fileInputState type="file" id="fileState" />
-      
+    
         <button class="secondary-button" mat-flat-button (click)="fileInputState.click()">
-          Upload previous results
+        Upload previous results
         </button>
-      </div>
-      
-  </div>
+    </div>
+    
+</div>
 </div>
 
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -1">
@@ -136,13 +136,13 @@
         <section class="example-section mt-10">
             <h4>Select Relevant Key Process Areas:</h4>
             <div *ngFor="let kpa of currentKpas" class="kpa-checkbox">
-              <mat-checkbox 
+            <mat-checkbox 
                 *ngIf="getKpaControl(kpa.id)" 
                 [formControl]="getKpaControl(kpa.id)">
                 {{ kpa.name }}<br><span class="kpa-description">{{ kpa.description }}</span>
-              </mat-checkbox>
+            </mat-checkbox>
             </div>
-          </section>
+        </section>
 
         <div class="button-container">
             <button mat-flat-button color="primary" (click)="startOver()">
@@ -178,8 +178,8 @@
             </div>
             <div class="flex-1 w-full">
                 <mat-form-field class="w-full">
-                  <mat-label><i>Optional comment</i></mat-label>
-                  <textarea matInput [formControl]="currentCommentControl" placeholder="Enter your comment" rows="5"></textarea>
+                <mat-label><i>Optional comment</i></mat-label>
+                <textarea matInput [formControl]="currentCommentControl" placeholder="Enter your comment" rows="5"></textarea>
                 </mat-form-field>
             </div>
         </div>
@@ -210,15 +210,17 @@
 
 <div class="question-flow-container" *ngIf="currentQuestionIndex == allQuestions.length">
     <div class="question-container" [@questionAnimation]="animationState">
-        <h2>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex - 1].stakeholderName }})</h2>
-        <h3>Maturity assessment results</h3>
-        <p class="text-center">Assessment conducted 
-            <span *ngIf="authorControl.value">by {{ authorControl.value }}, </span>
-            on {{ timestampControl.value | date: 'medium' }}
-        </p>
-        <p class="text-center mt-10 text-lg">Based on your responses, the maturity level of the stakeholder is:</p>
+        <div id="pdfReport">
+            <h2>SNOMED Implementation Maturity assessment results</h2>
+            <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex - 1].stakeholderName }})</h3>
+            <p class="text-center">Assessment conducted 
+                <span *ngIf="authorControl.value">by {{ authorControl.value }}, </span>
+                on {{ timestampControl.value | date: 'medium' }}
+            </p>
+            <p class="text-center mt-10 text-lg">Based on your responses, the maturity level of the stakeholder is:</p>
 
-        <app-maturity-results [maturityResponse]="responseForm.value" [allQuestions]="allQuestions"></app-maturity-results>
+            <app-maturity-results [maturityResponse]="responseForm.value" [allQuestions]="allQuestions"></app-maturity-results>
+        </div>
 
         <div class="button-container">
             <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1">
@@ -231,6 +233,7 @@
         <div class="button-container">
             <!-- Save State Button -->
             <button mat-flat-button color="primary" (click)="saveState()">Download results</button>
+            <button mat-flat-button color="primary" (click)="downloadPdf()">Download PDF</button>
         </div>
     </div>
 </div>

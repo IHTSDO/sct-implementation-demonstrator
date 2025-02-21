@@ -1,6 +1,5 @@
 import { Component, ElementRef, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
-import { TitleCasePipe } from '@angular/common';
 Chart.register(...registerables);
 
 @Component({
@@ -351,4 +350,5 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     // Convert the 1–5 score to 0–100%
     return ((value - min) / (max - min)) * 100;
   }
+  
 }
