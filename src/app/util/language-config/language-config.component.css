@@ -1,16 +1,25 @@
 /* Container for the language config dialog */
 .language-config-container {
+    display: flex;
+    flex-direction: column;  
     padding: 16px;
-    max-width: 600px;
+    width: 100%;
+    height: 700px;
     margin: auto;
   }
   
+  .add-context-container {
+    display: flex;
+    margin-top: auto;
+    justify-content: flex-end;
+  }
+
   /* Styling for each context item */
   .context-item {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 8px 0;
+    padding: 10px !important;
     border-bottom: 1px solid #e0e0e0;
   }
   
@@ -32,9 +41,13 @@
   
   /* Styling for the action buttons container */
   .action-buttons {
-    margin-top: 24px;
     display: flex;
     justify-content: flex-end;
+    margin-top: auto;
+    border-top: 1px;
+    border-color: rgb(181, 178, 178);
+    border-style: solid;
+    padding-top: 15px;
   }
   
   /* Optional: Styling for drag preview while dragging */
@@ -59,6 +72,7 @@
 .flex-form-field {
     flex: 1;
     margin-right: 8px;
+    margin-top: 15px;
   }
   
   /* Container for the "Add Context" button */
@@ -71,3 +85,13 @@
     margin-right: 8px;
   }
   
+  .drag-handle {
+    cursor: move;
+    margin-right: 2rem;
+  }
+
+  .row-num {
+    margin-right: 1rem;
+    font-size: larger;
+    font-weight: lighter;
+  }

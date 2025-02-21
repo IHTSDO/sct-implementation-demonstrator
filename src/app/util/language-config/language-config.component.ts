@@ -24,7 +24,7 @@ export class LanguageConfigComponent {
     this.languageCodes = data.languageCodes;
     this.languageRefsets = data.languageRefsets;
     // Optionally, initialize context from incoming data.
-    this.context = data.context || [];
+    this.context = data.context || [{ languageCode: '', languageRefset: {} }];
   }
 
   // Add a new context with empty values.

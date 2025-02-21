@@ -1,13 +1,15 @@
 <div class="language-config-container">
-    <h2>Language Context Editor</h2>
+    <h2 class="text-center">Language Context Editor</h2>
   
     <!-- Drag-and-drop list of contexts -->
     <div cdkDropList (cdkDropListDropped)="drop($event)">
       <mat-list>
         <mat-list-item *ngFor="let ctx of context; let i = index" cdkDrag>
           <div class="context-item">
+            <mat-icon class="drag-handle">drag_handle</mat-icon>
+            <span class="row-num">{{ i + 1 }}</span>
             <!-- Language Code Field -->
-            <mat-form-field appearance="fill" class="flex-form-field">
+            <mat-form-field class="flex-form-field">
               <mat-label>Language Code</mat-label>
               <mat-select [(ngModel)]="ctx.languageCode">
                 <mat-option *ngFor="let code of languageCodes" [value]="code">
@@ -17,17 +19,17 @@
             </mat-form-field>
   
             <!-- Language Refset Field -->
-            <mat-form-field appearance="fill" class="flex-form-field">
+            <mat-form-field class="flex-form-field">
               <mat-label>Language Refset</mat-label>
               <mat-select [(ngModel)]="ctx.languageRefset">
-                <mat-option *ngFor="let refset of languageRefsets" [value]="refset.code">
+                <mat-option *ngFor="let refset of languageRefsets" [value]="refset">
                   {{ refset.display }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
   
             <!-- Delete Button -->
-            <button mat-icon-button color="warn" (click)="removeContext(i)">
+            <button mat-icon-button color="primary" (click)="removeContext(i)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -37,7 +39,7 @@
   
     <!-- Button to add a new context -->
     <div class="add-context-container">
-      <button mat-raised-button color="primary" (click)="addContext()">Add Context</button>
+      <button mat-raised-button color="primary" (click)="addContext()">Add rule</button>
     </div>
   
     <!-- Action buttons -->
@@ -46,4 +48,3 @@
       <button mat-raised-button color="accent" (click)="save()">Save</button>
     </div>
   </div>
-  
