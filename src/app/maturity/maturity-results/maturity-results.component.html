@@ -27,8 +27,8 @@
 <table class="bordered-table">
   <thead>
     <tr>  
-      <th>KPA</th>
-      <th>Maturity score</th>
+      <th>KPA Description <span *ngIf="commentList.length > 0">(responses with comments are listed)</span></th>
+      <th>KPA Average Score</th>
     </tr>
   </thead>
   <tbody>
@@ -45,20 +45,22 @@
   
               <!-- Result Column -->
               <td *ngIf="isFirstRowInKpa(i)" 
-                  [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)">
+                  [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)" class="text-center">
                 {{ kpaAverages[kpa] | number: '1.2-2' }}
               </td>
             </tr>
           </ng-container>
           <ng-container *ngFor="let comment of commentList">
             <tr *ngIf="comment.kpa == kpa">
-              <td>
-                <p class="ml-4">
-                  Comment: {{ comment.questionText }}<br>
-                  <i>{{ comment.text }}</i>
-                </p>
+              <td colspan="2">
+                <div  class="comment">
+                  <mat-icon>comment</mat-icon>
+                  <p>
+                    {{ comment.questionText }}<br>
+                    Result: {{ comment.selectedScore }} - {{ comment.selectedOptionText }} Comment: <i>{{ comment.text }}</i>
+                  </p>
+                </div>
               </td>
-              <td></td>
             </tr>
           </ng-container>
         </ng-container>

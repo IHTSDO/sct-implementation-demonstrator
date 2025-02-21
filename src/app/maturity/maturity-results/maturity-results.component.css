@@ -94,3 +94,15 @@
     flex: 1; 
   }
   
+
+  .comment {
+    display: flex;
+    flex-direction: row;
+    padding-left: 1rem;
+    gap: 0.5rem;
+    font-size: small;
+  }
+
+  .comment mat-icon {
+    color: #2b96e8;
+  }

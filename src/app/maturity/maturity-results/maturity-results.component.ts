@@ -41,6 +41,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     this.processComments();
     this.computeKpaAverages();
     this.overallAverage = this.calculateOverallAverage(this.maturityResponse);
+    console.log(this.allQuestions);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -292,36 +293,43 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   private processComments(): void {
     const newComments: any[] = [];
 
-    for (const key of Object.keys(this.maturityResponse)) {
-      // We only care about keys that end with "_comment"
-      if (!key.endsWith('_comment')) {
+    // Loop through allQuestions to find corresponding user selections and comments
+    for (const item of this.allQuestions) {
+      // e.g., "member_engagement_involvement"
+      const fullPath = item.questionFullPath;
+      if (!fullPath) {
         continue;
       }
 
-      const text = (this.maturityResponse[key] || '').trim();
-      // Only store if there's a non-empty comment
-      if (!text) {
+      // Check if there's a numeric selection in maturityResponse
+      const selectedValue = this.maturityResponse[fullPath];
+      if (typeof selectedValue !== 'number' || !isFinite(selectedValue)) {
+        continue; // skip if no valid numeric selection
+      }
+
+      // Find the matching option in 'options' by score
+      const matchingOption = item.question.options.find((opt: any) => opt.score === selectedValue);
+      const selectedOptionText = matchingOption ? matchingOption.text : '';
+
+      // Check for a comment key (e.g. "member_engagement_involvement_comment")
+      const commentKey = `${fullPath}_comment`;
+      const commentValue: string = (this.maturityResponse[commentKey] || '').trim();
+
+      // Only store if the comment is non-empty
+      if (!commentValue) {
         continue;
       }
 
-      // Example key shape: "member_engagement_involvement_comment"
-      const [stakeholder, kpa, question, suffix] = key.split('_');
-      // suffix should be "comment", so we can ignore it or check for safety
-
-      // get the question path
-      const questionPath = `${stakeholder}_${kpa}_${question}`;
-      // get question text from all questions
-      const questionObj = this.allQuestions.find((q) => q.questionFullPath === questionPath);
-      const questionText = questionObj ? questionObj.question.question : '';
-
-      // Add to our comment array
+      // Build and push the comment item
       newComments.push({
-        kpa,
-        questionText,
-        text
+        kpa: item.kpaId,
+        questionText: item.question.question,
+        selectedScore: selectedValue,
+        selectedOptionText,
+        text: commentValue
       });
     }
-    console.log(newComments);
+
     this.commentList = newComments;
   }
   
