@@ -20,7 +20,6 @@ export class LanguageConfigComponent {
     public dialogRef: MatDialogRef<LanguageConfigComponent>, 
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { 
-    console.log(data);
     this.languageCodes = data.languageCodes;
     this.languageRefsets = data.languageRefsets;
     // Optionally, initialize context from incoming data.

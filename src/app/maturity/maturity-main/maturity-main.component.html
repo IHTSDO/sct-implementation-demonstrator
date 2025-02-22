@@ -1,4 +1,4 @@
-<div class="flex flex-row gap-4 justify-end flex-wrap p-2">
+<div class="flex flex-row gap-4 justify-end flex-wrap p-2" *ngIf="authorMode">
     <button mat-flat-button color="primary" (click)="downloadSpecification()">Download Maturiry Spec</button>
     <!-- Load Maturity Spec Button -->
     <input hidden (change)="uploadSpecification($event)" #fileInput type="file" id="file" />

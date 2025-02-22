@@ -8,6 +8,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import cloneDeep from 'lodash/cloneDeep';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-maturity-main',
@@ -43,12 +44,19 @@ export class MaturityMainComponent implements OnInit {
   selectedStakeholder: any = null;
   animationState = 'enter';
   currentKpas: any[] = [];
+  authorMode: boolean = false;
 
-  constructor(private http: HttpClient, private fb: FormBuilder, private dialog: MatDialog) {
+  constructor(private http: HttpClient, private fb: FormBuilder, private dialog: MatDialog, private route: ActivatedRoute) {
     this.responseForm = this.fb.group({
       selectedStakeholder: new FormControl(null, Validators.required), // Add stakeholder selection control
     });
     this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
+    this.route.queryParams.subscribe(params => {
+      console.log(params); // Logs all query params
+      if (params['author']) {
+        this.authorMode = true;
+      }
+    });
   }
 
   async ngOnInit() {
