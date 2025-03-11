@@ -87,6 +87,7 @@ import { LoincMainComponent } from './loinc/loinc-main/loinc-main.component';
 import { LoincOrderComponent } from './loinc/loinc-order/loinc-order.component';
 import { LoincResultsComponent } from './loinc/loinc-results/loinc-results.component';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
+import { FlipCardComponent } from './util/flip-card/flip-card.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -139,7 +140,8 @@ const app = initializeApp(firebaseConfig);
         LoincMainComponent,
         LoincOrderComponent,
         LoincResultsComponent,
-        LanguageConfigComponent
+        LanguageConfigComponent,
+        FlipCardComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,
