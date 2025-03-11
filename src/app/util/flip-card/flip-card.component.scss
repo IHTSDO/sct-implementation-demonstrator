@@ -36,8 +36,13 @@
     text-align: center;
     flex-direction: column;
 }
-  
+
+.flip-card-front {
+    background-color: rgb(18, 79, 107);
+}
+
 .flip-card-back {
+    background-color: rgb(67, 74, 85);
     transform: rotateY(180deg);
 }
 
