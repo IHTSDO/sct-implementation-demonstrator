@@ -15,8 +15,10 @@
     transform-origin: center center; // or 50% 50%
     transition: transform 0.6s;
     transform-style: preserve-3d;
+    background-color: rgb(18, 79, 107);
+    color: white;
 }
-  
+
 .flipped .flip-card {
     transform: rotateY(180deg);
 }
@@ -40,4 +42,3 @@
 }
 
 
-  

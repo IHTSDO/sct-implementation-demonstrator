@@ -18,15 +18,15 @@
                 <app-flip-card #myFlipCard>
                     <!-- FRONT CONTENT -->
                     <div flipFront>
-                        <h1>Why use this tool?</h1>
+                        <div class="text-2xl mb-4 font-bold">Why use this tool?</div>
                         <p>Identify gaps, gain insights, align with best practices, and advance SNOMED CT adoption—tailored for vendors, members, and user organizations.</p>
-                        <button mat-raised-button color="primary" (click)="myFlipCard.toggleFlip()">
+                        <button mat-raised-button color="accent" (click)="myFlipCard.toggleFlip()">
                             More...
                         </button>
                     </div>
                     <!-- BACK CONTENT -->
                     <div flipBack>
-                        <h2>Why use this tool?</h2>
+                        <div class="text-2xl mb-2 font-bold">Why use this tool?</div>
                         <div class="home-list">
                             <div class="home-list-item">
                                 <div><b>Identify Gaps</b> – Assess implementation challenges and pinpoint areas needing further development.</div>
@@ -49,64 +49,64 @@
                 <app-flip-card #myFlipCard2>
                     <!-- FRONT CONTENT -->
                     <div flipFront>
-                    <h1>How does it work?</h1>
-                    <p>Assess key areas, receive a maturity score, gain improvement insights, and generate a report to enhance SNOMED CT implementation and collaboration.</p>
-                    <button mat-raised-button color="primary" (click)="myFlipCard2.toggleFlip()">
-                        More...
-                    </button>
-                    </div>
-                    <!-- BACK CONTENT -->
-                    <div flipBack>
-                    <h2>How does it work?</h2>
-                    <div class="home-list">
-                        <div class="home-list-item">
-                            <div><b>Select Key Process Areas</b> – Choose the areas most relevant to your role and implementation needs.</div>
+                        <div class="text-2xl mb-4 font-bold">How does it work?</div>
+                        <p>Assess key areas, receive a maturity score, gain improvement insights, and generate a report to enhance SNOMED CT implementation and collaboration.</p>
+                        <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()">
+                            More...
+                        </button>
                         </div>
-                        <div class="home-list-item">
-                            <div><b>Complete the Assessment</b> – Answer structured questions across selected key process areas</div>
-                        </div>
-                        <div class="home-list-item">
-                            <div><b>Receive a Maturity Score</b> – Get a clear view of your current implementation maturity level.</div>
-                        </div>
-                        <div class="home-list-item">
-                            <div><b>Access Improvement Recommendations</b> – Receive targeted guidance to enhance your SNOMED CT deployment and interoperability.</div>
-                        </div>
-                        <div class="home-list-item">
-                            <div><b>Download and Share Your Report</b> – Generate a detailed report which can be stored for internal use or shared with stakeholders for further planning and collaboration.</div>
-                        </div>
-                    </div>
-                    <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()">
-                        Back
-                    </button>
+                        <!-- BACK CONTENT -->
+                        <div flipBack>
+                            <div class="text-2xl mb-2 font-bold">How does it work?</div>
+                            <div class="home-list">
+                                <div class="home-list-item">
+                                    <div><b>Select Key Process Areas</b> – Choose the areas most relevant to your role and implementation needs.</div>
+                                </div>
+                                <div class="home-list-item">
+                                    <div><b>Complete the Assessment</b> – Answer structured questions across selected key process areas</div>
+                                </div>
+                                <div class="home-list-item">
+                                    <div><b>Receive a Maturity Score</b> – Get a clear view of your current implementation maturity level.</div>
+                                </div>
+                                <div class="home-list-item">
+                                    <div><b>Access Improvement Recommendations</b> – Receive targeted guidance to enhance your SNOMED CT deployment and interoperability.</div>
+                                </div>
+                                <div class="home-list-item">
+                                    <div><b>Download and Share Your Report</b> – Generate a detailed report which can be stored for internal use or shared with stakeholders for further planning and collaboration.</div>
+                                </div>
+                            </div>
+                        <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()">
+                            Back
+                        </button>
                     </div>
                 </app-flip-card>
                 <app-flip-card #myFlipCard3>
                     <!-- FRONT CONTENT -->
                     <div flipFront>
-                    <h1>Who should use it?</h1>
-                    <p>Tailored assessments for vendors, members, and user organizations to evaluate SNOMED CT integration, adoption, and clinical use.</p>
-                    <button mat-raised-button color="primary" (click)="myFlipCard3.toggleFlip()">
-                        More...
-                    </button>
-                    </div>
-                    <!-- BACK CONTENT -->
-                    <div flipBack>
-                    <h2>Who should use it?</h2>
-                    <div class="home-list">
-                        <div class="home-list-item">
-                            <div><b>Vendors</b> – Assess SNOMED CT integration within healthcare software and applications.</div>
+                        <div class="text-2xl mb-4 font-bold">Who should use it?</div>
+                            <p>Tailored assessments for vendors, members, and user organizations to evaluate SNOMED CT integration, adoption, and clinical use.</p>
+                            <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()">
+                                More...
+                            </button>
                         </div>
-                        <div class="home-list-item">
-                            <div><b>Members</b> (National Release Centers) – Evaluate national or regional SNOMED CT adoption and management strategies.</div>
+                        <!-- BACK CONTENT -->
+                        <div flipBack>
+                            <div class="text-2xl mb-2 font-bold">Who should use it?</div>
+                            <div class="home-list">
+                                <div class="home-list-item">
+                                    <div><b>Vendors</b> – Assess SNOMED CT integration within healthcare software and applications.</div>
+                                </div>
+                                <div class="home-list-item">
+                                    <div><b>Members</b> (National Release Centers) – Evaluate national or regional SNOMED CT adoption and management strategies.</div>
+                                </div>
+                                <div class="home-list-item">
+                                    <div><b>User Organizations</b> – Analyze SNOMED CT use within healthcare systems, EHRs, and clinical workflows.</div>
+                                </div>
+                            </div>
+                            <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()">
+                                Back
+                            </button>
                         </div>
-                        <div class="home-list-item">
-                            <div><b>User Organizations</b> – Analyze SNOMED CT use within healthcare systems, EHRs, and clinical workflows.</div>
-                        </div>
-                    </div>
-                    <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()">
-                        Back
-                    </button>
-                    </div>
                 </app-flip-card>
             </div>
             <div class="button-container-first">
