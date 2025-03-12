@@ -29,7 +29,8 @@
             ],
             "styles": [
               "src/custom-theme.scss",
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/leaflet/dist/leaflet.css"
             ],
             "scripts": [
               "node_modules/snomed-ecl-builder-vue/dist/snomed-ecl-builder.js"
