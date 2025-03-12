@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { lastValueFrom, timestamp } from 'rxjs';
+import { debounceTime, filter, finalize, lastValueFrom, switchMap, tap, timestamp } from 'rxjs';
 import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import cloneDeep from 'lodash/cloneDeep';
@@ -42,6 +42,10 @@ export class MaturityMainComponent implements OnInit {
   nameControl!: FormControl;
   authorControl!: FormControl;
   timestampControl!: FormControl;
+  systemNameControl!: FormControl;
+  locationControl!: FormControl;
+  locationResults: any[] = []; // will store geocoding matches
+  loadingLocationResults = false;
   selectedStakeholder: any = null;
   animationState = 'enter';
   currentKpas: any[] = [];
@@ -53,7 +57,6 @@ export class MaturityMainComponent implements OnInit {
     });
     this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
     this.route.queryParams.subscribe(params => {
-      console.log(params); // Logs all query params
       if (params['author']) {
         this.authorMode = true;
       }
@@ -76,11 +79,16 @@ export class MaturityMainComponent implements OnInit {
     this.nameControl = new FormControl(null);
     this.authorControl = new FormControl(null);
     this.timestampControl = new FormControl(new Date().toISOString());
+    this.systemNameControl = new FormControl(null);
+    this.locationControl = new FormControl(null);
+    this.locationResults = [];
     this.responseForm = this.fb.group({
       selectedStakeholder: new FormControl(null, Validators.required),
       name: this.nameControl,
       author: this.authorControl,
       timestamp: this.timestampControl,
+      systemName: this.systemNameControl,
+      location: this.locationControl,
       comment: new FormControl('')
     });
     this.currentControl = this.responseForm.controls['selectedStakeholder'] as FormControl;
@@ -93,6 +101,35 @@ export class MaturityMainComponent implements OnInit {
         });
       });
     });
+    this.locationControl.valueChanges.pipe(
+      debounceTime(300),
+      filter(value => value && value.length >= 2),
+      // turn the loading flag ON each time a new search is triggered
+      tap(() => this.loadingLocationResults = true),
+      switchMap(value => this.geocodingService.search(value))
+    )
+    .subscribe(
+      results => {
+        this.locationResults = results;
+        this.loadingLocationResults = false
+      },
+      error => {
+        console.error('Error', error);
+        // loadingLocationResults will also be set to false by finalize() above
+      }
+    );
+  }
+
+  displayLocation(location: any): string {
+    if (!location) {
+      return '';
+    }
+    return location.label;
+  }
+
+  onLocationSelected(option: any) {
+    // Do nothing for now
+    // console.log('Selected location:', option);
   }
 
   startAssessment(): void {
@@ -319,6 +356,8 @@ export class MaturityMainComponent implements OnInit {
       name: this.nameControl.value,
       author: this.authorControl.value,
       timestamp: this.timestampControl.value,
+      systemName: this.systemNameControl.value,
+      location: this.locationControl.value,
       allQuestions: this.allQuestions
     };
 
@@ -361,6 +400,8 @@ export class MaturityMainComponent implements OnInit {
         this.nameControl.setValue(uploadedState.name);
         this.authorControl.setValue(uploadedState.author);
         this.timestampControl.setValue(uploadedState.timestamp);
+        this.systemNameControl.setValue(uploadedState.systemName);
+        this.locationControl.setValue(uploadedState.location);
 
         // 4) Set stakeholder & selectedKpas
         const stakeholderId = uploadedState.selectedStakeholder;

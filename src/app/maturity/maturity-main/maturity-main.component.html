@@ -35,10 +35,10 @@
                                 <div><b>Obtain actionable</b> Insights – Receive customized recommendations to advance SNOMED CT adoption.</div>
                             </div>
                             <div class="home-list-item">
-                                <div><b>Align with Best Practices</b> – Benchmark your progress against internationally recognized implementation standards.</div>
+                                <div><b>Align with Best Practices</b> – Benchmark your progress against internationally recognized standards.</div>
                             </div>
                             <div class="home-list-item">
-                                <div><b>Tailored for Different Stakeholders</b> – Designed to support Vendors, Members, and User Organizations in their SNOMED CT journey.</div>
+                                <div><b>Tailored for Different Stakeholders</b> – Designed to support key stakeholders in their SNOMED CT journey.</div>
                             </div>
                         </div>
                         <button mat-raised-button color="accent" (click)="myFlipCard.toggleFlip()">
@@ -63,16 +63,16 @@
                                     <div><b>Select Key Process Areas</b> – Choose the areas most relevant to your role and implementation needs.</div>
                                 </div>
                                 <div class="home-list-item">
-                                    <div><b>Complete the Assessment</b> – Answer structured questions across selected key process areas</div>
+                                    <div><b>Complete the Assessment</b> – Answer structured questions across selected key process areas.</div>
                                 </div>
                                 <div class="home-list-item">
                                     <div><b>Receive a Maturity Score</b> – Get a clear view of your current implementation maturity level.</div>
                                 </div>
                                 <div class="home-list-item">
-                                    <div><b>Access Improvement Recommendations</b> – Receive targeted guidance to enhance your SNOMED CT deployment and interoperability.</div>
+                                    <div><b>Access Improvement Recommendations</b> – Receive targeted guidance to enhance your SNOMED CT deployment.</div>
                                 </div>
                                 <div class="home-list-item">
-                                    <div><b>Download and Share Your Report</b> – Generate a detailed report which can be stored for internal use or shared with stakeholders for further planning and collaboration.</div>
+                                    <div><b>Download and Share Your Report</b> – Generate a detailed report which can be stored for internal use or shared.</div>
                                 </div>
                             </div>
                         <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()">
@@ -141,11 +141,26 @@
                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                     <mat-hint>Stakeholder name to be included in the final assessment report. This information is not stored.</mat-hint>
                 </mat-form-field>
+                <mat-form-field class="w-full mt-10" *ngIf="getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name === 'Vendor'">
+                    <mat-label>System name </mat-label>
+                    <input matInput placeholder="Enter the name of the software system being evaluated..." [formControl]="systemNameControl">
+                    <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                    <mat-hint>Name of the software system being evaluated. This information is not stored.</mat-hint>
+                </mat-form-field>
                 <mat-form-field class="w-full mt-10">
                     <mat-label>User name </mat-label>
                     <input matInput placeholder="Enter the name of the user conducting the assessment..." [formControl]="authorControl">
                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                     <mat-hint>User name to be included in the final assessment report. This information is not stored.</mat-hint>
+                </mat-form-field>
+                <mat-form-field class="w-full mt-10">
+                    <mat-label>Location</mat-label>
+                    <input matInput type="text" placeholder="Enter a Country, City or address..." [formControl]="locationControl" [matAutocomplete]="auto">
+                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onLocationSelected($event.option.value)" [displayWith]="displayLocation">
+                      <mat-option *ngFor="let loc of locationResults" [value]="loc">{{ loc.label }}</mat-option>
+                    </mat-autocomplete>
+                    <mat-progress-spinner *ngIf="loadingLocationResults" matSuffix mode="indeterminate" diameter="20"></mat-progress-spinner>
+                    <mat-hint *ngIf="!loadingLocationResults">Country, city or address. This information is not stored and is useful for collating results in dashboards.</mat-hint>
                 </mat-form-field>
             </div>
         </div>
@@ -255,7 +270,12 @@
     <div class="question-container" [@questionAnimation]="animationState">
         <div id="pdfReport">
             <h2>SNOMED Implementation Maturity assessment results</h2>
-            <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex - 1].stakeholderName }})</h3>
+            <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex - 1].stakeholderName }}) 
+                <span *ngIf="systemNameControl.value"> - System: {{ systemNameControl.value }}</span>
+            </h3>
+            <p class="text-center" *ngIf="locationControl.value">
+                Location: {{ locationControl.value.label }}
+            </p>
             <p class="text-center">Assessment conducted 
                 <span *ngIf="authorControl.value">by {{ authorControl.value }}, </span>
                 on {{ timestampControl.value | date: 'medium' }}
