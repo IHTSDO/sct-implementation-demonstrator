@@ -21,7 +21,7 @@
       "type": "Autocomplete",
       "ecl": "\t  <  300893006 |Nutritional finding (finding)|  OR  <  363246002 |Nutritional deficiency associated condition (disorder)|",
       "value": null,
-      "note": "Needs to be repeatable - Dietary intake information"
+      "note": "Dietary intake information"
     },
     {
       "title": "Physical findings",
@@ -32,7 +32,7 @@
       "type": "Autocomplete",
       "ecl": "<<  363788007 |Clinical history/examination observable (observable entity)|",
       "value": null,
-      "note": "Needs to be repeatable - Observable signs related to nutrition status."
+      "note": "Observable signs related to nutrition status."
     },
     {
       "title": "Anthropometrics",
@@ -76,15 +76,26 @@
       "type": "Select (Single)",
       "ecl": "< 301331008 |Finding of body mass index (finding)|",
       "value": null,
-      "note": "Would be good to calculate this and define rules for the interpretation"
+      "note": ""
     },
     {
-      "title": "Lab results",
-      "code": null,
+      "title": "Lab results interpretation",
+      "code": "",
       "type": "Section header",
       "ecl": null,
       "value": null,
       "note": null
+    },
+    {
+      "title": "Lab finding",
+      "code": {
+        "code": "386344002",
+        "display": "Laboratory data interpretation"
+      },
+      "type": "Autocomplete",
+      "ecl": "< 118245000 |Measurement finding (finding)|",
+      "value": "",
+      "note": ""
     }
   ]
 }
