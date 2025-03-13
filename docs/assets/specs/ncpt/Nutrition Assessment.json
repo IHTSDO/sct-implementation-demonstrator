@@ -1,0 +1,90 @@
+{
+  "title": "Nutrition Assessment",
+  "bindings": [
+    {
+      "title": "General assessment",
+      "code": {
+        "code": "310243009",
+        "display": "Nutritional assessment"
+      },
+      "type": "Section header",
+      "ecl": "",
+      "value": "",
+      "note": ""
+    },
+    {
+      "title": "Food and nutrition intake",
+      "code": {
+        "code": "225388007",
+        "display": "Dietary intake assessment"
+      },
+      "type": "Autocomplete",
+      "ecl": "\t  <  300893006 |Nutritional finding (finding)|  OR  <  363246002 |Nutritional deficiency associated condition (disorder)|",
+      "value": null,
+      "note": "Needs to be repeatable - Dietary intake information"
+    },
+    {
+      "title": "Physical findings",
+      "code": {
+        "code": "363788007",
+        "display": "Clinical history/examination observable"
+      },
+      "type": "Autocomplete",
+      "ecl": "<<  363788007 |Clinical history/examination observable (observable entity)|",
+      "value": null,
+      "note": "Needs to be repeatable - Observable signs related to nutrition status."
+    },
+    {
+      "title": "Anthropometrics",
+      "code": {
+        "code": "248326004",
+        "display": "Body measure"
+      },
+      "type": "Section header",
+      "ecl": null,
+      "value": null,
+      "note": null
+    },
+    {
+      "title": "Body weight",
+      "code": {
+        "code": "27113001",
+        "display": "Body weight"
+      },
+      "type": "Integer",
+      "ecl": null,
+      "value": null,
+      "note": null
+    },
+    {
+      "title": "Body height",
+      "code": {
+        "code": "1153637007",
+        "display": "Body height"
+      },
+      "type": "Integer",
+      "ecl": null,
+      "value": null,
+      "note": null
+    },
+    {
+      "title": "BMI",
+      "code": {
+        "code": "60621009",
+        "display": "Body mass index"
+      },
+      "type": "Select (Single)",
+      "ecl": "< 301331008 |Finding of body mass index (finding)|",
+      "value": null,
+      "note": "Would be good to calculate this and define rules for the interpretation"
+    },
+    {
+      "title": "Lab results",
+      "code": null,
+      "type": "Section header",
+      "ecl": null,
+      "value": null,
+      "note": null
+    }
+  ]
+}
