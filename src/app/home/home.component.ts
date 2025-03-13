@@ -10,15 +10,23 @@ import { MenuService } from '../services/menu.service';
 })
 export class HomeComponent implements OnInit{
   demos: any[] = [];
+  embeddedMode: boolean = false;
 
   constructor(public router: Router, public route: ActivatedRoute, private menuService: MenuService) { }
 
   ngOnInit(): void {
     this.demos = this.menuService.getDemos();
+    this.route.queryParams.subscribe(params => {
+      if (params['embedded'] === 'true') {
+        this.embeddedMode = true;
+      } else {
+        this.embeddedMode = false;
+      }
+    });
   }
 
   navigate(demo: any) {
-    if (demo.type === 'internal') {
+    if (demo.type === 'internal' && !this.embeddedMode) {
       let queryParams = demo.queryParams;
       let currentParams = this.route.snapshot.queryParams;
       if (queryParams) {
