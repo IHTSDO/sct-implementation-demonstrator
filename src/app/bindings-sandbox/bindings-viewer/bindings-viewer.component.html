@@ -15,11 +15,13 @@
             <mat-icon>info</mat-icon>
         </button>
         <mat-menu #substancePopoverMenu="matMenu">
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.code">
+            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.code" 
+            (click)="copyToClipboard(binding.code?.code + ' |' + binding.code?.display + '|')">
                 <h4>Question terminology binding</h4>
                 <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
             </span>
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.ecl">
+            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.ecl"
+            (click)="copyToClipboard(binding.ecl)">
                 <h4>Answer terminology binding</h4>
                 <pre>{{ binding.ecl }}</pre>
             </span>

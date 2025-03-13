@@ -1,4 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 
 @Component({
     selector: 'app-bindings-viewer',
@@ -18,7 +20,7 @@ export class BindingsViewerComponent {
   responseBundle: any = {};
   responseBundleStr: string = '{}';
 
-  constructor() { } 
+  constructor(private _snackBar: MatSnackBar) { } 
 
 
   optionSelected(title: string, code: string, event: any) {
@@ -120,5 +122,13 @@ export class BindingsViewerComponent {
       }
     }
     this.responseBundleStr = JSON.stringify(this.responseBundle, null, 2);
+  }
+
+  copyToClipboard(ecl: string) {
+    navigator.clipboard.writeText(ecl);
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 2000,
+      data: "Copied to clipboard"
+    });
   }
 }

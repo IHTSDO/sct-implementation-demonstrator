@@ -12,8 +12,9 @@ export class NcptComponent implements OnInit {
 
   emptySpec: any = {};
   specs = [
-    { specFile: "Example-spec.json", spec: this.emptySpec },
-    { specFile: "Example-spec-2.json", spec: this.emptySpec },
+    { specFile: "Nutrition Diagnosis.json", spec: this.emptySpec },
+    { specFile: "Nutrition Assessment.json", spec: this.emptySpec },
+    { specFile: "NCPT_Intervention_form.json", spec: this.emptySpec },
   ];
 
   constructor(private http: HttpClient) { }
@@ -21,7 +22,6 @@ export class NcptComponent implements OnInit {
   ngOnInit() {
     this.specs.forEach(async (spec) => {
       const data: any = await lastValueFrom(this.http.get('assets/specs/ncpt/' + spec.specFile));
-      console.log(data);
       spec.spec = data;
     });
   }

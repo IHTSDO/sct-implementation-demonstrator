@@ -1,0 +1,38 @@
+{
+  "title": "Nutrition Diagnosis",
+  "bindings": [
+    {
+      "title": "Problem",
+      "code": {
+        "code": "225388007",
+        "display": "Dietary intake assessment"
+      },
+      "type": "Autocomplete",
+      "ecl": "^ 1303957004 |Nutrition Care Process Terminology reference set|   AND (<  404684003 |Clinical finding|  OR <  413350009 |Finding with explicit context (situation)| )",
+      "value": null,
+      "note": "Needs to be repeatable"
+    },
+    {
+      "title": "Etiology",
+      "code": {
+        "code": "405534009",
+        "display": "Adverse incident contributing factor"
+      },
+      "type": "Select (Multiple)",
+      "ecl": "118196009 |Value belief finding (finding)|  OR 870752006 |Finding related to health literacy (finding)| OR 284465006 |Finding relating to psychosocial functioning (finding)| OR 271437004 |Problem situation relating to social and personal history| OR 445281000124101 |Nutrition impaired due to limited access to healthful foods (finding)|",
+      "value": null,
+      "note": "Showing that SNOMED concepts may be used to represent the NCP etiologies"
+    },
+    {
+      "title": "Signs & Symptoms",
+      "code": {
+        "code": "60621009",
+        "display": "Body mass index"
+      },
+      "type": "Autocomplete",
+      "ecl": "<  404684003 |Clinical finding|  ",
+      "value": null,
+      "note": null
+    }
+  ]
+}

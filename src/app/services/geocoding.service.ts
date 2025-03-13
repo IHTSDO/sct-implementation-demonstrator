@@ -26,4 +26,31 @@ export class GeocodingService {
       return [];
     }
   }
+
+  async getAdministrativeBoundary(placeId: number) {
+    const url = `https://nominatim.openstreetmap.org/details.php?format=json&place_id=${placeId}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch administrative boundary: ${response.statusText}`);
+      }
+      const data = await response.json();
+
+      if (data && data.geometry && data.geometry.coordinates) {
+        return data.geometry.coordinates; // Returns boundary coordinates
+      } else if (data.boundingbox) {
+        return [
+          [parseFloat(data.boundingbox[0]), parseFloat(data.boundingbox[2])], // Southwest corner
+          [parseFloat(data.boundingbox[1]), parseFloat(data.boundingbox[3])]  // Northeast corner
+        ];
+      } else {
+        console.warn('No boundary data found');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching administrative boundary:', error);
+      return null;
+    }
+  }
 }

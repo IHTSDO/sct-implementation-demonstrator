@@ -1,0 +1,35 @@
+{
+  "title": "Nutrition Intervention",
+  "bindings": [
+    {
+      "title": "Intervention type",
+      "code": {
+        "code": "386373004",
+        "display": "Nutrition therapy"
+      },
+      "type": "Autocomplete",
+      "ecl": "^  1303957004 |Nutrition Care Process Terminology reference set| AND (< 71388002 |Procedure (procedure)| )",
+      "value": null,
+      "note": "Should be repeatable - The category of intervention (members of the NCPT reference set)."
+    },
+    {
+      "title": "Comments",
+      "code": {
+        "code": "386373004",
+        "display": "Nutrition therapy"
+      },
+      "type": "Text box",
+      "ecl": null,
+      "value": null,
+      "note": "Provide any details and instructions related to the selected interventions"
+    },
+    {
+      "title": "Frequency",
+      "code": null,
+      "type": "Select (Single)",
+      "ecl": "< 307444008 |Frequency per week (qualifier value)|",
+      "value": null,
+      "note": "How often the intervention is administered.\t"
+    }
+  ]
+}
