@@ -12,8 +12,8 @@ export class NcptComponent implements OnInit {
 
   emptySpec: any = {};
   specs = [
-    { specFile: "Nutrition Diagnosis.json", spec: this.emptySpec },
     { specFile: "Nutrition Assessment.json", spec: this.emptySpec },
+    { specFile: "Nutrition Diagnosis.json", spec: this.emptySpec },
     { specFile: "NCPT_Intervention_form.json", spec: this.emptySpec },
   ];
 
