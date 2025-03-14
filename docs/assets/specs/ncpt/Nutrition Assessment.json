@@ -95,7 +95,9 @@
       "type": "Autocomplete",
       "ecl": "< 118245000 |Measurement finding (finding)|",
       "value": "",
-      "note": ""
+      "note": "",
+      "repeatable": true,
+      "count": 1
     }
   ]
 }
