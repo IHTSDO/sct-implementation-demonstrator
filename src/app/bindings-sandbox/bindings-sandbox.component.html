@@ -67,6 +67,14 @@
                                 </button>
                                 <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
                             </mat-form-field>
+                            <div class="text-center" 
+                                *ngIf="newBindingForm.controls.type.value != 'Section header' && 
+                                        newBindingForm.controls.type.value != 'Text box' && 
+                                        newBindingForm.controls.type.value != 'Checkbox'">
+                                <mat-slide-toggle formControlName="repeatable">
+                                    Allow Repeating
+                                </mat-slide-toggle>
+                            </div>
                             <mat-form-field class="input-field" *ngIf="newBindingForm.controls.type.value == 'Checkbox'">
                                 <!-- <mat-label>Question code</mat-label> -->
                                 <app-autocomplete-binding [binding]="checkboxBinding" class="grow" formControlName="ecl"></app-autocomplete-binding>
@@ -143,8 +151,8 @@
     <div class="row-container">
         <div [@growShrink]="stateName" class="row-container-item">
             <div cdkDropList (cdkDropListDropped)="onDrop($event)">
-                <div *ngFor="let binding of bindings; let i = index" class="output-panel" cdkDrag>
-                    <div class="row control">
+                <div *ngFor="let binding of bindings; let i = index" class="output-panel" cdkDrag  [ngClass]="{ 'border-question' : binding.count > 1 }">
+                    <div class="row control" *ngFor="let num of [].constructor(binding.count); let j = index">
                         <mat-icon cdkDragHandle class="tool drag-handle">drag_indicator</mat-icon>
                         <app-autocomplete-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Autocomplete'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-autocomplete-binding>
                         <app-dropdown-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Select (Single)' || binding.type == 'Select (Multiple)'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-dropdown-binding>
@@ -156,25 +164,36 @@
                         <app-checkbox-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-binding>
                         <app-checkbox-multiple-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox multiple'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-multiple-binding>
 
-                        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Section header'" [disabled]="!binding.code  && !binding.ecl">
-                            <mat-icon>info</mat-icon>
-                        </button>
-                        <mat-menu #substancePopoverMenu="matMenu">
-                            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.code">
-                                <h4>Question terminology binding</h4>
-                                <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
-                            </span>
-                            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.ecl">
-                                <h4>Answer terminology binding</h4>
-                                <pre>{{ binding.ecl }}</pre>
-                            </span>
-                        </mat-menu>
-                        <button mat-icon-button color="primary" (click)="bindings.splice(i,1)" class="tool">
-                            <mat-icon>delete</mat-icon>
-                        </button>
-                        <button mat-icon-button color="primary" (click)="edit(i)" class="tool">
-                            <mat-icon>edit</mat-icon>
-                        </button>
+                        <div class="actions">
+                            <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" 
+                                *ngIf="binding.type != 'Section header' && j == 0" [disabled]="!binding.code  && !binding.ecl">
+                                <mat-icon>info</mat-icon>
+                            </button>
+                            <mat-menu #substancePopoverMenu="matMenu">
+                                <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.code">
+                                    <h4>Question terminology binding</h4>
+                                    <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
+                                </span>
+                                <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.ecl">
+                                    <h4>Answer terminology binding</h4>
+                                    <pre>{{ binding.ecl }}</pre>
+                                </span>
+                            </mat-menu>
+                            <button mat-icon-button color="primary" (click)="bindings.splice(i,1)" class="tool" *ngIf="j == 0" matTooltip="Delete binding">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                            <button mat-icon-button color="primary" (click)="edit(i)" class="tool" *ngIf="j == 0" matTooltip="Edit binding">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button color="primary" (click)="addRepetition(binding)" class="tool" 
+                            *ngIf="j === binding.count - 1 && binding.repeatable" matTooltip="Add another repetition">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                            <button mat-icon-button color="primary" (click)="removeRepetition(binding)" class="tool" 
+                            *ngIf="j === binding.count - 1 && binding.count > 1" matTooltip="Remove repetition">
+                                <mat-icon>remove</mat-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

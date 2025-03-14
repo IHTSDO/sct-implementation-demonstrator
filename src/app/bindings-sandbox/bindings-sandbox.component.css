@@ -162,3 +162,15 @@ mat-hint, mat-error {
     margin-top: 20px;
 }
 
+.actions {
+    display: flex;
+    align-items: flex-start;
+    width: 25%;
+}
+
+.border-question {
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}

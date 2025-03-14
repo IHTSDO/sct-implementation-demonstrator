@@ -162,3 +162,22 @@ mat-hint, mat-error {
     margin-top: 20px;
 }
 
+.question-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 80%;
+}
+
+.actions {
+    display: flex;
+    align-items: flex-start;
+    width: 25%;
+}
+
+.border-question {
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 
@@ -8,7 +8,7 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
     styleUrl: './bindings-viewer.component.css',
     standalone: false
 })
-export class BindingsViewerComponent {
+export class BindingsViewerComponent implements OnInit, OnChanges {
 
   @Input() spec: any;
 
@@ -21,7 +21,25 @@ export class BindingsViewerComponent {
   responseBundleStr: string = '{}';
 
   constructor(private _snackBar: MatSnackBar) { } 
+  ngOnChanges(changes: SimpleChanges): void {
+    // Add count = 1 to all bindings in the spec is input changed
+    if (changes['spec']) {
+      this.spec?.bindings?.forEach((binding: any) => {
+        binding.count = 1;
+      });
+    }
+  }
 
+  ngOnInit(): void {
+  }
+
+  addRow(binding: any) {
+    binding.count++;
+  }
+
+  removeRow(binding: any) {
+    binding.count--;
+  }
 
   optionSelected(title: string, code: string, event: any) {
     this.output[title] = {

@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { TerminologyService } from '../services/terminology.service';
-import { lastValueFrom, map } from 'rxjs';
+import { count, lastValueFrom, map } from 'rxjs';
 import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -16,6 +16,7 @@ import {
   transition
 } from '@angular/animations';
 import { AutocompleteBindingComponent } from '../bindings/autocomplete-binding/autocomplete-binding.component';
+import { repeat } from 'lodash';
 @Component({
     selector: 'app-bindings-sandbox',
     templateUrl: './bindings-sandbox.component.html',
@@ -99,35 +100,45 @@ export class BindingsSandboxComponent implements OnInit {
         type: 'Autocomplete',
         ecl: `<< 74400008 |Appendicitis|`,
         value: '',
-        note: 'An autocomplete field to select between all descendants of appendicitis.'
+        note: 'An autocomplete field to select between all descendants of appendicitis.',
+        repeatable: false,
+        count: 1
       },
       {
         title: 'Clinical note',
         type: 'Text box',
         ecl: `74400008 |Appendicitis|`,
         value: '',
-        note: 'A text box for entering free text clinical information.'
+        note: 'A text box for entering free text clinical information.',
+        repeatable: false,
+        count: 1
       },
       {
         title: 'Appendicitis type',
         type: 'Select (Single)',
         ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
         value: '',
-        note: 'A single selection dropdown field for a shorter selection of the type of appendicitis.'
+        note: 'A single selection dropdown field for a shorter selection of the type of appendicitis.',
+        repeatable: false,
+        count: 1
       },
       {
         title: 'Appendicitis type (M)',
         type: 'Select (Multiple)',
         ecl: `<< 196781001 |Acute appendicitis with peritonitis (disorder)|`,
         value: '',
-        note: 'A multiple selection dropdown field for a shorter selection of the type of appendicitis.'
+        note: 'A multiple selection dropdown field for a shorter selection of the type of appendicitis.',
+        repeatable: false,
+        count: 1
       },
       {
         title: 'Appendicectomy type',
         type: 'Options',
         ecl: `<< 174036004 |Emergency appendectomy (procedure)|`,
         value: '',
-        note: 'A radio buttons selector for the type of appendicectomy procedure.'
+        note: 'A radio buttons selector for the type of appendicectomy procedure.',
+        repeatable: false,
+        count: 1
       }
     ]
   };
@@ -138,7 +149,8 @@ export class BindingsSandboxComponent implements OnInit {
     type: new FormControl('', [Validators.required]),
     ecl: new FormControl('', []),
     value: new FormControl('', []),
-    note: new FormControl('', [Validators.maxLength(500)])
+    note: new FormControl('', [Validators.maxLength(500)]),
+    repeatable: new FormControl(false, [])
   });
 
   indexInEdit = -1;
@@ -164,14 +176,16 @@ export class BindingsSandboxComponent implements OnInit {
     if (this.newBindingForm.invalid) {
       return;
     }
-    const { title, code, type, ecl, value, note } = this.newBindingForm.controls;
+    const { title, code, type, ecl, value, note, repeatable } = this.newBindingForm.controls;
     let binding = {
       title: title.value,
       code: code.value,
       type: type.value,
       ecl: ecl.value,
       value: value.value,
-      note: note.value
+      note: note.value,
+      repeatable: repeatable.value,
+      count: 1
     }
     let errors = false;
     if (ecl.value) {
@@ -321,15 +335,18 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   edit(i: number) {
+    console.log('edit', i);
     this.indexInEdit = i;
     const binding = this.bindings[i];
+    console.log('binding', binding.title);
     this.newBindingForm.setValue({
       title: binding.title,
       code: (binding.code) ? binding.code : '',
       type: binding.type,
       ecl: binding.ecl,
       value: binding.value,
-      note: binding.note
+      note: binding.note,
+      repeatable: binding.repeatable
     });
     this.newPanel.open();
   }
@@ -467,6 +484,14 @@ export class BindingsSandboxComponent implements OnInit {
     this.refreshResponse();
   }
 
+  addRepetition(binding: any) {
+    binding.count++;
+  }
+
+  removeRepetition(binding: any) {
+    binding.count--;
+  }
+
   loadExample1() {
     this.formTitle = this.example1.title;
     this.bindings = this.example1.bindings;
@@ -499,6 +524,10 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   saveForm() {
+    // Set all counts to 1
+    this.bindings.forEach((binding: any) => {
+      binding.count = 1;
+    });
     var blob = new Blob([JSON.stringify({ title: this.formTitle, bindings: this.bindings }, null, 2)], {type: "text/plain;charset=utf-8"});
     saveAs(blob, `${this.formTitle}.json`);
   }
@@ -532,8 +561,21 @@ export class BindingsSandboxComponent implements OnInit {
           } else {
             this.bindings = [];
             this.bindings = uploadedVersion.bindings;
+            // Add count = 1 to all bindings
+            this.bindings.forEach((binding: any) => {
+              binding.count = 1;
+            });
             this.formTitle = uploadedVersion.title;
           }
+          // set repeatable = false and count = 1 if not present
+          this.bindings.forEach((binding: any) => {
+            if (!binding.repeatable) {
+              binding.repeatable = false;
+            }
+            if (!binding.count) {
+              binding.count = 1;
+            }
+          });
           this.clearOutput();
           this.refreshResponse();
           this.refreshFhirQuestionnaire();

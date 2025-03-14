@@ -1,6 +1,6 @@
 <h2>{{ spec.title }}</h2>
-<div *ngFor="let binding of spec.bindings; let i = index" class="output-panel">
-    <div class="row control">
+<div *ngFor="let binding of spec.bindings; let i = index" class="output-panel" [ngClass]="{ 'border-question' : binding.count > 1 }">
+    <div class="row control" *ngFor="let num of [].constructor(binding.count); let i = index">
         <app-autocomplete-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Autocomplete'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-autocomplete-binding>
         <app-dropdown-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Select (Single)' || binding.type == 'Select (Multiple)'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-dropdown-binding>
         <app-radios-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Options'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-radios-binding>
@@ -10,21 +10,30 @@
         <app-decimal-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Decimal'" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-decimal-binding>
         <app-checkbox-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-binding>
         <app-checkbox-multiple-binding [binding]="binding" class="grow" *ngIf="binding.type == 'Checkbox multiple'" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-multiple-binding>
-
-        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Section header'" [disabled]="!binding.code  && !binding.ecl">
-            <mat-icon>info</mat-icon>
-        </button>
-        <mat-menu #substancePopoverMenu="matMenu">
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.code" 
-            (click)="copyToClipboard(binding.code?.code + ' |' + binding.code?.display + '|')">
-                <h4>Question terminology binding</h4>
-                <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
-            </span>
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.ecl"
-            (click)="copyToClipboard(binding.ecl)">
-                <h4>Answer terminology binding</h4>
-                <pre>{{ binding.ecl }}</pre>
-            </span>
-        </mat-menu>
+        
+        <div class="actions">
+            <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" *ngIf="binding.type != 'Section header'" [disabled]="!binding.code  && !binding.ecl">
+                <mat-icon>info</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" (click)="addRow(binding)" *ngIf="i === binding.count - 1 && binding.repeatable" matTooltip="Add another row">
+                <mat-icon>add</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" (click)="removeRow(binding)" *ngIf="i === binding.count - 1 && binding.count > 1" matTooltip="Remove row">
+                <mat-icon>remove</mat-icon>
+            </button>
+            <mat-menu #substancePopoverMenu="matMenu">
+                <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.code" 
+                (click)="copyToClipboard(binding.code?.code + ' |' + binding.code?.display + '|')">
+                    <h4>Question terminology binding</h4>
+                    <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
+                </span>
+                <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.ecl"
+                (click)="copyToClipboard(binding.ecl)">
+                    <h4>Answer terminology binding</h4>
+                    <pre>{{ binding.ecl }}</pre>
+                </span>
+            </mat-menu>
+        </div>
+        
     </div>
 </div>
