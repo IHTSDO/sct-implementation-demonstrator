@@ -26,15 +26,19 @@ export class HomeComponent implements OnInit{
   }
 
   navigate(demo: any) {
-    if (demo.type === 'internal' && !this.embeddedMode) {
-      let queryParams = demo.queryParams;
-      let currentParams = this.route.snapshot.queryParams;
-      if (queryParams) {
-        queryParams = { ...currentParams, ...queryParams };
+    if (demo.type === 'internal') {
+      if (!this.embeddedMode) {
+        let queryParams = demo.queryParams;
+        let currentParams = this.route.snapshot.queryParams;
+        if (queryParams) {
+          queryParams = { ...currentParams, ...queryParams };
+        } else {
+          queryParams = currentParams;
+        }
+        this.router.navigate([demo.url], { queryParams: queryParams });
       } else {
-        queryParams = currentParams;
+        this.openInNewTab(window.location.origin + '/#' + demo.url);
       }
-      this.router.navigate([demo.url], { queryParams: queryParams });
     } else {
       this.openInNewTab(demo.url);
     }
