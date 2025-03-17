@@ -1,4 +1,10 @@
-<div class="container">
-    <h2>Order</h2>
-    <app-autocomplete-binding [binding]="loincOrderBinding" (selectionChange)="labItemSelected($event)"></app-autocomplete-binding>
+<div class="col-container">
+    <div class="column first">
+        Column 1 (20%)
+        <h2>Order</h2>
+        <app-autocomplete-binding [binding]="loincOrderBinding" (selectionChange)="labItemSelected($event)"></app-autocomplete-binding>
+    </div>
+    <div class="column second">Column 2 (40%)</div>
+    <div class="column third">Column 3 (40%)</div>
 </div>
+  

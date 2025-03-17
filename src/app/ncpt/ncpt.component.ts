@@ -20,10 +20,15 @@ export class NcptComponent implements OnInit {
   constructor(private http: HttpClient) { }
   
   ngOnInit() {
+    this.loadSpecs();
+  }
+
+  loadSpecs() {
     this.specs.forEach(async (spec) => {
       const data: any = await lastValueFrom(this.http.get('assets/specs/ncpt/' + spec.specFile));
       spec.spec = data;
     });
   }
+
 
 }
