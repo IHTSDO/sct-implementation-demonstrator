@@ -88,6 +88,7 @@ import { LoincOrderComponent } from './loinc/loinc-order/loinc-order.component';
 import { LoincResultsComponent } from './loinc/loinc-results/loinc-results.component';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
 import { FlipCardComponent } from './util/flip-card/flip-card.component';
+import { RefsetViewerComponent } from './util/refset-viewer/refset-viewer.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -141,7 +142,8 @@ const app = initializeApp(firebaseConfig);
         LoincOrderComponent,
         LoincResultsComponent,
         LanguageConfigComponent,
-        FlipCardComponent
+        FlipCardComponent,
+        RefsetViewerComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,
