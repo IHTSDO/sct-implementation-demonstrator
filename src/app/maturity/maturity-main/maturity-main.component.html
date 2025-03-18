@@ -119,7 +119,8 @@
 </div>
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -2">
     <div class="question-container" [formGroup]="responseForm">
-    <h2>Select Stakeholder Type</h2>
+    <h2>SNOMED Implementation Maturity assessment</h2>
+    <h3>Select Stakeholder Type</h3>
     <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
         <div class="flex-1">
             <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
@@ -189,8 +190,8 @@
 
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -1">
     <div class="question-container" [formGroup]="responseForm" *ngIf="currentQuestionIndex < allQuestions.length">
-        <h2>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex + 1].stakeholderName }})</h2>
-        
+        <h2>SNOMED Implementation Maturity assessment</h2>
+        <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex + 1].stakeholderName }})</h3>
         <section class="example-section mt-10">
             <h4>Select Relevant Key Process Areas:</h4>
             <div *ngFor="let kpa of currentKpas" class="kpa-checkbox">
@@ -215,7 +216,8 @@
 
 <div class="question-flow-container" *ngIf="currentQuestionIndex >= 0 && currentQuestionIndex < allQuestions.length">
     <div class="question-container" [formGroup]="responseForm" *ngIf="currentQuestionIndex < allQuestions.length">
-        <h2>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex].stakeholderName }})</h2>
+        <h2>SNOMED Implementation Maturity assessment</h2>
+        <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex].stakeholderName }})</h3>
         <mat-progress-bar mode="determinate" [value]="((currentQuestionIndex + 1) / (allQuestions.length + 1)) * 100" class="progress-bar"></mat-progress-bar>
         <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
         <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
