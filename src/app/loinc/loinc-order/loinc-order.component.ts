@@ -22,6 +22,9 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
     filterOptions: any[] = [];
     filters: any[] = [];
+    order: any[] = [];
+    specimens: any[] = [];
+    searchingSpecimens = false;
 
     constructor(private terminologyService: TerminologyService) {
     }
@@ -156,6 +159,49 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    addToOrder(item: any) {
+        this.order.push(item);
+        this.updateSpecimens();
+    }
+
+    removeFromOrder(index: number) {
+        this.order.splice(index, 1);
+        this.updateSpecimens();
+    }
+
+    getCurrentDate() {
+        // In format YYYY-MM-DD
+        return new Date().toISOString().split('T')[0];
+    }
+
+    updateSpecimens() {
+        this.specimens = [];
+        if (this.order.length == 0) {
+            return;
+        }
+        this.searchingSpecimens = true;
+        // Create ecl with all items in the order joining the .code with OR
+        let ecl = '(';
+        this.order.forEach( (item, index) => {
+            if (index > 0) {
+                ecl += ' OR ';
+            }
+            ecl += item.code;
+        });
+        ecl += ').704327008 |Direct site (attribute)|';
+        this.terminologyService.expandValueSet(ecl, '', 0, 25)
+        .subscribe({
+            next: (result) => {
+                this.specimens = result?.expansion?.contains || [];
+                this.searchingSpecimens = false;
+            },
+            error: err => {
+                console.error('Search error:', err);
+                this.searchingSpecimens = false;
+            }
+        });
     }
 
 }

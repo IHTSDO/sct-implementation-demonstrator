@@ -26,6 +26,28 @@
   overflow-y: auto;
 }
 
+.order {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  margin-top: 20px;
+  background-color: white;
+  font-family: monospace;
+  font-size: 0.7rem;
+  padding: 2rem;
+}
+
+.order-line {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 5px;
+}
+
 .expansion-list {
   width: 100%;
   display: flex;

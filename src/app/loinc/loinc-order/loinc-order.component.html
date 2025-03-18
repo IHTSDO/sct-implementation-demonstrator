@@ -1,12 +1,28 @@
 <div class="col-container">
     <div class="column first">
-        <h2>Order</h2>
+        <h2>Search</h2>
         <mat-form-field class="w-full">
             <mat-label *ngIf="initializing">Setting up search...</mat-label>
             <mat-label *ngIf="!initializing">Search lab orderable</mat-label>
             <input matInput placeholder="Example: glucose..." [formControl]="searchControl">
             <mat-progress-bar *ngIf="initializing" mode="indeterminate"></mat-progress-bar>
         </mat-form-field>
+
+        <div *ngIf="filters.length" class="filter-section">
+            <p><b>Active filters</b></p>
+            <mat-chip-set aria-label="Filters">
+                <mat-chip *ngFor="let filter of filters">
+                    <div (removed)="removeFilter(filter)">
+                        <div class="my-chip-row">
+                            <p class="text-wrap">{{filter.selected.display}}</p>
+                            <button matChipRemove [attr.aria-label]="'remove ' + filter.selected.display" (click)="removeFilter(filter)">
+                                <mat-icon>cancel</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </mat-chip>
+            </mat-chip-set>
+        </div>
 
         <div *ngFor="let filter of filterOptions">
             <div *ngIf="filter.options.length > 1" class="filter-section">
@@ -27,29 +43,54 @@
         <mat-progress-bar *ngIf="searching" mode="indeterminate" class="mt-16"></mat-progress-bar>
         <div class="expansion-list">
             <p class="text-xs" *ngIf="!searching && totalResults > 0">
-                Found {{ totalResults }} matches<span *ngIf="filters.length">. Active filters</span>:
+                Found {{ totalResults }} matches:
             </p>
-            <div *ngIf="filters.length">
-                <mat-chip-set aria-label="Filters">
-                    <mat-chip *ngFor="let filter of filters">
-                        <div (removed)="removeFilter(filter)">
-                            <div class="my-chip-row">
-                                <p class="text-wrap">{{filter.selected.display}}</p>
-                                <button matChipRemove [attr.aria-label]="'remove ' + filter.selected.display" (click)="removeFilter(filter)">
-                                    <mat-icon>cancel</mat-icon>
-                                </button>
-                            </div>
-                        </div>
-                    </mat-chip>
-                </mat-chip-set>
-            </div>
             <mat-selection-list role="list" class="w-full">
-                <mat-list-item role="listitem" class="w-full" *ngFor="let concept of searchResults">{{concept.display}}</mat-list-item>
+                <mat-list-item role="listitem" class="w-full" *ngFor="let concept of searchResults" (click)="addToOrder(concept)">
+                    {{concept.display}}
+                </mat-list-item>
             </mat-selection-list>
         </div>
     </div>
     <div class="column third">
         <h2>Order</h2>
+        <div class="order">
+            <div class="w-full flex flex-row justify-between">
+                <p class="text-left font-bold">SNOMEDIANS STATE HOSPITAL</p>
+                <p class="text-right ">Date: {{ getCurrentDate()}}</p>
+            </div>
+            <p class="text-left w-full font-bold">=========================</p>
+            <BR>
+            <p class="text-center w-full">Outpatient Laboratory Order</p>
+            <br>
+            <p class="text-left w-full">
+                <b>Patient:</b> Jane Doe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Address</b>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Contact information</b>
+            </p>
+            <p class="text-left w-full">
+                <b>DOB:</b> 01/01/1970&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;123 Main St
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone: 123-456-7890
+            </p>
+            <p class="text-left w-full">
+                <b>MRN:</b> 1234567890&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Anytown, USA
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email: {{ 'jane@email.com' }}
+            </p>
+            <br><br>
+            <p class="order-line font-bold">LABORATORY TESTS</p>
+            <p *ngIf="!order.length" class="order-line">No orders selected</p>
+            <p *ngFor="let item of order; let i = index" class="order-line ml-4">
+                {{ item.display }}
+                <mat-icon class="text-gray-300 text-sm cursor-pointer hover:text-gray-700" (click)="removeFromOrder(i)">cancel</mat-icon>
+            </p>
+            <br><br>
+            <p class="order-line font-bold">SPECIMENS REQUIRED</p>
+            <p *ngIf="searchingSpecimens" class="order-line ml-4"><i>Calculating specimens</i></p>
+            <p *ngIf="!order.length" class="order-line">No orders selected</p>
+            <p *ngFor="let item of specimens" class="order-line ml-4">{{ item.display }}</p>
+            <br><br><br><br>
+            <p>Physician Signature: ___________________________</p>
+            <br><br>
+        </div>
     </div>
 </div>
   
