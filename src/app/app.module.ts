@@ -30,6 +30,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatSortModule} from '@angular/material/sort';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatSliderModule} from '@angular/material/slider';
+import {MatChipsModule} from '@angular/material/chips';
 
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -178,6 +179,7 @@ const app = initializeApp(firebaseConfig);
         FormsModule,
         MatSidenavModule,
         MatSliderModule,
+        MatChipsModule,
         MatPaginatorModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 
 export class AppModule { }

@@ -1,10 +1,55 @@
 <div class="col-container">
     <div class="column first">
-        Column 1 (20%)
         <h2>Order</h2>
-        <app-autocomplete-binding [binding]="loincOrderBinding" (selectionChange)="labItemSelected($event)"></app-autocomplete-binding>
+        <mat-form-field class="w-full">
+            <mat-label *ngIf="initializing">Setting up search...</mat-label>
+            <mat-label *ngIf="!initializing">Search lab orderable</mat-label>
+            <input matInput placeholder="Example: glucose..." [formControl]="searchControl">
+            <mat-progress-bar *ngIf="initializing" mode="indeterminate"></mat-progress-bar>
+        </mat-form-field>
+
+        <div *ngFor="let filter of filterOptions">
+            <div *ngIf="filter.options.length > 1" class="filter-section">
+                <p><b>{{filter.title}}</b></p>
+                <mat-chip-set aria-label="{{filter.title}}">
+                    <mat-chip *ngFor="let value of filter.options" (click)="addFilter(filter, value)">
+                        <div class="my-chip-row text-wrap">
+                            {{value.display}}
+                        </div>
+                    </mat-chip>
+                </mat-chip-set>
+            </div>
+        </div>
     </div>
-    <div class="column second">Column 2 (40%)</div>
-    <div class="column third">Column 3 (40%)</div>
+    <div class="column second">
+        <h2>Orderables</h2>
+        <p *ngIf="!searchResults?.length && !searching">No results...</p>
+        <mat-progress-bar *ngIf="searching" mode="indeterminate" class="mt-16"></mat-progress-bar>
+        <div class="expansion-list">
+            <p class="text-xs" *ngIf="!searching && totalResults > 0">
+                Found {{ totalResults }} matches<span *ngIf="filters.length">. Active filters</span>:
+            </p>
+            <div *ngIf="filters.length">
+                <mat-chip-set aria-label="Filters">
+                    <mat-chip *ngFor="let filter of filters">
+                        <div (removed)="removeFilter(filter)">
+                            <div class="my-chip-row">
+                                <p class="text-wrap">{{filter.selected.display}}</p>
+                                <button matChipRemove [attr.aria-label]="'remove ' + filter.selected.display" (click)="removeFilter(filter)">
+                                    <mat-icon>cancel</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-chip>
+                </mat-chip-set>
+            </div>
+            <mat-selection-list role="list" class="w-full">
+                <mat-list-item role="listitem" class="w-full" *ngFor="let concept of searchResults">{{concept.display}}</mat-list-item>
+            </mat-selection-list>
+        </div>
+    </div>
+    <div class="column third">
+        <h2>Order</h2>
+    </div>
 </div>
   

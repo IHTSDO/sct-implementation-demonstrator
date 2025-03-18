@@ -6,6 +6,7 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { MenuService } from './services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
+import { skip } from 'rxjs';
 
 declare let gtag: Function;
 
@@ -65,7 +66,7 @@ export class AppComponent {
         this.bindingsForExport.push({ section: section.title, title: binding.title, ecl: binding.ecl.replace(/\s\s+/g, ' ') })
       }
     }
-    this.activatedRoute.queryParams.subscribe(params => {
+    this.activatedRoute.queryParams.pipe().subscribe(params => {
       if (params['embedded'] === 'true') {
         this.embeddedMode = true;
       } else {
@@ -73,9 +74,7 @@ export class AppComponent {
       }
       if (params['edition']) {
         this.updateCodeSystemOptions(params['edition']);
-      } else {
-        this.updateCodeSystemOptions();
-      }
+      } 
     });
 
     this.terminologyService.lang$.subscribe(lang => {
@@ -91,6 +90,17 @@ export class AppComponent {
         this.editions.forEach(loopEdition => {
           if (loopEdition.resource.version === urlParam) {
             this.selectedEdition = loopEdition.resource.title?.replace('SNOMED CT release ','');
+          }
+        });
+      }
+    });
+
+    this.terminologyService.snowstormFhirBase$.subscribe(url => {
+      if (this.fhirServers?.length > 0) {
+        this.fhirServers.forEach(loopServer => {
+          if (loopServer.url === url) {
+            this.selectedServer = loopServer;
+            this.updateCodeSystemOptions()
           }
         });
       }
@@ -159,7 +169,6 @@ export class AppComponent {
     this.selectedEdition = 'Edition';
     this.editions = [];
     this.editionsDetails = [];
-    this.updateCodeSystemOptions();
   }
 
   setEdition(edition: any) {
