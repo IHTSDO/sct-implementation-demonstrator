@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { debounceTime, filter, finalize, lastValueFrom, switchMap, tap, timestamp } from 'rxjs';
-import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import cloneDeep from 'lodash/cloneDeep';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ActivatedRoute } from '@angular/router';
 import { GeocodingService } from 'src/app/services/geocoding.service';
+import { MaturityResultsComponent } from '../maturity-results/maturity-results.component';
 
 @Component({
     selector: 'app-maturity-main',
@@ -50,6 +50,8 @@ export class MaturityMainComponent implements OnInit {
   animationState = 'enter';
   currentKpas: any[] = [];
   authorMode: boolean = false;
+
+  @ViewChild('results') results!: MaturityResultsComponent;
 
   constructor(private http: HttpClient, private fb: FormBuilder, private dialog: MatDialog, private route: ActivatedRoute, private geocodingService: GeocodingService) {
     this.responseForm = this.fb.group({
@@ -358,8 +360,12 @@ export class MaturityMainComponent implements OnInit {
       timestamp: this.timestampControl.value,
       systemName: this.systemNameControl.value,
       location: this.locationControl.value,
-      allQuestions: this.allQuestions
+      allQuestions: this.allQuestions,
+      overallScore: this.results?.overallAverage,
+      kpasScores: this.results?.kpaAverages   
     };
+
+    console.log('Saving state:', currentState);
 
     const blob = new Blob([JSON.stringify(currentState)], { type: 'application/json' });
     const link = document.createElement('a');

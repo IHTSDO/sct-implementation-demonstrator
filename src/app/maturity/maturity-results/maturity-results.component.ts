@@ -17,8 +17,8 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
 
   private chart!: Chart;
 
-  overallAverage: number = 1;
-  kpaAverages: Record<string, number> = {};
+  public overallAverage: number = 1;
+  public kpaAverages: Record<string, number> = {};
   commentList: any[] = [];
 
   resultsScale = [
@@ -172,7 +172,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     // Find the first matching KPA with the given kpaId
     const kpa = this.allQuestions.find(item => item.kpaId === kpaId);
     // Return the KPA name if found, otherwise return null
-    return kpa ? kpa.kpaName : null;
+    return kpa ? kpa.kpaName : '';
   }
   
   

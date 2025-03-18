@@ -282,7 +282,7 @@
             </p>
             <p class="text-center mt-10 text-lg">Based on your responses, the maturity level of the stakeholder is:</p>
 
-            <app-maturity-results [maturityResponse]="responseForm.value" [allQuestions]="allQuestions"></app-maturity-results>
+            <app-maturity-results #results [maturityResponse]="responseForm.value" [allQuestions]="allQuestions"></app-maturity-results>
         </div>
 
         <div class="button-container">
