@@ -240,6 +240,9 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     }
 
     addToOrder(item: any) {
+        if (this.order.find( i => i.code === item.code)) {
+            return;
+        }
         this.order.push(item);
         let ecl = item.code + '.704327008 |Direct site (attribute)|';
         this.terminologyService.expandValueSet(ecl, '', 0, 1)
