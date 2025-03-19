@@ -2,8 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import saveAs from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { debounceTime, distinctUntilChanged, filter, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
+import { debounceTime, filter, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
 import { TerminologyService } from 'src/app/services/terminology.service';
+import { v3 as uuidv3, v3 } from 'uuid';
 
 @Component({
     selector: 'app-loinc-order',
@@ -31,8 +32,11 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     fhirBundle: any = {};
     fhirBundleStr = '';
 
+    uuid_namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+
     patient = {
         "resourceType": "Patient",
+        "fullUrl": "urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8",
         "id": "example-patient",
         "text": {
           "status": "generated",
@@ -296,6 +300,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
       
         this.order.forEach((item) => {
           const entry = {
+            fullUrl: 'urn:uuid:' + uuidv3(item.code, this.uuid_namespace),
             resource: {
               resourceType: 'ServiceRequest',
               status: 'draft',
@@ -313,12 +318,12 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
               },
               specimen: [
                 {
-                  reference: 'Specimen/' + item.specimen.code
+                  reference: 'urn:uuid:' + uuidv3(item.specimen.code, this.uuid_namespace),
                 }
               ],
               subject: {
                 // reference the patient's id
-                reference: 'Patient/' + this.patient.id
+                reference: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8'
               },
               occurrenceDateTime: this.getCurrentDate()
             }
@@ -329,7 +334,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
         // Add specimens to the bundle
         this.specimens.forEach((specimen) => {
             this.fhirBundle.entry.push({
-                fullUrl: 'Specimen/' + specimen.code,
+                fullUrl: 'urn:uuid:' + uuidv3(specimen.code, this.uuid_namespace),
                 resource: {
                     resourceType: 'Specimen',
                     id: specimen.code,
@@ -349,7 +354,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
         });
 
         this.fhirBundle.entry.push({
-            fullUrl: 'Patient/' + this.patient.id,  // or some absolute URI if you have one
+            fullUrl: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8',  // or some absolute URI if you have one
             resource: this.patient
         });
       

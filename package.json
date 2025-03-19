@@ -37,6 +37,7 @@
     "rxjs": "~7.8.0",
     "snomed-ecl-builder-vue": "^0.2.1",
     "tslib": "^2.3.0",
+    "uuid": "^11.1.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "zone.js": "~0.15.0"
   },
