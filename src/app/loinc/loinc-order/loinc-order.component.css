@@ -65,6 +65,11 @@
   font-size: .7rem;
 }
 
+.active-chip {
+  background-color: #a7beec;
+  font-weight: bold;
+}
+
 .filter-section {
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -106,4 +111,54 @@
 /* The back face is rotated 180 so it's hidden by default */
 .flip-card-back {
   transform: rotateY(180deg);
+}
+
+#output {
+  border-radius: 10px;
+  background-color: #282c34;
+  padding: 10px;
+  position: relative;
+  min-height: 500px;
+  text-align: left;
+  font-size: 0.7rem;
+}
+
+pre > code {
+  width: 45%; /* Set the width to 100% */
+  white-space: pre-wrap; /* Enable text wrapping */
+  word-wrap: break-word; /* Break long words to avoid overflow */
+}
+
+#save {
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: rgb(232, 140, 21);
+}
+
+#clear {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  position: relative; /* so we can position the button absolutely inside */
+}
+
+.header-row h2 {
+  margin: 0; /* optional: remove default heading margin */
+}
+
+.header-row .rbutton {
+  position: absolute;
+  right: 0;
+}
+
+.header-row .lbutton {
+  position: absolute;
+  left: 0;
 }

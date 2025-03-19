@@ -11,7 +11,7 @@
         <div *ngIf="filters.length" class="filter-section">
             <p><b>Active filters</b></p>
             <mat-chip-set aria-label="Filters">
-                <mat-chip *ngFor="let filter of filters">
+                <mat-chip *ngFor="let filter of filters" class="active-chip">
                     <div (removed)="removeFilter(filter)">
                         <div class="my-chip-row">
                             <p class="text-wrap">{{filter.selected.display}}</p>
@@ -31,6 +31,17 @@
                     <mat-chip *ngFor="let value of filter.options" (click)="addFilter(filter, value)">
                         <div class="my-chip-row text-wrap">
                             {{value.display}}
+                        </div>
+                    </mat-chip>
+                    <mat-chip *ngIf="filter.otherOptions.length">
+                        <div class="my-chip-row text-wrap">
+                            <p>Others</p>
+                            <mat-icon [matMenuTriggerFor]="filterOptionsMenu">arrow_drop_down</mat-icon>
+                            <mat-menu #filterOptionsMenu="matMenu">
+                                <span mat-menu-item [disableRipple]="true" *ngFor="let value of filter.otherOptions" (click)="addFilter(filter, value)">
+                                    {{value.display}}
+                                </span>
+                            </mat-menu>
                         </div>
                     </mat-chip>
                 </mat-chip-set>
@@ -55,10 +66,13 @@
     <div class="column third">
         <div class="flip-card" [class.flipped]="isFlipped">
             <div class="flip-card-inner">
-          
-              <!-- FRONT: put your "order" content here -->
               <div class="flip-card-front">
-                <h2>Order</h2>
+                <div class="header-row mb-8">
+                    <h2>Order</h2>
+                    <button mat-raised-button color="primary" (click)="flipCard()" class="rbutton">
+                        See FHIR Resources
+                    </button>
+                </div>
                 <div class="order">
                     <div class="w-full flex flex-row justify-between">
                         <p class="text-left font-bold">SNOMEDIANS STATE HOSPITAL</p>
@@ -96,22 +110,23 @@
                     <p>Physician Signature: ___________________________</p>
                     <br><br>
                 </div>
-      
-                <!-- This button flips to the "back" -->
-                <button mat-raised-button color="primary" (click)="flipCard()" class="mt-8">
-                    See FHIR Resources
-                </button>
             </div>
       
-            <!-- BACK: put your "back" content here -->
             <div class="flip-card-back">
-                <h2>Back</h2>
-                <p>This is the backside of the order card.</p>
-                
-                <!-- This button flips you back to the "front" -->
-                <button mat-raised-button color="accent" (click)="flipCard()" class="mt-8">
-                    See clinical order
-                </button>
+                <div class="header-row mb-8">
+                    <h2>FHIR Resources</h2>
+                    <button mat-raised-button color="primary" (click)="flipCard()" class="lbutton">
+                      See clinical order
+                    </button>
+                </div>
+                <div id="output">
+                    <div id="save">
+                        <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                        <button mat-icon-button (click)="copyToClipboard(fhirBundleStr)" matTooltip="Copy FHIR Resource"><mat-icon fontIcon="content_copy"></mat-icon></button>
+                    </div>
+                    <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirBundleStr" wrap="soft">
+                    </textarea>
+                </div>
             </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { set } from 'lodash';
+import saveAs from 'file-saver';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { debounceTime, distinctUntilChanged, filter, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
 import { TerminologyService } from 'src/app/services/terminology.service';
 
@@ -27,8 +28,58 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     searchingSpecimens = false;
 
     isFlipped = false;
+    fhirBundle: any = {};
+    fhirBundleStr = '';
 
-    constructor(private terminologyService: TerminologyService) {
+    patient = {
+        "resourceType": "Patient",
+        "id": "example-patient",
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Patient Jane Doe</div>"
+        },
+        "identifier": [
+          {
+            "system": "http://hospital.org/mrn",
+            "value": "1234567890"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Doe",
+            "given": [
+              "Jane"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "123-456-7890",
+            "use": "home"
+          },
+          {
+            "system": "email",
+            "value": "jane@email.com",
+            "use": "home"
+          }
+        ],
+        "birthDate": "1970-01-01",
+        "address": [
+          {
+            "use": "home",
+            "line": [
+              "123 Main St"
+            ],
+            "city": "Anytown",
+            "country": "USA"
+          }
+        ]
+    };
+      
+
+    constructor(private terminologyService: TerminologyService, private clipboard: Clipboard) {
     }
 
     ngOnInit() {
@@ -39,6 +90,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
                 this.terminologyService.setFhirUrlParam('http://snomed.info/sct/11010000107/version/20231015');
                 this.searchControl.enable();
                 this.initializing = false;
+                this.updateFHIRBundle();
             }, 1500);
         }, 1500);
 
@@ -76,12 +128,12 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
             // Return a single combined Observable that includes both calls
             return forkJoin({
-                mainResult: this.terminologyService.expandValueSet(ecl, '', 0, 15),
-                propertyResult: this.terminologyService.expandValueSet(propertyEcl, '', 0, 15),
-                componentResult: this.terminologyService.expandValueSet(componentEcl, '', 0, 15),
-                scaleResult: this.terminologyService.expandValueSet(scaleEcl, '', 0, 15),
-                siteResult: this.terminologyService.expandValueSet(siteEcl, '', 0, 25),
-                techniqueResult: this.terminologyService.expandValueSet(techniqueEcl, '', 0, 15)
+                mainResult: this.terminologyService.expandValueSet(ecl, '', 0, 20),
+                propertyResult: this.terminologyService.expandValueSet(propertyEcl, '', 0, 50),
+                componentResult: this.terminologyService.expandValueSet(componentEcl, '', 0, 50),
+                scaleResult: this.terminologyService.expandValueSet(scaleEcl, '', 0, 50),
+                siteResult: this.terminologyService.expandValueSet(siteEcl, '', 0, 50),
+                techniqueResult: this.terminologyService.expandValueSet(techniqueEcl, '', 0, 50)
             });
             }),
             takeUntil(this.destroy$)
@@ -94,36 +146,57 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
                 let propertyFilterOptions = {
                     title: 'Property',
                     options: propertyResult?.expansion?.contains || [],
+                    otherOptions: [],
                     refinement: '370130000 |Property (attribute)| = '
                 }
+                propertyFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
+                propertyFilterOptions.otherOptions = propertyFilterOptions.options.slice(5);
+                propertyFilterOptions.options = propertyFilterOptions.options.slice(0, 5);
                 this.filterOptions.push(propertyFilterOptions);
 
                 let componentFilterOptions = {
                     title: 'Component',
                     options: componentResult?.expansion?.contains || [],
+                    otherOptions: [],
                     refinement: '246093002 |Component (attribute)| = '
                 }
+                componentFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
+                componentFilterOptions.otherOptions = componentFilterOptions.options.slice(5);
+                componentFilterOptions.options = componentFilterOptions.options.slice(0, 5);
+
                 this.filterOptions.push(componentFilterOptions);
 
                 let scaleFilterOptions = {
                     title: 'Scale',
                     options: scaleResult?.expansion?.contains || [],
+                    otherOptions: [],
                     refinement: '370132008 |Scale type (attribute)| = '
                 }
+                scaleFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
+                scaleFilterOptions.otherOptions = scaleFilterOptions.options.slice(5);
+                scaleFilterOptions.options = scaleFilterOptions.options.slice(0, 5);
                 this.filterOptions.push(scaleFilterOptions);
 
                 let siteFilterOptions = {
                     title: 'Site',
                     options: siteResult?.expansion?.contains || [],
+                    otherOptions: [],
                     refinement: '704327008 |Direct site (attribute)| = '
                 }
+                siteFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
+                siteFilterOptions.otherOptions = siteFilterOptions.options.slice(5);
+                siteFilterOptions.options = siteFilterOptions.options.slice(0, 5);
                 this.filterOptions.push(siteFilterOptions);
 
                 let techniqueFilterOptions = {
                     title: 'Technique',
                     options: techniqueResult?.expansion?.contains || [],
+                    otherOptions: [],
                     refinement: '246501002 |Technique (attribute)| = '
                 }
+                techniqueFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
+                techniqueFilterOptions.otherOptions = techniqueFilterOptions.options.slice(5);
+                techniqueFilterOptions.options = techniqueFilterOptions.options.slice(0, 5);
                 this.filterOptions.push(techniqueFilterOptions);
 
 
@@ -165,12 +238,25 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
     addToOrder(item: any) {
         this.order.push(item);
-        this.updateSpecimens();
+        let ecl = item.code + '.704327008 |Direct site (attribute)|';
+        this.terminologyService.expandValueSet(ecl, '', 0, 1)
+        .subscribe({
+            next: (result) => {
+                item.specimen = result?.expansion?.contains[0];
+                this.updateSpecimens();
+                this.updateFHIRBundle();
+            },
+            error: err => {
+                console.error('Search error:', err);
+            }
+        });
+        
     }
 
     removeFromOrder(index: number) {
         this.order.splice(index, 1);
         this.updateSpecimens();
+        this.updateFHIRBundle();
     }
 
     getCurrentDate() {
@@ -180,34 +266,94 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
     updateSpecimens() {
         this.specimens = [];
-        if (this.order.length == 0) {
-            return;
-        }
-        this.searchingSpecimens = true;
-        // Create ecl with all items in the order joining the .code with OR
-        let ecl = '(';
-        this.order.forEach( (item, index) => {
-            if (index > 0) {
-                ecl += ' OR ';
-            }
-            ecl += item.code;
-        });
-        ecl += ').704327008 |Direct site (attribute)|';
-        this.terminologyService.expandValueSet(ecl, '', 0, 25)
-        .subscribe({
-            next: (result) => {
-                this.specimens = result?.expansion?.contains || [];
-                this.searchingSpecimens = false;
-            },
-            error: err => {
-                console.error('Search error:', err);
-                this.searchingSpecimens = false;
+        // Collect all speciments in items if it is not already in the list
+        this.order.forEach( (item) => {
+            if (item.specimen && !this.specimens.find( s => s.code === item.specimen.code)) {
+                this.specimens.push(item.specimen);
             }
         });
     }
 
     flipCard() {
         this.isFlipped = !this.isFlipped;
-      }
+    }
+
+    saveFhirResource() {
+        var blob = new Blob([this.fhirBundleStr], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "request-bundle.json");
+    }
+
+    copyToClipboard(text: string) {
+        this.clipboard.copy(text);
+    }
+
+    updateFHIRBundle() {
+        this.fhirBundle = {
+          resourceType: 'Bundle',
+          type: 'collection',
+          entry: []
+        };
+      
+        this.order.forEach((item) => {
+          const entry = {
+            resource: {
+              resourceType: 'ServiceRequest',
+              status: 'draft',
+              intent: 'order',
+              code: {
+                coding: [
+                  {
+                    system: 'http://snomed.info/sct',
+                    version: this.terminologyService.getFhirUrlParam(),
+                    code: item.code,
+                    display: item.display
+                  }
+                ],
+                text: item.display
+              },
+              specimen: [
+                {
+                  reference: 'Specimen/' + item.specimen.code
+                }
+              ],
+              subject: {
+                // reference the patient's id
+                reference: 'Patient/' + this.patient.id
+              },
+              occurrenceDateTime: this.getCurrentDate()
+            }
+          };
+          this.fhirBundle.entry.push(entry);
+        });
+
+        // Add specimens to the bundle
+        this.specimens.forEach((specimen) => {
+            this.fhirBundle.entry.push({
+                fullUrl: 'Specimen/' + specimen.code,
+                resource: {
+                    resourceType: 'Specimen',
+                    id: specimen.code,
+                    type: {
+                        coding: [
+                            {
+                                system: 'http://snomed.info/sct',
+                                version: this.terminologyService.getFhirUrlParam(),
+                                code: specimen.code,
+                                display: specimen.display
+                            }
+                        ],
+                        text: specimen.display
+                    }
+                }
+            });
+        });
+
+        this.fhirBundle.entry.push({
+            fullUrl: 'Patient/' + this.patient.id,  // or some absolute URI if you have one
+            resource: this.patient
+        });
+      
+        this.fhirBundleStr = JSON.stringify(this.fhirBundle, null, 2);
+    }
 
 }
