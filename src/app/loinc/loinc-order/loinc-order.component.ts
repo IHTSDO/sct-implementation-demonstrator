@@ -36,7 +36,6 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
     patient = {
         "resourceType": "Patient",
-        "fullUrl": "urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8",
         "id": "example-patient",
         "text": {
           "status": "generated",
@@ -305,6 +304,10 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
               resourceType: 'ServiceRequest',
               status: 'draft',
               intent: 'order',
+              text: {
+                status: 'generated',
+                div: '<div xmlns="http://www.w3.org/1999/xhtml">Order for ' + item.display + '</div>'
+              },
               code: {
                 coding: [
                   {
@@ -348,6 +351,10 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
                             }
                         ],
                         text: specimen.display
+                    },
+                    text: {
+                        status: 'generated',
+                        div: '<div xmlns="http://www.w3.org/1999/xhtml">Specimen for ' + specimen.display + '</div>'
                     }
                 }
             });
