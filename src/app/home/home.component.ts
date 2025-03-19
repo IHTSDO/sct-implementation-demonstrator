@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit{
         }
         this.router.navigate([demo.url], { queryParams: queryParams });
       } else {
-        this.openInNewTab(window.location.origin + '/#' + demo.url);
+        this.openInNewTab('https://ihtsdo.github.io/sct-implementation-demonstrator/#' + demo.url);
       }
     } else {
       this.openInNewTab(demo.url);
