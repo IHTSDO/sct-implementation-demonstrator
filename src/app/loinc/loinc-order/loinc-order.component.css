@@ -36,6 +36,7 @@
   font-family: monospace;
   font-size: 0.7rem;
   padding: 2rem;
+  box-shadow: #ccc 0px 0px 10px;
 }
 
 .order-line {
@@ -69,4 +70,40 @@
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
+}
+
+.flip-card {
+  /* This gives us the "3D space" effect */
+  perspective: 1000px;
+  position: relative;
+}
+
+/* The inner element that will rotate */
+.flip-card-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d; /* Needed so front/back are preserved in 3D */
+  position: relative;
+}
+
+/* When we add 'flipped' on the parent, rotate the inner content */
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Front face and back face both need these properties: */
+.flip-card-front,
+.flip-card-back {
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* Hide the "mirrored" side when flipped */
+  position: absolute; /* So they stack on top of each other */
+  top: 0;
+  left: 0;
+}
+
+/* The back face is rotated 180 so it's hidden by default */
+.flip-card-back {
+  transform: rotateY(180deg);
 }

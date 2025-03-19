@@ -26,6 +26,8 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     specimens: any[] = [];
     searchingSpecimens = false;
 
+    isFlipped = false;
+
     constructor(private terminologyService: TerminologyService) {
     }
 
@@ -203,5 +205,9 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
             }
         });
     }
+
+    flipCard() {
+        this.isFlipped = !this.isFlipped;
+      }
 
 }
