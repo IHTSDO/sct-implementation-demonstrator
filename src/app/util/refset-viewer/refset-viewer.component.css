@@ -1,0 +1,12 @@
+.member-row:hover{
+    background-color: #f0f0f0; /* Light gray background on hover */
+}
+
+.action-row{
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+.action-row:hover{
+    cursor: pointer; /* Change cursor to pointer */
+}

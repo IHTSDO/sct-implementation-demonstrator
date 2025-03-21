@@ -138,6 +138,60 @@ export class TerminologyService {
       );
   }
 
+  getValueSetFromExpansion(expansion: any): any {
+    let valueset: { resourceType: string; parameter: any[] } = {
+      resourceType: 'Parameters',
+      parameter: []
+    };
+
+    // Initialize the ValueSet structure
+    let valueSetResource = {
+      resourceType: 'ValueSet',
+      status: 'draft',
+      experimental: true,
+      compose: {
+        include: [
+          {
+            system: 'http://snomed.info/sct',
+            version: this.fhirUrlParam,
+            concept: [] as { code: string; }[] // Explicitly define the type
+          }
+        ]
+      }
+    };
+
+    // Add all concepts from the expansion to the concept array
+    if (expansion?.contains) {
+      expansion.contains.forEach((concept: any) => {
+        valueSetResource.compose.include[0].concept.push({
+          code: concept.code
+        });
+      });
+    }
+
+    // Add the ValueSet resource to the parameters
+    valueset.parameter.push({
+      name: 'valueSet',
+      resource: valueSetResource
+    });
+
+    return valueset; // Return the valueset object
+  }
+
+  expandInlineValueSet(inlineValueSet: any): Observable<any> {
+    let requestUrl = `${this.snowstormFhirBase}/ValueSet/$expand`;
+    const httpOptions = {
+      headers: new HttpHeaders({
+          'Content-Type': 'application/fhir+json', // FHIR JSON content type
+          // 'Accept': 'application/fhir+json'       // Accept FHIR JSON responses
+      })
+  };
+    return this.http.post<any>(requestUrl, inlineValueSet, httpOptions)
+      .pipe(
+        catchError(this.handleError<any>('expandInlineValueSet', {}))
+      );
+  }
+
   getLanguageRefsets(moduleId?: string) {
     let requestUrl = `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/<< 900000000000506000`;
     if (moduleId) {

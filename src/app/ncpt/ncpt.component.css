@@ -7,3 +7,7 @@
     margin: 2rem;
     width: calc(100% - 4rem);
 }
+
+.inner-container {
+    width: calc(50% - 4rem);
+}
