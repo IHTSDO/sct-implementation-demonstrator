@@ -67,6 +67,9 @@
                                 </button>
                                 <mat-error>{{ getErrorMessage('ecl')}}</mat-error>
                             </mat-form-field>
+                            <mat-form-field class="input-field autocomplete-field" *ngIf="newBindingForm.controls.type.value == 'Decimal'">
+                                <app-autocomplete-binding [binding]="unitsBinding" class="grow" formControlName="unit"></app-autocomplete-binding>
+                            </mat-form-field>
                             <div class="text-center" 
                                 *ngIf="newBindingForm.controls.type.value != 'Section header' && 
                                         newBindingForm.controls.type.value != 'Text box' && 

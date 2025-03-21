@@ -90,6 +90,14 @@ export class BindingsSandboxComponent implements OnInit {
 
   codeBinding: any = this.codeBindingAll;
 
+  unitsBinding: any = {
+    title: 'Units',
+    type: 'Autocomplete',
+    ecl: `<< 767524001 |Unit of measure (qualifier value)|`,
+    value: '',
+    // note: 'Select unit of measure
+  }
+
   checkboxBinding: any = JSON.parse(JSON.stringify(this.codeBindingAll));
 
   example1 = {
@@ -149,6 +157,7 @@ export class BindingsSandboxComponent implements OnInit {
     type: new FormControl('', [Validators.required]),
     ecl: new FormControl('', []),
     value: new FormControl('', []),
+    unit: new FormControl('', []),
     note: new FormControl('', [Validators.maxLength(500)]),
     repeatable: new FormControl(false, [])
   });
@@ -176,13 +185,14 @@ export class BindingsSandboxComponent implements OnInit {
     if (this.newBindingForm.invalid) {
       return;
     }
-    const { title, code, type, ecl, value, note, repeatable } = this.newBindingForm.controls;
+    const { title, code, type, ecl, value, unit, note, repeatable } = this.newBindingForm.controls;
     let binding = {
       title: title.value,
       code: code.value,
       type: type.value,
       ecl: ecl.value,
       value: value.value,
+      unit: unit.value,
       note: note.value,
       repeatable: repeatable.value,
       count: 1
@@ -335,16 +345,15 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   edit(i: number) {
-    console.log('edit', i);
     this.indexInEdit = i;
     const binding = this.bindings[i];
-    console.log('binding', binding.title);
     this.newBindingForm.setValue({
       title: binding.title,
       code: (binding.code) ? binding.code : '',
       type: binding.type,
       ecl: binding.ecl,
       value: binding.value,
+      unit: binding.unit,
       note: binding.note,
       repeatable: binding.repeatable
     });
@@ -389,6 +398,9 @@ export class BindingsSandboxComponent implements OnInit {
       if (binding.code) {
         this.response[binding.title].code = binding.code;
       }
+      if (binding.unit) {
+        this.response[binding.title].unit = binding.unit;
+      }
     }
     for (let [key, value] of Object.entries(this.output)) {
         if (this.output[key].code) {
@@ -408,6 +420,7 @@ export class BindingsSandboxComponent implements OnInit {
       "type": "collection",
       "entry": []
     };
+    console.log(this.response);
     for (let [key, valuet] of Object.entries(this.response)) {
       let value = valuet as any;
       // Using optional chaining to safely access nested properties
@@ -423,6 +436,13 @@ export class BindingsSandboxComponent implements OnInit {
           "system": 'http://snomed.info/sct',
           "code": value.value.code,
           "display": value.value.display
+        }]
+      } : undefined;
+      const unit = value.unit ? {
+        "coding": [{
+          "system": 'http://snomed.info/sct',
+          "code": value.unit.code,
+          "display": value.unit.display
         }]
       } : undefined;
 
@@ -459,9 +479,17 @@ export class BindingsSandboxComponent implements OnInit {
       if (value.value && typeof value.value === 'string') {
         observation['valueString'] = value.value;
       }
+      if (unit) {
+        observation['valueQuantity'] = {
+          "value": value.value,
+          "unit": unit.coding[0].display,
+          "system": unit.coding[0].system,
+          "code": unit.coding[0].code
+        };
+      }
   
       // Check if 'code' is not undefined before pushing to the entry array
-      if (observation.valueCodeableConcept || observation.valueString) {
+      if (observation.valueCodeableConcept || observation.valueString || observation.valueQuantity) {
         this.responseBundle.entry.push(observation);
       }
     }

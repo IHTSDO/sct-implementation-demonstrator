@@ -63,6 +63,9 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
       if (binding.code) {
         this.response[binding.title].code = binding.code;
       }
+      if (binding.unit) {
+        this.response[binding.title].unit = binding.unit;
+      }
     }
     for (let [key, value] of Object.entries(this.output)) {
         if (this.output[key].code) {
@@ -82,6 +85,7 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
       "type": "collection",
       "entry": []
     };
+    console.log(this.response);
     for (let [key, valuet] of Object.entries(this.response)) {
       let value = valuet as any;
       // Using optional chaining to safely access nested properties
@@ -97,6 +101,13 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
           "system": 'http://snomed.info/sct',
           "code": value.value.code,
           "display": value.value.display
+        }]
+      } : undefined;
+      const unit = value.unit ? {
+        "coding": [{
+          "system": 'http://snomed.info/sct',
+          "code": value.unit.code,
+          "display": value.unit.display
         }]
       } : undefined;
 
@@ -133,9 +144,17 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
       if (value.value && typeof value.value === 'string') {
         observation['valueString'] = value.value;
       }
+      if (unit) {
+        observation['valueQuantity'] = {
+          "value": value.value,
+          "unit": unit.coding[0].display,
+          "system": unit.coding[0].system,
+          "code": unit.coding[0].code
+        };
+      }
   
       // Check if 'code' is not undefined before pushing to the entry array
-      if (observation.valueCodeableConcept || observation.valueString) {
+      if (observation.valueCodeableConcept || observation.valueString || observation.valueQuantity) {
         this.responseBundle.entry.push(observation);
       }
     }
