@@ -50,7 +50,16 @@ mat-hint {
   margin: 0;
 }
 
-/* For Firefox */
-.no-spinner {
-  -moz-appearance: textfield;
+.row-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.decimal-input {
+    width: 5rem;
+    border: #ccc solid 1px;
+    text-align: right;
+    padding-right: 5px;
 }
