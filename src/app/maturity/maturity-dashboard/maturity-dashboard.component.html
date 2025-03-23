@@ -1,0 +1,24 @@
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>SNOMED Adoption Maturity Dashboard AAAA</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Invisible file input field for selecting files -->
+      <input
+        #fileInput
+        type="file"
+        multiple
+        accept=".json"
+        (change)="onFilesSelected($event)"
+        style="display: none"
+      />
+  
+      <!-- Button to trigger file input field -->
+      <button mat-raised-button color="primary" (click)="fileInput.click()">
+        Load JSON Files
+      </button>
+    </mat-card-content>
+</mat-card>
+<div class="chart-container">
+    <canvas #radarCanvas></canvas>
+</div>

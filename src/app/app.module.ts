@@ -90,6 +90,7 @@ import { LoincResultsComponent } from './loinc/loinc-results/loinc-results.compo
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
 import { FlipCardComponent } from './util/flip-card/flip-card.component';
 import { RefsetViewerComponent } from './util/refset-viewer/refset-viewer.component';
+import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -144,7 +145,8 @@ const app = initializeApp(firebaseConfig);
         LoincResultsComponent,
         LanguageConfigComponent,
         FlipCardComponent,
-        RefsetViewerComponent
+        RefsetViewerComponent,
+        MaturityDashboardComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

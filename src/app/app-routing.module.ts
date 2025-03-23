@@ -17,6 +17,7 @@ import { ReportsMainComponent } from './reports/reports-main/reports-main.compon
 import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-report.component';
 import { TriageGameComponent } from './phaser-game/phaser-v2/triage-game.component';
 import { LoincMainComponent } from './loinc/loinc-main/loinc-main.component';
+import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,6 +31,7 @@ const routes: Routes = [
   { path: 'snoguess/scoreboard', component: ScoreboardComponent},
   { path: 'context', component: ContextMainComponent},
   { path: 'maturity', component: MaturityMainComponent},
+  { path: 'maturity/dashboard', component: MaturityDashboardComponent},
   { path: 'ncpt', component: NcptComponent },
   { path: 'triage', component: TriageGameComponent },
   { path: 'fsn', component: FsnChangesComponent },
