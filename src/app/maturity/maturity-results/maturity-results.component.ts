@@ -18,6 +18,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   private chart!: Chart;
 
   public overallAverage: number = 1;
+  public level: string = '';
   public kpaAverages: Record<string, number> = {};
   commentList: any[] = [];
 
@@ -335,7 +336,8 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   getScaleLabel(value: number): string {
     // round to the lowest whole number
     value = Math.floor(value);
-    return this.resultsScale.find((scale) => scale.value === value)?.label || '';
+    this.level = this.resultsScale.find((scale) => scale.value === value)?.label || '';
+    return this.level;
   }
 
   getMarkerPosition(value: number): number {

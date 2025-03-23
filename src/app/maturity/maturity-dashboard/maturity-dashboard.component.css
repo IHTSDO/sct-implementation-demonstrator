@@ -2,3 +2,15 @@
     display: flex;
     justify-content: center;
 }
+
+.map-label {
+    /* background-color: white; */
+    color: #333;
+    font-size: 13px;
+    font-weight: normal;
+    /* padding: 4px 6px; */
+    border-radius: 4px;
+    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    line-height: 1.3;
+  }
+  

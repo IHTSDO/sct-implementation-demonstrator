@@ -362,6 +362,7 @@ export class MaturityMainComponent implements OnInit {
       location: this.locationControl.value,
       allQuestions: this.allQuestions,
       overallScore: this.results?.overallAverage,
+      level: this.results?.level,
       kpasScores: this.results?.kpaAverages   
     };
 

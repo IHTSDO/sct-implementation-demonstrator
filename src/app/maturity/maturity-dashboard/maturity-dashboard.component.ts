@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js';
-import { set } from 'lodash';
+import * as L from 'leaflet';
+import { AfterViewInit } from '@angular/core';
 
 @Component({
   selector: 'app-maturity-dashboard',
@@ -8,7 +9,7 @@ import { set } from 'lodash';
   styleUrl: './maturity-dashboard.component.css',
   standalone: false
 })
-export class MaturityDashboardComponent {
+export class MaturityDashboardComponent  implements AfterViewInit {
 
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
   uploadedData: any[] = [];
@@ -18,8 +19,85 @@ export class MaturityDashboardComponent {
   private filesReadCount = 0;
 
   private chart!: Chart;
+  private map!: L.Map;
+
 
   constructor() {}
+
+  ngAfterViewInit(): void {
+    this.initMap();
+  }
+
+  private initMap(): void {
+    this.map = L.map('map').setView([20, 0], 2); // Default view
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(this.map);
+  }
+
+  private updateMapMarkers(): void {
+    if (!this.map) return;
+  
+    const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
+    const iconUrl = 'assets/leaflet/marker-icon.png';
+    const shadowUrl = 'assets/leaflet/marker-shadow.png';
+  
+    L.Marker.prototype.options.icon = L.icon({
+      iconRetinaUrl,
+      iconUrl,
+      shadowUrl,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+  
+    const bounds = L.latLngBounds([]);
+  
+    this.uploadedData.forEach(entry => {
+      const location = entry.location || entry.responses?.location;
+      if (location && typeof location.y === 'number' && typeof location.x === 'number') {
+        const score = entry.overallScore ?? 0;
+        const bgColor = this.getScoreColor(score);
+        const label = `
+          <div style="background-color:${bgColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
+            ${entry.name || entry.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
+            <span style="font-weight: normal;">Maturity level: ${entry.level ?? ''}</span>
+          </div>
+        `;
+        L.marker([location.y, location.x])
+          .addTo(this.map)
+          .bindTooltip(label, {
+            permanent: true,
+            direction: 'top',
+            offset: [0, -50],
+            className: 'map-label' // Optional: custom class for styling
+        });
+  
+        bounds.extend([location.y, location.x]);
+      }
+    });
+  
+    if (bounds.isValid()) {
+      this.map.fitBounds(bounds, { padding: [20, 20] });
+    }
+  }
+
+  private getScoreColor(score: number): string {
+    // Clamp score between 1 and 5
+    const clamped = Math.max(1, Math.min(5, score));
+  
+    // Convert to 0–1 scale
+    const t = (clamped - 1) / 4;
+  
+    // Interpolate from red (255,0,0) to green (0,128,0)
+    const r = Math.round(255 * (1 - t));
+    const g = Math.round(128 * t);
+    const b = 0;
+  
+    return `rgb(${r},${g},${b})`;
+  }
 
   onFilesSelected(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
@@ -55,6 +133,7 @@ export class MaturityDashboardComponent {
         // If all files are loaded, then process the data
         if (this.filesReadCount === this.totalFilesCount) {
           this.processData();
+          this.updateMapMarkers();
         }
       }
     };
