@@ -102,18 +102,38 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   }
 
   private getScoreColor(score: number): string {
-    // Clamp score between 1 and 5
     const clamped = Math.max(1, Math.min(5, score));
+    
+    // Factor for darkening each color channel.
+    const darkenFactor = 0.7; // Adjust as desired (0.7, 0.9, etc.)
   
-    // Convert to 0–1 scale
-    const t = (clamped - 1) / 4;
+    if (clamped <= 3) {
+      // Interpolate [1..3] from Red (255,0,0) → Yellow (255,255,0)
+      const t = (clamped - 1) / 2;
+      let r = 255;                     // stays 255
+      let g = Math.round(255 * t);     // 0 → 255
+      let b = 0;
   
-    // Interpolate from red (255,0,0) to green (0,128,0)
-    const r = Math.round(255 * (1 - t));
-    const g = Math.round(128 * t);
-    const b = 0;
+      // Darken each channel
+      r = Math.round(r * darkenFactor);
+      g = Math.round(g * darkenFactor);
+      b = Math.round(b * darkenFactor);
   
-    return `rgb(${r},${g},${b})`;
+      return `rgb(${r},${g},${b})`;
+    } else {
+      // Interpolate [3..5] from Yellow (255,255,0) → Green (0,128,0)
+      const t = (clamped - 3) / 2;
+      let r = Math.round(255 * (1 - t));          // 255 → 0
+      let g = Math.round(255 + (128 - 255) * t);  // 255 → 128
+      let b = 0;
+  
+      // Darken each channel
+      r = Math.round(r * darkenFactor);
+      g = Math.round(g * darkenFactor);
+      b = Math.round(b * darkenFactor);
+  
+      return `rgb(${r},${g},${b})`;
+    }
   }
 
   onFilesSelected(event: Event): void {
