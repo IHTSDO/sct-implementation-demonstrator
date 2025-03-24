@@ -162,3 +162,18 @@ pre > code {
   position: absolute;
   left: 0;
 }
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background-color: #e0e0e0; /* light grey */
+}
+
+.pill {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 5px;
+}

@@ -56,11 +56,11 @@
             <p class="text-xs" *ngIf="!searching && totalResults > 0">
                 Found {{ totalResults }} matches:
             </p>
-            <mat-selection-list role="list" class="w-full">
-                <mat-list-item role="listitem" class="w-full" *ngFor="let concept of searchResults" (click)="addToOrder(concept)">
+            <div class="w-full">
+                <div class="w-full clickable" *ngFor="let concept of searchResults" (click)="addToOrder(concept)">
                     {{concept.display}}
-                </mat-list-item>
-            </mat-selection-list>
+                </div>
+            </div>
         </div>
     </div>
     <div class="column third">
