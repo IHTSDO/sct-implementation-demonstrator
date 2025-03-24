@@ -28,6 +28,11 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     this.initMap();
   }
 
+  reset(): void {
+    // reload page
+    window.location.reload();
+  }
+
   private initMap(): void {
     this.map = L.map('map').setView([20, 0], 2); // Default view
 
@@ -154,8 +159,6 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   }
 
   private processData(): void {
-    console.log('Uploaded data:', this.uploadedData);
-
     for (const maturityResponse of this.uploadedData) {
       if (maturityResponse.allQuestions && Array.isArray(maturityResponse.allQuestions)) {
         if (!maturityResponse.stakeHolderName && maturityResponse.allQuestions.length > 0) {
@@ -170,8 +173,6 @@ export class MaturityDashboardComponent  implements AfterViewInit {
         });
       }
     }
-
-    console.log('KPA Names:', this.kpasNames);
     this.generateChart();
   }
 

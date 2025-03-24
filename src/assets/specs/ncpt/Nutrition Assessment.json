@@ -10,7 +10,9 @@
       "type": "Section header",
       "ecl": "",
       "value": "",
-      "note": ""
+      "note": "",
+      "count": 1,
+      "repeatable": false
     },
     {
       "title": "Food and nutrition intake",
@@ -21,7 +23,9 @@
       "type": "Autocomplete",
       "ecl": "\t  <  300893006 |Nutritional finding (finding)|  OR  <  363246002 |Nutritional deficiency associated condition (disorder)|",
       "value": null,
-      "note": "Dietary intake information"
+      "note": "Dietary intake information",
+      "count": 1,
+      "repeatable": false
     },
     {
       "title": "Physical findings",
@@ -32,7 +36,9 @@
       "type": "Autocomplete",
       "ecl": "<<  363788007 |Clinical history/examination observable (observable entity)|",
       "value": null,
-      "note": "Observable signs related to nutrition status."
+      "note": "Observable signs related to nutrition status.",
+      "count": 1,
+      "repeatable": false
     },
     {
       "title": "Anthropometrics",
@@ -43,7 +49,9 @@
       "type": "Section header",
       "ecl": null,
       "value": null,
-      "note": null
+      "note": null,
+      "count": 1,
+      "repeatable": false
     },
     {
       "title": "Body weight",
@@ -51,10 +59,16 @@
         "code": "27113001",
         "display": "Body weight"
       },
-      "type": "Integer",
+      "type": "Decimal",
       "ecl": null,
       "value": null,
-      "note": null
+      "unit": {
+        "code": "258683005",
+        "display": "kg"
+      },
+      "note": null,
+      "repeatable": false,
+      "count": 1
     },
     {
       "title": "Body height",
@@ -62,10 +76,16 @@
         "code": "1153637007",
         "display": "Body height"
       },
-      "type": "Integer",
+      "type": "Decimal",
       "ecl": null,
       "value": null,
-      "note": null
+      "unit": {
+        "code": "258672001",
+        "display": "cm"
+      },
+      "note": null,
+      "repeatable": false,
+      "count": 1
     },
     {
       "title": "BMI",
@@ -76,7 +96,9 @@
       "type": "Select (Single)",
       "ecl": "< 301331008 |Finding of body mass index (finding)|",
       "value": null,
-      "note": ""
+      "note": "",
+      "count": 1,
+      "repeatable": false
     },
     {
       "title": "Lab results interpretation",
@@ -84,7 +106,9 @@
       "type": "Section header",
       "ecl": null,
       "value": null,
-      "note": null
+      "note": null,
+      "count": 1,
+      "repeatable": false
     },
     {
       "title": "Lab finding",

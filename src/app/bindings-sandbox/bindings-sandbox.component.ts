@@ -353,7 +353,7 @@ export class BindingsSandboxComponent implements OnInit {
       type: binding.type,
       ecl: binding.ecl,
       value: binding.value,
-      unit: binding.unit,
+      unit: (binding.unit) ? binding.unit : null,
       note: binding.note,
       repeatable: binding.repeatable
     });

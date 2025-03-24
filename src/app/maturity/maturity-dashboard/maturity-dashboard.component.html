@@ -1,25 +1,16 @@
-<mat-card>
-    <mat-card-header>
-      <mat-card-title>SNOMED Adoption Maturity Dashboard AAAA</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <!-- Invisible file input field for selecting files -->
-      <input
-        #fileInput
-        type="file"
-        multiple
-        accept=".json"
-        (change)="onFilesSelected($event)"
-        style="display: none"
-      />
-  
-      <!-- Button to trigger file input field -->
-      <button mat-raised-button color="primary" (click)="fileInput.click()">
-        Load JSON Files
-      </button>
-    </mat-card-content>
-</mat-card>
+<div class="header-container">
+  <h1>SNOMED Implementation Maturity Dashboard</h1>
+  <input #fileInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none"/>
+  <button mat-raised-button color="primary" (click)="fileInput.click()" *ngIf="uploadedData.length === 0">
+    Load maturity assessment results (JSON Files)
+  </button>
+</div>
 <div id="map" style="height: 500px; margin-top: 2rem;"></div>
 <div class="chart-container">
     <canvas #radarCanvas></canvas>
+</div>
+<div class="header-container">
+  <button mat-raised-button color="primary" (click)="reset()" *ngIf="uploadedData.length != 0">
+    Reset dashboard
+  </button>
 </div>
