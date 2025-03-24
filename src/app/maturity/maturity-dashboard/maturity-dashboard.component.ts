@@ -80,8 +80,20 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     });
   
     if (bounds.isValid()) {
-      this.map.fitBounds(bounds, { padding: [20, 20] });
+      const northEast = bounds.getNorthEast();
+      const southWest = bounds.getSouthWest();
+    
+      // Expand the top (north) by e.g. +0.2 degrees
+      const expandedBounds = L.latLngBounds(
+        [southWest.lat, southWest.lng],
+        [northEast.lat + 0.4, northEast.lng]
+      );
+    
+      this.map.fitBounds(expandedBounds, {
+        padding: [20, 20]
+      });
     }
+    
   }
 
   private getScoreColor(score: number): string {
