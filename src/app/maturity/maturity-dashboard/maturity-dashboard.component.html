@@ -10,6 +10,25 @@
     <canvas #radarCanvas></canvas>
 </div>
 <div class="header-container">
+  <h2 *ngIf="uploadedData.length != 0">Maturity Assessment Data</h2>
+  <table class="bordered-table" *ngIf="uploadedData.length != 0">
+    <thead>
+      <tr>  
+        <th>Stakeholder Type</th>
+        <th>StakeHolder Name</th>
+        <th>Maturity Score</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let stakeholder of uploadedData">
+        <td>{{ stakeholder.stakeHolderName }}</td>
+        <td>{{ stakeholder.name }}</td>
+        <td>{{ stakeholder.overallScore }} - {{ stakeholder.level }}</td>
+        <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : 'No location information'  }}</td>
+      </tr>
+    </tbody>
+  </table>
   <button mat-raised-button color="primary" (click)="reset()" *ngIf="uploadedData.length != 0">
     Reset dashboard
   </button>

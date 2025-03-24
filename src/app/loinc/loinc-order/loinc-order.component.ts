@@ -16,7 +16,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
     searchControl = new FormControl('');
     private destroy$ = new Subject<void>();
-    loincOrderBinding = { ecl: '< 363787002 |Observable entity (observable entity)|', title: 'Lab item for order' };
+    loincOrderBinding = { ecl: '^ 635111010000100', title: 'Lab item for order' };
     searchResults: any[] = [];
     totalResults = 0;
     searching = false;
@@ -122,7 +122,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
             });
 
             // Build the ECL strings
-            const ecl = `(< 363787002 |Observable entity (observable entity)| ${refinements}) {{ C moduleId = 11010000107 }} {{ D term = "${term}" }}`;
+            const ecl = `(^ 635111010000100 ${refinements}) {{ D term = "${term}" }}`;
             const propertyEcl = `(${ecl}).370130000 |Property (attribute)|`;
             const componentEcl = `(${ecl}).246093002 |Component (attribute)|`;
             const scaleEcl = `(${ecl}).370132008 |Scale type (attribute)|`;
@@ -131,7 +131,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
             // Return a single combined Observable that includes both calls
             return forkJoin({
-                mainResult: this.terminologyService.expandValueSet(ecl, '', 0, 20),
+                mainResult: this.terminologyService.expandValueSet(ecl, '', 0, 200),
                 propertyResult: this.terminologyService.expandValueSet(propertyEcl, '', 0, 50),
                 componentResult: this.terminologyService.expandValueSet(componentEcl, '', 0, 50),
                 scaleResult: this.terminologyService.expandValueSet(scaleEcl, '', 0, 50),

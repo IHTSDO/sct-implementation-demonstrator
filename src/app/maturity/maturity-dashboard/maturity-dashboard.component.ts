@@ -2,6 +2,8 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js';
 import * as L from 'leaflet';
 import { AfterViewInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 
 @Component({
   selector: 'app-maturity-dashboard',
@@ -22,7 +24,7 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   private map!: L.Map;
 
 
-  constructor() {}
+  constructor(private _snackBar: MatSnackBar) {}
 
   ngAfterViewInit(): void {
     this.initMap();
@@ -169,8 +171,13 @@ export class MaturityDashboardComponent  implements AfterViewInit {
 
         // If all files are loaded, then process the data
         if (this.filesReadCount === this.totalFilesCount) {
+          this._snackBar.openFromComponent(SnackAlertComponent, {
+            duration: 5 * 1000,
+            data: `${this.totalFilesCount} assessment files have been imported`,
+            panelClass: ['red-snackbar']
+          });
+          this.verifyFiles();
           this.processData();
-          this.updateMapMarkers();
         }
       }
     };
@@ -178,6 +185,25 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     reader.readAsText(file);
   }
 
+  private verifyFiles(): void {
+    this.uploadedData.forEach((entry, index) => {
+      if (!entry.overallScore || !entry.kpasScores || !entry.level || !entry.name) {
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: `File number ${index} is not a valid assessment results file`,
+          panelClass: ['red-snackbar']
+        });
+        // remove this entry form array
+        this.uploadedData.splice(index, 1);
+      } else if (!entry.location?.label) {
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: `File number ${index} does not include location information`,
+          panelClass: ['red-snackbar']
+        });
+      }
+    });
+  }
   private processData(): void {
     for (const maturityResponse of this.uploadedData) {
       if (maturityResponse.allQuestions && Array.isArray(maturityResponse.allQuestions)) {
@@ -193,12 +219,18 @@ export class MaturityDashboardComponent  implements AfterViewInit {
         });
       }
     }
+    // console.log('Processed data:', this.uploadedData);
     this.generateChart();
+    this.updateMapMarkers();
   }
 
   private generateChart(): void {
     if (this.chart) {
       this.chart.destroy();
+    }
+
+    if (this.uploadedData.length === 0) {
+      return;
     }
   
     const selectedKpas = this.uploadedData[0].selectedKpas || {};
