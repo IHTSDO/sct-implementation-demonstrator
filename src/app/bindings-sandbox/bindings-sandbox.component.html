@@ -174,12 +174,16 @@
                             </button>
                             <mat-menu #substancePopoverMenu="matMenu">
                                 <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.code">
-                                    <h4>Question terminology binding</h4>
+                                    <h4 class="mb-0">Question terminology binding</h4>
                                     <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
                                 </span>
                                 <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.ecl">
-                                    <h4>Answer terminology binding</h4>
+                                    <h4 class="mb-0">Answer terminology binding</h4>
                                     <pre>{{ binding.ecl }}</pre>
+                                </span>
+                                <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" *ngIf="binding.unit">
+                                    <h4 class="mb-0">Unit binding</h4>
+                                    <pre>{{ binding.unit.code }} |{{ binding.unit.display }}|</pre>
                                 </span>
                             </mat-menu>
                             <button mat-icon-button color="primary" (click)="bindings.splice(i,1)" class="tool" *ngIf="j == 0" matTooltip="Delete binding">

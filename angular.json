@@ -58,7 +58,8 @@
               "canvg",
               "raf",
               "rgbcolor",
-              "html2canvas"
+              "html2canvas",
+              "leaflet"
             ],
             "browser": "src/main.ts"
           },
