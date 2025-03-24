@@ -13,7 +13,7 @@
 </mat-form-field> -->
 <div class="row-container">
      <div>{{ binding.title }}</div>
-     <input type="number" [(ngModel)]="value" (ngModelChange)="onValueChange($event)" class="no-spinner decimal-input">
+     <input type="number" step="any" [(ngModel)]="value" (ngModelChange)="onValueChange($event)" class="no-spinner decimal-input">
      <div *ngIf="binding.unit?.display">{{ binding.unit?.display }}</div>
 </div>
    

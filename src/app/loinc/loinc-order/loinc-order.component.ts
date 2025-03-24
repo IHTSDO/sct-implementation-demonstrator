@@ -90,7 +90,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
         setTimeout(() => {
             this.terminologyService.setSnowstormFhirBase('https://browser.loincsnomed.org/fhir');
             setTimeout(() => {
-                this.terminologyService.setFhirUrlParam('http://snomed.info/sct/11010000107/version/20231015');
+                this.terminologyService.setFhirUrlParam('http://snomed.info/sct/11010000107/version/20250321');
                 this.searchControl.enable();
                 this.initializing = false;
                 this.updateFHIRBundle();
