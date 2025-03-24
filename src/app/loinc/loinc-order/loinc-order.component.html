@@ -47,11 +47,14 @@
                 </mat-chip-set>
             </div>
         </div>
+        <div *ngIf="searching" class="filter-section row-skeleton-loader">
+            <br><br><br><br><br>
+        </div>
     </div>
     <div class="column second">
         <h2>Orderables</h2>
         <p *ngIf="!searchResults?.length && !searching">No results...</p>
-        <mat-progress-bar *ngIf="searching" mode="indeterminate" class="mt-16"></mat-progress-bar>
+        <!-- <mat-progress-bar *ngIf="searching" mode="indeterminate" class="mt-16"></mat-progress-bar> -->
         <div class="expansion-list">
             <p class="text-xs" *ngIf="!searching && totalResults > 0">
                 Found {{ totalResults }} matches:
@@ -60,6 +63,9 @@
                 <div class="w-full clickable" *ngFor="let concept of searchResults" (click)="addToOrder(concept)">
                     {{concept.display}}
                 </div>
+            </div>
+            <div *ngIf="searching" class="w-full">
+                <div *ngFor="let i of skeletonLoaders" class="row-skeleton-loader"></div>
             </div>
         </div>
     </div>

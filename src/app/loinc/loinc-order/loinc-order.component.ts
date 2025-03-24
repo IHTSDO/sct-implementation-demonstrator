@@ -32,6 +32,8 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     fhirBundle: any = {};
     fhirBundleStr = '';
 
+    skeletonLoaders = Array(10);
+
     uuid_namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
     patient = {
@@ -248,7 +250,9 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
         this.terminologyService.expandValueSet(ecl, '', 0, 1)
         .subscribe({
             next: (result) => {
-                item.specimen = result?.expansion?.contains[0];
+                if (result?.expansion?.contains?.length > 0) {
+                    item.specimen = result?.expansion?.contains[0];
+                }
                 this.updateSpecimens();
                 this.updateFHIRBundle();
             },
@@ -324,7 +328,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
               },
               specimen: [
                 {
-                  reference: 'urn:uuid:' + uuidv3(item.specimen.code, this.uuid_namespace),
+                  reference: 'urn:uuid:' + ((item?.specimen) ? uuidv3(item?.specimen?.code, this.uuid_namespace): 'no-specimen'),
                 }
               ],
               subject: {

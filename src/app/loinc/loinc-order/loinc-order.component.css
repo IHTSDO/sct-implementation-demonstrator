@@ -177,3 +177,32 @@ pre > code {
   padding: 5px;
   margin: 5px;
 }
+
+.row-skeleton-loader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #e7e7e7;
+  border-radius: 8px; /* Add rounded corners */
+  margin-bottom: 15px;
+  background: linear-gradient(
+    to right,
+    #f0f0f0 8%,
+    #e0e0e0 18%,
+    #f0f0f0 33%
+  ); /* Gradient for shimmer effect */
+  background-size: 800px 104px; /* Size of the gradient */
+  animation: placeHolderShimmer 1.5s infinite; /* Apply the shimmer animation */
+}
+
+/* Add animation */
+@keyframes placeHolderShimmer {
+  0% {
+    background-position: -800px 0; /* Start position of the gradient */
+  }
+  100% {
+    background-position: 800px 0; /* End position of the gradient */
+  }
+}
