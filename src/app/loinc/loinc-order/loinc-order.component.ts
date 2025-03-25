@@ -20,6 +20,10 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     searchResults: any[] = [];
     totalResults = 0;
     searching = false;
+    extending = false;
+    offset = 0;
+    limit = 50;
+    resultsEcl = '';
     initializing = true;
 
     filterOptions: any[] = [];
@@ -110,6 +114,8 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
             this.searchResults = [];
             this.filterOptions = [];
             this.totalResults = 0;
+            this.offset = 0;
+            this.limit = 50;
 
             // Build refinements filter
             let refinements = '';
@@ -125,6 +131,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
             // Build the ECL strings
             const ecl = `(^ 635111010000100 ${refinements}) {{ D term = "${term}" }}`;
+            this.resultsEcl = ecl;
             const propertyEcl = `(${ecl}).370130000 |Property (attribute)|`;
             const componentEcl = `(${ecl}).246093002 |Component (attribute)|`;
             const scaleEcl = `(${ecl}).370132008 |Scale type (attribute)|`;
@@ -133,7 +140,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
 
             // Return a single combined Observable that includes both calls
             return forkJoin({
-                mainResult: this.terminologyService.expandValueSet(ecl, '', 0, 200),
+                mainResult: this.terminologyService.expandValueSet(ecl, '', 0, this.limit),
                 propertyResult: this.terminologyService.expandValueSet(propertyEcl, '', 0, 50),
                 componentResult: this.terminologyService.expandValueSet(componentEcl, '', 0, 50),
                 scaleResult: this.terminologyService.expandValueSet(scaleEcl, '', 0, 50),
@@ -210,6 +217,23 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
             error: err => {
                 console.error('Search error:', err);
                 this.searching = false;
+            }
+        });
+    }
+
+    loadNextPage() {
+        this.offset = this.searchResults.length; // Increment the offset for pagination
+        this,this.extending = true;
+        this.terminologyService.expandValueSet(this.resultsEcl, '', this.offset, this.limit).subscribe({
+            next: (result) => {
+                // Append the new results to the existing searchResults array
+                const newResults = result?.expansion?.contains || [];
+                this.searchResults = [...this.searchResults, ...newResults];
+                this.extending = false;
+            },
+            error: (err) => {
+                console.error('Error loading next page:', err);
+                this.extending = false;
             }
         });
     }

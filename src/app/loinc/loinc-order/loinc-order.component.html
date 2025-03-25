@@ -56,7 +56,7 @@
         <p *ngIf="!searchResults?.length && !searching">No results...</p>
         <!-- <mat-progress-bar *ngIf="searching" mode="indeterminate" class="mt-16"></mat-progress-bar> -->
         <div class="expansion-list">
-            <p class="text-xs" *ngIf="!searching && totalResults > 0">
+            <p class="text-xs italic mb-2" *ngIf="!searching && totalResults > 0">
                 Found {{ totalResults }} matches:
             </p>
             <div class="w-full">
@@ -66,6 +66,14 @@
             </div>
             <div *ngIf="searching" class="w-full">
                 <div *ngFor="let i of skeletonLoaders" class="row-skeleton-loader"></div>
+            </div>
+            <div *ngIf="!extending && totalResults > searchResults.length" class="w-full">
+                <div class="w-full clickable italic text-xs mt-2 p-2" (click)="loadNextPage()">
+                    {{ searchResults.length }} matches from {{ totalResults }}. Load more...
+                </div>
+            </div>
+            <div *ngIf="extending" class="w-full">
+                <div class="row-skeleton-loader"></div>
             </div>
         </div>
     </div>
