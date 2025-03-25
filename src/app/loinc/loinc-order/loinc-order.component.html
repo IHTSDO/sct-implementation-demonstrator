@@ -7,7 +7,13 @@
             <input matInput placeholder="Example: glucose..." [formControl]="searchControl">
             <mat-progress-bar *ngIf="initializing" mode="indeterminate"></mat-progress-bar>
         </mat-form-field>
-
+        <div class="mt-12 w-full flex justify-center flex-col gap-8 italic" *ngIf="!filters.length && !searchResults.length && !searching">
+            <p>Search lab orders by typing in the search box above</p>
+            <p>Supports Word-prefix-any-order search mode ('plas glu' matches 'Glucose Plasma')</p>
+            <p>The search engine will retrieve matches and filter options from the FHIR Terminology server</p>
+            <p>Results are constrained to the 'Orderables' reference set in the LOINC Ontology</p>
+            <p>Learn more in the <a href="http://snomed.org/loinc" target="_blank">LOINC Ontology Implementation Guide</a></p>
+        </div>
         <div *ngIf="filters.length" class="filter-section">
             <p><b>Active filters</b></p>
             <mat-chip-set aria-label="Filters">
@@ -23,7 +29,6 @@
                 </mat-chip>
             </mat-chip-set>
         </div>
-
         <div *ngFor="let filter of filterOptions">
             <div *ngIf="filter.options.length > 1" class="filter-section">
                 <p><b>{{filter.title}}</b></p>
@@ -54,6 +59,9 @@
     <div class="column second">
         <h2>Orderables</h2>
         <p *ngIf="!searchResults?.length && !searching">No results...</p>
+        <div class="mt-12 w-full flex justify-center" *ngIf="searchResults.length == 0 && !searching">
+            <img src="assets/img/lab-background-transparent.png" class="w-1/2">
+        </div>
         <!-- <mat-progress-bar *ngIf="searching" mode="indeterminate" class="mt-16"></mat-progress-bar> -->
         <div class="expansion-list">
             <p class="text-xs italic mb-2" *ngIf="!searching && totalResults > 0">
