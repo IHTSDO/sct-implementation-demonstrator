@@ -136,6 +136,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
             const componentEcl = `(${ecl}).246093002 |Component (attribute)|`;
             const scaleEcl = `(${ecl}).370132008 |Scale type (attribute)|`;
             const siteEcl = `(${ecl}).704327008 |Direct site (attribute)|`;
+            const inheresEcl = `(${ecl}).704319004 |Inheres in (attribute)|`;
             const techniqueEcl = `(${ecl}).246501002 |Technique (attribute)|`;
 
             // Return a single combined Observable that includes both calls
@@ -145,12 +146,13 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
                 componentResult: this.terminologyService.expandValueSet(componentEcl, '', 0, 50),
                 scaleResult: this.terminologyService.expandValueSet(scaleEcl, '', 0, 50),
                 siteResult: this.terminologyService.expandValueSet(siteEcl, '', 0, 50),
+                inheresResult: this.terminologyService.expandValueSet(inheresEcl, '', 0, 50),
                 techniqueResult: this.terminologyService.expandValueSet(techniqueEcl, '', 0, 50)
             });
             }),
             takeUntil(this.destroy$)
         ).subscribe({
-            next: ({ mainResult, propertyResult, componentResult, scaleResult, siteResult, techniqueResult }) => {
+            next: ({ mainResult, propertyResult, componentResult, scaleResult, siteResult, inheresResult, techniqueResult }) => {
                 // Now both requests have completed
                 this.searchResults = mainResult?.expansion?.contains || [];
                 this.totalResults = mainResult?.expansion?.total || 0;
@@ -199,6 +201,17 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
                 siteFilterOptions.otherOptions = siteFilterOptions.options.slice(5);
                 siteFilterOptions.options = siteFilterOptions.options.slice(0, 5);
                 this.filterOptions.push(siteFilterOptions);
+
+                let inheresFilterOptions = {
+                    title: 'Inheres in',
+                    options: inheresResult?.expansion?.contains || [],
+                    otherOptions: [],
+                    refinement: '704319004 |Inheres in (attribute)| = '
+                }
+                inheresFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
+                inheresFilterOptions.otherOptions = inheresFilterOptions.options.slice(5);
+                inheresFilterOptions.options = inheresFilterOptions.options.slice(0, 5);
+                this.filterOptions.push(inheresFilterOptions);
 
                 let techniqueFilterOptions = {
                     title: 'Technique',
@@ -270,7 +283,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
             return;
         }
         this.order.push(item);
-        let ecl = item.code + '.704327008 |Direct site (attribute)|';
+        let ecl = item.code + '.(704327008 |Direct site (attribute)| OR 704319004 |Inheres in (attribute)|)';
         this.terminologyService.expandValueSet(ecl, '', 0, 1)
         .subscribe({
             next: (result) => {
