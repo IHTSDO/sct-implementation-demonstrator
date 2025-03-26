@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, Observable, of, tap } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 import { BehaviorSubject } from 'rxjs';
@@ -136,6 +136,15 @@ export class TerminologyService {
       .pipe(
         catchError(this.handleError<any>('expandValueSet', {}))
       );
+  }
+
+  getAlternateIdentifiers(conceptId: string) {
+      // This uses the native API
+      let requestUrl = this.snowstormFhirBase.replace('fhir', 'snowstorm/snomed-ct/browser/MAIN/LOINC/concepts/' + conceptId);
+      return this.http.get<any>(requestUrl)
+        .pipe(map(response => response.alternateIdentifiers), // Extract only alternateIdentifiers
+          catchError(this.handleError<any>('getAlternateIdentifiers', [])) // Handle errors and return an empty array if needed
+        );
   }
 
   getValueSetFromExpansion(expansion: any): any {

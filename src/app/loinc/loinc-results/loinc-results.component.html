@@ -1,1 +1,83 @@
-<p>loinc-results works!</p>
+<div class="main-container">
+    <div class="flip-card" [class.flipped]="isFlipped">
+        <div class="flip-card-inner">
+        <div class="flip-card-front">
+            <div class="header-row mb-8">
+                <h2>Laboratory Results using the LOINC Ontology</h2>
+                <button mat-raised-button color="primary" (click)="flipCard()" class="rbutton">
+                    See FHIR Resources
+                </button>
+            </div>
+            <div class="result">
+                <div class="w-full flex flex-row justify-between">
+                    <img src="assets/img/lab-logo.png" alt="SNOMEDians Logo" class="logo">
+                    <p class="font-bold text-3xl">LABORATORY REPORT</p>
+                    <p class="text-right ">{{ getCurrentDate()}}</p>
+                </div>
+                <!-- <p class="text-left w-full font-bold">=========================</p> -->
+                <br>
+                <p class="text-left w-full">
+                    <b>Patient:</b> Jane Doe
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <b>Address</b>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <b>Contact information</b>
+                </p>
+                <p class="text-left w-full">
+                    <b>DOB:</b> 01/01/1970
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    123 Main St
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    Phone: 123-456-7890
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    Date performed: {{ getCurrentDate() }}
+                </p>
+                <p class="text-left w-full">
+                    <b>MRN:</b> 1234567890
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    Anytown, USA
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    Email: {{ 'jane@email.com' }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    Date collected: {{ getCurrentDate() }}
+                </p>
+                <br><br>
+                <p class="result-line font-bold">RESULTS</p>
+                <table class="result-table">
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>Units</th>
+                        <th>Reference Range</th>
+                    </tr>
+                    <tr>
+                        <td class="pl-2">White Blood Cell Count</td>
+                        <td class="text-right pr-4">7.0</td>
+                        <td class="text-right pr-4">x10^3/uL</td>
+                        <td class="text-right pr-4">4.0 - 10.5</td>
+                    </tr>
+                </table>
+                <br><br><br><br>
+                <p>Physician Signature: ___________________________</p>
+                <br><br>
+            </div>
+        </div>
+
+        <div class="flip-card-back">
+            <div class="header-row mb-8">
+                <h2>FHIR Resources</h2>
+                <button mat-raised-button color="primary" (click)="flipCard()" class="lbutton">
+                See clinical report
+                </button>
+            </div>
+            <div id="output">
+                <div id="save">
+                    <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                    <button mat-icon-button (click)="copyToClipboard(fhirBundleStr)" matTooltip="Copy FHIR Resource"><mat-icon fontIcon="content_copy"></mat-icon></button>
+                </div>
+                <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirBundleStr" wrap="soft">
+                </textarea>
+            </div>
+        </div>
+    </div>
+</div>

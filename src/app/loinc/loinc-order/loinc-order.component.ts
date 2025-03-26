@@ -290,14 +290,28 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
                 if (result?.expansion?.contains?.length > 0) {
                     item.specimen = result?.expansion?.contains[0];
                 }
-                this.updateSpecimens();
-                this.updateFHIRBundle();
+                this.terminologyService.getAlternateIdentifiers(item.code).subscribe({
+                    next: (result2) => {
+                        item.loincId = this.getAlternateIdentifierByScheme(result2, '30051010000102');
+                        this.updateSpecimens();
+                        this.updateFHIRBundle();
+                    }
+                });
             },
             error: err => {
                 console.error('Search error:', err);
             }
         });
-        
+    }
+
+    getAlternateIdentifierByScheme(alternateIdentifiers: any[], identifierSchemeConceptId: string): string | null {
+        // Find the alternate identifier that matches the given identifier scheme concept ID
+        const matchingIdentifier = alternateIdentifiers.find(
+            (identifier: any) => identifier.identifierScheme?.conceptId === identifierSchemeConceptId
+        );
+    
+        // Return the alternateIdentifier value if found, otherwise return null
+        return matchingIdentifier ? matchingIdentifier.alternateIdentifier : null;
     }
 
     removeFromOrder(index: number) {
@@ -358,6 +372,11 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
                     system: 'http://snomed.info/sct',
                     version: this.terminologyService.getFhirUrlParam(),
                     code: item.code,
+                    display: item.display
+                  },
+                  {
+                    system: 'http://loinc.org',
+                    code: item.loincId,
                     display: item.display
                   }
                 ],

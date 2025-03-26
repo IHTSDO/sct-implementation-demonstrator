@@ -1,0 +1,139 @@
+.main-container {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 200px);
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.result {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    margin-top: 20px;
+    background-color: white;
+    font-family: monospace;
+    font-size: 0.7rem;
+    padding: 2rem;
+    box-shadow: #ccc 0px 0px 10px;
+}
+  
+.result-line {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: space-between;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+  .flip-card {
+    /* This gives us the "3D space" effect */
+    perspective: 1000px;
+    position: relative;
+    width: 1024px
+  }
+  
+  /* The inner element that will rotate */
+  .flip-card-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s ease;
+    transform-style: preserve-3d; /* Needed so front/back are preserved in 3D */
+    position: relative;
+  }
+  
+  /* When we add 'flipped' on the parent, rotate the inner content */
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+  
+  /* Front face and back face both need these properties: */
+  .flip-card-front,
+  .flip-card-back {
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* Hide the "mirrored" side when flipped */
+    position: absolute; /* So they stack on top of each other */
+    top: 0;
+    left: 0;
+  }
+  
+  /* The back face is rotated 180 so it's hidden by default */
+  .flip-card-back {
+    transform: rotateY(180deg);
+  }
+  
+  #output {
+    border-radius: 10px;
+    background-color: #282c34;
+    padding: 10px;
+    position: relative;
+    min-height: 500px;
+    text-align: left;
+    font-size: 0.7rem;
+  }
+  
+  pre > code {
+    width: 45%; /* Set the width to 100% */
+    white-space: pre-wrap; /* Enable text wrapping */
+    word-wrap: break-word; /* Break long words to avoid overflow */
+  }
+  
+  #save {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: rgb(232, 140, 21);
+  }
+  
+  #clear {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+  }
+  
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    position: relative; /* so we can position the button absolutely inside */
+  }
+  
+  .header-row h2 {
+    margin: 0; /* optional: remove default heading margin */
+  }
+  
+  .header-row .rbutton {
+    position: absolute;
+    right: 0;
+  }
+  
+  .header-row .lbutton {
+    position: absolute;
+    left: 0;
+  }
+  
+  .clickable {
+    cursor: pointer;
+  }
+  
+  .clickable:hover {
+    background-color: #e0e0e0; /* light grey */
+  }
+
+  .logo {
+    width: 180px;
+  }
+
+  .result-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .result-table th,
+  .result-table td {
+    border: 1px solid #ccc; /* Light gray border */
+  }
