@@ -288,6 +288,7 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
         if (this.order.find( i => i.code === item.code)) {
             return;
         }
+        item.loincId = '-------';
         this.order.push(item);
         let ecl = item.code + '.(704327008 |Direct site (attribute)| OR 704319004 |Inheres in (attribute)|)';
         this.terminologyService.expandValueSet(ecl, '', 0, 1)

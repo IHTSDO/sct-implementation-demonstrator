@@ -131,9 +131,23 @@
   .result-table {
     width: 100%;
     border-collapse: collapse;
+    border: 1px solid #ccc; /* outer border for the whole table */
   }
-
-  .result-table th,
+  
+  .result-table th {
+    border-bottom: 1px solid #ccc; /* border below the header */
+    border-right: 1px solid #ccc; /* column separator in headers */
+  }
+  
+  .result-table th:last-child {
+    border-right: none; /* no right border on last header column */
+  }
+  
   .result-table td {
-    border: 1px solid #ccc; /* Light gray border */
+    border-right: 1px solid #ccc; /* column separator for cells */
   }
+  
+  .result-table td:last-child {
+    border-right: none; /* no right border on last column */
+  }
+  

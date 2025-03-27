@@ -162,7 +162,7 @@ export class TerminologyService {
         include: [
           {
             system: 'http://snomed.info/sct',
-            version: this.fhirUrlParam,
+            // version: this.fhirUrlParam,
             concept: [] as { code: string; }[] // Explicitly define the type
           }
         ]

@@ -50,15 +50,19 @@
                         <th>Units</th>
                         <th>Reference Range</th>
                     </tr>
-                    <tr>
-                        <td class="pl-2">White Blood Cell Count</td>
-                        <td class="text-right pr-4">7.0</td>
-                        <td class="text-right pr-4">x10^3/uL</td>
-                        <td class="text-right pr-4">4.0 - 10.5</td>
+                    <tr *ngFor="let result of results">
+                        <td class="pl-2" [matTooltip]="'LOINC: ' + result.labConcept.coding[1].code + ' SNOMED: ' + result.labConcept.coding[0].code">
+                            {{result.labConcept.text}}
+                        </td>
+                        <td class="text-right pr-4">{{result.result}}</td>
+                        <td class="text-right pr-4" [matTooltip]="'SNOMED: ' + result.units.code">
+                            {{result.units.display}}
+                        </td>
+                        <td class="text-right pr-4">{{result.referenceRange}}</td>
                     </tr>
                 </table>
                 <br><br><br><br>
-                <p>Physician Signature: ___________________________</p>
+                <p>Laboratory Signature: ___________________________</p>
                 <br><br>
             </div>
         </div>

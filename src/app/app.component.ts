@@ -33,6 +33,7 @@ export class AppComponent {
     { name: "SNOMED Lite Demo", url: "https://snowstorm-lite.nw.r.appspot.com/fhir"},
     { name: "LOINC Ontology Server", url: "https://browser.loincsnomed.org/fhir"},
     { name: "Ontoserver", url: "https://r4.ontoserver.csiro.au/fhir"},
+    { name: "SNOMED Dev 1", url: "https://dev-browser.ihtsdotools.org/fhir"},
   ];
   selectedServer = this.fhirServers[1];
   embeddedMode: boolean = false;
