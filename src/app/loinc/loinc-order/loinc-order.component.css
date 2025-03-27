@@ -205,3 +205,8 @@ pre > code {
     background-position: 800px 0; /* End position of the gradient */
   }
 }
+
+.clickable-option {
+  cursor: pointer;
+  user-select: none;
+}

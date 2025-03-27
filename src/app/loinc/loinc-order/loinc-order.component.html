@@ -90,6 +90,12 @@
             <div class="flip-card-inner">
               <div class="flip-card-front">
                 <div class="header-row mb-8">
+                    <span class = "lbutton">
+                        <span (click)="toggleLoincCodes()" class="clickable-option">SNOMED Codes&nbsp;</span>
+                        <mat-slide-toggle (click)="toggleLoincCodes()" [checked]="showLoincCodes" color="primary">
+                            LOINC Codes
+                        </mat-slide-toggle>
+                    </span>
                     <h2>Order</h2>
                     <button mat-raised-button color="primary" (click)="flipCard()" class="rbutton">
                         See FHIR Resources
@@ -120,7 +126,11 @@
                     <p class="order-line font-bold">LABORATORY TESTS</p>
                     <p *ngIf="!order.length" class="order-line">No orders selected</p>
                     <p *ngFor="let item of order; let i = index" class="order-line ml-4">
-                        {{ item.display }}
+                        <span>
+                            {{ item.display }}
+                            <span *ngIf="!showLoincCodes" class="text-xs italic"> ({{ item.code }})</span>
+                            <span *ngIf="showLoincCodes" class="text-xs italic"> ({{ item.loincId }})</span>
+                        </span>
                         <mat-icon class="text-gray-300 text-sm cursor-pointer hover:text-gray-700" (click)="removeFromOrder(i)">cancel</mat-icon>
                     </p>
                     <br><br>

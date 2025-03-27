@@ -36,6 +36,8 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     fhirBundle: any = {};
     fhirBundleStr = '';
 
+    showLoincCodes = true;
+
     skeletonLoaders = Array(10);
 
     uuid_namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
@@ -276,6 +278,10 @@ export class LoincOrderComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    toggleLoincCodes() {
+        this.showLoincCodes = !this.showLoincCodes;
     }
 
     addToOrder(item: any) {
