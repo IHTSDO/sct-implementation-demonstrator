@@ -33,12 +33,12 @@
             <div *ngIf="filter.options.length > 1" class="filter-section">
                 <p><b>{{filter.title}}</b></p>
                 <mat-chip-set aria-label="{{filter.title}}">
-                    <mat-chip *ngFor="let value of filter.options" (click)="addFilter(filter, value)">
+                    <mat-chip *ngFor="let value of filter.options" (click)="addFilter(filter, value)" class="filter-chip">
                         <div class="my-chip-row text-wrap">
                             {{value.display}}
                         </div>
                     </mat-chip>
-                    <mat-chip *ngIf="filter.otherOptions.length">
+                    <mat-chip *ngIf="filter.otherOptions.length" class="other-chip">
                         <div class="my-chip-row text-wrap">
                             <p>Others</p>
                             <mat-icon [matMenuTriggerFor]="filterOptionsMenu">arrow_drop_down</mat-icon>

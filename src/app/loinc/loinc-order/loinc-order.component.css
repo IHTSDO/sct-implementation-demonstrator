@@ -210,3 +210,7 @@ pre > code {
   cursor: pointer;
   user-select: none;
 }
+
+.other-chip {
+  background-color: #d7e8ff;
+}
