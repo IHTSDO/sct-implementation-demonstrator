@@ -191,6 +191,9 @@ export class AppComponent {
   }
 
   setLanguage(language: string) {
+    if (language != 'en') {
+      language += ', en';
+    }
     this.selectedLanguage = language;
     this.terminologyService.setLang(language);
   }

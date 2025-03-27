@@ -3,9 +3,6 @@
         <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
             <mat-icon>info</mat-icon>
         </button>
-        <button mat-icon-button color="primary" (click)="loadSpecs()">
-            <mat-icon>refresh</mat-icon>
-        </button>
         <mat-menu #substancePopoverMenu="matMenu" >
             <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
                 <h4>SNOMED CT - NCPT Implementation Demonstrator</h4>
