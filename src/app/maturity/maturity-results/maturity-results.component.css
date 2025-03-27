@@ -47,7 +47,7 @@
     background: linear-gradient(
       to right,
       #c03700 0%,   /* Basic (score=1) */
-      #d47f00 33%,  /* Limited (score=2) */
+      #d47f00 33%,  /* Emerging (score=2) */
       #dfc500 66%,  /* Advanced (score=3) */
       #417505 100%  /* Integrated/Optimizing (score=4-5) */
     );

@@ -24,7 +24,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
 
   resultsScale = [
     { value: 1, label: 'Basic' },
-    { value: 2, label: 'Limited' },
+    { value: 2, label: 'Emerging' },
     { value: 3, label: 'Advanced' },
     { value: 4, label: 'Integrated' },
     { value: 5, label: 'Optimizing' }
