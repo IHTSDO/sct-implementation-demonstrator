@@ -22,17 +22,14 @@ export class NcptComponent implements OnInit {
   
   ngOnInit() {
     this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
-      console.log('fhirUrlParam', urlParam);
       this.loadSpecs();
     });
 
     this.terminologyService.snowstormFhirBase$.subscribe(url => {
-      console.log('snowstormFhirBase', url);
       this.loadSpecs();
     });
 
     this.terminologyService.lang$.subscribe(lang => {
-      console.log('lang', lang);
       this.loadSpecs();
     });
   }

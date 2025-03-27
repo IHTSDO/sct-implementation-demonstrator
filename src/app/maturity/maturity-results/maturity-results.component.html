@@ -46,7 +46,7 @@
               <!-- Result Column -->
               <td *ngIf="isFirstRowInKpa(i)" 
                   [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)" class="text-center">
-                {{ kpaAverages[kpa] | number: '1.2-2' }}
+                {{ kpaAverages[kpa] | number: '1.2-2' }} - {{ getScaleLabel(kpaAverages[kpa]) }}
               </td>
             </tr>
           </ng-container>
