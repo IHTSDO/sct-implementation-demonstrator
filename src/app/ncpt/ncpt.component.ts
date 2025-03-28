@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { TerminologyService } from '../services/terminology.service';
+import { RefsetViewerComponent } from '../util/refset-viewer/refset-viewer.component';
 
 @Component({
     selector: 'app-ncpt',
@@ -10,6 +11,8 @@ import { TerminologyService } from '../services/terminology.service';
     standalone: false
 })
 export class NcptComponent implements OnInit {
+
+  @ViewChild('refsetViewer') refsetViewerComponent: RefsetViewerComponent | undefined;
 
   emptySpec: any = {};
   specs = [
@@ -40,7 +43,16 @@ export class NcptComponent implements OnInit {
       const data: any = await lastValueFrom(this.http.get('assets/specs/ncpt/' + spec.specFile));
       spec.spec = data;
     });
+
+    setTimeout(() => {
+      this.updateRefset();
+    }, 1000);
   }
 
+  updateRefset() {
+    if (this.refsetViewerComponent) {
+      this.refsetViewerComponent.cleanAndGetMembers();
+    }
+  }
 
 }

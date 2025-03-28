@@ -162,7 +162,7 @@ export class TerminologyService {
         include: [
           {
             system: 'http://snomed.info/sct',
-            // version: this.fhirUrlParam,
+            version: this.fhirUrlParam,
             concept: [] as { code: string; }[] // Explicitly define the type
           }
         ]
@@ -192,7 +192,7 @@ export class TerminologyService {
     const httpOptions = {
       headers: new HttpHeaders({
           'Content-Type': 'application/fhir+json', // FHIR JSON content type
-          // 'Accept': 'application/fhir+json'       // Accept FHIR JSON responses
+          'Accept-Language': this.lang, 
       })
   };
     return this.http.post<any>(requestUrl, inlineValueSet, httpOptions)

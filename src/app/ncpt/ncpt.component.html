@@ -18,15 +18,15 @@
                 <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
             </div>
         </mat-tab>
-        <!-- <mat-tab label="NCPT Refset Viewer">
+        <mat-tab label="NCPT Refset Viewer">
             <div class="container">
                 <div class="inner-container">
-                    <app-refset-viewer [title]="'NCPT Refset Viewer'"
+                    <app-refset-viewer #refsetViewer [title]="'NCPT Refset Viewer'"
                     [valuesetEcl]="'^ 1303957004 |Nutrition Care Process Terminology reference set|'"
                     [refsetEditionUri]="'http://snomed.info/sct/705115006/version/20240101'">
                     </app-refset-viewer>
                 </div>
             </div>
-        </mat-tab> -->
+        </mat-tab>
     </mat-tab-group>
 </div>
