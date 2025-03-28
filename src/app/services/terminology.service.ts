@@ -103,7 +103,10 @@ export class TerminologyService {
     if (this.snowstormFhirBase.includes('ontoserver')) {
       requestUrl += `?system=http://snomed.info/sct`;
     }
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('getCodeSystems', {}))
       );
@@ -111,7 +114,10 @@ export class TerminologyService {
 
   getCodeSystem(version: string) {
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem?version=${version}`;
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('getCodeSystem', {}))
       );
@@ -132,19 +138,25 @@ export class TerminologyService {
 
   expandValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
     let requestUrl = this.getValueSetExpansionUrl(ecl, terms, offset, count);
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('expandValueSet', {}))
       );
   }
 
   getAlternateIdentifiers(conceptId: string) {
-      // This uses the native API
-      let requestUrl = this.snowstormFhirBase.replace('fhir', 'snowstorm/snomed-ct/browser/MAIN/LOINC/concepts/' + conceptId);
-      return this.http.get<any>(requestUrl)
-        .pipe(map(response => response.alternateIdentifiers), // Extract only alternateIdentifiers
-          catchError(this.handleError<any>('getAlternateIdentifiers', [])) // Handle errors and return an empty array if needed
-        );
+    // This uses the native API
+    let requestUrl = this.snowstormFhirBase.replace('fhir', 'snowstorm/snomed-ct/browser/MAIN/LOINC/concepts/' + conceptId);
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(map(response => response.alternateIdentifiers), // Extract only alternateIdentifiers
+        catchError(this.handleError<any>('getAlternateIdentifiers', [])) // Handle errors and return an empty array if needed
+      );
   }
 
   getValueSetFromExpansion(expansion: any): any {
@@ -206,7 +218,10 @@ export class TerminologyService {
     if (moduleId) {
       requestUrl += ` {{ C moduleId = ${moduleId} }}`;
     }
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('getLanguageRefsets', {}))
       );
@@ -223,8 +238,10 @@ export class TerminologyService {
         this.saveCache(); // Save changes
         return of(cachedResponse.data);
       }
-  
-      return this.http.get<any>(requestUrl).pipe(
+      const headers = new HttpHeaders({
+        'Accept-Language': this.lang
+      });
+      return this.http.get<any>(requestUrl, { headers }).pipe(
         tap((response: any) => {
           this.manageCacheLimit();
           this.expandValuesetCache.set(requestUrl, { timestamp: Date.now(), data: response });
@@ -266,7 +283,10 @@ export class TerminologyService {
   translate(conceptMapId: string, code: string, system?: string) {
     if (!system) system = this.defaultFhirUrlParam;
     let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?url=http://snomed.info/sct?fhir_cm=${conceptMapId}&code=${code}&system=${system}`;
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('translate', {}))
       );
@@ -281,7 +301,10 @@ export class TerminologyService {
       terms = '';
     }
     let requestUrl = `${fhirBase}/ValueSet/$expand?url=${fhirUrl}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${this.lang}&displayLanguage=${this.lang}`;
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('expandValueSet', {}))
       );
@@ -323,7 +346,7 @@ export class TerminologyService {
     // Define HttpHeaders, including Accept-Language
     const httpOptions = {
       headers: new HttpHeaders({
-        'Accept-Language': 'en' // Set the desired language here
+        'Accept-Language': this.lang // Set the desired language here
       })
     };
   
@@ -339,7 +362,10 @@ export class TerminologyService {
   getMRCMAttributes(conceptId: string) {
     // https://snowstorm.ihtsdotools.org/snowstorm/snomed-ct/mrcm/MAIN/domain-attributes?parentIds=195967001&proximalPrimitiveModeling=false&contentType=POSTCOORDINATED
     let requestUrl = `${this.snowstormFhirBase.replace('fhir','snowstorm/snomed-ct')}mrcm/MAIN/domain-attributes?parentIds=${conceptId}&proximalPrimitiveModeling=false&contentType=POSTCOORDINATED`;
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
     .pipe(
       catchError(this.handleError<any>('getMRCMAttributes', {}))
     );
@@ -349,7 +375,8 @@ export class TerminologyService {
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem/sct_11000003104_EXP`;
     const httpOptions = {
       headers: new HttpHeaders({
-        'Content-Type':  'application/fhir+json'
+        'Content-Type':  'application/fhir+json',
+        'Accept-Language': this.lang
       })
     };
     return this.http.patch<any>(requestUrl, {resourceType: "CodeSystem", concept: [ { code: expression} ] }, httpOptions)
@@ -362,7 +389,10 @@ export class TerminologyService {
     // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=%5E%5B*%5D%20447562003%20%7CICD-10%20complex%20map%20reference%20set%7C%20%7B%7B%20M%20referencedComponentId%20%3D%20%22782513000%22%20%7D%7D
     // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=^[*]%20447562003%20|ICD-10%20complex%20map%20reference%20set|%20{{%20M%20referencedComponentId%20=%20%22195967001%22%20}}
     let requestUrl = `https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=${encodeURIComponent(ecl)}`
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('expandValueSet', {}))
       );
@@ -371,7 +401,10 @@ export class TerminologyService {
   getIcd10MapTargets(code: string) {
     // https://snowstorm-fhir.snomedtools.org/fhir/ConceptMap/$translate?code=254153009&system=http://snomed.info/sct&source=http://snomed.info/sct?fhir_vs&target=http://hl7.org/fhir/sid/icd-10&url=http://snomed.info/sct/900000000000207008/version/20200131?fhir_cm=447562003
     let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&source=http://snomed.info/sct?fhir_vs&target=http://hl7.org/fhir/sid/icd-10&url=http://snomed.info/sct/900000000000207008/version/20200131?fhir_cm=447562003`
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('translate', {}))
       );
@@ -380,7 +413,10 @@ export class TerminologyService {
   lookupOtherCodeSystems(system: string, code: string) {
     // {{url}}/CodeSystem/$lookup?system=http://hl7.org/fhir/sid/icd-10&code=A01.0
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem/$lookup?system=${system}&code=${code}`
-    return this.http.get<any>(requestUrl)
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(
         catchError(this.handleError<any>('lookup', {}))
       );

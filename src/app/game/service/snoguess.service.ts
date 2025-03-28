@@ -113,7 +113,11 @@ export class SnoguessService {
     // Fetch a new term asynchronously
     const randomIndex = Math.floor(Math.random() * this.randomLimit) + 1;
     const response = await lastValueFrom(
-      this.terminologyService.expandValueSet('^ 816080008 |International Patient Summary| {{ C definitionStatus = defined }}', '', randomIndex, 1)
+      this.terminologyService.expandValueSetFromServer(
+        this.terminologyService.getSnowstormFhirBase(), 
+        'http://snomed.info/sct/705115006', 
+        '^ 816080008 |International Patient Summary| {{ C definitionStatus = defined }}', 
+        '', randomIndex, 1)
     );
     this.randomLimit = response.expansion.total - 1;
     const fullConcept: any = await lastValueFrom(
