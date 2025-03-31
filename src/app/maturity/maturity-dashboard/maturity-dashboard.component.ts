@@ -52,7 +52,7 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   constructor(private _snackBar: MatSnackBar) {}
 
   ngAfterViewInit(): void {
-    this.initMap();
+    // this.initMap();
   }
 
   reset(): void {
@@ -287,7 +287,8 @@ export class MaturityDashboardComponent  implements AfterViewInit {
       const color = this.colorPalette[index % this.colorPalette.length];
       maturityResponse.color = color;
     });
-    console.log('Processed data:', this.uploadedData);
+    // console.log('Processed data:', this.uploadedData);
+    this.initMap();
     this.generateRadarChart();
     this.generateOverallBarChart();
     // Set this.overallScore to the vaerage of all overall scores

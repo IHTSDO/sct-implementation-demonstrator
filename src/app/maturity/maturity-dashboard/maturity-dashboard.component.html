@@ -8,21 +8,24 @@
       <!-- <button mat-button (click)="sidenav.toggle()">sidenav.toggle()</button> -->
       <h1>SNOMED Implementation Maturity Dashboard</h1>
       <h2 class="italic">Results from the Maturity Assessment Tool</h2>
-      <div class="flex flex-row gap-4">
+      <div class="flex flex-row gap-4" *ngIf="uploadedData.length === 0">
         <input #fileInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none"/>
         <input #folderInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none" webkitdirectory/>
-        <button mat-raised-button color="primary" (click)="fileInput.click()" *ngIf="uploadedData.length === 0">
+        <button mat-raised-button color="primary" (click)="fileInput.click()">
           Load maturity assessment results (JSON Files)
         </button>
-        <button mat-raised-button color="primary" (click)="folderInput.click()" *ngIf="uploadedData.length === 0">
+        <button mat-raised-button color="primary" (click)="folderInput.click()">
           Load maturity assessment results (Folder)
         </button>
-        <button mat-raised-button color="primary" (click)="loadExamples()" *ngIf="uploadedData.length === 0">
+        <button mat-raised-button color="primary" (click)="loadExamples()">
           Load example results
         </button>
       </div>
     </div>
-    <div class="flex flex-row gap-4 w-full">
+    <div class="w-full flex flex-row items-center justify-center" *ngIf="uploadedData.length === 0">
+      <img src="assets/img/dashboard-background.png" alt="Dashboard" class="snomed-logo">
+    </div>
+    <div class="flex flex-row gap-4 w-full" *ngIf="uploadedData.length > 0">
       <div class="w-8/12">
         <div id="map" style="height: 500px; margin-top: 2rem;"></div>
       </div>
