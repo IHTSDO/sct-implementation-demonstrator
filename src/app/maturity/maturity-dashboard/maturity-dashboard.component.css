@@ -1,3 +1,14 @@
+.module-container {
+    height: 100vh; /* or whatever height you want */
+}
+
+.custom-sidenav {
+    width: 250px; /* or any fixed size */
+    background-color: #434a55; /* light gray background */
+    padding: 1rem;
+    border-right: 1px solid #ccc;
+}
+
 .header-container {
     width: 100%;
     display: flex;
@@ -35,4 +46,8 @@
     border: 1px solid #000;
     padding: 4px;
 }
-  
+
+.fixed-chart-height {
+    height: 600px !important;
+    width: 600px !important;
+}

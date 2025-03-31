@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js';
+
 import * as L from 'leaflet';
 import { AfterViewInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -14,15 +15,39 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 export class MaturityDashboardComponent  implements AfterViewInit {
 
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('overallScoreCanvas') overallScoreCanvas!: ElementRef<HTMLCanvasElement>;
+
   uploadedData: any[] = [];
   kpasNames: Record<string, string> = {};
 
   private totalFilesCount = 0;
   private filesReadCount = 0;
+  opened = false;
+  overallScore = 0;
+  level = '';
+  markers: any = { 
+    "1": { color: "#555", type: "triangle", size: 8, label: "Basic", font: "12px arial" },
+    "2": { color: "#555", type: "triangle", size: 8, label: "Emerging", font: "12px arial" },
+    "3": { color: "#555", type: "triangle", size: 8, label: "Advanced", font: "12px arial" },
+    "4": { color: "#555", type: "triangle", size: 8, label: "Integrated", font: "12px arial" },
+    "5": { color: "#555", type: "triangle", size: 8, label: "Optimizing", font: "12px arial" }  
+  };
 
   private chart!: Chart;
+  private overallScoreChart!: Chart;
   private map!: L.Map;
 
+  colorPalette = [
+    { bg: 'rgba(22, 160, 133, 0.3)', border: 'rgba(22, 160, 133, 1)' },  // Teal
+    { bg: 'rgba(142, 68, 173, 0.3)', border: 'rgba(142, 68, 173, 1)' },  // Purple
+    { bg: 'rgba(230, 126, 34, 0.3)', border: 'rgba(230, 126, 34, 1)' },  // Orange
+    { bg: 'rgba(192, 57, 43, 0.3)', border: 'rgba(192, 57, 43, 1)' },    // Dark Red
+    { bg: 'rgba(41, 128, 185, 0.3)', border: 'rgba(41, 128, 185, 1)' },  // Strong Blue
+    { bg: 'rgba(39, 174, 96, 0.3)', border: 'rgba(39, 174, 96, 1)' },    // Emerald Green
+    { bg: 'rgba(127, 140, 141, 0.3)', border: 'rgba(127, 140, 141, 1)' },// Gray
+    { bg: 'rgba(44, 62, 80, 0.3)', border: 'rgba(44, 62, 80, 1)' },      // Dark Blue Gray
+  ];
+  
 
   constructor(private _snackBar: MatSnackBar) {}
 
@@ -33,6 +58,47 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   reset(): void {
     // reload page
     window.location.reload();
+  }
+
+  loadExamples(): void {
+    const exampleFiles = [
+      'assets/maturity/dashboard-examples/maturity-assessment-results (9).json',
+      'assets/maturity/dashboard-examples/maturity-assessment-results (10).json',
+      'assets/maturity/dashboard-examples/maturity-assessment-results (11).json'
+    ];
+    this.uploadedData = [];
+    this.kpasNames = {};
+    this.totalFilesCount = exampleFiles.length;
+    this.filesReadCount = 0;
+    for (const file of exampleFiles) {
+      this.readJSONFileFromUrl(file);
+    }
+  }
+
+  readJSONFileFromUrl(fileUrl: string): void {
+    fetch(fileUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error fetching file: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(jsonContent => {
+        this.uploadedData.push(jsonContent);
+        this.filesReadCount++;
+        if (this.filesReadCount === this.totalFilesCount) {
+          this._snackBar.openFromComponent(SnackAlertComponent, {
+            duration: 5 * 1000,
+            data: `${this.totalFilesCount} assessment files have been imported`,
+            panelClass: ['red-snackbar']
+          });
+          this.verifyFiles();
+          this.processData();
+        }
+      })
+      .catch(error => {
+        console.error('Error parsing JSON file:', fileUrl, error);
+      });
   }
 
   private initMap(): void {
@@ -66,9 +132,9 @@ export class MaturityDashboardComponent  implements AfterViewInit {
       const location = entry.location || entry.responses?.location;
       if (location && typeof location.y === 'number' && typeof location.x === 'number') {
         const score = entry.overallScore ?? 0;
-        const bgColor = this.getScoreColor(score);
+        const scoreColor = this.getScoreColor(score);
         const label = `
-          <div style="background-color:${bgColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
+          <div style="background-color:${entry.color.border}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
             ${entry.name || entry.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
             <span style="font-weight: normal;">Maturity level: ${entry.level ?? ''}</span>
           </div>
@@ -103,7 +169,7 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     
   }
 
-  private getScoreColor(score: number): string {
+  getScoreColor(score: number): string {
     const clamped = Math.max(1, Math.min(5, score));
     
     // Factor for darkening each color channel.
@@ -205,7 +271,7 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     });
   }
   private processData(): void {
-    for (const maturityResponse of this.uploadedData) {
+    this.uploadedData.forEach((maturityResponse, index) => {
       if (maturityResponse.allQuestions && Array.isArray(maturityResponse.allQuestions)) {
         if (!maturityResponse.stakeHolderName && maturityResponse.allQuestions.length > 0) {
           maturityResponse.stakeHolderName = maturityResponse.allQuestions[0].stakeholderName || '';
@@ -218,13 +284,22 @@ export class MaturityDashboardComponent  implements AfterViewInit {
           }
         });
       }
-    }
-    // console.log('Processed data:', this.uploadedData);
-    this.generateChart();
+      const color = this.colorPalette[index % this.colorPalette.length];
+      maturityResponse.color = color;
+    });
+    console.log('Processed data:', this.uploadedData);
+    this.generateRadarChart();
+    this.generateOverallBarChart();
+    // Set this.overallScore to the vaerage of all overall scores
+    const overallScores = this.uploadedData.map(entry => entry.overallScore || 0);
+    const sum = overallScores.reduce((acc, val) => acc + val, 0);
+    this.overallScore = overallScores.length > 0 ? sum / overallScores.length : 0;
+    this.overallScore = Math.round(this.overallScore * 10) / 10;
     this.updateMapMarkers();
+    this.setScaleLabel(this.overallScore);
   }
 
-  private generateChart(): void {
+  private generateRadarChart(): void {
     if (this.chart) {
       this.chart.destroy();
     }
@@ -237,17 +312,6 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     const kpaIds = Object.keys(selectedKpas).filter(kpaId => selectedKpas[kpaId]);
     const kpaLabels = kpaIds.map(kpaId => this.kpasNames[kpaId] || kpaId);
   
-    const colorPalette = [
-      { bg: 'rgba(54, 162, 235, 0.3)', border: 'rgba(54, 162, 235, 1)' },
-      { bg: 'rgba(255, 99, 132, 0.3)', border: 'rgba(255, 99, 132, 1)' },
-      { bg: 'rgba(255, 206, 86, 0.3)', border: 'rgba(255, 206, 86, 1)' },
-      { bg: 'rgba(75, 192, 192, 0.3)', border: 'rgba(75, 192, 192, 1)' },
-      { bg: 'rgba(153, 102, 255, 0.3)', border: 'rgba(153, 102, 255, 1)' },
-      { bg: 'rgba(255, 159, 64, 0.3)', border: 'rgba(255, 159, 64, 1)' },
-      { bg: 'rgba(0, 128, 128, 0.3)', border: 'rgba(0, 128, 128, 1)' },
-      { bg: 'rgba(128, 0, 128, 0.3)', border: 'rgba(128, 0, 128, 1)' }
-    ];
-  
     const datasets = this.uploadedData.map((entry, index) => {
       const stakeholderLabel = entry.name || entry.stakeHolderName || 'Unnamed Stakeholder';
   
@@ -256,14 +320,14 @@ export class MaturityDashboardComponent  implements AfterViewInit {
         return typeof score === 'number' ? score : 0;
       });
   
-      const color = colorPalette[index % colorPalette.length];
+      // const color = this.colorPalette[index % this.colorPalette.length];
   
       return {
         label: stakeholderLabel,
         data: scores,
         backgroundColor: 'transparent',
-        borderColor: color.border,
-        pointBackgroundColor: color.border,
+        borderColor: entry.color.border,
+        pointBackgroundColor: entry.color.border,
         pointBorderColor: '#fff'
       };
     });
@@ -321,5 +385,81 @@ export class MaturityDashboardComponent  implements AfterViewInit {
       }
     });
   }
+
+  private generateOverallBarChart(): void {
+    if (this.overallScoreChart) {
+      this.overallScoreChart.destroy();
+    }
+  
+    if (this.uploadedData.length === 0) {
+      return;
+    }
+  
+    const labels = this.uploadedData.map(entry =>
+      entry.name || entry.stakeHolderName || 'Unnamed Stakeholder'
+    );
+  
+    const scores = this.uploadedData.map(entry =>
+      typeof entry.overallScore === 'number' ? entry.overallScore : 0
+    );
+  
+    const colors = this.uploadedData.map(entry => entry.color?.border || 'rgba(0,0,0,0.8)');
+  
+    this.overallScoreChart = new Chart(this.overallScoreCanvas.nativeElement, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Overall Average Score',
+            data: scores,
+            backgroundColor: colors,
+            borderColor: colors,
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        aspectRatio: 2.0,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: true,
+            text: 'Overall Maturity Score by Stakeholder'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            suggestedMax: 5,
+            title: {
+              display: true,
+              text: 'Overall Score'
+            },
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  }
+
+  setScaleLabel(value: number): void {
+    const resultsScale = [
+      { value: 1, label: 'Basic' },
+      { value: 2, label: 'Emerging' },
+      { value: 3, label: 'Advanced' },
+      { value: 4, label: 'Integrated' },
+      { value: 5, label: 'Optimizing' }
+    ]
+    // round to the lowest whole number
+    value = Math.floor(value);
+    this.level = resultsScale.find((scale) => scale.value === value)?.label || '';
+  }
+  
   
 }

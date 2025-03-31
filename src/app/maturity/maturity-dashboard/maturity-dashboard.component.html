@@ -1,35 +1,81 @@
-<div class="header-container">
-  <h1>SNOMED Implementation Maturity Dashboard</h1>
-  <input #fileInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none" webkitdirectory/>
-  <button mat-raised-button color="primary" (click)="fileInput.click()" *ngIf="uploadedData.length === 0">
-    Load maturity assessment results (JSON Files)
-  </button>
-</div>
-<div id="map" style="height: 500px; margin-top: 2rem;"></div>
-<div class="chart-container">
-    <canvas #radarCanvas></canvas>
-</div>
-<div class="header-container">
-  <h2 *ngIf="uploadedData.length != 0">Maturity Assessment Data</h2>
-  <table class="bordered-table" *ngIf="uploadedData.length != 0">
-    <thead>
-      <tr>  
-        <th>Stakeholder Type</th>
-        <th>StakeHolder Name</th>
-        <th>Maturity Score</th>
-        <th>Location</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let stakeholder of uploadedData">
-        <td>{{ stakeholder.stakeHolderName }}</td>
-        <td>{{ stakeholder.name }}</td>
-        <td>{{ stakeholder.overallScore }} - {{ stakeholder.level }}</td>
-        <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : 'No location information'  }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <button mat-raised-button color="primary" (click)="reset()" *ngIf="uploadedData.length != 0">
-    Reset dashboard
-  </button>
-</div>
+<mat-sidenav-container class="module-container">
+  <mat-sidenav #sidenav mode="side" [(opened)]="opened" class="custom-sidenav">
+    Sidenav content
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="header-container">
+      <!-- <button mat-button (click)="sidenav.toggle()">sidenav.toggle()</button> -->
+      <h1>SNOMED Implementation Maturity Dashboard</h1>
+      <h2 class="italic">Results from the Maturity Assessment Tool</h2>
+      <div class="flex flex-row gap-4">
+        <input #fileInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none"/>
+        <input #folderInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none" webkitdirectory/>
+        <button mat-raised-button color="primary" (click)="fileInput.click()" *ngIf="uploadedData.length === 0">
+          Load maturity assessment results (JSON Files)
+        </button>
+        <button mat-raised-button color="primary" (click)="folderInput.click()" *ngIf="uploadedData.length === 0">
+          Load maturity assessment results (Folder)
+        </button>
+        <button mat-raised-button color="primary" (click)="loadExamples()" *ngIf="uploadedData.length === 0">
+          Load example results
+        </button>
+      </div>
+    </div>
+    <div class="flex flex-row gap-4 w-full">
+      <div class="w-8/12">
+        <div id="map" style="height: 500px; margin-top: 2rem;"></div>
+      </div>
+      <div class="ml-8 w-4/12 flex items-center justify-start">
+        <!-- <canvas #gaugeCanvas class="fixed-chart-height"></canvas> -->
+        <ngx-gauge
+          type="semi"
+          [min]="1"
+          [max]="5"
+          [value]="overallScore"
+          [cap]="'round'"
+          [thick]="35"
+          [size]="400"
+          [markers]="markers"
+          [label]="'Average Maturity Score'"
+          [foregroundColor]="getScoreColor(overallScore)"
+          [backgroundColor]="'#eeeeee'"
+        >
+        </ngx-gauge>
+      </div>
+    </div>
+    
+    <div class="flex flex-row gap-4 w-full mt-8">
+      <div class="chart-container flex-1">
+        <canvas #overallScoreCanvas></canvas>
+      </div>
+      <div class="chart-container flex-1">
+        <canvas #radarCanvas></canvas>
+      </div>
+    </div>
+    <div class="header-container">
+      <h2 *ngIf="uploadedData.length != 0">Summary of Maturity Assessment Data</h2>
+      <table class="bordered-table" *ngIf="uploadedData.length != 0">
+        <thead>
+          <tr>  
+            <th>Stakeholder Type</th>
+            <th>StakeHolder Name</th>
+            <th>Maturity Score</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let stakeholder of uploadedData">
+            <td>{{ stakeholder.stakeHolderName }}</td>
+            <td>{{ stakeholder.name }}</td>
+            <td>{{ stakeholder.overallScore }} - {{ stakeholder.level }}</td>
+            <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : 'No location information'  }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button mat-raised-button color="primary" (click)="reset()" *ngIf="uploadedData.length != 0">
+        Reset dashboard
+      </button>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

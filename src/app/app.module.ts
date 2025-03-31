@@ -91,6 +91,7 @@ import { LanguageConfigComponent } from './util/language-config/language-config.
 import { FlipCardComponent } from './util/flip-card/flip-card.component';
 import { RefsetViewerComponent } from './util/refset-viewer/refset-viewer.component';
 import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
+import { NgxGaugeModule } from 'ngx-gauge';
 
 const app = initializeApp(firebaseConfig);
 
@@ -182,6 +183,7 @@ const app = initializeApp(firebaseConfig);
         MatSidenavModule,
         MatSliderModule,
         MatChipsModule,
+        NgxGaugeModule,
         MatPaginatorModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 
 export class AppModule { }

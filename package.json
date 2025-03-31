@@ -31,6 +31,7 @@
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^4.2.0",
     "lodash": "^4.17.21",
+    "ngx-gauge": "^11.0.0",
     "ngx-highlight-js": "^15.0.0",
     "npm": "^11.2.0",
     "phaser": "^3.87.0",
