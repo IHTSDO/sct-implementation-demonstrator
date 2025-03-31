@@ -37,7 +37,7 @@
 .bordered-table {
     border: 1px solid #000;
     border-collapse: collapse;
-    width: 70%;
+    width: 95%;
     margin-bottom: 2rem;
 }
   
@@ -50,4 +50,11 @@
 .fixed-chart-height {
     height: 600px !important;
     width: 600px !important;
+}
+
+.dashboard-card {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

@@ -25,11 +25,11 @@
     <div class="w-full flex flex-row items-center justify-center" *ngIf="uploadedData.length === 0">
       <img src="assets/img/dashboard-background.png" alt="Dashboard" class="snomed-logo">
     </div>
-    <div class="flex flex-row gap-4 w-full" *ngIf="uploadedData.length > 0">
-      <div class="w-8/12">
+    <div class="flex flex-row gap-4 w-full pl-8 pr-8" *ngIf="uploadedData.length > 0">
+      <div class="w-8/12 dashboard-card">
         <div id="map" style="height: 500px; margin-top: 2rem;"></div>
       </div>
-      <div class="ml-8 w-4/12 flex items-center justify-start">
+      <div class="w-4/12 flex flex-col items-center justify-center dashboard-card">
         <!-- <canvas #gaugeCanvas class="fixed-chart-height"></canvas> -->
         <ngx-gauge
           type="semi"
@@ -40,42 +40,49 @@
           [thick]="35"
           [size]="400"
           [markers]="markers"
-          [label]="'Average Maturity Score'"
           [foregroundColor]="getScoreColor(overallScore)"
           [backgroundColor]="'#eeeeee'"
         >
         </ngx-gauge>
+        <h2>
+          Overall Maturity Score
+        </h2>
       </div>
     </div>
     
-    <div class="flex flex-row gap-4 w-full mt-8">
-      <div class="chart-container flex-1">
+    <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-8">
+      <div class="chart-container flex-1 dashboard-card">
         <canvas #overallScoreCanvas></canvas>
       </div>
-      <div class="chart-container flex-1">
+      <div class="chart-container flex-1 dashboard-card">
         <canvas #radarCanvas></canvas>
       </div>
     </div>
-    <div class="header-container">
-      <h2 *ngIf="uploadedData.length != 0">Summary of Maturity Assessment Data</h2>
-      <table class="bordered-table" *ngIf="uploadedData.length != 0">
-        <thead>
-          <tr>  
-            <th>Stakeholder Type</th>
-            <th>StakeHolder Name</th>
-            <th>Maturity Score</th>
-            <th>Location</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let stakeholder of uploadedData">
-            <td>{{ stakeholder.stakeHolderName }}</td>
-            <td>{{ stakeholder.name }}</td>
-            <td>{{ stakeholder.overallScore }} - {{ stakeholder.level }}</td>
-            <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : 'No location information'  }}</td>
-          </tr>
-        </tbody>
-      </table>
+
+    <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-8 items-center justify-center">
+      <div class="dashboard-card flex flex-col items-center justify-center w-2/3 pt-8 pb-8">
+        <h2 *ngIf="uploadedData.length != 0">Summary of Maturity Assessment Data</h2>
+        <table class="bordered-table" *ngIf="uploadedData.length != 0">
+          <thead>
+            <tr>  
+              <th>Stakeholder Type</th>
+              <th>StakeHolder Name</th>
+              <th>Maturity Score</th>
+              <th>Location</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let stakeholder of uploadedData">
+              <td>{{ stakeholder.stakeHolderName }}</td>
+              <td>{{ stakeholder.name }}</td>
+              <td>{{ stakeholder.overallScore }} - {{ stakeholder.level }}</td>
+              <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : 'No location information'  }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="flex flex-row gap-4 w-full p-8 mt-4 items-center justify-center">
       <button mat-raised-button color="primary" (click)="reset()" *ngIf="uploadedData.length != 0">
         Reset dashboard
       </button>
