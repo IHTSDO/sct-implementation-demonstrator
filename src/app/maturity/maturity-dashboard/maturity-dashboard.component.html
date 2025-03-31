@@ -1,6 +1,6 @@
 <div class="header-container">
   <h1>SNOMED Implementation Maturity Dashboard</h1>
-  <input #fileInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none"/>
+  <input #fileInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none" webkitdirectory/>
   <button mat-raised-button color="primary" (click)="fileInput.click()" *ngIf="uploadedData.length === 0">
     Load maturity assessment results (JSON Files)
   </button>
