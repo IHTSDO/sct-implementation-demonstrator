@@ -1,5 +1,5 @@
 .module-container {
-    height: 100vh; /* or whatever height you want */
+    height: calc(100vh - 70px); /* or whatever height you want */
 }
 
 .custom-sidenav {
@@ -15,7 +15,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: 20px;
 }
 
 .chart-container {

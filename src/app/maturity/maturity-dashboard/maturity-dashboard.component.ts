@@ -5,6 +5,7 @@ import * as L from 'leaflet';
 import { AfterViewInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
+import { get } from 'lodash';
 
 @Component({
   selector: 'app-maturity-dashboard',
@@ -449,7 +450,7 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     });
   }
 
-  setScaleLabel(value: number): void {
+  getScaleLabel(value: number): string {
     const resultsScale = [
       { value: 1, label: 'Basic' },
       { value: 2, label: 'Emerging' },
@@ -459,8 +460,11 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     ]
     // round to the lowest whole number
     value = Math.floor(value);
-    this.level = resultsScale.find((scale) => scale.value === value)?.label || '';
+    return resultsScale.find((scale) => scale.value === value)?.label || '';
   }
-  
+
+  setScaleLabel(value: number): void {
+    this.level = this.getScaleLabel(value);
+  }
   
 }
