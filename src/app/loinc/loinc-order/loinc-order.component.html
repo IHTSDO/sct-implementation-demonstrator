@@ -20,7 +20,7 @@
                 <mat-chip *ngFor="let filter of filters" class="active-chip">
                     <div (removed)="removeFilter(filter)">
                         <div class="my-chip-row">
-                            <p class="text-wrap">{{filter.selected.display}}</p>
+                            <p class="text-wrap">{{filter.title}}: {{filter.selected.display}}</p>
                             <button matChipRemove [attr.aria-label]="'remove ' + filter.selected.display" (click)="removeFilter(filter)">
                                 <mat-icon>cancel</mat-icon>
                             </button>
