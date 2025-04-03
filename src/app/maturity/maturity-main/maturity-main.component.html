@@ -109,10 +109,21 @@
                         </div>
                 </app-flip-card>
             </div>
-            <div class="button-container-first">
-                <button class="start-button" mat-flat-button color="accent" (click)="startAssessment()">
-                START ASSESSMENT
+            <div class="button-container-space-between">
+                <button  mat-flat-button color="primary" (click)="openDashboard()">
+                    MATURITY ANALYTICS DASHBOARD
                 </button>
+                <button class="start-button" mat-flat-button color="accent" (click)="startAssessment()">
+                    START ASSESSMENT
+                </button>
+                <input hidden (change)="loadState($event)" #fileInputState1 type="file" id="fileState" />
+                <button  mat-flat-button color="primary" (click)="fileInputState1.click()">
+                    LOAD PREVIOUS ASSESSMENT
+                </button>
+            </div>
+            <div class="button-container-space-between italic text-xs pl-4 pr-4 pt-1">
+                <div>Analyze a collection of assessment results</div>
+                <div>Upload an assessmen to edit or view results</div>
             </div>
         </div>
     </div>

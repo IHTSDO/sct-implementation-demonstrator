@@ -21,6 +21,27 @@ export class MenuService {
       description: "A SNOMED / FHIR implementation demo of recording Allergy / Intollerance details, from Allergies Clinical Reference Group"
     },
     { 
+      name: "LOINC & SNOMED CT",
+      subtitle: "Clinical demo",
+      type: "internal", 
+      url: "/loinc",
+      description: "A LOINC Ontology implementation demo, covering laboratory orders, results and FHIR resources."
+    },
+    { 
+      name: "NCPT Refset",
+      subtitle: "Clinical demo",
+      type: "internal", 
+      url: "/ncpt",
+      description: "A clinical demonstration of the NCPT (Nutrition Care Process Terminology) reference set."
+    },
+    { 
+      name: "Implementation Maturity Framework",
+      subtitle: "Application",
+      type: "internal", 
+      url: "/maturity",
+      description: "An online maturity assessment tool and an dashboard for compiling and analyzing collections of maturity results."
+    },
+    { 
       name: "Terminology Bindings Sandbox", 
       subtitle: "Learning demo",
       type: "internal", 

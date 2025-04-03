@@ -90,6 +90,13 @@
   margin-bottom: 1rem;
 }
 
+.button-container-space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .start-button {
   position: absolute;
   left: 50%;

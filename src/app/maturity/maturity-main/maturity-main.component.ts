@@ -7,7 +7,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import cloneDeep from 'lodash/cloneDeep';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GeocodingService } from 'src/app/services/geocoding.service';
 import { MaturityResultsComponent } from '../maturity-results/maturity-results.component';
 
@@ -53,7 +53,8 @@ export class MaturityMainComponent implements OnInit {
 
   @ViewChild('results') results!: MaturityResultsComponent;
 
-  constructor(private http: HttpClient, private fb: FormBuilder, private dialog: MatDialog, private route: ActivatedRoute, private geocodingService: GeocodingService) {
+  constructor(private http: HttpClient, private fb: FormBuilder, private dialog: MatDialog, 
+    private route: ActivatedRoute, private geocodingService: GeocodingService, private router: Router) {
     this.responseForm = this.fb.group({
       selectedStakeholder: new FormControl(null, Validators.required), // Add stakeholder selection control
     });
@@ -132,6 +133,10 @@ export class MaturityMainComponent implements OnInit {
   onLocationSelected(option: any) {
     // Do nothing for now
     // console.log('Selected location:', option);
+  }
+
+  openDashboard(): void {
+    this.router.navigate(['/maturity/dashboard']);
   }
 
   startAssessment(): void {
