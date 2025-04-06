@@ -117,7 +117,15 @@ export class MenuService {
       type: "external",
       url: "https://ihtsdo.github.io/roadmap-generator",
       description: "A tool designed to promote and support the creation of implementation roadmaps for the adoption of SNOMED CT in countries, regions or organizations."
+    },
+    {
+      name: "SNOMED CT as an Evolving Terminology",
+      subtitle: "Tool",
+      type: "internal",
+      url: "/reports",
+      description: "A collection of educational material and changes reports to understand how SNOMED changes on each realease and help plan implementations accordingly."
     }
+
   ];
 
   constructor() { }

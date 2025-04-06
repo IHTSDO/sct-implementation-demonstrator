@@ -40,11 +40,11 @@ export class ReportsMainComponent {
     { type: 'external', name: 'Last International Release Statistics', subtitle: "Changes Report", 
       url: 'https://browser.ihtsdotools.org/qa/#/SNOMEDCT', 
       description: 'Descriptive statistics from the latest release of the International Edition of SNOMED CT.' },
-    { type: 'internal', name: 'FSN Changes', subtitle: "Changes Report", url: 'reports/fsn', 
+    { type: 'internal', name: 'FSN Changes Report', subtitle: "Changes Report", url: 'reports/fsn', 
       description: 'This report displays changes to the FSN of concepts over time.' },
-    { type: 'internal', name: 'Inactivations', subtitle: "Changes Report", url: 'reports/inactivations', 
+    { type: 'internal', name: 'Inactivations Report', subtitle: "Changes Report", url: 'reports/inactivations', 
       description: 'This report displays concept inactivations over time.' },
-    { type: 'internal', name: 'New Concepts', subtitle: "Changes Report", url: 'reports/new-concepts', 
+    { type: 'internal', name: 'New Concepts Report', subtitle: "Changes Report", url: 'reports/new-concepts', 
       description: 'This report displays newly added concepts over time.' },
 ];
 
