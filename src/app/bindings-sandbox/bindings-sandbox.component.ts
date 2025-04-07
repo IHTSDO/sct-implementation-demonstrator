@@ -264,7 +264,7 @@ export class BindingsSandboxComponent implements OnInit {
       baseItem['extension'].push(this.getAutocompleteExtension());
     }
 
-    if (binding.type === 'Select (Multiple)') {
+    if (binding.type === 'Select (Multiple)' || binding.repeatable) {
       baseItem['repeats'] = true;
     }
 
@@ -273,7 +273,7 @@ export class BindingsSandboxComponent implements OnInit {
 
   initializeBaseItem(binding: any, index: number) {
     const item: any = {
-      "linkId": index + 1,
+      "linkId": (index + 1).toString(),
       "text": binding.title,
       "type": this.getQuestionnaireItemType(binding.type)
     };
