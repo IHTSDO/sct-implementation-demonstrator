@@ -254,6 +254,7 @@ export class BindingsSandboxComponent implements OnInit {
 
   createItemForBinding(binding: any, index: number) {
     const baseItem: any = this.initializeBaseItem(binding, index);
+    baseItem['extension'] = [];
 
     if (['Select (Single)', 'Select (Multiple)', 'Options', 'Autocomplete'].includes(binding.type)) {
       baseItem['extension'] = this.getExtensionForSelectableTypes();
@@ -266,6 +267,17 @@ export class BindingsSandboxComponent implements OnInit {
 
     if (binding.type === 'Select (Multiple)' || binding.repeatable) {
       baseItem['repeats'] = true;
+    }
+
+    if (binding.type === 'Decimal' && binding.unit) {
+      baseItem['extension'].push( {
+            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+            "valueCoding":{
+              "system": binding.unit.system,
+              "code": binding.unit.code,
+              "display": binding.unit.display
+          }
+      });
     }
 
     return baseItem;
