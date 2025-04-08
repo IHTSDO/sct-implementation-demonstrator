@@ -10,6 +10,7 @@ import { MenuService } from '../services/menu.service';
 })
 export class HomeComponent implements OnInit{
   demos: any[] = [];
+  demoTypes: Record<string, number> = {};
   embeddedMode: boolean = false;
 
   constructor(public router: Router, public route: ActivatedRoute, private menuService: MenuService) { }
@@ -23,6 +24,14 @@ export class HomeComponent implements OnInit{
         this.embeddedMode = false;
       }
     });
+    // generate a list of all demo.type in demos with counts
+    this.demoTypes = this.demos.reduce((acc: any, demo: any) => {
+      if (!acc[demo.type]) {
+        acc[demo.type] = 0;
+      }
+      acc[demo.type]++;
+      return acc;
+    }, {});
   }
 
   navigate(demo: any) {
