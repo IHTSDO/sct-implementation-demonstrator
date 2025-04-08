@@ -36,7 +36,7 @@ export class MenuService {
     },
     { 
       name: "Implementation Maturity Framework",
-      subtitle: "Application",
+      subtitle: "Tool",
       type: "internal", 
       url: "/maturity",
       description: "An online maturity assessment tool and an dashboard for compiling and analyzing collections of maturity results."
@@ -71,13 +71,13 @@ export class MenuService {
     },
     { 
       name: "SNOMED & FHIR Questionnaires Manager Application",
-      subtitle: "Application",
+      subtitle: "Tool",
       type: "internal", 
       url: "/questionnaires",
       description: "An application to manage a FHIR Questionnaires repository, with SNOMED CT bindings",
     },
     { name: "SNOMED & FHIR Questionnaires Utilities",
-      subtitle: "Utilities",
+      subtitle: "Tool",
       type: "internal", 
       url: "/questionnaires", 
       queryParams: { utility: true },
@@ -120,7 +120,7 @@ export class MenuService {
     },
     {
       name: "SNOMED CT as an Evolving Terminology",
-      subtitle: "Tool",
+      subtitle: "Learning demo",
       type: "internal",
       url: "/reports",
       description: "A collection of educational material and changes reports to understand how SNOMED changes on each realease and help plan implementations accordingly."

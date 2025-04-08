@@ -26,7 +26,7 @@
             inevitable terminology changes.
         </p>
     </div>
-    
+    <h3>Reports describing changesinthe terminology</h3>
     <div class="demos-panel">
         <div *ngFor="let report of reports" class="demo-card-wrapper">
             <mat-card class="demo-card">
@@ -39,6 +39,23 @@
                 </mat-card-content>
                 <mat-card-actions>
                   <button mat-button color="accent" (click)="navigate(report)">OPEN</button>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+    </div>
+    <h3>Educational materials related to inactivations and changes in SNOMED CT</h3>
+    <div class="demos-panel">
+        <div *ngFor="let material of materials" class="demo-card-wrapper">
+            <mat-card class="demo-card">
+                <mat-card-header>
+                  <mat-card-subtitle>{{ material.subtitle }}</mat-card-subtitle>
+                  <mat-card-title>{{ material.name }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <p>{{ material.description }}</p>
+                </mat-card-content>
+                <mat-card-actions>
+                  <button mat-button color="accent" (click)="navigate(material)">OPEN</button>
                 </mat-card-actions>
             </mat-card>
         </div>

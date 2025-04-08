@@ -9,7 +9,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class ReportsMainComponent {
 
-  reports: any[] = [
+  reports: any[] = [{ type: 'internal', name: 'FSN Changes Report', subtitle: "Changes Report", url: 'reports/fsn', 
+    description: 'This report displays changes to the FSN of concepts over time.' },
+  { type: 'internal', name: 'Inactivations Report', subtitle: "Changes Report", url: 'reports/inactivations', 
+    description: 'This report displays concept inactivations over time.' },
+  { type: 'internal', name: 'New Concepts Report', subtitle: "Changes Report", url: 'reports/new-concepts', 
+    description: 'This report displays newly added concepts over time.' },
+  ];
+
+  materials: any[] = [
     { type: 'external', name: 'RF2 History Mechanism', subtitle: "Specification Guide", 
       url: 'https://confluence.ihtsdotools.org/display/DOCRELFMT/3.1.5+History+Mechanism', 
       description: 'How SNOMED terminology changes are represented in the release files.' },
@@ -40,12 +48,6 @@ export class ReportsMainComponent {
     { type: 'external', name: 'Last International Release Statistics', subtitle: "Changes Report", 
       url: 'https://browser.ihtsdotools.org/qa/#/SNOMEDCT', 
       description: 'Descriptive statistics from the latest release of the International Edition of SNOMED CT.' },
-    { type: 'internal', name: 'FSN Changes Report', subtitle: "Changes Report", url: 'reports/fsn', 
-      description: 'This report displays changes to the FSN of concepts over time.' },
-    { type: 'internal', name: 'Inactivations Report', subtitle: "Changes Report", url: 'reports/inactivations', 
-      description: 'This report displays concept inactivations over time.' },
-    { type: 'internal', name: 'New Concepts Report', subtitle: "Changes Report", url: 'reports/new-concepts', 
-      description: 'This report displays newly added concepts over time.' },
 ];
 
 
