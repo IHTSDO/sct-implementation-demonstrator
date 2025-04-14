@@ -67,9 +67,11 @@
       <span *ngIf="selectedLanRefsetConcept">*</span>
     </button>
     <mat-menu #menu="matMenu">
-      <p *ngIf="selectedLanRefsetConcept" class="menu-text">Selected Language Refset</p>
-      <p *ngIf="selectedLanRefsetConcept" class="menu-text">{{ selectedLanRefsetConcept.display }}</p>
-      <p *ngIf="selectedLanRefsetConcept" class="menu-text">{{ selectedLanRefsetConcept.code }}</p>
+      <p *ngIf="selectedLanRefsetConcept && !selectedLanguageContext" class="menu-text">Selected Language Refset</p>
+      <p *ngIf="selectedLanRefsetConcept && !selectedLanguageContext" class="menu-text">{{ selectedLanRefsetConcept.display }}</p>
+      <p *ngIf="selectedLanRefsetConcept && !selectedLanguageContext" class="menu-text">{{ selectedLanRefsetConcept.code }}</p>
+      <p *ngIf="selectedLanguageContext" class="menu-text">Selected Language Context</p>
+      <p *ngIf="selectedLanguageContext" class="menu-text">{{ selectedLanguageContext }}</p>
       <button mat-menu-item [matMenuTriggerFor]="langCodes">Language Codes</button>
       <button mat-menu-item [matMenuTriggerFor]="langRefsets">Language refsets</button>
       <button mat-menu-item (click)="openLanguageDialog()">Advanced config</button>

@@ -26,6 +26,7 @@ export class AppComponent {
   selectedEdition = 'Edition';
   selectedLanguage = 'en';
   selectedLanRefsetConcept: any = null;
+  selectedLanguageContext: string = '';
   fhirServers = [
     { name: "SNOMED Dev IS", url: "https://dev-is-browser.ihtsdotools.org/fhir"},
     { name: "SNOMED Public", url: "https://snowstorm.ihtsdotools.org/fhir"},
@@ -84,6 +85,10 @@ export class AppComponent {
 
     this.terminologyService.languageRefsetConcept$.subscribe(languageRefsetConcept => {
       this.selectedLanRefsetConcept = languageRefsetConcept;
+    });
+
+    this.terminologyService.context$.subscribe(context => {
+      this.selectedLanguageContext = context;
     });
 
     this.terminologyService.fhirUrlParam$.subscribe(urlParam => {

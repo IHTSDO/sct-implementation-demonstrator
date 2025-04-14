@@ -5,12 +5,12 @@ import { TerminologyService } from '../services/terminology.service';
 import { RefsetViewerComponent } from '../util/refset-viewer/refset-viewer.component';
 
 @Component({
-    selector: 'app-ncpt',
-    templateUrl: './ncpt.component.html',
-    styleUrl: './ncpt.component.css',
+    selector: 'app-sv-demo',
+    templateUrl: './sv-demo.component.html',
+    styleUrl: './sv-demo.component.css',
     standalone: false
 })
-export class NcptComponent implements OnInit {
+export class SvDemoComponent implements OnInit {
 
   @ViewChild('refsetViewer') refsetViewerComponent: RefsetViewerComponent | undefined;
 
@@ -39,7 +39,12 @@ export class NcptComponent implements OnInit {
     this.terminologyService.context$.subscribe(context => {
       this.loadSpecs();
     });
-  }
+
+    this.terminologyService.setLang('sv');
+    setTimeout(() => {
+      this.terminologyService.setFhirUrlParam('http://snomed.info/sct/45991000052106/version/20241130');
+    }, 1000);
+    }
 
   loadSpecs() {
     this.specs.forEach(async (spec) => {
@@ -72,7 +77,7 @@ export class NcptComponent implements OnInit {
   }
 
   setSwedishPatientContext() {
-    this.terminologyService.setContext('sv-X-83461000052100,sv-X-46011000052107,en-X-900000000000509007');
+    this.terminologyService.setContext('sv-X-63451000052100,sv-X-46011000052107,en-X-900000000000509007');
   }
 
 }

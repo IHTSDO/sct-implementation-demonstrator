@@ -36,6 +36,8 @@ export class TerminologyService {
   private fhirUrlParamSubject = new BehaviorSubject<string>(this.fhirUrlParam);
   private langSubject = new BehaviorSubject<string>(this.lang);
   private languageRefsetConceptSubject = new BehaviorSubject<any>(this.languageRefsetConcept);
+  private context: string = '';
+  private contextSubject = new BehaviorSubject<string>(this.context);
 
   private expandValuesetCache = new Map<string, { timestamp: number, data: any }>();
   private readonly CACHE_LIMIT = 100;
@@ -48,6 +50,7 @@ export class TerminologyService {
   fhirUrlParam$ = this.fhirUrlParamSubject.asObservable();
   lang$ = this.langSubject.asObservable();
   languageRefsetConcept$ = this.languageRefsetConceptSubject.asObservable();
+  context$ = this.contextSubject.asObservable();
 
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) { 
@@ -75,11 +78,18 @@ export class TerminologyService {
     this.lang = lang;
     this.langSubject.next(lang);
     this.languageRefsetConcept = null;
+    this.context = '';
   }
 
   setLanguageRefsetConcept(languageRefsetConcept: any) {
     this.languageRefsetConcept = languageRefsetConcept;
     this.languageRefsetConceptSubject.next(languageRefsetConcept);
+    this.context = '';
+  }
+
+  setContext(context: string) {
+    this.context = context;
+    this.contextSubject.next(context);
   }
 
   getSnowstormFhirBase() {
@@ -96,6 +106,18 @@ export class TerminologyService {
 
   getLanguageRefsetConcept() {
     return this.languageRefsetConcept;
+  }
+
+  getContext() {
+    return this.context;
+  }
+
+  getComputedLanguageContext(): string {
+    if (this.context) {
+      return this.context;
+    } else if (this.languageRefsetConcept) {
+      return this.lang + '-X-' + this.languageRefsetConcept.code
+    } else return this.lang;
   }
 
   getCodeSystems() {
@@ -129,11 +151,8 @@ export class TerminologyService {
     if (typeof terms != 'string') {
       terms = '';
     }
-    let langParam = this.lang;
-    if (this.languageRefsetConcept) {
-      langParam = `${langParam}-X-${this.languageRefsetConcept.code}`;
-    }
-    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${this.lang}&displayLanguage=${langParam}`;
+    let langParam = this.getComputedLanguageContext();
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
   }
 
   expandValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
@@ -204,7 +223,7 @@ export class TerminologyService {
     const httpOptions = {
       headers: new HttpHeaders({
           'Content-Type': 'application/fhir+json', // FHIR JSON content type
-          'Accept-Language': this.lang, 
+          'Accept-Language': this.getComputedLanguageContext(), 
       })
   };
     return this.http.post<any>(requestUrl, inlineValueSet, httpOptions)
@@ -300,7 +319,8 @@ export class TerminologyService {
     if (typeof terms != 'string') {
       terms = '';
     }
-    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${fhirUrl}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${this.lang}&displayLanguage=${this.lang}`;
+    let langParam = this.getComputedLanguageContext();
+    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${fhirUrl}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });

@@ -92,6 +92,7 @@ import { FlipCardComponent } from './util/flip-card/flip-card.component';
 import { RefsetViewerComponent } from './util/refset-viewer/refset-viewer.component';
 import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
 import { NgxGaugeModule } from 'ngx-gauge';
+import { SvDemoComponent } from './sv-demo/sv-demo.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -147,7 +148,8 @@ const app = initializeApp(firebaseConfig);
         LanguageConfigComponent,
         FlipCardComponent,
         RefsetViewerComponent,
-        MaturityDashboardComponent
+        MaturityDashboardComponent,
+        SvDemoComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

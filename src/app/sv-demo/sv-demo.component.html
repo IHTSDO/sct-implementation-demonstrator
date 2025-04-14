@@ -1,0 +1,38 @@
+<div class="outer-container">
+    <h3>SNOMED CT - Swedish NRC Demonstrator
+        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+            <mat-icon>info</mat-icon>
+        </button>
+        <mat-menu #substancePopoverMenu="matMenu" >
+            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
+                <h4>SNOMED CT - Swedish NRC Demonstrator</h4>
+                <!-- <p>This is a demonstration of the use of SNOMED CT for coding clinical information related to the Nutrition Care Process and using the NCPT Reference Set.</p>
+                <p>For more information check the <a href="https://confluence.ihtsdotools.org/display/WIPnutsig/SNOMED+CT+Implementation+Guide+for+the+Nutrition+Care+Process+Terminology" target="_blank">
+                    Implementation Guide</a>.</p> -->
+            </span>
+        </mat-menu>
+    </h3>
+    <div class="button-container">
+        <button mat-flat-button color='primary' (click)="setEnglishContext()">Set English Context</button>
+        <button mat-flat-button color='primary' (click)="setSwedishContext()">Set Swedish Context</button>
+        <button mat-flat-button color='primary' (click)="setSwedishNursingContext()">Set Swedish ICMP Context</button>
+        <button mat-flat-button color='primary' (click)="setSwedishPatientContext()">Set Swedish Common-language Context</button>
+    </div>
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+        <mat-tab *ngFor="let spec of specs" label="{{ spec.spec.title}}">
+            <div class="container">
+                <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
+            </div>
+        </mat-tab>
+        <mat-tab label="NCPT Refset Viewer">
+            <div class="container">
+                <div class="inner-container">
+                    <app-refset-viewer #refsetViewer [title]="'NCPT Refset Viewer'"
+                    [valuesetEcl]="'^ 1303957004 |Nutrition Care Process Terminology reference set|'"
+                    [refsetEditionUri]="'http://snomed.info/sct/705115006/version/20240101'">
+                    </app-refset-viewer>
+                </div>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</div>
