@@ -135,18 +135,30 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   }
 
   updateQuestionnairesList(newQuestionnaire: any): void {
-    // Find the index of the existing questionnaire
-    const index = this.questionnaires.findIndex(q => q.id === newQuestionnaire.id);
-  
-    if (index !== -1) {
-      // Questionnaire exists, replace it
-      this.questionnaires[index] = newQuestionnaire;
-      this.dataSource.data = this.questionnaires;
+    const existingIndex = this.questionnaires.findIndex(q => q.id === newQuestionnaire.id);
+    if (existingIndex !== -1) {
+      this.questionnaires[existingIndex] = newQuestionnaire;
     } else {
-      // Questionnaire does not exist, add it to the array
       this.questionnaires.push(newQuestionnaire);
-      this.dataSource.data = this.questionnaires;
     }
+    this.dataSource.data = this.questionnaires;
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+      this.sort.sortChange.emit(this.sort); // Re-emit to force re-sort
+    }
+    // setTimeout(() => {
+    //   const sortedIndex = this.dataSource.filteredData.findIndex(q => q.id === newQuestionnaire.id);
+    //   console.log('sortedIndex', sortedIndex);
+    //   console.log('pageSize', this.paginator.pageSize);
+    //   const pageIndex = Math.floor(sortedIndex / this.paginator.pageSize) - 1;
+    //   console.log('pageIndex', pageIndex);
+    //   this.paginator.pageIndex = pageIndex;
+    //   this.paginator.page.emit({
+    //     pageIndex,
+    //     pageSize: this.paginator.pageSize,
+    //     length: this.dataSource.filteredData.length
+    //   });
+    // }, 1000);
   }
 
   addQuestionnaire(questionnaire: any) {
@@ -159,15 +171,28 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
       data: "Deleting Questionnaire...",
       panelClass: ['green-snackbar']
     });
-    this.fhirService.deleteQuestionnaire(questionnaire.id).subscribe(() => {
-      // remove from the list by id
-      this.questionnaires = this.questionnaires.filter((q) => q.id !== questionnaire.id);
-      this.dataSource.data = this.questionnaires;
-      this._snackBar.openFromComponent(SnackAlertComponent, {
-        duration: 5 * 1000,
-        data: "Questionnaire deleted successfully",
-        panelClass: ['green-snackbar']
-      });
+    this.fhirService.deleteQuestionnaire(questionnaire.id).subscribe({
+      next: () => {
+        // remove from the list by id
+        this.questionnaires = this.questionnaires.filter((q) => q.id !== questionnaire.id);
+        this.dataSource.data = this.questionnaires;
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: "Questionnaire deleted successfully",
+          panelClass: ['green-snackbar']
+        });
+      },
+      error: (err) => {
+        console.error('Error deleting questionnaire:', err);
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: "Questionnaire deleted with error: verify results",
+          panelClass: ['red-snackbar']
+        });
+        this.questionnaires = [];
+        this.dataSource.data = this.questionnaires;
+        this.loadQuestionnaires();
+      }
     });
   }
 
@@ -247,46 +272,43 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   }
 
   editQuestionnaire(questionnaire: any) {
-    const fbWin = window.open(this.fbUrl + '/window-open?referrer='+encodeURIComponent(window.location.href));
-    window.addEventListener('message', handleFormBuilderMessages, true);
-    let context = this
-    function handleFormBuilderMessages(event: any) {
-      if(event.origin === context.fbUrl) {
+    const fbWin = window.open(
+      this.fbUrl + '/window-open?referrer=' + encodeURIComponent(window.location.href) + '&fhirVersion=R4'
+    );
+    const handleFormBuilderMessages = (event: any) => {
+      if (event.origin === this.fbUrl) {
         const eventType = event.data.type;
-        const reveivedQuestionnaire = event.data.questionnaire;
+        const receivedQuestionnaire = event.data.questionnaire;
         switch (eventType) {
           case 'initialized':
-            fbWin?.postMessage({type: 'initialQuestionnaire', questionnaire: questionnaire}, context.fbUrl);
+            fbWin?.postMessage({ type: 'initialQuestionnaire', questionnaire: questionnaire }, this.fbUrl);
             break;
-    
-          case 'updateQuestionnaire':
-            // Use this to get continuous updates. The message is triggered by every
-            // change in the form builder with about 0.5 second debounce.
-            break;
-    
           case 'closed':
-            context.fhirService.updateOrCreateQuestionnaire(reveivedQuestionnaire, context.selectedUserTag).pipe(first()).subscribe(
+            window.removeEventListener('message', handleFormBuilderMessages, true);
+            this.fhirService.updateOrCreateQuestionnaire(receivedQuestionnaire, this.selectedUserTag).pipe(first()).subscribe(
               (data: any) => {
-                context._snackBar.openFromComponent(SnackAlertComponent, {
+                this._snackBar.openFromComponent(SnackAlertComponent, {
                   duration: 5 * 1000,
                   data: "Questionnaire updated successfully",
                   panelClass: ['green-snackbar']
                 });
-                context.updateQuestionnairesList(data);
+                this.updateQuestionnairesList(data);
               },
               (error: any) => {
-                context._snackBar.openFromComponent(SnackAlertComponent, {
+                this._snackBar.openFromComponent(SnackAlertComponent, {
                   duration: 5 * 1000,
                   data: "Error saving questionnaire",
                   panelClass: ['red-snackbar']
                 });
-              });
+              }
+            );
             break;
         }
       }
-    } 
+    };
+    window.addEventListener('message', handleFormBuilderMessages, true);
   }
-
+  
   async openModularQuestionnaireModal(modularQuestionnaire: any) {
     let data = await this.questionnaireService.getRootQuestionnaireData(modularQuestionnaire);
     const dialogRef = this.dialog.open(CreateRootModuleComponent, {
