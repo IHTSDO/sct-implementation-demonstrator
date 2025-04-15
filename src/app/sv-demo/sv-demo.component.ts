@@ -20,6 +20,17 @@ export class SvDemoComponent implements OnInit {
     { specFile: "Nutrition Diagnosis.json", spec: this.emptySpec },
     { specFile: "NCPT_Intervention_form.json", spec: this.emptySpec },
   ];
+  activeContext: string = '';
+
+  contexts = [
+    { name: 'English', value: 'en-X-900000000000509007' },
+    { name: 'Swedish', value: 'sv-X-46011000052107,en-X-900000000000509007' },
+    { name: 'Swedish Nursing', value: 'sv-X-83461000052100,sv-X-46011000052107,en-X-900000000000509007' },
+    { name: 'Swedish Patient', value: 'sv-X-63451000052100,sv-X-46011000052107,en-X-900000000000509007' }
+  ];
+
+  languageMetadata: any = {};
+  localLanguageMetadata: any = {};
 
   constructor(private http: HttpClient, private terminologyService: TerminologyService) { }
   
@@ -37,14 +48,27 @@ export class SvDemoComponent implements OnInit {
     });
 
     this.terminologyService.context$.subscribe(context => {
+      this.activeContext = context;
       this.loadSpecs();
     });
 
-    this.terminologyService.setLang('sv');
+    this.terminologyService.setLang('sv,en');
     setTimeout(() => {
       this.terminologyService.setFhirUrlParam('http://snomed.info/sct/45991000052106/version/20241130');
     }, 1000);
-    }
+
+    // Load language metadata from https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json
+    this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
+      this.languageMetadata = data;
+      this.setupLanguageMetadata();
+    });
+  }
+
+  setupLanguageMetadata() {
+    // set localLanguageMetadata to the match of moduleUri with ''http://snomed.info/sct/45991000052106'
+    this.localLanguageMetadata = this.languageMetadata.editions.find((lang: any) => lang.moduleUri === 'http://snomed.info/sct/45991000052106');
+    this.localLanguageMetadata.contexts.unshift({ name: 'English', languageDialects: 'en-X-900000000000509007' });
+  }
 
   loadSpecs() {
     this.specs.forEach(async (spec) => {
@@ -62,6 +86,10 @@ export class SvDemoComponent implements OnInit {
     if (this.refsetViewerComponent) {
       this.refsetViewerComponent.cleanAndGetMembers();
     }
+  }
+
+  setContext(context: string) {
+    this.terminologyService.setContext(context);
   }
 
   setEnglishContext() {

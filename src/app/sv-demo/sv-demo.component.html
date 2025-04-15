@@ -13,10 +13,12 @@
         </mat-menu>
     </h3>
     <div class="button-container">
-        <button mat-flat-button color='primary' (click)="setEnglishContext()">Set English Context</button>
-        <button mat-flat-button color='primary' (click)="setSwedishContext()">Set Swedish Context</button>
-        <button mat-flat-button color='primary' (click)="setSwedishNursingContext()">Set Swedish ICMP Context</button>
-        <button mat-flat-button color='primary' (click)="setSwedishPatientContext()">Set Swedish Common-language Context</button>
+        <ng-container *ngFor="let context of localLanguageMetadata.contexts">
+            <button mat-flat-button color='primary' (click)="setContext(context.languageDialects)" 
+                *ngIf="context.languageDialects != activeContext">Set context: {{ context.name }}</button>
+            <button mat-flat-button color='accent' (click)="setContext(context.languageDialects)" 
+                *ngIf="context.languageDialects == activeContext">Set context: {{ context.name }}</button>
+        </ng-container>
     </div>
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
         <mat-tab *ngFor="let spec of specs" label="{{ spec.spec.title}}">
@@ -24,7 +26,7 @@
                 <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
             </div>
         </mat-tab>
-        <mat-tab label="NCPT Refset Viewer">
+        <!-- <mat-tab label="NCPT Refset Viewer">
             <div class="container">
                 <div class="inner-container">
                     <app-refset-viewer #refsetViewer [title]="'NCPT Refset Viewer'"
@@ -33,6 +35,6 @@
                     </app-refset-viewer>
                 </div>
             </div>
-        </mat-tab>
+        </mat-tab> -->
     </mat-tab-group>
 </div>

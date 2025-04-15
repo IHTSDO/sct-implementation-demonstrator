@@ -4,6 +4,7 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 import { BehaviorSubject } from 'rxjs';
+import { set } from 'lodash';
 
 
 type ConceptType = {
@@ -77,14 +78,14 @@ export class TerminologyService {
   setLang(lang: string) {
     this.lang = lang;
     this.langSubject.next(lang);
-    this.languageRefsetConcept = null;
-    this.context = '';
+    this.setLanguageRefsetConcept(null);
+    this.setContext('');
   }
 
   setLanguageRefsetConcept(languageRefsetConcept: any) {
     this.languageRefsetConcept = languageRefsetConcept;
     this.languageRefsetConceptSubject.next(languageRefsetConcept);
-    this.context = '';
+    this.setContext('');
   }
 
   setContext(context: string) {
