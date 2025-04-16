@@ -88,6 +88,12 @@ export class SvDemoComponent implements OnInit {
       spec.spec = data;
     });
 
+    this.nursingSpecs.forEach(async (spec) => {
+      spec.spec = this.emptySpec;
+      const data: any = await lastValueFrom(this.http.get('assets/specs/nursing/' + spec.specFile));
+      spec.spec = data;
+    });
+
     setTimeout(() => {
       this.updateRefset();
     }, 1000);

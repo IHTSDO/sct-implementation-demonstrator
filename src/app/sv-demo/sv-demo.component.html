@@ -12,17 +12,9 @@
             </span>
         </mat-menu>
     </h3>
-    <div class="button-container">
-        <ng-container *ngFor="let context of localLanguageMetadata.contexts">
-            <button mat-flat-button color='primary' (click)="setContext(context.languageDialects)" 
-                *ngIf="context.languageDialects != activeContext">Set context: {{ context.name }}</button>
-            <button mat-flat-button color='accent' (click)="setContext(context.languageDialects)" 
-                *ngIf="context.languageDialects == activeContext">Set context: {{ context.name }}</button>
-        </ng-container>
-    </div>
     <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" *ngIf="initReady">
-        <mat-tab label="Nutrition">
-            <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+        <mat-tab label="NUTRITION">
+            <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" class="mt-4">
                 <mat-tab *ngFor="let spec of nutritionSpecs" label="{{ spec.spec.title}}">
                     <div class="container">
                         <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
@@ -30,8 +22,8 @@
                 </mat-tab>
             </mat-tab-group>
         </mat-tab>
-        <mat-tab label="Nursing">
-            <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+        <mat-tab label="NURSING">
+            <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" class="mt-4">
                 <mat-tab *ngFor="let spec of nursingSpecs" label="{{ spec.spec.title}}">
                     <div class="container">
                         <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>

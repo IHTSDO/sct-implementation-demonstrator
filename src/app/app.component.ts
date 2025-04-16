@@ -7,6 +7,7 @@ import { MenuService } from './services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
 import { catchError, of, skip, Subject, switchMap, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 declare let gtag: Function;
 
@@ -23,10 +24,13 @@ export class AppComponent {
   editionsDetails: any[] = [];
   languages = ['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv'];
   languageRefsets: any[] = [];
+  languageMetadata: any = {};
+  filteredLanguageMetadata: any = {};
   selectedEdition = 'Edition';
   selectedLanguage = 'en';
   selectedLanRefsetConcept: any = null;
-  selectedLanguageContext: string = '';
+  selectedLanguageContext: any = null;
+  selectedLanguageDisplayLabel = 'Language';
   fhirServers = [
     { name: "SNOMED Dev IS", url: "https://dev-is-browser.ihtsdotools.org/fhir"},
     { name: "SNOMED Public", url: "https://snowstorm.ihtsdotools.org/fhir"},
@@ -50,6 +54,7 @@ export class AppComponent {
     private menuService: MenuService,
     private dialog: MatDialog,
     private cdRef: ChangeDetectorRef,
+    private http: HttpClient,
     private activatedRoute: ActivatedRoute) { 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
@@ -84,14 +89,17 @@ export class AppComponent {
 
     this.terminologyService.lang$.subscribe(lang => {
       this.selectedLanguage = lang;
+      this.updateSelectedLabguageLabel();
     });
 
     this.terminologyService.languageRefsetConcept$.subscribe(languageRefsetConcept => {
       this.selectedLanRefsetConcept = languageRefsetConcept;
+      this.updateSelectedLabguageLabel();
     });
 
     this.terminologyService.context$.subscribe(context => {
       this.selectedLanguageContext = context;
+      this.updateSelectedLabguageLabel();
     });
 
     this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
@@ -159,6 +167,36 @@ export class AppComponent {
       )
     )
     .subscribe();
+  
+    this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
+      this.languageMetadata = data;
+      this.setupLanguageMetadata();
+    });
+  }
+
+  setupLanguageMetadata() {
+    // set localLanguageMetadata to the match of moduleUri with ''http://snomed.info/sct/45991000052106'
+    this.filteredLanguageMetadata = this.languageMetadata.editions.find((lang: any) => lang.moduleUri === 'http://snomed.info/sct/45991000052106');
+    this.filteredLanguageMetadata.contexts.unshift({ name: 'English', languageDialects: 'en-X-900000000000509007' });
+  }
+
+  updateSelectedLabguageLabel() {
+    const activeLanguage = this.terminologyService.getComputedLanguageContext();
+    if (activeLanguage && typeof activeLanguage === 'string') {
+      if (!activeLanguage.includes('-X-')) {
+        this.selectedLanguageDisplayLabel = activeLanguage;
+      } else {
+        const languageParts = activeLanguage.split('-X-');
+        this.selectedLanguageDisplayLabel = languageParts[0] + "*";
+      }
+    } else if (activeLanguage && typeof activeLanguage === 'object') {
+      this.selectedLanguageDisplayLabel = activeLanguage['name'];
+    }
+    this.cdRef.detectChanges();
+}
+
+  setContext(context: string) {
+    this.terminologyService.setContext(context);
   }
 
   navigate(demo: any) {

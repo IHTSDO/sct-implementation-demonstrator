@@ -4,7 +4,6 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 import { BehaviorSubject } from 'rxjs';
-import { set } from 'lodash';
 
 
 type ConceptType = {
@@ -27,6 +26,7 @@ type NormalForm = {
 
 export class TerminologyService {
   
+  
   snowstormFhirBase = 'https://snowstorm.ihtsdotools.org/fhir';
   defaultFhirUrlParam = 'http://snomed.info/sct'; // 'http://snomed.info/sct/11000221109/version/20211130'
   fhirUrlParam = this.defaultFhirUrlParam;
@@ -37,8 +37,8 @@ export class TerminologyService {
   private fhirUrlParamSubject = new BehaviorSubject<string>(this.fhirUrlParam);
   private langSubject = new BehaviorSubject<string>(this.lang);
   private languageRefsetConceptSubject = new BehaviorSubject<any>(this.languageRefsetConcept);
-  private context: string = '';
-  private contextSubject = new BehaviorSubject<string>(this.context);
+  private context!: any;
+  private contextSubject = new BehaviorSubject<any>(this.context);
 
   private expandValuesetCache = new Map<string, { timestamp: number, data: any }>();
   private readonly CACHE_LIMIT = 100;
@@ -79,16 +79,16 @@ export class TerminologyService {
     this.lang = lang;
     this.langSubject.next(lang);
     this.setLanguageRefsetConcept(null);
-    this.setContext('');
+    this.setContext(null);
   }
 
   setLanguageRefsetConcept(languageRefsetConcept: any) {
     this.languageRefsetConcept = languageRefsetConcept;
     this.languageRefsetConceptSubject.next(languageRefsetConcept);
-    this.setContext('');
+    this.setContext(null);
   }
 
-  setContext(context: string) {
+  setContext(context: any) {
     this.context = context;
     this.contextSubject.next(context);
   }
@@ -115,7 +115,7 @@ export class TerminologyService {
 
   getComputedLanguageContext(): string {
     if (this.context) {
-      return this.context;
+      return this.context.languageDialects;
     } else if (this.languageRefsetConcept) {
       return this.lang + '-X-' + this.languageRefsetConcept.code
     } else return this.lang;
