@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CodingSpecService } from './services/coding-spec.service';
 import { ExcelService } from './services/excel.service';
 import { TerminologyService } from './services/terminology.service';
@@ -6,7 +6,7 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { MenuService } from './services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
-import { skip } from 'rxjs';
+import { catchError, of, skip, Subject, switchMap, tap } from 'rxjs';
 
 declare let gtag: Function;
 
@@ -35,11 +35,13 @@ export class AppComponent {
     { name: "LOINC Ontology Server", url: "https://browser.loincsnomed.org/fhir"},
     { name: "Ontoserver", url: "https://r4.ontoserver.csiro.au/fhir"},
     { name: "SNOMED Dev 1", url: "https://dev-browser.ihtsdotools.org/fhir"},
+    { name: "Implementation Demo", url: "https://implementation-demo.snomedtools.org/fhir"},
   ];
   selectedServer = this.fhirServers[1];
   embeddedMode: boolean = false;
-
   demos: any[] = [];
+
+  private updateCodeSystemOptionsTrigger$ = new Subject<string | undefined>();
 
   constructor( private codingSpecService: CodingSpecService, 
     public excelService: ExcelService, 
@@ -47,6 +49,7 @@ export class AppComponent {
     public router: Router,
     private menuService: MenuService,
     private dialog: MatDialog,
+    private cdRef: ChangeDetectorRef,
     private activatedRoute: ActivatedRoute) { 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
@@ -106,11 +109,56 @@ export class AppComponent {
         this.fhirServers.forEach(loopServer => {
           if (loopServer.url === url) {
             this.selectedServer = loopServer;
+            this.cdRef.detectChanges();
             this.updateCodeSystemOptions()
           }
         });
       }
     });
+
+    this.updateCodeSystemOptionsTrigger$.pipe(
+      switchMap((preselectedEdition) =>
+        this.terminologyService.getCodeSystems().pipe(
+          catchError(err => {
+            console.error('Failed to update code systems:', err);
+            return of(null);
+          }),
+          tap((response: any) => {
+            if (!response) return;
+            this.editionsDetails = [];
+            this.editions = response.entry?.filter((el: any) => el.resource?.url?.includes('snomed.info')) || [];
+            const editionNames = new Set<string>();
+
+            this.editions.forEach(loopEdition => {
+              editionNames.add(loopEdition.resource.title);
+            });
+
+            editionNames.forEach(editionName => {
+              this.editionsDetails.push({
+                editionName,
+                editions: this.editions
+                  .filter(el => el.resource?.title?.includes(editionName))
+                  .sort(this.compare),
+              });
+            });
+
+            const currentVerIndex = this.editionsDetails.findIndex(x => x.editionName === 'International Edition');
+            if (preselectedEdition) {
+              this.editions.forEach(loopEdition => {
+                if (loopEdition.resource.version === preselectedEdition) {
+                  this.setEdition(loopEdition);
+                }
+              });
+            } else if (currentVerIndex >= 0) {
+              this.setEdition(this.editionsDetails[currentVerIndex].editions[0]);
+            } else if (this.editions.length > 0) {
+              this.setEdition(this.editions[0]);
+            }
+          })
+        )
+      )
+    )
+    .subscribe();
   }
 
   navigate(demo: any) {
@@ -126,37 +174,7 @@ export class AppComponent {
   }
 
   updateCodeSystemOptions(preselectedEdition?: string) {
-    this.terminologyService.getCodeSystems().subscribe((response: any) => {
-      this.editionsDetails = [];
-      this.editions = response.entry;
-      // remove all entries that don't include SNOMED in the title
-      this.editions = this.editions.filter( el => (el.resource?.url?.includes('snomed.info')));
-      let editionNames = new Set();
-      this.editions.forEach(loopEdition => {
-        editionNames.add(loopEdition.resource.title);
-        // editionNames.add(loopEdition.resource.title.substr(0,loopEdition.resource.title.lastIndexOf(' ')));
-      });
-      editionNames.forEach(editionName => {
-        this.editionsDetails.push(
-          {
-            editionName: editionName,
-            editions: this.editions.filter( el => (el.resource?.title?.includes(editionName))).sort( this.compare )
-          }
-        );
-      });
-      let currentVerIndex = this.editionsDetails.findIndex(x => x.editionName === 'International Edition'); //  SNOMED CT release
-      if (preselectedEdition) {
-        this.editions.forEach(loopEdition => {
-          if (loopEdition.resource.version === preselectedEdition) {
-            this.setEdition(loopEdition);
-          }
-        });
-      } else if (currentVerIndex >= 0) {
-        this.setEdition(this.editionsDetails[currentVerIndex].editions[0]);
-      } else {
-        this.setEdition(this.editions[0]);
-      }
-    });
+    this.updateCodeSystemOptionsTrigger$.next(preselectedEdition);
   }
 
   compare( a: any, b: any ) {

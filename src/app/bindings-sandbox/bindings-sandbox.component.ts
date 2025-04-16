@@ -348,7 +348,7 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   getAnswerValueSet(binding: any) {
-    return `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`;
+    return `http://snomed.info/sct/900000000000207008?fhir_vs=ecl/${binding.ecl}`;
   }
 
   async getEclPreview(ecl: string): Promise<any> {

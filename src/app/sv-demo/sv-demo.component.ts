@@ -15,10 +15,14 @@ export class SvDemoComponent implements OnInit {
   @ViewChild('refsetViewer') refsetViewerComponent: RefsetViewerComponent | undefined;
 
   emptySpec: any = {};
-  specs = [
+  nutritionSpecs = [
     { specFile: "Nutrition Assessment.json", spec: this.emptySpec },
     { specFile: "Nutrition Diagnosis.json", spec: this.emptySpec },
     { specFile: "NCPT_Intervention_form.json", spec: this.emptySpec },
+  ];
+
+  nursingSpecs = [
+    { specFile: "Nursing Assessment sv.json", spec: this.emptySpec },
   ];
   activeContext: string = '';
 
@@ -31,31 +35,37 @@ export class SvDemoComponent implements OnInit {
 
   languageMetadata: any = {};
   localLanguageMetadata: any = {};
+  initReady: boolean = false;
 
   constructor(private http: HttpClient, private terminologyService: TerminologyService) { }
   
   ngOnInit() {
-    this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
-      this.loadSpecs();
-    });
-
-    this.terminologyService.snowstormFhirBase$.subscribe(url => {
-      this.loadSpecs();
-    });
-
-    this.terminologyService.lang$.subscribe(lang => {
-      this.loadSpecs();
-    });
-
-    this.terminologyService.context$.subscribe(context => {
-      this.activeContext = context;
-      this.loadSpecs();
-    });
-
-    this.terminologyService.setLang('sv,en');
+    this.terminologyService.setSnowstormFhirBase('https://implementation-demo.snomedtools.org/fhir');
     setTimeout(() => {
-      this.terminologyService.setFhirUrlParam('http://snomed.info/sct/45991000052106/version/20241130');
-    }, 1000);
+      this.terminologyService.setLang('sv,en');
+      setTimeout(() => {
+        this.terminologyService.setFhirUrlParam('http://snomed.info/sct/45991000052106/version/20241130');
+        setTimeout(() => {
+          this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
+            this.loadSpecs();
+          });
+      
+          this.terminologyService.snowstormFhirBase$.subscribe(url => {
+            this.loadSpecs();
+          });
+      
+          this.terminologyService.lang$.subscribe(lang => {
+            this.loadSpecs();
+          });
+      
+          this.terminologyService.context$.subscribe(context => {
+            this.activeContext = context;
+            this.loadSpecs();
+          });
+          this.initReady = true;
+        }, 100);
+      }, 100);
+    }, 100);
 
     // Load language metadata from https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json
     this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
@@ -64,6 +74,7 @@ export class SvDemoComponent implements OnInit {
     });
   }
 
+
   setupLanguageMetadata() {
     // set localLanguageMetadata to the match of moduleUri with ''http://snomed.info/sct/45991000052106'
     this.localLanguageMetadata = this.languageMetadata.editions.find((lang: any) => lang.moduleUri === 'http://snomed.info/sct/45991000052106');
@@ -71,7 +82,7 @@ export class SvDemoComponent implements OnInit {
   }
 
   loadSpecs() {
-    this.specs.forEach(async (spec) => {
+    this.nutritionSpecs.forEach(async (spec) => {
       spec.spec = this.emptySpec;
       const data: any = await lastValueFrom(this.http.get('assets/specs/ncpt/' + spec.specFile));
       spec.spec = data;

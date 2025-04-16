@@ -20,21 +20,24 @@
                 *ngIf="context.languageDialects == activeContext">Set context: {{ context.name }}</button>
         </ng-container>
     </div>
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-        <mat-tab *ngFor="let spec of specs" label="{{ spec.spec.title}}">
-            <div class="container">
-                <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
-            </div>
+    <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" *ngIf="initReady">
+        <mat-tab label="Nutrition">
+            <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+                <mat-tab *ngFor="let spec of nutritionSpecs" label="{{ spec.spec.title}}">
+                    <div class="container">
+                        <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
         </mat-tab>
-        <!-- <mat-tab label="NCPT Refset Viewer">
-            <div class="container">
-                <div class="inner-container">
-                    <app-refset-viewer #refsetViewer [title]="'NCPT Refset Viewer'"
-                    [valuesetEcl]="'^ 1303957004 |Nutrition Care Process Terminology reference set|'"
-                    [refsetEditionUri]="'http://snomed.info/sct/705115006/version/20240101'">
-                    </app-refset-viewer>
-                </div>
-            </div>
-        </mat-tab> -->
+        <mat-tab label="Nursing">
+            <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+                <mat-tab *ngFor="let spec of nursingSpecs" label="{{ spec.spec.title}}">
+                    <div class="container">
+                        <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </mat-tab>
     </mat-tab-group>
 </div>
