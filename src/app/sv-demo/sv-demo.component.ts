@@ -42,7 +42,7 @@ export class SvDemoComponent implements OnInit {
   ngOnInit() {
     this.terminologyService.setSnowstormFhirBase('https://implementation-demo.snomedtools.org/fhir');
     setTimeout(() => {
-      this.terminologyService.setLang('sv,en');
+      this.terminologyService.setContext(this.localLanguageMetadata.contexts[1]);
       setTimeout(() => {
         this.terminologyService.setFhirUrlParam('http://snomed.info/sct/45991000052106/version/20241130');
         setTimeout(() => {
@@ -63,9 +63,9 @@ export class SvDemoComponent implements OnInit {
             this.loadSpecs();
           });
           this.initReady = true;
-        }, 100);
-      }, 100);
-    }, 100);
+        }, 1000);
+      }, 1000);
+    }, 1000);
 
     // Load language metadata from https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json
     this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
