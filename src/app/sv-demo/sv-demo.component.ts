@@ -42,7 +42,11 @@ export class SvDemoComponent implements OnInit {
   ngOnInit() {
     this.terminologyService.setSnowstormFhirBase('https://implementation-demo.snomedtools.org/fhir');
     setTimeout(() => {
-      this.terminologyService.setContext(this.localLanguageMetadata.contexts[1]);
+      if (this.localLanguageMetadata?.contexts[1]) {
+        this.terminologyService.setContext(this.localLanguageMetadata.contexts[1]);
+      } else {
+        this.terminologyService.setLang('sv,en');
+      }
       setTimeout(() => {
         this.terminologyService.setFhirUrlParam('http://snomed.info/sct/45991000052106/version/20241130');
         setTimeout(() => {
