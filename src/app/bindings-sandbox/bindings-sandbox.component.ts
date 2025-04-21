@@ -348,7 +348,7 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   getAnswerValueSet(binding: any) {
-    return `http://snomed.info/sct/900000000000207008?fhir_vs=ecl/${binding.ecl}`;
+    return `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`;
   }
 
   async getEclPreview(ecl: string): Promise<any> {
@@ -575,6 +575,11 @@ export class BindingsSandboxComponent implements OnInit {
   saveOutput(text: string) {
     var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
     saveAs(blob, `${this.formTitle}-data.json`);
+  }
+
+  saveFhirQuestionnaire(text: string) {
+    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, `${this.formTitle}-fhir-questionnaire.json`);
   }
 
   saveBundleOutput(text: string) {

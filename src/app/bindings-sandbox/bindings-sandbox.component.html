@@ -122,7 +122,7 @@
                 </button>
                 <mat-menu #demosMenu="matMenu" class="wide-menu">
                     <button mat-menu-item (click)="saveForm()">Download</button>
-                    <button mat-menu-item (click)="saveOutput(fhirQuestionnaireStr)">Download as FHIR Questionnaire</button>
+                    <button mat-menu-item (click)="saveFhirQuestionnaire(fhirQuestionnaireStr)">Download as FHIR Questionnaire</button>
                 </mat-menu>
                 <button mat-flat-button color="accent" (click)="fileInput.click()">Upload form</button>
                 <button mat-flat-button color="accent" (click)="loadExample1()">Example</button>
@@ -230,7 +230,7 @@
                 <mat-tab label="FHIR Questionnaire">
                     <div class="output" *ngIf="bindings.length > 0">
                         <div id="save" *ngIf="showRightContainer">
-                            <button mat-icon-button (click)="saveOutput(fhirQuestionnaireStr)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+                            <button mat-icon-button (click)="saveFhirQuestionnaire(fhirQuestionnaireStr)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
                             <button mat-icon-button (click)="copyOutputToClipboard(fhirQuestionnaireStr)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
                         </div>
                         <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirQuestionnaireStr" wrap="soft">
