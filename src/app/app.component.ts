@@ -68,7 +68,6 @@ export class AppComponent {
 
   ngOnInit(): void {
     this.demos = this.menuService.getDemos();
-    this.setFhirServer(this.selectedServer);
     this.bindingsForExport = [];
     let spec: any[] = this.codingSpecService.getCodingSpec();
     for (const section of spec) {
@@ -76,53 +75,6 @@ export class AppComponent {
         this.bindingsForExport.push({ section: section.title, title: binding.title, ecl: binding.ecl.replace(/\s\s+/g, ' ') })
       }
     }
-    this.activatedRoute.queryParams.pipe().subscribe(params => {
-      if (params['embedded'] === 'true') {
-        this.embeddedMode = true;
-      } else {
-        this.embeddedMode = false;
-      }
-      if (params['edition']) {
-        this.updateCodeSystemOptions(params['edition']);
-      } 
-    });
-
-    this.terminologyService.lang$.subscribe(lang => {
-      this.selectedLanguage = lang;
-      this.updateSelectedLabguageLabel();
-    });
-
-    this.terminologyService.languageRefsetConcept$.subscribe(languageRefsetConcept => {
-      this.selectedLanRefsetConcept = languageRefsetConcept;
-      this.updateSelectedLabguageLabel();
-    });
-
-    this.terminologyService.context$.subscribe(context => {
-      this.selectedLanguageContext = context;
-      this.updateSelectedLabguageLabel();
-    });
-
-    this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
-      if (this.editions?.length > 0) {
-        this.editions.forEach(loopEdition => {
-          if (loopEdition.resource.version === urlParam) {
-            this.selectedEdition = loopEdition.resource.title?.replace('SNOMED CT release ','');
-          }
-        });
-      }
-    });
-
-    this.terminologyService.snowstormFhirBase$.subscribe(url => {
-      if (this.fhirServers?.length > 0) {
-        this.fhirServers.forEach(loopServer => {
-          if (loopServer.url === url) {
-            this.selectedServer = loopServer;
-            this.cdRef.detectChanges();
-            this.updateCodeSystemOptions()
-          }
-        });
-      }
-    });
 
     this.updateCodeSystemOptionsTrigger$.pipe(
       switchMap((preselectedEdition) =>
@@ -167,6 +119,56 @@ export class AppComponent {
       )
     )
     .subscribe();
+
+    this.activatedRoute.queryParams.pipe().subscribe(params => {
+      if (params['embedded'] === 'true') {
+        this.embeddedMode = true;
+      } else {
+        this.embeddedMode = false;
+      }
+      if (params['edition']) {
+        this.updateCodeSystemOptions(params['edition']);
+      } 
+    });
+
+    this.terminologyService.lang$.subscribe(lang => {
+      this.selectedLanguage = lang;
+      this.updateSelectedLabguageLabel();
+    });
+
+    this.terminologyService.languageRefsetConcept$.subscribe(languageRefsetConcept => {
+      this.selectedLanRefsetConcept = languageRefsetConcept;
+      this.updateSelectedLabguageLabel();
+    });
+
+    this.terminologyService.context$.subscribe(context => {
+      this.selectedLanguageContext = context;
+      this.updateSelectedLabguageLabel();
+    });
+
+    this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
+      if (this.editions?.length > 0) {
+        this.editions.forEach(loopEdition => {
+          if (loopEdition.resource.version === urlParam) {
+            this.selectedEdition = loopEdition.resource.title?.replace('SNOMED CT release ','');
+          }
+        });
+        this.setupLanguageMetadata();
+      }
+    });
+
+    this.terminologyService.snowstormFhirBase$.subscribe(url => {
+      if (this.fhirServers?.length > 0) {
+        this.fhirServers.forEach(loopServer => {
+          if (loopServer.url === url) {
+            this.selectedServer = loopServer;
+            this.cdRef.detectChanges();
+            this.updateCodeSystemOptions()
+          }
+        });
+      }
+    });
+    this.setFhirServer(this.selectedServer);
   
     this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
       this.languageMetadata = data;
@@ -175,9 +177,21 @@ export class AppComponent {
   }
 
   setupLanguageMetadata() {
-    // set localLanguageMetadata to the match of moduleUri with ''http://snomed.info/sct/45991000052106'
-    this.filteredLanguageMetadata = this.languageMetadata.editions.find((lang: any) => lang.moduleUri === 'http://snomed.info/sct/45991000052106');
-    this.filteredLanguageMetadata.contexts.unshift({ name: 'English', languageDialects: 'en-X-900000000000509007' });
+    let editionUri = this.terminologyService.getFhirUrlParam();
+    // Remve the verssion data from the editionUri (http://snomed.info/sct/900000000000207008/version/20250501 to http://snomed.info/sct/900000000000207008)
+    if (editionUri.includes('/version/')) {
+      const editionUriParts = editionUri.split('/');
+      editionUriParts.pop();
+      editionUriParts.pop();
+      editionUri = editionUriParts.join('/');
+    }
+    // Find the editionUri in the languageMetadata
+    this.filteredLanguageMetadata = this.languageMetadata.editions.find((lang: any) => lang.moduleUri === editionUri);
+    if (!this.filteredLanguageMetadata) {
+      this.filteredLanguageMetadata = { contexts: [] };
+    }
+    this.filteredLanguageMetadata.contexts.push({ name: 'US English', languageDialects: 'en-X-900000000000509007' });
+    this.setContext(this.filteredLanguageMetadata.contexts[0]);
   }
 
   updateSelectedLabguageLabel() {
@@ -195,7 +209,7 @@ export class AppComponent {
     this.cdRef.detectChanges();
 }
 
-  setContext(context: string) {
+  setContext(context: any) {
     this.terminologyService.setContext(context);
   }
 

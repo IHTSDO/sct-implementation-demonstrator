@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, UntypedFormControl } from '@angular/forms';
-import {debounceTime, distinctUntilChanged, map, startWith, switchMap,tap} from 'rxjs/operators';
-import {Observable, of, Subject} from 'rxjs';
+import {debounceTime, distinctUntilChanged, finalize, map, startWith, switchMap,tap} from 'rxjs/operators';
+import {concat, Observable, of, Subject} from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
 import { MatFormFieldControl } from '@angular/material/form-field';
 
@@ -85,27 +85,32 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
             this.formControl.setValue(this.term);
         }
     }
-}
+  }
 
 
   ngOnInit(): void {
-    this.autoFilter  = this.formControl.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap((term: string) =>  {
-        if (term?.length >= 3) {
-          this.loading = true;
-          let response = this.terminologyService.expandValueSet(this.binding.ecl, term, 0, 50)
-          return response;
-        } else {
+      this.autoFilter = this.formControl.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        /** 1️⃣  Launch request only when term ≥ 3 chars */
+        switchMap((term: string) => {
+          if (term?.length >= 3) {
+            this.loading = true;
+            /** 2️⃣  Emit [] immediately, then emit the server result */
+            return concat(
+              of([]),                                                   // clears the panel
+              this.terminologyService
+                  .expandValueSet(this.binding.ecl, term, 0, 50)
+                  .pipe(
+                    map(r => r.expansion.contains ?? []),               // extract concepts
+                    finalize(() => (this.loading = false))              // turn spinner off
+                  )
+            );
+          }
+          /** 3️⃣  Short queries → always empty */
           return of([]);
-        }
-        
-      }),
-      tap((data: any) => {
-        this.loading = false;
-      })
-    );  
+        })
+      );
   }
 
   onTermChange() {

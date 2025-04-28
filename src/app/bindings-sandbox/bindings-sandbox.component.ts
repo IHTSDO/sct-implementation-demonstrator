@@ -432,7 +432,6 @@ export class BindingsSandboxComponent implements OnInit {
       "type": "collection",
       "entry": []
     };
-    console.log(this.response);
     for (let [key, valuet] of Object.entries(this.response)) {
       let value = valuet as any;
       // Using optional chaining to safely access nested properties

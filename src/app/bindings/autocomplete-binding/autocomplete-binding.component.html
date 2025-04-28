@@ -10,9 +10,8 @@
     <mat-option disabled class="loading" *ngIf="loading">
       <mat-spinner diameter="35"></mat-spinner>
     </mat-option>
-    <mat-option *ngFor="let item of (autoFilter | async)?.expansion?.contains"
-      [value]="item">
-      <span class="code">{{item.code}}</span>{{item.display}}
+    <mat-option *ngFor="let concept of autoFilter | async" [value]="concept">
+      {{ concept.display }}
     </mat-option>
   </mat-autocomplete>
 </mat-form-field>
