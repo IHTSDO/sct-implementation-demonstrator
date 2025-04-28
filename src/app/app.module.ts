@@ -93,6 +93,7 @@ import { RefsetViewerComponent } from './util/refset-viewer/refset-viewer.compon
 import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
 import { NgxGaugeModule } from 'ngx-gauge';
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 const app = initializeApp(firebaseConfig);
 
@@ -186,6 +187,7 @@ const app = initializeApp(firebaseConfig);
         MatSliderModule,
         MatChipsModule,
         NgxGaugeModule,
+        NgxMatSelectSearchModule,
         MatPaginatorModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 
 export class AppModule { }

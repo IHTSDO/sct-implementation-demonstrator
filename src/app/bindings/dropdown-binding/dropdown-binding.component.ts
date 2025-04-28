@@ -1,27 +1,58 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { TerminologyService } from '../../services/terminology.service';
+import { FormControl } from '@angular/forms';
+import { Subject, takeUntil, startWith, map } from 'rxjs';
 
 @Component({
-    selector: 'app-dropdown-binding',
-    templateUrl: './dropdown-binding.component.html',
-    styleUrls: ['./dropdown-binding.component.css'],
-    standalone: false
+  selector: 'app-dropdown-binding',
+  templateUrl: './dropdown-binding.component.html',
+  styleUrls: ['./dropdown-binding.component.css'],
+  standalone: false
 })
-export class DropdownBindingComponent implements OnInit {
-  @Input() binding: any;
-  @Output() selectionChange = new EventEmitter<any>();
+export class DropdownBindingComponent implements OnInit, OnDestroy {
+  @Input()  binding!: any;
+  @Output() selectionChange = new EventEmitter<any[]>();
 
-  options: any[] | undefined;
-  selectedOptions: any[] | undefined;
+  private options: any[] = [];
+  filteredOptions: any[] = [];
+  selectedOptions: any[] = [];
+  searchCtrl = new FormControl('');
+  showSearch = false;
 
-  constructor(private terminologyService: TerminologyService) { }
+  private destroy$ = new Subject<void>();
+
+  constructor(private terminologyService: TerminologyService) {}
 
   ngOnInit(): void {
-    this.terminologyService.expandValueSet(this.binding.ecl, '').subscribe(response => this.options = response.expansion.contains)
+    this.terminologyService.expandValueSet(this.binding.ecl, '')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => {
+        this.options         = res.expansion.contains;
+        this.filteredOptions = [...this.options];
+
+        // decide whether search should be available
+        this.showSearch = this.options.length > 5;
+        if (!this.showSearch) {
+          this.searchCtrl.disable({ emitEvent: false });
+        }
+      });
+
+    this.searchCtrl.valueChanges
+      .pipe(
+        startWith(''),
+        map(term => (term ?? '').toLowerCase()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(term => {
+        if (this.showSearch) {
+          this.filteredOptions = this.options
+            .filter(o => o.display.toLowerCase().includes(term));
+        }
+      });
   }
 
-  optionClicked() {
-    this.selectionChange.emit(this.selectedOptions);
-  }
+  /** emit selected values to parent */
+  notify() { this.selectionChange.emit(this.selectedOptions); }
 
+  ngOnDestroy() { this.destroy$.next(); this.destroy$.complete(); }
 }
