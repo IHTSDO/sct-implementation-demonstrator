@@ -22,7 +22,8 @@ export class SvDemoComponent implements OnInit {
   ];
 
   nursingSpecs = [
-    { specFile: "Nursing Assessment sv.json", spec: this.emptySpec },
+    { specFile: "sv-demo-nutrition.json", spec: this.emptySpec },
+    // { specFile: "Nursing Assessment sv.json", spec: this.emptySpec },
   ];
   activeContext: string = '';
 

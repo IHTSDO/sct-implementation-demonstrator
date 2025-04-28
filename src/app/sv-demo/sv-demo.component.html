@@ -13,18 +13,18 @@
         </mat-menu>
     </h3>
     <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" *ngIf="initReady">
-        <mat-tab label="NUTRITION">
+        <mat-tab label="NURSING">
             <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" class="mt-4">
-                <mat-tab *ngFor="let spec of nutritionSpecs" label="{{ spec.spec.title}}">
+                <mat-tab *ngFor="let spec of nursingSpecs" label="{{ spec.spec.title}}">
                     <div class="container">
                         <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
                     </div>
                 </mat-tab>
             </mat-tab-group>
         </mat-tab>
-        <mat-tab label="NURSING">
+        <mat-tab label="NUTRITION">
             <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" class="mt-4">
-                <mat-tab *ngFor="let spec of nursingSpecs" label="{{ spec.spec.title}}">
+                <mat-tab *ngFor="let spec of nutritionSpecs" label="{{ spec.spec.title}}">
                     <div class="container">
                         <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
                     </div>
