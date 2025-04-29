@@ -37,6 +37,7 @@ export class SvDemoComponent implements OnInit {
   languageMetadata: any = {};
   localLanguageMetadata: any = {};
   initReady: boolean = false;
+  antropometriskQuestionnaire: any;
 
   constructor(private http: HttpClient, private terminologyService: TerminologyService) { }
   
@@ -98,10 +99,39 @@ export class SvDemoComponent implements OnInit {
       const data: any = await lastValueFrom(this.http.get('assets/specs/nursing/' + spec.specFile));
       spec.spec = data;
     });
-
+    this.loadLForms();
     setTimeout(() => {
       this.updateRefset();
     }, 1000);
+  }
+
+  async loadLForms() {
+    const script = document.createElement('script');
+    script.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/36.3.2/webcomponent/lhc-forms.js'; // Replace with the actual URL of your JS library
+    script.onload = () => {
+      const script2 = document.createElement('script');
+      script2.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/36.3.2/fhir/R4/lformsFHIR.min.js'; // Replace with the actual URL of your JS library
+      script2.onload = () => {
+        // this.loadQuestionnaires();
+      };
+      document.head.appendChild(script2);
+    };
+    document.head.appendChild(script);
+  }
+
+  async loadQuestionnaires() {
+    const qdata: any = await lastValueFrom(this.http.get('assets/specs/ncpt/Antropometrisk.R4.json'));
+    this.antropometriskQuestionnaire = qdata;
+    LForms.Util.addFormToPage(this.antropometriskQuestionnaire, 'myFormContainer');
+  }
+
+  onNutritionTabChange(event: any) {
+    const tabIndex = event.index;
+    const isLastTab = tabIndex === this.nutritionSpecs.length;  // because all nutritionSpecs tabs come first
+  
+    if (isLastTab && !this.antropometriskQuestionnaire) {
+      this.loadQuestionnaires();
+    }
   }
 
   updateRefset() {
