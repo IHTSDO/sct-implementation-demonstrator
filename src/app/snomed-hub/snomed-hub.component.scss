@@ -1,0 +1,57 @@
+/* 5×5 grid: zonas nombradas para reproducir la L y el bloque superior */
+.hub-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, minmax(60px, auto));
+    gap: .6rem;
+  
+    // Áreas
+    grid-template-areas:
+      "maps maps maps maps maps"
+      "content center center center side"
+      "content center center center side"
+      "content center center center side"
+      "foot  foot  foot  foot  side";
+  
+    height: 100%;
+  }
+  
+  /* Posicionamos cada sección */
+  .section.content  { grid-area: content; }
+  .section.maps     { grid-area: maps;    }
+  .section.refsets  { grid-area: foot;    }  // pie = L inferior
+  .section.side     { grid-area: side;    }  // banda derecha
+  .section.extensions {                      // triángulo inferior-izq.
+    grid-area: content;
+    align-self: end;
+    justify-self: end;
+    clip-path: polygon(0 100%, 100% 100%, 100% 0);
+  }
+  
+  .section {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  
+    .box {
+      margin: .25rem 0;
+      font-size: .7rem;
+      white-space: normal;
+      text-align: left;
+    }
+  }
+  
+  /* Colores (podés usar palette Angular Material) */
+  .purple  { background: #6f5ea910; border-left: 4px solid #6f5ea9; }
+  .orange  { background: #d3952c10; border-top: 4px solid #d3952c;  }
+  .blue    { background: #0b395410; border-bottom: 4px solid #0b3954;}
+  .teal    { background: #2c7c7c10; border-right: 4px solid #2c7c7c; }
+  
+  /* Central search */
+  .center {
+    grid-area: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

@@ -1,0 +1,35 @@
+<div style="transform: scale(0.75); transform-origin: top center;">
+    <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto;">
+        <g transform="translate(0, -150)">
+            <!-- Central SNOMED block -->
+            <rect [attr.x]="centerX - 100" [attr.y]="centerY - 100" width="200" height="200" fill="#3B9CD9" />
+            <text [attr.x]="centerX" [attr.y]="centerY" text-anchor="middle" dominant-baseline="middle" font-size="18" fill="white" font-family="Arial">
+            SNOMED
+            <tspan [attr.x]="centerX" dy="1.2em">International</tspan>
+            </text>
+        
+            <!-- Loop through boxes -->
+            <g *ngFor="let box of boxes; index as i">
+                <ng-container *ngIf="getBoxPosition(i) as pos">
+                    <rect
+                    [attr.x]="pos.x"
+                    [attr.y]="pos.y"
+                    [attr.width]="box.width"
+                    [attr.height]="box.height"
+                    [attr.fill]="box.fill"
+                    stroke="#000" />
+                    <text
+                    [attr.x]="pos.x + box.width / 2"
+                    [attr.y]="pos.y + box.height / 2"
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                    font-size="10"
+                    font-family="Arial">
+                    {{ box.label }}
+                    </text>
+                </ng-container>
+            </g>
+        </g>
+    </svg>
+</div>
+  

@@ -94,6 +94,7 @@ import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturi
 import { NgxGaugeModule } from 'ngx-gauge';
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -150,7 +151,8 @@ const app = initializeApp(firebaseConfig);
         FlipCardComponent,
         RefsetViewerComponent,
         MaturityDashboardComponent,
-        SvDemoComponent
+        SvDemoComponent,
+        SnomedHubComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,
