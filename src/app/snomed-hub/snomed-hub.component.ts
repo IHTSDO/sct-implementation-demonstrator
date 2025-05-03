@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { SnomedBox } from './models';
 
 @Component({
   selector: 'app-snomed-hub',
@@ -8,58 +7,65 @@ import { SnomedBox } from './models';
   standalone: false
 })
 export class SnomedHubComponent {
-  centerX = 400;
-  centerY = 400;
-  boxSpacing = 20;
-  boxOffset = 200; // distance from center to square boundary
 
-  boxes: SnomedBox[] = [
-    { label: 'AAP/EPF Periodontal', width: 120, height: 50, fill: 'white' },
-    { label: 'GMDN devices', width: 120, height: 50, fill: 'white' },
-    { label: 'ICD-10', width: 120, height: 50, fill: 'white' },
-    { label: 'ICD-11 MMS', width: 120, height: 50, fill: 'white' },
-    { label: 'ICD-O', width: 120, height: 50, fill: 'white' },
-    { label: 'HPO', width: 120, height: 50, fill: 'white' },
-    { label: 'MedDRA', width: 120, height: 50, fill: 'white' },
-    { label: 'Orphanet', width: 120, height: 50, fill: 'white' },
-    { label: 'INCP', width: 120, height: 50, fill: 'white' }
-    // Add more as needed
+  searchBinding = { ecl: '*', title: 'Search a SNOMED CT concept...' };
+  selectedCode: any = null;
+  selectedCodeTerm = "";
+
+  topRow: SnomedBox[] = [
+    { label: 'AAP/EPF Periodontal', type: 'content', title: false },
+    { label: 'GMDN devices', type: 'content', title: true },
+    { label: 'ADA SNODENT', type: 'content', title: false },
+    { label: 'EDQM dose forms', type: 'content', title: false },
+    { label: 'ICD‑10', type: 'map', title: false },
+    { label: 'ICD‑11 MMS', type: 'map', title: false },
+    { label: 'ICD‑O', type: 'map', title: true },
+    { label: 'HPO', type: 'map', title: false }
   ];
 
-  getBoxPosition(index: number): { x: number; y: number } {
-    const total = this.boxes.length;
-    const sideLength = this.boxOffset * 2;
-    const perimeter = sideLength * 4;
-    const boxSpacing = perimeter / total;
-    const distance = boxSpacing * index;
-  
-    let x = 0;
-    let y = 0;
-  
-    const startX = this.centerX - this.boxOffset;
-    const startY = this.centerY - this.boxOffset;
-  
-    if (distance < sideLength) {
-      // Top side (left to right)
-      x = startX + distance;
-      y = startY;
-    } else if (distance < sideLength * 2) {
-      // Right side (top to bottom)
-      x = this.centerX + this.boxOffset;
-      y = startY + (distance - sideLength);
-    } else if (distance < sideLength * 3) {
-      // Bottom side (right to left)
-      x = this.centerX + this.boxOffset - (distance - sideLength * 2);
-      y = this.centerY + this.boxOffset;
-    } else {
-      // Left side (bottom to top)
-      x = startX;
-      y = this.centerY + this.boxOffset - (distance - sideLength * 3);
-    }
-  
-    return {
-      x: x - this.boxes[index].width / 2,
-      y: y - this.boxes[index].height / 2
-    };
+  leftCol: SnomedBox[] = [
+    { label: 'AJCC Cancer Staging', type: 'content', title: false },
+    { label: 'Convergent Medical Terminology', type: 'content', title: false },
+    { label: 'ICNP nursing', type: 'content', title: false },
+    { label: 'INSERM Orphanet rare disease', type: 'content', title: false },
+    { label: 'ILAE Epilepsy', type: 'content', title: false },
+    { label: 'IDDSI Diet', type: 'content', title: false }
+  ];
+
+  rightCol: SnomedBox[] = [
+    { label: 'MedDRA', type: 'map', title: false },
+    { label: 'Orphanet', type: 'map', title: false },
+    { label: 'DICOM', type: 'map', title: false },
+    { label: 'IHE Profiles', type: 'map', title: false },
+    { label: 'Dentistry Odontogram', type: 'map', title: false }
+  ];
+
+  bottomRow: SnomedBox[] = [
+    { label: 'LOINC Extension', type: 'extension', title: false },
+    { label: 'GMDN equivalency file', type: 'extension', title: true },
+    { label: 'NCPT', type: 'refset', title: false },
+    { label: 'ERA', type: 'refset', title: false },
+    { label: 'GP/FP', type: 'refset', title: true },
+    { label: 'ICNP', type: 'refset', title: false },
+    { label: 'HL7 IPS', type: 'refset', title: false },
+    { label: 'Dentistry Diagnosis', type: 'refset', title: false }
+  ];
+
+  getMiddleBoxIndex(content: any[]): number {
+    // Adjust based on your slice: slice(1, topRow.length - 1) ⇒ real index range = 1 to length - 2
+    const length = content.length - 2;
+    return Math.floor((length - 1) / 2);
   }
+
+  codeSelected(code: any) {
+    this.selectedCodeTerm = code.display;
+    this.selectedCode = code;
+    console.log('Selected code:', code);
+  }
+}
+
+export interface SnomedBox {
+  label: string;
+  type: 'content' | 'map' | 'extension' | 'refset';
+  title: boolean
 }

@@ -1,35 +1,58 @@
-<div style="transform: scale(0.75); transform-origin: top center;">
-    <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto;">
-        <g transform="translate(0, -150)">
-            <!-- Central SNOMED block -->
-            <rect [attr.x]="centerX - 100" [attr.y]="centerY - 100" width="200" height="200" fill="#3B9CD9" />
-            <text [attr.x]="centerX" [attr.y]="centerY" text-anchor="middle" dominant-baseline="middle" font-size="18" fill="white" font-family="Arial">
-            SNOMED
-            <tspan [attr.x]="centerX" dy="1.2em">International</tspan>
-            </text>
-        
-            <!-- Loop through boxes -->
-            <g *ngFor="let box of boxes; index as i">
-                <ng-container *ngIf="getBoxPosition(i) as pos">
-                    <rect
-                    [attr.x]="pos.x"
-                    [attr.y]="pos.y"
-                    [attr.width]="box.width"
-                    [attr.height]="box.height"
-                    [attr.fill]="box.fill"
-                    stroke="#000" />
-                    <text
-                    [attr.x]="pos.x + box.width / 2"
-                    [attr.y]="pos.y + box.height / 2"
-                    text-anchor="middle"
-                    dominant-baseline="middle"
-                    font-size="10"
-                    font-family="Arial">
-                    {{ box.label }}
-                    </text>
-                </ng-container>
-            </g>
-        </g>
-    </svg>
+<div class="main-row">
+    <div class="col w-1/5">
+    </div>
+    <div class="diagram">
+        <div class="row eight">
+        <div *ngFor="let box of topRow" class="card label" [ngClass]="box.type">{{ box.label }}</div>
+        </div>
+        <div class="row middle">
+        <div class="col left">
+            <div *ngFor="let box of leftCol"  class="card label" [ngClass]="box.type">{{ box.label }}</div>
+        </div>
+        <div class="center-pane">
+            <div class="row color">
+                <div *ngFor="let box of topRow.slice(1, topRow.length -1 )" class="card-stripe color" [ngClass]="box.type">
+                    <ng-container *ngIf="box.title">
+                        {{ box.type | titlecase }}
+                    </ng-container>
+                </div>
+            </div>
+            <div class="center-middle">
+                <div class="col-color">
+                    <div *ngFor="let box of leftCol.slice(1, leftCol.length -1)" class="card-stripe color" [ngClass]="box.type">
+                        <ng-container *ngIf="box.title">
+                            {{ box.type | titlecase }}
+                        </ng-container>
+                    </div>
+                </div>
+                <div class="center-center">
+                    <img src="assets/img/S-Logo-2.png" alt="SNOMED International" class="logo"/>
+                    <app-autocomplete-binding [binding]="searchBinding" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm" class="w-full"></app-autocomplete-binding>
+                </div>
+                <div class="col-color">
+                    <div *ngFor="let box of rightCol.slice(1, rightCol.length -1)" class="card-stripe color" [ngClass]="box.type">
+                        <ng-container *ngIf="box.title">
+                            {{ box.type | titlecase }}
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+            <div class="row color">
+                <div *ngFor="let box of bottomRow.slice(1, bottomRow.length -1)" class="card-stripe color" [ngClass]="box.type">
+                    <ng-container *ngIf="box.title">
+                        {{ box.type | titlecase }}
+                    </ng-container>
+                </div>
+            </div>
+        </div>
+        <div class="col right">
+            <div *ngFor="let box of rightCol" class="card label" [ngClass]="box.type">{{ box.label }}</div>
+        </div>
+        </div>
+        <div class="row eight">
+        <div *ngFor="let box of bottomRow" class="card label" [ngClass]="box.type">{{ box.label }}</div>
+        </div>
+    </div>
+    <div class="col">
+    </div>
 </div>
-  
