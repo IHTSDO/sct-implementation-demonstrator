@@ -15,7 +15,7 @@ export class SnomedHubComponent {
   topRow: SnomedBox[] = [
     { label: 'AAP/EPF Periodontal', type: 'content', title: false },
     { label: 'GMDN devices', type: 'content', title: true },
-    { label: 'ADA SNODENT', type: 'content', title: false },
+    { label: 'ADA SNODENT', type: 'content', title: false, result: {code: '721145008', display: 'Odontogram reference set'} },
     { label: 'EDQM dose forms', type: 'content', title: false },
     { label: 'ICD‑10', type: 'map', title: false },
     { label: 'ICD‑11 MMS', type: 'map', title: false },
@@ -67,5 +67,8 @@ export class SnomedHubComponent {
 export interface SnomedBox {
   label: string;
   type: 'content' | 'map' | 'extension' | 'refset';
-  title: boolean
+  title: boolean;
+  refsetId?: string;
+  term?: string;
+  result?: any;
 }
