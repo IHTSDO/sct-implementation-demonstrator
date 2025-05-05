@@ -6,11 +6,14 @@
         <div class="row gap min-h-10">
         </div>
         <div class="row gap">
-            <div *ngFor="let box of topRow" class="card label" [ngClass]="box.type">{{ box.label }}</div>
+            <div *ngFor="let box of topRow" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '']"
+            [matTooltip]="box.results?.length ? 'Matches: ' + box.results.join(', ') : ''" matTooltipPosition="above" matTooltipShowDelay="300">
+                {{ box.label }}
+            </div>
         </div>
         <div class="row">
             <div class="col gap left">
-                <div *ngFor="let box of leftCol"  class="card label" [ngClass]="box.type">{{ box.label }}</div>
+                <div *ngFor="let box of leftCol"  class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '']">{{ box.label }}</div>
             </div>
             <div class="center-panel">
                 <div class="row">
@@ -49,11 +52,11 @@
                 </div>
             </div>
             <div class="col gap right">
-                <div *ngFor="let box of rightCol" class="card label" [ngClass]="box.type">{{ box.label }}</div>
+                <div *ngFor="let box of rightCol" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '']">{{ box.label }}</div>
             </div>
         </div>
         <div class="row gap">
-        <div *ngFor="let box of bottomRow" class="card label" [ngClass]="box.type">{{ box.label }}</div>
+        <div *ngFor="let box of bottomRow" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '']">{{ box.label }}</div>
         </div>
         <div class="row gap min-h-10">
         </div>

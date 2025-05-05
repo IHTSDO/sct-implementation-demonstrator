@@ -490,4 +490,16 @@ export class TerminologyService {
   
     return { groups };
   }
+
+  getMemberships(conceptId: string) {
+    // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-DERIVATIVES/2024-07-01/members?referencedComponentId=195967001&active=true
+    let requestUrl = `https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-DERIVATIVES/2024-07-01/members?referencedComponentId=${conceptId}&active=true`;
+    const headers = new HttpHeaders({
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(
+        catchError(this.handleError<any>('getMemberships', {}))
+      );
+    }
 }
