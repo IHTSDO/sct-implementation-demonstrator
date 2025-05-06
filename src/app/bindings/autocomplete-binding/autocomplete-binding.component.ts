@@ -26,6 +26,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
   @Input() binding: any;
   @Input() term: string = "";
   @Output() selectionChange = new EventEmitter<any>();
+  @Output() cleared = new EventEmitter<any>();
   
   formControl = new UntypedFormControl();
   autoFilter: Observable<any> | undefined;
@@ -127,6 +128,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
     this.formControl.reset();
     this.selectedConcept = { code: '', display:''};
     this.selectionChange.emit(this.selectedConcept);
+    this.cleared.emit(null);
   }
 
   change(event: any) {

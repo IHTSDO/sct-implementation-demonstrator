@@ -12,6 +12,8 @@ export class SnomedHubComponent {
   searchBinding = { ecl: '*', title: 'Search a SNOMED CT concept...' };
   selectedCode: any = null;
   selectedCodeTerm = "";
+  searching = false;
+  searchCompleted = false;
 
   topRow: SnomedBox[] = [
     { label: 'AAP/EPF Periodontal', type: 'content', title: false },
@@ -64,19 +66,25 @@ export class SnomedHubComponent {
   }
 
   codeSelected(code: any) {
+    if (!code || !code.code) {
+        this.searchCompleted = false;
+        return;
+    }
+    console.log('Code selected:', code);
+    this.searching = true;
+    this.searchCompleted = false;
+    // Combine all card arrays
+    const allBoxes = [...this.topRow, ...this.leftCol, ...this.rightCol, ...this.bottomRow];
+    // Clear previous results
+    allBoxes.forEach(box => box.results = []);
     this.selectedCodeTerm = code.display;
     this.selectedCode = code;
-    console.log('Selected code:', code);
     this.terminologyService.getMemberships(code.code).subscribe((memberships: any) => {
-        console.log('Memberships:', memberships);
         this.selectedCode.memberships = memberships;
-
         // Combine all card arrays
         const allBoxes = [...this.topRow, ...this.leftCol, ...this.rightCol, ...this.bottomRow];
-
         // Clear previous results
         allBoxes.forEach(box => box.results = []);
-
         // Match each membership
         memberships.items.forEach((membership: any) => {
             allBoxes.forEach(box => {
@@ -88,17 +96,34 @@ export class SnomedHubComponent {
                 }
             });
         });
-
-        console.log('Boxes with results:', allBoxes.filter(b => b.results?.length));
+        this.searching = false;
+        this.searchCompleted = true;
     });
   }
 
-  clearResults() {
-    // remove all result properties from the 4 arrays
-    this.topRow.forEach((item) => item.results = null);
-    this.leftCol.forEach((item) => item.results = null);
-    this.rightCol.forEach((item) => item.results = null);
-    this.bottomRow.forEach((item) => item.results = null);
+  reset() {
+    this.searching = false;
+    this.searchCompleted = false;
+    this.selectedCode = null;
+    this.selectedCodeTerm = "";
+    // Clear all results
+    const allBoxes = [...this.topRow, ...this.leftCol, ...this.rightCol, ...this.bottomRow];
+    allBoxes.forEach(box => box.results = []);
+  }
+
+  getCalloutMessage(type: string): string {
+    switch (type) {
+      case 'content':
+        return 'Part of project';
+      case 'map':
+        return 'Member of map';
+      case 'extension':
+        return 'Part of extension';
+      case 'refset':
+        return 'Member of Refset';
+      default:
+        return '';
+    }
   }
 }
 

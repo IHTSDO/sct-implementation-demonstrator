@@ -6,14 +6,17 @@
         <div class="row gap min-h-10">
         </div>
         <div class="row gap">
-            <div *ngFor="let box of topRow" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '']"
-            [matTooltip]="box.results?.length ? 'Matches: ' + box.results.join(', ') : ''" matTooltipPosition="above" matTooltipShowDelay="300">
+            <div *ngFor="let box of topRow" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
                 {{ box.label }}
+                <div *ngIf="box.results?.length" class="callout-box top" [ngClass]="[box.type]">{{ getCalloutMessage(box.type) }}</div>
             </div>
         </div>
         <div class="row">
             <div class="col gap left">
-                <div *ngFor="let box of leftCol"  class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '']">{{ box.label }}</div>
+                <div *ngFor="let box of leftCol"  class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
+                    {{ box.label }}
+                    <div *ngIf="box.results?.length" class="callout-box left" [ngClass]="[box.type]">{{ getCalloutMessage(box.type) }}</div>
+                </div>
             </div>
             <div class="center-panel">
                 <div class="row">
@@ -33,7 +36,8 @@
                     </div>
                     <div class="center-column">
                         <img src="assets/img/S-Logo-2.png" alt="SNOMED International" class="logo"/>
-                        <app-autocomplete-binding [binding]="searchBinding" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm" class="w-full"></app-autocomplete-binding>
+                        <app-autocomplete-binding [binding]="searchBinding" (selectionChange)="codeSelected($event)" (cleared)="reset()" [term]="selectedCodeTerm" class="w-full"></app-autocomplete-binding>
+                        <mat-progress-bar mode="indeterminate" [ngStyle]="{ visibility: searching ? 'visible' : 'hidden' }"></mat-progress-bar>
                     </div>
                     <div class="col narrow">
                         <div *ngFor="let box of rightCol.slice(1, rightCol.length -1)" class="card square color" [ngClass]="box.type">
@@ -52,11 +56,17 @@
                 </div>
             </div>
             <div class="col gap right">
-                <div *ngFor="let box of rightCol" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '']">{{ box.label }}</div>
+                <div *ngFor="let box of rightCol" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
+                    {{ box.label }}
+                    <div *ngIf="box.results?.length" class="callout-box right" [ngClass]="[box.type]">{{ getCalloutMessage(box.type) }}</div>
+                </div>
             </div>
         </div>
         <div class="row gap">
-        <div *ngFor="let box of bottomRow" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '']">{{ box.label }}</div>
+        <div *ngFor="let box of bottomRow" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
+            {{ box.label }}
+            <div *ngIf="box.results?.length" class="callout-box bottom" [ngClass]="[box.type]">{{ getCalloutMessage(box.type) }}</div>
+        </div>
         </div>
         <div class="row gap min-h-10">
         </div>

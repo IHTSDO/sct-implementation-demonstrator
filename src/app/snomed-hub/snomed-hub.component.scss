@@ -19,6 +19,7 @@
     justify-content: center;
     text-align: center;         // multi-line horizontal centering
     word-break: break-word;
+    position: relative;
   }
 
   .card.square {
@@ -105,28 +106,28 @@
   
   
     .color.content {
-    background-color: #7A73A4;
+      background-color: #7A73A4;
     }
     .color.map {
-    background-color: #E0AA5B;
+      background-color: #E0AA5B;
     }
     .color.extension {
-    background-color: #66A7B5;
+      background-color: #66A7B5;
     }
     .color.refset {
-    background-color: #2D4E66;
+      background-color: #2D4E66;
     }
     .label.content {
-    border: 4px solid #7A73A4;
+      border: 4px solid #7A73A4;
     }
     .label.map {
-        border: 4px solid #E0AA5B;
+      border: 4px solid #E0AA5B;
     }
     .label.extension {
-        border: 4px solid #66A7B5;
+      border: 4px solid #66A7B5;
     }
     .label.refset {
-        border: 4px solid #2D4E66;
+      border: 4px solid #2D4E66;
     }
 
     .logo {
@@ -157,5 +158,57 @@
     
     .pulse {
       animation: pulse 1s infinite;
+      font-weight: bold;
     }
     
+    .callout-box {
+      position: absolute;
+      background: #f9f9f9;
+      border: 1px solid #3b82f6;
+      padding: 0.75rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+      font-size: 0.8rem;
+      z-index: 1000;
+      width: 100%;
+      // max-width: 300px;
+    }
+
+    .callout-box.content {
+      border: 1px solid #7A73A4;
+    }
+    .callout-box.map {
+        border: 1px solid #E0AA5B;
+    }
+    .callout-box.extension {
+        border: 1px solid #66A7B5;
+    }
+    .callout-box.refset {
+        border: 1px solid #2D4E66;
+    }
+
+    .callout-box.top {
+      bottom: 120%;
+      left: 0px; 
+    }
+
+    .callout-box.bottom {
+      top: 120%;
+      left: 0px; 
+    }
+
+    .callout-box.left {
+      top: 20%; 
+      right: 110%;
+    }
+
+    .callout-box.right {
+      top: 20%; 
+      left: 110%;
+    }
+
+    .no-results {
+      color: #969494;
+      background-color: #f9f9f9;
+      border: 4px solid #afafaf !important;
+    }
