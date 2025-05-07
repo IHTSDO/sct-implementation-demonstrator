@@ -40,7 +40,7 @@ export class SnomedHubComponent implements AfterViewInit {
     { label: 'Union for International Cancer Control', annotationValue: 'Union for International Cancer Control: https://www.uicc.org/who-we-are/about-uicc/uicc-and-tnm',type: 'content', title: false },
     { label: 'Convergent Medical Terminology', type: 'content', title: false },
     { label: 'ICNP nursing', refsetIds: ['711112009', '712505008'], type: 'content', title: false },
-    { label: 'INSERM Orphanet rare disease', refsetIds: ['784008009'], type: 'content', title: false },
+    { label: 'INSERM Orphanet rare disease', annotationValue: 'Inserm Orphanet', type: 'content', title: false },
     { label: 'ILAE Epilepsy', type: 'content', title: false },
     { label: 'IDDSI Diet', type: 'content', title: false }
   ];
@@ -72,7 +72,7 @@ export class SnomedHubComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.drawSpokes();
-    }, 500);
+    }, 100);
   }
 
   @HostListener('window:resize')
@@ -129,7 +129,6 @@ export class SnomedHubComponent implements AfterViewInit {
         this.searchCompleted = false;
         return;
     }
-    console.log('Code selected:', code);
     this.searching = true;
     this.searchCompleted = false;
     // Combine all card arrays
@@ -139,7 +138,6 @@ export class SnomedHubComponent implements AfterViewInit {
     this.selectedCodeTerm = code.display + ' - SCTID: ' + code.code;
     this.selectedCode = code;
     this.terminologyService.getMemberships(code.code).subscribe((memberships: any) => {
-        console.log('Memberships:', memberships);
         this.selectedCode.memberships = memberships;
         // Combine all card arrays
         const allBoxes = [...this.topRow, ...this.leftCol, ...this.rightCol, ...this.bottomRow];
@@ -161,6 +159,12 @@ export class SnomedHubComponent implements AfterViewInit {
                   if (membership.additionalFields.mapSource) {
                       box.mapSources.push(membership.additionalFields.mapSource);
                   }
+                }
+                if (box.annotationValue && membership.additionalFields.value) {
+                    const annotation = membership.additionalFields.value;
+                    if (annotation.startsWith(box.annotationValue)) {
+                        box.results.push(membership.referencedComponentId);
+                    }
                 }
             });
         });
@@ -197,6 +201,25 @@ export class SnomedHubComponent implements AfterViewInit {
         return 'Member of Refset';
       default:
         return '';
+    }
+  }
+
+  boxClicked(box: SnomedBox) {
+    console.log('Box clicked:', box);
+  }
+
+  rippleColor(type: string): string {
+    switch (type) {
+      case 'content':   // #6B4FC1
+        return 'rgba(107, 79, 193, 0.5)';
+      case 'map':       // #D1A14A
+        return 'rgba(209, 161,  74, 0.5)';
+      case 'refset':    // #1F3346
+        return 'rgba( 31,  51,  70, 0.5)';
+      case 'extension': // #39A1BE
+        return 'rgba( 57, 161, 190, 0.5)';
+      default:
+        return 'rgba(0, 0, 0, 0.35)';   // keep the grey a bit lighter
     }
   }
 }

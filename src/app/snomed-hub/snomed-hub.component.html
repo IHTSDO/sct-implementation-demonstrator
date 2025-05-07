@@ -1,4 +1,3 @@
-
 <div class="main-row">
     <div class="col w-1/5">
     </div>
@@ -7,23 +6,38 @@
         <div class="row gap min-h-10">
         </div>
         <div class="row gap">
-            <div *ngFor="let box of topRow" class="card label" #cardLabel 
-            [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
-                {{ box.label }}
-                <div *ngIf="box.results?.length" class="callout-box top" [ngClass]="[box.type]">{{ getCalloutMessage(box) }}</div>
+            <div *ngFor="let box of topRow" class="card label" #cardLabel [ngClass]="[
+                box.type,
+                box.results?.length ? 'pulse' : '',
+                (searchCompleted && !box.results?.length) ? 'no-results' : ''
+                ]">
+                <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
+                    {{ box.label }}
+                </div>
+                <div *ngIf="box.results?.length" class="callout-box top" [ngClass]="[box.type]">
+                    {{ getCalloutMessage(box) }}
+                </div>
             </div>
         </div>
         <div class="row">
             <div class="col gap left">
-                <div *ngFor="let box of leftCol"  class="card label" #cardLabel
-                [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
-                    {{ box.label }}
-                    <div *ngIf="box.results?.length" class="callout-box left" [ngClass]="[box.type]">{{ getCalloutMessage(box) }}</div>
+                <div *ngFor="let box of leftCol" class="card label" #cardLabel [ngClass]="[
+                    box.type,
+                    box.results?.length ? 'pulse' : '',
+                    (searchCompleted && !box.results?.length) ? 'no-results' : ''
+                    ]">
+                    <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
+                        {{ box.label }}
+                    </div>
+                    <div *ngIf="box.results?.length" class="callout-box left" [ngClass]="[box.type]">
+                        {{ getCalloutMessage(box) }}
+                    </div>
                 </div>
             </div>
             <div class="center-panel">
                 <div class="row">
-                    <div *ngFor="let box of topRow.slice(1, topRow.length -1 )" class="card square color" [ngClass]="box.type">
+                    <div *ngFor="let box of topRow.slice(1, topRow.length -1 )" class="card square color"
+                        [ngClass]="box.type">
                         <ng-container *ngIf="box.title">
                             {{ box.type | titlecase }}
                         </ng-container>
@@ -31,19 +45,23 @@
                 </div>
                 <div class="row grow">
                     <div class="col narrow">
-                        <div *ngFor="let box of leftCol.slice(1, leftCol.length -1)" class="card square color" [ngClass]="box.type">
+                        <div *ngFor="let box of leftCol.slice(1, leftCol.length -1)" class="card square color"
+                            [ngClass]="box.type">
                             <ng-container *ngIf="box.title">
                                 {{ box.type | titlecase }}
                             </ng-container>
                         </div>
                     </div>
                     <div class="center-column" #centerColumn>
-                        <img src="assets/img/S-Logo-2.png" alt="SNOMED International" class="logo"/>
-                        <app-autocomplete-binding [binding]="searchBinding" (selectionChange)="codeSelected($event)" (cleared)="reset()" [term]="selectedCodeTerm" class="w-full"></app-autocomplete-binding>
-                        <mat-progress-bar mode="indeterminate" [ngStyle]="{ visibility: searching ? 'visible' : 'hidden' }"></mat-progress-bar>
+                        <img src="assets/img/S-Logo-2.png" alt="SNOMED International" class="logo" />
+                        <app-autocomplete-binding [binding]="searchBinding" (selectionChange)="codeSelected($event)"
+                            (cleared)="reset()" [term]="selectedCodeTerm" class="w-full"></app-autocomplete-binding>
+                        <mat-progress-bar mode="indeterminate"
+                            [ngStyle]="{ visibility: searching ? 'visible' : 'hidden' }"></mat-progress-bar>
                     </div>
                     <div class="col narrow">
-                        <div *ngFor="let box of rightCol.slice(1, rightCol.length -1)" class="card square color" [ngClass]="box.type">
+                        <div *ngFor="let box of rightCol.slice(1, rightCol.length -1)" class="card square color"
+                            [ngClass]="box.type">
                             <ng-container *ngIf="box.title">
                                 {{ box.type | titlecase }}
                             </ng-container>
@@ -51,7 +69,8 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div *ngFor="let box of bottomRow.slice(1, bottomRow.length -1)" class="card square color" [ngClass]="box.type">
+                    <div *ngFor="let box of bottomRow.slice(1, bottomRow.length -1)" class="card square color"
+                        [ngClass]="box.type">
                         <ng-container *ngIf="box.title">
                             {{ box.type | titlecase }}
                         </ng-container>
@@ -59,19 +78,33 @@
                 </div>
             </div>
             <div class="col gap right">
-                <div *ngFor="let box of rightCol" class="card label" #cardLabel
-                [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
-                    {{ box.label }}
-                    <div *ngIf="box.results?.length" class="callout-box right" [ngClass]="[box.type]">{{ getCalloutMessage(box) }}</div>
+                <div *ngFor="let box of rightCol" class="card label" #cardLabel [ngClass]="[
+                    box.type,
+                    box.results?.length ? 'pulse' : '',
+                    (searchCompleted && !box.results?.length) ? 'no-results' : ''
+                    ]">
+                    <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
+                        {{ box.label }}
+                    </div>
+                    <div *ngIf="box.results?.length" class="callout-box right" [ngClass]="[box.type]">
+                        {{ getCalloutMessage(box) }}
+                    </div>
                 </div>
             </div>
         </div>
         <div class="row gap">
-        <div *ngFor="let box of bottomRow" class="card label" #cardLabel
-        [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
-            {{ box.label }}
-            <div *ngIf="box.results?.length" class="callout-box bottom" [ngClass]="[box.type]">{{ getCalloutMessage(box) }}</div>
-        </div>
+            <div *ngFor="let box of bottomRow" class="card label" #cardLabel [ngClass]="[
+                box.type,
+                box.results?.length ? 'pulse' : '',
+                (searchCompleted && !box.results?.length) ? 'no-results' : ''
+                ]">
+                <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
+                    {{ box.label }}
+                </div>
+                <div *ngIf="box.results?.length" class="callout-box bottom" [ngClass]="[box.type]">
+                    {{ getCalloutMessage(box) }}
+                </div>
+            </div>
         </div>
         <div class="row gap min-h-10">
         </div>
