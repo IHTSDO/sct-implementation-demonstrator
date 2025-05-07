@@ -170,7 +170,11 @@ export class AppComponent {
     });
     this.setFhirServer(this.selectedServer);
   
-    this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
+    // this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
+    //   this.languageMetadata = data;
+    //   this.setupLanguageMetadata();
+    // });
+    this.http.get('assets/language/national-language-metadata.json').subscribe((data: any) => {
       this.languageMetadata = data;
       this.setupLanguageMetadata();
     });
@@ -186,7 +190,7 @@ export class AppComponent {
       editionUri = editionUriParts.join('/');
     }
     // Find the editionUri in the languageMetadata
-    this.filteredLanguageMetadata = this.languageMetadata.editions.find((lang: any) => lang.moduleUri === editionUri);
+    this.filteredLanguageMetadata = this.languageMetadata?.editions?.find((lang: any) => lang.moduleUri === editionUri);
     if (!this.filteredLanguageMetadata) {
       this.filteredLanguageMetadata = { contexts: [] };
     }

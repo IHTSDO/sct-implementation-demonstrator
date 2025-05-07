@@ -8,14 +8,14 @@
         <div class="row gap">
             <div *ngFor="let box of topRow" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
                 {{ box.label }}
-                <div *ngIf="box.results?.length" class="callout-box top" [ngClass]="[box.type]">{{ getCalloutMessage(box.type) }}</div>
+                <div *ngIf="box.results?.length" class="callout-box top" [ngClass]="[box.type]">{{ getCalloutMessage(box) }}</div>
             </div>
         </div>
         <div class="row">
             <div class="col gap left">
                 <div *ngFor="let box of leftCol"  class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
                     {{ box.label }}
-                    <div *ngIf="box.results?.length" class="callout-box left" [ngClass]="[box.type]">{{ getCalloutMessage(box.type) }}</div>
+                    <div *ngIf="box.results?.length" class="callout-box left" [ngClass]="[box.type]">{{ getCalloutMessage(box) }}</div>
                 </div>
             </div>
             <div class="center-panel">
@@ -58,14 +58,14 @@
             <div class="col gap right">
                 <div *ngFor="let box of rightCol" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
                     {{ box.label }}
-                    <div *ngIf="box.results?.length" class="callout-box right" [ngClass]="[box.type]">{{ getCalloutMessage(box.type) }}</div>
+                    <div *ngIf="box.results?.length" class="callout-box right" [ngClass]="[box.type]">{{ getCalloutMessage(box) }}</div>
                 </div>
             </div>
         </div>
         <div class="row gap">
         <div *ngFor="let box of bottomRow" class="card label" [ngClass]="[box.type, box.results?.length ? 'pulse' : '', (searchCompleted && !box.results?.length) ? 'no-results' : '']">
             {{ box.label }}
-            <div *ngIf="box.results?.length" class="callout-box bottom" [ngClass]="[box.type]">{{ getCalloutMessage(box.type) }}</div>
+            <div *ngIf="box.results?.length" class="callout-box bottom" [ngClass]="[box.type]">{{ getCalloutMessage(box) }}</div>
         </div>
         </div>
         <div class="row gap min-h-10">

@@ -131,7 +131,7 @@
     }
 
     .logo {
-        width: 75%;
+        width: 40%;
         height: auto;
         display: block;
         margin: 0 auto; /* optional: centers it horizontally */
@@ -171,20 +171,25 @@
       font-size: 0.8rem;
       z-index: 1000;
       width: 100%;
+      color: white;
       // max-width: 300px;
     }
 
     .callout-box.content {
-      border: 1px solid #7A73A4;
+      border: 1px solid #414141;
+      background-color: #7A73A4;
     }
     .callout-box.map {
-        border: 1px solid #E0AA5B;
+      border: 1px solid #414141;
+      background-color: #E0AA5B;
     }
     .callout-box.extension {
-        border: 1px solid #66A7B5;
+      border: 1px solid #414141;
+      background-color: #66A7B5;
     }
     .callout-box.refset {
-        border: 1px solid #2D4E66;
+      border: 1px solid #414141;
+      background-color: #2D4E66;
     }
 
     .callout-box.top {
