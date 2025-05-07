@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { TerminologyService } from '../services/terminology.service';
 
 @Component({
@@ -7,7 +7,16 @@ import { TerminologyService } from '../services/terminology.service';
   styleUrls: ['./snomed-hub.component.scss'],
   standalone: false
 })
-export class SnomedHubComponent {
+export class SnomedHubComponent implements AfterViewInit {
+
+  @ViewChild('lines',   { static: true })  svg!: ElementRef<SVGSVGElement>;
+  @ViewChild('diagram', { static: true })  host!: ElementRef<HTMLElement>;
+
+  @ViewChild('centerColumn', { static: true })
+  centerCol!: ElementRef<HTMLElement>;
+
+  @ViewChildren('cardLabel', { read: ElementRef })
+  cardLabels!: QueryList<ElementRef<HTMLElement>>;
 
   searchBinding = { ecl: '*', title: 'Search a SNOMED CT concept...' };
   selectedCode: any = null;
@@ -59,6 +68,55 @@ export class SnomedHubComponent {
 
   constructor(private terminologyService: TerminologyService) {
   }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.drawSpokes();
+    }, 500);
+  }
+
+  @HostListener('window:resize')
+  onResize() { this.drawSpokes(); }
+
+  private drawSpokes(): void {
+    // ── safety net ───────────────────────────────────────────────
+    if (!this.host || !this.centerCol) { return; }
+  
+    // ── 1. clear the SVG ────────────────────────────────────────
+    const svg = this.svg.nativeElement as SVGSVGElement;
+    svg.innerHTML = '';
+  
+    // ── 2. reference frame: the .diagram element ────────────────
+    const hostRect = this.host.nativeElement.getBoundingClientRect();
+  
+    // ── 3. hub (centre column) in the SVG’s coordinate space ────
+    const hubRect = this.centerCol.nativeElement.getBoundingClientRect();
+    const hubX = hubRect.left - hostRect.left + hubRect.width  / 2;
+    const hubY = hubRect.top  - hostRect.top  + hubRect.height / 2;
+  
+    // ── 4. one spoke per card ───────────────────────────────────
+    this.cardLabels.forEach(cardRef => {
+      const card = cardRef.nativeElement;
+      const r = card.getBoundingClientRect();
+  
+      const spokeX = r.left - hostRect.left + r.width  / 2;
+      const spokeY = r.top  - hostRect.top  + r.height / 2;
+  
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', hubX.toString());
+      line.setAttribute('y1', hubY.toString());
+      line.setAttribute('x2', spokeX.toString());
+      line.setAttribute('y2', spokeY.toString());
+      line.setAttribute('stroke', '#9ca3af');      // grey‑500
+      line.setAttribute('stroke-width', '1.5');
+      line.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.appendChild(line);
+    });
+  
+    // ── 5. keep the SVG the same size as the diagram ────────────
+    svg.setAttribute('viewBox', `0 0 ${hostRect.width} ${hostRect.height}`);
+  }
+  
 
   getMiddleBoxIndex(content: any[]): number {
     // Adjust based on your slice: slice(1, topRow.length - 1) ⇒ real index range = 1 to length - 2

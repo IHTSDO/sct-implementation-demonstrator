@@ -1,219 +1,254 @@
 /* ─── outer column ─────────────────────────── */
-.diagram{
-    display:flex;
-    flex-direction:column;
-    gap:1.5rem;
-    margin: 2rem;
+.diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 2rem;
+}
+
+/* ─── generic card ─────────────────────────── */
+.card {
+  flex: 1 1 0;
+  padding: .75rem .5rem;
+  background: #fff;
+  border-radius: 4px;
+  font-size: .85rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+  display: flex;
+  align-items: center; // 🔹 vertical centering
+  justify-content: center;
+  text-align: center; // multi-line horizontal centering
+  word-break: break-word;
+  position: relative;
+}
+
+.card.square {
+  border-radius: 0px;
+  font-size: .85rem;
+  color: #fff;
+  font-weight: bolder;
+  font-size: large;
+}
+
+.row {
+  display: flex;
+}
+
+.row.gap {
+  gap: 1rem;
+}
+
+.row.grow {
+  flex-grow: 1;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  min-width: 5rem;
+  width: 12.5%;
+  /* 1/8 of row width → matches small card width above */
+  // min-width:120px;      /* safety on narrow screens */
+}
+
+.col.gap {
+  gap: 1rem;
+}
+
+.col.left {
+  padding-right: 1rem;
+}
+
+.col.right {
+  padding-left: 1rem;
+}
+
+.col.narrow {
+  width: 4rem;
+  min-width: 4rem;
+}
+
+/* centre panel */
+.center-panel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.center-column {
+  flex-grow: 1;
+  background-color: rgb(67, 167, 223);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.search-pane {
+  flex: 1 1 auto;
+  /* absorb remaining space */
+  background: #2c90d0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 1.5rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 420px;
+  padding: .75rem 1rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 4px;
+}
+
+
+.color.content {
+  background-color: #7A73A4;
+}
+
+.color.map {
+  background-color: #E0AA5B;
+}
+
+.color.extension {
+  background-color: #66A7B5;
+}
+
+.color.refset {
+  background-color: #2D4E66;
+}
+
+.label.content {
+  border: 4px solid #7A73A4;
+}
+
+.label.map {
+  border: 4px solid #E0AA5B;
+}
+
+.label.extension {
+  border: 4px solid #66A7B5;
+}
+
+.label.refset {
+  border: 4px solid #2D4E66;
+}
+
+.logo {
+  width: 40%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  /* optional: centers it horizontally */
+}
+
+.main-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
   }
-  
-  /* ─── generic card ─────────────────────────── */
-  .card {
-    flex:1 1 0;
-    padding:.75rem .5rem;
-    background:#fff;
-    border-radius:4px;
-    font-size:.85rem;
-    box-shadow:0 1px 3px rgba(0,0,0,.08);
-    display: flex;
-    align-items: center;   // 🔹 vertical centering
-    justify-content: center;
-    text-align: center;         // multi-line horizontal centering
-    word-break: break-word;
-    position: relative;
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
   }
 
-  .card.square {
-    border-radius: 0px;
-    font-size:.85rem;
-    color: #fff;
-    font-weight: bolder;
-    font-size: large;
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
   }
-  
-  .row {
-    display:flex;
-  }
+}
 
-  .row.gap {
-    gap: 1rem;
-  }
+.pulse {
+  animation: pulse 1s infinite;
+  font-weight: bold;
+}
 
-  .row.grow {
-    flex-grow: 1;
-  }
+.callout-box {
+  position: absolute;
+  background: #f9f9f9;
+  border: 1px solid #3b82f6;
+  padding: 0.75rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  font-size: 0.8rem;
+  z-index: 1000;
+  width: 100%;
+  color: white;
+  // max-width: 300px;
+}
 
-  .col {
-    display:flex;
-    flex-direction:column;
-    min-width: 5rem;
-    width:12.5%;          /* 1/8 of row width → matches small card width above */
-    // min-width:120px;      /* safety on narrow screens */
-  }
+.callout-box.content {
+  border: 1px solid #414141;
+  background-color: #7A73A4;
+}
 
-  .col.gap {
-    gap: 1rem;
-  }
+.callout-box.map {
+  border: 1px solid #414141;
+  background-color: #E0AA5B;
+}
 
-  .col.left {
-    padding-right: 1rem;
-  }
+.callout-box.extension {
+  border: 1px solid #414141;
+  background-color: #66A7B5;
+}
 
-  .col.right {
-    padding-left: 1rem;
-  }
+.callout-box.refset {
+  border: 1px solid #414141;
+  background-color: #2D4E66;
+}
 
-  .col.narrow {
-    width: 4rem;
-    min-width: 4rem;
-  }
+.callout-box.top {
+  bottom: 120%;
+  left: 0px;
+}
 
-  /* centre panel */
-  .center-panel {
-    flex: 1 1 auto;
-    display:flex;
-    flex-direction: column;
-  }
-  
-  .center-column {
-    flex-grow: 1;
-    background-color: rgb(67, 167, 223);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    gap: 1rem;
-  }
-  
-  .search-pane{
-    flex:1 1 auto;        /* absorb remaining space */
-    background:#2c90d0;
-    border-radius:8px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:3rem 1.5rem;
-  }
-  
-  .search-input{
-    width:100%;
-    max-width:420px;
-    padding:.75rem 1rem;
-    font-size:1.1rem;
-    border:none;
-    border-radius:4px;
-  }
-  
-  
-    .color.content {
-      background-color: #7A73A4;
-    }
-    .color.map {
-      background-color: #E0AA5B;
-    }
-    .color.extension {
-      background-color: #66A7B5;
-    }
-    .color.refset {
-      background-color: #2D4E66;
-    }
-    .label.content {
-      border: 4px solid #7A73A4;
-    }
-    .label.map {
-      border: 4px solid #E0AA5B;
-    }
-    .label.extension {
-      border: 4px solid #66A7B5;
-    }
-    .label.refset {
-      border: 4px solid #2D4E66;
-    }
+.callout-box.bottom {
+  top: 120%;
+  left: 0px;
+}
 
-    .logo {
-        width: 40%;
-        height: auto;
-        display: block;
-        margin: 0 auto; /* optional: centers it horizontally */
-    }
+.callout-box.left {
+  top: 20%;
+  right: 110%;
+}
 
-    .main-row {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 1rem;
-    }
+.callout-box.right {
+  top: 20%;
+  left: 110%;
+}
 
-    @keyframes pulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
-      }
-      70% {
-        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
-      }
-      100% {
-        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
-      }
-    }
-    
-    .pulse {
-      animation: pulse 1s infinite;
-      font-weight: bold;
-    }
-    
-    .callout-box {
-      position: absolute;
-      background: #f9f9f9;
-      border: 1px solid #3b82f6;
-      padding: 0.75rem;
-      border-radius: 6px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-      font-size: 0.8rem;
-      z-index: 1000;
-      width: 100%;
-      color: white;
-      // max-width: 300px;
-    }
+.no-results {
+  color: #969494;
+  background-color: #f9f9f9;
+  border: 4px solid #afafaf !important;
+}
 
-    .callout-box.content {
-      border: 1px solid #414141;
-      background-color: #7A73A4;
-    }
-    .callout-box.map {
-      border: 1px solid #414141;
-      background-color: #E0AA5B;
-    }
-    .callout-box.extension {
-      border: 1px solid #414141;
-      background-color: #66A7B5;
-    }
-    .callout-box.refset {
-      border: 1px solid #414141;
-      background-color: #2D4E66;
-    }
+.diagram {
+  position: relative;
+}
 
-    .callout-box.top {
-      bottom: 120%;
-      left: 0px; 
-    }
+.diagram-lines {
+  /* fills the diagram */
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* mouse passes through */
+  z-index: 0;
+  /* *below* the cards */
+}
 
-    .callout-box.bottom {
-      top: 120%;
-      left: 0px; 
-    }
-
-    .callout-box.left {
-      top: 20%; 
-      right: 110%;
-    }
-
-    .callout-box.right {
-      top: 20%; 
-      left: 110%;
-    }
-
-    .no-results {
-      color: #969494;
-      background-color: #f9f9f9;
-      border: 4px solid #afafaf !important;
-    }
+.diagram>*:not(.diagram-lines) {
+  position: relative;
+  z-index: 1;
+  /* normal stacking */
+}
