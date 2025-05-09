@@ -316,26 +316,26 @@ topRow: SnomedBox[] = [
         // Match each membership
         memberships.items.forEach((membership: any) => {
             allBoxes.forEach(box => {
-                if (box.refsetIds?.includes(membership.refsetId)) {
-                  if (!box.results) {
-                      box.results = [];
-                  }
-                  box.results.push(membership.referencedComponentId);
-                  box.mapTargets = [];
-                  if (membership.additionalFields.mapTarget) {
-                      box.mapTargets.push(membership.additionalFields.mapTarget);
-                  }
-                  box.mapSources = [];
-                  if (membership.additionalFields.mapSource) {
-                      box.mapSources.push(membership.additionalFields.mapSource);
-                  }
+              if (box.refsetIds?.includes(membership.refsetId)) {
+                if (!box.results) {
+                    box.results = [];
                 }
-                if (box.annotationValue && membership.additionalFields.value) {
-                    const annotation = membership.additionalFields.value;
-                    if (annotation.startsWith(box.annotationValue)) {
-                        box.results.push(membership.referencedComponentId);
-                    }
+                box.results.push(membership.referencedComponentId);
+                box.mapTargets = [];
+                if (membership.additionalFields.mapTarget) {
+                    box.mapTargets.push(membership.additionalFields.mapTarget);
                 }
+                box.mapSources = [];
+                if (membership.additionalFields.mapSource) {
+                    box.mapSources.push(membership.additionalFields.mapSource);
+                }
+              }
+              if (box.annotationValue && membership.additionalFields.value) {
+                  const annotation = membership.additionalFields.value;
+                  if (annotation.startsWith(box.annotationValue)) {
+                      box.results.push(membership.referencedComponentId);
+                  }
+              }
             });
         });
         this.searching = false;

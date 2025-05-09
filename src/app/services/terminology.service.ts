@@ -493,7 +493,7 @@ export class TerminologyService {
 
   getMemberships(conceptId: string) {
     // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-DERIVATIVES/2024-07-01/members?referencedComponentId=195967001&active=true
-    let requestUrl = `https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-DERIVATIVES/2024-07-01/members?referencedComponentId=${conceptId}&active=true`;
+    let requestUrl = `https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-DERIVATIVES/2025-01-01/members?referencedComponentId=${conceptId}&active=true`;
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });
