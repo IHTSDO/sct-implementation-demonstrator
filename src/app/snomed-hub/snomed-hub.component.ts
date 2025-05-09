@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { TerminologyService } from '../services/terminology.service';
 
 @Component({
@@ -7,7 +7,7 @@ import { TerminologyService } from '../services/terminology.service';
   styleUrls: ['./snomed-hub.component.scss'],
   standalone: false
 })
-export class SnomedHubComponent implements AfterViewInit {
+export class SnomedHubComponent implements AfterViewInit, OnInit {
 
   @ViewChild('lines',   { static: true })  svg!: ElementRef<SVGSVGElement>;
   @ViewChild('diagram', { static: true })  host!: ElementRef<HTMLElement>;
@@ -23,6 +23,8 @@ export class SnomedHubComponent implements AfterViewInit {
   selectedCodeTerm = "";
   searching = false;
   searchCompleted = false;
+  examples: any[] = [];
+  examplesSource: any;
 
   topRow: SnomedBox[] = [
     { label: 'AAP/EPF Periodontal', refsetIds: ['787444003'], type: 'content', title: false },
@@ -67,6 +69,10 @@ export class SnomedHubComponent implements AfterViewInit {
   // GPS 787778008
 
   constructor(private terminologyService: TerminologyService) {
+  }
+
+  ngOnInit(): void {
+      setTimeout(() => this.terminologyService.setFhirUrlParam('http://snomed.info/sct/705115006/version/20250101'), 2000);
   }
 
   ngAfterViewInit(): void {
@@ -129,6 +135,7 @@ export class SnomedHubComponent implements AfterViewInit {
         this.searchCompleted = false;
         return;
     }
+    this.reset();
     this.searching = true;
     this.searchCompleted = false;
     // Combine all card arrays
@@ -175,6 +182,9 @@ export class SnomedHubComponent implements AfterViewInit {
 
   reset() {
     this.searching = false;
+    this.examples = [];
+    // set exmaplesSource to undefined
+    this.examplesSource = undefined;
     this.searchCompleted = false;
     this.selectedCode = null;
     this.selectedCodeTerm = "";
@@ -204,10 +214,6 @@ export class SnomedHubComponent implements AfterViewInit {
     }
   }
 
-  boxClicked(box: SnomedBox) {
-    console.log('Box clicked:', box);
-  }
-
   rippleColor(type: string): string {
     switch (type) {
       case 'content':   // #6B4FC1
@@ -220,6 +226,35 @@ export class SnomedHubComponent implements AfterViewInit {
         return 'rgba( 57, 161, 190, 0.5)';
       default:
         return 'rgba(0, 0, 0, 0.35)';   // keep the grey a bit lighter
+    }
+  }
+
+  boxClicked(box: SnomedBox) {
+    this.setExamples(box);
+  }
+
+  setExamples(box: SnomedBox) {
+    this.reset();
+    if (box.refsetIds) {
+      this.searching = true;
+      var ecl = box.refsetIds.map(refsetId => {
+        return '^ ' + refsetId;
+      }).join(' OR ');
+      console.log('ECL: ' + ecl);
+      // Set index to rnd 0 to 80, but only even numbers
+      const index = Math.floor(Math.random() * 20) * 4;
+      this.terminologyService.expandValueSet(ecl, '', index ,4).subscribe((response: any) => {
+        this.searching = false;
+        if (response?.expansion?.contains?.length > 0) {
+          this.examplesSource = box;
+          this.examples = response?.expansion?.contains?.map((item: any) => {
+            return {
+              code: item.code,
+              display: item.display
+            };
+          });
+        }
+      });
     }
   }
 }

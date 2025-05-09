@@ -58,6 +58,15 @@
                             (cleared)="reset()" [term]="selectedCodeTerm" class="w-full"></app-autocomplete-binding>
                         <mat-progress-bar mode="indeterminate"
                             [ngStyle]="{ visibility: searching ? 'visible' : 'hidden' }"></mat-progress-bar>
+                        <div class="center-message" *ngIf="!examplesSource">
+                            SNOMED International acts as a central hub for semantic interoperability across international health information standards
+                        </div>
+                        <div class="examples">
+                            <span class="text-lg" *ngIf="examplesSource">{{ examplesSource?.label }} {{ examplesSource?.type }} examples:</span>
+                            <button mat-flat-button color="primary" *ngFor="let example of examples" (click)="codeSelected(example)">
+                                {{ example.display }}
+                            </button>
+                        </div>
                     </div>
                     <div class="col narrow">
                         <div *ngFor="let box of rightCol.slice(1, rightCol.length -1)" class="card square color"

@@ -4,6 +4,7 @@
   flex-direction: column;
   gap: 1.5rem;
   margin: 2rem;
+  position: relative;
 }
 
 /* ─── generic card ─────────────────────────── */
@@ -73,6 +74,8 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .center-column {
@@ -80,7 +83,7 @@
   background-color: rgb(0, 169, 224);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   padding: 1rem;
   gap: 1rem;
@@ -268,4 +271,38 @@
   border-radius: inherit;       /* ripple follows card’s rounding   */
   overflow: hidden;     
   padding: 10px;        /* clip the ink at the edges        */
+}
+
+.examples {
+  color: #f9f9f9;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+
+  /* 🔸 superposición relativa al .diagram */
+  position: absolute;
+  left: 50%;
+  top: 60%;                /* ajusta este % para subir/bajar el mensaje */
+  transform: translate(-50%, -50%);
+  z-index: 2000;           /* delante de tarjetas y líneas */
+}
+
+.center-message {
+  /* apariencia existente */
+  font-size: x-large;
+  color: white;
+  font-weight: bold;
+  max-width: 70%;
+  text-align: center;
+
+  /* 🔸 superposición relativa al .diagram */
+  position: absolute;
+  left: 50%;
+  top: 60%;                /* ajusta este % para subir/bajar el mensaje */
+  transform: translate(-50%, -50%);
+  z-index: 2000;           /* delante de tarjetas y líneas */
+  pointer-events: none;    /* no bloquea clics */
 }
