@@ -8,7 +8,7 @@
         <div class="row gap">
             <div *ngFor="let box of topRow" class="card label" #cardLabel [ngClass]="[
                 box.type,
-                box.results?.length ? 'pulse' : '',
+                (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
                 (searchCompleted && !box.results?.length) ? 'no-results' : ''
                 ]">
                 <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
@@ -23,7 +23,7 @@
             <div class="col gap left">
                 <div *ngFor="let box of leftCol" class="card label" #cardLabel [ngClass]="[
                     box.type,
-                    box.results?.length ? 'pulse' : '',
+                    (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
                     (searchCompleted && !box.results?.length) ? 'no-results' : ''
                     ]">
                     <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
@@ -62,10 +62,11 @@
                             SNOMED International acts as a central hub for semantic interoperability across international health information standards
                         </div>
                         <div class="examples">
-                            <span class="text-lg" *ngIf="examplesSource">{{ examplesSource?.label }} {{ examplesSource?.type }} examples:</span>
-                            <button mat-flat-button color="primary" *ngFor="let example of examples" (click)="codeSelected(example)">
-                                {{ example.display }}
-                            </button>
+                            <div class="text-lg text-center" *ngIf="examplesSource">{{ examplesSource.description }}</div>
+                            <div class="" *ngIf="examples?.length">{{ examplesSource?.label }} {{ examplesSource?.type }} examples:</div>
+                            <mat-chip-set aria-label="Fish selection">
+                                <mat-chip *ngFor="let example of examples" (click)="codeSelected(example)">{{ example.display }}</mat-chip>
+                            </mat-chip-set>
                         </div>
                     </div>
                     <div class="col narrow">
@@ -89,7 +90,7 @@
             <div class="col gap right">
                 <div *ngFor="let box of rightCol" class="card label" #cardLabel [ngClass]="[
                     box.type,
-                    box.results?.length ? 'pulse' : '',
+                    (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
                     (searchCompleted && !box.results?.length) ? 'no-results' : ''
                     ]">
                     <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
@@ -104,7 +105,7 @@
         <div class="row gap">
             <div *ngFor="let box of bottomRow" class="card label" #cardLabel [ngClass]="[
                 box.type,
-                box.results?.length ? 'pulse' : '',
+                (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
                 (searchCompleted && !box.results?.length) ? 'no-results' : ''
                 ]">
                 <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">

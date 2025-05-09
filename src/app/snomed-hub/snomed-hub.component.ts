@@ -26,45 +26,208 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
   examples: any[] = [];
   examplesSource: any;
 
-  topRow: SnomedBox[] = [
-    { label: 'AAP/EPF Periodontal', refsetIds: ['787444003'], type: 'content', title: false },
-    { label: 'GMDN devices', refsetIds: ['467614008'], type: 'content', title: true },
-    { label: 'ADA SNODENT', refsetIds: ['721144007', '721145008'], type: 'content', title: false },
-    { label: 'EDQM dose forms', refsetIds: ['1237627005'], type: 'map', title: false },
-    { label: 'ICD‑10', refsetIds: ['447562003'], type: 'map', title: false },
-    { label: 'ICD‑11 MMS', type: 'map', title: false },
-    { label: 'ICD‑O', refsetIds: ['446608001'], type: 'map', title: true },
-    { label: 'HPO', type: 'map', title: false }
+  /* ---------------  Top row  ------------------------------------------------ */
+topRow: SnomedBox[] = [
+    {
+      label: 'AAP/EPF Periodontal',
+      description: 'Joint refset for periodontal terms curated with the American Academy of Periodontology and the European Federation of Periodontology.',
+      refsetIds: ['787444003'],
+      type: 'content',
+      title: false
+    },
+    {
+      label: 'GMDN devices',
+      description: 'Global Medical Device Nomenclature concepts aligned to SNOMED CT for consistent device coding.',
+      refsetIds: ['467614008'],
+      type: 'content',
+      title: true
+    },
+    {
+      label: 'ADA SNODENT',
+      description: 'American Dental Association’s SNODENT vocabulary integrated into SNOMED CT for oral‑health documentation.',
+      refsetIds: ['721144007', '721145008'],
+      type: 'content',
+      title: false
+    },
+    {
+      label: 'EDQM dose forms',
+      description: 'European Directorate for the Quality of Medicines dose‑form terminology mapped to SNOMED medicinal product model.',
+      refsetIds: ['1237627005'],
+      type: 'map',
+      title: false
+    },
+    {
+      label: 'ICD‑10',
+      description: 'WHO ICD‑10 to SNOMED CT map supporting statistical reporting and clinical capture.',
+      refsetIds: ['447562003'],
+      type: 'map',
+      title: false
+    },
+    {
+      label: 'ICD‑11 MMS',
+      description: 'Authoritative map between SNOMED CT clinical content and ICD‑11 Mortality & Morbidity Statistics.',
+      type: 'map',
+      title: false
+    },
+    {
+      label: 'ICD‑O',
+      description: 'SNOMED CT and  International Classification of Diseases for Oncology tumour morphology alignment.',
+      refsetIds: ['446608001'],
+      type: 'map',
+      title: true
+    },
+    {
+      label: 'HPO',
+      description: 'Human Phenotype Ontology terms cross‑linked to SNOMED CT for genomic and rare‑disease applications.',
+      type: 'map',
+      title: false
+    }
   ];
 
+  /* ---------------  Left column  ------------------------------------------- */
   leftCol: SnomedBox[] = [
-    { label: 'AJCC Cancer Staging', annotationValue:'American College of Surgeons, Chicago, Illinois: https://www.facs.org/quality-programs/cancer/ajcc/cancer-staging', type: 'content', title: false },
-    { label: 'Union for International Cancer Control', annotationValue: 'Union for International Cancer Control: https://www.uicc.org/who-we-are/about-uicc/uicc-and-tnm',type: 'content', title: false },
-    { label: 'Convergent Medical Terminology', type: 'content', title: false },
-    { label: 'ICNP nursing', refsetIds: ['711112009', '712505008'], type: 'content', title: false },
-    { label: 'INSERM Orphanet rare disease', annotationValue: 'Inserm Orphanet', type: 'content', title: false },
-    { label: 'ILAE Epilepsy', type: 'content', title: false },
-    { label: 'IDDSI Diet', type: 'content', title: false }
+    {
+      label: 'AJCC Cancer Staging',
+      description: 'SNOMED CT value sets that encode AJCC TNM cancer‑staging categories.',
+      annotationValue: 'American College of Surgeons, Chicago, Illinois: https://www.facs.org/quality-programs/cancer/ajcc/cancer-staging',
+      type: 'content',
+      title: false
+    },
+    {
+      label: 'Union for International Cancer Control',
+      description: 'UICC TNM staging elements represented in SNOMED CT for global oncology interoperability.',
+      annotationValue: 'Union for International Cancer Control: https://www.uicc.org/who-we-are/about-uicc/uicc-and-tnm',
+      type: 'content',
+      title: false
+    },
+    {
+      label: 'Convergent Medical Terminology',
+      description: 'Kaiser Permanente’s CMT concepts subsumed into SNOMED CT for wider reuse.',
+      type: 'content',
+      title: false
+    },
+    {
+      label: 'ICNP nursing',
+      description: 'International Classification for Nursing Practice subsets mapped to SNOMED CT for nursing documentation.',
+      refsetIds: ['711112009', '712505008'],
+      type: 'content',
+      title: false
+    },
+    {
+      label: 'INSERM Orphanet rare disease',
+      description: 'Rare‑disease concepts from Orphanet aligned to SNOMED CT for precision medicine.',
+      annotationValue: 'Inserm Orphanet',
+      type: 'content',
+      title: false
+    },
+    {
+      label: 'ILAE Epilepsy',
+      description: 'International League Against Epilepsy seizure & syndrome classifications represented in SNOMED CT.',
+      type: 'content',
+      title: false
+    },
+    {
+      label: 'IDDSI Diet',
+      description: 'International Dysphagia Diet Standardisation Initiative texture levels encoded in SNOMED CT.',
+      type: 'content',
+      title: false
+    }
   ];
 
+  /* ---------------  Right column  ------------------------------------------ */
   rightCol: SnomedBox[] = [
-    { label: 'MedDRA', refsetIds: ['816210007', '1193497006'], type: 'map', title: false },
-    { label: 'Orphanet', refsetIds: ['784008009'], type: 'map', title: false },
-    { label: 'DICOM', refsetIds: ['1119410008'], type: 'refset', title: false },
-    { label: 'IHE Profiles', type: 'refset', title: false },
-    { label: 'Dentistry Odontogram', refsetIds: ['721145008'], type: 'refset', title: false }
+    {
+      label: 'MedDRA',
+      description: 'SNOMED CT and  MedDRA map for pharmacovigilance and adverse‑event reporting.',
+      refsetIds: ['816210007', '1193497006'],
+      type: 'map',
+      title: false
+    },
+    {
+      label: 'Orphanet',
+      description: 'Additional Orphanet rare‑disease identifiers maintained as a SNOMED CT map for research registries.',
+      refsetIds: ['784008009'],
+      type: 'map',
+      title: false
+    },
+    {
+      label: 'DICOM',
+      description: 'Value sets for imaging procedure codes shared between DICOM and SNOMED CT.',
+      refsetIds: ['1119410008'],
+      type: 'refset',
+      title: false
+    },
+    {
+      label: 'IHE Profiles',
+      description: 'SNOMED CT refsets supporting Integrating‑the‑Healthcare‑Enterprise profiles (e.g., APSR, PaLM).',
+      type: 'refset',
+      title: false
+    },
+    {
+      label: 'Dentistry Odontogram',
+      description: 'Dental odontogram reference set aligning charting symbols with SNOMED CT concepts.',
+      refsetIds: ['721145008'],
+      type: 'refset',
+      title: false
+    }
   ];
 
+  /* ---------------  Bottom row  ------------------------------------------- */
   bottomRow: SnomedBox[] = [
-    { label: 'LOINC Extension', type: 'extension', title: false },
-    { label: 'GMDN equivalency file', type: 'extension', title: true },
-    { label: 'NCPT', refsetIds: ['1303957004'], type: 'refset', title: false },
-    { label: 'ERA', type: 'refset', title: false },
-    { label: 'GP/FP', refsetIds: ['450970008'], type: 'refset', title: false },
-    { label: 'ICNP', type: 'refset', title: false },
-    { label: 'HL7 IPS', refsetIds: ['816080008'], type: 'refset', title: true },
-    { label: 'Dentistry Diagnosis', refsetIds: ['721144007'], type: 'refset', title: false }
+    {
+      label: 'LOINC Extension',
+      description: 'SNOMED CT extension that re‑uses LOINC parts for detailed laboratory and clinical observations.',
+      type: 'extension',
+      title: false
+    },
+    {
+      label: 'GMDN equivalency file',
+      description: 'Equivalency table linking Global Medical Device Nomenclature terms to SNOMED CT concepts.',
+      type: 'extension',
+      title: true
+    },
+    {
+      label: 'NCPT',
+      description: 'Nutrition Care Process Terminology refset for dietetics assessments and interventions.',
+      refsetIds: ['1303957004'],
+      type: 'refset',
+      title: false
+    },
+    {
+      label: 'ERA',
+      description: 'Endocrine Rare‑disease Alliance subset (or local “ERA” set) modelled in SNOMED CT.',
+      type: 'refset',
+      title: false
+    },
+    {
+      label: 'GP/FP',
+      description: 'General Practice/Family Practice subset for primary‑care problem‑lists.',
+      refsetIds: ['450970008'],
+      type: 'refset',
+      title: false
+    },
+    {
+      label: 'ICNP',
+      description: 'International Nursing refset reused as a diagnostic subset within SNOMED CT.',
+      type: 'refset',
+      title: false
+    },
+    {
+      label: 'HL7 IPS',
+      description: 'Value sets for the HL7 International Patient Summary profile expressed with SNOMED CT codes.',
+      refsetIds: ['816080008'],
+      type: 'refset',
+      title: true
+    },
+    {
+      label: 'Dentistry Diagnosis',
+      description: 'Diagnostic subset for common dental conditions, curated with the ADA.',
+      refsetIds: ['721144007'],
+      type: 'refset',
+      title: false
+    }
   ];
+
 
   // GPS 787778008
 
@@ -231,6 +394,7 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
 
   boxClicked(box: SnomedBox) {
     this.setExamples(box);
+    this.examplesSource = box;
   }
 
   setExamples(box: SnomedBox) {
@@ -240,13 +404,11 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
       var ecl = box.refsetIds.map(refsetId => {
         return '^ ' + refsetId;
       }).join(' OR ');
-      console.log('ECL: ' + ecl);
       // Set index to rnd 0 to 80, but only even numbers
-      const index = Math.floor(Math.random() * 20) * 4;
-      this.terminologyService.expandValueSet(ecl, '', index ,4).subscribe((response: any) => {
+      const index = Math.floor(Math.random() * 40) * 3;
+      this.terminologyService.expandValueSet(ecl, '', index ,3).subscribe((response: any) => {
         this.searching = false;
         if (response?.expansion?.contains?.length > 0) {
-          this.examplesSource = box;
           this.examples = response?.expansion?.contains?.map((item: any) => {
             return {
               code: item.code,
@@ -263,6 +425,7 @@ export interface SnomedBox {
   label: string;
   type: 'content' | 'map' | 'extension' | 'refset';
   title: boolean;
+  description?: string;
   refsetIds?: string[];
   term?: string;
   results?: any;
