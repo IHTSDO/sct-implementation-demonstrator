@@ -54,10 +54,16 @@
                     </div>
                     <div class="center-column" #centerColumn>
                         <img src="assets/img/S-Logo-2.png" alt="SNOMED International" class="logo" />
+                        <div [style.visibility]="selectedCode && !searching ? 'visible' : 'hidden'" class="link-container">
+                            <a [href]="'https://browser.ihtsdotools.org/?perspective=full&conceptId1=' + selectedCode?.code + '&edition=MAIN/SNOMEDCT-DERIVATIVES&release=&languages=en'"
+                                target="_blank" rel="noopener noreferrer" class="linkout">
+                                Open in SNOMED CT Browser
+                                <mat-icon>open_in_new</mat-icon>
+                            </a>
+                        </div>
                         <app-autocomplete-binding [binding]="searchBinding" (selectionChange)="codeSelected($event)"
                             (cleared)="reset()" [term]="selectedCodeTerm" class="w-full"></app-autocomplete-binding>
-                        <mat-progress-bar mode="indeterminate"
-                            [ngStyle]="{ visibility: searching ? 'visible' : 'hidden' }"></mat-progress-bar>
+                        <mat-progress-bar mode="indeterminate" *ngIf="searching"></mat-progress-bar>
                         <div class="center-message" *ngIf="!examplesSource">
                             SNOMED International acts as a central hub for semantic interoperability across international health information standards
                         </div>

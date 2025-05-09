@@ -404,20 +404,30 @@ topRow: SnomedBox[] = [
       var ecl = box.refsetIds.map(refsetId => {
         return '^ ' + refsetId;
       }).join(' OR ');
-      // Set index to rnd 0 to 80, but only even numbers
-      const index = Math.floor(Math.random() * 40) * 3;
-      this.terminologyService.expandValueSet(ecl, '', index ,3).subscribe((response: any) => {
-        this.searching = false;
-        if (response?.expansion?.contains?.length > 0) {
-          this.examples = response?.expansion?.contains?.map((item: any) => {
-            return {
-              code: item.code,
-              display: item.display
-            };
-          });
-        }
-      });
+      this.performExamplesRequest(ecl, 3);
+    } else if (box.annotationValue) {
+      //  ^[referencedComponentId, value] 1292992004 
+      //  ^ 1292992004 {{ M value = "American College of Surgeons, Chicago, Illinois: https://www.facs.org/quality-programs/cancer/ajcc/cancer-staging" }}
+      this.searching = true;
+      const ecl = '^ 1292992004 {{ M value = "' + box.annotationValue + '" }}';
+      this.performExamplesRequest(ecl, 3);
     }
+  }
+
+  performExamplesRequest(ecl: string, count: number) {
+    this.searching = true;
+    const index = Math.floor(Math.random() * (20 * count)) * count;
+    this.terminologyService.expandValueSet(ecl, '', index, count).subscribe((response: any) => {
+      this.searching = false;
+      if (response?.expansion?.contains?.length > 0) {
+        this.examples = response?.expansion?.contains?.map((item: any) => {
+          return {
+            code: item.code,
+            display: item.display
+          };
+        });
+      }
+    });
   }
 }
 
