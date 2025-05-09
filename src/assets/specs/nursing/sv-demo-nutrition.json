@@ -35,9 +35,9 @@
       "count": 1
     },
     {
-      "title": "Orsak",
+      "title": "Orsaker",
       "code": "",
-      "type": "Checkbox",
+      "type": "Text box",
       "ecl": "64379006",
       "value": null,
       "unit": null,
@@ -114,7 +114,7 @@
     {
       "title": "Anteckningar",
       "code": "",
-      "type": "Text box",
+      "type": "Select (Single)",
       "ecl": "386372009 OR 1759002 OR 710836004 OR 61310001 OR 422972009",
       "value": null,
       "unit": null,

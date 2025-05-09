@@ -74,7 +74,7 @@ export class SvDemoComponent implements OnInit {
     }, 1000);
 
     // Load language metadata from https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json
-    this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
+    this.http.get('assets/language/national-language-metadata.json').subscribe((data: any) => {
       this.languageMetadata = data;
       this.setupLanguageMetadata();
     });
