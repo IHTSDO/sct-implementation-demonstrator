@@ -18,13 +18,14 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
   @ViewChildren('cardLabel', { read: ElementRef })
   cardLabels!: QueryList<ElementRef<HTMLElement>>;
 
-  searchBinding = { ecl: '*', title: 'Search a SNOMED CT concept...' };
+  searchBinding = { ecl: '*', title: 'Search a SNOMED CT concept or click on a collaboration box...' };
   selectedCode: any = null;
   selectedCodeTerm = "";
   searching = false;
   searchCompleted = false;
   examples: any[] = [];
   examplesSource: any;
+  resultsNarrative = '';
 
   /* ---------------  Top row  ------------------------------------------------ */
 topRow: SnomedBox[] = [
@@ -89,7 +90,8 @@ topRow: SnomedBox[] = [
     {
       label: 'AJCC Cancer Staging',
       description: 'SNOMED CT value sets that encode AJCC TNM cancer‑staging categories.',
-      annotationValue: 'American College of Surgeons, Chicago, Illinois: https://www.facs.org/quality-programs/cancer/ajcc/cancer-staging',
+      annotationValue: 'American College of Surgeons',
+      // annotationValue: 'American College of Surgeons, Chicago, Illinois: https://www.facs.org/quality-programs/cancer/ajcc/cancer-staging',
       type: 'content',
       title: false
     },
@@ -307,6 +309,7 @@ topRow: SnomedBox[] = [
     allBoxes.forEach(box => box.results = []);
     this.selectedCodeTerm = code.display + ' - SCTID: ' + code.code;
     this.selectedCode = code;
+    this.resultsNarrative = 'The concept is part of SNOMED Integrations with ';
     this.terminologyService.getMemberships(code.code).subscribe((memberships: any) => {
         this.selectedCode.memberships = memberships;
         // Combine all card arrays
@@ -321,6 +324,7 @@ topRow: SnomedBox[] = [
                     box.results = [];
                 }
                 box.results.push(membership.referencedComponentId);
+                this.resultsNarrative = this.resultsNarrative + box.label + ', ';
                 box.mapTargets = [];
                 if (membership.additionalFields.mapTarget) {
                     box.mapTargets.push(membership.additionalFields.mapTarget);
@@ -333,11 +337,18 @@ topRow: SnomedBox[] = [
               if (box.annotationValue && membership.additionalFields.value) {
                   const annotation = membership.additionalFields.value;
                   if (annotation.startsWith(box.annotationValue)) {
+                      this.resultsNarrative = this.resultsNarrative + box.label + ', ';
                       box.results.push(membership.referencedComponentId);
                   }
               }
             });
         });
+        if (this.resultsNarrative.endsWith(', ')) {
+            this.resultsNarrative = this.resultsNarrative.slice(0, -2);
+        }
+        if (this.resultsNarrative.endsWith('with ')) {
+            this.resultsNarrative = '';
+        }
         this.searching = false;
         this.searchCompleted = true;
     });
@@ -351,6 +362,7 @@ topRow: SnomedBox[] = [
     this.searchCompleted = false;
     this.selectedCode = null;
     this.selectedCodeTerm = "";
+    this.resultsNarrative = '';
     // Clear all results
     const allBoxes = [...this.topRow, ...this.leftCol, ...this.rightCol, ...this.bottomRow];
     allBoxes.forEach(box => box.results = []);
