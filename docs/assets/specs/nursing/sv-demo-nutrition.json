@@ -114,8 +114,8 @@
     {
       "title": "Anteckningar",
       "code": "",
-      "type": "Select (Single)",
-      "ecl": "386372009 OR 1759002 OR 710836004 OR 61310001 OR 422972009",
+      "type": "Text box",
+      "ecl": null,
       "value": null,
       "unit": null,
       "note": null,

@@ -1,0 +1,41 @@
+{
+  "title": "Nutritionsdiagnos",
+  "bindings": [
+    {
+      "title": "Problem",
+      "code": {
+        "code": "225388007",
+        "display": "Dietary intake assessment"
+      },
+      "type": "Autocomplete",
+      "ecl": "^ 1303957004 |Nutrition Care Process Terminology reference set|   AND (<  404684003 |Clinical finding|  OR <  413350009 |Finding with explicit context (situation)| )",
+      "value": null,
+      "unit": null,
+      "note": null,
+      "repeatable": true,
+      "count": 1
+    },
+    {
+      "title": "Etiologi",
+      "code": "",
+      "type": "Autocomplete",
+      "ecl": "< 404684003 |Clinical finding (finding)|",
+      "value": null,
+      "unit": null,
+      "note": null,
+      "repeatable": true,
+      "count": 1
+    },
+    {
+      "title": "Symtom och tecken",
+      "code": "",
+      "type": "Text box",
+      "ecl": "<  404684003 |Clinical finding|  ",
+      "value": null,
+      "unit": null,
+      "note": null,
+      "repeatable": true,
+      "count": 1
+    }
+  ]
+}

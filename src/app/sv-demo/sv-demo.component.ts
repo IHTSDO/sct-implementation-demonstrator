@@ -16,9 +16,10 @@ export class SvDemoComponent implements OnInit {
 
   emptySpec: any = {};
   nutritionSpecs = [
-    { specFile: "Nutrition Assessment.json", spec: this.emptySpec },
-    { specFile: "Nutrition Diagnosis.json", spec: this.emptySpec },
-    { specFile: "NCPT_Intervention_form.json", spec: this.emptySpec },
+    { specFile: "Nutritionsutredning.json", spec: this.emptySpec },
+    { specFile: "Nutritionsdiagnos.json", spec: this.emptySpec },
+    { specFile: "Malochnutrition.json", spec: this.emptySpec },
+    { specFile: "Nutritionsuppföljning.json", spec: this.emptySpec },
   ];
 
   nursingSpecs = [
@@ -90,7 +91,7 @@ export class SvDemoComponent implements OnInit {
   loadSpecs() {
     this.nutritionSpecs.forEach(async (spec) => {
       spec.spec = this.emptySpec;
-      const data: any = await lastValueFrom(this.http.get('assets/specs/ncpt/' + spec.specFile));
+      const data: any = await lastValueFrom(this.http.get('assets/specs/sv-demo/' + spec.specFile));
       spec.spec = data;
     });
 
@@ -120,7 +121,7 @@ export class SvDemoComponent implements OnInit {
   }
 
   async loadQuestionnaires() {
-    const qdata: any = await lastValueFrom(this.http.get('assets/specs/ncpt/Antropometrisk.R4.json'));
+    const qdata: any = await lastValueFrom(this.http.get('assets/specs/sv-demo/Antropometrisk.R5.json'));
     this.antropometriskQuestionnaire = qdata;
     LForms.Util.addFormToPage(this.antropometriskQuestionnaire, 'myFormContainer');
   }

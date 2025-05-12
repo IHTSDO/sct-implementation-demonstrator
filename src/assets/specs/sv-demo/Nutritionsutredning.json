@@ -1,0 +1,99 @@
+{
+  "title": "Nutritionsutredning",
+  "bindings": [
+    {
+      "title": "Anamnes",
+      "code": "",
+      "type": "Section header",
+      "ecl": "",
+      "value": "",
+      "unit": "",
+      "note": "",
+      "repeatable": false,
+      "count": 1
+    },
+    {
+      "title": "Mat och nutritionsintag",
+      "code": "",
+      "type": "Autocomplete",
+      "ecl": "<  300893006 |Nutritional finding (finding)|  OR  <  363246002 |Nutritional deficiency associated condition (disorder)|",
+      "value": "",
+      "unit": null,
+      "note": "",
+      "repeatable": true,
+      "count": 1
+    },
+    {
+      "title": "Kliniska fynd",
+      "code": {
+        "code": "404684003",
+        "display": "kliniskt fynd"
+      },
+      "type": "Autocomplete",
+      "ecl": "< 404684003 |Clinical finding|",
+      "value": null,
+      "unit": null,
+      "note": null,
+      "repeatable": true,
+      "count": 1
+    },
+    {
+      "title": "Kommentar",
+      "code": "",
+      "type": "Text box",
+      "ecl": null,
+      "value": null,
+      "unit": null,
+      "note": null,
+      "repeatable": false,
+      "count": 1
+    },
+    {
+      "title": "Måltider",
+      "code": "",
+      "type": "Section header",
+      "ecl": "",
+      "value": "",
+      "unit": "",
+      "note": "",
+      "repeatable": false,
+      "count": 1
+    },
+    {
+      "title": "Måltidsrelaterade fynd",
+      "code": null,
+      "type": "Select (Single)",
+      "ecl": "< 364766001 |Finding of eating routine (finding)| or < 289140002 |Finding of regularity of eating (finding)|",
+      "value": null,
+      "unit": null,
+      "note": null,
+      "repeatable": false,
+      "count": 1
+    },
+    {
+      "title": "Måltidsfrekvens",
+      "code": null,
+      "type": "Decimal",
+      "ecl": null,
+      "value": null,
+      "unit": {
+        "code": "827056004",
+        "display": "Serving"
+      },
+      "note": null,
+      "repeatable": false,
+      "count": 1
+    },
+    {
+      "title": "Kommentar",
+      "code": null,
+      "type": "Text box",
+      "ecl": null,
+      "value": null,
+      "unit": null,
+      "note": null,
+      "repeatable": false,
+      "count": 1
+    }
+  ]
+}
