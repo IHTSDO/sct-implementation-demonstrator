@@ -14,7 +14,11 @@
   gap: 1.5rem;
   margin: 2rem;
   position: relative;
-  width: 90%;
+  width: 100%;
+}
+
+.side-col {
+  width: clamp(3rem, 8vw, 22rem);
 }
 
 /* ─── generic card ─────────────────────────── */
