@@ -1,19 +1,30 @@
-/* ─── outer column ─────────────────────────── */
+.main-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  width: 100vw;       // or 100% if contained in full-width parent
+  max-width: none;
+}
+
 .diagram {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   margin: 2rem;
   position: relative;
+  width: 90%;
 }
 
 /* ─── generic card ─────────────────────────── */
 .card {
-  flex: 1 1 0;
+  flex: 1 1 auto;
+  min-width: 0;
   padding: .75rem .5rem;
   background: #fff;
   border-radius: 4px;
-  font-size: .85rem;
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
   box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
   display: flex;
   align-items: center; // 🔹 vertical centering
@@ -23,16 +34,30 @@
   position: relative;
 }
 
+.card.label {
+  width: clamp(3rem, 12.5vw, 12.5w);
+}
+
+// @media (max-width: 768px) {
+//   .card {
+//     font-size: 0.75rem;
+//     padding: 0.5rem;
+//   }
+// }
+
 .card.square {
   border-radius: 0px;
-  font-size: .85rem;
+  // font-size: .85rem;
   color: #fff;
   font-weight: bolder;
-  font-size: large;
+  // font-size: large;
 }
 
 .row {
   display: flex;
+  flex-wrap: nowrap;
+  min-width: 0;
+  width: 100%;
 }
 
 .row.gap {
@@ -46,8 +71,8 @@
 .col {
   display: flex;
   flex-direction: column;
-  min-width: 5rem;
-  width: 12.5%;
+  
+  // flex: 1 1 0;
   /* 1/8 of row width → matches small card width above */
   // min-width:120px;      /* safety on narrow screens */
 }
@@ -58,10 +83,12 @@
 
 .col.left {
   padding-right: 1rem;
+  min-width: 12.5%;
 }
 
 .col.right {
   padding-left: 1rem;
+  min-width: 12.5%;
 }
 
 .col.narrow {
@@ -148,13 +175,6 @@
   display: block;
   margin: 0 auto;
   /* optional: centers it horizontally */
-}
-
-.main-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
 }
 
 @keyframes pulse {
@@ -259,7 +279,7 @@
 .card.label {
   position: relative;           /* anchor for the overlay           */
   min-height: 5rem;
-  min-width: 9rem;
+  min-width: 4rem;
 }
 
 .ripple-host {
@@ -336,3 +356,4 @@
 .linkout:focus {
   color: white;     /* hover / keyboard focus colour */
 }
+

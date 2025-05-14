@@ -30,6 +30,14 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
   /* ---------------  Top row  ------------------------------------------------ */
 topRow: SnomedBox[] = [
     {
+      label: 'AJCC Cancer Staging',
+      description: 'SNOMED CT value sets that encode AJCC TNM cancer‑staging categories.',
+      annotationValue: 'American College of Surgeons',
+      // annotationValue: 'American College of Surgeons, Chicago, Illinois: https://www.facs.org/quality-programs/cancer/ajcc/cancer-staging',
+      type: 'content',
+      title: false
+    },
+    {
       label: 'AAP/EPF Periodontal',
       description: 'Joint refset for periodontal terms curated with the American Academy of Periodontology and the European Federation of Periodontology.',
       refsetIds: ['787444003'],
@@ -76,25 +84,11 @@ topRow: SnomedBox[] = [
       refsetIds: ['446608001'],
       type: 'map',
       title: true
-    },
-    {
-      label: 'HPO',
-      description: 'Human Phenotype Ontology terms cross‑linked to SNOMED CT for genomic and rare‑disease applications.',
-      type: 'map',
-      title: false
     }
   ];
 
   /* ---------------  Left column  ------------------------------------------- */
   leftCol: SnomedBox[] = [
-    {
-      label: 'AJCC Cancer Staging',
-      description: 'SNOMED CT value sets that encode AJCC TNM cancer‑staging categories.',
-      annotationValue: 'American College of Surgeons',
-      // annotationValue: 'American College of Surgeons, Chicago, Illinois: https://www.facs.org/quality-programs/cancer/ajcc/cancer-staging',
-      type: 'content',
-      title: false
-    },
     {
       label: 'Union for International Cancer Control',
       description: 'UICC TNM staging elements represented in SNOMED CT for global oncology interoperability.',
@@ -138,6 +132,12 @@ topRow: SnomedBox[] = [
 
   /* ---------------  Right column  ------------------------------------------ */
   rightCol: SnomedBox[] = [
+    {
+      label: 'HPO',
+      description: 'Human Phenotype Ontology terms cross‑linked to SNOMED CT for genomic and rare‑disease applications.',
+      type: 'map',
+      title: false
+    },
     {
       label: 'MedDRA',
       description: 'SNOMED CT and  MedDRA map for pharmacovigilance and adverse‑event reporting.',
