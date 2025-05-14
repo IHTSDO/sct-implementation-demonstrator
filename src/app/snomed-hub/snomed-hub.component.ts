@@ -324,7 +324,9 @@ topRow: SnomedBox[] = [
                     box.results = [];
                 }
                 box.results.push(membership.referencedComponentId);
-                this.resultsNarrative = this.resultsNarrative + box.label + ', ';
+                if (!this.resultsNarrative.includes(box.label)) {
+                  this.resultsNarrative = this.resultsNarrative + box.label + ', ';
+                }
                 box.mapTargets = [];
                 if (membership.additionalFields.mapTarget) {
                     box.mapTargets.push(membership.additionalFields.mapTarget);

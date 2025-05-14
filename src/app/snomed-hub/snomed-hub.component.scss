@@ -36,25 +36,19 @@
   text-align: center; // multi-line horizontal centering
   word-break: break-word;
   position: relative;
+  cursor: pointer; // Add pointer cursor
+  user-select: none;
 }
 
 .card.label {
   width: clamp(3rem, 12.5vw, 12.5w);
 }
 
-// @media (max-width: 768px) {
-//   .card {
-//     font-size: 0.75rem;
-//     padding: 0.5rem;
-//   }
-// }
 
 .card.square {
   border-radius: 0px;
-  // font-size: .85rem;
   color: #fff;
   font-weight: bolder;
-  // font-size: large;
 }
 
 .row {
@@ -75,10 +69,6 @@
 .col {
   display: flex;
   flex-direction: column;
-  
-  // flex: 1 1 0;
-  /* 1/8 of row width → matches small card width above */
-  // min-width:120px;      /* safety on narrow screens */
 }
 
 .col.gap {
@@ -209,7 +199,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   font-size: 0.8rem;
   z-index: 1000;
-  width: 100%;
+  width: 80%;
   color: white;
   // max-width: 300px;
 }
@@ -236,12 +226,12 @@
 
 .callout-box.top {
   bottom: 120%;
-  left: 0px;
+  left: 10%;
 }
 
 .callout-box.bottom {
   top: 120%;
-  left: 0px;
+  left: 10%;
 }
 
 .callout-box.left {
@@ -305,27 +295,14 @@
   gap: 1rem;
   align-items: center;
   justify-content: center;
-
-  position: absolute;
-  left: 50%;
-  top: 65%;
-  transform: translate(-50%, -50%);
-  z-index: 2000;
 }
 
 .center-message {
-  font-size: x-large;
+  font-size: clamp(1rem, 1vw, 1.8rem);
   color: white;
   font-weight: bold;
   max-width: 70%;
   text-align: center;
-
-  position: absolute;
-  left: 50%;
-  top: 65%;
-  transform: translate(-50%, -50%);
-  z-index: 2000;
-  pointer-events: none;
 }
 
 :host ::ng-deep .examples .mdc-evolution-chip-set__chips {
@@ -354,6 +331,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: clamp(0.7rem, 1vw, 1rem);
 }
 
 .linkout:hover,
