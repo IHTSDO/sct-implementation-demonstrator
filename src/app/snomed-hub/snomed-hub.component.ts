@@ -42,14 +42,14 @@ topRow: SnomedBox[] = [
       description: 'Joint refset for periodontal terms curated with the American Academy of Periodontology and the European Federation of Periodontology.',
       refsetIds: ['787444003'],
       type: 'content',
-      title: false
+      title: true
     },
     {
       label: 'GMDN devices',
       description: 'Global Medical Device Nomenclature concepts aligned to SNOMED CT for consistent device coding.',
       refsetIds: ['467614008'],
       type: 'content',
-      title: true
+      title: false
     },
     {
       label: 'ADA SNODENT',
@@ -76,14 +76,14 @@ topRow: SnomedBox[] = [
       label: 'ICD‑11 MMS',
       description: 'Authoritative map between SNOMED CT clinical content and ICD‑11 Mortality & Morbidity Statistics.',
       type: 'map',
-      title: false
+      title: true
     },
     {
       label: 'ICD‑O',
       description: 'SNOMED CT and  International Classification of Diseases for Oncology tumour morphology alignment.',
       refsetIds: ['446608001'],
       type: 'map',
-      title: true
+      title: false
     }
   ];
 
