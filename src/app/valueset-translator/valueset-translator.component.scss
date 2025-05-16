@@ -1,7 +1,44 @@
 .main-container {
     padding: 20px;
-    max-width: 800px;
+    width: 95%;
+    max-width: 1400px;
     margin: 0 auto;
+    min-height: calc(100vh - 64px); // 64px is standard Material nav bar height
+    display: flex;
+    flex-direction: column;
+
+    h2 {
+        margin-top: 0;
+    }
+}
+
+.terminology-context {
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+    
+    p {
+        margin: 0 0 10px 0;
+        color: #666;
+    }
+    
+    ul {
+        margin: 0;
+        padding-left: 20px;
+        
+        li {
+            margin-bottom: 5px;
+            
+            &:last-child {
+                margin-bottom: 0;
+            }
+            
+            strong {
+                color: #333;
+            }
+        }
+    }
 }
 
 .loading-container {
@@ -9,6 +46,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex: 1;
     margin: 40px 0;
     
     .loading-text {
@@ -51,7 +89,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    max-width: 400px;
+    max-width: 600px;
 }
 
 .skip-header {
@@ -60,9 +98,16 @@
 
 .preview-table {
     margin: 20px 0;
+    flex: 1;
+    overflow: auto;
     
     table {
         width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .import-button {
+        margin-top: 20px;
     }
 }
 
@@ -84,5 +129,17 @@ mat-progress-spinner {
     
     mat-icon {
         margin-right: 5px;
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .main-container {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .column-form {
+        max-width: 100%;
     }
 }

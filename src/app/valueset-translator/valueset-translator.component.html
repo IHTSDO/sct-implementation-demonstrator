@@ -1,5 +1,13 @@
 <div class="main-container">
     <h2>ValueSet Translator</h2>
+    
+    <div class="terminology-context">
+        <p>Target ValueSet will be expanded using:</p>
+        <ul>
+            <li><strong>Version:</strong> {{ terminologyContext.fhirUrlParam }}</li>
+            <li><strong>Language:</strong> {{ terminologyContext.language }}</li>
+        </ul>
+    </div>
 
     <!-- Loading Indicator -->
     <div *ngIf="isLoading" class="loading-container">
@@ -17,7 +25,7 @@
             <input
                 type="file"
                 (change)="onFileSelected($event)"
-                accept=".xlsx,.xls,.csv,.tsv"
+                accept=".xlsx,.xls,.csv,.tsv,.json"
                 #fileInput
                 style="display: none"
             />
@@ -28,7 +36,7 @@
                 *ngIf="!successMessage"
             >
                 <mat-icon>upload_file</mat-icon>
-                Choose Excel/CSV/TSV File
+                Choose File (Excel/CSV/TSV/JSON)
             </button>
             <button 
                 mat-raised-button 
@@ -82,7 +90,7 @@
         </div>
 
         <!-- Column Selection Form -->
-        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0" class="column-form">
+        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0 && !isValueSetFile" class="column-form">
             <h3>Select Columns</h3>
             
             <mat-form-field appearance="fill">
@@ -137,6 +145,17 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
+
+            <!-- Import Button for ValueSet Files -->
+            <button
+                *ngIf="isValueSetFile"
+                mat-raised-button
+                color="primary"
+                (click)="importCodes()"
+                class="import-button"
+            >
+                Import Codes
+            </button>
         </div>
     </div>
 </div>

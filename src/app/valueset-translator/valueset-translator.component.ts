@@ -1,11 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { TerminologyService } from '../services/terminology.service';
+import { Subscription, combineLatest } from 'rxjs';
 
 interface ColumnOption {
   header: string;
   index: number;
+}
+
+interface TerminologyContext {
+  fhirUrlParam: string;
+  language: string;
 }
 
 @Component({
@@ -14,7 +20,7 @@ interface ColumnOption {
   styleUrl: './valueset-translator.component.scss',
   standalone: false
 })
-export class ValuesetTranslatorComponent implements OnInit {
+export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   file: File | null = null;
   columns: ColumnOption[] = [];
   displayedColumns: string[] = [];
@@ -26,6 +32,12 @@ export class ValuesetTranslatorComponent implements OnInit {
   showPreview = false;
   sourceValueSet: any = null;
   targetValueSet: any = null;
+  isValueSetFile = false;
+  terminologyContext: TerminologyContext = {
+    fhirUrlParam: '',
+    language: ''
+  };
+  private subscriptions = new Subscription();
 
   constructor(
     private fb: FormBuilder,
@@ -38,7 +50,26 @@ export class ValuesetTranslatorComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Subscribe to all relevant parameters
+    this.subscriptions.add(
+      combineLatest([
+        this.terminologyService.fhirUrlParam$,
+        this.terminologyService.lang$,
+        this.terminologyService.languageRefsetConcept$,
+        this.terminologyService.context$
+      ]).subscribe(([fhirUrlParam, lang, languageRefsetConcept, context]) => {
+        this.terminologyContext = {
+          fhirUrlParam,
+          language: this.terminologyService.getComputedLanguageContext()
+        };
+      })
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 
   onFileSelected(event: any) {
     this.file = event.target.files[0];
@@ -54,10 +85,21 @@ export class ValuesetTranslatorComponent implements OnInit {
     this.showPreview = false;
     this.sourceValueSet = null;
     this.targetValueSet = null;
+    this.isValueSetFile = false;
     const reader = new FileReader();
 
     reader.onload = (e: any) => {
       try {
+        if (this.file?.name.toLowerCase().endsWith('.json')) {
+          // Try to parse as FHIR ValueSet
+          const jsonContent = JSON.parse(e.target.result);
+          if (this.isFhirValueSet(jsonContent)) {
+            this.handleValueSetFile(jsonContent);
+            return;
+          }
+        }
+
+        // Handle other file types (Excel, CSV, TSV)
         if (this.file?.name.toLowerCase().endsWith('.tsv')) {
           // Handle TSV file
           const content = e.target.result;
@@ -87,7 +129,7 @@ export class ValuesetTranslatorComponent implements OnInit {
 
         this.isLoading = false;
       } catch (error) {
-        this.error = 'Error reading file. Please make sure it\'s a valid Excel, CSV, or TSV file.';
+        this.error = 'Error reading file. Please make sure it\'s a valid file format.';
         this.isLoading = false;
       }
     };
@@ -97,32 +139,86 @@ export class ValuesetTranslatorComponent implements OnInit {
       this.isLoading = false;
     };
 
-    if (this.file?.name.toLowerCase().endsWith('.tsv')) {
+    if (this.file?.name.toLowerCase().endsWith('.json') || this.file?.name.toLowerCase().endsWith('.tsv')) {
       reader.readAsText(this.file);
     } else {
       reader.readAsBinaryString(this.file as Blob);
     }
   }
 
+  private isFhirValueSet(json: any): boolean {
+    return json.resourceType === 'ValueSet' || 
+           (json.resourceType === 'Parameters' && json.parameter?.some((p: any) => p.name === 'valueSet'));
+  }
+
+  private handleValueSetFile(json: any) {
+    // Extract ValueSet from Parameters if needed
+    if (json.resourceType === 'Parameters') {
+      const valueSetParam = json.parameter?.find((p: any) => p.name === 'valueSet');
+      if (valueSetParam?.resource) {
+        json = valueSetParam.resource;
+      }
+    }
+
+    this.sourceValueSet = {
+      resourceType: 'Parameters',
+      parameter: [{
+        name: 'valueSet',
+        resource: json
+      }]
+    };
+
+    // Create preview data from ValueSet concepts
+    const concepts = json.compose?.include?.[0]?.concept || [];
+    this.previewData = [
+      ['Code', 'Display', 'System'], // Headers
+      ...concepts.map((concept: any) => [
+        concept.code || '',
+        concept.display || '',
+        json.compose?.include?.[0]?.system || ''
+      ])
+    ];
+
+    this.columns = ['Code', 'Display', 'System'].map((header, index) => ({
+      header,
+      index
+    }));
+    this.displayedColumns = this.columns.map((_, index) => `${index}`);
+    this.showPreview = true;
+    this.isValueSetFile = true;
+    this.isLoading = false;
+  }
+
   importCodes() {
-    if (!this.previewData.length || !this.importForm.valid) return;
+    if (!this.previewData.length) return;
 
-    const codeColumnIndex = this.importForm.get('codeColumn')?.value;
-    const displayColumnIndex = this.importForm.get('displayColumn')?.value;
-    const skipHeader = this.importForm.get('skipHeader')?.value;
+    if (this.isValueSetFile) {
+      // For ValueSet files, just expand the source ValueSet
+      this.expandValueSet();
+    } else {
+      // For Excel/CSV/TSV files, process as before
+      if (!this.importForm.valid) return;
 
-    // Start from index 1 if skipping header, or 0 if not
-    const startIndex = skipHeader ? 1 : 0;
+      const codeColumnIndex = this.importForm.get('codeColumn')?.value;
+      const displayColumnIndex = this.importForm.get('displayColumn')?.value;
+      const skipHeader = this.importForm.get('skipHeader')?.value;
 
-    // Map data starting from appropriate row
-    const codes = this.previewData.slice(startIndex).map(row => ({
-      code: row[codeColumnIndex],
-      display: row[displayColumnIndex]
-    })).filter(item => item.code && item.display); // Filter out empty rows
+      // Start from index 1 if skipping header, or 0 if not
+      const startIndex = skipHeader ? 1 : 0;
 
-    // Create source ValueSet from codes
-    this.sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
-    
+      // Map data starting from appropriate row
+      const codes = this.previewData.slice(startIndex).map(row => ({
+        code: row[codeColumnIndex],
+        display: row[displayColumnIndex]
+      })).filter(item => item.code && item.display); // Filter out empty rows
+
+      // Create source ValueSet from codes
+      this.sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
+      this.expandValueSet();
+    }
+  }
+
+  private expandValueSet() {
     // Create target ValueSet by expanding the source ValueSet
     this.isLoading = true;
     this.terminologyService.expandInlineValueSet(this.sourceValueSet).subscribe(
@@ -130,7 +226,7 @@ export class ValuesetTranslatorComponent implements OnInit {
         this.targetValueSet = expandedValueSet;
         this.isLoading = false;
         this.showPreview = false;
-        this.successMessage = `Successfully imported ${codes.length} codes and created expanded ValueSet`;
+        this.successMessage = 'Successfully created expanded ValueSet';
       },
       (error) => {
         this.error = 'Error expanding ValueSet: ' + error.message;
@@ -139,8 +235,10 @@ export class ValuesetTranslatorComponent implements OnInit {
     );
     
     // Reset form and file input but keep skipHeader value
-    const currentSkipHeader = this.importForm.get('skipHeader')?.value;
-    this.importForm.reset({ skipHeader: currentSkipHeader });
+    if (!this.isValueSetFile) {
+      const currentSkipHeader = this.importForm.get('skipHeader')?.value;
+      this.importForm.reset({ skipHeader: currentSkipHeader });
+    }
     this.file = null;
   }
 
