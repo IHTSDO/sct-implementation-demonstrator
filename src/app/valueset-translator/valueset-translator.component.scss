@@ -59,8 +59,14 @@
 .upload-section {
     margin: 20px 0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 10px;
+
+    .input-method-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
 }
 
 .file-name {
@@ -129,6 +135,22 @@ mat-progress-spinner {
     
     mat-icon {
         margin-right: 5px;
+    }
+}
+
+.ecl-input-section {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 800px;
+
+    .ecl-textarea {
+        width: 100%;
+    }
+
+    button {
+        align-self: flex-start;
     }
 }
 

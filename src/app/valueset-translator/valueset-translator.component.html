@@ -23,6 +23,35 @@
     <div *ngIf="!isLoading">
         <!-- File Upload Section -->
         <div class="upload-section">
+            <div class="input-method-buttons">
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    (click)="fileInput.click()"
+                    *ngIf="!successMessage && !showEclInput"
+                >
+                    <mat-icon>upload_file</mat-icon>
+                    Choose File (Excel/CSV/TSV/JSON)
+                </button>
+                <button 
+                    mat-raised-button 
+                    [color]="showEclInput ? 'accent' : 'primary'"
+                    (click)="toggleEclInput()"
+                    *ngIf="!successMessage"
+                >
+                    <mat-icon>code</mat-icon>
+                    {{ showEclInput ? 'Cancel ECL' : 'Enter ECL' }}
+                </button>
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    (click)="fileInput.click()"
+                    *ngIf="successMessage"
+                >
+                    <mat-icon>add</mat-icon>
+                    New Import
+                </button>
+            </div>
             <input
                 type="file"
                 (change)="onFileSelected($event)"
@@ -30,25 +59,29 @@
                 #fileInput
                 style="display: none"
             />
-            <button 
-                mat-raised-button 
-                color="primary" 
-                (click)="fileInput.click()"
-                *ngIf="!successMessage"
-            >
-                <mat-icon>upload_file</mat-icon>
-                Choose File (Excel/CSV/TSV/JSON)
-            </button>
-            <button 
-                mat-raised-button 
-                color="primary" 
-                (click)="fileInput.click()"
-                *ngIf="successMessage"
-            >
-                <mat-icon>add</mat-icon>
-                New Import
-            </button>
             <span *ngIf="file" class="file-name">{{ file.name }}</span>
+        </div>
+
+        <!-- ECL Input Section -->
+        <div *ngIf="showEclInput" class="ecl-input-section">
+            <mat-form-field appearance="fill" class="ecl-textarea">
+                <mat-label>Enter ECL Expression</mat-label>
+                <textarea 
+                    matInput 
+                    [(ngModel)]="eclExpression" 
+                    placeholder="Enter your ECL expression here..."
+                    rows="4"
+                ></textarea>
+            </mat-form-field>
+            <button
+                mat-raised-button
+                color="primary"
+                (click)="expandEcl()"
+                [disabled]="!eclExpression.trim()"
+            >
+                <mat-icon>expand_more</mat-icon>
+                Expand ECL
+            </button>
         </div>
 
         <!-- Success Message -->
@@ -60,6 +93,7 @@
                     color="primary" 
                     (click)="downloadSourceValueSet()"
                     class="download-button"
+                    *ngIf="sourceValueSet"
                 >
                     <mat-icon>download</mat-icon>
                     Download Source ValueSet

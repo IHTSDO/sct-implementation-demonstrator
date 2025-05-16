@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { TerminologyService } from '../services/terminology.service';
@@ -22,6 +22,8 @@ interface TerminologyContext {
   standalone: false
 })
 export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  
   file: File | null = null;
   columns: ColumnOption[] = [];
   displayedColumns: string[] = [];
@@ -34,6 +36,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   sourceValueSet: any = null;
   targetValueSet: any = null;
   isValueSetFile = false;
+  showEclInput = false;
+  eclExpression = '';
   terminologyContext: TerminologyContext = {
     fhirUrlParam: '',
     language: '',
@@ -78,6 +82,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   onFileSelected(event: any) {
     this.file = event.target.files[0];
     if (this.file) {
+      // Hide ECL input if it was shown
+      this.showEclInput = false;
+      this.eclExpression = '';
       this.readFile();
     }
   }
@@ -304,5 +311,67 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+  }
+
+  toggleEclInput() {
+    this.showEclInput = !this.showEclInput;
+    // Reset file-related state when switching to ECL input
+    if (this.showEclInput) {
+      this.file = null;
+      if (this.fileInput) {
+        this.fileInput.nativeElement.value = '';
+      }
+    }
+    // Reset ECL-related state when switching away from ECL
+    if (!this.showEclInput) {
+      this.eclExpression = '';
+    }
+    // Reset common states
+    this.showPreview = false;
+    this.previewData = [];
+    this.columns = [];
+    this.error = null;
+    this.successMessage = null;
+    this.sourceValueSet = null;
+    this.targetValueSet = null;
+  }
+
+  expandEcl() {
+    if (!this.eclExpression.trim()) {
+      this.error = 'Please enter an ECL expression';
+      return;
+    }
+
+    this.isLoading = true;
+    this.error = null;
+    this.successMessage = null;
+
+    // Directly expand the ECL expression with page size 1000
+    this.terminologyService.expandValueSet(this.eclExpression, '', 0, 1000).subscribe(
+      (expandedValueSet) => {
+        const total = expandedValueSet?.expansion?.total || 0;
+        const matchCount = expandedValueSet?.expansion?.contains?.length || 0;
+
+        if (total > 1000) {
+          this.error = `Found ${total} matching concepts. This tool currently supports a maximum of 1000 concepts. Please refine your ECL expression to return fewer results.`;
+          this.isLoading = false;
+          return;
+        }
+
+        if (matchCount > 0) {
+          this.targetValueSet = expandedValueSet;
+          this.isLoading = false;
+          this.showPreview = false;
+          this.successMessage = `Successfully expanded ECL expression. Found ${matchCount} matching concepts.`;
+        } else {
+          this.error = 'No concepts found for the given ECL expression';
+          this.isLoading = false;
+        }
+      },
+      (error) => {
+        this.error = 'Error expanding ECL: ' + error.message;
+        this.isLoading = false;
+      }
+    );
   }
 }
