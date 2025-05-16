@@ -44,6 +44,7 @@ export class TerminologyService {
   private languageRefsetConceptSubject = new BehaviorSubject<any>(this.languageRefsetConcept);
   private context!: any;
   private contextSubject = new BehaviorSubject<any>(this.context);
+  private editionNameSubject = new BehaviorSubject<string>('Edition');
 
   private expandValuesetCache = new Map<string, { timestamp: number, data: any }>();
   private readonly CACHE_LIMIT = 100;
@@ -57,6 +58,7 @@ export class TerminologyService {
   lang$ = this.langSubject.asObservable();
   languageRefsetConcept$ = this.languageRefsetConceptSubject.asObservable();
   context$ = this.contextSubject.asObservable();
+  editionName$ = this.editionNameSubject.asObservable();
 
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) { 
@@ -73,6 +75,12 @@ export class TerminologyService {
     this.fhirUrlParam = url;
     this.fhirUrlParamSubject.next(url);
     this.languageRefsetConcept = null;
+    
+    // Update edition name when URL changes
+    this.getCodeSystem(url).subscribe((response: any) => {
+      const editionName = response?.entry?.[0]?.resource?.title?.replace('SNOMED CT release ', '') || 'Edition';
+      this.editionNameSubject.next(editionName);
+    });
   }
 
   setFhirUrlParamLocal(url: string) {

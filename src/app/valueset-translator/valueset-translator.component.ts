@@ -12,6 +12,7 @@ interface ColumnOption {
 interface TerminologyContext {
   fhirUrlParam: string;
   language: string;
+  editionName: string;
 }
 
 @Component({
@@ -35,7 +36,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   isValueSetFile = false;
   terminologyContext: TerminologyContext = {
     fhirUrlParam: '',
-    language: ''
+    language: '',
+    editionName: ''
   };
   private subscriptions = new Subscription();
 
@@ -57,11 +59,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         this.terminologyService.fhirUrlParam$,
         this.terminologyService.lang$,
         this.terminologyService.languageRefsetConcept$,
-        this.terminologyService.context$
-      ]).subscribe(([fhirUrlParam, lang, languageRefsetConcept, context]) => {
+        this.terminologyService.context$,
+        this.terminologyService.editionName$
+      ]).subscribe(([fhirUrlParam, lang, languageRefsetConcept, context, editionName]) => {
         this.terminologyContext = {
           fhirUrlParam,
-          language: this.terminologyService.getComputedLanguageContext()
+          language: this.terminologyService.getComputedLanguageContext(),
+          editionName
         };
       })
     );
