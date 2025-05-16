@@ -96,6 +96,7 @@ import { SvDemoComponent } from './sv-demo/sv-demo.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
 import { MatRippleModule } from '@angular/material/core';
+import { ValuesetTranslatorComponent } from './valueset-translator/valueset-translator.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -153,7 +154,8 @@ const app = initializeApp(firebaseConfig);
         RefsetViewerComponent,
         MaturityDashboardComponent,
         SvDemoComponent,
-        SnomedHubComponent
+        SnomedHubComponent,
+        ValuesetTranslatorComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

@@ -20,6 +20,7 @@ import { LoincMainComponent } from './loinc/loinc-main/loinc-main.component';
 import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
 import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
+import { ValuesetTranslatorComponent } from './valueset-translator/valueset-translator.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -44,6 +45,7 @@ const routes: Routes = [
   { path: 'loinc', component: LoincMainComponent },
   { path: 'sv-demo', component: SvDemoComponent },
   { path: 'snomed-hub', component: SnomedHubComponent },
+  { path: 'valueset-translator', component: ValuesetTranslatorComponent },
   { path: '**', redirectTo: '' }
 ];
 
