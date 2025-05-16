@@ -29,6 +29,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = [];
   importForm: FormGroup;
   previewData: any[] = [];
+  originalData: any[] = [];
+  selectedCodeColumn: number | null = null;
+  selectedDisplayColumn: number | null = null;
   isLoading = false;
   error: string | null = null;
   successMessage: string | null = null;
@@ -97,6 +100,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     this.sourceValueSet = null;
     this.targetValueSet = null;
     this.isValueSetFile = false;
+    this.originalData = []; // Reset original data
     const reader = new FileReader();
 
     reader.onload = (e: any) => {
@@ -116,12 +120,14 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
           const content = e.target.result;
           const rows = content.split('\n').map((row: string) => row.split('\t'));
           this.previewData = rows;
+          this.originalData = rows; // Store original data
         } else {
           // Handle Excel/CSV files
           const workbook = XLSX.read(e.target.result, { type: 'binary' });
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
           this.previewData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          this.originalData = [...this.previewData]; // Store original data
         }
         
         if (this.previewData.length > 0) {
@@ -210,8 +216,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       // For Excel/CSV/TSV files, process as before
       if (!this.importForm.valid) return;
 
-      const codeColumnIndex = this.importForm.get('codeColumn')?.value;
-      const displayColumnIndex = this.importForm.get('displayColumn')?.value;
+      // Store selected columns before resetting the form
+      this.selectedCodeColumn = this.importForm.get('codeColumn')?.value;
+      this.selectedDisplayColumn = this.importForm.get('displayColumn')?.value;
       const skipHeader = this.importForm.get('skipHeader')?.value;
 
       // Start from index 1 if skipping header, or 0 if not
@@ -219,8 +226,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
       // Map data starting from appropriate row
       const codes = this.previewData.slice(startIndex).map(row => ({
-        code: row[codeColumnIndex],
-        display: row[displayColumnIndex]
+        code: row[this.selectedCodeColumn!],
+        display: row[this.selectedDisplayColumn!]
       })).filter(item => item.code && item.display); // Filter out empty rows
 
       // Create source ValueSet from codes
@@ -373,5 +380,65 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     );
+  }
+
+  downloadTranslatedFile() {
+    if (!this.originalData.length || !this.targetValueSet?.expansion?.contains || 
+        this.selectedCodeColumn === null || this.selectedDisplayColumn === null) {
+      return;
+    }
+
+    // Create a map of codes to translated display values from the target expansion
+    const translationMap = new Map<string, string>();
+    if (this.targetValueSet?.expansion?.contains) {
+      this.targetValueSet.expansion.contains.forEach((concept: any) => {
+        if (concept.code && concept.display) {
+          translationMap.set(concept.code.trim(), concept.display);
+        }
+      });
+    }
+
+    // Create a copy of the original data and update the display column
+    const translatedData = this.originalData.map((row: any[], index: number) => {
+      if (index === 0) {
+        return [...row]; // Keep header row unchanged
+      }
+      
+      const newRow = [...row];
+      const code = String(row[this.selectedCodeColumn!] || '').trim();
+      
+      if (code && translationMap.has(code)) {
+        newRow[this.selectedDisplayColumn!] = translationMap.get(code);
+      }
+      return newRow;
+    });
+
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(translatedData);
+
+    // Set column widths based on content
+    const maxLengths = translatedData[0].map((_, colIndex) => 
+      Math.max(...translatedData.map(row => 
+        String(row[colIndex] || '').length
+      ))
+    );
+    
+    ws['!cols'] = maxLengths.map(length => ({
+      wch: Math.min(Math.max(length, 10), 50) // Min width 10, max width 50
+    }));
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Translated');
+
+    // Generate filename based on original file
+    const originalExt = this.file?.name.split('.').pop() || 'xlsx';
+    const filename = this.file?.name.replace(
+      `.${originalExt}`, 
+      `_translated.xlsx`
+    ) || 'translated_file.xlsx';
+
+    // Generate and download file
+    XLSX.writeFile(wb, filename);
   }
 }

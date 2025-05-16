@@ -116,6 +116,16 @@
                     <mat-icon>table_view</mat-icon>
                     Download Target as Excel
                 </button>
+                <button 
+                    mat-raised-button 
+                    color="accent" 
+                    (click)="downloadTranslatedFile()"
+                    class="download-button"
+                    *ngIf="originalData.length && !isValueSetFile && !showEclInput"
+                >
+                    <mat-icon>compare_arrows</mat-icon>
+                    Download Translated Original File
+                </button>
             </div>
         </div>
 
