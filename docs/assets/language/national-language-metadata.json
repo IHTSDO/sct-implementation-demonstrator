@@ -40,6 +40,24 @@
             ]
         },
         {
+            "title": "Argentina Edition",
+            "moduleUri": "http://snomed.info/sct/11000221109",
+            "languageCodes": [
+                "en",
+                "es"
+            ],
+            "languageRefsets": [
+                "450828004",
+                "900000000000509007"
+            ],
+            "contexts": [
+                {
+                    "name": "Spanish",
+                    "languageDialects": "es-X-450828004,en-X-450828004,en-X-900000000000509007"
+                }
+            ]
+        },
+        {
             "title": "Netherlands Edition",
             "moduleUri": "http://snomed.info/sct/11000146104",
             "languageCodes": [
