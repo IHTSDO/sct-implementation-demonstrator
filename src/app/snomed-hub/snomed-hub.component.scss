@@ -321,12 +321,17 @@
 .link-container {
   display: flex;
   width: 100%;
-  justify-content: flex-end;
-  align-items: center;
+  gap: 0.75rem; /* adds space between elements */
+  align-items: flex-start;
+  justify-content: space-between; /* this helps balance width usage */
+}
+
+.autocomplete-wrapper {
+  flex-grow: 1; /* lets the input take remaining space */
 }
 
 .linkout {
-  color: rgba(255, 255, 255, 0.639);        /* any colour you want */
+  color: rgba(255, 255, 255, 0.639);
   font-weight: bold;
   text-decoration: none;
   display: flex;
@@ -337,6 +342,16 @@
 
 .linkout:hover,
 .linkout:focus {
-  color: white;     /* hover / keyboard focus colour */
+  color: white;
 }
 
+.bigger-icon {
+  margin-top: 1rem;
+  font-size: 28px;
+}
+
+.linkout.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+  cursor: not-allowed;
+}

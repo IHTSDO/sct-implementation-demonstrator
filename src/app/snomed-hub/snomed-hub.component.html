@@ -54,13 +54,22 @@
                     </div>
                     <div class="center-column" #centerColumn>
                         <img src="assets/img/S-Logo-2.png" alt="SNOMED International" class="logo" />
-                        <app-autocomplete-binding [binding]="searchBinding" (selectionChange)="codeSelected($event)"
-                            (cleared)="reset()" [term]="selectedCodeTerm" class="w-full"></app-autocomplete-binding>
-                        <div *ngIf="selectedCode && !searching" class="link-container">
-                            <a [href]="'https://browser.ihtsdotools.org/?perspective=full&conceptId1=' + selectedCode?.code + '&edition=MAIN/SNOMEDCT-DERIVATIVES&release=&languages=en'"
-                                target="_blank" rel="noopener noreferrer" class="linkout">
-                                Open in SNOMED CT Browser
-                                <mat-icon>open_in_new</mat-icon>
+                        <div class="link-container">
+                            <div class="autocomplete-wrapper">
+                                <app-autocomplete-binding
+                                [binding]="searchBinding"
+                                (selectionChange)="codeSelected($event)"
+                                (cleared)="reset()"
+                                [term]="selectedCodeTerm"
+                                ></app-autocomplete-binding>
+                            </div>
+                            <a 
+                                [attr.href]="selectedCode ? 'https://browser.ihtsdotools.org/?perspective=full&conceptId1=' + selectedCode.code + '&edition=MAIN/SNOMEDCT-DERIVATIVES&release=&languages=en' : null"
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                class="linkout" 
+                                [class.disabled]="!selectedCode">
+                                <mat-icon class="bigger-icon">open_in_new</mat-icon>
                             </a>
                         </div>
                         <mat-progress-bar mode="indeterminate" *ngIf="searching"></mat-progress-bar>
