@@ -20,6 +20,11 @@ type NormalForm = {
   groups: Relationship[][];
 };
 
+interface CodeDisplay {
+  code: string;
+  display?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -502,4 +507,44 @@ export class TerminologyService {
         catchError(this.handleError<any>('getMemberships', {}))
       );
     }
+
+  /**
+   * Creates a FHIR ValueSet Parameters resource from a list of codes
+   * @param codes Array of objects containing code and optional display
+   * @param system Optional coding system (defaults to SNOMED CT)
+   * @returns FHIR Parameters resource containing a ValueSet
+   */
+  getValueSetFromCodes(codes: CodeDisplay[], system: string = 'http://snomed.info/sct'): any {
+    let valueset: { resourceType: string; parameter: any[] } = {
+      resourceType: 'Parameters',
+      parameter: []
+    };
+
+    // Initialize the ValueSet structure
+    let valueSetResource = {
+      resourceType: 'ValueSet',
+      status: 'draft',
+      experimental: true,
+      compose: {
+        include: [
+          {
+            system: system,
+            version: this.fhirUrlParam,
+            concept: codes.map(code => ({
+              code: code.code,
+              ...(code.display && { display: code.display })
+            }))
+          }
+        ]
+      }
+    };
+
+    // Add the ValueSet resource to the parameters
+    valueset.parameter.push({
+      name: 'valueSet',
+      resource: valueSetResource
+    });
+
+    return valueset;
+  }
 }
