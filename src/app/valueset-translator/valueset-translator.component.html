@@ -1,8 +1,25 @@
 <div class="main-container">
     <h2>ValueSet Translator</h2>
+    <p class="instructions">
+        Import a file (Excel, CSV, TSV, or FHIR ValueSet JSON) or enter an ECL expression to create a ValueSet. 
+        When importing a file, select the columns containing the SNOMED CT codes and their display terms. 
+        The tool will translate the terms to the target terminology context (Edition, Version, Language selected from the top bar).
+    </p>
     
+    <!-- Floating indicators -->
+    <div class="floating-indicators">
+        <div class="indicator edition-indicator">
+            <div class="indicator-arrow">↑</div>
+            <div class="indicator-text">Select Edition</div>
+        </div>
+        <div class="indicator language-indicator">
+            <div class="indicator-arrow">↑</div>
+            <div class="indicator-text">Select Language</div>
+        </div>
+    </div>
+
     <div class="terminology-context">
-        <p>Target ValueSet will be expanded using:</p>
+        <p>Target terminology context:</p>
         <ul>
             <li><strong>Edition:</strong> {{ terminologyContext.editionName }}</li>
             <li><strong>Version:</strong> {{ terminologyContext.fhirUrlParam }}</li>

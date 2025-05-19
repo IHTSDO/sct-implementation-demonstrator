@@ -9,7 +9,15 @@
 
     h2 {
         margin-top: 0;
+        margin-bottom: 16px;
     }
+}
+
+.instructions {
+    color: #666;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+    max-width: 800px;
 }
 
 .terminology-context {
@@ -151,6 +159,71 @@ mat-progress-spinner {
 
     button {
         align-self: flex-start;
+    }
+}
+
+.floating-indicators {
+    position: fixed;
+    top: 54px; /* Height of the nav bar */
+    left: 0;
+    right: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.indicator {
+    position: absolute;
+    top: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: float 2s ease-in-out infinite;
+    margin-top: 8px; /* Add some margin from the nav bar */
+    
+    .indicator-arrow {
+        font-size: 24px;
+        color: #1976d2;
+        text-shadow: 0 0 10px rgba(25, 118, 210, 0.3);
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .indicator-text {
+        background-color: #1976d2;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+}
+
+.edition-indicator {
+    right: 200px; // Adjust based on your nav bar layout
+}
+
+.language-indicator {
+    right: 80px; // Adjust based on your nav bar layout
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.2);
     }
 }
 
