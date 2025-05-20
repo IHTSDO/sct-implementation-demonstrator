@@ -44,7 +44,7 @@ const routes: Routes = [
   { path: 'reports', component: ReportsMainComponent },
   { path: 'loinc', component: LoincMainComponent },
   { path: 'sv-demo', component: SvDemoComponent },
-  { path: 'snomed-hub', component: SnomedHubComponent },
+  { path: 'snomed-integrator', component: SnomedHubComponent },
   { path: 'valueset-translator', component: ValuesetTranslatorComponent },
   { path: '**', redirectTo: '' }
 ];

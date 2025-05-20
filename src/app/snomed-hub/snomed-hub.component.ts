@@ -27,6 +27,7 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
   examples: any[] = [];
   examplesSource: any;
   resultsNarrative = '';
+  isLoading = true;
 
   topRow: SnomedBox[] = [];
   leftCol: SnomedBox[] = [];
@@ -45,6 +46,7 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
   }
 
   private loadIntegrationsData(): void {
+    this.isLoading = true;
     this.spreadsheetService.getIntegrationsData().subscribe(
       (data: IntegrationData[]) => {
         // Group data by section
@@ -56,12 +58,14 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
         // After data is loaded, draw the spokes
         setTimeout(() => {
           this.drawSpokes();
+          this.isLoading = false;
         }, 100);
       },
       error => {
         console.error('Error loading integrations data:', error);
         // Fallback to hardcoded data if API fails
-        // this.loadFallbackData();
+        this.loadFallbackData();
+        this.isLoading = false;
       }
     );
   }

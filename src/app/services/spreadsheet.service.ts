@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 export interface IntegrationData {
+  id: string;
   section: string;
   label: string;
   description: string;
@@ -41,13 +42,14 @@ export class SpreadsheetService {
           const columns = this.parseCSVRow(row);
           
           return {
-            section: columns[0] || '',
-            label: columns[1] || '',
-            description: columns[2] || '',
-            annotationValue: columns[3] || '',
-            refsetIds: this.parseRefsetIds(columns[4]),
-            type: (columns[5] || '').toLowerCase() as 'content' | 'map' | 'extension' | 'refset',
-            title: columns[6]?.toUpperCase() === 'TRUE'
+            id: columns[0] || '',
+            section: columns[1] || '',
+            label: columns[2] || '',
+            description: columns[3] || '',
+            annotationValue: columns[4] || '',
+            refsetIds: this.parseRefsetIds(columns[5]),
+            type: (columns[6] || '').toLowerCase() as 'content' | 'map' | 'extension' | 'refset',
+            title: columns[7]?.toUpperCase() === 'TRUE'
           };
         });
       })
