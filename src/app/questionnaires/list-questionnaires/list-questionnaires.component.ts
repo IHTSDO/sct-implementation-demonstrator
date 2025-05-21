@@ -115,26 +115,33 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     this.loading = true;
     this.notFound = false;
     this.questionnaires = [];
-    this.fhirService.getQuestionnairesByTag(this.selectedUserTag).subscribe((data: any) => {
-      if (data['entry']) {
-        this.questionnaires = data['entry'].map((entry: any) => entry.resource);
-        console.log('Loaded questionnaires:', this.questionnaires);
-        // Log a sample questionnaire's structure if available
-        if (this.questionnaires.length > 0) {
-          console.log('Sample questionnaire structure:', JSON.stringify(this.questionnaires[0], null, 2));
+    this.fhirService.getQuestionnairesByTag(this.selectedUserTag).subscribe({
+      next: (data: any) => {
+        if (data['entry']) {
+          this.questionnaires = data['entry'].map((entry: any) => entry.resource);
+          this.dataSource.data = this.questionnaires; 
+          this.dataSource.sort = this.sort;
+          this.loading = false;
+          // Set default sort
+          this.sort.active = 'title';
+          this.sort.direction = 'asc';
+          this.sort.sortChange.emit();
+        } else {
+          this.questionnaires = [];
+          this.dataSource.data = this.questionnaires;
+          this.loading = false;
+          this.notFound = true;
         }
-        this.dataSource.data = this.questionnaires; 
-        this.dataSource.sort = this.sort;
-        this.loading = false;
-        // Set default sort
-        this.sort.active = 'title';
-        this.sort.direction = 'asc';
-        this.sort.sortChange.emit();
-      } else {
-        this.questionnaires = [];
-        this.dataSource.data = this.questionnaires;
+      },
+      error: (error) => {
         this.loading = false;
         this.notFound = true;
+        console.error('Error loading questionnaires:', error);
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: `Failed to load questionnaires: ${error.message || 'Unknown error'}`,
+          panelClass: ['red-snackbar']
+        });
       }
     });
   }
@@ -165,25 +172,27 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     });
     this.fhirService.deleteQuestionnaire(questionnaire.id).subscribe({
       next: () => {
-        // remove from the list by id
         this.questionnaires = this.questionnaires.filter((q) => q.id !== questionnaire.id);
         this.dataSource.data = this.questionnaires;
         this._snackBar.openFromComponent(SnackAlertComponent, {
           duration: 5 * 1000,
-          data: "Questionnaire deleted successfully",
+          data: `Questionnaire "${questionnaire.title}" deleted successfully`,
           panelClass: ['green-snackbar']
         });
       },
-      error: (err) => {
-        console.error('Error deleting questionnaire:', err);
+      error: (error) => {
+        console.error('Error deleting questionnaire:', error);
         this._snackBar.openFromComponent(SnackAlertComponent, {
           duration: 5 * 1000,
-          data: "Questionnaire deleted with error: verify results",
+          data: `Failed to delete questionnaire "${questionnaire.title}": ${error.message || 'Unknown error'}`,
           panelClass: ['red-snackbar']
         });
-        this.questionnaires = [];
-        this.dataSource.data = this.questionnaires;
-        this.loadQuestionnaires();
+        // Only reload if it's a server error
+        if (error.status >= 500) {
+          this.questionnaires = [];
+          this.dataSource.data = this.questionnaires;
+          this.loadQuestionnaires();
+        }
       }
     });
   }
@@ -277,23 +286,24 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
             break;
           case 'closed':
             window.removeEventListener('message', handleFormBuilderMessages, true);
-            this.fhirService.updateOrCreateQuestionnaire(receivedQuestionnaire, this.selectedUserTag).pipe(first()).subscribe(
-              (data: any) => {
+            this.fhirService.updateOrCreateQuestionnaire(receivedQuestionnaire, this.selectedUserTag).pipe(first()).subscribe({
+              next: (data: any) => {
                 this._snackBar.openFromComponent(SnackAlertComponent, {
                   duration: 5 * 1000,
-                  data: "Questionnaire updated successfully",
+                  data: `Questionnaire "${data.title}" updated successfully`,
                   panelClass: ['green-snackbar']
                 });
                 this.updateQuestionnairesList(data);
               },
-              (error: any) => {
+              error: (error) => {
+                console.error('Error saving questionnaire:', error);
                 this._snackBar.openFromComponent(SnackAlertComponent, {
                   duration: 5 * 1000,
-                  data: "Error saving questionnaire",
+                  data: `Failed to save questionnaire: ${error.message || 'Unknown error'}`,
                   panelClass: ['red-snackbar']
                 });
               }
-            );
+            });
             break;
         }
       }
@@ -431,26 +441,27 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     // Save the fixed questionnaire
     this._snackBar.openFromComponent(SnackAlertComponent, {
       duration: 5 * 1000,
-      data: "Fixing character encoding errors...",
+      data: `Fixing character encoding errors in "${questionnaire.title}"...`,
       panelClass: ['green-snackbar']
     });
 
-    this.fhirService.updateOrCreateQuestionnaire(fixedQuestionnaire, this.selectedUserTag).pipe(first()).subscribe(
-      (data: any) => {
+    this.fhirService.updateOrCreateQuestionnaire(fixedQuestionnaire, this.selectedUserTag).pipe(first()).subscribe({
+      next: (data: any) => {
         this._snackBar.openFromComponent(SnackAlertComponent, {
           duration: 5 * 1000,
-          data: "Questionnaire updated successfully",
+          data: `Questionnaire "${questionnaire.title}" updated successfully`,
           panelClass: ['green-snackbar']
         });
         this.updateQuestionnairesList(data);
       },
-      (error: any) => {
+      error: (error) => {
+        console.error('Error fixing questionnaire:', error);
         this._snackBar.openFromComponent(SnackAlertComponent, {
           duration: 5 * 1000,
-          data: "Error fixing questionnaire",
+          data: `Failed to fix questionnaire "${questionnaire.title}": ${error.message || 'Unknown error'}`,
           panelClass: ['red-snackbar']
         });
       }
-    );
+    });
   }
 }
