@@ -7,7 +7,7 @@
     </p>
     
     <!-- Floating indicators -->
-    <div class="floating-indicators">
+    <div class="floating-indicators" *ngIf="showIndicators">
         <div class="indicator edition-indicator">
             <div class="indicator-arrow">↑</div>
             <div class="indicator-text">Select Edition</div>
@@ -151,8 +151,40 @@
             {{ error }}
         </div>
 
+        <!-- Map Detection Message -->
+        <div *ngIf="isMap" class="map-detection-message">
+            <mat-icon color="primary">info</mat-icon>
+            <span>Map detected! You can generate a FHIR package from this file.</span>
+            <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="showFhirOptions = true"
+                *ngIf="!showFhirOptions"
+            >
+                <mat-icon>build</mat-icon>
+                Generate FHIR Package
+            </button>
+        </div>
+
+        <!-- FHIR Package Options -->
+        <div *ngIf="isMap && showFhirOptions" class="options-container">
+            <mat-form-field>
+                <mat-label>Base URI</mat-label>
+                <input matInput [(ngModel)]="baseUri" placeholder="http://example.org/fhir">
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Resource Name</mat-label>
+                <input matInput [(ngModel)]="resourceName" placeholder="procedimientos">
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="convert()" [disabled]="isProcessing">
+                Generate Package
+            </button>
+        </div>
+
         <!-- Column Selection Form -->
-        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0 && !isValueSetFile" class="column-form">
+        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0 && !isValueSetFile && !(isMap && showFhirOptions)" class="column-form">
             <h3>Select Columns</h3>
             
             <mat-form-field appearance="fill">
@@ -217,31 +249,6 @@
                 class="import-button"
             >
                 Import Codes
-            </button>
-        </div>
-
-        <!-- Options Container -->
-        <div *ngIf="selectedFile" class="options-container">
-            <mat-form-field>
-                <mat-label>Output Format</mat-label>
-                <mat-select [(ngModel)]="outputFormat">
-                    <mat-option value="csv">CSV</mat-option>
-                    <mat-option value="fhir" *ngIf="isMap">FHIR Package</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <mat-form-field *ngIf="outputFormat === 'fhir'">
-                <mat-label>Base URI</mat-label>
-                <input matInput [(ngModel)]="baseUri" placeholder="http://example.org/fhir">
-            </mat-form-field>
-
-            <mat-form-field *ngIf="outputFormat === 'fhir'">
-                <mat-label>Resource Name</mat-label>
-                <input matInput [(ngModel)]="resourceName" placeholder="procedimientos">
-            </mat-form-field>
-
-            <button mat-raised-button color="primary" (click)="convert()" [disabled]="isProcessing">
-                Convert
             </button>
         </div>
 

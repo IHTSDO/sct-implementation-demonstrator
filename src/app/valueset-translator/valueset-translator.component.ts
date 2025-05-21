@@ -96,6 +96,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   baseUri = 'http://salud.gob.sv/fhir';
   resourceName = 'procedimientos';
   isMap = false;
+  showFhirOptions = false;
+  showIndicators = true;
 
   constructor(
     private fb: FormBuilder,
@@ -126,19 +128,32 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         };
       })
     );
+
+    // Add scroll event listener
+    window.addEventListener('scroll', this.onScroll.bind(this));
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+    // Remove scroll event listener
+    window.removeEventListener('scroll', this.onScroll.bind(this));
+  }
+
+  private onScroll(): void {
+    // Hide indicators if scrolled more than 100px
+    this.showIndicators = window.scrollY < 100;
   }
 
   onFileSelected(event: any) {
     this.file = event.target.files[0];
+    this.selectedFile = event.target.files[0];
     if (this.file) {
       // Hide ECL input if it was shown
       this.showEclInput = false;
       this.eclExpression = '';
       this.readFile();
+      // Check if it's a map file
+      this.checkIfMap();
     }
   }
 
@@ -501,7 +516,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     this.isProcessing = true;
 
     try {
-      if (this.outputFormat === 'fhir' && this.isMap) {
+      if (this.isMap) {
         await this.generateFHIRPackage();
       } else {
         await this.convertToCSV();
@@ -657,10 +672,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       // Check if it's a map by looking for source/target columns
       this.isMap = headers.some(h => h.toLowerCase().includes('source')) && 
                   headers.some(h => h.toLowerCase().includes('target'));
-      
-      if (this.isMap) {
-        this.snackBar.open('Map detected! FHIR package generation is available.', 'OK', { duration: 3000 });
-      }
     } catch (error) {
       console.error('Error checking file type:', error);
     }
