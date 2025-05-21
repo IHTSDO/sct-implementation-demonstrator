@@ -130,8 +130,18 @@ export class TerminologyService {
     if (this.context) {
       return this.context.languageDialects;
     } else if (this.languageRefsetConcept) {
-      return this.lang + '-X-' + this.languageRefsetConcept.code
+      return toLanguageCode(this.lang, + this.languageRefsetConcept.code);
     } else return this.lang;
+  }
+
+  toLanguageCode(lang: string, langRefset: string) {
+    if (langRefset.length > 16) {
+      return `${lang}-x-sctlang-${langRefset.substring(0, 8)}-${langRefset.substring(8, 16)}-${langRefset.substring(16)}`;
+    } else if (langRefset.length > 8) {
+      return `${lang}-x-sctlang-${langRefset.substring(0, 8)}-${langRefset.substring(8)}`;
+    } else {
+      return `${lang}-x-sctlang-${langRefset}`;
+    }
   }
 
   getCodeSystems() {
