@@ -3,6 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { TerminologyService } from '../services/terminology.service';
 import { Subscription, combineLatest } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { saveAs } from 'file-saver';
+import { v4 as uuidv4 } from 'uuid';
+import JSZip from 'jszip';
 
 interface ColumnOption {
   header: string;
@@ -13,6 +17,45 @@ interface TerminologyContext {
   fhirUrlParam: string;
   language: string;
   editionName: string;
+}
+
+interface FHIRResource {
+  resourceType: string;
+  id: string;
+  url: string;
+  name: string;
+  version?: string;
+  status: string;
+  content?: string;
+  concept?: Array<{code: string, display: string}>;
+  compose?: {
+    include: Array<{
+      system: string,
+      concept: Array<{code: string, display: string}>
+    }>
+  };
+}
+
+interface FHIRPackage {
+  manifest: {
+    name: string;
+    version: string;
+    fhirVersion: string;
+    resources: Array<{type: string, reference: string}>;
+  };
+  index: {
+    'index-version': number;
+    files: Array<{
+      filename: string;
+      resourceType: string;
+      id: string;
+      url: string;
+    }>;
+  };
+  resources: {
+    codeSystem: FHIRResource;
+    valueSet: FHIRResource;
+  };
 }
 
 @Component({
@@ -47,10 +90,17 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     editionName: ''
   };
   private subscriptions = new Subscription();
+  selectedFile: File | null = null;
+  isProcessing = false;
+  outputFormat = 'csv';
+  baseUri = 'http://salud.gob.sv/fhir';
+  resourceName = 'procedimientos';
+  isMap = false;
 
   constructor(
     private fb: FormBuilder,
-    private terminologyService: TerminologyService
+    private terminologyService: TerminologyService,
+    private snackBar: MatSnackBar
   ) {
     this.importForm = this.fb.group({
       codeColumn: ['', Validators.required],
@@ -440,5 +490,179 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
     // Generate and download file
     XLSX.writeFile(wb, filename);
+  }
+
+  async convert(): Promise<void> {
+    if (!this.selectedFile) {
+      this.snackBar.open('Please select a file first', 'OK', { duration: 3000 });
+      return;
+    }
+
+    this.isProcessing = true;
+
+    try {
+      if (this.outputFormat === 'fhir' && this.isMap) {
+        await this.generateFHIRPackage();
+      } else {
+        await this.convertToCSV();
+      }
+    } catch (error) {
+      console.error('Conversion error:', error);
+      this.snackBar.open('Error during conversion', 'OK', { duration: 3000 });
+    } finally {
+      this.isProcessing = false;
+    }
+  }
+
+  private async generateFHIRPackage(): Promise<void> {
+    const data = await this.readExcelFile(this.selectedFile!);
+    const concepts = this.extractConcepts(data);
+    
+    const packageData = this.createFHIRPackage(concepts);
+    const tarBlob = await this.createTarGz(packageData);
+    
+    saveAs(tarBlob, `${this.resourceName}.tgz`);
+    this.snackBar.open('FHIR package generated successfully!', 'OK', { duration: 3000 });
+  }
+
+  private extractConcepts(data: any[]): Array<{code: string, display: string}> {
+    const sourceCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('source'))!;
+    const targetCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('target'))!;
+    
+    return data.map(row => ({
+      code: String(row[sourceCol]).trim(),
+      display: String(row[targetCol]).trim()
+    })).filter(c => c.code && c.display);
+  }
+
+  private createFHIRPackage(concepts: Array<{code: string, display: string}>): FHIRPackage {
+    const codeSystemUrl = `${this.baseUri}/CodeSystem/${this.resourceName}`;
+    const valueSetUrl = `${this.baseUri}/ValueSet/${this.resourceName}`;
+
+    const codeSystem: FHIRResource = {
+      resourceType: 'CodeSystem',
+      id: uuidv4(),
+      url: codeSystemUrl,
+      name: `${this.resourceName}CodeSystem`,
+      version: '1.0.0',
+      status: 'active',
+      content: 'complete',
+      concept: concepts
+    };
+
+    const valueSet: FHIRResource = {
+      resourceType: 'ValueSet',
+      id: uuidv4(),
+      url: valueSetUrl,
+      name: `${this.resourceName}ValueSet`,
+      status: 'active',
+      compose: {
+        include: [{
+          system: codeSystemUrl,
+          concept: concepts
+        }]
+      }
+    };
+
+    return {
+      manifest: {
+        name: `${this.resourceName}.codesystem.package`,
+        version: '1.0.0',
+        fhirVersion: '4.0.1',
+        resources: [
+          { type: 'CodeSystem', reference: `CodeSystem/${codeSystem.name}` },
+          { type: 'ValueSet', reference: `ValueSet/${valueSet.name}` }
+        ]
+      },
+      index: {
+        'index-version': 1,
+        files: [
+          { filename: `CodeSystem/${codeSystem.name}.json`, resourceType: 'CodeSystem', id: codeSystem.id, url: codeSystem.url },
+          { filename: `ValueSet/${valueSet.name}.json`, resourceType: 'ValueSet', id: valueSet.id, url: valueSet.url }
+        ]
+      },
+      resources: { codeSystem, valueSet }
+    };
+  }
+
+  private async createTarGz(packageData: FHIRPackage): Promise<Blob> {
+    const zip = new JSZip();
+    
+    // Create package directory structure
+    const packageFolder = zip.folder('package');
+    if (!packageFolder) throw new Error('Failed to create package folder');
+    
+    const codeSystemFolder = packageFolder.folder('CodeSystem');
+    const valueSetFolder = packageFolder.folder('ValueSet');
+    
+    if (!codeSystemFolder || !valueSetFolder) {
+      throw new Error('Failed to create resource folders');
+    }
+
+    // Add resources with proper formatting
+    codeSystemFolder.file(
+      `${packageData.resources.codeSystem.name}.json`,
+      JSON.stringify(packageData.resources.codeSystem, null, 2)
+    );
+    
+    valueSetFolder.file(
+      `${packageData.resources.valueSet.name}.json`,
+      JSON.stringify(packageData.resources.valueSet, null, 2)
+    );
+    
+    packageFolder.file('package.json', JSON.stringify(packageData.manifest, null, 2));
+    packageFolder.file('.index.json', JSON.stringify(packageData.index, null, 2));
+    
+    // Generate the zip file
+    return await zip.generateAsync({
+      type: 'blob',
+      mimeType: 'application/zip',
+      compression: 'DEFLATE',
+      compressionOptions: {
+        level: 9
+      }
+    });
+  }
+
+  private async convertToCSV(): Promise<void> {
+    // ... existing CSV conversion code ...
+  }
+
+  private async readExcelFile(file: File): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+          resolve(jsonData);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = error => reject(error);
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  private async checkIfMap(): Promise<void> {
+    if (!this.selectedFile) return;
+
+    try {
+      const data = await this.readExcelFile(this.selectedFile);
+      const headers = Object.keys(data[0]);
+      
+      // Check if it's a map by looking for source/target columns
+      this.isMap = headers.some(h => h.toLowerCase().includes('source')) && 
+                  headers.some(h => h.toLowerCase().includes('target'));
+      
+      if (this.isMap) {
+        this.snackBar.open('Map detected! FHIR package generation is available.', 'OK', { duration: 3000 });
+      }
+    } catch (error) {
+      console.error('Error checking file type:', error);
+    }
   }
 }

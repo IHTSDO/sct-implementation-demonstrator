@@ -238,3 +238,43 @@ mat-progress-spinner {
         max-width: 100%;
     }
 }
+
+.container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.file-input-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  input[type="file"] {
+    display: none;
+  }
+
+  span {
+    color: #666;
+  }
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  button {
+    align-self: flex-start;
+  }
+}
+
+mat-progress-bar {
+  margin-top: 1rem;
+}

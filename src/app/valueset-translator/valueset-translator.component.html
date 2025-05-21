@@ -219,5 +219,32 @@
                 Import Codes
             </button>
         </div>
+
+        <!-- Options Container -->
+        <div *ngIf="selectedFile" class="options-container">
+            <mat-form-field>
+                <mat-label>Output Format</mat-label>
+                <mat-select [(ngModel)]="outputFormat">
+                    <mat-option value="csv">CSV</mat-option>
+                    <mat-option value="fhir" *ngIf="isMap">FHIR Package</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field *ngIf="outputFormat === 'fhir'">
+                <mat-label>Base URI</mat-label>
+                <input matInput [(ngModel)]="baseUri" placeholder="http://example.org/fhir">
+            </mat-form-field>
+
+            <mat-form-field *ngIf="outputFormat === 'fhir'">
+                <mat-label>Resource Name</mat-label>
+                <input matInput [(ngModel)]="resourceName" placeholder="procedimientos">
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="convert()" [disabled]="isProcessing">
+                Convert
+            </button>
+        </div>
+
+        <mat-progress-bar mode="indeterminate" *ngIf="isProcessing"></mat-progress-bar>
     </div>
 </div>
