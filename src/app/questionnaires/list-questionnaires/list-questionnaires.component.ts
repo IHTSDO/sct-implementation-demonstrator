@@ -118,6 +118,11 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     this.fhirService.getQuestionnairesByTag(this.selectedUserTag).subscribe((data: any) => {
       if (data['entry']) {
         this.questionnaires = data['entry'].map((entry: any) => entry.resource);
+        console.log('Loaded questionnaires:', this.questionnaires);
+        // Log a sample questionnaire's structure if available
+        if (this.questionnaires.length > 0) {
+          console.log('Sample questionnaire structure:', JSON.stringify(this.questionnaires[0], null, 2));
+        }
         this.dataSource.data = this.questionnaires; 
         this.dataSource.sort = this.sort;
         this.loading = false;
@@ -138,27 +143,14 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     const existingIndex = this.questionnaires.findIndex(q => q.id === newQuestionnaire.id);
     if (existingIndex !== -1) {
       this.questionnaires[existingIndex] = newQuestionnaire;
+      // Update the specific row in the data source
+      const data = this.dataSource.data;
+      data[existingIndex] = newQuestionnaire;
+      this.dataSource.data = data;
     } else {
       this.questionnaires.push(newQuestionnaire);
+      this.dataSource.data = [...this.questionnaires];
     }
-    this.dataSource.data = this.questionnaires;
-    if (this.sort) {
-      this.dataSource.sort = this.sort;
-      this.sort.sortChange.emit(this.sort); // Re-emit to force re-sort
-    }
-    // setTimeout(() => {
-    //   const sortedIndex = this.dataSource.filteredData.findIndex(q => q.id === newQuestionnaire.id);
-    //   console.log('sortedIndex', sortedIndex);
-    //   console.log('pageSize', this.paginator.pageSize);
-    //   const pageIndex = Math.floor(sortedIndex / this.paginator.pageSize) - 1;
-    //   console.log('pageIndex', pageIndex);
-    //   this.paginator.pageIndex = pageIndex;
-    //   this.paginator.page.emit({
-    //     pageIndex,
-    //     pageSize: this.paginator.pageSize,
-    //     length: this.dataSource.filteredData.length
-    //   });
-    // }, 1000);
   }
 
   addQuestionnaire(questionnaire: any) {
@@ -405,4 +397,60 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     }
   }
   
+  hasError(questionnaire: any): boolean {
+    // Check if any item in the questionnaire has a character encoding error
+    const hasEncodingError = (item: any): boolean => {
+      // Check answerValueSet for encoding errors
+      if (item.answerValueSet?.includes('ecl%2F')) {
+        return true;
+      }
+      // Recursively check nested items
+      if (item.item) {
+        return item.item.some(hasEncodingError);
+      }
+      return false;
+    };
+
+    return hasEncodingError(questionnaire);
+  }
+
+  fixEncodingErrors(questionnaire: any) {
+    const fixEncodingInItem = (item: any) => {
+      if (item.answerValueSet?.includes('ecl%2F')) {
+        item.answerValueSet = item.answerValueSet.replace(/ecl%2F/g, 'ecl/');
+      }
+      if (item.item) {
+        item.item.forEach(fixEncodingInItem);
+      }
+    };
+
+    // Create a deep copy of the questionnaire
+    const fixedQuestionnaire = JSON.parse(JSON.stringify(questionnaire));
+    fixEncodingInItem(fixedQuestionnaire);
+
+    // Save the fixed questionnaire
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 5 * 1000,
+      data: "Fixing character encoding errors...",
+      panelClass: ['green-snackbar']
+    });
+
+    this.fhirService.updateOrCreateQuestionnaire(fixedQuestionnaire, this.selectedUserTag).pipe(first()).subscribe(
+      (data: any) => {
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: "Questionnaire updated successfully",
+          panelClass: ['green-snackbar']
+        });
+        this.updateQuestionnairesList(data);
+      },
+      (error: any) => {
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: "Error fixing questionnaire",
+          panelClass: ['red-snackbar']
+        });
+      }
+    );
+  }
 }

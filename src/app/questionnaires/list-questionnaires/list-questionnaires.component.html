@@ -34,45 +34,57 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-icon-button color="accent" (click)="validate(element)" class="action-button"
-        *ngIf="config.validate" [disabled]="isRootQuestionnaire(element)" matTooltip="Validate Questionnaire">
-          <mat-icon>done</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" (click)="assemble(element)" class="action-button"
-        *ngIf="isRootQuestionnaire(element)" matTooltip="Assemble Questionnaire">
-          <mat-icon>build</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" (click)="preview(element)" class="action-button"
-        *ngIf="config.preview && !isRootQuestionnaire(element)" matTooltip="Preview Questionnaire">
-          <mat-icon>visibility</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" (click)="openInNewTab(element)" class="action-button"
-        *ngIf="config.preview" matTooltip="Open resource in new tab">
-          <mat-icon>open_in_new</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" (click)="saveQuestionnaire(element)" class="action-button"
-        matTooltip="Download Questionnaire">
-          <mat-icon>cloud_download</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" (click)="editQuestionnaire(element)" class="action-button"
-        *ngIf="!isRootQuestionnaire(element)" matTooltip="Edit Questionnaire">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" (click)="openModularQuestionnaireModal(element)" class="action-button"
-        *ngIf="isRootQuestionnaire(element)" matTooltip="Edit Modular Questionnaire">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" (click)="viewHistory(element)" class="action-button"
-        [disabled]="element.meta.versionId == 1"
-        matTooltip="View Questionnaire History">
-          <mat-icon>history</mat-icon>
-        </button>
-        <span matTooltip="{{ getDeleteTooltip(element) }}">
-          <button mat-icon-button color="accent" (click)="deleteQuestionnaire(element)"
-                  [disabled]="getReferencingQuestionnaires(element).length > 0">
-            <mat-icon>delete</mat-icon>
+        <!-- Show error icon and fix button if questionnaire has errors -->
+        <ng-container *ngIf="hasError(element)">
+          <mat-icon color="warn" matTooltip="This questionnaire contains character encoding errors">error</mat-icon>
+          <button mat-icon-button color="accent" (click)="fixEncodingErrors(element)" class="action-button"
+          matTooltip="Fix character encoding errors">
+            <mat-icon>build</mat-icon>
           </button>
-        </span>
+        </ng-container>
+        
+        <!-- Show normal actions if no errors -->
+        <ng-container *ngIf="!hasError(element)">
+          <button mat-icon-button color="accent" (click)="validate(element)" class="action-button"
+          *ngIf="config.validate" [disabled]="isRootQuestionnaire(element)" matTooltip="Validate Questionnaire">
+            <mat-icon>done</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="assemble(element)" class="action-button"
+          *ngIf="isRootQuestionnaire(element)" matTooltip="Assemble Questionnaire">
+            <mat-icon>build</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="preview(element)" class="action-button"
+          *ngIf="config.preview && !isRootQuestionnaire(element)" matTooltip="Preview Questionnaire">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="openInNewTab(element)" class="action-button"
+          *ngIf="config.preview" matTooltip="Open resource in new tab">
+            <mat-icon>open_in_new</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="saveQuestionnaire(element)" class="action-button"
+          matTooltip="Download Questionnaire">
+            <mat-icon>cloud_download</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="editQuestionnaire(element)" class="action-button"
+          *ngIf="!isRootQuestionnaire(element)" matTooltip="Edit Questionnaire">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="openModularQuestionnaireModal(element)" class="action-button"
+          *ngIf="isRootQuestionnaire(element)" matTooltip="Edit Modular Questionnaire">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="viewHistory(element)" class="action-button"
+          [disabled]="element.meta.versionId == 1"
+          matTooltip="View Questionnaire History">
+            <mat-icon>history</mat-icon>
+          </button>
+          <span matTooltip="{{ getDeleteTooltip(element) }}">
+            <button mat-icon-button color="accent" (click)="deleteQuestionnaire(element)"
+                    [disabled]="getReferencingQuestionnaires(element).length > 0">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </span>
+        </ng-container>
       </td>
     </ng-container>
 
