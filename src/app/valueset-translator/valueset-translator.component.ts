@@ -34,6 +34,21 @@ interface FHIRResource {
       concept: Array<{code: string, display: string}>
     }>
   };
+  sourceUri?: string;
+  targetUri?: string;
+  group?: Array<{
+    source: string;
+    target: string;
+    element: Array<{
+      code: string;
+      display: string;
+      target: Array<{
+        code: string;
+        display: string;
+        equivalence: string;
+      }>;
+    }>;
+  }>;
 }
 
 interface FHIRPackage {
@@ -56,6 +71,7 @@ interface FHIRPackage {
     codeSystem: FHIRResource;
     valueSet: FHIRResource;
     snomedValueSet: FHIRResource;
+    conceptMap: FHIRResource;
   };
 }
 
@@ -565,6 +581,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     const codeSystemUrl = `${this.baseUri}/CodeSystem/${this.setName}`;
     const valueSetUrl = `${this.baseUri}/ValueSet/${this.setName}`;
     const snomedValueSetUrl = `${this.baseUri}/ValueSet/${this.setName}-snomed`;
+    const conceptMapUrl = `${this.baseUri}/ConceptMap/${this.setName}-to-snomed`;
 
     const codeSystem: FHIRResource = {
       resourceType: 'CodeSystem',
@@ -605,6 +622,30 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       }
     };
 
+    const conceptMap: FHIRResource = {
+      resourceType: 'ConceptMap',
+      id: uuidv4(),
+      url: conceptMapUrl,
+      name: `${this.setName}ToSnomedMap`,
+      version: '1.0.0',
+      status: 'active',
+      sourceUri: codeSystemUrl,
+      targetUri: 'http://snomed.info/sct',
+      group: [{
+        source: codeSystemUrl,
+        target: 'http://snomed.info/sct',
+        element: concepts.map((concept, index) => ({
+          code: concept.code,
+          display: concept.display,
+          target: [{
+            code: snomedConcepts[index].code,
+            display: snomedConcepts[index].display,
+            equivalence: 'equivalent'
+          }]
+        }))
+      }]
+    };
+
     return {
       manifest: {
         name: `${this.setName}.codesystem.package`,
@@ -613,7 +654,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         resources: [
           { type: 'CodeSystem', reference: `CodeSystem/${codeSystem.name}` },
           { type: 'ValueSet', reference: `ValueSet/${valueSet.name}` },
-          { type: 'ValueSet', reference: `ValueSet/${snomedValueSet.name}` }
+          { type: 'ValueSet', reference: `ValueSet/${snomedValueSet.name}` },
+          { type: 'ConceptMap', reference: `ConceptMap/${conceptMap.name}` }
         ]
       },
       index: {
@@ -621,10 +663,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         files: [
           { filename: `CodeSystem/${codeSystem.name}.json`, resourceType: 'CodeSystem', id: codeSystem.id, url: codeSystem.url },
           { filename: `ValueSet/${valueSet.name}.json`, resourceType: 'ValueSet', id: valueSet.id, url: valueSet.url },
-          { filename: `ValueSet/${snomedValueSet.name}.json`, resourceType: 'ValueSet', id: snomedValueSet.id, url: snomedValueSet.url }
+          { filename: `ValueSet/${snomedValueSet.name}.json`, resourceType: 'ValueSet', id: snomedValueSet.id, url: snomedValueSet.url },
+          { filename: `ConceptMap/${conceptMap.name}.json`, resourceType: 'ConceptMap', id: conceptMap.id, url: conceptMap.url }
         ]
       },
-      resources: { codeSystem, valueSet, snomedValueSet }
+      resources: { codeSystem, valueSet, snomedValueSet, conceptMap }
     };
   }
 
@@ -637,8 +680,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     
     const codeSystemFolder = packageFolder.folder('CodeSystem');
     const valueSetFolder = packageFolder.folder('ValueSet');
+    const conceptMapFolder = packageFolder.folder('ConceptMap');
     
-    if (!codeSystemFolder || !valueSetFolder) {
+    if (!codeSystemFolder || !valueSetFolder || !conceptMapFolder) {
       throw new Error('Failed to create resource folders');
     }
 
@@ -656,6 +700,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     valueSetFolder.file(
       `${packageData.resources.snomedValueSet.name}.json`,
       JSON.stringify(packageData.resources.snomedValueSet, null, 2)
+    );
+
+    conceptMapFolder.file(
+      `${packageData.resources.conceptMap.name}.json`,
+      JSON.stringify(packageData.resources.conceptMap, null, 2)
     );
     
     packageFolder.file('package.json', JSON.stringify(packageData.manifest, null, 2));
