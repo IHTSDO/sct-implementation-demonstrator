@@ -138,7 +138,7 @@
                     color="accent" 
                     (click)="downloadTranslatedFile()"
                     class="download-button"
-                    *ngIf="originalData.length && !isValueSetFile && !showEclInput"
+                    *ngIf="originalData.length && !isValueSetFile && !showEclInput && !isMap"
                 >
                     <mat-icon>compare_arrows</mat-icon>
                     Download Translated Original File
@@ -155,15 +155,26 @@
         <div *ngIf="isMap" class="map-detection-message">
             <mat-icon color="primary">info</mat-icon>
             <span>Map detected! You can generate a FHIR package from this file.</span>
-            <button 
-                mat-raised-button 
-                color="primary" 
-                (click)="showFhirOptions = true"
-                *ngIf="!showFhirOptions"
-            >
-                <mat-icon>build</mat-icon>
-                Generate FHIR Package
-            </button>
+            <div class="map-actions">
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    (click)="showFhirOptions = true"
+                    *ngIf="!showFhirOptions"
+                >
+                    <mat-icon>build</mat-icon>
+                    Generate FHIR Package
+                </button>
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    (click)="downloadTranslatedFile()"
+                    class="download-button"
+                >
+                    <mat-icon>download</mat-icon>
+                    Download Translated Map File
+                </button>
+            </div>
         </div>
 
         <!-- FHIR Package Options -->

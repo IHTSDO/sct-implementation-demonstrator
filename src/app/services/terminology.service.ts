@@ -528,6 +528,19 @@ export class TerminologyService {
       parameter: []
     };
 
+    // Filter out invalid codes
+    const validCodes = codes.filter(code => 
+      code.code && 
+      code.code !== 'undefined' && 
+      code.code !== 'null' && 
+      code.code !== '' &&
+      (!code.display || (
+        code.display !== 'undefined' && 
+        code.display !== 'null' && 
+        code.display !== ''
+      ))
+    );
+
     // Initialize the ValueSet structure
     let valueSetResource = {
       resourceType: 'ValueSet',
@@ -538,7 +551,7 @@ export class TerminologyService {
           {
             system: system,
             version: this.fhirUrlParam,
-            concept: codes.map(code => ({
+            concept: validCodes.map(code => ({
               code: code.code,
               ...(code.display && { display: code.display })
             }))

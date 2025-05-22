@@ -176,76 +176,98 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     }
   }
 
-  private readFile() {
-    this.isLoading = true;
-    this.error = null;
-    this.successMessage = null;
-    this.showPreview = false;
-    this.sourceValueSet = null;
-    this.targetValueSet = null;
-    this.isValueSetFile = false;
-    this.originalData = []; // Reset original data
-    const reader = new FileReader();
+  // NEW implementation – no FileReader / no "binary" strings
+  private async readFile(): Promise<void> {
+    /* ---------- reset UI state ---------- */
+    this.isLoading       = true;
+    this.error           = null;
+    this.successMessage  = null;
+    this.showPreview     = false;
+    this.sourceValueSet  = null;
+    this.targetValueSet  = null;
+    this.isValueSetFile  = false;
+    this.originalData    = [];
 
-    reader.onload = (e: any) => {
-      try {
-        if (this.file?.name.toLowerCase().endsWith('.json')) {
-          // Try to parse as FHIR ValueSet
-          const jsonContent = JSON.parse(e.target.result);
-          if (this.isFhirValueSet(jsonContent)) {
-            this.handleValueSetFile(jsonContent);
-            return;
-          }
-        }
+    try {
+      if (!this.file) { return; }
 
-        // Handle other file types (Excel, CSV, TSV)
-        if (this.file?.name.toLowerCase().endsWith('.tsv')) {
-          // Handle TSV file
-          const content = e.target.result;
-          const rows = content.split('\n').map((row: string) => row.split('\t'));
-          this.previewData = rows;
-          this.originalData = rows; // Store original data
-        } else {
-          // Handle Excel/CSV files
-          const workbook = XLSX.read(e.target.result, { type: 'binary' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          this.previewData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-          this.originalData = [...this.previewData]; // Store original data
-        }
-        
-        if (this.previewData.length > 0) {
-          // Get headers from first row
-          this.columns = this.previewData[0].map((header: string, index: number) => ({
-            header: header || `Column ${index + 1}`,
-            index: index
-          }));
-          // Set displayed columns for mat-table
-          this.displayedColumns = this.columns.map((_, index) => `${index}`);
-          this.showPreview = true;
-          // Reset form when new file is loaded but keep skipHeader value
-          const currentSkipHeader = this.importForm.get('skipHeader')?.value;
-          this.importForm.reset({ skipHeader: currentSkipHeader });
-        }
+      const name = this.file.name.toLowerCase();
 
-        this.isLoading = false;
-      } catch (error) {
-        this.error = 'Error reading file. Please make sure it\'s a valid file format.';
-        this.isLoading = false;
+      /* ---------- JSON (FHIR ValueSet) ---------- */
+      if (name.endsWith('.json')) {
+        const jsonText    = await this.file.text();
+        const jsonContent = JSON.parse(jsonText);
+        if (this.isFhirValueSet(jsonContent)) {
+          this.handleValueSetFile(jsonContent);    // builds preview internally
+          return;                                  // done
+        }
       }
-    };
 
-    reader.onerror = () => {
-      this.error = 'Error reading file';
+      /* ---------- TSV ---------- */
+      if (name.endsWith('.tsv')) {
+        const text = await this.file.text();
+        this.previewData  = text.split(/\r?\n/).map(r => r.split('\t'));
+        this.originalData = [...this.previewData];
+      }
+
+      /* ---------- CSV ---------- */
+      else if (name.endsWith('.csv')) {
+        const text      = await this.file.text();
+        const wb        = XLSX.read(text, { type: 'string' });
+        const ws        = wb.Sheets[wb.SheetNames[0]];
+        this.previewData  = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        this.originalData = [...this.previewData];
+      }
+
+      /* ---------- XLSX / XLSM / XLSB / XLS ---------- */
+      /* ---------- XLSX / XLSM / XLSB / XLS ---------- */
+      else {
+        const buf = await this.file.arrayBuffer();              // raw bytes
+        const view = new Uint8Array(buf);
+
+        /* ── DEBUG ───────────────────────────────────────────────── */
+        console.log('-- XLSX branch --');
+        console.log('typeof buf        →', typeof buf);
+        console.log('buf.byteLength    →', buf.byteLength);
+        console.log('file.size         →', this.file.size);
+        console.log('first 4 bytes hex →',
+                    [...view.slice(0, 4)].map(b => b.toString(16).padStart(2, '0')).join(' '));
+
+        /* hard-fail if it is not a ZIP file */
+        if (!(view[0] === 0x50 && view[1] === 0x4B && view[2] === 0x03 && view[3] === 0x04)) {
+          throw new Error('Not a valid XLSX (ZIP) file - wrong signature');
+        }
+        /* hard-fail if the buffer is truncated */
+        if (buf.byteLength !== this.file.size) {
+          throw new Error(`ArrayBuffer truncated (${buf.byteLength} ≠ ${this.file.size})`);
+        }
+        /* ─────────────────────────────────────────────── */
+
+        const wb = XLSX.read(buf);            // should be safe now
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        this.previewData  = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        this.originalData = [...this.previewData];
+      }
+
+      /* ---------- build table preview ---------- */
+      if (this.previewData.length) {
+        this.columns = this.previewData[0].map(
+          (h: string, i: number) => ({ header: h || `Column ${i + 1}`, index: i })
+        );
+        this.displayedColumns = this.columns.map((_, i) => `${i}`);
+        this.showPreview      = true;
+
+        // keep current "skip header" checkbox state
+        const keepSkip = this.importForm.get('skipHeader')!.value;
+        this.importForm.reset({ skipHeader: keepSkip });
+      }
+    } catch (err: any) {
+      this.error = `Error reading file: ${err.message || err}`;
+    } finally {
       this.isLoading = false;
-    };
-
-    if (this.file?.name.toLowerCase().endsWith('.json') || this.file?.name.toLowerCase().endsWith('.tsv')) {
-      reader.readAsText(this.file);
-    } else {
-      reader.readAsBinaryString(this.file as Blob);
     }
   }
+
 
   private isFhirValueSet(json: any): boolean {
     return json.resourceType === 'ValueSet' || 
@@ -467,6 +489,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   }
 
   downloadTranslatedFile() {
+    if (this.isMap) {
+      this.downloadMapFile();
+      return;
+    }
+
     if (!this.originalData.length || !this.targetValueSet?.expansion?.contains || 
         this.selectedCodeColumn === null || this.selectedDisplayColumn === null) {
       return;
@@ -497,30 +524,153 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       return newRow;
     });
 
+    this.downloadExcelFile(translatedData, 'translated');
+  }
+
+  private async downloadMapFile() {
+    if (!this.selectedFile) return;
+
+    try {
+      const data = await this.readExcelFile(this.selectedFile);
+      const headers = Object.keys(data[0]);
+      
+      // Find source and target columns
+      const sourceCodeCol = headers.find(h => h.toLowerCase().includes('source code'))!;
+      const sourceDisplayCol = headers.find(h => h.toLowerCase().includes('source display'))!;
+      const targetCodeCol = headers.find(h => h.toLowerCase().includes('target code'))!;
+      const targetDisplayCol = headers.find(h => h.toLowerCase().includes('target display'))!;
+
+      // Create a ValueSet from the target codes, filtering out undefined codes
+      const targetCodes = data
+        .map(row => {
+          const code = String(row[targetCodeCol] || '').trim();
+          const display = String(row[targetDisplayCol] || '').trim();
+          return { code, display };
+        })
+        .filter(item => {
+          // Filter out empty, undefined, or invalid codes
+          return item.code && 
+                 item.code !== 'undefined' && 
+                 item.code !== 'null' && 
+                 item.code !== '' && 
+                 item.display && 
+                 item.display !== 'undefined' && 
+                 item.display !== 'null' && 
+                 item.display !== '';
+        });
+
+      if (targetCodes.length === 0) {
+        this.snackBar.open('No valid target codes found in the file', 'OK', { duration: 3000 });
+        return;
+      }
+
+      // Create source ValueSet and expand it
+      const sourceValueSet = this.terminologyService.getValueSetFromCodes(targetCodes);
+      
+      // Show loading state
+      this.isLoading = true;
+      
+      // Expand the ValueSet to get translations
+      const expandedValueSet = await this.terminologyService.expandInlineValueSet(sourceValueSet).toPromise();
+      
+      // Create a map of codes to translated display values
+      const translationMap = new Map<string, string>();
+      if (expandedValueSet?.expansion?.contains) {
+        expandedValueSet.expansion.contains.forEach((concept: any) => {
+          if (concept.code && 
+              concept.code !== 'undefined' && 
+              concept.code !== 'null' && 
+              concept.display && 
+              concept.display !== 'undefined' && 
+              concept.display !== 'null') {
+            translationMap.set(concept.code.trim(), concept.display);
+          }
+        });
+      }
+
+      // Create a copy of the data with translated target displays
+      const translatedData = data.map(row => {
+        const newRow = { ...row };
+        const code = String(row[targetCodeCol] || '').trim();
+        if (code && 
+            code !== 'undefined' && 
+            code !== 'null' && 
+            code !== '' && 
+            translationMap.has(code)) {
+          newRow[targetDisplayCol] = translationMap.get(code);
+        }
+        return newRow;
+      });
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([
+        // Headers
+        headers,
+        // Data
+        ...translatedData.map(row => headers.map(header => row[header]))
+      ]);
+
+      // Set column widths based on content
+      const maxLengths = headers.map((_, colIndex) => 
+        Math.max(
+          headers[colIndex].length,
+          ...translatedData.map(row => String(row[headers[colIndex]] || '').length)
+        )
+      );
+      
+      ws['!cols'] = maxLengths.map(length => ({
+        wch: Math.min(Math.max(length, 10), 50) // Min width 10, max width 50
+      }));
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Map');
+
+      // Generate filename based on original file
+      const originalExt = this.selectedFile.name.split('.').pop() || 'xlsx';
+      const filename = this.selectedFile.name.replace(
+        `.${originalExt}`, 
+        `_translated_map.xlsx`
+      );
+
+      // Generate and download file
+      XLSX.writeFile(wb, filename);
+      
+      // Hide loading state
+      this.isLoading = false;
+      this.snackBar.open('Map file downloaded with translations', 'OK', { duration: 3000 });
+    } catch (error) {
+      console.error('Error downloading map file:', error);
+      this.snackBar.open('Error downloading map file', 'OK', { duration: 3000 });
+      this.isLoading = false;
+    }
+  }
+
+  private downloadExcelFile(data: any[], suffix: string) {
     // Create workbook and worksheet
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(translatedData);
+    const ws = XLSX.utils.aoa_to_sheet(data);
 
     // Set column widths based on content
-    const maxLengths = translatedData[0].map((_, colIndex) => 
-      Math.max(...translatedData.map(row => 
+    const maxLengths = data[0].map((_: any, colIndex: number) => 
+      Math.max(...data.map(row => 
         String(row[colIndex] || '').length
       ))
     );
     
-    ws['!cols'] = maxLengths.map(length => ({
+    ws['!cols'] = maxLengths.map((length: number) => ({
       wch: Math.min(Math.max(length, 10), 50) // Min width 10, max width 50
     }));
 
     // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(wb, ws, 'Translated');
+    XLSX.utils.book_append_sheet(wb, ws, 'Data');
 
     // Generate filename based on original file
     const originalExt = this.file?.name.split('.').pop() || 'xlsx';
     const filename = this.file?.name.replace(
       `.${originalExt}`, 
-      `_translated.xlsx`
-    ) || 'translated_file.xlsx';
+      `_${suffix}.xlsx`
+    ) || `${suffix}_file.xlsx`;
 
     // Generate and download file
     XLSX.writeFile(wb, filename);
@@ -565,19 +715,62 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     const targetCodeCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('target code'))!;
     const targetDisplayCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('target display'))!;
     
+    // Create paired arrays to ensure they stay in sync
+    const pairedConcepts = data.map(row => ({
+      source: {
+        code: String(row[sourceCodeCol] || '').trim(),
+        display: String(row[sourceDisplayCol] || '').trim()
+      },
+      snomed: {
+        code: String(row[targetCodeCol] || '').trim(),
+        display: String(row[targetDisplayCol] || '').trim()
+      }
+    })).filter(pair => 
+      // Only keep pairs where both source and SNOMED concepts are valid
+      pair.source.code && 
+      pair.source.code !== 'undefined' && 
+      pair.source.code !== 'null' && 
+      pair.source.code !== '' &&
+      pair.source.display && 
+      pair.source.display !== 'undefined' && 
+      pair.source.display !== 'null' && 
+      pair.source.display !== '' &&
+      pair.snomed.code && 
+      pair.snomed.code !== 'undefined' && 
+      pair.snomed.code !== 'null' && 
+      pair.snomed.code !== '' &&
+      pair.snomed.display && 
+      pair.snomed.display !== 'undefined' && 
+      pair.snomed.display !== 'null' && 
+      pair.snomed.display !== ''
+    );
+
+    // Split the paired concepts into separate arrays
     return {
-      source: data.map(row => ({
-        code: String(row[sourceCodeCol]).trim(),
-        display: String(row[sourceDisplayCol]).trim()
-      })).filter(c => c.code && c.display),
-      snomed: data.map(row => ({
-        code: String(row[targetCodeCol]).trim(),
-        display: String(row[targetDisplayCol]).trim()
-      })).filter(c => c.code && c.display)
+      source: pairedConcepts.map(pair => pair.source),
+      snomed: pairedConcepts.map(pair => pair.snomed)
     };
   }
 
   private createFHIRPackage(concepts: Array<{code: string, display: string}>, snomedConcepts: Array<{code: string, display: string}>): FHIRPackage {
+    // Validate input arrays
+    if (!concepts || !snomedConcepts || concepts.length === 0 || snomedConcepts.length === 0) {
+      throw new Error('Invalid input: concepts arrays cannot be empty or undefined');
+    }
+
+    // Ensure arrays are of equal length
+    if (concepts.length !== snomedConcepts.length) {
+      throw new Error('Invalid input: source and SNOMED concept arrays must have the same length');
+    }
+
+    // Filter out any invalid concepts
+    const validConcepts = concepts.filter(c => c && c.code && c.display);
+    const validSnomedConcepts = snomedConcepts.filter(c => c && c.code && c.display);
+
+    if (validConcepts.length === 0 || validSnomedConcepts.length === 0) {
+      throw new Error('No valid concepts found after filtering');
+    }
+
     const codeSystemUrl = `${this.baseUri}/CodeSystem/${this.setName}`;
     const valueSetUrl = `${this.baseUri}/ValueSet/${this.setName}`;
     const snomedValueSetUrl = `${this.baseUri}/ValueSet/${this.setName}-snomed`;
@@ -591,7 +784,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       version: '1.0.0',
       status: 'active',
       content: 'complete',
-      concept: concepts
+      concept: validConcepts
     };
 
     const valueSet: FHIRResource = {
@@ -603,7 +796,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       compose: {
         include: [{
           system: codeSystemUrl,
-          concept: concepts
+          concept: validConcepts
         }]
       }
     };
@@ -617,7 +810,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       compose: {
         include: [{
           system: 'http://snomed.info/sct',
-          concept: snomedConcepts
+          concept: validSnomedConcepts
         }]
       }
     };
@@ -634,15 +827,21 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       group: [{
         source: codeSystemUrl,
         target: 'http://snomed.info/sct',
-        element: concepts.map((concept, index) => ({
-          code: concept.code,
-          display: concept.display,
-          target: [{
-            code: snomedConcepts[index].code,
-            display: snomedConcepts[index].display,
-            equivalence: 'equivalent'
-          }]
-        }))
+        element: validConcepts.map((concept, index) => {
+          const snomedConcept = validSnomedConcepts[index];
+          if (!snomedConcept) {
+            throw new Error(`No matching SNOMED concept found for source concept ${concept.code}`);
+          }
+          return {
+            code: concept.code,
+            display: concept.display,
+            target: [{
+              code: snomedConcept.code,
+              display: snomedConcept.display,
+              equivalence: 'equivalent'
+            }]
+          };
+        })
       }]
     };
 

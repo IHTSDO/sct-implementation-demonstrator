@@ -282,19 +282,20 @@ mat-progress-bar {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px;
   margin: 16px 0;
-  background-color: #e3f2fd;
+  padding: 16px;
+  background-color: #f5f5f5;
   border-radius: 4px;
-  color: #1976d2;
 
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+  .map-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
   }
 
-  span {
-    font-size: 14px;
+  .download-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 }
