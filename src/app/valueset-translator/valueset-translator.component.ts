@@ -55,6 +55,7 @@ interface FHIRPackage {
   resources: {
     codeSystem: FHIRResource;
     valueSet: FHIRResource;
+    snomedValueSet: FHIRResource;
   };
 }
 
@@ -93,8 +94,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   selectedFile: File | null = null;
   isProcessing = false;
   outputFormat = 'csv';
-  baseUri = 'http://salud.gob.sv/fhir';
-  resourceName = 'procedimientos';
+  baseUri = 'http://organization.org/fhir';
+  setName = 'LocalCodes';
   isMap = false;
   showFhirOptions = false;
   showIndicators = true;
@@ -151,6 +152,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       // Hide ECL input if it was shown
       this.showEclInput = false;
       this.eclExpression = '';
+      // Reset FHIR options
+      this.showFhirOptions = false;
       this.readFile();
       // Check if it's a map file
       this.checkIfMap();
@@ -531,34 +534,43 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
   private async generateFHIRPackage(): Promise<void> {
     const data = await this.readExcelFile(this.selectedFile!);
-    const concepts = this.extractConcepts(data);
+    const { source, snomed } = this.extractConcepts(data);
     
-    const packageData = this.createFHIRPackage(concepts);
+    const packageData = this.createFHIRPackage(source, snomed);
     const tarBlob = await this.createTarGz(packageData);
     
-    saveAs(tarBlob, `${this.resourceName}.tgz`);
+    saveAs(tarBlob, `${this.setName}.tgz`);
     this.snackBar.open('FHIR package generated successfully!', 'OK', { duration: 3000 });
   }
 
-  private extractConcepts(data: any[]): Array<{code: string, display: string}> {
-    const sourceCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('source'))!;
-    const targetCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('target'))!;
+  private extractConcepts(data: any[]): { source: Array<{code: string, display: string}>, snomed: Array<{code: string, display: string}> } {
+    const sourceCodeCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('source code'))!;
+    const sourceDisplayCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('source display'))!;
+    const targetCodeCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('target code'))!;
+    const targetDisplayCol = Object.keys(data[0]).find(h => h.toLowerCase().includes('target display'))!;
     
-    return data.map(row => ({
-      code: String(row[sourceCol]).trim(),
-      display: String(row[targetCol]).trim()
-    })).filter(c => c.code && c.display);
+    return {
+      source: data.map(row => ({
+        code: String(row[sourceCodeCol]).trim(),
+        display: String(row[sourceDisplayCol]).trim()
+      })).filter(c => c.code && c.display),
+      snomed: data.map(row => ({
+        code: String(row[targetCodeCol]).trim(),
+        display: String(row[targetDisplayCol]).trim()
+      })).filter(c => c.code && c.display)
+    };
   }
 
-  private createFHIRPackage(concepts: Array<{code: string, display: string}>): FHIRPackage {
-    const codeSystemUrl = `${this.baseUri}/CodeSystem/${this.resourceName}`;
-    const valueSetUrl = `${this.baseUri}/ValueSet/${this.resourceName}`;
+  private createFHIRPackage(concepts: Array<{code: string, display: string}>, snomedConcepts: Array<{code: string, display: string}>): FHIRPackage {
+    const codeSystemUrl = `${this.baseUri}/CodeSystem/${this.setName}`;
+    const valueSetUrl = `${this.baseUri}/ValueSet/${this.setName}`;
+    const snomedValueSetUrl = `${this.baseUri}/ValueSet/${this.setName}-snomed`;
 
     const codeSystem: FHIRResource = {
       resourceType: 'CodeSystem',
       id: uuidv4(),
       url: codeSystemUrl,
-      name: `${this.resourceName}CodeSystem`,
+      name: `${this.setName}CodeSystem`,
       version: '1.0.0',
       status: 'active',
       content: 'complete',
@@ -569,7 +581,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       resourceType: 'ValueSet',
       id: uuidv4(),
       url: valueSetUrl,
-      name: `${this.resourceName}ValueSet`,
+      name: `${this.setName}ValueSet`,
       status: 'active',
       compose: {
         include: [{
@@ -579,24 +591,40 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       }
     };
 
+    const snomedValueSet: FHIRResource = {
+      resourceType: 'ValueSet',
+      id: uuidv4(),
+      url: snomedValueSetUrl,
+      name: `${this.setName}SnomedValueSet`,
+      status: 'active',
+      compose: {
+        include: [{
+          system: 'http://snomed.info/sct',
+          concept: snomedConcepts
+        }]
+      }
+    };
+
     return {
       manifest: {
-        name: `${this.resourceName}.codesystem.package`,
+        name: `${this.setName}.codesystem.package`,
         version: '1.0.0',
         fhirVersion: '4.0.1',
         resources: [
           { type: 'CodeSystem', reference: `CodeSystem/${codeSystem.name}` },
-          { type: 'ValueSet', reference: `ValueSet/${valueSet.name}` }
+          { type: 'ValueSet', reference: `ValueSet/${valueSet.name}` },
+          { type: 'ValueSet', reference: `ValueSet/${snomedValueSet.name}` }
         ]
       },
       index: {
         'index-version': 1,
         files: [
           { filename: `CodeSystem/${codeSystem.name}.json`, resourceType: 'CodeSystem', id: codeSystem.id, url: codeSystem.url },
-          { filename: `ValueSet/${valueSet.name}.json`, resourceType: 'ValueSet', id: valueSet.id, url: valueSet.url }
+          { filename: `ValueSet/${valueSet.name}.json`, resourceType: 'ValueSet', id: valueSet.id, url: valueSet.url },
+          { filename: `ValueSet/${snomedValueSet.name}.json`, resourceType: 'ValueSet', id: snomedValueSet.id, url: snomedValueSet.url }
         ]
       },
-      resources: { codeSystem, valueSet }
+      resources: { codeSystem, valueSet, snomedValueSet }
     };
   }
 
@@ -623,6 +651,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     valueSetFolder.file(
       `${packageData.resources.valueSet.name}.json`,
       JSON.stringify(packageData.resources.valueSet, null, 2)
+    );
+    
+    valueSetFolder.file(
+      `${packageData.resources.snomedValueSet.name}.json`,
+      JSON.stringify(packageData.resources.snomedValueSet, null, 2)
     );
     
     packageFolder.file('package.json', JSON.stringify(packageData.manifest, null, 2));
@@ -672,6 +705,20 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       // Check if it's a map by looking for source/target columns
       this.isMap = headers.some(h => h.toLowerCase().includes('source')) && 
                   headers.some(h => h.toLowerCase().includes('target'));
+      
+      if (this.isMap) {
+        // Find the target code and display columns
+        const targetCodeCol = headers.findIndex(h => h.toLowerCase().includes('target code'));
+        const targetDisplayCol = headers.findIndex(h => h.toLowerCase().includes('target display'));
+        
+        // Pre-select the columns in the form
+        if (targetCodeCol !== -1 && targetDisplayCol !== -1) {
+          this.importForm.patchValue({
+            codeColumn: targetCodeCol,
+            displayColumn: targetDisplayCol
+          });
+        }
+      }
     } catch (error) {
       console.error('Error checking file type:', error);
     }
