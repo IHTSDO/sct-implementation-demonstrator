@@ -146,19 +146,19 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Add scroll event listener
-    window.addEventListener('scroll', this.onScroll.bind(this));
+    // Add scroll event listener with arrow function
+    window.addEventListener('scroll', () => this.onScroll());
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
-    // Remove scroll event listener
-    window.removeEventListener('scroll', this.onScroll.bind(this));
+    // Remove scroll event listener with arrow function
+    window.removeEventListener('scroll', () => this.onScroll());
   }
 
   private onScroll(): void {
-    // Hide indicators if scrolled more than 100px
-    this.showIndicators = window.scrollY < 100;
+    // Hide indicators if scrolled more than 50px
+    this.showIndicators = window.scrollY < 50;
   }
 
   onFileSelected(event: any) {
@@ -969,6 +969,51 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error('Error checking file type:', error);
+    }
+  }
+
+  async processAndDownload(type: 'source' | 'target' | 'excel'): Promise<void> {
+    if (!this.previewData.length) return;
+
+    this.isLoading = true;
+    this.error = null;
+
+    try {
+      // Get the first two columns by default for non-map files
+      const codeColumn = 0;
+      const displayColumn = 1;
+      const skipHeader = true;
+
+      // Start from index 1 if skipping header, or 0 if not
+      const startIndex = skipHeader ? 1 : 0;
+
+      // Map data starting from appropriate row
+      const codes = this.previewData.slice(startIndex).map(row => ({
+        code: row[codeColumn],
+        display: row[displayColumn]
+      })).filter(item => item.code && item.display); // Filter out empty rows
+
+      // Create source ValueSet from codes
+      this.sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
+
+      if (type === 'source') {
+        this.downloadSourceValueSet();
+        return;
+      }
+
+      // For target and excel, we need to expand the ValueSet
+      const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
+      this.targetValueSet = expandedValueSet;
+
+      if (type === 'target') {
+        this.downloadTargetValueSet();
+      } else if (type === 'excel') {
+        this.downloadTargetAsExcel();
+      }
+    } catch (error: any) {
+      this.error = `Error processing file: ${error.message || error}`;
+    } finally {
+      this.isLoading = false;
     }
   }
 }

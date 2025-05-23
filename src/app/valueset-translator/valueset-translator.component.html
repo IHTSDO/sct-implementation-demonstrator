@@ -101,60 +101,90 @@
             </button>
         </div>
 
-        <!-- Success Message -->
-        <div *ngIf="successMessage" class="success-message">
-            {{ successMessage }}
-            <div class="download-buttons">
-                <button 
-                    mat-raised-button 
-                    color="primary" 
-                    (click)="downloadSourceValueSet()"
-                    class="download-button"
-                    *ngIf="sourceValueSet"
-                >
-                    <mat-icon>download</mat-icon>
-                    Download Source ValueSet
-                </button>
-                <button 
-                    mat-raised-button 
-                    color="accent" 
-                    (click)="downloadTargetValueSet()"
-                    class="download-button"
-                >
-                    <mat-icon>download</mat-icon>
-                    Download Target ValueSet
-                </button>
-                <button 
-                    mat-raised-button 
-                    color="accent" 
-                    (click)="downloadTargetAsExcel()"
-                    class="download-button"
-                >
-                    <mat-icon>table_view</mat-icon>
-                    Download Target as Excel
-                </button>
-                <button 
-                    mat-raised-button 
-                    color="accent" 
-                    (click)="downloadTranslatedFile()"
-                    class="download-button"
-                    *ngIf="originalData.length && !isValueSetFile && !showEclInput && !isMap"
-                >
-                    <mat-icon>compare_arrows</mat-icon>
-                    Download Translated Original File
-                </button>
-            </div>
+        <!-- Preview Table -->
+        <div *ngIf="showPreview && previewData.length > 0" class="preview-table">
+            <h3>Preview (First 5 rows)</h3>
+            <table mat-table [dataSource]="previewData.slice(1, 6)" class="mat-elevation-z8">
+                <ng-container *ngFor="let col of columns; let i = index">
+                    <ng-container [matColumnDef]="i.toString()">
+                        <th mat-header-cell *matHeaderCellDef>{{ col.header }}</th>
+                        <td mat-cell *matCellDef="let row">{{ row[i] }}</td>
+                    </ng-container>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
         </div>
 
-        <!-- Error Message -->
-        <div *ngIf="error" class="error-message">
-            {{ error }}
+        <!-- Column Selection Form - Only for map files -->
+        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0 && isMap && !showFhirOptions" class="column-form">
+            <h3>Select Columns <span class="auto-select-message">(Auto-selected for map format)</span></h3>
+            
+            <mat-form-field appearance="fill">
+                <mat-label>Code Column</mat-label>
+                <mat-select formControlName="codeColumn" required>
+                    <mat-option *ngFor="let col of columns" [value]="col.index">
+                        {{ col.header }}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="importForm.get('codeColumn')?.hasError('required')">
+                    Please select a code column
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Display Column</mat-label>
+                <mat-select formControlName="displayColumn" required>
+                    <mat-option *ngFor="let col of columns" [value]="col.index">
+                        {{ col.header }}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="importForm.get('displayColumn')?.hasError('required')">
+                    Please select a display column
+                </mat-error>
+            </mat-form-field>
+
+            <mat-checkbox formControlName="skipHeader" class="skip-header">
+                Skip header row
+            </mat-checkbox>
+        </form>
+
+        <!-- Download Options for all file types -->
+        <div *ngIf="!showEclInput && showPreview && previewData.length > 0" class="download-options">
+            <button
+                mat-raised-button
+                color="primary"
+                (click)="processAndDownload('source')"
+                [disabled]="isLoading"
+            >
+                <mat-icon>download</mat-icon>
+                Download Source ValueSet
+            </button>
+            <button
+                mat-raised-button
+                color="accent"
+                (click)="processAndDownload('target')"
+                [disabled]="isLoading"
+            >
+                <mat-icon>download</mat-icon>
+                Download Target ValueSet
+            </button>
+            <button
+                mat-raised-button
+                color="accent"
+                (click)="processAndDownload('excel')"
+                [disabled]="isLoading"
+            >
+                <mat-icon>table_view</mat-icon>
+                Download as Excel
+            </button>
         </div>
 
         <!-- Map Detection Message -->
         <div *ngIf="isMap" class="map-detection-message">
             <mat-icon color="primary">info</mat-icon>
-            <span>Map detected! You can generate a FHIR package from this file.</span>
+            <span>Snap2Snomed Map detected! You can generate a FHIR package or translate the target codes of this file.</span>
             <div class="map-actions">
                 <button 
                     mat-raised-button 
@@ -191,75 +221,6 @@
 
             <button mat-raised-button color="primary" (click)="convert()" [disabled]="isProcessing">
                 Generate Package
-            </button>
-        </div>
-
-        <!-- Column Selection Form -->
-        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0 && !isValueSetFile && !(isMap && showFhirOptions)" class="column-form">
-            <h3>Select Columns</h3>
-            
-            <mat-form-field appearance="fill">
-                <mat-label>Code Column</mat-label>
-                <mat-select formControlName="codeColumn" required>
-                    <mat-option *ngFor="let col of columns" [value]="col.index">
-                        {{ col.header }}
-                    </mat-option>
-                </mat-select>
-                <mat-error *ngIf="importForm.get('codeColumn')?.hasError('required')">
-                    Please select a code column
-                </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-                <mat-label>Display Column</mat-label>
-                <mat-select formControlName="displayColumn" required>
-                    <mat-option *ngFor="let col of columns" [value]="col.index">
-                        {{ col.header }}
-                    </mat-option>
-                </mat-select>
-                <mat-error *ngIf="importForm.get('displayColumn')?.hasError('required')">
-                    Please select a display column
-                </mat-error>
-            </mat-form-field>
-
-            <mat-checkbox formControlName="skipHeader" class="skip-header">
-                Skip header row
-            </mat-checkbox>
-
-            <button
-                mat-raised-button
-                color="primary"
-                (click)="importCodes()"
-                [disabled]="!importForm.valid"
-            >
-                Import Codes
-            </button>
-        </form>
-
-        <!-- Preview Table -->
-        <div *ngIf="showPreview && previewData.length > 0" class="preview-table">
-            <h3>Preview (First 5 rows)</h3>
-            <table mat-table [dataSource]="previewData.slice(1, 6)" class="mat-elevation-z8">
-                <ng-container *ngFor="let col of columns; let i = index">
-                    <ng-container [matColumnDef]="i.toString()">
-                        <th mat-header-cell *matHeaderCellDef>{{ col.header }}</th>
-                        <td mat-cell *matCellDef="let row">{{ row[i] }}</td>
-                    </ng-container>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-            </table>
-
-            <!-- Import Button for ValueSet Files -->
-            <button
-                *ngIf="isValueSetFile"
-                mat-raised-button
-                color="primary"
-                (click)="importCodes()"
-                class="import-button"
-            >
-                Import Codes
             </button>
         </div>
 
