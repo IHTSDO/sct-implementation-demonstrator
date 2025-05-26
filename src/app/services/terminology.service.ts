@@ -130,7 +130,7 @@ export class TerminologyService {
     if (this.context) {
       return this.context.languageDialects;
     } else if (this.languageRefsetConcept) {
-      return toLanguageCode(this.lang, + this.languageRefsetConcept.code);
+      return this.toLanguageCode(this.lang, this.languageRefsetConcept.code);
     } else return this.lang;
   }
 
