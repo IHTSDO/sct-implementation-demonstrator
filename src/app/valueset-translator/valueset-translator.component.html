@@ -150,13 +150,14 @@
             </mat-checkbox>
         </form>
 
-        <!-- Download Options for all file types -->
-        <div *ngIf="!showEclInput && showPreview && previewData.length > 0" class="download-options">
+        <!-- Download Options -->
+        <div *ngIf="((!showEclInput && showPreview && previewData.length > 0) || (showEclInput && targetValueSet))" class="download-options">
             <button
                 mat-raised-button
                 color="primary"
                 (click)="processAndDownload('source')"
                 [disabled]="isLoading"
+                *ngIf="!showEclInput"
             >
                 <mat-icon>download</mat-icon>
                 Download Source ValueSet

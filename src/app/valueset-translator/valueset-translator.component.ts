@@ -973,12 +973,23 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   }
 
   async processAndDownload(type: 'source' | 'target' | 'excel'): Promise<void> {
-    if (!this.previewData.length) return;
-
     this.isLoading = true;
     this.error = null;
 
     try {
+      // If we're in ECL mode and have a targetValueSet
+      if (this.showEclInput && this.targetValueSet) {
+        if (type === 'target') {
+          this.downloadValueSet(this.targetValueSet, 'target-valueset.json');
+        } else if (type === 'excel') {
+          this.downloadTargetAsExcel();
+        }
+        return;
+      }
+
+      // Handle file-based data
+      if (!this.previewData.length) return;
+
       // Get the first two columns by default for non-map files
       const codeColumn = 0;
       const displayColumn = 1;
@@ -1012,6 +1023,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       }
     } catch (error: any) {
       this.error = `Error processing file: ${error.message || error}`;
+      this.snackBar.open(this.error, 'Close', { duration: 5000 });
     } finally {
       this.isLoading = false;
     }
