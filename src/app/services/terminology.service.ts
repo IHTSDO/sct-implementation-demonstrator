@@ -568,4 +568,20 @@ export class TerminologyService {
 
     return valueset;
   }
+
+  postValueSetToFhirServer(valueSet: any, fhirServerUrl: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/fhir+json',
+      'Accept': 'application/fhir+json'
+    });
+
+    // Ensure the URL ends with /ValueSet
+    const url = fhirServerUrl.endsWith('/ValueSet') ? 
+      fhirServerUrl : 
+      `${fhirServerUrl}${fhirServerUrl.endsWith('/') ? '' : '/'}ValueSet`;
+
+    return this.http.post<any>(url, valueSet, { headers }).pipe(
+      catchError(this.handleError<any>('postValueSetToFhirServer', {}))
+    );
+  }
 }

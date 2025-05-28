@@ -180,6 +180,15 @@
                 <mat-icon>table_view</mat-icon>
                 Download as Excel
             </button>
+            <button
+                mat-raised-button
+                color="primary"
+                (click)="postToFhirServer()"
+                [disabled]="isLoading"
+            >
+                <mat-icon>cloud_upload</mat-icon>
+                Post to FHIR Server
+            </button>
         </div>
 
         <!-- Map Detection Message -->

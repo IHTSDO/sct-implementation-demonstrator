@@ -7,6 +7,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { saveAs } from 'file-saver';
 import { v4 as uuidv4 } from 'uuid';
 import JSZip from 'jszip';
+import { MatDialog } from '@angular/material/dialog';
+import { FhirServerDialogComponent } from './fhir-server-dialog/fhir-server-dialog.component';
 
 interface ColumnOption {
   header: string;
@@ -119,7 +121,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private terminologyService: TerminologyService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.importForm = this.fb.group({
       codeColumn: ['', Validators.required],
@@ -1027,5 +1030,87 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  postToFhirServer() {
+    if (!this.targetValueSet) {
+      this.snackBar.open('No ValueSet available to post', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(FhirServerDialogComponent, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(serverUrl => {
+      if (serverUrl) {
+        this.isLoading = true;
+
+        // Extract ValueSet if it's wrapped in Parameters
+        let valueSetToPost = this.targetValueSet;
+        if (this.targetValueSet.resourceType === 'Parameters' && this.targetValueSet.parameter) {
+          const valueSetParam = this.targetValueSet.parameter.find((p: any) => p.name === 'valueSet');
+          if (valueSetParam?.resource) {
+            valueSetToPost = valueSetParam.resource;
+          }
+        }
+
+        // Add required FHIR metadata
+        const id = valueSetToPost.id || uuidv4();
+        valueSetToPost.id = id;
+        valueSetToPost.url = `http://example.org/vs/${id}`;
+        valueSetToPost.status = valueSetToPost.status || 'active';
+
+        // Add name if not present
+        if (!valueSetToPost.name) {
+          const timestamp = new Date().toISOString().split('T')[0];
+          if (this.showEclInput && this.eclExpression) {
+            // For ECL-based ValueSets
+            const eclForName = this.eclExpression.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
+            valueSetToPost.name = `ECL_${eclForName}_${timestamp}`;
+          } else {
+            // For file-based ValueSets
+            const fileName = this.file?.name.split('.')[0] || 'custom';
+            valueSetToPost.name = `${fileName}_${timestamp}`;
+          }
+        }
+
+        // Add title if not present
+        if (!valueSetToPost.title) {
+          if (this.showEclInput && this.eclExpression) {
+            valueSetToPost.title = `ECL ValueSet: ${this.eclExpression}`;
+          } else {
+            valueSetToPost.title = `ValueSet from ${this.file?.name || 'uploaded file'}`;
+          }
+        }
+
+        // Add description if not present
+        if (!valueSetToPost.description) {
+          const conceptCount = valueSetToPost.expansion?.contains?.length || 
+                             valueSetToPost.compose?.include?.[0]?.concept?.length || 0;
+          const system = valueSetToPost.compose?.include?.[0]?.system || 'unknown system';
+          
+          if (this.showEclInput && this.eclExpression) {
+            valueSetToPost.description = `ValueSet created from ECL expression: "${this.eclExpression}". Contains ${conceptCount} matching concepts.`;
+          } else {
+            valueSetToPost.description = `ValueSet containing ${conceptCount} concepts from ${system}`;
+          }
+        }
+
+        this.terminologyService.postValueSetToFhirServer(valueSetToPost, serverUrl).subscribe({
+          next: (response: any) => {
+            this.snackBar.open('ValueSet successfully posted to FHIR server', 'Close', { duration: 5000 });
+            console.log('FHIR server response:', response);
+          },
+          error: (error: any) => {
+            this.error = `Error posting to FHIR server: ${error.message || error}`;
+            this.snackBar.open(this.error, 'Close', { duration: 5000 });
+          },
+          complete: () => {
+            this.isLoading = false;
+          }
+        });
+      }
+    });
   }
 }
