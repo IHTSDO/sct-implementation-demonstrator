@@ -10,7 +10,6 @@ export interface IntegrationData {
   annotationValue: string;
   refsetIds: string[];
   type: 'content' | 'map' | 'extension' | 'refset';
-  title: boolean;
 }
 
 @Injectable({
@@ -48,8 +47,7 @@ export class SpreadsheetService {
             description: columns[3] || '',
             annotationValue: columns[4] || '',
             refsetIds: this.parseRefsetIds(columns[5]),
-            type: (columns[6] || '').toLowerCase() as 'content' | 'map' | 'extension' | 'refset',
-            title: columns[7]?.toUpperCase() === 'TRUE'
+            type: (columns[6] || '').toLowerCase() as 'content' | 'map' | 'extension' | 'refset'
           };
         });
       })

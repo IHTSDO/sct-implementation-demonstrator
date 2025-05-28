@@ -44,18 +44,18 @@
             </div>
             <div class="center-panel">
                 <div class="row">
-                    <div *ngFor="let box of topRow.slice(1, topRow.length -1 )" class="card square color"
+                    <div *ngFor="let box of topRow.slice(1, topRow.length -1 ); let i = index" class="card square color"
                         [ngClass]="box.type">
-                        <ng-container *ngIf="box.title">
+                        <ng-container *ngIf="shouldShowTitle(box, i+1, topRow)">
                             {{ box.type | titlecase }}
                         </ng-container>
                     </div>
                 </div>
                 <div class="row grow">
                     <div class="col narrow">
-                        <div *ngFor="let box of leftCol.slice(1, leftCol.length -1)" class="card square color"
+                        <div *ngFor="let box of leftCol.slice(1, leftCol.length -1); let i = index" class="card square color"
                             [ngClass]="box.type">
-                            <ng-container *ngIf="box.title">
+                            <ng-container *ngIf="shouldShowTitle(box, i+1, leftCol)">
                                 {{ box.type | titlecase }}
                             </ng-container>
                         </div>
@@ -96,18 +96,18 @@
                         </div>
                     </div>
                     <div class="col narrow">
-                        <div *ngFor="let box of rightCol.slice(1, rightCol.length -1)" class="card square color"
+                        <div *ngFor="let box of rightCol.slice(1, rightCol.length -1); let i = index" class="card square color"
                             [ngClass]="box.type">
-                            <ng-container *ngIf="box.title">
+                            <ng-container *ngIf="shouldShowTitle(box, i+1, rightCol)">
                                 {{ box.type | titlecase }}
                             </ng-container>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div *ngFor="let box of bottomRow.slice(1, bottomRow.length -1)" class="card square color"
+                    <div *ngFor="let box of bottomRow.slice(1, bottomRow.length -1); let i = index" class="card square color"
                         [ngClass]="box.type">
-                        <ng-container *ngIf="box.title">
+                        <ng-container *ngIf="shouldShowTitle(box, i+1, bottomRow)">
                             {{ box.type | titlecase }}
                         </ng-container>
                     </div>
