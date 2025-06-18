@@ -48,7 +48,7 @@
                     *ngIf="!successMessage && !showEclInput"
                 >
                     <mat-icon>upload_file</mat-icon>
-                    Choose File (Excel/CSV/TSV/JSON)
+                    Choose File (Excel/CSV/TSV/TXT/JSON)
                 </button>
                 <button 
                     mat-raised-button 
@@ -72,7 +72,7 @@
             <input
                 type="file"
                 (change)="onFileSelected($event)"
-                accept=".xlsx,.xls,.csv,.tsv,.json"
+                accept=".xlsx,.xls,.csv,.tsv,.txt,.json"
                 #fileInput
                 style="display: none"
             />
@@ -118,8 +118,8 @@
         </div>
 
         <!-- Column Selection Form - Only for map files -->
-        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0 && isMap && !showFhirOptions" class="column-form">
-            <h3>Select Columns <span class="auto-select-message">(Auto-selected for map format)</span></h3>
+        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0 && !isValueSetFile && !showFhirOptions" class="column-form">
+            <h3>Select Columns <span class="auto-select-message" *ngIf="isMap">(Auto-selected for map format)</span></h3>
             
             <mat-form-field appearance="fill">
                 <mat-label>Code Column</mat-label>
@@ -134,15 +134,12 @@
             </mat-form-field>
 
             <mat-form-field appearance="fill">
-                <mat-label>Display Column</mat-label>
-                <mat-select formControlName="displayColumn" required>
+                <mat-label>Display Column (Optional)</mat-label>
+                <mat-select formControlName="displayColumn">
                     <mat-option *ngFor="let col of columns" [value]="col.index">
                         {{ col.header }}
                     </mat-option>
                 </mat-select>
-                <mat-error *ngIf="importForm.get('displayColumn')?.hasError('required')">
-                    Please select a display column
-                </mat-error>
             </mat-form-field>
 
             <mat-checkbox formControlName="skipHeader" class="skip-header">
@@ -150,45 +147,64 @@
             </mat-checkbox>
         </form>
 
-        <!-- Download Options -->
-        <div *ngIf="((!showEclInput && showPreview && previewData.length > 0) || (showEclInput && targetValueSet))" class="download-options">
-            <button
-                mat-raised-button
-                color="primary"
-                (click)="processAndDownload('source')"
-                [disabled]="isLoading"
-                *ngIf="!showEclInput"
-            >
-                <mat-icon>download</mat-icon>
-                Download Source ValueSet
-            </button>
-            <button
-                mat-raised-button
-                color="accent"
-                (click)="processAndDownload('target')"
-                [disabled]="isLoading"
-            >
-                <mat-icon>download</mat-icon>
-                Download Target ValueSet
-            </button>
-            <button
-                mat-raised-button
-                color="accent"
-                (click)="processAndDownload('excel')"
-                [disabled]="isLoading"
-            >
-                <mat-icon>table_view</mat-icon>
-                Download as Excel
-            </button>
-            <button
-                mat-raised-button
-                color="primary"
-                (click)="postToFhirServer()"
-                [disabled]="isLoading"
-            >
-                <mat-icon>cloud_upload</mat-icon>
-                Post to FHIR Server
-            </button>
+        <!-- Download Options for all file types -->
+        <div *ngIf="!showEclInput && showPreview && previewData.length > 0" class="download-options">
+            <div class="valueset-metadata" *ngIf="showValueSetMetadata">
+                <mat-form-field>
+                    <mat-label>ValueSet URI</mat-label>
+                    <input matInput [(ngModel)]="valueSetUri" placeholder="http://example.org/fhir/ValueSet/example">
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>ValueSet Name</mat-label>
+                    <input matInput [(ngModel)]="valueSetName" placeholder="ExampleValueSet">
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Version</mat-label>
+                    <input matInput [(ngModel)]="valueSetVersion" placeholder="1.0.0">
+                </mat-form-field>
+            </div>
+
+            <div class="download-buttons">
+                <button
+                    mat-raised-button
+                    color="primary"
+                    (click)="processAndDownload('source')"
+                    [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value || (showValueSetMetadata && (!valueSetUri || !valueSetName || !valueSetVersion))"
+                >
+                    <mat-icon>download</mat-icon>
+                    Download Source ValueSet
+                </button>
+                <button
+                    mat-raised-button
+                    color="accent"
+                    (click)="processAndDownload('target')"
+                    [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value || (showValueSetMetadata && (!valueSetUri || !valueSetName || !valueSetVersion))"
+                >
+                    <mat-icon>download</mat-icon>
+                    Download Target ValueSet
+                </button>
+                <button
+                    mat-raised-button
+                    color="accent"
+                    (click)="processAndDownload('excel')"
+                    [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value"
+                >
+                    <mat-icon>table_view</mat-icon>
+                    Download as Excel
+                </button>
+                <button
+                    *ngIf="isMap"
+                    mat-raised-button
+                    color="primary"
+                    (click)="processAndDownload('fhir')"
+                    [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value || !valueSetUri || !valueSetName"
+                >
+                    <mat-icon>archive</mat-icon>
+                    Download FHIR Package
+                </button>
+            </div>
         </div>
 
         <!-- Map Detection Message -->
@@ -199,15 +215,6 @@
                 <button 
                     mat-raised-button 
                     color="primary" 
-                    (click)="showFhirOptions = true"
-                    *ngIf="!showFhirOptions"
-                >
-                    <mat-icon>build</mat-icon>
-                    Generate FHIR Package
-                </button>
-                <button 
-                    mat-raised-button 
-                    color="primary" 
                     (click)="downloadTranslatedFile()"
                     class="download-button"
                 >
@@ -215,23 +222,6 @@
                     Download Translated Map File
                 </button>
             </div>
-        </div>
-
-        <!-- FHIR Package Options -->
-        <div *ngIf="isMap && showFhirOptions" class="options-container">
-            <mat-form-field>
-                <mat-label>Base URI</mat-label>
-                <input matInput [(ngModel)]="baseUri" placeholder="http://example.org/fhir">
-            </mat-form-field>
-
-            <mat-form-field>
-                <mat-label>Set Name</mat-label>
-                <input matInput [(ngModel)]="setName" placeholder="LocalCodes">
-            </mat-form-field>
-
-            <button mat-raised-button color="primary" (click)="convert()" [disabled]="isProcessing">
-                Generate Package
-            </button>
         </div>
 
         <mat-progress-bar mode="indeterminate" *ngIf="isProcessing"></mat-progress-bar>

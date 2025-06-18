@@ -117,6 +117,10 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   isMap = false;
   showFhirOptions = false;
   showIndicators = true;
+  showValueSetMetadata = true;
+  valueSetUri = '';
+  valueSetName = '';
+  valueSetVersion = '1.0.0';
 
   constructor(
     private fb: FormBuilder,
@@ -126,7 +130,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   ) {
     this.importForm = this.fb.group({
       codeColumn: ['', Validators.required],
-      displayColumn: ['', Validators.required],
+      displayColumn: [''],
       skipHeader: [true]
     });
   }
@@ -206,11 +210,48 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         }
       }
 
-      /* ---------- TSV ---------- */
-      if (name.endsWith('.tsv')) {
+      /* ---------- TSV or TXT (potential TSV) ---------- */
+      if (name.endsWith('.tsv') || name.endsWith('.txt')) {
         const text = await this.file.text();
-        this.previewData  = text.split(/\r?\n/).map(r => r.split('\t'));
-        this.originalData = [...this.previewData];
+        // Check if the file contains tab characters to determine if it's a TSV
+        const isTsv = text.includes('\t');
+        if (isTsv) {
+          // Split by newlines and then by tabs, preserving empty values
+          this.previewData = text.split(/\r?\n/)
+            .filter(line => line.trim()) // Remove empty lines
+            .map(r => r.split('\t').map(cell => cell.trim()));
+          this.originalData = [...this.previewData];
+
+          // Build columns from the first row (header)
+          if (this.previewData.length > 0) {
+            this.columns = this.previewData[0].map(
+              (h: string, i: number) => ({ header: h || `Column ${i + 1}`, index: i })
+            );
+            this.displayedColumns = this.columns.map((_, i) => `${i}`);
+            this.showPreview = true;
+
+            // keep current "skip header" checkbox state
+            const keepSkip = this.importForm.get('skipHeader')!.value;
+            this.importForm.reset({ skipHeader: keepSkip });
+          }
+        } else {
+          // If it's a txt file without tabs, treat it as a simple text file
+          // Each line becomes a row with a single column
+          this.previewData = text.split(/\r?\n/)
+            .filter(line => line.trim()) // Remove empty lines
+            .map(r => [r.trim()]);
+          this.originalData = [...this.previewData];
+
+          if (this.previewData.length) {
+            this.columns = [{ header: 'Value', index: 0 }];
+            this.displayedColumns = ['0'];
+            this.showPreview = true;
+
+            // keep current "skip header" checkbox state
+            const keepSkip = this.importForm.get('skipHeader')!.value;
+            this.importForm.reset({ skipHeader: keepSkip });
+          }
+        }
       }
 
       /* ---------- CSV ---------- */
@@ -330,17 +371,58 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       this.selectedDisplayColumn = this.importForm.get('displayColumn')?.value;
       const skipHeader = this.importForm.get('skipHeader')?.value;
 
+      console.log('Selected columns:', {
+        codeColumn: this.selectedCodeColumn,
+        displayColumn: this.selectedDisplayColumn,
+        skipHeader
+      });
+
       // Start from index 1 if skipping header, or 0 if not
       const startIndex = skipHeader ? 1 : 0;
 
+      console.log('Preview data:', this.previewData);
+      console.log('Start index:', startIndex);
+
       // Map data starting from appropriate row
-      const codes = this.previewData.slice(startIndex).map(row => ({
-        code: row[this.selectedCodeColumn!],
-        display: row[this.selectedDisplayColumn!]
-      })).filter(item => item.code && item.display); // Filter out empty rows
+      const codes = this.previewData.slice(startIndex)
+        .map(row => {
+          const code = String(row[this.selectedCodeColumn!] || '').trim();
+          // Only include display if display column is selected and has a value
+          const display = this.selectedDisplayColumn !== null && this.selectedDisplayColumn !== undefined ? 
+            String(row[this.selectedDisplayColumn] || '').trim() : undefined;
+          return { code, display };
+        })
+        .filter(item => item.code && item.code !== ''); // Only filter out empty codes
+
+      console.log('Processed codes:', codes);
+
+      if (codes.length === 0) {
+        this.error = 'No valid codes found in the selected column';
+        return;
+      }
 
       // Create source ValueSet from codes
-      this.sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
+      this.sourceValueSet = {
+        resourceType: 'Parameters',
+        parameter: [{
+          name: 'valueSet',
+          resource: {
+            resourceType: 'ValueSet',
+            status: 'draft',
+            experimental: true,
+            compose: {
+              include: [{
+                system: 'http://snomed.info/sct',
+                version: this.terminologyContext.fhirUrlParam,
+                concept: codes
+              }]
+            }
+          }
+        }]
+      };
+
+      console.log('Created ValueSet:', this.sourceValueSet);
+      
       this.expandValueSet();
     }
   }
@@ -708,7 +790,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     const packageData = this.createFHIRPackage(source, snomed);
     const tarBlob = await this.createTarGz(packageData);
     
-    saveAs(tarBlob, `${this.setName}.tgz`);
+    saveAs(tarBlob, `${this.valueSetName}.tgz`);
     this.snackBar.open('FHIR package generated successfully!', 'OK', { duration: 3000 });
   }
 
@@ -774,17 +856,17 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       throw new Error('No valid concepts found after filtering');
     }
 
-    const codeSystemUrl = `${this.baseUri}/CodeSystem/${this.setName}`;
-    const valueSetUrl = `${this.baseUri}/ValueSet/${this.setName}`;
-    const snomedValueSetUrl = `${this.baseUri}/ValueSet/${this.setName}-snomed`;
-    const conceptMapUrl = `${this.baseUri}/ConceptMap/${this.setName}-to-snomed`;
+    const codeSystemUrl = `${this.valueSetUri}/CodeSystem/${this.valueSetName}`;
+    const valueSetUrl = `${this.valueSetUri}/ValueSet/${this.valueSetName}`;
+    const snomedValueSetUrl = `${this.valueSetUri}/ValueSet/${this.valueSetName}-snomed`;
+    const conceptMapUrl = `${this.valueSetUri}/ConceptMap/${this.valueSetName}-to-snomed`;
 
     const codeSystem: FHIRResource = {
       resourceType: 'CodeSystem',
       id: uuidv4(),
       url: codeSystemUrl,
-      name: `${this.setName}CodeSystem`,
-      version: '1.0.0',
+      name: `${this.valueSetName}CodeSystem`,
+      version: this.valueSetVersion,
       status: 'active',
       content: 'complete',
       concept: validConcepts
@@ -794,7 +876,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       resourceType: 'ValueSet',
       id: uuidv4(),
       url: valueSetUrl,
-      name: `${this.setName}ValueSet`,
+      name: `${this.valueSetName}ValueSet`,
+      version: this.valueSetVersion,
       status: 'active',
       compose: {
         include: [{
@@ -808,7 +891,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       resourceType: 'ValueSet',
       id: uuidv4(),
       url: snomedValueSetUrl,
-      name: `${this.setName}SnomedValueSet`,
+      name: `${this.valueSetName}SnomedValueSet`,
+      version: this.valueSetVersion,
       status: 'active',
       compose: {
         include: [{
@@ -822,8 +906,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       resourceType: 'ConceptMap',
       id: uuidv4(),
       url: conceptMapUrl,
-      name: `${this.setName}ToSnomedMap`,
-      version: '1.0.0',
+      name: `${this.valueSetName}ToSnomedMap`,
+      version: this.valueSetVersion,
       status: 'active',
       sourceUri: codeSystemUrl,
       targetUri: 'http://snomed.info/sct',
@@ -850,8 +934,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
     return {
       manifest: {
-        name: `${this.setName}.codesystem.package`,
-        version: '1.0.0',
+        name: `${this.valueSetName}.codesystem.package`,
+        version: this.valueSetVersion,
         fhirVersion: '4.0.1',
         resources: [
           { type: 'CodeSystem', reference: `CodeSystem/${codeSystem.name}` },
@@ -975,43 +1059,68 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     }
   }
 
-  async processAndDownload(type: 'source' | 'target' | 'excel'): Promise<void> {
+  async processAndDownload(type: 'source' | 'target' | 'excel' | 'fhir'): Promise<void> {
+    if (!this.previewData.length) return;
+
     this.isLoading = true;
     this.error = null;
 
     try {
-      // If we're in ECL mode and have a targetValueSet
-      if (this.showEclInput && this.targetValueSet) {
-        if (type === 'target') {
-          this.downloadValueSet(this.targetValueSet, 'target-valueset.json');
-        } else if (type === 'excel') {
-          this.downloadTargetAsExcel();
-        }
-        return;
-      }
-
-      // Handle file-based data
-      if (!this.previewData.length) return;
-
-      // Get the first two columns by default for non-map files
-      const codeColumn = 0;
-      const displayColumn = 1;
-      const skipHeader = true;
+      // Get the selected columns from the form
+      const codeColumn = this.importForm.get('codeColumn')?.value;
+      const displayColumn = this.importForm.get('displayColumn')?.value;
+      const skipHeader = this.importForm.get('skipHeader')?.value;
 
       // Start from index 1 if skipping header, or 0 if not
       const startIndex = skipHeader ? 1 : 0;
 
       // Map data starting from appropriate row
-      const codes = this.previewData.slice(startIndex).map(row => ({
-        code: row[codeColumn],
-        display: row[displayColumn]
-      })).filter(item => item.code && item.display); // Filter out empty rows
+      const codes = this.previewData.slice(startIndex)
+        .map(row => {
+          const code = String(row[codeColumn] || '').trim();
+          // Only include display if display column is selected and has a value
+          const display = displayColumn !== null && displayColumn !== undefined ? 
+            String(row[displayColumn] || '').trim() : undefined;
+          return { code, display };
+        })
+        .filter(item => item.code && item.code !== ''); // Only filter out empty codes
+
+      if (codes.length === 0) {
+        this.error = 'No valid codes found in the selected column';
+        this.isLoading = false;
+        return;
+      }
 
       // Create source ValueSet from codes
-      this.sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
+      this.sourceValueSet = {
+        resourceType: 'Parameters',
+        parameter: [{
+          name: 'valueSet',
+          resource: {
+            resourceType: 'ValueSet',
+            url: this.valueSetUri,
+            name: this.valueSetName,
+            version: this.valueSetVersion,
+            status: 'draft',
+            experimental: true,
+            compose: {
+              include: [{
+                system: 'http://snomed.info/sct',
+                version: this.terminologyContext.fhirUrlParam,
+                concept: codes
+              }]
+            }
+          }
+        }]
+      };
 
       if (type === 'source') {
         this.downloadSourceValueSet();
+        return;
+      }
+
+      if (type === 'fhir') {
+        await this.generateFHIRPackage();
         return;
       }
 

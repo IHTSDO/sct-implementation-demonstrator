@@ -132,8 +132,10 @@ mat-progress-spinner {
 .download-buttons {
     margin-top: 15px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
 }
 
 .download-button {
@@ -322,4 +324,16 @@ mat-progress-bar {
     color: #666;
     font-weight: normal;
     font-style: italic;
+}
+
+.valueset-metadata {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 200px;
+  }
 }
