@@ -121,6 +121,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   valueSetUri = '';
   valueSetName = '';
   valueSetVersion = '1.0.0';
+  targetPreviewData: Array<{code: string, originalDisplay: string, translatedDisplay: string}> = [];
+  targetPreviewColumns = ['code', 'originalDisplay', 'translatedDisplay'];
 
   constructor(
     private fb: FormBuilder,
@@ -1221,5 +1223,89 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  async generateTargetPreview(): Promise<void> {
+    if (!this.previewData.length) return;
+
+    this.isLoading = true;
+    this.error = null;
+
+    try {
+      // Get the selected columns from the form
+      const codeColumn = this.importForm.get('codeColumn')?.value;
+      const displayColumn = this.importForm.get('displayColumn')?.value;
+      const skipHeader = this.importForm.get('skipHeader')?.value;
+
+      // Start from index 1 if skipping header, or 0 if not
+      const startIndex = skipHeader ? 1 : 0;
+
+      // Map data starting from appropriate row
+      const codes = this.previewData.slice(startIndex)
+        .map(row => {
+          const code = String(row[codeColumn] || '').trim();
+          // Only include display if display column is selected and has a value
+          const display = displayColumn !== null && displayColumn !== undefined ? 
+            String(row[displayColumn] || '').trim() : undefined;
+          return { code, display };
+        })
+        .filter(item => item.code && item.code !== ''); // Only filter out empty codes
+
+      if (codes.length === 0) {
+        this.error = 'No valid codes found in the selected column';
+        this.isLoading = false;
+        return;
+      }
+
+      // Create source ValueSet from codes with default metadata if not provided
+      const timestamp = new Date().toISOString().split('T')[0];
+      const defaultUrl = this.valueSetUri || `http://example.org/fhir/ValueSet/preview-${timestamp}`;
+      const defaultName = this.valueSetName || `PreviewValueSet-${timestamp}`;
+      
+      this.sourceValueSet = {
+        resourceType: 'Parameters',
+        parameter: [{
+          name: 'valueSet',
+          resource: {
+            resourceType: 'ValueSet',
+            url: defaultUrl,
+            name: defaultName,
+            version: this.valueSetVersion,
+            status: 'draft',
+            experimental: true,
+            compose: {
+              include: [{
+                system: 'http://snomed.info/sct',
+                version: this.terminologyContext.fhirUrlParam,
+                concept: codes
+              }]
+            }
+          }
+        }]
+      };
+
+      // Expand the ValueSet to get translations
+      const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
+      this.targetValueSet = expandedValueSet;
+
+      // Create preview data
+      this.targetPreviewData = codes.map(codeItem => {
+        const translatedConcept = expandedValueSet?.expansion?.contains?.find(
+          (concept: any) => concept.code === codeItem.code
+        );
+        
+        return {
+          code: codeItem.code,
+          originalDisplay: codeItem.display || 'N/A',
+          translatedDisplay: translatedConcept?.display || 'Not found'
+        };
+      });
+
+    } catch (error: any) {
+      this.error = `Error generating preview: ${error.message || error}`;
+      this.snackBar.open(this.error, 'Close', { duration: 5000 });
+    } finally {
+      this.isLoading = false;
+    }
   }
 }
