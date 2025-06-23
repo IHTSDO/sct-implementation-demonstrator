@@ -20,7 +20,7 @@
     </div>
   </div>
   <div class="score-scale-labels">
-    <span *ngFor="let level of resultsScale | slice:0:resultsScale.length - 1" class="level-label">{{ level.label }}</span>
+    <span *ngFor="let level of resultsScale" class="level-label">{{ level.label }}</span>
   </div>
 </div>
 <!-- END Scale Display -->

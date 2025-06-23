@@ -23,11 +23,11 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   commentList: any[] = [];
 
   resultsScale = [
-    { value: 1, label: 'Basic' },
-    { value: 2, label: 'Emerging' },
-    { value: 3, label: 'Advanced' },
-    { value: 4, label: 'Integrated' },
-    { value: 5, label: 'Optimizing' }
+    { value: 20, label: 'Basic' },
+    { value: 40, label: 'Emerging' },
+    { value: 60, label: 'Advanced' },
+    { value: 80, label: 'Integrated' },
+    { value: 100, label: 'Optimizing' }
   ]
   
 
@@ -105,7 +105,9 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
           if (!dataObj) {
             return 0;
           }
-          return dataObj.sum / dataObj.count; // Average
+          const average = dataObj.sum / dataObj.count; // Average (already 0-100 scale)
+          // Data is already on 0-100 scale, no conversion needed
+          return Math.round(average);
         }),
         backgroundColor: 'rgba(54, 162, 235, 0.3)',
         borderColor: 'rgba(54, 162, 235, 1)',
@@ -138,10 +140,13 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
             pointLabels: {
               padding: 5
             },
-            suggestedMin: 0,
-            suggestedMax: 5,
+            min: 0,
+            max: 100,
             ticks: {
-              stepSize: 1
+              stepSize: 20,
+              callback: function(value) {
+                return value;
+              }
             }
           }
         }
@@ -227,7 +232,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     const selectedKpas = this.getKpas(this.maturityResponse, stakeholder);
 
     selectedKpas.forEach(kpa => {
-      // 1) Gather the KPA’s questions
+      // 1) Gather the KPA's questions
       const questions = this.getQuestions(this.maturityResponse, stakeholder, kpa);
       // 2) Compute the average
       this.kpaAverages[kpa] = this.calculateAverage(questions);
@@ -331,24 +336,38 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
 
     this.commentList = newComments;
   }
-  
+
+  mapToFiveLevels(value: number): number {
+    const clamped = Math.max(0, Math.min(100, value)); // ensure within range
+    return Math.min(5, Math.floor(clamped / 25) + 1);
+  }
 
   getScaleLabel(value: number): string {
-    // round to the lowest whole number
-    value = Math.floor(value);
-    this.level = this.resultsScale.find((scale) => scale.value === value)?.label || '';
+    // Find the appropriate scale label for the given value based on ranges
+    // 0-20: Basic, 21-40: Emerging, 41-60: Advanced, 61-80: Integrated, 81-100: Optimizing
+    if (value <= 20) {
+      this.level = 'Basic';
+    } else if (value <= 40) {
+      this.level = 'Emerging';
+    } else if (value <= 60) {
+      this.level = 'Advanced';
+    } else if (value <= 80) {
+      this.level = 'Integrated';
+    } else {
+      this.level = 'Optimizing';
+    }
     return this.level;
   }
 
   getMarkerPosition(value: number): number {
-    // Assuming your valid range is 1 through 5
-    const min = 1;
-    const max = 5;
+    // Assuming your valid range is 0 through 100
+    const min = 0;
+    const max = 100;
   
     if (value < min) value = min;
     if (value > max) value = max;
     
-    // Convert the 1–5 score to 0–100%
+    // Convert the 0–100 score to 0–100%
     return ((value - min) / (max - min)) * 100;
   }
   
