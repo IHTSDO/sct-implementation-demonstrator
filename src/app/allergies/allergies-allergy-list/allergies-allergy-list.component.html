@@ -106,6 +106,12 @@
                 </mat-form-field>
             </div>
             <app-allergies-allergy-list-reaction [(ngModel)]="selectedReactions" (ngModelChange)="onReactionsChange($event)" (newManifestation)="newProblem.emit($event)"></app-allergies-allergy-list-reaction> 
+            
+            <mat-form-field class="form-field">
+                <mat-label>Notes</mat-label>
+                <textarea matInput [(ngModel)]="noteText" placeholder="Enter any relevant notes here..." (blur)="updateAllergyStr()"></textarea>
+            </mat-form-field>
+            
             <button mat-flat-button color="accent" (click)="addToProblemsList()">Save</button>
         </div>
         <div class="column">

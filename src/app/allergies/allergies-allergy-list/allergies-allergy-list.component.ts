@@ -88,6 +88,9 @@ export class AllergiesAllergyListComponent  implements OnInit {
   selectedRoute: any = null;
   selectedRouteTerm = "";
 
+  notes: any[] = [];
+  noteText: string = "";
+
   outputAllergyBase: any = {
     "resourceType" : "AllergyIntolerance",
     "id" : "medication",
@@ -131,7 +134,11 @@ export class AllergiesAllergyListComponent  implements OnInit {
       "actor" : {
         "reference" : "Practitioner/example"
       }
-    }]
+    }],
+    "note": [{
+        "text": ""
+      }
+    ],
   }
   outputAllergy: any = JSON.parse(JSON.stringify(this.outputAllergyBase));
 
@@ -173,6 +180,8 @@ export class AllergiesAllergyListComponent  implements OnInit {
         route: {}
       }
     ];
+    this.notes = [];
+    this.noteText = "";
     this.outputAllergy = JSON.parse(JSON.stringify(this.outputAllergyBase));
     this.updateAllergyStr();
     setTimeout(() => {
@@ -206,6 +215,14 @@ export class AllergiesAllergyListComponent  implements OnInit {
       };
       this.outputAllergy.reaction.push(newReaction);
     });
+    this.notes = this.notes.filter(note => note.text && note.text.trim() !== '');
+
+    // Update notes array from noteText
+    this.notes = this.noteText && this.noteText.trim() !== ''
+      ? [{ text: this.noteText }]
+      : [];
+    this.outputAllergy.note = [...this.notes];
+
     setTimeout(() => {
         this.outputAllergyStr = JSON.stringify(this.outputAllergy, null, 2);
       }
