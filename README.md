@@ -8,4 +8,15 @@ This app is available on [this demo site](https://ihtsdo.github.io/sct-implement
 
 ## Development server
 
-To run these demos locally, run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+To run these demos locally:
+
+1. Install Angular CLI:
+`npm install -g @angular/cli`
+
+2. Build:
+`npm install`
+
+3. Run:
+`ng serve` 
+
+Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
