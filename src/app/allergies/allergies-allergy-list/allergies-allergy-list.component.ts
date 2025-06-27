@@ -21,9 +21,9 @@ export class AllergiesAllergyListComponent  implements OnInit {
   @Output() newProblem = new EventEmitter<any>();
 
   //config
- 
   showNotes = environment.enableNotes;
   showPropensity = environment.enablePropensity;  
+  showPatient = environment.enablePatient;
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
@@ -99,6 +99,8 @@ export class AllergiesAllergyListComponent  implements OnInit {
   notes: any[] = [];
   noteText: string = "";
 
+  patientReference: string = "";
+
   outputAllergyBase: any = {
     "resourceType" : "AllergyIntolerance",
     "id" : "medication",
@@ -128,7 +130,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
       "severity" : ""
     }],
     "patient" : {
-      "reference" : "Patient/example"
+      "reference" : ""
     },
     "recordedDate" : "2010-03-01",
     "participant" : [{
@@ -190,6 +192,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
     ];
     this.notes = [];
     this.noteText = "";
+    this.patientReference
     this.outputAllergy = JSON.parse(JSON.stringify(this.outputAllergyBase));
     this.updateAllergyStr();
     setTimeout(() => {
@@ -223,13 +226,14 @@ export class AllergiesAllergyListComponent  implements OnInit {
       };
       this.outputAllergy.reaction.push(newReaction);
     });
-    this.notes = this.notes.filter(note => note.text && note.text.trim() !== '');
 
     // Update notes array from noteText
     this.notes = this.noteText && this.noteText.trim() !== ''
       ? [{ text: this.noteText }]
       : [];
     this.outputAllergy.note = [...this.notes];
+
+    this.outputAllergy.patient.reference = this.patientReference.trim() ? this.patientReference : '';
 
     setTimeout(() => {
         this.outputAllergyStr = JSON.stringify(this.outputAllergy, null, 2);
