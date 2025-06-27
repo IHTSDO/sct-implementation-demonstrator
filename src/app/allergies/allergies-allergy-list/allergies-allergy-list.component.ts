@@ -7,6 +7,9 @@ import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
+
+import { environment } from '../../../environments/environment';
+
 @Component({
     selector: 'app-allergies-allergy-list',
     templateUrl: './allergies-allergy-list.component.html',
@@ -16,6 +19,11 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 export class AllergiesAllergyListComponent  implements OnInit {
 
   @Output() newProblem = new EventEmitter<any>();
+
+  //config
+ 
+  showNotes = environment.enableNotes;
+  showPropensity = environment.enablePropensity;  
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },

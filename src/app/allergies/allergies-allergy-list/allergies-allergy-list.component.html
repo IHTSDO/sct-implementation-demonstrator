@@ -49,7 +49,7 @@
                         <pre>{{ codeBinding.ecl }}</pre>
                     </span>
                 </mat-menu>
-                <mat-slide-toggle [(ngModel)]="recordPropensity" (click)="propensityRecordChanged()" matTooltip="Defines wether to use a propensity based model or a substance based model. Defines which one is recorded in the code element of the AllergyIntolerance resource.">
+                <mat-slide-toggle *ngIf="showPropensity" [(ngModel)]="recordPropensity" (click)="propensityRecordChanged()" matTooltip="Defines wether to use a propensity based model or a substance based model. Defines which one is recorded in the code element of the AllergyIntolerance resource.">
                     Propensity based model
                 </mat-slide-toggle>
             </div>
@@ -107,10 +107,12 @@
             </div>
             <app-allergies-allergy-list-reaction [(ngModel)]="selectedReactions" (ngModelChange)="onReactionsChange($event)" (newManifestation)="newProblem.emit($event)"></app-allergies-allergy-list-reaction> 
             
-            <mat-form-field class="form-field">
-                <mat-label>Notes</mat-label>
-                <textarea matInput [(ngModel)]="noteText" placeholder="Enter any relevant notes here..." (blur)="updateAllergyStr()"></textarea>
-            </mat-form-field>
+            <div *ngIf="showNotes">
+                <mat-form-field class="form-field">
+                    <mat-label>Notes</mat-label>
+                    <textarea matInput [(ngModel)]="noteText" rows="5" placeholder="Enter any relevant notes here..." (blur)="updateAllergyStr()"></textarea>
+                </mat-form-field>
+            </div>
             
             <button mat-flat-button color="accent" (click)="addToProblemsList()">Save</button>
         </div>
