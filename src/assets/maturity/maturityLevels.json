@@ -13,19 +13,19 @@
                       {
                           "name": "Clinical Domains and Functional Areas",
                           "id": "clinical",
-                          "question": "How extensively is SNOMED CT implemented across clinical and administrative areas?",
+                          "question": "<p>This list shows typical modules found in clinical systems. It is used to support the response to the question:</p><p><em>How extensively is SNOMED CT implemented across clinical and administrative areas?</em></p><ul><li><strong>🏥 Clinical Modules:</strong></li><li>Problem List / Diagnosis Management</li><li>Clinical Notes / Charting</li><li>Clinical Decision Support</li><li>Order Entry (CPOE)</li><li>Procedure Documentation</li><li>Allergy & Adverse Reaction Tracking</li><li>Family History</li><li>Social History</li><li>Vital Signs / Observations</li><li>Immunizations</li><li>Encounter Reason / Visit Type</li><li><strong>🗂️ Administrative Modules:</strong></li><li>Quality Reporting / Analytics</li><li>Billing Support (Clinical Input)</li><li>Care Planning / Care Pathways</li><li>Patient Education / Instructions</li><li>Referrals / Consult Requests</li><li>Risk Stratification</li></ul>",
                           "options": [
                               {
                                   "id": 1,
-                                  "text": "Used in only a few isolated areas.",
+                                  "text": "Not used in any clinical or administrative module.",
                                   "score": 0,
-                                  "example": "SNOMED CT is implemented in a limited number of system modules (e.g., problem lists or lab results) but is not broadly available across workflows."
+                                  "example": "SNOMED CT is not used in any clinical or administrative module."
                               },
                               {
                                   "id": 2,
-                                  "text": "Used in several modules but not consistently.",
+                                  "text": "Used in a few areas or modules but not consistently.",
                                   "score": 25,
-                                  "example": "SNOMED CT is incorporated in multiple system components (e.g., medication ordering, clinical notes), but usage varies, and some areas still rely on free text or local codes."
+                                  "example": "SNOMED CT is incorporated in some system components (e.g., medication ordering, clinical notes), but usage varies, and some areas still rely on free text or local codes."
                               },
                               {
                                   "id": 3,

@@ -232,7 +232,7 @@
         <mat-progress-bar mode="determinate" [value]="((currentQuestionIndex + 1) / (allQuestions.length + 1)) * 100" class="progress-bar"></mat-progress-bar>
         <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
         <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
-        <p class="question-text" [@questionAnimation]="animationState">{{ allQuestions[currentQuestionIndex].question.question }}</p>
+        <p class="question-text" [@questionAnimation]="animationState" [innerHTML]="allQuestions[currentQuestionIndex].question.question"></p>
         <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
             <div class="flex-1">
                 <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
