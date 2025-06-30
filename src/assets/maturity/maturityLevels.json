@@ -55,7 +55,7 @@
                               {
                                   "id": 1,
                                   "text": "Minimal use in isolated areas.",
-                                  "score": 0,
+                                  "score": 5,
                                   "example": "SNOMED CT is only used in a few modules, such as problem lists, and does not support decision support or interoperability."
                               },
                               {
@@ -99,7 +99,7 @@
                               {
                                   "id": 1,
                                   "text": "Updates are manual and inconsistent.",
-                                  "score": 0,
+                                  "score": 5,
                                   "example": "SNOMED CT updates are applied manually with no structured process, leading to inconsistencies or delays."
                               },
                               {
@@ -180,7 +180,7 @@
                               {
                                   "id": 1,
                                   "text": "Basic search tools that are cumbersome to use.",
-                                  "score": 0,
+                                  "score": 5,
                                   "example": "Users must manually browse SNOMED CT hierarchies without intuitive search capabilities."
                               },
                               {
@@ -804,33 +804,33 @@
                           "options": [
                               {
                                   "id": 1,
-                                  "text": "Few or no affiliates actively using SNOMED CT.",
+                                  "text": "No affiliates in my target are using SNOMED CT.",
                                   "score": 0,
-                                  "example": "Select this option if the use of SNOMED CT in your region is minimal or non-existent. There may be limited awareness or capability to promote its adoption."
+                                  "example": "Select this option if none of the affiliates in your target population are currently using SNOMED CT. There may be limited awareness or capability to promote its adoption."
                               },
                               {
                                   "id": 2,
-                                  "text": "Initial efforts to promote SNOMED CT adoption, but uptake is inconsistent.",
+                                  "text": "A small number of affiliates (less than 25%) in my target are using SNOMED CT.",
                                   "score": 25,
-                                  "example": "Choose this if your region has started initiatives to introduce SNOMED CT, but affiliate adoption is sporadic or isolated. Challenges in promoting consistent usage may still exist."
+                                  "example": "Choose this if a minority of your target affiliates have started using SNOMED CT. Initial adoption efforts are visible but uptake is limited and inconsistent across the target population."
                               },
                               {
                                   "id": 3,
-                                  "text": "Adoption metrics such as affiliate numbers are being tracked.",
+                                  "text": "About half of affiliates (25-75%) in my target are using SNOMED CT.",
                                   "score": 50,
-                                  "example": "Pick this if your region has moved beyond initial efforts and is now monitoring adoption metrics such as the number of affiliates actively using SNOMED CT."
+                                  "example": "Pick this if approximately half of your target affiliates are actively using SNOMED CT. Adoption is progressing well but there's still room for growth to reach full target coverage."
                               },
                               {
                                   "id": 4,
-                                  "text": "Adoption strategies are implemented consistently across sectors.",
+                                  "text": "Most affiliates (75-95%) in my target are using SNOMED CT.",
                                   "score": 75,
-                                  "example": "Use this option if your region has established and deployed clear strategies to drive SNOMED CT adoption, with consistent efforts visible across various healthcare sectors."
+                                  "example": "Use this option if the vast majority of your target affiliates are using SNOMED CT. Adoption strategies have been successful with only a small number remaining to be onboarded."
                               },
                               {
                                   "id": 5,
-                                  "text": "SNOMED CT adoption is continuously monitored and improved.",
+                                  "text": "All affiliates in my target are using SNOMED CT.",
                                   "score": 100,
-                                  "example": "Select this if your region has mature processes in place to monitor SNOMED CT adoption actively and regularly make improvements."
+                                  "example": "Select this if 100% of the affiliates in your target population are actively using SNOMED CT. Full adoption has been achieved across your entire target group."
                               }
                           ]
                       },
@@ -968,7 +968,7 @@
                               {
                                   "id": 1,
                                   "text": "Minimal or no engagement with stakeholders.",
-                                  "score": 0,
+                                  "score": 5,
                                   "example": "Select this if there is little to no active engagement with key stakeholders, such as healthcare providers, government agencies, or professional associations. SNOMED CT adoption efforts may be isolated within specific organizations without broader collaboration or input."
                               },
                               {

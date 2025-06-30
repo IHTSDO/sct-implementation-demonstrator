@@ -7,7 +7,7 @@
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -3">
     <div class="question-container">
         <div>
-            <h1 class="text-center">Welcome to SNOMED International’s Implementation Maturity Assessment Tool</h1>
+            <h1 class="text-center">Welcome to SNOMED International's Implementation Maturity Assessment Tool</h1>
             <p class="mb-4">
                 The SNOMED International <b>Implementation Maturity Assessment Tool</b> is designed to help <b>Vendors</b>, <b>Members</b> (National Release Centers), 
                 and <b>User Organizations</b> evaluate their progress in adopting and integrating SNOMED CT. This tool provides structured insights 
@@ -238,12 +238,11 @@
                 <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
                     <mat-radio-button *ngFor="let option of allQuestions[currentQuestionIndex].question.options" [value]="option.score">
                         <div class="mat-radio-label-content">
-                            {{ option.score }} - {{ option.text }}
-                            <mat-icon *ngIf="option.example" [matTooltip]="option.example" matTooltipPosition="right">
-                                help_outline
-                            </mat-icon>
-                            <!-- <span class="example-text">{{ option.example }}</span> -->
-                        </div> 
+                            {{ option.id }} - {{ option.text }}
+                        </div>
+                        <div class="example-text" *ngIf="option.example">
+                            {{ option.example }}
+                        </div>
                     </mat-radio-button>
                 </mat-radio-group>
             </div>

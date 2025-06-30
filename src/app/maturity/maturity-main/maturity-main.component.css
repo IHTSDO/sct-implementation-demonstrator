@@ -134,8 +134,13 @@
 }
 
 .example-text {
-  font-size: 0.9rem; /* Optional: Adjust the font size */
-  color: gray; /* Optional: Dim the color for secondary text */
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
+  margin-left: 24px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  line-height: 1.4;
 }
 
 .mat-icon {
