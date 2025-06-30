@@ -36,8 +36,8 @@
         <p class="loading-text">Processing your file...</p>
     </div>
 
-    <!-- Import Controls - Hidden while loading -->
-    <div *ngIf="!isLoading">
+    <!-- Import Controls -->
+    <div>
         <!-- File Upload Section -->
         <div class="upload-section">
             <div class="input-method-buttons">
@@ -102,7 +102,7 @@
         </div>
 
         <!-- Preview Table -->
-        <div *ngIf="showPreview && previewData.length > 0" class="preview-table">
+        <div *ngIf="showPreview && previewData.length > 0 && !isLoading" class="preview-table">
             <h3>Preview (First 5 rows)</h3>
             <table mat-table [dataSource]="previewData.slice(1, 6)" class="mat-elevation-z8">
                 <ng-container *ngFor="let col of columns; let i = index">
@@ -117,9 +117,68 @@
             </table>
         </div>
 
-        <!-- Column Selection Form - Only for map files -->
-        <form [formGroup]="importForm" *ngIf="showPreview && columns.length > 0 && !isValueSetFile && !showFhirOptions" class="column-form">
-            <h3>Select Columns <span class="auto-select-message" *ngIf="isMap">(Auto-selected for map format)</span></h3>
+        <!-- Action Selection -->
+        <div *ngIf="showPreview && previewData.length > 0 && !selectedAction && !isLoading" class="action-selection">
+            <h3>What would you like to do?</h3>
+            
+            <div class="action-buttons">
+                <button
+                    mat-raised-button
+                    color="primary"
+                    (click)="selectAction('translate')"
+                    class="action-button"
+                >
+                    <mat-icon>translate</mat-icon>
+                    Translate the set of concepts
+                </button>
+                
+                <button
+                    mat-raised-button
+                    color="accent"
+                    (click)="selectAction('source-valueset')"
+                    class="action-button"
+                >
+                    <mat-icon>code</mat-icon>
+                    Generate FHIR ValueSet (identical to uploaded concepts)
+                </button>
+                
+                <button
+                    mat-raised-button
+                    color="accent"
+                    (click)="selectAction('target-valueset')"
+                    class="action-button"
+                >
+                    <mat-icon>expand_more</mat-icon>
+                    Generate FHIR ValueSet (with translated display terms)
+                </button>
+                
+                <button
+                    *ngIf="isMap"
+                    mat-raised-button
+                    color="warn"
+                    (click)="selectAction('translate-target')"
+                    class="action-button"
+                >
+                    <mat-icon>swap_horiz</mat-icon>
+                    Translate target column (Snap2Snomed Map)
+                </button>
+                
+                <button
+                    *ngIf="isMap"
+                    mat-raised-button
+                    color="warn"
+                    (click)="selectAction('fhir-package')"
+                    class="action-button"
+                >
+                    <mat-icon>archive</mat-icon>
+                    Create FHIR Package (Snap2Snomed Map)
+                </button>
+            </div>
+        </div>
+
+        <!-- Column Selection Form -->
+        <form [formGroup]="importForm" *ngIf="selectedAction && !isValueSetFile && !showFhirOptions" class="column-form">
+            <h3>Select Columns</h3>
             
             <mat-form-field appearance="fill">
                 <mat-label>Code Column</mat-label>
@@ -145,18 +204,40 @@
             <mat-checkbox formControlName="skipHeader" class="skip-header">
                 Skip header row
             </mat-checkbox>
+        </form>
 
+        <!-- ValueSet Metadata Form -->
+        <div *ngIf="selectedAction && (selectedAction === 'source-valueset' || selectedAction === 'target-valueset' || selectedAction === 'fhir-package')" class="valueset-metadata">
+            <h3>ValueSet Metadata</h3>
+            <mat-form-field>
+                <mat-label>ValueSet URI</mat-label>
+                <input matInput [(ngModel)]="valueSetUri" placeholder="http://example.org/fhir/ValueSet/example" required>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>ValueSet Name</mat-label>
+                <input matInput [(ngModel)]="valueSetName" placeholder="ExampleValueSet" required>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Version</mat-label>
+                <input matInput [(ngModel)]="valueSetVersion" placeholder="1.0.0">
+            </mat-form-field>
+        </div>
+
+        <!-- Execute Action Button -->
+        <div *ngIf="selectedAction" class="execute-action">
             <button
                 mat-raised-button
                 color="primary"
-                (click)="generateTargetPreview()"
-                [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value"
-                class="preview-button"
+                (click)="executeAction()"
+                [disabled]="isLoading || !canExecuteAction()"
+                class="execute-button"
             >
-                <mat-icon>preview</mat-icon>
-                Generate Target Preview
+                <mat-icon>{{ getActionIcon() }}</mat-icon>
+                {{ getActionButtonText() }}
             </button>
-        </form>
+        </div>
 
         <!-- Target Preview Table -->
         <div *ngIf="targetPreviewData.length > 0" class="target-preview-table">
@@ -182,79 +263,58 @@
             </table>
         </div>
 
-        <!-- Download Options for all file types -->
-        <div *ngIf="!showEclInput && showPreview && previewData.length > 0" class="download-options">
-            <div class="valueset-metadata" *ngIf="showValueSetMetadata">
-                <mat-form-field>
-                    <mat-label>ValueSet URI</mat-label>
-                    <input matInput [(ngModel)]="valueSetUri" placeholder="http://example.org/fhir/ValueSet/example">
-                </mat-form-field>
-
-                <mat-form-field>
-                    <mat-label>ValueSet Name</mat-label>
-                    <input matInput [(ngModel)]="valueSetName" placeholder="ExampleValueSet">
-                </mat-form-field>
-
-                <mat-form-field>
-                    <mat-label>Version</mat-label>
-                    <input matInput [(ngModel)]="valueSetVersion" placeholder="1.0.0">
-                </mat-form-field>
-            </div>
-
+        <!-- Download Options -->
+        <div *ngIf="targetValueSet && selectedAction" class="download-options">
             <div class="download-buttons">
                 <button
+                    *ngIf="selectedAction === 'translate' || selectedAction === 'target-valueset'"
                     mat-raised-button
                     color="primary"
-                    (click)="processAndDownload('source')"
-                    [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value || (showValueSetMetadata && (!valueSetUri || !valueSetName || !valueSetVersion))"
-                >
-                    <mat-icon>download</mat-icon>
-                    Download Source ValueSet
-                </button>
-                <button
-                    mat-raised-button
-                    color="accent"
-                    (click)="processAndDownload('target')"
-                    [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value || (showValueSetMetadata && (!valueSetUri || !valueSetName || !valueSetVersion))"
+                    (click)="downloadTargetValueSet()"
+                    [disabled]="isLoading"
                 >
                     <mat-icon>download</mat-icon>
                     Download Target ValueSet
                 </button>
                 <button
+                    *ngIf="selectedAction === 'translate' || selectedAction === 'target-valueset'"
                     mat-raised-button
                     color="accent"
-                    (click)="processAndDownload('excel')"
-                    [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value"
+                    (click)="downloadTargetAsExcel()"
+                    [disabled]="isLoading"
                 >
                     <mat-icon>table_view</mat-icon>
                     Download as Excel
                 </button>
                 <button
-                    *ngIf="isMap"
+                    *ngIf="selectedAction === 'source-valueset'"
                     mat-raised-button
                     color="primary"
-                    (click)="processAndDownload('fhir')"
-                    [disabled]="isLoading || !importForm.valid || !importForm.get('codeColumn')?.value || !valueSetUri || !valueSetName"
+                    (click)="downloadSourceValueSet()"
+                    [disabled]="isLoading"
                 >
-                    <mat-icon>archive</mat-icon>
-                    Download FHIR Package
+                    <mat-icon>download</mat-icon>
+                    Download Source ValueSet
                 </button>
-            </div>
-        </div>
-
-        <!-- Map Detection Message -->
-        <div *ngIf="isMap" class="map-detection-message">
-            <mat-icon color="primary">info</mat-icon>
-            <span>Snap2Snomed Map detected! You can generate a FHIR package or translate the target codes of this file.</span>
-            <div class="map-actions">
-                <button 
-                    mat-raised-button 
-                    color="primary" 
+                <button
+                    *ngIf="selectedAction === 'translate-target'"
+                    mat-raised-button
+                    color="primary"
                     (click)="downloadTranslatedFile()"
-                    class="download-button"
+                    [disabled]="isLoading"
                 >
                     <mat-icon>download</mat-icon>
                     Download Translated Map File
+                </button>
+                <button
+                    *ngIf="selectedAction === 'fhir-package'"
+                    mat-raised-button
+                    color="primary"
+                    (click)="generateFHIRPackage()"
+                    [disabled]="isLoading"
+                >
+                    <mat-icon>archive</mat-icon>
+                    Download FHIR Package
                 </button>
             </div>
         </div>

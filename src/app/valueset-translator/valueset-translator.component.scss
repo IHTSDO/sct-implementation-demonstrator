@@ -369,3 +369,58 @@ mat-progress-bar {
     }
   }
 }
+
+.action-selection {
+  margin-top: 24px;
+  
+  h3 {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.action-button {
+  height: 60px;
+  font-size: 16px;
+  
+  mat-icon {
+    margin-right: 12px;
+    font-size: 24px;
+  }
+}
+
+.execute-action {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.execute-button {
+  height: 50px;
+  font-size: 16px;
+  padding: 0 32px;
+  
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+.valueset-metadata {
+  margin-top: 24px;
+  
+  h3 {
+    margin-bottom: 16px;
+  }
+  
+  mat-form-field {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+}

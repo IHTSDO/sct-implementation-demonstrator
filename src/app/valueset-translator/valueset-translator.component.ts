@@ -123,6 +123,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   valueSetVersion = '1.0.0';
   targetPreviewData: Array<{code: string, originalDisplay: string, translatedDisplay: string}> = [];
   targetPreviewColumns = ['code', 'originalDisplay', 'translatedDisplay'];
+  selectedAction: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -785,7 +786,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async generateFHIRPackage(): Promise<void> {
+  async generateFHIRPackage(): Promise<void> {
     const data = await this.readExcelFile(this.selectedFile!);
     const { source, snomed } = this.extractConcepts(data);
     
@@ -1307,5 +1308,190 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  selectAction(action: string) {
+    this.selectedAction = action;
+    this.targetPreviewData = [];
+    this.targetValueSet = null;
+    this.sourceValueSet = null;
+  }
+
+  canExecuteAction(): boolean {
+    if (!this.selectedAction) return false;
+    
+    // For ValueSet actions, check if metadata is provided
+    if (['source-valueset', 'target-valueset', 'fhir-package'].includes(this.selectedAction)) {
+      return !!(this.valueSetUri && this.valueSetName);
+    }
+    
+    // For other actions, check if form is valid and code column is selected
+    return this.importForm.valid && !!this.importForm.get('codeColumn')?.value;
+  }
+
+  getActionIcon(): string {
+    switch (this.selectedAction) {
+      case 'translate': return 'translate';
+      case 'source-valueset': return 'code';
+      case 'target-valueset': return 'expand_more';
+      case 'translate-target': return 'swap_horiz';
+      case 'fhir-package': return 'archive';
+      default: return 'play_arrow';
+    }
+  }
+
+  getActionButtonText(): string {
+    switch (this.selectedAction) {
+      case 'translate': return 'Generate Translation Preview';
+      case 'source-valueset': return 'Generate Source ValueSet';
+      case 'target-valueset': return 'Generate Target ValueSet';
+      case 'translate-target': return 'Translate Target Column';
+      case 'fhir-package': return 'Generate FHIR Package';
+      default: return 'Execute Action';
+    }
+  }
+
+  async executeAction(): Promise<void> {
+    if (!this.selectedAction) return;
+
+    switch (this.selectedAction) {
+      case 'translate':
+        await this.generateTargetPreview();
+        break;
+      case 'source-valueset':
+        await this.generateSourceValueSet();
+        break;
+      case 'target-valueset':
+        await this.generateTargetValueSet();
+        break;
+      case 'translate-target':
+        await this.translateTargetColumn();
+        break;
+      case 'fhir-package':
+        await this.generateFHIRPackage();
+        break;
+    }
+  }
+
+  async generateSourceValueSet(): Promise<void> {
+    if (!this.previewData.length) return;
+
+    this.isLoading = true;
+    this.error = null;
+
+    try {
+      const codes = await this.extractCodesFromForm();
+      
+      this.sourceValueSet = {
+        resourceType: 'Parameters',
+        parameter: [{
+          name: 'valueSet',
+          resource: {
+            resourceType: 'ValueSet',
+            url: this.valueSetUri,
+            name: this.valueSetName,
+            version: this.valueSetVersion,
+            status: 'draft',
+            experimental: true,
+            compose: {
+              include: [{
+                system: 'http://snomed.info/sct',
+                version: this.terminologyContext.fhirUrlParam,
+                concept: codes
+              }]
+            }
+          }
+        }]
+      };
+
+      this.targetValueSet = this.sourceValueSet;
+    } catch (error: any) {
+      this.error = `Error generating source ValueSet: ${error.message || error}`;
+      this.snackBar.open(this.error, 'Close', { duration: 5000 });
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async generateTargetValueSet(): Promise<void> {
+    if (!this.previewData.length) return;
+
+    this.isLoading = true;
+    this.error = null;
+
+    try {
+      const codes = await this.extractCodesFromForm();
+      
+      this.sourceValueSet = {
+        resourceType: 'Parameters',
+        parameter: [{
+          name: 'valueSet',
+          resource: {
+            resourceType: 'ValueSet',
+            url: this.valueSetUri,
+            name: this.valueSetName,
+            version: this.valueSetVersion,
+            status: 'draft',
+            experimental: true,
+            compose: {
+              include: [{
+                system: 'http://snomed.info/sct',
+                version: this.terminologyContext.fhirUrlParam,
+                concept: codes
+              }]
+            }
+          }
+        }]
+      };
+
+      // Expand the ValueSet to get translations
+      const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
+      this.targetValueSet = expandedValueSet;
+    } catch (error: any) {
+      this.error = `Error generating target ValueSet: ${error.message || error}`;
+      this.snackBar.open(this.error, 'Close', { duration: 5000 });
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async translateTargetColumn(): Promise<void> {
+    if (!this.selectedFile) return;
+
+    this.isLoading = true;
+    this.error = null;
+
+    try {
+      const data = await this.readExcelFile(this.selectedFile);
+      const { source, snomed } = this.extractConcepts(data);
+      
+      // Create source ValueSet and expand it
+      const sourceValueSet = this.terminologyService.getValueSetFromCodes(snomed);
+      const expandedValueSet = await this.terminologyService.expandInlineValueSet(sourceValueSet).toPromise();
+      
+      this.targetValueSet = expandedValueSet;
+    } catch (error: any) {
+      this.error = `Error translating target column: ${error.message || error}`;
+      this.snackBar.open(this.error, 'Close', { duration: 5000 });
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private async extractCodesFromForm(): Promise<Array<{code: string, display?: string}>> {
+    const codeColumn = this.importForm.get('codeColumn')?.value;
+    const displayColumn = this.importForm.get('displayColumn')?.value;
+    const skipHeader = this.importForm.get('skipHeader')?.value;
+
+    const startIndex = skipHeader ? 1 : 0;
+
+    return this.previewData.slice(startIndex)
+      .map(row => {
+        const code = String(row[codeColumn] || '').trim();
+        const display = displayColumn !== null && displayColumn !== undefined ? 
+          String(row[displayColumn] || '').trim() : undefined;
+        return { code, display };
+      })
+      .filter(item => item.code && item.code !== '');
   }
 }
