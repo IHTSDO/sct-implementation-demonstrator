@@ -64,82 +64,41 @@
 }
 
 .mat-radio-button {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
   font-size: 0.9rem;
   color: #555;
 }
 
-/* Error message styling */
-.error-message {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: #d32f2f; /* Material red for error */
-  text-align: center;
+.mat-radio-label-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: 8px;
+  flex: 1;
 }
 
-.button-container {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
+.radio-option {
   margin-bottom: 16px;
 }
 
-.button-container-first {
-  position: relative;
-  width: 100%;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.button-container-space-between {
+.radio-option mat-radio-button {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
+  align-items: flex-start;
 }
 
-.start-button {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.secondary-button {
-  position: absolute;
-  right: 0;
-  font-style: italic;
-}
-
-.progress-bar {
-  margin-top: 20px;
-  height: 8px;
-}
-
-.progress-message {
-  display: flex;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-style: italic;
-  margin-bottom: 20px;
-}
-
-.mat-radio-button {
-  display: flex;
-  align-items: flex-start; /* Align items to the top of the container */
-}
-
-.mat-radio-label-content {
-  display: flex;
-  flex-direction: row; /* Stack elements vertically */
-  margin-top: 8px; /* Add spacing between the radio button and the text */
+.option-text {
+  margin-left: 0px;
+  line-height: 1.4;
 }
 
 .example-text {
   font-size: 0.8rem;
   color: #666;
   font-style: italic;
-  margin-left: 24px;
-  margin-top: 4px;
-  margin-bottom: 8px;
+  margin-left: 3rem;
+  margin-top: 0px;
+  margin-bottom: 0;
   line-height: 1.4;
 }
 
@@ -198,4 +157,58 @@ button[mat-raised-button] {
   .question-text {
     font-size: 0.9rem;
   }
+}
+
+/* Error message styling */
+.error-message {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #d32f2f; /* Material red for error */
+  text-align: center;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.button-container-first {
+  position: relative;
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.button-container-space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.start-button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.secondary-button {
+  position: absolute;
+  right: 0;
+  font-style: italic;
+}
+
+.progress-bar {
+  margin-top: 20px;
+  height: 8px;
+}
+
+.progress-message {
+  display: flex;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 20px;
 }

@@ -236,14 +236,16 @@
         <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
             <div class="flex-1">
                 <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
-                    <mat-radio-button *ngFor="let option of allQuestions[currentQuestionIndex].question.options" [value]="option.score">
-                        <div class="mat-radio-label-content">
-                            {{ option.id }} - {{ option.text }}
-                        </div>
+                    <div class="radio-option" *ngFor="let option of allQuestions[currentQuestionIndex].question.options">
+                        <mat-radio-button [value]="option.score">
+                            <div class="option-text">
+                                {{ option.id }} - {{ option.text }}
+                            </div>
+                        </mat-radio-button>
                         <div class="example-text" *ngIf="option.example">
                             {{ option.example }}
                         </div>
-                    </mat-radio-button>
+                    </div>
                 </mat-radio-group>
             </div>
             <div class="flex-1 w-full">
