@@ -233,6 +233,7 @@
         <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
         <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
         <p class="question-text" [@questionAnimation]="animationState" [innerHTML]="allQuestions[currentQuestionIndex].question.question"></p>
+        <div class="question-context" *ngIf="allQuestions[currentQuestionIndex].question.context" [innerHTML]="allQuestions[currentQuestionIndex].question.context"></div>
         <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
             <div class="flex-1">
                 <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">

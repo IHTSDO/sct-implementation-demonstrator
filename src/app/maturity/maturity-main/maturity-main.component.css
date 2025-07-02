@@ -218,3 +218,10 @@ button[mat-raised-button] {
   font-style: italic;
   margin-bottom: 20px;
 }
+
+.question-context {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  color: #555;
+  font-size: 0.97rem;
+}
