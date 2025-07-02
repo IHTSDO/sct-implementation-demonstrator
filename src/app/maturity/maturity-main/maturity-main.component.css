@@ -225,3 +225,11 @@ button[mat-raised-button] {
   color: #555;
   font-size: 0.97rem;
 }
+
+.question-context-heading {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-left: 1.5rem;
+  margin-bottom: 0.2rem;
+  color: #444;
+}
