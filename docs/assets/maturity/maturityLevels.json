@@ -13,7 +13,8 @@
                       {
                           "name": "Clinical Domains and Functional Areas",
                           "id": "clinical",
-                          "question": "<p>This list shows typical modules found in clinical systems. It is used to support the response to the question:</p><p><em>How extensively is SNOMED CT implemented across clinical and administrative areas?</em></p><ul><li><strong>🏥 Clinical Modules:</strong></li><li>Problem List / Diagnosis Management</li><li>Clinical Notes / Charting</li><li>Clinical Decision Support</li><li>Order Entry (CPOE)</li><li>Procedure Documentation</li><li>Allergy & Adverse Reaction Tracking</li><li>Family History</li><li>Social History</li><li>Vital Signs / Observations</li><li>Immunizations</li><li>Encounter Reason / Visit Type</li><li><strong>🗂️ Administrative Modules:</strong></li><li>Quality Reporting / Analytics</li><li>Billing Support (Clinical Input)</li><li>Care Planning / Care Pathways</li><li>Patient Education / Instructions</li><li>Referrals / Consult Requests</li><li>Risk Stratification</li></ul>",
+                          "question": "How extensively is SNOMED CT implemented across clinical and administrative areas?",
+                          "context": "<p>This list shows typical modules found in clinical systems. It is used to support the response to the question:</p><ul><li><strong>🏥 Clinical Modules:</strong></li><li>Problem List / Diagnosis Management</li><li>Clinical Notes / Charting</li><li>Clinical Decision Support</li><li>Order Entry (CPOE)</li><li>Procedure Documentation</li><li>Allergy & Adverse Reaction Tracking</li><li>Family History</li><li>Social History</li><li>Vital Signs / Observations</li><li>Immunizations</li><li>Encounter Reason / Visit Type</li><li><strong>🗂️ Administrative Modules:</strong></li><li>Quality Reporting / Analytics</li><li>Billing Support (Clinical Input)</li><li>Care Planning / Care Pathways</li><li>Patient Education / Instructions</li><li>Referrals / Consult Requests</li><li>Risk Stratification</li></ul>",
                           "options": [
                               {
                                   "id": 1,
@@ -51,6 +52,7 @@
                           "name": "Consistency of Use",
                           "id": "consistency",
                           "question": "Is SNOMED CT consistently used across documentation, decision support, and interoperability?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -95,6 +97,7 @@
                           "name": "Update Processes",
                           "id": "update",
                           "question": "How structured and automated are the processes for updating SNOMED CT content?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -132,6 +135,7 @@
                           "name": "Localization and Notification",
                           "id": "localization",
                           "question": "How effectively are SNOMED CT updates localized and communicated to users?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -176,6 +180,7 @@
                           "name": "Search and Interface Usability",
                           "id": "search",
                           "question": "How user-friendly are the search tools and interfaces for SNOMED CT?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -213,6 +218,7 @@
                           "name": "Feedback and Usability Metrics",
                           "id": "feedback",
                           "question": "How effectively is user feedback integrated to improve tool usability?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -257,6 +263,7 @@
                           "name": "Data Exchange",
                           "id": "exchange",
                           "question": "How effectively does your system support data exchange using SNOMED CT?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -301,6 +308,7 @@
                           "name": "Decision Support Integration",
                           "id": "decision",
                           "question": "How well are decision support tools integrated with SNOMED CT?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -338,6 +346,7 @@
                           "name": "Analytics Capabilities",
                           "id": "capabilities",
                           "question": "What level of analytics capabilities are provided using SNOMED CT?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -389,6 +398,7 @@
                           "name": "Clinical Areas and Workflows",
                           "id": "clinical",
                           "question": "How extensively is SNOMED CT used across clinical areas and workflows?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -426,6 +436,7 @@
                           "name": "Integration and Strategy",
                           "id": "integration",
                           "question": "Is SNOMED CT comprehensively integrated with documented strategies for clinical domains?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -470,6 +481,7 @@
                           "name": "Governance Structure",
                           "id": "structure",
                           "question": "What is the state of governance structures for SNOMED CT adoption?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -507,6 +519,7 @@
                           "name": "Strategic Alignment",
                           "id": "alignment",
                           "question": "Are strategic plans for SNOMED CT documented and reviewed?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -551,6 +564,7 @@
                           "name": "Training Programs",
                           "id": "programs",
                           "question": "What level of training is provided to users on SNOMED CT?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -588,6 +602,7 @@
                           "name": "User Support",
                           "id": "support",
                           "question": "Are there champions or proficient users to support SNOMED CT adoption?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -632,6 +647,7 @@
                           "name": "Data Exchange",
                           "id": "exchange",
                           "question": "What is the level of SNOMED CT integration for data exchange?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -669,6 +685,7 @@
                           "name": "Interoperability Standards",
                           "id": "standards",
                           "question": "Are interoperability processes aligned with national standards?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -713,6 +730,7 @@
                           "name": "Analytics Tools",
                           "id": "analytics",
                           "question": "How effectively are analytics tools using SNOMED CT data?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -750,6 +768,7 @@
                           "name": "Decision Support",
                           "id": "decision",
                           "question": "Are decision support tools integrated with SNOMED CT?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -801,6 +820,7 @@
                           "name": "Number of Affiliates vs Target",
                           "id": "affiliates",
                           "question": "How would you describe the current level of affiliate adoption of SNOMED CT in your region?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -838,6 +858,7 @@
                           "name": "Monitoring and Metrics Strategy",
                           "id": "monitoring",
                           "question": "Is SNOMED CT adoption tracked and supported with metrics and monitoring strategies?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -882,6 +903,7 @@
                           "name": "Governance Structure",
                           "id": "structure",
                           "question": "Is there a formal governance structure in place for managing SNOMED CT adoption?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -920,6 +942,7 @@
                           "name": "Strategic Alignment",
                           "id": "alignment",
                           "question": "Are strategic goals and governance frameworks aligned with national healthcare priorities?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -964,6 +987,7 @@
                           "name": "Stakeholder Involvement",
                           "id": "involvement",
                           "question": "How engaged are stakeholders in SNOMED CT adoption efforts?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -1001,6 +1025,7 @@
                           "name": "Resources for End-Users",
                           "id": "resources",
                           "question": "Are resources and support available for end-users?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -1045,6 +1070,7 @@
                           "name": "National Extension Processes",
                           "id": "processes",
                           "question": "Are processes in place for managing and updating national SNOMED CT content?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
@@ -1089,6 +1115,7 @@
                           "name": "Use for Secondary Data",
                           "id": "secondary",
                           "question": "How effectively is SNOMED CT being used for secondary data purposes?",
+                          "context": "",
                           "options": [
                               {
                                   "id": 1,
