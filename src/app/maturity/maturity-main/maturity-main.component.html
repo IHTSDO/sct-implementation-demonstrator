@@ -239,7 +239,7 @@
                     <div class="radio-option" *ngFor="let option of allQuestions[currentQuestionIndex].question.options">
                         <mat-radio-button [value]="option.score">
                             <div class="option-text">
-                                {{ option.id }} - {{ option.text }}
+                                <b>{{ option.id }} - {{ option.text }}</b>
                             </div>
                         </mat-radio-button>
                         <div class="example-text" *ngIf="option.example">
