@@ -7,6 +7,9 @@ import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
+
+import { environment } from '../../../environments/environment';
+
 @Component({
     selector: 'app-allergies-allergy-list',
     templateUrl: './allergies-allergy-list.component.html',
@@ -16,6 +19,12 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 export class AllergiesAllergyListComponent  implements OnInit {
 
   @Output() newProblem = new EventEmitter<any>();
+
+  //config
+  showNotes = environment.enableNotes;
+  showPropensity = environment.enablePropensity;  
+  showPatient = environment.enablePatient;
+  showExposureRoute = environment.enableExposureRoute;
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
@@ -88,6 +97,11 @@ export class AllergiesAllergyListComponent  implements OnInit {
   selectedRoute: any = null;
   selectedRouteTerm = "";
 
+  notes: any[] = [];
+  noteText: string = "";
+
+  patientReference: string = "";
+
   outputAllergyBase: any = {
     "resourceType" : "AllergyIntolerance",
     "id" : "medication",
@@ -117,7 +131,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
       "severity" : ""
     }],
     "patient" : {
-      "reference" : "Patient/example"
+      "reference" : ""
     },
     "recordedDate" : "2010-03-01",
     "participant" : [{
@@ -131,7 +145,11 @@ export class AllergiesAllergyListComponent  implements OnInit {
       "actor" : {
         "reference" : "Practitioner/example"
       }
-    }]
+    }],
+    "note": [{
+        "text": ""
+      }
+    ],
   }
   outputAllergy: any = JSON.parse(JSON.stringify(this.outputAllergyBase));
 
@@ -173,6 +191,9 @@ export class AllergiesAllergyListComponent  implements OnInit {
         route: {}
       }
     ];
+    this.notes = [];
+    this.noteText = "";
+    this.patientReference
     this.outputAllergy = JSON.parse(JSON.stringify(this.outputAllergyBase));
     this.updateAllergyStr();
     setTimeout(() => {
@@ -206,6 +227,15 @@ export class AllergiesAllergyListComponent  implements OnInit {
       };
       this.outputAllergy.reaction.push(newReaction);
     });
+
+    // Update notes array from noteText
+    this.notes = this.noteText && this.noteText.trim() !== ''
+      ? [{ text: this.noteText }]
+      : [];
+    this.outputAllergy.note = [...this.notes];
+
+    this.outputAllergy.patient.reference = this.patientReference.trim() ? this.patientReference : '';
+
     setTimeout(() => {
         this.outputAllergyStr = JSON.stringify(this.outputAllergy, null, 2);
       }

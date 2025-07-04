@@ -90,6 +90,33 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "australia": {
+              "baseHref": "/",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "10mb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "500kb",
+                  "maximumError": "999kb"
+                }
+              ],
+              "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              },
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.australia.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -98,9 +125,13 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
+              "buildTarget": "sct-implementation-demonstrator:build:production"
             },
             "development": {
               "buildTarget": "sct-implementation-demonstrator:build:development"
+            },
+             "australia": {
+              "buildTarget": "sct-implementation-demonstrator:build:australia"
             }
           },
           "defaultConfiguration": "development"
