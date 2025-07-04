@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { environment } from '../../../../environments/environment';
+
 @Component({
     selector: 'app-allergies-allergy-list-reaction',
     templateUrl: './allergies-allergy-list-reaction.component.html',
@@ -20,6 +22,9 @@ export class AllergiesAllergyListReactionComponent implements ControlValueAccess
 
   // add emitter for new problem
   @Output() newManifestation = new EventEmitter<any>();
+
+  //config
+  showExposureRoute = environment.enableExposureRoute;
 
   severityOptions = [
     { code: 'mild', display: 'Mild', sctCode: '255604002', sctDisplay: 'Mild (qualifier value)' },

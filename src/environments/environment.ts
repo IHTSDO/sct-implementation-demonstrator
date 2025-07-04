@@ -3,5 +3,6 @@ export const environment = {
   country: 'default',
   enableNotes: false,
   enablePropensity: true,
-  enablePatient: false
+  enablePatient: false,
+  enableExposureRoute: true
 };
