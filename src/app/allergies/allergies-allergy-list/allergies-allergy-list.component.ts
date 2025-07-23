@@ -24,7 +24,6 @@ export class AllergiesAllergyListComponent  implements OnInit {
   showNotes = environment.enableNotes;
   showPropensity = environment.enablePropensity;  
   showPatient = environment.enablePatient;
-  showExposureRoute = environment.enableExposureRoute;
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
