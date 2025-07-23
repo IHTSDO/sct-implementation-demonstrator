@@ -9,6 +9,8 @@ import { LanguageConfigComponent } from './util/language-config/language-config.
 import { catchError, of, skip, Subject, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
+import { environment } from '../environments/environment';
+
 declare let gtag: Function;
 
 @Component({
@@ -41,7 +43,7 @@ export class AppComponent {
     { name: "SNOMED Dev 1", url: "https://dev-browser.ihtsdotools.org/fhir"},
     { name: "Implementation Demo", url: "https://implementation-demo.snomedtools.org/fhir"},
   ];
-  selectedServer = this.fhirServers[1];
+  selectedServer = this.fhirServers[environment.defaultFhirServerIndex];
   embeddedMode: boolean = false;
   demos: any[] = [];
 
@@ -157,18 +159,20 @@ export class AppComponent {
       }
     });
 
+    // Set default server from config
+    this.setFhirServer(this.fhirServers[environment.defaultFhirServerIndex]);
+
+    // now subscribe to changes
     this.terminologyService.snowstormFhirBase$.subscribe(url => {
       if (this.fhirServers?.length > 0) {
-        this.fhirServers.forEach(loopServer => {
-          if (loopServer.url === url) {
-            this.selectedServer = loopServer;
-            this.cdRef.detectChanges();
-            this.updateCodeSystemOptions()
-          }
-        });
+        const found = this.fhirServers.find(server => server.url === url);
+        if (found) {
+          this.selectedServer = found;
+          this.cdRef.detectChanges();
+          this.updateCodeSystemOptions();
+        }
       }
     });
-    this.setFhirServer(this.selectedServer);
   
     // this.http.get('https://raw.githubusercontent.com/IHTSDO/snomedct-language-metadata/refs/heads/main/national-language-metadata.json').subscribe((data: any) => {
     //   this.languageMetadata = data;
@@ -182,7 +186,7 @@ export class AppComponent {
 
   setupLanguageMetadata() {
     let editionUri = this.terminologyService.getFhirUrlParam();
-    // Remve the verssion data from the editionUri (http://snomed.info/sct/900000000000207008/version/20250501 to http://snomed.info/sct/900000000000207008)
+    // Remove the version data from the editionUri (http://snomed.info/sct/900000000000207008/version/20250501 to http://snomed.info/sct/900000000000207008)
     if (editionUri.includes('/version/')) {
       const editionUriParts = editionUri.split('/');
       editionUriParts.pop();
@@ -194,6 +198,8 @@ export class AppComponent {
     if (!this.filteredLanguageMetadata) {
       this.filteredLanguageMetadata = { contexts: [] };
     }
+
+    //Fallback to US English if not found
     this.filteredLanguageMetadata.contexts.push({ name: 'US English', languageDialects: 'en-X-900000000000509007' });
     this.setContext(this.filteredLanguageMetadata.contexts[0]);
   }
