@@ -24,7 +24,7 @@ export class AllergiesAllergyListReactionComponent implements ControlValueAccess
   @Output() newManifestation = new EventEmitter<any>();
 
   //config
-  showExposureRoute = environment.enableExposureRoute;
+  showExposureRoute = environment.allergyList.enableExposureRoute;
 
   severityOptions = [
     { code: 'mild', display: 'Mild', sctCode: '255604002', sctDisplay: 'Mild (qualifier value)' },

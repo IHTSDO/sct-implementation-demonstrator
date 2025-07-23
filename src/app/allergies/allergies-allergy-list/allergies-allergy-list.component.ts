@@ -21,9 +21,9 @@ export class AllergiesAllergyListComponent  implements OnInit {
   @Output() newProblem = new EventEmitter<any>();
 
   //config
-  showNotes = environment.enableNotes;
-  showPropensity = environment.enablePropensity;  
-  showPatient = environment.enablePatient;
+  showNotes = environment.allergyList.enableNotes;
+  showPropensity = environment.allergyList.enablePropensity;  
+  showPatient = environment.allergyList.enablePatient;
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
