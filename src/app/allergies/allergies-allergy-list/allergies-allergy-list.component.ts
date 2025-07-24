@@ -209,8 +209,8 @@ export class AllergiesAllergyListComponent  implements OnInit {
     this.outputAllergy.criticality = (this.selectedCriticality?.code) ? [this.selectedCriticality.code] : {};
     this.outputAllergy.reaction = [];
     this.selectedReactions.forEach((reaction: any) => {
-      if (reaction.manifestation.code) { reaction.manifestation.system = 'http://snomed.info/sct'; }
-      if (reaction.route.code) { reaction.route.system = 'http://snomed.info/sct'; }
+      if (reaction.manifestation && reaction.manifestation.code) { reaction.manifestation.system = 'http://snomed.info/sct'; }
+      if (reaction.route && reaction.route.code) { reaction.route.system = 'http://snomed.info/sct'; }
       const newReaction = {
         substance: [{
           coding: [this.selectedSubstance]
