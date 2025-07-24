@@ -24,19 +24,22 @@
             <mat-option *ngFor="let option of severityOptions" [value]="option" (click)="reactionSeveritySelected(reaction, option)">{{option.display}}</mat-option>
         </mat-select>
     </mat-form-field>
-    <div class="row-centered">
-        <div class="small-form-field">
-            <app-autocomplete-binding [binding]="routeBinding" (selectionChange)="reactionRouteSelected(reaction, $event)"></app-autocomplete-binding>
+
+    <div *ngIf="showExposureRoute">
+        <div class="row-centered">
+            <div class="small-form-field">
+                <app-autocomplete-binding [binding]="routeBinding" (selectionChange)="reactionRouteSelected(reaction, $event)"></app-autocomplete-binding>
+            </div>
+            <button mat-icon-button color="primary" [matMenuTriggerFor]="routePopoverMenu">
+                <mat-icon>info</mat-icon>
+            </button>
+            <mat-menu #routePopoverMenu="matMenu" >
+                <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+                    <p>Terminology binding:</p>
+                    <pre>{{ routeBinding.ecl }}</pre>
+                </span>
+            </mat-menu>
         </div>
-        <button mat-icon-button color="primary" [matMenuTriggerFor]="routePopoverMenu">
-            <mat-icon>info</mat-icon>
-        </button>
-        <mat-menu #routePopoverMenu="matMenu" >
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
-                <p>Terminology binding:</p>
-                <pre>{{ routeBinding.ecl }}</pre>
-            </span>
-        </mat-menu>
     </div>
 </div>
 <div>
