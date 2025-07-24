@@ -70,13 +70,13 @@ export class AllergiesAllergyListComponent  implements OnInit {
   ];
   selectedSeverity: any = {};
 
-  codeBinding = { ecl: '<<418038007 |Propensity to adverse reactions to substance| OR <<420134006 |Propensity to adverse reaction (finding)|', title: 'Allergy/Intolerance by propensity' };
+  codeBinding = environment.allergyList.codeBinding;
   selectedCode: any = null;
   selectedCodeTerm = "";
   recordPropensity = false;
 
-  substanceBinding = { ecl: '<<105590001 | Substance (substance) | OR <<373873005 | Pharmaceutical / biologic product (product) |', title: 'Allergy/Intolerance substance or product' };
-  refinedSubstanceBinding = { ecl: '<<105590001 | Substance (substance) |', title: 'Allergy/Intolerance substance based on propensity' };
+  substanceBinding = environment.allergyList.substanceBinding;
+  refinedSubstanceBinding = environment.allergyList.refinedSubstanceBinding;
   selectedSubstanceTerm = "";
   selectedSubstance: any = null;
 
@@ -89,10 +89,9 @@ export class AllergiesAllergyListComponent  implements OnInit {
     }
   ];
 
-  reactionManifestationBinding = { ecl: '<<404684003 |Clinical finding|', title: 'Reaction Manifestation' };
   selectedReactionManifestation: any = null;
   selectedReactionManifestationTerm = "";
-  routeBinding = { ecl: '<<284009009 |Route of administration value|', title: 'Exposure Route' };
+  
   selectedRoute: any = null;
   selectedRouteTerm = "";
 

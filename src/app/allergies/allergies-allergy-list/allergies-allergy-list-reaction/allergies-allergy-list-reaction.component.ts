@@ -32,8 +32,8 @@ export class AllergiesAllergyListReactionComponent implements ControlValueAccess
     { code: 'severe', display: 'Severe', sctCode: '24484000', sctDisplay: 'Severe (qualifier value)' }
   ];
   selectedSeverity: any = {};
-  reactionManifestationBinding = { ecl: '<<404684003 |Clinical finding|', title: 'Reaction Manifestation' };
-  routeBinding = { ecl: '<<284009009 |Route of administration value|', title: 'Exposure Route' };
+  reactionManifestationBinding = environment.allergyList.reactionManifestationBinding;
+  routeBinding = environment.allergyList.routeBinding;
 
   reaction: any = {};
 
