@@ -21,8 +21,8 @@ import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturi
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
 import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
 import { ValuesetTranslatorComponent } from './valueset-translator/valueset-translator.component';
-import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart.component';
-import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart.component';
+import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart/sunburst-chart.component';
+import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart/d3-sunburst-chart.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },

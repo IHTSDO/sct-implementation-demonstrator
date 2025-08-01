@@ -97,8 +97,8 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
 import { MatRippleModule } from '@angular/material/core';
 import { ValuesetTranslatorComponent } from './valueset-translator/valueset-translator.component';
-import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart.component';
-import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart.component';
+import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart/sunburst-chart.component';
+import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart/d3-sunburst-chart.component';
 
 const app = initializeApp(firebaseConfig);
 
