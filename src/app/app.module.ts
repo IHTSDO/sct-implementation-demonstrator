@@ -97,6 +97,8 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
 import { MatRippleModule } from '@angular/material/core';
 import { ValuesetTranslatorComponent } from './valueset-translator/valueset-translator.component';
+import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart.component';
+import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -155,7 +157,9 @@ const app = initializeApp(firebaseConfig);
         MaturityDashboardComponent,
         SvDemoComponent,
         SnomedHubComponent,
-        ValuesetTranslatorComponent
+        ValuesetTranslatorComponent,
+        SunburstChartComponent,
+        D3SunburstChartComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

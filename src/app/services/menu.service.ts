@@ -124,6 +124,13 @@ export class MenuService {
       type: "internal",
       url: "/reports",
       description: "A collection of educational material and changes reports to understand how SNOMED changes on each realease and help plan implementations accordingly."
+    },
+    {
+      name: "D3 Sunburst Chart",
+      subtitle: "Visualization demo",
+      type: "internal",
+      url: "/d3-sunburst-chart",
+      description: "A D3.js implementation of a zoomable sunburst chart for visualizing hierarchical SNOMED CT data with interactive drill-down capabilities."
     }
 
   ];

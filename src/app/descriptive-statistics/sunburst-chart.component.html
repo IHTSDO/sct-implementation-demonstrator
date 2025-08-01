@@ -1,0 +1,18 @@
+<div class="sunburst-container">
+  <div class="chart-section">
+    <div #chartContainer id="chartContainer"></div>
+  </div>
+  <div class="details-section">
+    <h3>Selected Item Details</h3>
+    <div class="details-content" *ngIf="selectedItem">
+      <p><strong>ID:</strong> {{ selectedItem.id }}</p>
+      <p><strong>Label:</strong> {{ selectedItem.label }}</p>
+      <p><strong>Value:</strong> {{ selectedItem.value }}</p>
+      <p *ngIf="selectedItem.labelCount !== undefined"><strong>Label Count:</strong> {{ selectedItem.labelCount }}</p>
+      <p><strong>Parent:</strong> {{ selectedItem.parent || 'Root' }}</p>
+    </div>
+    <div class="no-selection" *ngIf="!selectedItem">
+      <p>Click on any segment to see details</p>
+    </div>
+  </div>
+</div> 

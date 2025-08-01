@@ -1,0 +1,46 @@
+id,label,parent,value
+138875005_1,SNOMED CT,,429
+373873005_1,Pharmaceutical / biologic product,138875005_1,37
+763158003_1,Medicinal product,373873005_1,37
+404684003_1,Clinical finding,138875005_1,429
+386617003_1,Digestive system finding,404684003_1,31
+300848003_1,Mass of body structure,404684003_1,11
+302292003_1,Finding of trunk structure,404684003_1,249
+225577002_1,Stoma finding,404684003_1,1
+365605003_1,Body measurement finding,404684003_1,83
+131148009_1,Bleeding,404684003_1,7
+118228005_1,Functional finding,404684003_1,42
+298378000_1,Finding of neck region,404684003_1,2
+246556002_1,Central nervous system finding,404684003_1,19
+298325004_1,Finding of movement,404684003_1,2
+106077005_1,Integumentary system finding,404684003_1,13
+248982007_1,Pregnancy childbirth and puerperium finding,404684003_1,53
+102957003_1,Neurological finding,404684003_1,3
+414252009_1,Finding of back,404684003_1,3
+106048009_1,Respiratory finding,404684003_1,207
+106063007_1,Cardiovascular finding,404684003_1,124
+406122000_1,Head finding,404684003_1,56
+118235002_1,Eye / vision finding,404684003_1,39
+1240581000000104,SARS-CoV-2 detected,,195
+302293008_1,Finding of limb structure,404684003_1,60
+271616002_1,Finding of general physiological development,404684003_1,1
+384821006_1,Mental state behavior and/or psychosocial function finding,404684003_1,9
+420134006_1,Propensity to adverse reaction,404684003_1,2
+106176003_1,Endocrine finding,404684003_1,1
+116336009_1,Eating / feeding / drinking finding,404684003_1,3
+64572001_1,Disease,404684003_1,405
+299735001_1,Neurological lesion,404684003_1,8
+118227000_1,Vital signs finding,404684003_1,17
+301830001_1,Urine finding,404684003_1,4
+267038008_1,Edema,404684003_1,2
+127325009_1,Procedure related finding,404684003_1,65
+297268004_1,Ear nose and throat finding,404684003_1,14
+106112009_1,Fetal finding,404684003_1,3
+106028002_1,Musculoskeletal finding,404684003_1,58
+299691001_1,Finding of blood lymphatics and immune system,404684003_1,29
+118236001_1,Ear and auditory finding,404684003_1,2
+406123005_1,Viscus structure finding,404684003_1,211
+419026008_1,Effect of exposure to physical force,404684003_1,2
+415531008_1,Skin AND/OR mucosa finding,404684003_1,15
+301343009_1,Temperature-associated finding,404684003_1,17
+248402002_1,General finding of soft tissue,404684003_1,61
