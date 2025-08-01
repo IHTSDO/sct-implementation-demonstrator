@@ -1,0 +1,244 @@
+id,label,parent,value
+138875005_1,"SNOMED CT",,429
+373873005_1,"Pharmaceutical / biologic product",138875005_1,37
+763158003_1,"Medicinal product",373873005_1,37
+763760008_1,"Medicinal product categorized by structure",763158003_1,37
+440132002_1,"Product manufactured as parenteral dose form",763158003_1,17
+440131009_1,"Product manufactured as oral dose form",763158003_1,12
+1157189002_1,"Protein and/or protein derivative-containing product",763158003_1,23
+766779001_1,"Medicinal product categorized by disposition",763158003_1,23
+404684003_1,"Clinical finding",138875005_1,429
+386617003_1,"Digestive system finding",404684003_1,31
+53619000_1,"Disorder of digestive system",386617003_1,31
+300855001_1,"Mass of digestive structure",386617003_1,1
+249565005_1,"Liver finding",386617003_1,1
+386618008_1,"Gastrointestinal tract finding",386617003_1,27
+300357002_1,"Finding of pancreas",386617003_1,3
+423066003_1,"Finding of mouth region",386617003_1,1
+300848003_1,"Mass of body structure",404684003_1,11
+444905003_1,"Mass of soft tissue",300848003_1,3
+300855001_2,"Mass of digestive structure",300848003_1,1
+300853008_1,"Mass of lymphoreticular structure",300848003_1,3
+300851005_1,"Mass of respiratory structure",300848003_1,3
+300862005_1,"Mass of body region",300848003_1,8
+300852003_1,"Mass of cardiovascular structure",300848003_1,1
+400186008_1,"Neoplasm of integumentary system",300848003_1,1
+129154003_1,"Hematologic neoplasm",300848003_1,3
+281229000_1,"Space-occupying lesion of nervous system",300848003_1,1
+302292003_1,"Finding of trunk structure",404684003_1,249
+301366005_1,"Pain of truncal structure",302292003_1,1
+609623002_1,"Finding of upper trunk",302292003_1,201
+128121009_1,"Disorder of trunk",302292003_1,249
+822987005_1,"Finding of abdominopelvic segment of trunk",302292003_1,74
+309524007_1,"Mass of trunk",302292003_1,6
+225577002_1,"Stoma finding",404684003_1,1
+302918009_1,"Disorder of stoma",225577002_1,1
+365605003_1,"Body measurement finding",404684003_1,83
+301338002_1,"Finding of head circumference",365605003_1,4
+107647005_1,"Weight finding",365605003_1,83
+365714001_1,"Height / growth finding",365605003_1,1
+131148009_1,"Bleeding",404684003_1,7
+46781000087100_1,"Blood in large intestine",131148009_1,1
+1335889008_1,"Bleeding of soft tissue",131148009_1,4
+246681007_1,"Blood in eye",131148009_1,1
+788951001_1,"Hemorrhage of digestive system",131148009_1,6
+118228005_1,"Functional finding",404684003_1,42
+373930000_1,"Cognitive function finding",118228005_1,9
+386585008_1,"Functional disorder",118228005_1,1
+154091000119106_1,"Decline in functional status",118228005_1,3
+5631002_1,"Abnormal gastric motility",118228005_1,1
+1156448003_1,"Impaired urinary system function",118228005_1,26
+127403002_1,"Red blood cell destruction finding",118228005_1,2
+362970003_1,"Disorder of hemostatic system",118228005_1,1
+1148582006_1,"Finding of renal function",118228005_1,26
+118230007_1,"Hearing finding",118228005_1,2
+105981003_1,"Disorder of cardiac function",118228005_1,3
+1162508007_1,"Motor function",118228005_1,1
+106137004_1,"Intelligence finding",118228005_1,9
+298378000_1,"Finding of neck region",404684003_1,2
+299703001_1,"Mass of neck",298378000_1,1
+118939000_1,"Disorder of neck",298378000_1,2
+246556002_1,"Central nervous system finding",404684003_1,19
+23853001_1,"Disorder of the central nervous system",246556002_1,19
+299733008_1,"Finding of spinal cord",246556002_1,1
+299718000_1,"Finding of brain",246556002_1,18
+298325004_1,"Finding of movement",404684003_1,2
+60342002_1,"Movement disorder",298325004_1,2
+52559000_1,"Motor dysfunction",298325004_1,2
+106077005_1,"Integumentary system finding",404684003_1,13
+106076001_1,"Skin finding",106077005_1,13
+128598002_1,"Disorder of integument",106077005_1,13
+248982007_1,"Pregnancy, childbirth and puerperium finding",404684003_1,53
+118185001_1,"Finding related to pregnancy",248982007_1,38
+118213005_1,"Postpartum finding",248982007_1,9
+171000119107,"Maternal obesity complicating pregnancy, childbirth and the puerperium, antepartum",,1
+198609003_1,"Complication of pregnancy, childbirth and/or puerperium",248982007_1,52
+102957003_1,"Neurological finding",404684003_1,3
+106147001_1,"Sensory nervous system finding",102957003_1,1
+106145009_1,"Motor nervous system finding",102957003_1,2
+106150003_1,"Cranial nerve finding",102957003_1,1
+414252009_1,"Finding of back",404684003_1,3
+298379008_1,"Finding of spinal region",414252009_1,2
+33308003_1,"Disorder of back",414252009_1,3
+106048009_1,"Respiratory finding",404684003_1,207
+302183005_1,"Postprocedural finding of respiratory tract",106048009_1,7
+300851005_2,"Mass of respiratory structure",106048009_1,3
+301282008_1,"Finding of respiration",106048009_1,15
+50043002_1,"Disorder of respiratory system",106048009_1,207
+301226008_1,"Lower respiratory tract finding",106048009_1,184
+301186004_1,"Upper respiratory tract finding",106048009_1,14
+106063007_1,"Cardiovascular finding",404684003_1,124
+366157005_1,"Cardiovascular measurement - finding",106063007_1,74
+49601007_1,"Disorder of cardiovascular system",106063007_1,124
+21829004_1,"Blood vessel finding",106063007_1,28
+300852003_2,"Mass of cardiovascular structure",106063007_1,1
+301095005_1,"Cardiac finding",106063007_1,39
+406122000_1,"Head finding",404684003_1,56
+298364001_1,"Finding of head region",406122000_1,43
+301338002_2,"Finding of head circumference",406122000_1,4
+299718000_2,"Finding of brain",406122000_1,18
+118934005_1,"Disorder of head",406122000_1,56
+118235002_1,"Eye / vision finding",404684003_1,39
+128127008_1,"Visual system disorder",118235002_1,39
+246915008_1,"Globe finding",118235002_1,30
+1240581000000104,"SARS-CoV-2 detected",,195
+302293008_1,"Finding of limb structure",404684003_1,60
+116312005_1,"Finding of lower limb",302293008_1,37
+90834002_1,"Pain in limb",302293008_1,1
+116307009_1,"Finding of upper limb",302293008_1,25
+128605003_1,"Disorder of limb",302293008_1,60
+271616002_1,"Finding of general physiological development",404684003_1,1
+237834000_1,"Disorder of stature",271616002_1,1
+384821006_1,"Mental state, behavior and/or psychosocial function finding",404684003_1,9
+844005_1,"Behavior finding",384821006_1,9
+420134006_1,"Propensity to adverse reaction",404684003_1,2
+419511003_1,"Propensity to adverse reactions to drug",420134006_1,2
+106176003_1,"Endocrine finding",404684003_1,1
+42497006_1,"Decreased hormone secretion",106176003_1,1
+116336009_1,"Eating / feeding / drinking finding",404684003_1,3
+225525008_1,"Eating finding",116336009_1,2
+289161009_1,"Finding of appetite",116336009_1,3
+64572001_1,"Disease",404684003_1,405
+399981008_1,"Neoplasm and/or hamartoma",64572001_1,13
+416113008_1,"Disorder characterized by fever",64572001_1,17
+302918009_2,"Disorder of stoma",64572001_1,1
+238147009_1,"Organ dysfunction syndrome",64572001_1,4
+738668004_1,"Perioperative complication",64572001_1,6
+111941005_1,"Familial disease",64572001_1,2
+449759005_1,"Hypertensive complication",64572001_1,3
+118939000_2,"Disorder of neck",64572001_1,2
+19660004_1,"Disorder of soft tissue",64572001_1,61
+414029004_1,"Disorder of immune function",64572001_1,58
+116224001_1,"Complication of procedure",64572001_1,4
+312087002_1,"Disorder following clinical procedure",64572001_1,23
+414025005_1,"Fetal and/or neonatal disorder",64572001_1,38
+2704003_1,"Acute disease",64572001_1,77
+33308003_2,"Disorder of back",64572001_1,3
+231532002_1,"Sexual disorder",64572001_1,2
+75934005_1,"Metabolic disease",64572001_1,15
+27624003_1,"Chronic disease",64572001_1,125
+74627003_1,"Complication due to diabetes mellitus",64572001_1,98
+40733004_1,"Infectious disease",64572001_1,206
+782964007_1,"Genetic disease",64572001_1,43
+308635004_1,"Disorder of prostheses and implants",64572001_1,1
+399986003_1,"Disorder of body wall",64572001_1,1
+74732009_1,"Mental disorder",64572001_1,1
+56019007_1,"Systemic disease",64572001_1,6
+198609003_2,"Complication of pregnancy, childbirth and/or puerperium",64572001_1,52
+785875003_1,"Disorder of joint region",64572001_1,62
+118654009_1,"Disorder characterized by edema",64572001_1,2
+441457006_1,"Cyst",64572001_1,3
+386585008_2,"Functional disorder",64572001_1,1
+1279550006_1,"Disorder of sensory organ",64572001_1,30
+429054002_1,"Disorder related to transplantation",64572001_1,7
+1269101009_1,"Maternal disorder during antenatal and/or intrapartum and/or postpartum period",64572001_1,50
+1340012009_1,"Disorder caused by radiation",64572001_1,1
+1085911000119103_1,"Complication due to Crohn's disease",64572001_1,1
+362970003_2,"Disorder of hemostatic system",64572001_1,1
+105969002_1,"Disorder of connective tissue",64572001_1,10
+254666005_1,"Keratosis",64572001_1,1
+414916001_1,"Obesity",64572001_1,83
+60342002_2,"Movement disorder",64572001_1,2
+5294002_1,"Developmental disorder",64572001_1,39
+429040005_1,"Ulcer",64572001_1,32
+362965005_1,"Disorder of body system",64572001_1,365
+417163006_1,"Traumatic or non-traumatic injury",64572001_1,34
+118934005_2,"Disorder of head",64572001_1,56
+414032001_1,"Disorder of pigmentation",64572001_1,2
+232208008_1,"Ear, nose and throat disorder",64572001_1,14
+362975008_1,"Degenerative disorder",64572001_1,10
+2492009_1,"Nutritional disorder",64572001_1,1
+128139000_1,"Inflammatory disorder",64572001_1,158
+128121009_2,"Disorder of trunk",64572001_1,249
+414022008_1,"Disorder of cellular component of blood",64572001_1,4
+8504008_1,"Environment related disease",64572001_1,1
+128605003_2,"Disorder of limb",64572001_1,60
+414026006_1,"Disorder of hematopoietic morphology",64572001_1,11
+1300209004_1,"Maternal perinatal disorder",64572001_1,9
+299735001_1,"Neurological lesion",404684003_1,8
+770095003_1,"Cranial nerve palsy due to diabetes mellitus",299735001_1,1
+285599002_1,"Trunk nerve lesion",299735001_1,1
+230622009_1,"Traction injury of peripheral nerve",299735001_1,1
+297946004_1,"Lower limb nerve lesion",299735001_1,4
+230599000_1,"Ischemic neuropathy",299735001_1,1
+609611008_1,"Lesion of nerve root and/or plexus",299735001_1,1
+281229000_2,"Space-occupying lesion of nervous system",299735001_1,1
+118227000_1,"Vital signs finding",404684003_1,17
+105723007_1,"Body temperature finding",118227000_1,17
+301830001_1,"Urine finding",404684003_1,4
+785672002_1,"Finding of urine substance level",301830001_1,4
+267038008_1,"Edema",404684003_1,2
+118654009_2,"Disorder characterized by edema",267038008_1,2
+127325009_1,"Procedure related finding",404684003_1,65
+738668004_2,"Perioperative complication",127325009_1,6
+128926000_1,"Postprocedural state finding",127325009_1,23
+709582000_1,"Arterial complication of procedure",127325009_1,3
+116224001_2,"Complication of procedure",127325009_1,4
+429054002_2,"Disorder related to transplantation",127325009_1,7
+441742003_1,"Evaluation finding",127325009_1,43
+297268004_1,"Ear, nose and throat finding",404684003_1,14
+232208008_2,"Ear, nose and throat disorder",297268004_1,14
+301186004_2,"Upper respiratory tract finding",297268004_1,14
+106112009_1,"Fetal finding",404684003_1,3
+70591005_1,"Fetal disorder",106112009_1,3
+106028002_1,"Musculoskeletal finding",404684003_1,58
+118952005_1,"Joint finding",106028002_1,57
+118954006_1,"Cartilage finding",106028002_1,4
+118953000_1,"Bone finding",106028002_1,1
+299566005_1,"Finding of musculoskeletal structure of toe",106028002_1,2
+299055007_1,"Finding of musculoskeletal structure of digit of hand",106028002_1,2
+928000_1,"Disorder of musculoskeletal system",106028002_1,58
+299691001_1,"Finding of blood, lymphatics and immune system",404684003_1,29
+434156008_1,"Infectious agent in bloodstream",299691001_1,18
+127403002_2,"Red blood cell destruction finding",299691001_1,2
+249571004_1,"Spleen finding",299691001_1,1
+106182000_1,"Immune system finding",299691001_1,7
+414022008_2,"Disorder of cellular component of blood",299691001_1,4
+118236001_1,"Ear and auditory finding",404684003_1,2
+362966006_1,"Disorder of auditory system",118236001_1,2
+118230007_2,"Hearing finding",118236001_1,2
+406123005_1,"Viscus structure finding",404684003_1,211
+301230006_1,"Lung finding",406123005_1,138
+249561001_1,"Abdominal organ finding",406123005_1,57
+105612003_1,"Injury of internal organ",406123005_1,27
+301095005_2,"Cardiac finding",406123005_1,39
+300284004_1,"Finding of esophagus",406123005_1,2
+419026008_1,"Effect of exposure to physical force",404684003_1,2
+79096004_1,"Myocarditis caused by physical agent",419026008_1,1
+400209005_1,"Injury by causative force",419026008_1,1
+1335858009_1,"Effect of radiation",419026008_1,1
+415531008_1,"Skin AND/OR mucosa finding",404684003_1,15
+106076001_2,"Skin finding",415531008_1,13
+247440002_1,"Skin or mucosa lesion",415531008_1,5
+128145008_1,"Mucosal finding",415531008_1,2
+301343009_1,"Temperature-associated finding",404684003_1,17
+105723007_2,"Body temperature finding",301343009_1,17
+248402002_1,"General finding of soft tissue",404684003_1,61
+444905003_2,"Mass of soft tissue",248402002_1,3
+106076001_3,"Skin finding",248402002_1,13
+1335889008_2,"Bleeding of soft tissue",248402002_1,4
+21829004_2,"Blood vessel finding",248402002_1,28
+249400000_1,"Oral mucosa finding",248402002_1,1
+246605000_1,"Peripheral nerve finding",248402002_1,15
+19660004_2,"Disorder of soft tissue",248402002_1,61
+249410009_1,"Gingivae finding",248402002_1,1

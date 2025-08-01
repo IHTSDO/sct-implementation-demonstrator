@@ -9,6 +9,7 @@ interface ChartItem {
   parent: string;
   value: number;
   labelCount?: number;
+  originalParent?: string; // For navigation when parent is cleared for Plotly
 }
 
 @Component({
@@ -24,7 +25,7 @@ export class SunburstChartComponent implements OnInit {
   private chartData: ChartItem[] = [];
   private allData: ChartItem[] = [];
   public currentRootId: string = '';
-  public maxLevels = 2;
+  public maxLevels = 4;
   public isLoading = false;
 
   constructor(private http: HttpClient) {}
@@ -81,7 +82,6 @@ export class SunburstChartComponent implements OnInit {
         // TEMPORARY HACK: Only use the first root item
         if (rootItems.length > 0) {
           const firstRoot = rootItems[0];
-          console.log('Using first root item:', firstRoot);
           this.chartData = this.getItemsUpToLevel([firstRoot], 1);
           this.currentRootId = firstRoot.id;
         } else {
@@ -92,15 +92,23 @@ export class SunburstChartComponent implements OnInit {
         // Get items starting from the specified root
         const rootItem = this.allData.find(item => item.id === rootId);
         if (rootItem) {
-          this.chartData = this.getItemsUpToLevel([rootItem], 1);
+          // Use the new method that includes the root item itself
+          this.chartData = this.getItemsUpToLevelWithRoot(rootItem, 1);
           this.currentRootId = rootId;
         }
       }
       
-          this.recomputeValues();
-    console.log('After recompute - chart data:', this.chartData.length, 'items');
-    this.mergeSmallSegments();
-    console.log('After merge - chart data:', this.chartData.length, 'items');
+      this.recomputeValues();
+      
+      // Ensure the root item is preserved after recompute
+      if (this.currentRootId !== '') {
+        const rootItem = this.allData.find(item => item.id === this.currentRootId);
+        if (rootItem && !this.chartData.find(item => item.id === this.currentRootId)) {
+          this.chartData.unshift(rootItem); // Add at the beginning
+        }
+      }
+      
+      this.mergeSmallSegments();
     this.createSunburstChart();
       
       // Add a small delay before hiding loading state for smooth transition
@@ -121,6 +129,30 @@ export class SunburstChartComponent implements OnInit {
     const children = this.allData.filter(item => 
       item.parent && rootItems.some(root => root.id === item.parent)
     );
+
+    if (children.length > 0) {
+      result.push(...this.getItemsUpToLevel(children, currentLevel + 1));
+    }
+
+    return result;
+  }
+
+  private getItemsUpToLevelWithRoot(rootItem: ChartItem, currentLevel: number): ChartItem[] {
+    if (currentLevel > this.maxLevels) {
+      return [rootItem];
+    }
+
+    // Create a copy of the root item and clear its parent to make it a root for Plotly
+    // But preserve the original parent in a custom property for navigation
+    const rootItemCopy = { 
+      ...rootItem, 
+      parent: '',
+      originalParent: rootItem.parent // Store the original parent for navigation
+    };
+    const result: ChartItem[] = [rootItemCopy];
+    
+    // Get children of the root item
+    const children = this.allData.filter(item => item.parent === rootItem.id);
 
     if (children.length > 0) {
       result.push(...this.getItemsUpToLevel(children, currentLevel + 1));
@@ -202,11 +234,8 @@ export class SunburstChartComponent implements OnInit {
     
     // Check if we need to merge at all
     if (this.chartData.length <= maxSegments) {
-      console.log('No merging needed - only', this.chartData.length, 'segments');
       return;
     }
-    
-    console.log('Merging needed -', this.chartData.length, 'segments, threshold:', threshold);
     
     const mergedItems: ChartItem[] = [];
     const processedParents = new Set<string>();
@@ -279,8 +308,16 @@ export class SunburstChartComponent implements OnInit {
     );
     mergedItems.push(...unprocessedItems);
 
+    // Ensure the current root item is always included
+    if (this.currentRootId !== '') {
+      const currentRootItem = this.allData.find(item => item.id === this.currentRootId);
+      if (currentRootItem && !mergedItems.find(item => item.id === this.currentRootId)) {
+        console.log('Adding current root item to merged items:', currentRootItem);
+        mergedItems.unshift(currentRootItem); // Add at the beginning
+      }
+    }
+
     this.chartData = mergedItems;
-    console.log('After merging -', this.chartData.length, 'segments');
   }
 
   private createSunburstChart() {
@@ -308,18 +345,15 @@ export class SunburstChartComponent implements OnInit {
       }
     }];
 
-    console.log('Plotly data summary:', {
-      totalItems: ids.length,
-      rootItems: parents.filter(p => !p || p.trim() === '').length,
-      totalValue: values.reduce((sum, val) => sum + val, 0),
-      maxValue: Math.max(...values),
-      minValue: Math.min(...values)
-    });
-
-    // Debug root items
-    const rootItems = this.chartData.filter(item => !item.parent || item.parent.trim() === '');
-    console.log('Root items sample (first 10):', rootItems.slice(0, 10).map(item => ({ id: item.id, label: item.label, value: item.value })));
-    console.log('Items with parents:', this.chartData.filter(item => item.parent && item.parent.trim() !== '').map(item => ({ id: item.id, label: item.label, parent: item.parent, value: item.value })));
+    // If we have a current root ID, ensure it's treated as a root item for Plotly
+    if (this.currentRootId !== '') {
+      const currentRootItem = this.chartData.find(item => item.id === this.currentRootId);
+      if (currentRootItem) {
+        // Temporarily clear the parent to make it a root item for Plotly
+        const originalParent = currentRootItem.parent;
+        currentRootItem.parent = '';
+      }
+    }
 
     const layout = {
       title: {
@@ -340,7 +374,14 @@ export class SunburstChartComponent implements OnInit {
     // Check if chart already exists for smooth transition
     const existingChart = this.chartContainer.nativeElement.data;
     
-    if (existingChart && existingChart.length > 0) {
+    // Check if we can safely animate (only when drilling down to nodes already in the chart)
+    const canAnimate = existingChart && 
+                      existingChart.length > 0 && 
+                      this.currentRootId !== '' &&
+                      existingChart[0].ids && 
+                      existingChart[0].ids.includes(this.currentRootId);
+    
+    if (canAnimate) {
       // Update existing chart with transition
       Plotly.animate(this.chartContainer.nativeElement, {
         data: plotData,
@@ -356,7 +397,7 @@ export class SunburstChartComponent implements OnInit {
         }
       });
     } else {
-      // Create new chart
+      // Create new chart (no animation for navigation to new areas)
       Plotly.newPlot(this.chartContainer.nativeElement, plotData, layout, config)
         .then(() => {
           // Add click event listener after the plot is created
@@ -393,16 +434,29 @@ export class SunburstChartComponent implements OnInit {
       const point = data.points[0];
       const clickedId = point.id;
       
-      // Find the corresponding item in our data
+      // Find the corresponding item in our current chart data
       const selectedItem = this.chartData.find(item => item.id === clickedId);
       
       if (selectedItem) {
         this.selectedItem = selectedItem;
         
-        // Check if there are children in the full dataset
+        // Check if this is a center click (current root item)
+        if (clickedId === this.currentRootId) {
+          // Check if we can navigate up to the original parent
+          if (selectedItem.originalParent && selectedItem.originalParent.trim() !== '') {
+            this.getData(selectedItem.originalParent);
+            return;
+          } else {
+            this.getData(); // Go to absolute root
+            return;
+          }
+        }
+        
+        // Check if this item exists in the full dataset and has children
+        const itemInAllData = this.allData.find(item => item.id === clickedId);
         const hasChildren = this.allData.some(item => item.parent === clickedId);
         
-        if (hasChildren) {
+        if (itemInAllData && hasChildren) {
           // Drill down to this node
           this.getData(clickedId);
         }
