@@ -41,10 +41,17 @@
 }
 
 .question-text {
-  font-size: 1rem;
-  margin-bottom: 16px;
-  color: #333;
-  text-align: justify;
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+  text-align: left;
+  line-height: 1.5;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #1976d2;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .kpa-description {
@@ -161,7 +168,8 @@ button[mat-raised-button] {
   }
 
   .question-text {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
+    padding: 12px;
   }
 }
 
@@ -232,4 +240,17 @@ button[mat-raised-button] {
   margin-left: 1.5rem;
   margin-bottom: 0.2rem;
   color: #444;
+}
+
+/* Separation between context and comment input */
+.context-separator {
+  margin: 20px 0;
+  border: none;
+  height: 1px;
+  background-color: #e0e0e0;
+  width: 100%;
+}
+
+.context-comment-spacing {
+  margin-top: 16px;
 }

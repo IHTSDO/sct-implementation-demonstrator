@@ -233,10 +233,6 @@
         <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
         <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
         <p class="question-text" [@questionAnimation]="animationState" [innerHTML]="allQuestions[currentQuestionIndex].question.question"></p>
-        <div *ngIf="allQuestions[currentQuestionIndex].question.context">
-          <div class="question-context-heading">Context</div>
-          <div class="question-context" [innerHTML]="allQuestions[currentQuestionIndex].question.context"></div>
-        </div>
         <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
             <div class="flex-1">
                 <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
@@ -253,10 +249,17 @@
                 </mat-radio-group>
             </div>
             <div class="flex-1 w-full">
+                <div *ngIf="allQuestions[currentQuestionIndex].question.context">
+                  <div class="question-context-heading">How to answer this question</div>
+                  <div class="question-context" [innerHTML]="allQuestions[currentQuestionIndex].question.context"></div>
+                </div>
+                <hr class="context-separator" *ngIf="allQuestions[currentQuestionIndex].question.context">
+                <div class="context-comment-spacing">
                 <mat-form-field class="w-full">
                 <mat-label><i>Optional comment</i></mat-label>
                 <textarea matInput [formControl]="currentCommentControl" placeholder="Enter your comment" rows="5"></textarea>
                 </mat-form-field>
+                </div>
             </div>
         </div>
         <div class="error-message" *ngIf="currentControl?.invalid && currentControl?.touched">
