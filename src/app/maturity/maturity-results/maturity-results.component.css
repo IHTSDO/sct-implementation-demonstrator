@@ -117,7 +117,6 @@
     align-items: center;
     justify-content: start;
     gap: 8px;
-    margin-left: 1rem;
   }
 
   .score-indicator {

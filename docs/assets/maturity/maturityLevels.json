@@ -1263,7 +1263,7 @@
           ]
         },
         {
-          "name": "Complex Use Cases and Secondary Use",
+          "name": "Secondary Use",
           "id": "complex",
           "description": "Supporting complex clinical scenarios and secondary data use through SNOMED CT.",
           "questions": [
