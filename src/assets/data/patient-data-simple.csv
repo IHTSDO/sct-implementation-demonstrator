@@ -1,0 +1,8 @@
+id,label,parent,value
+1,Patients,,1000
+2,Respiratory disorders,1,400
+3,Asthma,2,250
+4,Bronchitis,2,150
+5,Chronic diseases,1,600
+6,Diabetes,5,350
+7,Hypertension,5,250 

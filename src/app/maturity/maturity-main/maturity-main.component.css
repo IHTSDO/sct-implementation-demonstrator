@@ -41,10 +41,17 @@
 }
 
 .question-text {
-  font-size: 1rem;
-  margin-bottom: 16px;
-  color: #333;
-  text-align: justify;
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+  text-align: left;
+  line-height: 1.5;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #1976d2;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .kpa-description {
@@ -64,8 +71,106 @@
 }
 
 .mat-radio-button {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
   font-size: 0.9rem;
   color: #555;
+}
+
+.mat-radio-label-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: 8px;
+  flex: 1;
+}
+
+.radio-option {
+  margin-bottom: 16px;
+}
+
+.radio-option mat-radio-button {
+  display: flex;
+  align-items: flex-start;
+}
+
+.option-text {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #232629; /* Anthracite grey */
+  letter-spacing: 0.01em;
+  border-radius: 4px;
+  padding: 2px 8px;
+  transition: background 0.2s;
+  background: none;
+}
+
+.example-text {
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
+  margin-left: 3rem;
+  margin-top: 0px;
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+.mat-icon {
+  font-size: 16px; /* Adjust icon size */
+  margin-left: 10px; /* Space between the icon and its text */
+}
+
+.stakeholder-description {
+  font-size: 0.9rem;
+  color: #757272;
+}
+
+/* Buttons */
+button[mat-raised-button] {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  /* text-transform: uppercase; */
+}
+
+.home-list-item {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row;
+}
+
+.home-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flip-card-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  margin: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .question-container {
+    padding: 16px;
+  }
+
+  .question-container h2 {
+    font-size: 1.2rem;
+  }
+
+  .question-container h3 {
+    font-size: 1rem;
+  }
+
+  .question-text {
+    font-size: 1.1rem;
+    padding: 12px;
+  }
 }
 
 /* Error message styling */
@@ -122,75 +227,30 @@
   margin-bottom: 20px;
 }
 
-.mat-radio-button {
-  display: flex;
-  align-items: flex-start; /* Align items to the top of the container */
+.question-context {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  color: #555;
+  font-size: 0.97rem;
 }
 
-.mat-radio-label-content {
-  display: flex;
-  flex-direction: row; /* Stack elements vertically */
-  margin-top: 8px; /* Add spacing between the radio button and the text */
+.question-context-heading {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-left: 1.5rem;
+  margin-bottom: 0.2rem;
+  color: #444;
 }
 
-.example-text {
-  font-size: 0.9rem; /* Optional: Adjust the font size */
-  color: gray; /* Optional: Dim the color for secondary text */
+/* Separation between context and comment input */
+.context-separator {
+  margin: 20px 0;
+  border: none;
+  height: 1px;
+  background-color: #e0e0e0;
+  width: 100%;
 }
 
-.mat-icon {
-  font-size: 16px; /* Adjust icon size */
-  margin-left: 10px; /* Space between the icon and its text */
-}
-
-.stakeholder-description {
-  font-size: 0.9rem;
-  color: #757272;
-}
-
-/* Buttons */
-button[mat-raised-button] {
+.context-comment-spacing {
   margin-top: 16px;
-  font-size: 0.9rem;
-  /* text-transform: uppercase; */
-}
-
-.home-list-item {
-  display: flex;
-  align-items: flex-start;
-  flex-direction: row;
-}
-
-.home-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.flip-card-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  margin: 16px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .question-container {
-    padding: 16px;
-  }
-
-  .question-container h2 {
-    font-size: 1.2rem;
-  }
-
-  .question-container h3 {
-    font-size: 1rem;
-  }
-
-  .question-text {
-    font-size: 0.9rem;
-  }
 }

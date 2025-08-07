@@ -1,0 +1,46 @@
+<div class="sunburst-container">
+  <div class="chart-section">
+    <div class="chart-header">
+      <h3>Plotly Sunburst Chart - Level Limited ({{ maxLevels }} Levels)</h3>
+      <div class="chart-controls">
+        <button mat-button color="primary" (click)="goToRoot()" *ngIf="currentRootId !== ''" [disabled]="isLoading">
+          <mat-icon>home</mat-icon>
+          Back to Root
+        </button>
+        <div class="current-root" *ngIf="currentRootId !== ''">
+          <span>Current: {{ getCurrentRootLabel() }}</span>
+        </div>
+        <div class="loading-indicator" *ngIf="isLoading">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Loading...</span>
+        </div>
+      </div>
+    </div>
+        <div class="chart-container-wrapper">
+      <div #chartContainer id="chartContainer" [class.loading]="isLoading"></div>
+      <div class="chart-overlay" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Updating chart...</p>
+      </div>
+    </div>
+  </div>
+  <div class="details-section">
+    <h3>Selected Item Details</h3>
+    <div class="details-content" *ngIf="selectedItem">
+      <p><strong>ID:</strong> {{ selectedItem.id }}</p>
+      <p><strong>Label:</strong> {{ selectedItem.label }}</p>
+      <p><strong>Value:</strong> {{ selectedItem.value }}</p>
+      <p *ngIf="selectedItem.labelCount !== undefined"><strong>Label Count:</strong> {{ selectedItem.labelCount }}</p>
+      <p><strong>Parent:</strong> {{ selectedItem.parent || 'Root' }}</p>
+    </div>
+    <div class="no-selection" *ngIf="!selectedItem">
+      <p>Click on any segment to see details</p>
+    </div>
+    <div class="navigation-info">
+      <h4>Navigation</h4>
+      <p>• Click on segments to drill down (max 4 levels visible)</p>
+      <p>• Only segments with children can be drilled into</p>
+      <p>• Use "Back to Root" to return to the top level</p>
+    </div>
+  </div>
+</div> 

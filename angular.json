@@ -59,7 +59,10 @@
               "raf",
               "rgbcolor",
               "html2canvas",
-              "leaflet"
+              "leaflet",
+              "jszip",
+              "plotly.js-dist",
+              "papaparse"
             ],
             "browser": "src/main.ts"
           },

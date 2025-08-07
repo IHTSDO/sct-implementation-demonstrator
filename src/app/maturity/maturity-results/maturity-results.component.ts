@@ -105,7 +105,9 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
           if (!dataObj) {
             return 0;
           }
-          return dataObj.sum / dataObj.count; // Average
+          const average = dataObj.sum / dataObj.count; // Average (already 0-100 scale)
+          // Convert 0-100 scale to 0-5 scale for display
+          return Math.round((average / 100) * 5);
         }),
         backgroundColor: 'rgba(54, 162, 235, 0.3)',
         borderColor: 'rgba(54, 162, 235, 1)',
@@ -138,10 +140,13 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
             pointLabels: {
               padding: 5
             },
-            suggestedMin: 0,
-            suggestedMax: 5,
+            min: 0,
+            max: 5,
             ticks: {
-              stepSize: 1
+              stepSize: 1,
+              callback: function(value) {
+                return value;
+              }
             }
           }
         }
@@ -227,7 +232,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     const selectedKpas = this.getKpas(this.maturityResponse, stakeholder);
 
     selectedKpas.forEach(kpa => {
-      // 1) Gather the KPA’s questions
+      // 1) Gather the KPA's questions
       const questions = this.getQuestions(this.maturityResponse, stakeholder, kpa);
       // 2) Compute the average
       this.kpaAverages[kpa] = this.calculateAverage(questions);
@@ -331,25 +336,129 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
 
     this.commentList = newComments;
   }
-  
+
+  mapToFiveLevels(value: number): number {
+    const clamped = Math.max(0, Math.min(100, value)); // ensure within range
+    return Math.min(5, Math.floor(clamped / 25) + 1);
+  }
 
   getScaleLabel(value: number): string {
-    // round to the lowest whole number
-    value = Math.floor(value);
-    this.level = this.resultsScale.find((scale) => scale.value === value)?.label || '';
+    // Return "None" if the score is 0.00
+    if (value === 0) {
+      this.level = 'None';
+      return this.level;
+    }
+    
+    // Find the appropriate scale label for the given value based on ranges
+    // 0-1: Basic, 1-2: Emerging, 2-3: Advanced, 3-4: Integrated, 4-5: Optimizing
+    if (value <= 1) {
+      this.level = 'Basic';
+    } else if (value <= 2) {
+      this.level = 'Emerging';
+    } else if (value <= 3) {
+      this.level = 'Advanced';
+    } else if (value <= 4) {
+      this.level = 'Integrated';
+    } else {
+      this.level = 'Optimizing';
+    }
     return this.level;
   }
 
   getMarkerPosition(value: number): number {
-    // Assuming your valid range is 1 through 5
-    const min = 1;
+    // Assuming your valid range is 0 through 5
+    const min = 0;
     const max = 5;
   
     if (value < min) value = min;
     if (value > max) value = max;
     
-    // Convert the 1–5 score to 0–100%
+    // Convert the 0–5 score to 0–100%
     return ((value - min) / (max - min)) * 100;
+  }
+
+  // Convert 0-100 scale to 0-5 scale for display
+  convertToFiveScale(value: number): number {
+    return Math.round((value / 100) * 5 * 100) / 100; // Round to 2 decimal places
+  }
+
+  // Get display value for overall average (0-5 scale)
+  getDisplayOverallAverage(): number {
+    return this.convertToFiveScale(this.overallAverage);
+  }
+
+  // Get display value for KPA average (0-5 scale)
+  getDisplayKpaAverage(kpaId: string): number {
+    return this.convertToFiveScale(this.kpaAverages[kpaId] || 0);
+  }
+
+  // Get color for score level
+  getScoreColor(score: number): string {
+    if (score === 0) {
+      return '#808080'; // Gray for None
+    }
+    
+    // Calculate exact color from gradient interpolation
+    // Based on CSS gradient: #c03700 0%, #d47f00 33%, #dfc500 66%, #417505 100%
+    const gradientStops = [
+      { position: 0, color: '#c03700' },   // Basic (score=1)
+      { position: 0.33, color: '#d47f00' }, // Emerging (score=2) 
+      { position: 0.66, color: '#dfc500' }, // Advanced (score=3)
+      { position: 1, color: '#417505' }     // Integrated/Optimizing (score=4-5)
+    ];
+    
+    // Convert score from 0-5 scale to 0-1 scale for gradient position
+    const gradientPosition = Math.min(1, Math.max(0, (score - 1) / 4)); // 1-5 maps to 0-1
+    
+    return this.interpolateColor(gradientPosition, gradientStops);
+  }
+
+  // Interpolate color between gradient stops
+  private interpolateColor(position: number, stops: Array<{position: number, color: string}>): string {
+    // Find the two stops to interpolate between
+    let startStop = stops[0];
+    let endStop = stops[stops.length - 1];
+    
+    for (let i = 0; i < stops.length - 1; i++) {
+      if (position >= stops[i].position && position <= stops[i + 1].position) {
+        startStop = stops[i];
+        endStop = stops[i + 1];
+        break;
+      }
+    }
+    
+    // Calculate interpolation factor
+    const factor = (position - startStop.position) / (endStop.position - startStop.position);
+    
+    // Parse hex colors to RGB
+    const startColor = this.hexToRgb(startStop.color);
+    const endColor = this.hexToRgb(endStop.color);
+    
+    // Interpolate RGB values
+    const r = Math.round(startColor.r + (endColor.r - startColor.r) * factor);
+    const g = Math.round(startColor.g + (endColor.g - startColor.g) * factor);
+    const b = Math.round(startColor.b + (endColor.b - startColor.b) * factor);
+    
+    // Convert back to hex
+    return this.rgbToHex(r, g, b);
+  }
+
+  // Convert hex color to RGB
+  private hexToRgb(hex: string): {r: number, g: number, b: number} {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : {r: 0, g: 0, b: 0};
+  }
+
+  // Convert RGB to hex color
+  private rgbToHex(r: number, g: number, b: number): string {
+    return '#' + [r, g, b].map(x => {
+      const hex = x.toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
   }
   
 }

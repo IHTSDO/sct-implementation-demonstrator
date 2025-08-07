@@ -78,6 +78,9 @@ export class AppComponent {
       }
     }
 
+    // Push initial languages to the service
+    this.terminologyService.setLanguages(this.languages);
+
     this.updateCodeSystemOptionsTrigger$.pipe(
       switchMap((preselectedEdition) =>
         this.terminologyService.getCodeSystems().pipe(
@@ -103,6 +106,9 @@ export class AppComponent {
                   .sort(this.compare),
               });
             });
+
+            // Push editionsDetails to the service
+            this.terminologyService.setEditionsDetails(this.editionsDetails);
 
             const currentVerIndex = this.editionsDetails.findIndex(x => x.editionName === 'International Edition');
             if (preselectedEdition) {
@@ -202,6 +208,9 @@ export class AppComponent {
     //Fallback to US English if not found
     this.filteredLanguageMetadata.contexts.push({ name: 'US English', languageDialects: 'en-X-900000000000509007' });
     this.setContext(this.filteredLanguageMetadata.contexts[0]);
+
+    // Push filteredLanguageMetadata to the service
+    this.terminologyService.setFilteredLanguageMetadata(this.filteredLanguageMetadata);
   }
 
   updateSelectedLabguageLabel() {

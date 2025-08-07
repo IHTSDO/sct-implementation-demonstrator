@@ -111,3 +111,18 @@
   .comment mat-icon {
     color: #2b96e8;
   }
+
+  .score-display {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 8px;
+  }
+
+  .score-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }

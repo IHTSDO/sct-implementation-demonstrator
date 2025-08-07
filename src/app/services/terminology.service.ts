@@ -51,6 +51,11 @@ export class TerminologyService {
   private readonly CACHE_DURATION = 20 * 60 * 60 * 1000; // 20 hours in milliseconds
   private readonly CACHE_KEY = 'valueSetCache';
 
+  public editionsDetails$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  public languages$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv']);
+  public filteredLanguageMetadata$: BehaviorSubject<any> = new BehaviorSubject<any>({ contexts: [] });
+  public contexts$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+
 
   // For external components to subscribe to
   snowstormFhirBase$ = this.snowstormFhirBaseSubject.asObservable();
@@ -182,7 +187,7 @@ export class TerminologyService {
   expandValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
     let requestUrl = this.getValueSetExpansionUrl(ecl, terms, offset, count);
     const headers = new HttpHeaders({
-      'Accept-Language': this.lang
+      'Accept-Language': this.getComputedLanguageContext()
     });
     return this.http.get<any>(requestUrl, { headers })
       .pipe(
@@ -282,7 +287,7 @@ export class TerminologyService {
         return of(cachedResponse.data);
       }
       const headers = new HttpHeaders({
-        'Accept-Language': this.lang
+        'Accept-Language': this.getComputedLanguageContext()
       });
       return this.http.get<any>(requestUrl, { headers }).pipe(
         tap((response: any) => {
@@ -346,7 +351,7 @@ export class TerminologyService {
     let langParam = this.getComputedLanguageContext();
     let requestUrl = `${fhirBase}/ValueSet/$expand?url=${fhirUrl}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
     const headers = new HttpHeaders({
-      'Accept-Language': this.lang
+      'Accept-Language': this.getComputedLanguageContext()
     });
     return this.http.get<any>(requestUrl, { headers })
       .pipe(
@@ -593,5 +598,18 @@ export class TerminologyService {
     return this.http.post<any>(url, valueSet, { headers }).pipe(
       catchError(this.handleError<any>('postValueSetToFhirServer', {}))
     );
+  }
+
+  setEditionsDetails(editionsDetails: any[]) {
+    this.editionsDetails$.next(editionsDetails);
+  }
+
+  setLanguages(languages: string[]) {
+    this.languages$.next(languages);
+  }
+
+  setFilteredLanguageMetadata(metadata: any) {
+    this.filteredLanguageMetadata$.next(metadata);
+    this.contexts$.next(metadata?.contexts || []);
   }
 }
