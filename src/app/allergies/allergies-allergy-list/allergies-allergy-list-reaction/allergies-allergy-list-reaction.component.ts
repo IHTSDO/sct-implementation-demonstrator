@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { environment } from '../../../../environments/environment';
+
 @Component({
     selector: 'app-allergies-allergy-list-reaction',
     templateUrl: './allergies-allergy-list-reaction.component.html',
@@ -21,14 +23,17 @@ export class AllergiesAllergyListReactionComponent implements ControlValueAccess
   // add emitter for new problem
   @Output() newManifestation = new EventEmitter<any>();
 
+  //config
+  showExposureRoute = environment.allergyList.enableExposureRoute;
+
   severityOptions = [
     { code: 'mild', display: 'Mild', sctCode: '255604002', sctDisplay: 'Mild (qualifier value)' },
     { code: 'moderate', display: 'Moderate', sctCode: '6736007', sctDisplay: 'Moderate (qualifier value)' },
     { code: 'severe', display: 'Severe', sctCode: '24484000', sctDisplay: 'Severe (qualifier value)' }
   ];
   selectedSeverity: any = {};
-  reactionManifestationBinding = { ecl: '<<404684003 |Clinical finding|', title: 'Reaction Manifestation' };
-  routeBinding = { ecl: '<<284009009 |Route of administration value|', title: 'Exposure Route' };
+  reactionManifestationBinding = environment.allergyList.reactionManifestationBinding;
+  routeBinding = environment.allergyList.routeBinding;
 
   reaction: any = {};
 

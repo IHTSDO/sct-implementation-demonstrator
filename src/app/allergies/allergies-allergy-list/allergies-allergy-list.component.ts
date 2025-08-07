@@ -7,6 +7,9 @@ import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
+
+import { environment } from '../../../environments/environment';
+
 @Component({
     selector: 'app-allergies-allergy-list',
     templateUrl: './allergies-allergy-list.component.html',
@@ -16,6 +19,11 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 export class AllergiesAllergyListComponent  implements OnInit {
 
   @Output() newProblem = new EventEmitter<any>();
+
+  //config
+  showNotes = environment.allergyList.enableNotes;
+  showPropensity = environment.allergyList.enablePropensity;  
+  showPatient = environment.allergyList.enablePatient;
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
@@ -62,13 +70,13 @@ export class AllergiesAllergyListComponent  implements OnInit {
   ];
   selectedSeverity: any = {};
 
-  codeBinding = { ecl: '<<418038007 |Propensity to adverse reactions to substance| OR <<420134006 |Propensity to adverse reaction (finding)|', title: 'Allergy/Intolerance by propensity' };
+  codeBinding = environment.allergyList.codeBinding;
   selectedCode: any = null;
   selectedCodeTerm = "";
   recordPropensity = false;
 
-  substanceBinding = { ecl: '<<105590001 | Substance (substance) | OR <<373873005 | Pharmaceutical / biologic product (product) |', title: 'Allergy/Intolerance substance or product' };
-  refinedSubstanceBinding = { ecl: '<<105590001 | Substance (substance) |', title: 'Allergy/Intolerance substance based on propensity' };
+  substanceBinding = environment.allergyList.substanceBinding;
+  refinedSubstanceBinding = environment.allergyList.refinedSubstanceBinding;
   selectedSubstanceTerm = "";
   selectedSubstance: any = null;
 
@@ -81,12 +89,16 @@ export class AllergiesAllergyListComponent  implements OnInit {
     }
   ];
 
-  reactionManifestationBinding = { ecl: '<<404684003 |Clinical finding|', title: 'Reaction Manifestation' };
   selectedReactionManifestation: any = null;
   selectedReactionManifestationTerm = "";
-  routeBinding = { ecl: '<<284009009 |Route of administration value|', title: 'Exposure Route' };
+  
   selectedRoute: any = null;
   selectedRouteTerm = "";
+
+  notes: any[] = [];
+  noteText: string = "";
+
+  patientReference: string = "";
 
   outputAllergyBase: any = {
     "resourceType" : "AllergyIntolerance",
@@ -117,7 +129,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
       "severity" : ""
     }],
     "patient" : {
-      "reference" : "Patient/example"
+      "reference" : ""
     },
     "recordedDate" : "2010-03-01",
     "participant" : [{
@@ -131,7 +143,11 @@ export class AllergiesAllergyListComponent  implements OnInit {
       "actor" : {
         "reference" : "Practitioner/example"
       }
-    }]
+    }],
+    "note": [{
+        "text": ""
+      }
+    ],
   }
   outputAllergy: any = JSON.parse(JSON.stringify(this.outputAllergyBase));
 
@@ -173,6 +189,9 @@ export class AllergiesAllergyListComponent  implements OnInit {
         route: {}
       }
     ];
+    this.notes = [];
+    this.noteText = "";
+    this.patientReference
     this.outputAllergy = JSON.parse(JSON.stringify(this.outputAllergyBase));
     this.updateAllergyStr();
     setTimeout(() => {
@@ -190,8 +209,8 @@ export class AllergiesAllergyListComponent  implements OnInit {
     this.outputAllergy.criticality = (this.selectedCriticality?.code) ? [this.selectedCriticality.code] : {};
     this.outputAllergy.reaction = [];
     this.selectedReactions.forEach((reaction: any) => {
-      if (reaction.manifestation.code) { reaction.manifestation.system = 'http://snomed.info/sct'; }
-      if (reaction.route.code) { reaction.route.system = 'http://snomed.info/sct'; }
+      if (reaction.manifestation && reaction.manifestation.code) { reaction.manifestation.system = 'http://snomed.info/sct'; }
+      if (reaction.route && reaction.route.code) { reaction.route.system = 'http://snomed.info/sct'; }
       const newReaction = {
         substance: [{
           coding: [this.selectedSubstance]
@@ -206,6 +225,15 @@ export class AllergiesAllergyListComponent  implements OnInit {
       };
       this.outputAllergy.reaction.push(newReaction);
     });
+
+    // Update notes array from noteText
+    this.notes = this.noteText && this.noteText.trim() !== ''
+      ? [{ text: this.noteText }]
+      : [];
+    this.outputAllergy.note = [...this.notes];
+
+    this.outputAllergy.patient.reference = this.patientReference.trim() ? this.patientReference : '';
+
     setTimeout(() => {
         this.outputAllergyStr = JSON.stringify(this.outputAllergy, null, 2);
       }
