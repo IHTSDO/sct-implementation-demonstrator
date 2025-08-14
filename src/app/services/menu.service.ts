@@ -131,6 +131,13 @@ export class MenuService {
       type: "internal",
       url: "/d3-sunburst-chart",
       description: "A D3.js implementation of a zoomable sunburst chart for visualizing hierarchical SNOMED CT data with interactive drill-down capabilities."
+    },
+    {
+      name: "Plotly Treemap Chart",
+      subtitle: "Visualization demo",
+      type: "internal",
+      url: "/plotly-treemap-chart",
+      description: "A Plotly implementation of a treemap visualization with nested boxes for hierarchical data exploration."
     }
 
   ];

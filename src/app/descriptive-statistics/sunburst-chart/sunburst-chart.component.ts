@@ -27,6 +27,17 @@ export class SunburstChartComponent implements OnInit {
   public currentRootId: string = '';
   public maxLevels = 4;
   public isLoading = false;
+  public searchTerm: string = '';
+  public searchResults: ChartItem[] = [];
+  private colorMap = new Map<string, string>();
+  private colorPalette = [
+    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+    '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+    '#bcbd22', '#17becf', '#a6cee3', '#fb9a99',
+    '#fdbf6f', '#cab2d6', '#ffff99', '#b15928',
+    '#8dd3c7', '#ffffb3', '#bebada', '#fb8072',
+    '#80b1d3', '#fdb462', '#b3de69', '#fccde5'
+  ];
 
   constructor(private http: HttpClient) {}
 
@@ -320,6 +331,42 @@ export class SunburstChartComponent implements OnInit {
     this.chartData = mergedItems;
   }
 
+  private getColorForItem(itemId: string): string {
+    if (!this.colorMap.has(itemId)) {
+      const colorIndex = this.colorMap.size % this.colorPalette.length;
+      this.colorMap.set(itemId, this.colorPalette[colorIndex]);
+    }
+    return this.colorMap.get(itemId)!;
+  }
+
+  private wrapText(text: string, maxCharsPerLine: number = 15): string {
+    if (text.length <= maxCharsPerLine) {
+      return text;
+    }
+    
+    // Split by spaces to avoid breaking words
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+    
+    for (const word of words) {
+      if ((currentLine + word).length <= maxCharsPerLine) {
+        currentLine += (currentLine ? ' ' : '') + word;
+      } else {
+        if (currentLine) {
+          lines.push(currentLine);
+        }
+        currentLine = word;
+      }
+    }
+    
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    
+    return lines.join('<br>');
+  }
+
   private createSunburstChart() {
     // Extract arrays for Plotly
     const ids = this.chartData.map(row => row.id);
@@ -327,21 +374,26 @@ export class SunburstChartComponent implements OnInit {
     const parents = this.chartData.map(row => row.parent);
     const values = this.chartData.map(row => row.value);
 
+    // Generate consistent colors for each item
+    const colors = this.chartData.map(item => this.getColorForItem(item.id));
+
     const plotData: any = [{
       type: 'sunburst',
       ids: ids,
-      labels: labels,
+      labels: this.chartData.map(item => this.wrapText(`${item.label} - ${item.labelCount || item.value}`)),
       parents: parents,
       values: values,
       branchvalues: 'total',
-      textinfo: 'label+text',
-      text: this.chartData.map(item => `${item.labelCount || item.value}`),
-      textfont: { size: 14 },
+      textinfo: 'label',
+      textfont: { 
+        size: 14,
+        color: '#333'
+      },
+      textangle: 0,
+      insidetextorientation: 'radial',
+      hovertemplate: '%{label}<extra></extra>', // Custom hover template to show only the label
       marker: {
-        colors: [
-          '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-          '#9467bd', '#8c564b', '#e377c2', '#7f7f7f'
-        ]
+        colors: colors
       }
     }];
 
@@ -362,7 +414,9 @@ export class SunburstChartComponent implements OnInit {
       },
       margin: { l: 0, r: 0, b: 0, t: 50 },
       autosize: true,
-      height: 600
+      height: 600,
+      sunburstcolorway: colors,
+      extendsunburstcolors: true
     };
 
     const config = {
@@ -447,7 +501,7 @@ export class SunburstChartComponent implements OnInit {
             this.getData(selectedItem.originalParent);
             return;
           } else {
-            this.getData(); // Go to absolute root
+            // Center segment has no parent, so no navigation effect
             return;
           }
         }
@@ -462,6 +516,68 @@ export class SunburstChartComponent implements OnInit {
         }
       }
     }
+  }
+
+  public onSearchInput() {
+    if (!this.searchTerm || this.searchTerm.trim().length < 2) {
+      this.searchResults = [];
+      return;
+    }
+
+    const keywords = this.searchTerm.toLowerCase().trim().split(/\s+/).filter(k => k.length > 0);
+    if (keywords.length === 0) {
+      this.searchResults = [];
+      return;
+    }
+
+    this.searchResults = this.allData
+      .filter(item => this.matchesMultiPrefix(item, keywords))
+      .sort((a, b) => a.label.length - b.label.length) // Sort by label length, shortest first
+      .filter((item, index, array) => 
+        array.findIndex(firstItem => firstItem.label === item.label) === index
+      ) // Remove duplicates, keep first occurrence
+      .slice(0, 20); // Limit to 20 results for performance
+  }
+
+  private matchesMultiPrefix(item: ChartItem, keywords: string[]): boolean {
+    const itemText = `${item.label} ${item.id}`.toLowerCase();
+    const words = itemText.split(/\s+/);
+    
+    // Check if all keywords match the beginning of any word
+    return keywords.every(keyword => 
+      words.some(word => word.startsWith(keyword))
+    );
+  }
+
+  public selectSearchResult(result: ChartItem) {
+    this.selectedItem = result;
+    
+    // Navigate to this node in the chart
+    if (result.id !== this.currentRootId) {
+      this.getData(result.id);
+    }
+    
+    // Clear search after selection
+    this.searchTerm = '';
+    this.searchResults = [];
+  }
+
+  public getNodePath(item: ChartItem): string {
+    const path: string[] = [];
+    let currentItem = item;
+    
+    // Build path from current item up to root
+    while (currentItem && currentItem.parent && currentItem.parent.trim() !== '') {
+      const parent = this.allData.find(p => p.id === currentItem.parent);
+      if (parent) {
+        path.unshift(parent.label);
+        currentItem = parent;
+      } else {
+        break;
+      }
+    }
+    
+    return path.length > 0 ? path.join(' > ') : 'Root';
   }
 
 

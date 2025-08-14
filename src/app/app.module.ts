@@ -99,6 +99,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { ValuesetTranslatorComponent } from './valueset-translator/valueset-translator.component';
 import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart/sunburst-chart.component';
 import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart/d3-sunburst-chart.component';
+import { PlotlyTreemapChartComponent } from './descriptive-statistics/plotly-treemap-chart/plotly-treemap-chart.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -159,7 +160,8 @@ const app = initializeApp(firebaseConfig);
         SnomedHubComponent,
         ValuesetTranslatorComponent,
         SunburstChartComponent,
-        D3SunburstChartComponent
+        D3SunburstChartComponent,
+        PlotlyTreemapChartComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,
