@@ -178,7 +178,12 @@ export class PlotlyTreemapChartComponent implements OnInit {
     this.chartData.forEach((item) => {
       ids.push(item.id);
       labels.push(item.label);
-      parents.push(item.parent || '');
+      
+      // If this is the current root item, make it a true root (no parent)
+      // Otherwise, use its original parent
+      const parent = (item.id === this.currentRootId) ? '' : (item.parent || '');
+      parents.push(parent);
+      
       values.push(item.value);
       
       // Use consistent color based on item ID
@@ -227,6 +232,9 @@ export class PlotlyTreemapChartComponent implements OnInit {
     if (clickedId) {
       const clickedItem = this.allData.find(item => item.id === clickedId);
       if (clickedItem) {
+        // Always update the selected item when clicking
+        this.selectedItem = clickedItem;
+        
         // Check if this is the current root (parent box)
         if (clickedId === this.currentRootId) {
           // Clicking on the current root navigates back to its parent
@@ -236,8 +244,6 @@ export class PlotlyTreemapChartComponent implements OnInit {
           const children = this.allData.filter(item => item.parent === clickedId);
           if (children.length > 0) {
             this.drillDown(clickedId);
-          } else {
-            this.selectedItem = clickedItem;
           }
         }
       }
@@ -369,5 +375,7 @@ export class PlotlyTreemapChartComponent implements OnInit {
     // Use black text on light backgrounds, white text on dark backgrounds
     return luminance > 0.5 ? '#000000' : '#ffffff';
   }
+
+
 
 } 
