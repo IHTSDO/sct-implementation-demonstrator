@@ -22,13 +22,19 @@
   <!-- Row 2: Chart and Search -->
   <div class="chart-row">
     <div class="chart-container-wrapper">
-      <h3>Counts of clinical events in the dataset</h3>
-      <div #chartContainer id="chartContainer" [class.loading]="isLoading"></div>
-      <div class="chart-overlay" *ngIf="isLoading">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p>Updating chart...</p>
+      <div class="chart-header">
+        <h3>Counts of clinical events in the dataset</h3>
       </div>
-      <h4 *ngIf="!isLoading">52,457 patients selected</h4>
+      <div class="chart-content">
+        <div #chartContainer id="chartContainer" [class.loading]="isLoading"></div>
+        <div class="chart-overlay" *ngIf="isLoading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Updating chart...</p>
+        </div>
+      </div>
+      <div class="chart-footer" *ngIf="!isLoading">
+        <h4>52,457 patients selected</h4>
+      </div>
     </div>
     
     <div class="search-container">
@@ -38,7 +44,7 @@
           <input type="text" 
                  [(ngModel)]="searchTerm" 
                  (input)="onSearchInput()"
-                 placeholder="Search with multiple prefixes (e.g., 'cardio heart')"
+                 placeholder="Search (e.g., 'resp fin')"
                  class="search-input">
           <mat-icon class="search-icon">search</mat-icon>
         </div>
@@ -53,7 +59,9 @@
                [class.selected]="selectedItem?.id === result.id">
             <div class="result-label">{{ result.label }}</div>
             <div class="result-details">
-              <span class="result-count">{{ result.labelCount || result.value }}</span>
+              <span class="result-count" 
+                    [style.background-color]="getColorForItem(result.id)"
+                    [style.color]="getTextColorForItem(result.id)">{{ result.labelCount || result.value }}</span>
               <span class="result-path">{{ getNodePath(result) }}</span>
             </div>
           </div>

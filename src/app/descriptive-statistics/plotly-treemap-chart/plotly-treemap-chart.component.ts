@@ -173,6 +173,7 @@ export class PlotlyTreemapChartComponent implements OnInit {
     const values: number[] = [];
     const colors: string[] = [];
     const hoverTexts: string[] = [];
+    const textColors: string[] = [];
 
     this.chartData.forEach((item) => {
       ids.push(item.id);
@@ -182,7 +183,11 @@ export class PlotlyTreemapChartComponent implements OnInit {
       
       // Use consistent color based on item ID
       const colorIndex = this.getColorIndexForItem(item.id);
-      colors.push(this.colorPalette[colorIndex]);
+      const backgroundColor = this.colorPalette[colorIndex];
+      colors.push(backgroundColor);
+      
+      // Calculate text color based on background brightness
+      textColors.push(this.getContrastTextColor(backgroundColor));
       
       // Add special hover text for current root
       if (item.id === this.currentRootId) {
@@ -210,7 +215,7 @@ export class PlotlyTreemapChartComponent implements OnInit {
       },
       textfont: {
         size: 12,
-        color: 'white'
+        color: textColors
       }
     }];
   }
@@ -339,6 +344,30 @@ export class PlotlyTreemapChartComponent implements OnInit {
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash) % this.colorPalette.length;
+  }
+
+  public getColorForItem(itemId: string): string {
+    const colorIndex = this.getColorIndexForItem(itemId);
+    return this.colorPalette[colorIndex];
+  }
+
+  public getTextColorForItem(itemId: string): string {
+    const backgroundColor = this.getColorForItem(itemId);
+    return this.getContrastTextColor(backgroundColor);
+  }
+
+  private getContrastTextColor(backgroundColor: string): string {
+    // Convert hex to RGB
+    const hex = backgroundColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    
+    // Calculate relative luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Use black text on light backgrounds, white text on dark backgrounds
+    return luminance > 0.5 ? '#000000' : '#ffffff';
   }
 
 } 
