@@ -25,7 +25,7 @@ export class SunburstChartComponent implements OnInit {
   private chartData: ChartItem[] = [];
   private allData: ChartItem[] = [];
   public currentRootId: string = '';
-  public maxLevels = 4;
+  public maxLevels = 3;
   public isLoading = false;
   public searchTerm: string = '';
   public searchResults: ChartItem[] = [];
@@ -71,6 +71,11 @@ export class SunburstChartComponent implements OnInit {
           value: parseInt(row.value, 10),
           labelCount: row['label-count'] ? parseInt(row['label-count'], 10) : undefined
         }));
+        
+        // Log the number of concepts without a parent
+        const rootConcepts = this.allData.filter(item => !item.parent || item.parent.trim() === '');
+        console.log(`Number of concepts without a parent: ${rootConcepts.length}`);
+        console.log('Root concepts:', rootConcepts.map(item => ({ id: item.id, label: item.label })));
         
         this.getData();
       },

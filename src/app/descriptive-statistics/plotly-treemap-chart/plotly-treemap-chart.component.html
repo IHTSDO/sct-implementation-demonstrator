@@ -19,15 +19,16 @@
       </div>
     </div>
   </div>
-
   <!-- Row 2: Chart and Search -->
   <div class="chart-row">
     <div class="chart-container-wrapper">
+      <h3>Counts of clinical events in the dataset</h3>
       <div #chartContainer id="chartContainer" [class.loading]="isLoading"></div>
       <div class="chart-overlay" *ngIf="isLoading">
         <mat-spinner diameter="40"></mat-spinner>
         <p>Updating chart...</p>
       </div>
+      <h4 *ngIf="!isLoading">52,457 patients selected</h4>
     </div>
     
     <div class="search-container">
