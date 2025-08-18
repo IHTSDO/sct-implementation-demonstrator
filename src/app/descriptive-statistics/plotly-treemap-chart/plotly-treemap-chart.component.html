@@ -2,7 +2,7 @@
   <!-- Row 1: Header and Controls -->
   <div class="header-row">
     <div class="header-content">
-      <h3>Plotly Treemap Chart ({{ maxLevels }} Levels)</h3>
+      <h3>Descriptive Population Analysis</h3>
       <div class="chart-controls">
         <button mat-button color="primary" (click)="goToRoot()" *ngIf="currentRootId !== ''" [disabled]="isLoading">
           <mat-icon>home</mat-icon>
@@ -33,7 +33,8 @@
         </div>
       </div>
       <div class="chart-footer" *ngIf="!isLoading">
-        <h4>52,457 patients selected</h4>
+        <h4 *ngIf="!showPatients">{{ getTotalPatientsCount() }} patients in dataset</h4>
+        <h4 *ngIf="showPatients">{{ patients.length }} patients with {{ getSelectedConceptLabel() }} events</h4>
       </div>
     </div>
     
@@ -79,7 +80,7 @@
     </div>
   </div>
 
-  <!-- Row 3: Details -->
+  <!-- Row 3: Details and Patients -->
   <div class="details-row">
     <div class="details-content-wrapper">
       <div class="details-section">
@@ -93,6 +94,47 @@
         </div>
         <div class="no-selection" *ngIf="!selectedItem">
           <p>Click on any segment to see details</p>
+        </div>
+      </div>
+      
+      <div class="patients-section" *ngIf="showPatients">
+        <h3>Related Patients ({{ patients.length }})</h3>
+        <div class="patients-header">
+          <button mat-button color="warn" (click)="closePatients()">
+            <mat-icon>close</mat-icon>
+            Close
+          </button>
+        </div>
+        
+        <div class="patients-loading" *ngIf="isLoadingPatients">
+          <mat-spinner diameter="30"></mat-spinner>
+          <p>Loading patients...</p>
+        </div>
+        
+        <div class="patients-content" *ngIf="!isLoadingPatients && patients.length > 0">
+          <div class="patient-card" *ngFor="let patient of patients">
+            <div class="patient-header">
+              <div class="patient-info">
+                <h4>Patient {{ patient.id }}</h4>
+                <span class="event-count" 
+                      [matTooltip]="getPatientEventsTooltip(patient)"
+                      [matTooltipPosition]="'right'"
+                      [matTooltipClass]="'multi-line-tooltip'">
+                  {{ getPatientEventCount(patient) }} events
+                </span>
+              </div>
+              <div class="patient-basic-info">
+                <span class="gender-badge" [class.male]="patient.gender === 'MALE'" [class.female]="patient.gender === 'FEMALE'">
+                  {{ patient.gender }}
+                </span>
+                <span class="age-badge">{{ getPatientAge(patient.dobYear) }} years</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="no-patients" *ngIf="!isLoadingPatients && patients.length === 0">
+          <p>No patients found for this concept</p>
         </div>
       </div>
       

@@ -12,6 +12,35 @@ interface ChartItem {
   originalParent?: string;
 }
 
+interface PatientEvent {
+  conceptId: number;
+  conceptTerm: string;
+  date: string;
+  dateLong: number;
+}
+
+interface Patient {
+  id: string;
+  gender: string;
+  dobYear: number;
+  dataset: string;
+  events: PatientEvent[];
+}
+
+interface PatientResponse {
+  content: Patient[];
+  pageable: any;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  size: number;
+  number: number;
+  sort: any;
+  first: boolean;
+  numberOfElements: number;
+  empty: boolean;
+}
+
 @Component({
   selector: 'app-plotly-treemap-chart',
   templateUrl: './plotly-treemap-chart.component.html',
@@ -29,6 +58,9 @@ export class PlotlyTreemapChartComponent implements OnInit {
   public isLoading = false;
   public searchTerm: string = '';
   public searchResults: ChartItem[] = [];
+  public patients: Patient[] = [];
+  public isLoadingPatients = false;
+  public showPatients = false;
   private colorMap = new Map<string, string>();
   private colorPalette = [
     '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
@@ -235,6 +267,9 @@ export class PlotlyTreemapChartComponent implements OnInit {
         // Always update the selected item when clicking
         this.selectedItem = clickedItem;
         
+        // Get patients for this concept
+        this.getPatients(clickedId);
+        
         // Check if this is the current root (parent box)
         if (clickedId === this.currentRootId) {
           // Clicking on the current root navigates back to its parent
@@ -374,6 +409,111 @@ export class PlotlyTreemapChartComponent implements OnInit {
     
     // Use black text on light backgrounds, white text on dark backgrounds
     return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  public getPatients(conceptId: string): void {
+    this.isLoadingPatients = true;
+    this.showPatients = false;
+    this.patients = [];
+
+    // Extract the base conceptId by removing any suffix (e.g., "373873005_1" -> "373873005")
+    const baseConceptId = conceptId.split('_')[0];
+
+    // Get all descendant conceptIds (including the base conceptId itself)
+    const descendantConceptIds = this.getAllDescendantConceptIds(baseConceptId);
+
+    this.http.get<PatientResponse>('assets/data/mock_patients_5000.json')
+      .subscribe({
+        next: (response: PatientResponse) => {
+          // Filter patients that have events with any of the descendant conceptIds
+          this.patients = response.content.filter(patient => {
+            const hasMatchingEvent = patient.events.some(event => {
+              const eventConceptId = event.conceptId.toString();
+              return descendantConceptIds.includes(eventConceptId);
+            });
+            return hasMatchingEvent;
+          });
+          
+          this.isLoadingPatients = false;
+          this.showPatients = true;
+        },
+        error: (error: any) => {
+          console.error('Error loading patients:', error);
+          this.isLoadingPatients = false;
+        }
+      });
+  }
+
+  private getAllDescendantConceptIds(conceptId: string): string[] {
+    const descendants = new Set<string>();
+    descendants.add(conceptId);
+    
+    // Recursive function to find all descendants
+    const findDescendants = (parentId: string) => {
+      // Find all items in allData that have this parentId
+      const children = this.allData.filter(item => {
+        const itemBaseId = item.id.split('_')[0];
+        const parentBaseId = parentId.split('_')[0];
+        return itemBaseId !== parentBaseId && item.parent && item.parent.split('_')[0] === parentBaseId;
+      });
+      
+      // Add each child and recursively find their descendants
+      children.forEach(child => {
+        const childBaseId = child.id.split('_')[0];
+        if (!descendants.has(childBaseId)) {
+          descendants.add(childBaseId);
+          findDescendants(childBaseId);
+        }
+      });
+    };
+    
+    findDescendants(conceptId);
+    
+    return Array.from(descendants);
+  }
+
+  public closePatients(): void {
+    this.showPatients = false;
+    this.patients = [];
+  }
+
+  public getPatientAge(dobYear: number): number {
+    const currentYear = new Date().getFullYear();
+    return currentYear - dobYear;
+  }
+
+  public getPatientEventCount(patient: Patient): number {
+    return patient.events.length;
+  }
+
+  public getPatientEventsForConcept(patient: Patient, conceptId: string): PatientEvent[] {
+    // Extract the base conceptId by removing any suffix
+    const baseConceptId = conceptId.split('_')[0];
+    return patient.events.filter(event => event.conceptId.toString() === baseConceptId);
+  }
+
+  public getPatientEventsTooltip(patient: Patient): string {
+    if (patient.events.length === 0) {
+      return 'No events';
+    }
+    
+    const eventList = patient.events.map(event => 
+      `${event.date}: ${event.conceptTerm}`
+    ).join('\n');
+    
+    return eventList;
+  }
+
+  public getTotalPatientsCount(): string {
+    // Return a formatted count - you might want to load this from the actual dataset
+    return '5,000';
+  }
+
+  public getSelectedConceptLabel(): string {
+    if (this.selectedItem) {
+      return this.selectedItem.label;
+    }
+    return 'selected concept';
   }
 
 
