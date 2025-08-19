@@ -23,7 +23,7 @@
   <div class="chart-row">
     <div class="chart-container-wrapper">
       <div class="chart-header">
-        <h3>Counts of clinical events in the dataset</h3>
+        <h3>Patient counts by clinical event</h3>
       </div>
       <div class="chart-content">
         <div #chartContainer id="chartContainer" [class.loading]="isLoading"></div>
@@ -39,7 +39,7 @@
     </div>
     
     <div class="search-container">
-      <h3>Search Nodes</h3>
+      <h3>Search Clinical Events</h3>
       <div class="search-box">
         <div class="custom-search-input">
           <input type="text" 
@@ -74,36 +74,30 @@
       </div>
       
       <div class="search-info" *ngIf="!searchTerm">
-        <p>Start typing to search through all nodes in the dataset</p>
+        <p>Start typing to search through all the SNOMED CT concepts that identify the clinical events in the dataset</p>
         <p>Use multiple prefixes separated by spaces (e.g., "resp fin" will find items containing words starting with both "resp" and "fin")</p>
       </div>
     </div>
   </div>
 
-  <!-- Row 3: Details and Patients -->
+  <!-- Row 3: Patients -->
   <div class="details-row">
     <div class="details-content-wrapper">
-      <div class="details-section">
-        <h3>Selected Item Details</h3>
-        <div class="details-content" *ngIf="selectedItem">
-          <p><strong>ID:</strong> {{ selectedItem.id }}</p>
-          <p><strong>Label:</strong> {{ selectedItem.label }}</p>
-          <p><strong>Value:</strong> {{ selectedItem.value }}</p>
-          <p *ngIf="selectedItem.labelCount !== undefined"><strong>Label Count:</strong> {{ selectedItem.labelCount }}</p>
-          <p><strong>Parent:</strong> {{ selectedItem.parent || 'Root' }}</p>
-        </div>
-        <div class="no-selection" *ngIf="!selectedItem">
-          <p>Click on any segment to see details</p>
-        </div>
-      </div>
-      
-      <div class="patients-section" *ngIf="showPatients">
-        <h3>Related Patients ({{ patients.length }})</h3>
+      <div class="patients-section">
+        <h3>Selected clinical event: {{ selectedItem?.label || 'None' }}</h3>
         <div class="patients-header">
-          <button mat-button color="warn" (click)="closePatients()">
-            <mat-icon>close</mat-icon>
-            Close
-          </button>
+          <div class="patients-controls">
+            <button mat-flat-button color="primary" 
+                    (click)="loadPatientsForSelectedItem()" 
+                    [disabled]="!selectedItem || isLoadingPatients"
+                    *ngIf="!showPatients">
+              <mat-icon>people</mat-icon>
+              Load {{ selectedItem?.value?.toLocaleString() || 0 }} patients
+            </button>
+          </div>
+          <div class="patients-info" *ngIf="showPatients">
+            <span class="patients-count">{{ patients.length }} patients with {{ getSelectedConceptLabel() }} events</span>
+          </div>
         </div>
         
         <div class="patients-loading" *ngIf="isLoadingPatients">
@@ -133,8 +127,12 @@
           </div>
         </div>
         
-        <div class="no-patients" *ngIf="!isLoadingPatients && patients.length === 0">
+        <div class="no-patients" *ngIf="!isLoadingPatients && showPatients && patients.length === 0">
           <p>No patients found for this concept</p>
+        </div>
+        
+        <div class="patients-placeholder" *ngIf="!showPatients && !isLoadingPatients">
+          <p>Select a clinical event and click "Load Patients" to see detailed patient information</p>
         </div>
       </div>
       
@@ -146,7 +144,7 @@
           <p>• Click on the current root box to navigate back to its parent</p>
           <p>• Use "Back to Root" to return to the top level</p>
           <p>• Hover over boxes to see detailed information</p>
-          <p>• Box size represents the relative value of each item</p>
+          <p>• Box size represents the relative number of patients of each item</p>
         </div>
       </div>
     </div>

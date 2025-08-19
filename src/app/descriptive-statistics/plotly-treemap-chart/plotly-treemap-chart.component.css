@@ -283,8 +283,13 @@
   flex-wrap: wrap;
 }
 
-.details-section, .navigation-section, .patients-section {
+.patients-section {
   flex: 1;
+  min-width: 300px;
+}
+
+.navigation-section {
+  flex: 0 0 300px;
   min-width: 300px;
 }
 
@@ -401,8 +406,45 @@
   align-items: center;
 }
 
+
+
 .patients-header {
-  margin-bottom: 15px;
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patients-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.patients-info {
+  display: flex;
+  align-items: center;
+}
+
+.patients-count {
+  font-size: 14px;
+  color: #495057;
+  font-weight: 500;
+}
+
+.patients-placeholder {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.patients-placeholder p {
+  margin: 0;
+  font-size: 14px;
 }
 
 .patients-loading {

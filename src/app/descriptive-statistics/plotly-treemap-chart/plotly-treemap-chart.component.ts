@@ -8,6 +8,7 @@ interface ChartItem {
   label: string;
   parent: string;
   value: number;
+  patientCount?: number;
   labelCount?: number;
   originalParent?: string;
 }
@@ -79,6 +80,49 @@ export class PlotlyTreemapChartComponent implements OnInit {
     this.loadChartData();
   }
 
+  private loadPatientCounts(): void {
+    this.http.get<PatientResponse>('assets/data/mock_patients_5000.json')
+      .subscribe({
+        next: (response: PatientResponse) => {
+          this.calculatePatientCounts(response.content);
+          this.getData();
+        },
+        error: (error: any) => {
+          console.error('Error loading patient data for counts:', error);
+          // Continue without patient counts if loading fails
+          this.getData();
+        }
+      });
+  }
+
+  private calculatePatientCounts(patients: Patient[]): void {
+    // Create a map to store patient counts for each concept
+    const conceptPatientCounts = new Map<string, Set<string>>();
+    
+    // Process each patient's events
+    patients.forEach(patient => {
+      patient.events.forEach(event => {
+        const conceptId = event.conceptId.toString();
+        if (!conceptPatientCounts.has(conceptId)) {
+          conceptPatientCounts.set(conceptId, new Set());
+        }
+        conceptPatientCounts.get(conceptId)!.add(patient.id);
+      });
+    });
+    
+    // Update the chart data with patient counts
+    this.allData.forEach(item => {
+      const baseConceptId = item.id.split('_')[0];
+      const patientSet = conceptPatientCounts.get(baseConceptId);
+      item.patientCount = patientSet ? patientSet.size : 0;
+      
+      // Use patient count as the value for the treemap if available
+      if (item.patientCount > 0) {
+        item.value = item.patientCount;
+      }
+    });
+  }
+
   private loadChartData() {
     this.http.get('assets/data/test5.csv', { responseType: 'text' })
       .subscribe({
@@ -101,7 +145,8 @@ export class PlotlyTreemapChartComponent implements OnInit {
           id: row.id,
           label: row.label,
           parent: row.parent || '',
-          value: parseInt(row.value, 10),
+          value: parseInt(row.patientCount || row.value, 10), // Use patientCount if available, fallback to value
+          patientCount: row.patientCount ? parseInt(row.patientCount, 10) : undefined,
           labelCount: row['label-count'] ? parseInt(row['label-count'], 10) : undefined
         }));
         
@@ -125,15 +170,20 @@ export class PlotlyTreemapChartComponent implements OnInit {
           const firstRoot = rootItems[0];
           this.chartData = this.getItemsUpToLevel([firstRoot], 1);
           this.currentRootId = firstRoot.id;
+          // Auto-select the root item
+          this.selectedItem = firstRoot;
         } else {
           this.chartData = [];
           this.currentRootId = '';
+          this.selectedItem = null;
         }
       } else {
         const rootItem = this.allData.find(item => item.id === rootId);
         if (rootItem) {
           this.chartData = this.getItemsUpToLevel([rootItem], 1);
           this.currentRootId = rootId;
+          // Auto-select the current root item
+          this.selectedItem = rootItem;
         }
       }
       
@@ -164,12 +214,12 @@ export class PlotlyTreemapChartComponent implements OnInit {
 
   private loadDefaultData() {
     this.allData = [
-      { id: 'root', label: 'Root', parent: '', value: 100 },
-      { id: 'child1', label: 'Child 1', parent: 'root', value: 60 },
-      { id: 'child2', label: 'Child 2', parent: 'root', value: 40 },
-      { id: 'grandchild1', label: 'Grandchild 1', parent: 'child1', value: 30 },
-      { id: 'grandchild2', label: 'Grandchild 2', parent: 'child1', value: 30 },
-      { id: 'grandchild3', label: 'Grandchild 3', parent: 'child2', value: 40 }
+      { id: 'root', label: 'Root', parent: '', value: 100, patientCount: 100 },
+      { id: 'child1', label: 'Child 1', parent: 'root', value: 60, patientCount: 60 },
+      { id: 'child2', label: 'Child 2', parent: 'root', value: 40, patientCount: 40 },
+      { id: 'grandchild1', label: 'Grandchild 1', parent: 'child1', value: 30, patientCount: 30 },
+      { id: 'grandchild2', label: 'Grandchild 2', parent: 'child1', value: 30, patientCount: 30 },
+      { id: 'grandchild3', label: 'Grandchild 3', parent: 'child2', value: 40, patientCount: 40 }
     ];
     this.getData();
   }
@@ -267,8 +317,8 @@ export class PlotlyTreemapChartComponent implements OnInit {
         // Always update the selected item when clicking
         this.selectedItem = clickedItem;
         
-        // Get patients for this concept
-        this.getPatients(clickedId);
+        // Clear any previously loaded patients when selecting a new item
+        this.closePatients();
         
         // Check if this is the current root (parent box)
         if (clickedId === this.currentRootId) {
@@ -344,6 +394,9 @@ export class PlotlyTreemapChartComponent implements OnInit {
   public selectSearchResult(result: ChartItem) {
     this.selectedItem = result;
     
+    // Clear any previously loaded patients when selecting a new item
+    this.closePatients();
+    
     // Navigate to this node in the chart
     if (result.id !== this.currentRootId) {
       this.getData(result.id);
@@ -409,6 +462,12 @@ export class PlotlyTreemapChartComponent implements OnInit {
     
     // Use black text on light backgrounds, white text on dark backgrounds
     return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  public loadPatientsForSelectedItem(): void {
+    if (this.selectedItem) {
+      this.getPatients(this.selectedItem.id);
+    }
   }
 
   public getPatients(conceptId: string): void {
@@ -505,8 +564,20 @@ export class PlotlyTreemapChartComponent implements OnInit {
   }
 
   public getTotalPatientsCount(): string {
-    // Return a formatted count - you might want to load this from the actual dataset
-    return '5,000';
+    // If we're at the root level (no current root selected)
+    if (!this.currentRootId) {
+      const rootItems = this.allData.filter(item => !item.parent || item.parent.trim() === '');
+      const totalPatients = rootItems.reduce((sum, item) => sum + (item.value || 0), 0);
+      return totalPatients.toLocaleString();
+    }
+    
+    // Show the patient count of the current root node
+    const currentRootItem = this.allData.find(item => item.id === this.currentRootId);
+    if (currentRootItem) {
+      return currentRootItem.value.toLocaleString();
+    }
+    
+    return '0';
   }
 
   public getSelectedConceptLabel(): string {
