@@ -126,18 +126,11 @@ export class MenuService {
       description: "A collection of educational material and changes reports to understand how SNOMED changes on each realease and help plan implementations accordingly."
     },
     {
-      name: "D3 Sunburst Chart",
-      subtitle: "Visualization demo",
-      type: "internal",
-      url: "/d3-sunburst-chart",
-      description: "A D3.js implementation of a zoomable sunburst chart for visualizing hierarchical SNOMED CT data with interactive drill-down capabilities."
-    },
-    {
-      name: "Plotly Treemap Chart",
-      subtitle: "Visualization demo",
+      name: "Descriptive analytics demo",
+      subtitle: "Clinical demo",
       type: "internal",
       url: "/plotly-treemap-chart",
-      description: "A Plotly implementation of a treemap visualization with nested boxes for hierarchical data exploration."
+      description: "A demo of descriptive analytics for SNOMED CT, including a treemap visualization with nested boxes for hierarchical data exploration."
     }
 
   ];
