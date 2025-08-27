@@ -129,8 +129,15 @@ export class MenuService {
       name: "Descriptive analytics demo",
       subtitle: "Clinical demo",
       type: "internal",
-      url: "/plotly-treemap-chart",
+      url: "/descriptive-analytics",
       description: "A demo of descriptive analytics for SNOMED CT, including a treemap visualization with nested boxes for hierarchical data exploration."
+    },
+    {
+      name: "Benefits Demo - Electronic Health Record",
+      subtitle: "Clinical demo",
+      type: "internal",
+      url: "/benefits-demo",
+      description: "A step-by-step demonstration of building a simulated electronic health record with SNOMED CT integration."
     }
 
   ];

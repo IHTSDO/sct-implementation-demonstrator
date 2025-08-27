@@ -1,0 +1,159 @@
+.create-patient-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.form-header h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.form-header p {
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.patient-form {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+  margin-bottom: 40px;
+}
+
+.form-section h2 {
+  color: #2c3e50;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 2px solid #f8f9fa;
+}
+
+.form-actions button {
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .create-patient-container {
+    padding: 20px 15px;
+  }
+
+  .patient-form {
+    padding: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* Form field focus states */
+.mat-form-field.mat-focused .mat-form-field-outline {
+  color: var(--mat-mdc-button-persistent-ripple-color);
+}
+
+/* Error states */
+.mat-form-field.mat-form-field-invalid .mat-form-field-outline {
+  color: #f44336;
+}
+
+/* Fix for overlapping labels */
+.mat-form-field {
+  margin-bottom: 8px;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #ccc;
+}
+
+.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: var(--mat-mdc-button-persistent-ripple-color);
+}
+
+/* Ensure proper spacing for floating labels */
+.mat-form-field-appearance-outline .mat-form-field-label {
+  color: #666;
+}
+
+.mat-form-field-appearance-outline.mat-focused .mat-form-field-label {
+  color: var(--mat-mdc-button-persistent-ripple-color);
+}
+
+/* Fix for floating label overlap */
+.mat-form-field-appearance-outline .mat-form-field-infix {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-label {
+  top: 1.5em;
+}
+
+.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mat-form-field-label {
+  transform: translateY(-1.5em) scale(0.75);
+}
+
+/* Ensure proper spacing when label is floating */
+.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mat-form-field-infix {
+  padding-top: 20px;
+}
+
+/* Loading spinner */
+mat-spinner {
+  margin-right: 8px;
+}

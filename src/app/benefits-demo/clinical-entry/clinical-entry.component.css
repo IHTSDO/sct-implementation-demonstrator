@@ -1,0 +1,50 @@
+.clinical-entry-container {
+  margin-bottom: 15px;
+}
+
+.add-button {
+  margin-bottom: 10px;
+}
+
+.add-form {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.search-section {
+  flex: 1;
+}
+
+.action-section {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.action-section button {
+  min-width: 80px;
+}
+
+.action-section button:disabled {
+  opacity: 0.6;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .action-section {
+    flex-direction: column;
+  }
+  
+  .action-section button {
+    width: 100%;
+  }
+}

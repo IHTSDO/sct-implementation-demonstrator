@@ -31,6 +31,8 @@ import {MatSortModule} from '@angular/material/sort';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatChipsModule} from '@angular/material/chips';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
 
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -100,6 +102,10 @@ import { ValuesetTranslatorComponent } from './valueset-translator/valueset-tran
 import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart/sunburst-chart.component';
 import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart/d3-sunburst-chart.component';
 import { PlotlyTreemapChartComponent } from './descriptive-statistics/plotly-treemap-chart/plotly-treemap-chart.component';
+import { BenefitsDemoComponent } from './benefits-demo/benefits-demo.component';
+import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinical-record.component';
+import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
+import { ClinicalEntryComponent } from './benefits-demo/clinical-entry/clinical-entry.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -161,7 +167,11 @@ const app = initializeApp(firebaseConfig);
         ValuesetTranslatorComponent,
         SunburstChartComponent,
         D3SunburstChartComponent,
-        PlotlyTreemapChartComponent
+        PlotlyTreemapChartComponent,
+        BenefitsDemoComponent,
+        ClinicalRecordComponent,
+        CreatePatientComponent,
+        ClinicalEntryComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,
@@ -197,6 +207,8 @@ const app = initializeApp(firebaseConfig);
         MatSidenavModule,
         MatSliderModule,
         MatChipsModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
         NgxGaugeModule,
         NgxMatSelectSearchModule,
         MatRippleModule,

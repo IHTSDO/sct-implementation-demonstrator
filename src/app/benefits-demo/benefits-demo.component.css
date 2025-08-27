@@ -1,0 +1,334 @@
+.benefits-demo-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 30px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.header-text h1 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.header-text p {
+  color: #666;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-actions button span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.danger-menu-item {
+  color: #dc3545 !important;
+}
+
+.danger-menu-item mat-icon {
+  color: #dc3545 !important;
+}
+
+.ehr-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  min-height: 600px;
+}
+
+.patient-list-section,
+.patient-details-section {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.patient-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.patient-count {
+  background-color: #5f6368;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.patient-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.patient-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  border: 2px solid #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f8f9fa;
+}
+
+.patient-card:hover {
+  border-color: #ccc;
+  background-color: #f5f5f5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.patient-card.selected {
+  border-color: #ccc;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.patient-info {
+  flex: 1;
+}
+
+.patient-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.patient-details {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.patient-id {
+  font-weight: 500;
+  color: #7f8c8d;
+}
+
+.patient-age,
+.patient-gender {
+  color: #666;
+}
+
+.patient-contact {
+  font-size: 0.85rem;
+  color: #95a5a6;
+}
+
+.patient-contact span {
+  margin-right: 10px;
+}
+
+.patient-status {
+  margin-left: 15px;
+}
+
+.status-indicator {
+  font-size: 1.2rem;
+  color: #bdc3c7;
+}
+
+.status-indicator.active {
+  color: #27ae60;
+}
+
+.no-patients,
+.no-selection {
+  text-align: center;
+  color: #95a5a6;
+  font-style: italic;
+  padding: 40px 20px;
+}
+
+.selected-patient-details {
+  padding: 20px 0;
+}
+
+.patient-header {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.patient-header h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.patient-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 0.95rem;
+  color: #7f8c8d;
+}
+
+.patient-details-grid {
+  display: grid;
+  gap: 25px;
+}
+
+.detail-group {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #ccc;
+}
+
+.detail-group h4 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.contact-list,
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.contact-type {
+  font-weight: 500;
+  color: #7f8c8d;
+  min-width: 60px;
+}
+
+.contact-value {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.contact-use {
+  color: #95a5a6;
+  font-size: 0.9rem;
+}
+
+.address-item {
+  padding: 8px 0;
+  line-height: 1.4;
+  color: #2c3e50;
+}
+
+.demographics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demographic-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.demographic-item .label {
+  font-weight: 500;
+  color: #7f8c8d;
+}
+
+.demographic-item .value {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .header-text {
+    text-align: center;
+    width: 100%;
+  }
+
+  .header-text h1 {
+    font-size: 1.5rem;
+  }
+
+  .ehr-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .patient-details {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .patient-meta {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .demographic-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}

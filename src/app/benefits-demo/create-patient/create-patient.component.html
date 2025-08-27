@@ -1,0 +1,139 @@
+<div class="create-patient-container">
+  <div class="form-header">
+    <h1>Create New Patient</h1>
+    <p>Enter patient information to create a new patient record</p>
+  </div>
+
+  <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="patient-form">
+    <!-- Personal Information Section -->
+    <div class="form-section">
+      <h2>Personal Information</h2>
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>First Name</mat-label>
+          <input matInput formControlName="firstName" placeholder="Enter first name">
+          <mat-error *ngIf="patientForm.get('firstName')?.hasError('required')">
+            First name is required
+          </mat-error>
+          <mat-error *ngIf="patientForm.get('firstName')?.hasError('minlength')">
+            First name must be at least 2 characters
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Last Name</mat-label>
+          <input matInput formControlName="lastName" placeholder="Enter last name">
+          <mat-error *ngIf="patientForm.get('lastName')?.hasError('required')">
+            Last name is required
+          </mat-error>
+          <mat-error *ngIf="patientForm.get('lastName')?.hasError('minlength')">
+            Last name must be at least 2 characters
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Date of Birth</mat-label>
+          <input matInput formControlName="birthDate" placeholder="YYYY-MM-DD" type="date">
+          <mat-error *ngIf="patientForm.get('birthDate')?.hasError('required')">
+            Date of birth is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Gender</mat-label>
+          <mat-select formControlName="gender">
+            <mat-option value="male">Male</mat-option>
+            <mat-option value="female">Female</mat-option>
+            <mat-option value="other">Other</mat-option>
+            <mat-option value="unknown">Unknown</mat-option>
+          </mat-select>
+          <mat-error *ngIf="patientForm.get('gender')?.hasError('required')">
+            Gender is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Contact Information Section -->
+    <div class="form-section">
+      <h2>Contact Information</h2>
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Phone Number</mat-label>
+          <input matInput formControlName="phone" placeholder="+1 (555) 123-4567">
+          <mat-error *ngIf="patientForm.get('phone')?.hasError('pattern')">
+            Please enter a valid phone number
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Email Address</mat-label>
+          <input matInput formControlName="email" placeholder="patient@email.com" type="email">
+          <mat-error *ngIf="patientForm.get('email')?.hasError('email')">
+            Please enter a valid email address
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Address Information Section -->
+    <div class="form-section">
+      <h2>Address Information</h2>
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="form-field full-width">
+          <mat-label>Street Address</mat-label>
+          <input matInput formControlName="addressLine1" placeholder="123 Main Street">
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>City</mat-label>
+          <input matInput formControlName="city" placeholder="Springfield">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>State</mat-label>
+          <input matInput formControlName="state" placeholder="IL">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Postal Code</mat-label>
+          <input matInput formControlName="postalCode" placeholder="62701">
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Country</mat-label>
+          <input matInput formControlName="country" placeholder="US">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button 
+        mat-flat-button 
+        color="primary" 
+        type="button" 
+        (click)="cancel()"
+        [disabled]="isSubmitting"
+      >
+        Cancel
+      </button>
+      <button 
+        mat-flat-button 
+        color="accent" 
+        type="submit"
+        [disabled]="patientForm.invalid || isSubmitting"
+      >
+        <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
+        <span *ngIf="!isSubmitting">Create Patient</span>
+        <span *ngIf="isSubmitting">Creating...</span>
+      </button>
+    </div>
+  </form>
+</div>

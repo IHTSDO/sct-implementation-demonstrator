@@ -1,0 +1,28 @@
+<div class="clinical-entry-container">
+  <button mat-flat-button color="primary" (click)="toggleAddForm()" class="add-button">
+    <mat-icon>add</mat-icon>
+    {{ sectionTitle }}
+  </button>
+
+  <div class="add-form" *ngIf="showAddForm">
+    <div class="form-content">
+      <div class="search-section">
+        <app-autocomplete-binding 
+          [binding]="currentBinding" 
+          [term]="term" 
+          (selectionChange)="updateConcept($event)">
+        </app-autocomplete-binding>
+      </div>
+      
+      <div class="action-section">
+        <button mat-flat-button color="accent" (click)="addItem()" [disabled]="!selectedConcept || loading">
+          <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+          <span *ngIf="!loading">Add</span>
+        </button>
+        <button mat-flat-button color="warn" (click)="toggleAddForm()" [disabled]="loading">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

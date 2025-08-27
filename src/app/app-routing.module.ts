@@ -24,6 +24,9 @@ import { ValuesetTranslatorComponent } from './valueset-translator/valueset-tran
 import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart/sunburst-chart.component';
 import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart/d3-sunburst-chart.component';
 import { PlotlyTreemapChartComponent } from './descriptive-statistics/plotly-treemap-chart/plotly-treemap-chart.component';
+import { BenefitsDemoComponent } from './benefits-demo/benefits-demo.component';
+import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinical-record.component';
+import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -51,7 +54,10 @@ const routes: Routes = [
   { path: 'valueset-translator', component: ValuesetTranslatorComponent },
   { path: 'sunburst-chart', component: SunburstChartComponent },
   { path: 'd3-sunburst-chart', component: D3SunburstChartComponent },
-  { path: 'plotly-treemap-chart', component: PlotlyTreemapChartComponent },
+  { path: 'descriptive-analytics', component: PlotlyTreemapChartComponent },
+  { path: 'benefits-demo', component: BenefitsDemoComponent },
+  { path: 'clinical-record', component: ClinicalRecordComponent },
+  { path: 'create-patient', component: CreatePatientComponent },
   { path: '**', redirectTo: '' }
 ];
 
