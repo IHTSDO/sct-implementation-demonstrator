@@ -27,6 +27,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
   @Input() term: string = "";
   @Output() selectionChange = new EventEmitter<any>();
   @Output() cleared = new EventEmitter<any>();
+  @ViewChild('inputElement') inputElement!: ElementRef<HTMLInputElement>;
   
   formControl = new UntypedFormControl();
   autoFilter: Observable<any> | undefined;
@@ -136,6 +137,12 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
     if (item) {
       this.optionSelected({ code: item.code, display: item.display });
       this.formControl.setValue(item.display); // Set the form control's value to the selected option's display
+    }
+  }
+
+  focus(): void {
+    if (this.inputElement?.nativeElement) {
+      this.inputElement.nativeElement.focus();
     }
   }
 

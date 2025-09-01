@@ -1,5 +1,5 @@
 <div class="clinical-entry-container">
-  <button mat-flat-button color="primary" (click)="toggleAddForm()" class="add-button">
+  <button mat-flat-button color="primary" (click)="toggleAddForm()" class="add-button" *ngIf="!hideButton">
     <mat-icon>add</mat-icon>
     {{ sectionTitle }}
   </button>
@@ -8,6 +8,7 @@
     <div class="form-content">
       <div class="search-section">
         <app-autocomplete-binding 
+          #autocompleteBinding
           [binding]="currentBinding" 
           [term]="term" 
           (selectionChange)="updateConcept($event)">

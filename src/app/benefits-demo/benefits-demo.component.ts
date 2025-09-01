@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { PatientService, Patient } from '../services/patient.service';
+import { PatientDataTransformerService } from '../services/patient-data-transformer.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -14,10 +15,12 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   
   patients: Patient[] = [];
   selectedPatient: Patient | null = null;
+  showAnalytics = false;
   private subscriptions: Subscription[] = [];
 
   constructor(
     private patientService: PatientService,
+    private patientDataTransformer: PatientDataTransformerService,
     private router: Router
   ) { }
 
@@ -94,6 +97,22 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
   createNewPatient(): void {
     this.router.navigate(['/create-patient']);
+  }
+
+  openAnalytics(): void {
+    this.showAnalytics = true;
+  }
+
+  hasAnalyticsData(): boolean {
+    return this.patientDataTransformer.hasPatientData();
+  }
+
+  getAnalyticsDataSummary(): { patients: number, conditions: number, procedures: number, medications: number } {
+    return this.patientDataTransformer.getDataSummary();
+  }
+
+  closeAnalytics(): void {
+    this.showAnalytics = false;
   }
 
   async downloadPatientsAsZip(): Promise<void> {

@@ -1,7 +1,8 @@
-import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import Plotly from 'plotly.js-dist';
 import Papa from 'papaparse';
+import { PatientDataTransformerService, TransformedPatientResponse, HierarchyDataItem } from '../../services/patient-data-transformer.service';
 
 interface ChartItem {
   id: string;
@@ -51,6 +52,7 @@ interface PatientResponse {
 export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
   @ViewChild('genderChartContainer', { static: false }) genderChartContainer!: ElementRef;
+  @Input() useBrowserStorage: boolean = false;
   
   selectedItem: ChartItem | null = null;
   private chartData: ChartItem[] = [];
@@ -81,7 +83,11 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   private genderChart: any = null;
   private resizeListener: (() => void) | null = null;
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private http: HttpClient, 
+    private cdr: ChangeDetectorRef,
+    private patientDataTransformer: PatientDataTransformerService
+  ) {}
 
   ngOnInit() {
     this.loadChartData();
@@ -114,6 +120,14 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   private loadPatientCounts(): void {
+    if (this.useBrowserStorage) {
+      this.loadPatientCountsFromBrowserStorage();
+    } else {
+      this.loadPatientCountsFromFiles();
+    }
+  }
+
+  private loadPatientCountsFromFiles(): void {
     this.http.get<PatientResponse>('assets/data/mock_patients_5000.json')
       .subscribe({
         next: (response: PatientResponse) => {
@@ -126,6 +140,18 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
           this.getData();
         }
       });
+  }
+
+  private loadPatientCountsFromBrowserStorage(): void {
+    if (!this.patientDataTransformer.hasPatientData()) {
+      this.getData();
+      return;
+    }
+
+    const transformedResponse = this.patientDataTransformer.transformPatientsToMockFormat();
+    
+    this.calculatePatientCounts(transformedResponse.content);
+    this.getData();
   }
 
   private calculatePatientCounts(patients: Patient[]): void {
@@ -157,6 +183,14 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   private loadChartData() {
+    if (this.useBrowserStorage) {
+      this.loadChartDataFromBrowserStorage();
+    } else {
+      this.loadChartDataFromFiles();
+    }
+  }
+
+  private loadChartDataFromFiles() {
     this.http.get('assets/data/test5.csv', { responseType: 'text' })
       .subscribe({
         next: (csvData: string) => {
@@ -167,6 +201,22 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
           this.loadDefaultData();
         }
       });
+  }
+
+  private loadChartDataFromBrowserStorage() {
+    if (!this.patientDataTransformer.hasPatientData()) {
+      this.loadDefaultData();
+      return;
+    }
+
+    this.patientDataTransformer.transformPatientsToHierarchyFormat().subscribe({
+      next: (hierarchyData: HierarchyDataItem[]) => {
+        this.parseHierarchyData(hierarchyData);
+      },
+      error: (error: any) => {
+        this.loadDefaultData();
+      }
+    });
   }
 
   private parseCSVData(csvData: string) {
@@ -193,6 +243,22 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
         this.loadDefaultData();
       }
     });
+  }
+
+  private parseHierarchyData(hierarchyData: HierarchyDataItem[]) {
+    this.allData = hierarchyData.map((item: HierarchyDataItem) => ({
+      id: item.id,
+      label: item.label,
+      parent: item.parent || '',
+      value: item.patientCount || item.value || 0,
+      patientCount: item.patientCount,
+      labelCount: item.labelCount
+    }));
+    
+    // Calculate and store the root node count
+    this.calculateRootNodeCount();
+    
+    this.getData();
   }
 
   private getData(rootId: string = '') {
@@ -559,41 +625,64 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     // Get all descendant conceptIds (including the base conceptId itself)
     const descendantConceptIds = this.getAllDescendantConceptIds(baseConceptId);
 
+    if (this.useBrowserStorage) {
+      this.loadPatientsFromBrowserStorage(descendantConceptIds);
+    } else {
+      this.loadPatientsFromFiles(descendantConceptIds);
+    }
+  }
+
+  private loadPatientsFromFiles(descendantConceptIds: string[]): void {
     this.http.get<PatientResponse>('assets/data/mock_patients_5000.json')
       .subscribe({
         next: (response: PatientResponse) => {
-          // Process patient filtering asynchronously to prevent UI freezing
-          setTimeout(() => {
-            this.loadingMessage = 'Processing patient data...';
-            
-            // Filter patients that have events with any of the descendant conceptIds
-            this.patients = response.content.filter(patient => {
-              const hasMatchingEvent = patient.events.some(event => {
-                const eventConceptId = event.conceptId.toString();
-                return descendantConceptIds.includes(eventConceptId);
-              });
-              return hasMatchingEvent;
-            });
-            
-            this.isLoadingPatients = false;
-            this.loadingMessage = '';
-            this.showPatients = true;
-            this.showGenderChart = true;
-            this.shouldCreateGenderChart = true;
-            
-            // Create the chart
-            setTimeout(() => {
-              if (this.shouldCreateGenderChart && this.genderChartContainer) {
-                this.createGenderDistributionChart();
-              }
-            }, 0);
-          }, 0);
+          this.processPatientData(response.content, descendantConceptIds);
         },
         error: (error: any) => {
           console.error('Error loading patients:', error);
           this.isLoadingPatients = false;
         }
       });
+  }
+
+  private loadPatientsFromBrowserStorage(descendantConceptIds: string[]): void {
+    if (!this.patientDataTransformer.hasPatientData()) {
+      this.isLoadingPatients = false;
+      return;
+    }
+
+    const transformedResponse = this.patientDataTransformer.transformPatientsToMockFormat();
+    
+    this.processPatientData(transformedResponse.content, descendantConceptIds);
+  }
+
+  private processPatientData(patients: Patient[], descendantConceptIds: string[]): void {
+    // Process patient filtering asynchronously to prevent UI freezing
+    setTimeout(() => {
+      this.loadingMessage = 'Processing patient data...';
+      
+      // Filter patients that have events with any of the descendant conceptIds
+      this.patients = patients.filter(patient => {
+        const hasMatchingEvent = patient.events.some(event => {
+          const eventConceptId = event.conceptId.toString();
+          return descendantConceptIds.includes(eventConceptId);
+        });
+        return hasMatchingEvent;
+      });
+      
+      this.isLoadingPatients = false;
+      this.loadingMessage = '';
+      this.showPatients = true;
+      this.showGenderChart = true;
+      this.shouldCreateGenderChart = true;
+      
+      // Create the chart
+      setTimeout(() => {
+        if (this.shouldCreateGenderChart && this.genderChartContainer) {
+          this.createGenderDistributionChart();
+        }
+      }, 0);
+    }, 0);
   }
 
   private getAllDescendantConceptIds(conceptId: string): string[] {
@@ -692,12 +781,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   private createGenderDistributionChart(): void {
-    console.log('Creating population pyramid chart...');
-    console.log('Patients length:', this.patients.length);
-    console.log('Gender chart container:', this.genderChartContainer);
-    
     if (!this.genderChartContainer || this.patients.length === 0) {
-      console.log('Early return: no container or no patients');
       return;
     }
 
@@ -705,11 +789,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     const ageGroups = this.calculateAgeGroups();
     const totalCount = this.patients.length;
 
-    console.log('Age groups:', ageGroups);
-    console.log('Total patients:', totalCount);
-
     if (totalCount === 0) {
-      console.log('Early return: no patients with data');
       return;
     }
 
@@ -825,11 +905,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
 
     // Use setTimeout to ensure DOM element is ready
     setTimeout(() => {
-      console.log('Attempting to create population pyramid...');
-      console.log('Container element:', this.genderChartContainer.nativeElement);
-      
       Plotly.newPlot(this.genderChartContainer.nativeElement, data, layout, config).then(() => {
-        console.log('Population pyramid created successfully');
         this.genderChart = this.genderChartContainer.nativeElement;
       }).catch((error: any) => {
         console.error('Error creating population pyramid:', error);

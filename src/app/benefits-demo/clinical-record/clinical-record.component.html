@@ -28,44 +28,120 @@
   <div class="record-content" *ngIf="patient">
     <!-- Patient Demographics Section -->
     <div class="record-section">
-      <h2>Demographics</h2>
-      <div class="demographics-grid">
-        <div class="demographic-item">
-          <label>Full Name:</label>
-          <span>{{ getPatientDisplayName(patient) }}</span>
+      <h2>Summary</h2>
+      <div class="demographics-container">
+        <div class="demographics-left">
+          <div class="demographics-grid">
+            <div class="demographic-item">
+              <label>Full Name:</label>
+              <span>{{ getPatientDisplayName(patient) }}</span>
+            </div>
+            <div class="demographic-item">
+              <label>Date of Birth:</label>
+              <span>{{ patient.birthDate | date:'longDate' }}</span>
+            </div>
+            <div class="demographic-item">
+              <label>Age:</label>
+              <span>{{ getPatientAge(patient.birthDate) }}</span>
+            </div>
+            <div class="demographic-item">
+              <label>Gender:</label>
+              <span>{{ patient.gender || 'Not specified' }}</span>
+            </div>
+            <div class="demographic-item">
+              <label>Medical Record Number:</label>
+              <span>{{ getPatientIdentifier(patient) }}</span>
+            </div>
+          </div>
         </div>
-        <div class="demographic-item">
-          <label>Date of Birth:</label>
-          <span>{{ patient.birthDate | date:'longDate' }}</span>
-        </div>
-        <div class="demographic-item">
-          <label>Age:</label>
-          <span>{{ getPatientAge(patient.birthDate) }}</span>
-        </div>
-        <div class="demographic-item">
-          <label>Gender:</label>
-          <span>{{ patient.gender || 'Not specified' }}</span>
-        </div>
-        <div class="demographic-item">
-          <label>Medical Record Number:</label>
-          <span>{{ getPatientIdentifier(patient) }}</span>
+        <div class="demographics-right">
+          <div class="body-model-container">
+            <div class="model-with-annotations">
+              <img 
+                [src]="getBodyModelImage(patient.gender)" 
+                [alt]="'Human body model - ' + (patient.gender || 'unspecified')"
+                class="body-model-image"
+              />
+              <!-- Head point marker -->
+              <div #headPoint class="body-point head-point" title="Head"></div>
+              <!-- Center point marker -->
+              <div #centerPoint class="body-point center-point" title="Torso"></div>
+              <!-- Line to first condition -->
+              <div #connectionLine class="connection-line head-to-condition" *ngIf="conditions.length > 0"></div>
+              <!-- Line to second condition -->
+              <div #secondConnectionLine class="connection-line center-to-condition" *ngIf="conditions.length > 1"></div>
+            </div>
+          </div>
+          <div class="clinical-events-summary">
+            <div class="clinical-summary-section">
+              <h5>Conditions</h5>
+              <div class="clinical-summary-list" *ngIf="conditions.length > 0; else noConditions">
+                <div class="clinical-summary-item" *ngFor="let condition of conditions | slice:0:6; let i = index" [class.first-condition]="i === 0" [class.second-condition]="i === 1">
+                  <div class="item-name">{{ condition.code.text }}</div>
+                  <div #firstConditionTarget class="condition-target-point" *ngIf="i === 0"></div>
+                  <div #secondConditionTarget class="condition-target-point" *ngIf="i === 1"></div>
+                </div>
+                <div class="clinical-summary-item" *ngIf="conditions.length > 6" style="font-style: italic; color: #6c757d;">
+                  +{{ conditions.length - 6 }} more conditions
+                </div>
+              </div>
+              <ng-template #noConditions>
+                <div class="no-clinical-data">No conditions recorded</div>
+              </ng-template>
+            </div>
+
+            <div class="clinical-summary-section">
+              <h5>Procedures</h5>
+              <div class="clinical-summary-list" *ngIf="procedures.length > 0; else noProcedures">
+                <div class="clinical-summary-item" *ngFor="let procedure of procedures | slice:0:4">
+                  <div class="item-name">{{ procedure.code.text }}</div>
+                </div>
+                <div class="clinical-summary-item" *ngIf="procedures.length > 4" style="font-style: italic; color: #6c757d;">
+                  +{{ procedures.length - 4 }} more procedures
+                </div>
+              </div>
+              <ng-template #noProcedures>
+                <div class="no-clinical-data">No procedures recorded</div>
+              </ng-template>
+            </div>
+
+            <div class="clinical-summary-section">
+              <h5>Medications</h5>
+              <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
+                <div class="clinical-summary-item" *ngFor="let medication of medications | slice:0:4">
+                  <div class="item-name">{{ medication.medicationCodeableConcept?.text }}</div>
+                </div>
+                <div class="clinical-summary-item" *ngIf="medications.length > 4" style="font-style: italic; color: #6c757d;">
+                  +{{ medications.length - 4 }} more medications
+                </div>
+              </div>
+              <ng-template #noMedications>
+                <div class="no-clinical-data">No medications recorded</div>
+              </ng-template>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-
-
-    <!-- Clinical Data Header -->
-    <div class="record-section">
-      <h2>Clinical Data</h2>
-    </div>
-
     <!-- Conditions Section -->
     <div class="record-section">
-      <h3>Conditions</h3>
+      <div class="section-header">
+        <h3>Conditions</h3>
+        <button mat-icon-button 
+                color="primary" 
+                class="add-section-button" 
+                (click)="toggleConditionEntry()"
+                title="Add Condition">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      
       <app-clinical-entry 
+        #conditionEntry
         [patientId]="patient.id" 
         entryType="condition"
+        [hideButton]="true"
         (itemAdded)="onConditionAdded($event)">
       </app-clinical-entry>
       <div class="clinical-list" *ngIf="conditions.length > 0">
@@ -101,10 +177,22 @@
 
     <!-- Procedures Section -->
     <div class="record-section">
-      <h3>Procedures</h3>
+      <div class="section-header">
+        <h3>Procedures</h3>
+        <button mat-icon-button 
+                color="primary" 
+                class="add-section-button" 
+                (click)="toggleProcedureEntry()"
+                title="Add Procedure">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      
       <app-clinical-entry 
+        #procedureEntry
         [patientId]="patient.id" 
         entryType="procedure"
+        [hideButton]="true"
         (itemAdded)="onProcedureAdded($event)">
       </app-clinical-entry>
       <div class="clinical-list" *ngIf="procedures.length > 0">
@@ -137,10 +225,22 @@
 
     <!-- Medications Section -->
     <div class="record-section">
-      <h3>Medications</h3>
+      <div class="section-header">
+        <h3>Medications</h3>
+        <button mat-icon-button 
+                color="primary" 
+                class="add-section-button" 
+                (click)="toggleMedicationEntry()"
+                title="Add Medication">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      
       <app-clinical-entry 
+        #medicationEntry
         [patientId]="patient.id" 
         entryType="medication"
+        [hideButton]="true"
         (itemAdded)="onMedicationAdded($event)">
       </app-clinical-entry>
       <div class="clinical-list" *ngIf="medications.length > 0">

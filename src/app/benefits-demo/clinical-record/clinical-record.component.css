@@ -102,10 +102,30 @@
   padding-bottom: 10px;
 }
 
+/* Demographics Container */
+.demographics-container {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.demographics-left {
+  flex: 0 0 30%;
+  min-width: 0;
+}
+
+.demographics-right {
+  flex: 0 0 70%;
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+  justify-content: center;
+}
+
 /* Demographics Grid */
 .demographics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 20px;
 }
 
@@ -130,6 +150,138 @@
 .demographic-item span {
   color: #2c3e50;
   font-weight: 500;
+}
+
+/* Body Model Styles */
+.body-model-container {
+  flex: 0 0 50%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.model-with-annotations {
+  position: relative;
+  display: inline-block;
+}
+
+.body-model-image {
+  height: 300px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Body Point Markers */
+.body-point {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #ff4444;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.head-point {
+  top: 10%;
+  left: 50%;
+}
+
+.center-point {
+  top: 50%;
+  left: 50%;
+}
+
+/* Connection Lines */
+.connection-line {
+  position: absolute;
+  background-color: #ff4444;
+  z-index: 5;
+  opacity: 0.8;
+}
+
+.head-to-condition {
+  /* Dynamic line - positioning handled by JavaScript */
+  height: 2px;
+  /* Other properties will be set dynamically */
+}
+
+.center-to-condition {
+  /* Dynamic line - positioning handled by JavaScript */
+  height: 2px;
+  /* Other properties will be set dynamically */
+}
+
+/* Clinical Events Summary */
+.clinical-events-summary {
+  flex: 0 0 50%;
+  padding: 20px;
+}
+
+
+
+.clinical-summary-section {
+  margin-bottom: 16px;
+}
+
+.clinical-summary-section h5 {
+  margin: 0 0 4px 0;
+  color: #6c757d;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clinical-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.clinical-summary-item {
+  padding: 2px 0;
+  font-size: 0.8rem;
+  color: #495057;
+  line-height: 1.3;
+}
+
+.clinical-summary-item {
+  position: relative;
+}
+
+.clinical-summary-item .item-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.first-condition {
+  position: relative;
+}
+
+.condition-target-point {
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  background-color: #ff4444;
+  border: 1px solid #ffffff;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.no-clinical-data {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.8rem;
+  margin: 2px 0;
 }
 
 /* Contact & Address Information */
@@ -248,6 +400,39 @@
   margin: 0;
   border-bottom: none;
   padding-bottom: 0;
+}
+
+.add-section-button {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  background-color: #2196f3;
+  color: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+}
+
+.add-section-button:hover {
+  background-color: #1976d2;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.add-section-button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Clinical Data Sections */
@@ -457,6 +642,21 @@
     padding: 20px 15px;
   }
 
+  .demographics-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .demographics-left,
+  .demographics-right {
+    flex: none;
+  }
+
+  .demographics-right {
+    flex-direction: column;
+    gap: 15px;
+  }
+
   .demographics-grid {
     grid-template-columns: 1fr;
   }
@@ -465,6 +665,27 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
+  }
+
+  .body-model-container {
+    padding: 15px;
+    justify-content: center;
+  }
+
+  .body-model-image {
+    height: 200px;
+  }
+
+  .clinical-events-summary {
+    padding: 10px 0 0 0;
+  }
+
+  .clinical-summary-section h5 {
+    font-size: 0.75rem;
+  }
+
+  .clinical-summary-item {
+    font-size: 0.75rem;
   }
 
   .contact-address-grid {

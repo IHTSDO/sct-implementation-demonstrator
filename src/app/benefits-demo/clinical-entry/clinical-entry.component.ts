@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { PatientService, Condition, Procedure, MedicationRequest } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 
@@ -10,10 +10,12 @@ export type ClinicalEntryType = 'condition' | 'procedure' | 'medication';
   styleUrls: ['./clinical-entry.component.css'],
   standalone: false
 })
-export class ClinicalEntryComponent {
+export class ClinicalEntryComponent implements AfterViewInit {
   @Input() patientId: string = '';
   @Input() entryType: ClinicalEntryType = 'condition';
+  @Input() hideButton: boolean = false;
   @Output() itemAdded = new EventEmitter<any>();
+  @ViewChild('autocompleteBinding') autocompleteBinding: any;
 
   selectedConcept: any;
   term: string = '';
@@ -57,6 +59,10 @@ export class ClinicalEntryComponent {
     return titles[this.entryType];
   }
 
+  ngAfterViewInit() {
+    // Focus will be handled when form opens
+  }
+
   updateConcept(event: any) {
     this.selectedConcept = event;
   }
@@ -65,6 +71,13 @@ export class ClinicalEntryComponent {
     this.showAddForm = !this.showAddForm;
     if (!this.showAddForm) {
       this.resetForm();
+    } else {
+      // Focus the input field after the form is shown
+      setTimeout(() => {
+        if (this.autocompleteBinding) {
+          this.autocompleteBinding.focus();
+        }
+      }, 100);
     }
   }
 

@@ -27,7 +27,7 @@
 .action-section {
   display: flex;
   gap: 10px;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .action-section button {

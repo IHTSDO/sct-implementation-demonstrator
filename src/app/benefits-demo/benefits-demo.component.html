@@ -36,13 +36,21 @@
     </div>
   </div>
   
-  <div class="ehr-layout">
+  <div class="ehr-layout" *ngIf="!showAnalytics">
     <!-- Patient List Section -->
     <div class="patient-list-section">
       <div class="section-header">
         <h2>Patients</h2>
         <div class="patient-header-actions">
-          <span class="patient-count">{{ patients.length }} patient(s)</span>
+          <button 
+            mat-flat-button
+            color="accent"
+            (click)="openAnalytics()"
+            [disabled]="!hasAnalyticsData()"
+          >
+            <mat-icon>analytics</mat-icon>
+            Analytics
+          </button>
           <button 
             mat-flat-button
             color="primary"
@@ -154,5 +162,26 @@
     </div>
 
 
+  </div>
+
+  <!-- Analytics Section - Full Width -->
+  <div class="analytics-full-width" *ngIf="showAnalytics">
+    <div class="analytics-section">
+      <div class="section-header">
+        <h2>Clinical Data Analytics</h2>
+        <div class="header-actions">
+          <button 
+            mat-flat-button 
+            color="primary"
+            (click)="closeAnalytics()">
+            <mat-icon>arrow_back</mat-icon>
+            Back to Patients
+          </button>
+        </div>
+      </div>
+      <div class="analytics-container">
+        <app-plotly-treemap-chart [useBrowserStorage]="true"></app-plotly-treemap-chart>
+      </div>
+    </div>
   </div>
 </div>
