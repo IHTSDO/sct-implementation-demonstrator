@@ -225,11 +225,11 @@
 
 
 .clinical-summary-section {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .clinical-summary-section h5 {
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
   color: #6c757d;
   font-size: 0.8rem;
   font-weight: 600;
@@ -240,14 +240,14 @@
 .clinical-summary-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0px;
 }
 
 .clinical-summary-item {
-  padding: 2px 0;
+  padding: 0px 0;
   font-size: 0.8rem;
   color: #495057;
-  line-height: 1.3;
+  line-height: 1.1;
 }
 
 .clinical-summary-item {
@@ -459,10 +459,7 @@
   transition: all 0.2s ease;
 }
 
-.clinical-item:hover {
-  background-color: #e9ecef;
-  border-color: #dee2e6;
-}
+/* Original hover removed - replaced by hoverable-condition class */
 
 .item-header {
   display: flex;
@@ -699,3 +696,283 @@
     gap: 5px;
   }
 }
+
+/* Anchor Points Styles */
+.anchor-point {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  opacity: 0.7;
+}
+
+.anchor-point:hover {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+  opacity: 1;
+  z-index: 20;
+}
+
+.anchor-point.active {
+  width: 20px;
+  height: 20px;
+  opacity: 1;
+  border-width: 3px;
+  animation: pulse 2s infinite;
+}
+
+.anchor-point-label {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.anchor-point:hover .anchor-point-label {
+  opacity: 1;
+}
+
+.event-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  border: 2px solid #ffffff;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Anchor Points Summary Styles */
+.anchor-points-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.anchor-summary-item {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 4px solid #007bff;
+}
+
+.anchor-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #2c3e50;
+}
+
+.anchor-system {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: capitalize;
+}
+
+.anchor-count {
+  font-size: 0.7rem;
+  color: #28a745;
+  font-weight: 500;
+}
+
+/* Responsive adjustments for anchor points */
+@media (max-width: 768px) {
+  .anchor-point {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .anchor-point.active {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .anchor-point-label {
+    font-size: 8px;
+    top: -20px;
+  }
+  
+  .event-count {
+    width: 14px;
+    height: 14px;
+    font-size: 8px;
+    top: -5px;
+    right: -5px;
+  }
+}
+
+/* Hover Effects for Summary Conditions */
+.hoverable-summary-condition {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: 0px 0;
+  border: 1px solid transparent; /* Pre-allocate border space */
+}
+
+.hoverable-summary-condition:hover {
+  background-color: #e3f2fd !important;
+  border-color: #bbdefb !important;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2) !important;
+}
+
+/* Anchor point highlighting for related events - same as hover styles */
+.hoverable-summary-condition.anchor-highlighted {
+  background-color: #e3f2fd !important;
+  border-color: #bbdefb !important;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2) !important;
+}
+
+/* Anchor Category Indicator */
+.anchor-category-indicator {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  margin-right: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Anchor Point Pulsing Effect */
+.anchor-point.scaled {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  }
+}
+
+/* Empty anchor points with no associated events */
+.anchor-point.empty {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  opacity: 0.3;
+}
+
+.anchor-point.empty .anchor-point-label {
+  color: rgba(255, 255, 255, 0.4) !important;
+  font-weight: normal;
+}
+
+.anchor-point.empty:hover {
+  animation: none !important;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+/* Loading Spinner Overlay */
+.mapping-loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 8px;
+}
+
+.mapping-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.mapping-loader-text {
+  color: #007bff;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.mapping-loader-subtext {
+  color: #6c757d;
+  font-size: 12px;
+  text-align: center;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Spinning icon in button */
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+/* Connection Line Styles */
+.hover-connection-line {
+  position: fixed;
+  height: 1px;
+  background-color: #ff0000;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 1;
+  box-shadow: 0 0 4px rgba(255, 0, 0, 0.4);
+  display: none;
+  border-radius: 0.5px;
+}
+
+/* Enhanced Anchor Point Styles */
+.anchor-point {
+  transition: all 0.3s ease;
+}
+
+/* Anchor point hover effect now handled above with pulse-glow animation */

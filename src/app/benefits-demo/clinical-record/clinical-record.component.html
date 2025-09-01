@@ -21,6 +21,25 @@
       <div class="current-date">
         {{ currentDate | date:'longDate' }}
       </div>
+      <button mat-raised-button 
+              color="accent" 
+              (click)="triggerEclExpansion()"
+              [disabled]="!hasEventsRequiringMapping() || isLoadingMapping"
+              *ngIf="hasEventsRequiringMapping()"
+              title="Perform ECL expansion to map conditions to anchor points">
+        <mat-icon *ngIf="!isLoadingMapping">psychology</mat-icon>
+        <mat-icon *ngIf="isLoadingMapping" class="spinner-icon">refresh</mat-icon>
+        {{ isLoadingMapping ? 'Mapping...' : 'Map Conditions' }}
+      </button>
+      <button mat-stroked-button 
+              color="warn" 
+              (click)="clearLocationCache()"
+              [disabled]="isLoadingMapping"
+              title="Clear cached locations and reload fresh data"
+              style="margin-left: 8px;">
+        <mat-icon>clear_all</mat-icon>
+        Clear Cache
+      </button>
     </div>
   </div>
 
@@ -62,24 +81,46 @@
                 [alt]="'Human body model - ' + (patient.gender || 'unspecified')"
                 class="body-model-image"
               />
-              <!-- Head point marker -->
-              <div #headPoint class="body-point head-point" title="Head"></div>
-              <!-- Center point marker -->
-              <div #centerPoint class="body-point center-point" title="Torso"></div>
-              <!-- Line to first condition -->
-              <div #connectionLine class="connection-line head-to-condition" *ngIf="conditions.length > 0"></div>
-              <!-- Line to second condition -->
-              <div #secondConnectionLine class="connection-line center-to-condition" *ngIf="conditions.length > 1"></div>
+              
+              <!-- Loading Overlay -->
+              <div *ngIf="isLoadingMapping" class="mapping-loader-overlay">
+                <div class="mapping-spinner"></div>
+                <div class="mapping-loader-text">Updating event mappings...</div>
+              </div>
+              
+              <!-- Anchor Points (hidden during loading) -->
+              <div 
+                *ngFor="let anchorPoint of anchorPoints" 
+                class="anchor-point"
+                [class.active]="getEventCountForAnchorPoint(anchorPoint.id) > 0"
+                [class.empty]="!hasAssociatedEvents(anchorPoint)"
+                [style.left.%]="patient.gender === 'female' ? anchorPoint.x + 4 : anchorPoint.x"
+                [style.top.%]="anchorPoint.y"
+                [style.display]="isLoadingMapping ? 'none' : 'block'"
+                [style.background-color]="anchorPoint.defaultColor"
+                [attr.data-anchor-id]="anchorPoint.id"
+                [attr.data-system]="anchorPoint.anatomicalSystem"
+                (mouseenter)="onAnchorPointHover(anchorPoint, $event)"
+                (mouseleave)="onAnchorPointHoverEnd()"
+              >
+                <div class="anchor-point-label">{{ anchorPoint.name }}</div>
+                <div class="event-count" *ngIf="getEventCountForAnchorPoint(anchorPoint.id) > 0">
+                  {{ getEventCountForAnchorPoint(anchorPoint.id) }}
+                </div>
+              </div>
+
+              <!-- Connection lines are now handled dynamically via hover events -->
             </div>
           </div>
           <div class="clinical-events-summary">
             <div class="clinical-summary-section">
               <h5>Conditions</h5>
               <div class="clinical-summary-list" *ngIf="conditions.length > 0; else noConditions">
-                <div class="clinical-summary-item" *ngFor="let condition of conditions | slice:0:6; let i = index" [class.first-condition]="i === 0" [class.second-condition]="i === 1">
+                <div class="clinical-summary-item hoverable-summary-condition" 
+                     *ngFor="let condition of conditions | slice:0:6; let i = index"
+                     (mouseenter)="onConditionHover(condition, $event)"
+                     (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ condition.code.text }}</div>
-                  <div #firstConditionTarget class="condition-target-point" *ngIf="i === 0"></div>
-                  <div #secondConditionTarget class="condition-target-point" *ngIf="i === 1"></div>
                 </div>
                 <div class="clinical-summary-item" *ngIf="conditions.length > 6" style="font-style: italic; color: #6c757d;">
                   +{{ conditions.length - 6 }} more conditions
@@ -93,7 +134,11 @@
             <div class="clinical-summary-section">
               <h5>Procedures</h5>
               <div class="clinical-summary-list" *ngIf="procedures.length > 0; else noProcedures">
-                <div class="clinical-summary-item" *ngFor="let procedure of procedures | slice:0:4">
+                <div class="clinical-summary-item hoverable-summary-condition" 
+                     *ngFor="let procedure of procedures | slice:0:4"
+                     (mouseenter)="onProcedureHover(procedure, $event)"
+                     (mouseleave)="onConditionHoverEnd()"
+                     title="Hover to see connection line">
                   <div class="item-name">{{ procedure.code.text }}</div>
                 </div>
                 <div class="clinical-summary-item" *ngIf="procedures.length > 4" style="font-style: italic; color: #6c757d;">
@@ -108,7 +153,11 @@
             <div class="clinical-summary-section">
               <h5>Medications</h5>
               <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
-                <div class="clinical-summary-item" *ngFor="let medication of medications | slice:0:4">
+                <div class="clinical-summary-item hoverable-summary-condition" 
+                     *ngFor="let medication of medications | slice:0:4"
+                     (mouseenter)="onMedicationHover(medication, $event)"
+                     (mouseleave)="onConditionHoverEnd()"
+                     title="Hover to see connection line">
                   <div class="item-name">{{ medication.medicationCodeableConcept?.text }}</div>
                 </div>
                 <div class="clinical-summary-item" *ngIf="medications.length > 4" style="font-style: italic; color: #6c757d;">
@@ -119,6 +168,8 @@
                 <div class="no-clinical-data">No medications recorded</div>
               </ng-template>
             </div>
+
+
           </div>
         </div>
       </div>
@@ -145,10 +196,16 @@
         (itemAdded)="onConditionAdded($event)">
       </app-clinical-entry>
       <div class="clinical-list" *ngIf="conditions.length > 0">
-        <div class="clinical-item" *ngFor="let condition of conditions">
+        <div class="clinical-item" 
+             *ngFor="let condition of conditions">
           <div class="item-header">
             <span class="item-title">{{ condition.code.text }}</span>
             <div class="item-header-actions">
+              <span class="anchor-category-indicator" 
+                    [style.background-color]="findBestAnchorPointForConcept(getConceptId(condition))?.defaultColor"
+                    title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}">
+                {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}
+              </span>
               <span class="item-status" [class]="getConditionStatus(condition).toLowerCase()">
                 {{ getConditionStatus(condition) }}
               </span>
