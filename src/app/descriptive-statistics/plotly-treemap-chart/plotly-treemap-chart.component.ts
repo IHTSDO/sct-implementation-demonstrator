@@ -768,6 +768,14 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     return 'selected concept';
   }
 
+  public getSelectedConceptCode(): string {
+    if (this.selectedItem) {
+      // Remove the _N suffix if present to show clean SNOMED code
+      return this.selectedItem.id.split('_')[0];
+    }
+    return '';
+  }
+
   public getIncidencePercentage(): string {
     if (!this.selectedItem || !this.selectedItem.value) {
       return '0.0';
@@ -1017,10 +1025,31 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     }
     
     const eventList = patient.events.map(event => 
-      `${event.date}: ${event.conceptTerm}`
+      `${this.formatDateForTooltip(event.date)}: ${event.conceptTerm}`
     ).join('\n');
     
     return eventList;
+  }
+
+  private formatDateForTooltip(dateString: string): string {
+    try {
+      // Handle various date formats
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        // If date is invalid, return original string
+        return dateString;
+      }
+      
+      // Format as YYYY-MM-DD
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      // If any error occurs, return original string
+      return dateString;
+    }
   }
 
   public getTotalPatientsCount(): string {

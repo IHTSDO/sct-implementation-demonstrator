@@ -774,11 +774,26 @@
   }
 }
 
-/* Multi-line tooltip styling */
-::ng-deep .multi-line-tooltip {
+/* Patient events tooltip styling - specific to this component */
+::ng-deep .patient-events-tooltip {
   white-space: pre-line !important;
-  max-width: 300px !important;
+  max-width: 500px !important;
+  width: auto !important;
+  min-width: 200px !important;
   line-height: 1.4 !important;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+}
+
+/* Additional specificity for Material tooltip */
+::ng-deep .mat-tooltip.patient-events-tooltip {
+  white-space: pre-line !important;
+  max-width: 500px !important;
+  width: auto !important;
+  min-width: 200px !important;
+  line-height: 1.4 !important;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
 }
 
 
