@@ -51,7 +51,7 @@ export class SvDemoComponent implements OnInit {
         this.terminologyService.setLang('sv,en');
       }
       setTimeout(() => {
-        this.terminologyService.setFhirUrlParam('http://snomed.info/sct/45991000052106/version/20241130');
+        this.terminologyService.setFhirUrlParam('http://snomed.info/sct/45991000052106/version/20250531');
         setTimeout(() => {
           this.terminologyService.fhirUrlParam$.subscribe(urlParam => {
             this.loadSpecs();
