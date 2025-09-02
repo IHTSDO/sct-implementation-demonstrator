@@ -402,6 +402,20 @@
   padding-bottom: 0;
 }
 
+.section-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.processing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
 .add-section-button {
   width: 40px;
   height: 40px;
@@ -523,6 +537,26 @@
 .item-dosage {
   font-style: italic;
   color: #495057;
+}
+
+.item-association {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  color: #007bff;
+  background-color: #e3f2fd;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  border-left: 3px solid #007bff;
+}
+
+.association-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #007bff;
 }
 
 .item-concept-id {

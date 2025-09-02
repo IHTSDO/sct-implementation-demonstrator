@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { PatientService, Condition, Procedure, MedicationRequest } from '../../services/patient.service';
+import { PatientService, Condition, Procedure, MedicationStatement } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 
 export type ClinicalEntryType = 'condition' | 'procedure' | 'medication';
@@ -14,10 +14,13 @@ export class ClinicalEntryComponent implements AfterViewInit {
   @Input() patientId: string = '';
   @Input() entryType: ClinicalEntryType = 'condition';
   @Input() hideButton: boolean = false;
+  @Input() availableConditions: Condition[] = [];
+  @Input() availableProcedures: Procedure[] = [];
   @Output() itemAdded = new EventEmitter<any>();
   @ViewChild('autocompleteBinding') autocompleteBinding: any;
 
   selectedConcept: any;
+  selectedAssociation: {type: 'condition' | 'procedure', resource: Condition | Procedure} | null = null;
   term: string = '';
   loading = false;
   showAddForm = false;
@@ -35,7 +38,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
       placeholder: 'Enter procedure name...'
     },
     medication: { 
-      ecl: '< 373873005 |Pharmaceutical / biologic product|', 
+      ecl: '< 373873005 |Pharmaceutical / biologic product| : 762949000 |Has precise active ingredient (attribute)| = *', 
       title: 'Search for medication...',
       placeholder: 'Enter medication name...'
     }
@@ -170,11 +173,10 @@ export class ClinicalEntryComponent implements AfterViewInit {
   }
 
   private async addMedication() {
-    const newMedication: MedicationRequest = {
-      resourceType: 'MedicationRequest',
+    const newMedication: MedicationStatement = {
+      resourceType: 'MedicationStatement',
       id: `medication-${Date.now()}`,
       status: 'active',
-      intent: 'order',
       medicationCodeableConcept: {
         coding: [{
           system: 'http://snomed.info/sct',
@@ -187,11 +189,19 @@ export class ClinicalEntryComponent implements AfterViewInit {
         reference: `Patient/${this.patientId}`,
         display: `Patient ${this.patientId}`
       },
-      authoredOn: new Date().toISOString(),
-      dosageInstruction: [{
+      effectiveDateTime: new Date().toISOString(),
+      dosage: [{
         text: 'Take as prescribed'
       }]
     };
+
+    // Add association if selected
+    if (this.selectedAssociation) {
+      newMedication.reasonReference = [{
+        reference: `${this.selectedAssociation.resource.resourceType}/${this.selectedAssociation.resource.id}`,
+        display: this.selectedAssociation.resource.code.text
+      }];
+    }
 
     this.patientService.addPatientMedication(this.patientId, newMedication);
     this.itemAdded.emit(newMedication);
@@ -201,6 +211,12 @@ export class ClinicalEntryComponent implements AfterViewInit {
   private resetForm() {
     this.term = '';
     this.selectedConcept = null;
+    this.selectedAssociation = null;
     this.showAddForm = false;
+  }
+
+  compareAssociations(a1: any, a2: any): boolean {
+    if (!a1 || !a2) return a1 === a2;
+    return a1.type === a2.type && a1.resource?.id === a2.resource?.id;
   }
 }

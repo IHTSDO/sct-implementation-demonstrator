@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PatientService, Patient, Condition, Procedure, MedicationRequest } from './patient.service';
+import { PatientService, Patient, Condition, Procedure, MedicationStatement } from './patient.service';
 import { DataAnalyticsService } from './data-analytics.service';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -104,8 +104,8 @@ export class PatientDataTransformerService {
           events.push({
             conceptId: parseInt(code, 10),
             conceptTerm: medication.medicationCodeableConcept?.text || 'Unknown medication',
-            date: medication.authoredOn || new Date().toISOString().split('T')[0],
-            dateLong: new Date(medication.authoredOn || new Date()).getTime()
+            date: medication.effectiveDateTime || new Date().toISOString().split('T')[0],
+            dateLong: new Date(medication.effectiveDateTime || new Date()).getTime()
           });
         }
       });
@@ -161,7 +161,7 @@ export class PatientDataTransformerService {
     // Collect all clinical data
     const allConditions: Condition[] = [];
     const allProcedures: Procedure[] = [];
-    const allMedications: MedicationRequest[] = [];
+    const allMedications: MedicationStatement[] = [];
 
     patients.forEach(patient => {
       allConditions.push(...this.patientService.getPatientConditions(patient.id));
@@ -271,7 +271,7 @@ export class PatientDataTransformerService {
   /**
    * Create simple hierarchy when external service is unavailable
    */
-  private createSimpleHierarchy(conditions: Condition[], procedures: Procedure[], medications: MedicationRequest[]): HierarchyDataItem[] {
+  private createSimpleHierarchy(conditions: Condition[], procedures: Procedure[], medications: MedicationStatement[]): HierarchyDataItem[] {
     const codeCounts = new Map<string, { count: number, term: string, patients: Set<string> }>();
     
     // Count codes from all clinical data

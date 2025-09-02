@@ -20,8 +20,29 @@
   gap: 15px;
 }
 
+.input-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
 .search-section {
   flex: 1;
+  min-width: 0; /* Allows flex item to shrink below its content size */
+}
+
+.association-section {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Association section uses standard Angular Material styling */
+.association-section {
+  width: 100%;
+}
+
+.association-section mat-form-field {
+  width: 100%;
 }
 
 .action-section {
@@ -40,6 +61,15 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .input-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .association-section {
+    min-width: unset;
+  }
+  
   .action-section {
     flex-direction: column;
   }

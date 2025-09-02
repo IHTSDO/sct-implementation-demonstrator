@@ -504,8 +504,8 @@ export interface Procedure {
   }>;
 }
 
-export interface MedicationRequest {
-  resourceType: 'MedicationRequest';
+export interface MedicationStatement {
+  resourceType: 'MedicationStatement';
   id: string;
   identifier?: Array<{
     use?: string;
@@ -528,17 +528,16 @@ export interface MedicationRequest {
       display?: string;
     };
   }>;
-  status: 'active' | 'on-hold' | 'cancelled' | 'completed' | 'entered-in-error' | 'stopped' | 'draft' | 'unknown';
-  statusReason?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  intent: 'proposal' | 'plan' | 'order' | 'original-order' | 'reflex-order' | 'filler-order' | 'instance-order' | 'option';
-  category?: Array<{
+  basedOn?: Array<{
+    reference: string;
+    display?: string;
+  }>;
+  partOf?: Array<{
+    reference: string;
+    display?: string;
+  }>;
+  status: 'active' | 'completed' | 'entered-in-error' | 'intended' | 'stopped' | 'on-hold' | 'unknown' | 'not-taken';
+  statusReason?: Array<{
     coding?: Array<{
       system?: string;
       code?: string;
@@ -546,12 +545,13 @@ export interface MedicationRequest {
     }>;
     text?: string;
   }>;
-  priority?: 'routine' | 'urgent' | 'asap' | 'stat';
-  doNotPerform?: boolean;
-  reportedBoolean?: boolean;
-  reportedReference?: {
-    reference: string;
-    display?: string;
+  category?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
   };
   medicationCodeableConcept?: {
     coding?: Array<{
@@ -569,35 +569,24 @@ export interface MedicationRequest {
     reference: string;
     display?: string;
   };
-  encounter?: {
+  context?: {
     reference: string;
     display?: string;
   };
-  supportingInformation?: Array<{
+  effectiveDateTime?: string;
+  effectivePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  dateAsserted?: string;
+  informationSource?: {
+    reference: string;
+    display?: string;
+  };
+  derivedFrom?: Array<{
     reference: string;
     display?: string;
   }>;
-  authoredOn?: string;
-  requester?: {
-    reference: string;
-    display?: string;
-  };
-  performer?: {
-    reference: string;
-    display?: string;
-  };
-  performerType?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  recorder?: {
-    reference: string;
-    display?: string;
-  };
   reasonCode?: Array<{
     coding?: Array<{
       system?: string;
@@ -610,45 +599,6 @@ export interface MedicationRequest {
     reference: string;
     display?: string;
   }>;
-  instantiatesCanonical?: string[];
-  instantiatesUri?: string[];
-  basedOn?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  groupIdentifier?: {
-    use?: string;
-    type?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    system?: string;
-    value?: string;
-    period?: {
-      start?: string;
-      end?: string;
-    };
-    assigner?: {
-      reference: string;
-      display?: string;
-    };
-  };
-  courseOfTherapyType?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  insurance?: Array<{
-    reference: string;
-    display?: string;
-  }>;
   note?: Array<{
     authorReference?: {
       reference: string;
@@ -658,7 +608,7 @@ export interface MedicationRequest {
     time?: string;
     text: string;
   }>;
-  dosageInstruction?: Array<{
+  dosage?: Array<{
     sequence?: number;
     text?: string;
     additionalInstruction?: Array<{
@@ -844,80 +794,6 @@ export interface MedicationRequest {
       system?: string;
       code?: string;
     };
-  }>;
-  dispenseRequest?: {
-    initialFill?: {
-      quantity?: {
-        value: number;
-        unit: string;
-        system?: string;
-        code?: string;
-      };
-      duration?: {
-        value: number;
-        unit: string;
-        system?: string;
-        code?: string;
-      };
-    };
-    dispenseInterval?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-    validityPeriod?: {
-      start?: string;
-      end?: string;
-    };
-    numberOfRepeatsAllowed?: number;
-    quantity?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-    expectedSupplyDuration?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-    performer?: {
-      reference: string;
-      display?: string;
-    };
-  };
-  substitution?: {
-    allowedBoolean?: boolean;
-    allowedCodeableConcept?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    reason?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-  };
-  priorPrescription?: {
-    reference: string;
-    display?: string;
-  };
-  detectedIssue?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  eventHistory?: Array<{
-    reference: string;
-    display?: string;
   }>;
 }
 
@@ -1235,19 +1111,19 @@ export class PatientService {
   }
 
   // Medications
-  getPatientMedications(patientId: string): MedicationRequest[] {
+  getPatientMedications(patientId: string): MedicationStatement[] {
     const key = `ehr_medications_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : [];
   }
 
-  addPatientMedication(patientId: string, medication: MedicationRequest): void {
+  addPatientMedication(patientId: string, medication: MedicationStatement): void {
     const medications = this.getPatientMedications(patientId);
     medications.push(medication);
     this.savePatientMedications(patientId, medications);
   }
 
-  updatePatientMedication(patientId: string, medicationId: string, updatedMedication: MedicationRequest): void {
+  updatePatientMedication(patientId: string, medicationId: string, updatedMedication: MedicationStatement): void {
     const medications = this.getPatientMedications(patientId);
     const index = medications.findIndex(m => m.id === medicationId);
     if (index !== -1) {
@@ -1262,7 +1138,7 @@ export class PatientService {
     this.savePatientMedications(patientId, filteredMedications);
   }
 
-  private savePatientMedications(patientId: string, medications: MedicationRequest[]): void {
+  private savePatientMedications(patientId: string, medications: MedicationStatement[]): void {
     const key = `ehr_medications_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(medications));
   }
@@ -1316,12 +1192,11 @@ export class PatientService {
     };
   }
 
-  createSampleMedication(patientId: string, medicationText: string): MedicationRequest {
+  createSampleMedication(patientId: string, medicationText: string): MedicationStatement {
     return {
-      resourceType: 'MedicationRequest',
+      resourceType: 'MedicationStatement',
       id: `medication-${Date.now()}`,
       status: 'active',
-      intent: 'order',
       medicationCodeableConcept: {
         text: medicationText
       },
@@ -1329,8 +1204,8 @@ export class PatientService {
         reference: `Patient/${patientId}`,
         display: `Patient ${patientId}`
       },
-      authoredOn: new Date().toISOString(),
-      dosageInstruction: [{
+      effectiveDateTime: new Date().toISOString(),
+      dosage: [{
         text: 'Take as prescribed'
       }]
     };

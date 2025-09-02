@@ -602,4 +602,14 @@ export class TerminologyService {
     this.filteredLanguageMetadata$.next(metadata);
     this.contexts$.next(metadata?.contexts || []);
   }
+
+  /**
+   * Get all ancestors of a SNOMED CT concept using ECL
+   * @param conceptId The SNOMED CT concept ID
+   * @returns Observable with ancestors expansion
+   */
+  getAncestors(conceptId: string): Observable<any> {
+    const ecl = `> ${conceptId}`;  // ECL to get all ancestors
+    return this.expandValueSet(ecl, '', 0, 1000);
+  }
 }

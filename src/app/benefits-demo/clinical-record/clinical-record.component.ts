@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PatientService, Patient, Condition, Procedure, MedicationRequest } from '../../services/patient.service';
+import { PatientService, Patient, Condition, Procedure, MedicationStatement } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
 import { Subscription, forkJoin, of, delay } from 'rxjs';
@@ -10,7 +10,7 @@ export interface AnchorPoint {
   name: string;
   x: number; // Percentage (0-100) from left
   y: number; // Percentage (0-100) from top
-  ecl: string; // Expression Constraint Language for SNOMED CT concepts
+  ancestors: string[]; // Array of ancestor concept IDs for SNOMED CT mapping
   description: string;
   anatomicalSystem?: string;
   defaultColor?: string;
@@ -30,27 +30,29 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   patient: Patient | null = null;
   conditions: Condition[] = [];
   procedures: Procedure[] = [];
-  medications: MedicationRequest[] = [];
+  medications: MedicationStatement[] = [];
   currentDate = new Date();
   private subscriptions: Subscription[] = [];
   
-  // ECL expansion results for anchor point mapping
-  private anchorPointMappings = new Map<string, string[]>(); // anchorPointId -> array of concept IDs
+
   
   // Loading state for ECL mapping
   isLoadingMapping = false;
+  
+  // Loading state for processing new events
+  isProcessingNewEvent = false;
 
   // No separate cache needed - we'll add location directly to the clinical events
 
-  // Anchor points for clinical event mapping - simplified list
+  // Anchor points for clinical event mapping - using ancestor concepts
   anchorPoints: AnchorPoint[] = [
     {
       id: 'head',
       name: 'Head',
       x: 48,
       y: 11,
-      ecl: '<< 69536005 |Head structure| OR << 25238003 |Cranial structure|',
-      description: 'Brain, skull, face, neurological and head-related conditions',
+      ancestors: ['406122000', '118690002', '384821006 |Mental state, behavior and/or psychosocial function finding (finding)|'], 
+      description: 'Findings, disorders and procedures on the head',
       anatomicalSystem: 'head',
       defaultColor: '#FF6B6B'
     },
@@ -59,8 +61,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       name: 'Neck',
       x: 48,
       y: 18,
-      ecl: '<< 45048000 |Neck structure| OR << 54066008 |Pharyngeal structure| OR << 69748006 |Thyroid structure|',
-      description: 'Neck, throat, thyroid, cervical spine conditions',
+      ancestors: ['298378000', '118693000'], 
+      description: 'Findings, disorders and procedures on the neck',
       anatomicalSystem: 'neck',
       defaultColor: '#82E0AA'
     },
@@ -69,8 +71,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       name: 'Thorax',
       x: 48,
       y: 25,
-      ecl: '<< 51185008 |Thoracic structure|',
-      description: 'Chest, lungs, heart, respiratory and cardiovascular conditions',
+      ancestors: ['298705000', '118695007', '106048009 |Respiratory finding (finding)|', '106063007 |Cardiovascular finding (finding)|'],
+      description: 'Findings, disorders and procedures on the thorax',
       anatomicalSystem: 'thorax',
       defaultColor: '#45B7D1'
     },
@@ -79,8 +81,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       name: 'Abdomen',
       x: 48,
       y: 39,
-      ecl: '<< 818983003 |Abdomen structure|',
-      description: 'Abdominal organs, digestive system, liver, kidneys conditions',
+      ancestors: ['609624008', '118698009', '386617003 |Digestive system finding (finding)|'], 
+      description: 'Findings, disorders and procedures on the abdomen',
       anatomicalSystem: 'abdomen',
       defaultColor: '#BB8FCE'
     },
@@ -89,28 +91,28 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       name: 'Pelvis',
       x: 48,
       y: 48,
-      ecl: '<< 12921003 |Pelvis structure| OR 21514008 |Structure of genitourinary system (body structure)|',
-      description: 'Pelvic organs, reproductive system, bladder, hip conditions',
+      ancestors: ['609625009', '609637006'], 
+      description: 'Findings, disorders and procedures on the pelvis',
       anatomicalSystem: 'pelvis',
       defaultColor: '#F8C471'
     },
     {
       id: 'arms',
-      name: 'Arms',
+      name: 'Upper limbs',
       x: 73,
       y: 40,
-      ecl: '<< 53120007 |Upper limb structure (body structure)|',
-      description: 'Arms, shoulders, hands, upper extremity conditions',
+      ancestors: ['116307009', '118702008'], 
+      description: 'Findings, disorders and procedures on the arms',
       anatomicalSystem: 'arms',
       defaultColor: '#85C1E9'
     },
     {
       id: 'legs',
-      name: 'Legs',
+      name: 'Lower limbs',
       x: 60,
       y: 78,
-      ecl: '<< 61685007 |Lower limb structure (body structure)|',
-      description: 'Legs, knees, feet, lower extremity conditions',
+      ancestors: ['116312005', '118710009'],
+      description: 'Findings, disorders and procedures on the legs',
       anatomicalSystem: 'legs',
       defaultColor: '#85C1E9'
     },
@@ -119,7 +121,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       name: 'Systemic',
       x: 70,
       y: 12,
-      ecl: '',
+      ancestors: [], // Empty array - will be used as fallback for unmapped concepts
       description: 'General systemic conditions, multiple system disorders, skin conditions',
       anatomicalSystem: 'systemic',
       defaultColor: '#AED6F1'
@@ -212,6 +214,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.conditions = this.loadCachedOrFreshData('conditions', patientId, () => this.patientService.getPatientConditions(patientId));
     this.procedures = this.loadCachedOrFreshData('procedures', patientId, () => this.patientService.getPatientProcedures(patientId));
     this.medications = this.loadCachedOrFreshData('medications', patientId, () => this.patientService.getPatientMedications(patientId));
+    
+
   }
 
   formatDate(dateString: string | undefined): string {
@@ -233,32 +237,96 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return procedure.status || 'Unknown';
   }
 
-  getMedicationStatus(medication: MedicationRequest): string {
+  getMedicationStatus(medication: MedicationStatement): string {
     return medication.status || 'Unknown';
+  }
+
+  getMedicationAssociation(medication: MedicationStatement): string | null {
+    if (medication.reasonReference && medication.reasonReference.length > 0) {
+      return medication.reasonReference[0].display || null;
+    }
+    return null;
+  }
+
+  /**
+   * Get the concept ID to use for anchor point mapping for any clinical resource
+   * For medications, uses indication concept ID; for others, uses the resource's own concept ID
+   */
+  getMappingConceptId(resource: any): string {
+    if (resource.resourceType === 'MedicationStatement') {
+      const indicationConceptId = this.getIndicationConceptId(resource);
+      return indicationConceptId || this.getConceptId(resource); // Fallback to medication code if no indication
+    }
+    return this.getConceptId(resource);
   }
 
   toggleConditionEntry(): void {
     this.conditionEntry.toggleAddForm();
   }
 
-  onConditionAdded(event: any): void {
-    this.loadClinicalData(this.patient!.id);
+  async onConditionAdded(event: any): Promise<void> {
+    this.isProcessingNewEvent = true;
+    
+    try {
+      // First reload clinical data to get the new condition in the array
+      this.loadClinicalData(this.patient!.id);
+      
+      // Find the newly added condition by ID and map it
+      const newCondition = this.conditions.find(c => c.id === event.id);
+      if (newCondition) {
+        await this.mapSingleEventToAnchorPoint(newCondition);
+      }
+    } catch (error) {
+      console.error('Error processing new condition:', error);
+    } finally {
+      this.isProcessingNewEvent = false;
+    }
   }
 
   toggleProcedureEntry(): void {
     this.procedureEntry.toggleAddForm();
   }
 
-  onProcedureAdded(event: any): void {
-    this.loadClinicalData(this.patient!.id);
+  async onProcedureAdded(event: any): Promise<void> {
+    this.isProcessingNewEvent = true;
+    
+    try {
+      // First reload clinical data to get the new procedure in the array
+      this.loadClinicalData(this.patient!.id);
+      
+      // Find the newly added procedure by ID and map it
+      const newProcedure = this.procedures.find(p => p.id === event.id);
+      if (newProcedure) {
+        await this.mapSingleEventToAnchorPoint(newProcedure);
+      }
+    } catch (error) {
+      console.error('Error processing new procedure:', error);
+    } finally {
+      this.isProcessingNewEvent = false;
+    }
   }
 
   toggleMedicationEntry(): void {
     this.medicationEntry.toggleAddForm();
   }
 
-  onMedicationAdded(event: any): void {
-    this.loadClinicalData(this.patient!.id);
+  async onMedicationAdded(event: any): Promise<void> {
+    this.isProcessingNewEvent = true;
+    
+    try {
+      // First reload clinical data to get the new medication in the array
+      this.loadClinicalData(this.patient!.id);
+      
+      // Find the newly added medication by ID and map it
+      const newMedication = this.medications.find(m => m.id === event.id);
+      if (newMedication) {
+        await this.mapSingleEventToAnchorPoint(newMedication);
+      }
+    } catch (error) {
+      console.error('Error processing new medication:', error);
+    } finally {
+      this.isProcessingNewEvent = false;
+    }
   }
 
   // Legacy connection line methods removed - now using dynamic hover-based connections
@@ -271,6 +339,32 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return resource.medicationCodeableConcept.coding[0].code;
     }
     return '';
+  }
+
+  /**
+   * Get the indication concept ID from a medication's reasonReference
+   * This is used to map medications to body regions based on what they treat
+   */
+  getIndicationConceptId(medication: any): string {
+    if (medication.reasonReference && medication.reasonReference.length > 0) {
+      const reasonRef = medication.reasonReference[0].reference;
+      
+      // Extract the resource ID from the reference (e.g., "Condition/condition-123" -> "condition-123")
+      const resourceId = reasonRef.split('/')[1];
+      
+      // Find the referenced condition or procedure in our local data
+      const referencedCondition = this.conditions.find(c => c.id === resourceId);
+      if (referencedCondition) {
+        return this.getConceptId(referencedCondition);
+      }
+      
+      const referencedProcedure = this.procedures.find(p => p.id === resourceId);
+      if (referencedProcedure) {
+        return this.getConceptId(referencedProcedure);
+      }
+    }
+    
+    return ''; // No indication found
   }
 
   deleteCondition(conditionId: string): void {
@@ -315,7 +409,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   /**
    * Find the best matching anchor point for a clinical event based on SNOMED CT concept
-   * Uses ECL expansion results if available, otherwise defaults to systemic
+   * Uses cached location if available, otherwise defaults to systemic
    */
   findBestAnchorPointForConcept(conceptId: string): AnchorPoint | null {
     // First check if any clinical event has a cached location for this concept
@@ -324,13 +418,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return this.anchorPoints.find(p => p.id === cachedLocation) || null;
     }
     
-    // If ECL expansion has been performed and we have mappings, use them
-    if (this.anchorPointMappings.size > 0) {
-      return this.findBestAnchorPointForConceptUsingEcl(conceptId);
-    }
-    
     // Default assignment: all conditions go to systemic category
-    // This is used before ECL expansion is performed
+    // This is used before ancestor mapping is performed
     return this.anchorPoints.find(p => p.id === 'systemic') || null;
   }
 
@@ -364,7 +453,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
     // Map medications
     this.medications.forEach(medication => {
-      const conceptId = this.getConceptId(medication);
+      // For medications, use the indication (condition/procedure) concept ID for mapping
+      const indicationConceptId = this.getIndicationConceptId(medication);
+      const conceptId = indicationConceptId || this.getConceptId(medication); // Fallback to medication code if no indication
       const anchorPoint = this.findBestAnchorPointForConcept(conceptId);
       eventsWithAnchors.push({
         event: medication,
@@ -444,7 +535,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
    * Handle medication hover - show connection line to anchor point
    */
   onMedicationHover(medication: any, event: MouseEvent): void {
-    const conceptId = this.getConceptId(medication);
+    // For medications, use the indication (condition/procedure) concept ID for mapping
+    const indicationConceptId = this.getIndicationConceptId(medication);
+    const conceptId = indicationConceptId || this.getConceptId(medication); // Fallback to medication code if no indication
     const anchorPoint = this.findBestAnchorPointForConcept(conceptId);
     if (anchorPoint) {
       const medicationElement = event.currentTarget as HTMLElement;
@@ -698,135 +791,11 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  /**
-   * Perform ECL expansion for all anchor points to determine proper condition and procedure mappings
-   */
-  async performAnchorPointEclExpansion(): Promise<void> {
-    if ((!this.conditions || this.conditions.length === 0) && (!this.procedures || this.procedures.length === 0)) {
-      console.log('No conditions or procedures to process');
-      return;
-    }
-
-    // Set loading state
-    this.isLoadingMapping = true;
-
-    try {
-      // Filter out systemic anchor point - it should not be processed
-      const anchorPointsToProcess = this.anchorPoints.filter(ap => ap.id !== 'systemic');
-      
-      // Process each anchor point with iterative removal of mapped events
-      for (const anchorPoint of anchorPointsToProcess) {
-        try {
-          // Get currently unmapped events for this iteration
-          const unmappedEvents = this.getUnmappedEvents();
-          
-          // Get concept IDs from unmapped conditions and procedures
-          const unmappedConditionIds = unmappedEvents.conditions.map(condition => this.getConceptId(condition)).filter(id => id);
-          const unmappedProcedureIds = unmappedEvents.procedures.map(procedure => this.getConceptId(procedure)).filter(id => id);
-          
-          // Combine both conditions and procedures
-          const allUnmappedIds = [...unmappedConditionIds, ...unmappedProcedureIds];
-          
-          if (allUnmappedIds.length === 0) {
-            console.log(`No unmapped events remaining for anchor point: ${anchorPoint.name}`);
-            continue;
-          }
-
-          // Build the OR clause with all unmapped events (conditions and procedures)
-          const eventOrClause = allUnmappedIds.join(' OR ');
-          
-          console.log(`Processing ${allUnmappedIds.length} unmapped events for anchor point: ${anchorPoint.name}`);
-          console.log(`  - Conditions: ${unmappedConditionIds.length}, Procedures: ${unmappedProcedureIds.length}`);
-
-          await this.processAnchorPointEcl(anchorPoint, eventOrClause);
-          
-          // Wait 1 second before processing the next anchor point
-          await this.delay(1000);
-        } catch (error) {
-          console.error(`Error processing anchor point ${anchorPoint.id}:`, error);
-        }
-      }
-
-      // Update clinical events with computed locations and save to storage
-      this.updateEventsWithComputedLocations();
-      this.saveUpdatedEventsToStorage();
-    } finally {
-      // Always clear loading state, even if there's an error
-      this.isLoadingMapping = false;
-    }
-  }
-
-  /**
-   * Process ECL expansion for a single anchor point
-   */
-  private async processAnchorPointEcl(anchorPoint: AnchorPoint, eventOrClause: string): Promise<void> {
-    // Find conditions and procedures that have finding sites or procedure sites related to this anchor point
-    const ecl = `(${eventOrClause}) : ((363698007 |Finding site (attribute)| = (${anchorPoint.ecl})) OR (<< 363704007 |Procedure site (attribute)| = (${anchorPoint.ecl})))`;
-    
-    console.log(`Processing anchor point: ${anchorPoint.name}`);
-    console.log(`ECL query: ${ecl}`);
-    
 
 
-    return new Promise((resolve, reject) => {
-      this.terminologyService.expandValueSet(ecl, '', 0, 1000).subscribe({
-        next: (response) => {
-          try {
-            const conceptIds = this.extractConceptIdsFromExpansion(response);
-            
-            // Filter to only include concepts that are actually in our patient data (conditions and procedures)
-            const patientConditionIds = this.conditions.map(c => this.getConceptId(c)).filter(id => id);
-            const patientProcedureIds = this.procedures.map(p => this.getConceptId(p)).filter(id => id);
-            const allPatientEventIds = [...patientConditionIds, ...patientProcedureIds];
-            
-            const matchingEventIds = conceptIds.filter(id => allPatientEventIds.includes(id));
-            
-            // Store the matching event IDs for this anchor point
-            const existingMappings = this.anchorPointMappings.get(anchorPoint.id) || [];
-            const combinedMappings = [...new Set([...existingMappings, ...matchingEventIds])];
-            this.anchorPointMappings.set(anchorPoint.id, combinedMappings);
-            
-            console.log(`  -> Mapped ${matchingEventIds.length} events to ${anchorPoint.name}`);
-            
-            // Immediately update the computedLocation for matched events to remove them from future iterations
-            this.updateEventLocationsForAnchorPoint(anchorPoint, matchingEventIds);
-            
 
-            
-            resolve();
-          } catch (error) {
-            console.error(`Error processing response for ${anchorPoint.name}:`, error);
-            resolve(); // Continue with other anchor points even if one fails
-          }
-        },
-        error: (error) => {
-          console.error(`ECL expansion failed for ${anchorPoint.name}:`, error);
-          resolve(); // Continue with other anchor points even if one fails
-        }
-      });
-    });
-  }
 
-  /**
-   * Update computedLocation for events that match an anchor point
-   */
-  private updateEventLocationsForAnchorPoint(anchorPoint: AnchorPoint, matchingEventIds: string[]): void {
-    // Update conditions
-    this.conditions.forEach(condition => {
-      const conceptId = this.getConceptId(condition);
-      if (conceptId && matchingEventIds.includes(conceptId)) {
-        (condition as any).computedLocation = anchorPoint;
-      }
-    });
 
-    // Update procedures
-    this.procedures.forEach(procedure => {
-      const conceptId = this.getConceptId(procedure);
-      if (conceptId && matchingEventIds.includes(conceptId)) {
-        (procedure as any).computedLocation = anchorPoint;
-      }
-    });
-  }
 
   /**
    * Extract concept IDs from ECL expansion response
@@ -845,20 +814,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return conceptIds;
   }
 
-  /**
-   * Updated method to find best anchor point using ECL expansion results
-   */
-  findBestAnchorPointForConceptUsingEcl(conceptId: string): AnchorPoint | null {
-    // Check each anchor point mapping to see if this concept ID is included
-    for (const [anchorPointId, conceptIds] of this.anchorPointMappings.entries()) {
-      if (conceptIds.includes(conceptId)) {
-        return this.anchorPoints.find(ap => ap.id === anchorPointId) || null;
-      }
-    }
-    
-    // Fall back to systemic if no specific mapping found
-    return this.anchorPoints.find(p => p.id === 'systemic') || null;
-  }
+
 
   /**
    * Utility method to create a delay
@@ -867,65 +823,38 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  /**
-   * Trigger ECL expansion for current conditions (can be called manually for testing)
-   */
-  triggerEclExpansion(): void {
-    this.performAnchorPointEclExpansion();
-  }
+
 
   /**
-   * Clear cached locations for current patient (for testing purposes)
+   * Delete all clinical events for current patient
    */
-  clearLocationCache(): void {
-    const patientId = this.patient?.id || 'default';
-    localStorage.removeItem(`conditions_${patientId}`);
-    localStorage.removeItem(`procedures_${patientId}`);
-    localStorage.removeItem(`medications_${patientId}`);
+  deleteAllEvents(): void {
+    if (!this.patient) return;
     
-    // Reload fresh data
-    this.loadClinicalData(patientId);
+    const patientId = this.patient.id;
     
-
+    // Confirm deletion
+    const eventCount = this.conditions.length + this.procedures.length + this.medications.length;
+    if (eventCount === 0) {
+      alert('No clinical events to delete.');
+      return;
+    }
+    
+    const confirmed = confirm(`Are you sure you want to delete all ${eventCount} clinical events for ${this.getPatientDisplayName(this.patient)}? This action cannot be undone.`);
+    if (!confirmed) return;
+    
+    // Clear all clinical data from localStorage
+    localStorage.removeItem(`ehr_conditions_${patientId}`);
+    localStorage.removeItem(`ehr_procedures_${patientId}`);
+    localStorage.removeItem(`ehr_medications_${patientId}`);
+    
+    // Clear the arrays
+    this.conditions = [];
+    this.procedures = [];
+    this.medications = [];
   }
 
-  /**
-   * Update clinical events with computed anchor point locations
-   */
-  private updateEventsWithComputedLocations(): void {
-    // Update conditions
-    this.conditions.forEach(condition => {
-      const conceptId = this.getConceptId(condition);
-      if (conceptId) {
-        const anchorPoint = this.findBestAnchorPointForConceptUsingEcl(conceptId);
-        if (anchorPoint) {
-          (condition as any).computedLocation = anchorPoint.id;
-        }
-      }
-    });
 
-    // Update procedures
-    this.procedures.forEach(procedure => {
-      const conceptId = this.getConceptId(procedure);
-      if (conceptId) {
-        const anchorPoint = this.findBestAnchorPointForConceptUsingEcl(conceptId);
-        if (anchorPoint) {
-          (procedure as any).computedLocation = anchorPoint.id;
-        }
-      }
-    });
-
-    // Update medications
-    this.medications.forEach(medication => {
-      const conceptId = this.getConceptId(medication);
-      if (conceptId) {
-        const anchorPoint = this.findBestAnchorPointForConceptUsingEcl(conceptId);
-        if (anchorPoint) {
-          (medication as any).computedLocation = anchorPoint.id;
-        }
-      }
-    });
-  }
 
   /**
    * Save updated clinical events to browser storage
@@ -935,40 +864,27 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const patientId = this.patient?.id || 'default';
     
     if (this.conditions.length > 0) {
-      localStorage.setItem(`conditions_${patientId}`, JSON.stringify(this.conditions));
+      localStorage.setItem(`ehr_conditions_${patientId}`, JSON.stringify(this.conditions));
     }
     
     if (this.procedures.length > 0) {
-      localStorage.setItem(`procedures_${patientId}`, JSON.stringify(this.procedures));
+      localStorage.setItem(`ehr_procedures_${patientId}`, JSON.stringify(this.procedures));
     }
     
     if (this.medications.length > 0) {
-      localStorage.setItem(`medications_${patientId}`, JSON.stringify(this.medications));
+      localStorage.setItem(`ehr_medications_${patientId}`, JSON.stringify(this.medications));
     }
     
 
   }
 
-  /**
-   * Get unmapped events (those without computedLocation)
-   */
-  private getUnmappedEvents(): { conditions: any[], procedures: any[], medications: any[] } {
-    const unmappedConditions = this.conditions.filter(c => !(c as any).computedLocation);
-    const unmappedProcedures = this.procedures.filter(p => !(p as any).computedLocation);
-    const unmappedMedications = this.medications.filter(m => !(m as any).computedLocation);
-    
-    return {
-      conditions: unmappedConditions,
-      procedures: unmappedProcedures, 
-      medications: unmappedMedications
-    };
-  }
+
 
   /**
    * Load cached data from localStorage or fallback to fresh data from service
    */
   private loadCachedOrFreshData<T>(dataType: string, patientId: string, getFreshData: () => T[]): T[] {
-    const cacheKey = `${dataType}_${patientId}`;
+    const cacheKey = `ehr_${dataType}_${patientId}`;
     const cachedData = localStorage.getItem(cacheKey);
     
     if (cachedData) {
@@ -1002,9 +918,11 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       }
     }
     
-    // Check medications
+    // Check medications (using indication concept ID)
     for (const medication of this.medications) {
-      if (this.getConceptId(medication) === conceptId && (medication as any).computedLocation) {
+      const indicationConceptId = this.getIndicationConceptId(medication);
+      const medicationConceptId = indicationConceptId || this.getConceptId(medication);
+      if (medicationConceptId === conceptId && (medication as any).computedLocation) {
         return (medication as any).computedLocation;
       }
     }
@@ -1012,15 +930,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return null;
   }
 
-  /**
-   * Check if there are any clinical events that need mapping
-   */
-  hasEventsRequiringMapping(): boolean {
-    const unmappedEvents = this.getUnmappedEvents();
-    return unmappedEvents.conditions.length > 0 || 
-           unmappedEvents.procedures.length > 0 || 
-           unmappedEvents.medications.length > 0;
-  }
+
 
   /**
    * Check if an anchor point has any associated clinical events
@@ -1040,10 +950,124 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     
     // Check medications
     const hasMedications = this.medications.some(medication => {
-      const bestAnchorPoint = this.findBestAnchorPointForConcept(this.getConceptId(medication));
+      // For medications, use the indication (condition/procedure) concept ID for mapping
+      const indicationConceptId = this.getIndicationConceptId(medication);
+      const conceptId = indicationConceptId || this.getConceptId(medication); // Fallback to medication code if no indication
+      const bestAnchorPoint = this.findBestAnchorPointForConcept(conceptId);
       return bestAnchorPoint?.id === anchorPoint.id;
     });
     
     return hasConditions || hasProcedures || hasMedications;
+  }
+
+  /**
+   * Map a clinical event to an anchor point using ancestor matching
+   */
+  private async mapEventToAnchorPointUsingAncestors(event: any, conceptId: string): Promise<void> {
+    return new Promise((resolve) => {
+      this.terminologyService.getAncestors(conceptId).subscribe({
+        next: (response) => {
+          try {
+            const ancestorIds = this.extractConceptIdsFromExpansion(response);
+            
+            // Find the best matching anchor point
+            const bestAnchorPoint = this.findBestAnchorPointForAncestors(ancestorIds);
+            
+            if (bestAnchorPoint) {
+              // Store the mapping
+              (event as any).computedLocation = bestAnchorPoint.id;
+            } else {
+              // Default to systemic if no match found
+              (event as any).computedLocation = 'systemic';
+            }
+            
+            resolve();
+          } catch (error) {
+            console.error(`Error processing ancestors for concept ${conceptId}:`, error);
+            // Default to systemic on error
+            (event as any).computedLocation = 'systemic';
+            resolve();
+          }
+        },
+        error: (error) => {
+          console.error(`Failed to get ancestors for concept ${conceptId}:`, error);
+          // Default to systemic on error
+          (event as any).computedLocation = 'systemic';
+          resolve();
+        }
+      });
+    });
+  }
+
+  /**
+   * Extract concept ID from SNOMED CT format (handles both "123456" and "123456 |Display Name|")
+   */
+  private extractConceptId(snomedString: string): string {
+    // If it contains a pipe character, extract just the ID part before the first space
+    if (snomedString.includes('|')) {
+      return snomedString.split(' ')[0].trim();
+    }
+    // Otherwise, return as-is (already just an ID)
+    return snomedString.trim();
+  }
+
+  /**
+   * Find the best matching anchor point based on ancestor concepts
+   */
+  private findBestAnchorPointForAncestors(ancestorIds: string[]): AnchorPoint | null {
+    // Check each anchor point (except systemic) to see if any of its ancestor concepts match
+    for (const anchorPoint of this.anchorPoints) {
+      if (anchorPoint.id === 'systemic') continue; // Skip systemic, it's the fallback
+      
+      // Extract concept IDs from anchor point ancestors (handle SNOMED format with display names)
+      const anchorPointConceptIds = anchorPoint.ancestors.map(ancestor => this.extractConceptId(ancestor));
+      
+      // Check if any of the event's ancestors match any of the anchor point's ancestors
+      const hasMatch = anchorPointConceptIds.some(ancestorId => ancestorIds.includes(ancestorId));
+      
+      if (hasMatch) {
+        return anchorPoint;
+      }
+    }
+    
+    return null; // No match found
+  }
+
+  /**
+   * Map a single clinical event to an anchor point using ancestor matching
+   * This is used when adding new events to avoid full remapping
+   */
+  async mapSingleEventToAnchorPoint(event: any): Promise<void> {
+    let conceptId: string;
+    
+    // For medications, use indication concept ID if available
+    if (event.resourceType === 'MedicationStatement') {
+      const indicationConceptId = this.getIndicationConceptId(event);
+      conceptId = indicationConceptId || this.getConceptId(event); // Fallback to medication code if no indication
+    } else {
+      conceptId = this.getConceptId(event);
+    }
+    
+    if (!conceptId) {
+      // Default to systemic if no concept ID
+      (event as any).computedLocation = 'systemic';
+      return;
+    }
+
+    // Skip if already mapped
+    if ((event as any).computedLocation) {
+      return;
+    }
+
+    try {
+      await this.mapEventToAnchorPointUsingAncestors(event, conceptId);
+      
+      // Save the updated event to storage immediately
+      this.saveUpdatedEventsToStorage();
+    } catch (error) {
+      console.error(`Error mapping single event with concept ${conceptId}:`, error);
+      // Default to systemic on error
+      (event as any).computedLocation = 'systemic';
+    }
   }
 }

@@ -21,24 +21,14 @@
       <div class="current-date">
         {{ currentDate | date:'longDate' }}
       </div>
-      <button mat-raised-button 
-              color="accent" 
-              (click)="triggerEclExpansion()"
-              [disabled]="!hasEventsRequiringMapping() || isLoadingMapping"
-              *ngIf="hasEventsRequiringMapping()"
-              title="Perform ECL expansion to map conditions to anchor points">
-        <mat-icon *ngIf="!isLoadingMapping">psychology</mat-icon>
-        <mat-icon *ngIf="isLoadingMapping" class="spinner-icon">refresh</mat-icon>
-        {{ isLoadingMapping ? 'Mapping...' : 'Map Conditions' }}
-      </button>
       <button mat-stroked-button 
               color="warn" 
-              (click)="clearLocationCache()"
+              (click)="deleteAllEvents()"
               [disabled]="isLoadingMapping"
-              title="Clear cached locations and reload fresh data"
+              title="Delete all clinical events for this patient"
               style="margin-left: 8px;">
-        <mat-icon>clear_all</mat-icon>
-        Clear Cache
+        <mat-icon>delete_sweep</mat-icon>
+        Delete All Events
       </button>
     </div>
   </div>
@@ -104,9 +94,10 @@
                 (mouseleave)="onAnchorPointHoverEnd()"
               >
                 <div class="anchor-point-label">{{ anchorPoint.name }}</div>
-                <div class="event-count" *ngIf="getEventCountForAnchorPoint(anchorPoint.id) > 0">
+                <!-- Event count badge hidden for cleaner design -->
+                <!-- <div class="event-count" *ngIf="getEventCountForAnchorPoint(anchorPoint.id) > 0">
                   {{ getEventCountForAnchorPoint(anchorPoint.id) }}
-                </div>
+                </div> -->
               </div>
 
               <!-- Connection lines are now handled dynamically via hover events -->
@@ -179,13 +170,20 @@
     <div class="record-section">
       <div class="section-header">
         <h3>Conditions</h3>
-        <button mat-icon-button 
-                color="primary" 
-                class="add-section-button" 
-                (click)="toggleConditionEntry()"
-                title="Add Condition">
-          <mat-icon>add</mat-icon>
-        </button>
+        <div class="section-header-actions">
+          <div class="processing-indicator" *ngIf="isProcessingNewEvent">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Processing...</span>
+          </div>
+          <button mat-icon-button 
+                  color="primary" 
+                  class="add-section-button" 
+                  (click)="toggleConditionEntry()"
+                  [disabled]="isProcessingNewEvent"
+                  title="Add Condition">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
       </div>
       
       <app-clinical-entry 
@@ -236,13 +234,20 @@
     <div class="record-section">
       <div class="section-header">
         <h3>Procedures</h3>
-        <button mat-icon-button 
-                color="primary" 
-                class="add-section-button" 
-                (click)="toggleProcedureEntry()"
-                title="Add Procedure">
-          <mat-icon>add</mat-icon>
-        </button>
+        <div class="section-header-actions">
+          <div class="processing-indicator" *ngIf="isProcessingNewEvent">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Processing...</span>
+          </div>
+          <button mat-icon-button 
+                  color="primary" 
+                  class="add-section-button" 
+                  (click)="toggleProcedureEntry()"
+                  [disabled]="isProcessingNewEvent"
+                  title="Add Procedure">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
       </div>
       
       <app-clinical-entry 
@@ -257,6 +262,11 @@
           <div class="item-header">
             <span class="item-title">{{ procedure.code.text }}</span>
             <div class="item-header-actions">
+              <span class="anchor-category-indicator" 
+                    [style.background-color]="findBestAnchorPointForConcept(getConceptId(procedure))?.defaultColor"
+                    title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}">
+                {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}
+              </span>
               <span class="item-status" [class]="getProcedureStatus(procedure).toLowerCase()">
                 {{ getProcedureStatus(procedure) }}
               </span>
@@ -284,19 +294,28 @@
     <div class="record-section">
       <div class="section-header">
         <h3>Medications</h3>
-        <button mat-icon-button 
-                color="primary" 
-                class="add-section-button" 
-                (click)="toggleMedicationEntry()"
-                title="Add Medication">
-          <mat-icon>add</mat-icon>
-        </button>
+        <div class="section-header-actions">
+          <div class="processing-indicator" *ngIf="isProcessingNewEvent">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Processing...</span>
+          </div>
+          <button mat-icon-button 
+                  color="primary" 
+                  class="add-section-button" 
+                  (click)="toggleMedicationEntry()"
+                  [disabled]="isProcessingNewEvent"
+                  title="Add Medication">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
       </div>
       
       <app-clinical-entry 
         #medicationEntry
         [patientId]="patient.id" 
         entryType="medication"
+        [availableConditions]="conditions"
+        [availableProcedures]="procedures"
         [hideButton]="true"
         (itemAdded)="onMedicationAdded($event)">
       </app-clinical-entry>
@@ -305,6 +324,11 @@
           <div class="item-header">
             <span class="item-title">{{ medication.medicationCodeableConcept?.text }}</span>
             <div class="item-header-actions">
+              <span class="anchor-category-indicator" 
+                    [style.background-color]="findBestAnchorPointForConcept(getMappingConceptId(medication))?.defaultColor"
+                    title="Mapped to: {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}">
+                {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}
+              </span>
               <span class="item-status" [class]="getMedicationStatus(medication).toLowerCase()">
                 {{ getMedicationStatus(medication) }}
               </span>
@@ -320,11 +344,15 @@
             <span class="item-concept-id" *ngIf="getConceptId(medication)">
               SNOMED CT: {{ getConceptId(medication) }}
             </span>
-            <span class="item-date" *ngIf="medication.authoredOn">
-              Prescribed: {{ formatDate(medication.authoredOn) }}
+            <span class="item-date" *ngIf="medication.effectiveDateTime">
+              Effective: {{ formatDate(medication.effectiveDateTime) }}
             </span>
-            <span class="item-dosage" *ngIf="medication.dosageInstruction && medication.dosageInstruction.length > 0">
-              {{ medication.dosageInstruction[0].text }}
+            <span class="item-dosage" *ngIf="medication.dosage && medication.dosage.length > 0">
+              {{ medication.dosage[0].text }}
+            </span>
+            <span class="item-association" *ngIf="getMedicationAssociation(medication)">
+              <mat-icon class="association-icon">link</mat-icon>
+              For: {{ getMedicationAssociation(medication) }}
             </span>
           </div>
         </div>
