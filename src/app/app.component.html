@@ -13,6 +13,10 @@
 
       <button mat-button [matMenuTriggerFor]="editionsMenuN">Edition: {{selectedEdition}}</button>
       <mat-menu #editionsMenuN="matMenu" class="wide-menu">
+        <div mat-menu-item style="padding: 12px 16px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; margin-bottom: 8px; cursor: default; pointer-events: none;">
+          <div style="font-size: 11px; color: #6c757d !important; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Currently Selected</div>
+          <div style="font-weight: 500; color: #212529 !important;">{{ selectedEdition || 'No Edition Selected' }} <span style="font-weight: 300; color: #6c757d !important;">({{ getCurrentVersionNumber() }})</span></div>
+        </div>
         <span class="ml-4">Editions</span>
         <ng-container *ngFor="let mainItem of editionsDetails">
           <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>
@@ -52,6 +56,10 @@
 
     <button mat-flat-button color="primary" [matMenuTriggerFor]="editionsMenu" class="bar-button">{{selectedEdition}}</button>
     <mat-menu #editionsMenu="matMenu" class="wide-menu">
+      <div mat-menu-item style="padding: 12px 16px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; margin-bottom: 8px; cursor: default; pointer-events: none;">
+        <div style="font-size: 11px; color: #6c757d !important; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Currently Selected</div>
+        <div style="font-weight: 500; color: #212529 !important;">{{ selectedEdition || 'No Edition Selected' }} <span style="font-weight: 300; color: #6c757d !important;">({{ getCurrentVersionNumber() }})</span></div>
+      </div>
       <span class="ml-4">Editions</span>
       <ng-container *ngFor="let mainItem of editionsDetails">
         <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>

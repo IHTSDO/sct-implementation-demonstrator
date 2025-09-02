@@ -90,3 +90,41 @@ a {
     }
 
 }
+
+/* Current version info styling */
+.current-version-info {
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  margin: 8px;
+}
+
+.current-version-header {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.current-version-details {
+  margin-bottom: 12px;
+}
+
+.current-edition {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.current-version {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #666;
+  background-color: #fff;
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  word-break: break-all;
+}

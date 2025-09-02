@@ -49,7 +49,7 @@ export class AppComponent {
 
   constructor( private codingSpecService: CodingSpecService, 
     public excelService: ExcelService, 
-    private terminologyService: TerminologyService, 
+    public terminologyService: TerminologyService, 
     public router: Router,
     private menuService: MenuService,
     private dialog: MatDialog,
@@ -264,6 +264,64 @@ export class AppComponent {
     this.selectedEdition = edition.resource.title?.replace('SNOMED CT release ','');
     this.terminologyService.setFhirUrlParam(edition.resource.version);
     this.updateLanguageRefsets();
+  }
+
+  getCurrentVersionInfo(): { version: string, editionName: string } | null {
+    const currentFhirUrl = this.terminologyService.getFhirUrlParam();
+    
+    // Find the current edition and version based on the FHIR URL
+    for (const editionGroup of this.editionsDetails) {
+      for (const edition of editionGroup.editions) {
+        if (edition.resource.version === currentFhirUrl) {
+          return {
+            version: edition.resource.version,
+            editionName: editionGroup.editionName
+          };
+        }
+      }
+    }
+    
+    // Fallback: try to extract version from URL if it's not the default
+    if (currentFhirUrl !== 'http://snomed.info/sct') {
+      return {
+        version: currentFhirUrl,
+        editionName: 'Custom'
+      };
+    }
+    
+    // If we have a selectedEdition, show it even if we can't find the full details
+    if (this.selectedEdition && this.selectedEdition !== 'Edition') {
+      return {
+        version: currentFhirUrl,
+        editionName: this.selectedEdition
+      };
+    }
+    
+    return null;
+  }
+
+  getCurrentVersionNumber(): string {
+    const currentFhirUrl = this.terminologyService.getFhirUrlParam();
+    
+    // Extract version number from FHIR URL
+    // Example: http://snomed.info/sct/900000000000207008/version/20250901 -> 20250901
+    if (currentFhirUrl.includes('/version/')) {
+      const versionPart = currentFhirUrl.split('/version/')[1];
+      return versionPart || 'Unknown';
+    }
+    
+    // If it's the default international edition without version
+    if (currentFhirUrl === 'http://snomed.info/sct') {
+      return 'Latest';
+    }
+    
+    // For other formats, try to extract meaningful part
+    const urlParts = currentFhirUrl.split('/');
+    if (urlParts.length > 3) {
+      return urlParts[urlParts.length - 1] || 'Unknown';
+    }
+    
+    return 'Unknown';
   }
 
   updateLanguageRefsets() {
