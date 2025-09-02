@@ -211,9 +211,14 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
 
     this.patientDataTransformer.transformPatientsToHierarchyFormat().subscribe({
       next: (hierarchyData: HierarchyDataItem[]) => {
+        // Check if we have proper parent-child relationships
+        const rootItems = hierarchyData.filter(item => !item.parent || item.parent.trim() === '');
+        const childItems = hierarchyData.filter(item => item.parent && item.parent.trim() !== '');
+        
         this.parseHierarchyData(hierarchyData);
       },
       error: (error: any) => {
+        console.error('Error loading hierarchy data from browser storage:', error);
         this.loadDefaultData();
       }
     });
@@ -255,8 +260,16 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       labelCount: item.labelCount
     }));
     
+    // Debug the parsed hierarchy data
+    // Minimal logging for parsed data
+    
     // Calculate and store the root node count
     this.calculateRootNodeCount();
+    
+    // Automatically find target medications for debugging
+    setTimeout(() => {
+      this.findTargetMedications();
+    }, 1000); // Wait a bit for data to be processed
     
     this.getData();
   }
@@ -268,12 +281,26 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       if (rootId === '') {
         const rootItems = this.allData.filter(item => !item.parent || item.parent.trim() === '');
         
+        // Root analysis logging removed
+        
         if (rootItems.length > 0) {
           const firstRoot = rootItems[0];
-          this.chartData = this.getItemsUpToLevel([firstRoot], 1);
+          // Show more levels for browser storage data since it has deeper hierarchy
+          const levelsToShow = this.useBrowserStorage ? 4 : this.maxLevels;
+          this.chartData = this.getItemsUpToLevel([firstRoot], 1, levelsToShow);
           this.currentRootId = firstRoot.id;
           // Auto-select the root item
           this.selectedItem = firstRoot;
+          
+          // Debug target medications in chart data
+          const targetMedCodes = ['318420003', '1332437002', '374627000'];
+          const targetMedInChart = this.chartData.filter(item => 
+            targetMedCodes.some(code => item.id.startsWith(code))
+          );
+          
+          // Chart data prepared successfully
+          
+          // Analysis logging removed for cleaner output
           
           // Trigger change detection to update statistics
           this.cdr.detectChanges();
@@ -290,7 +317,8 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       } else {
         const rootItem = this.allData.find(item => item.id === rootId);
         if (rootItem) {
-          this.chartData = this.getItemsUpToLevel([rootItem], 1);
+          const levelsToShow = this.useBrowserStorage ? 4 : this.maxLevels;
+          this.chartData = this.getItemsUpToLevel([rootItem], 1, levelsToShow);
           this.currentRootId = rootId;
           // Auto-select the current root item
           this.selectedItem = rootItem;
@@ -305,8 +333,8 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     }, 100);
   }
 
-  private getItemsUpToLevel(items: ChartItem[], currentLevel: number): ChartItem[] {
-    if (currentLevel >= this.maxLevels) {
+  private getItemsUpToLevel(items: ChartItem[], currentLevel: number, maxLevels: number = this.maxLevels): ChartItem[] {
+    if (currentLevel >= maxLevels) {
       return items;
     }
 
@@ -316,12 +344,15 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       result.push(item);
       
       const children = this.allData.filter(child => child.parent === item.id);
+      // Level logging removed for cleaner output
+      
       if (children.length > 0) {
-        const childItems = this.getItemsUpToLevel(children, currentLevel + 1);
+        const childItems = this.getItemsUpToLevel(children, currentLevel + 1, maxLevels);
         result.push(...childItems);
       }
     }
     
+    // Level return logging removed
     return result;
   }
 
@@ -362,6 +393,8 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   private convertToPlotlyTreemapData(): any[] {
+    // Conversion logging removed for cleaner output
+
     const ids: string[] = [];
     const labels: string[] = [];
     const parents: string[] = [];
@@ -381,6 +414,8 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       
       values.push(item.value);
       
+      // Treemap item logging removed
+      
       // Use consistent color based on item ID
       const colorIndex = this.getColorIndexForItem(item.id);
       const backgroundColor = this.colorPalette[colorIndex];
@@ -397,7 +432,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       }
     });
 
-    return [{
+    const treemapData = [{
       type: 'treemap',
       ids: ids,
       labels: labels,
@@ -418,6 +453,10 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
         color: textColors
       }
     }];
+
+    // Final treemap data logging removed
+
+    return treemapData;
   }
 
   private handleChartClick(data: any): void {
@@ -999,6 +1038,122 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     }
     
     return '0';
+  }
+
+  /**
+   * Analyze the level distribution of chart data to compare with CSV structure
+   */
+  private analyzeLevelDistribution(chartData: ChartItem[]): any {
+    const levelMap = new Map<number, ChartItem[]>();
+    
+    // Calculate level for each item
+    chartData.forEach(item => {
+      const level = this.getItemLevel(item.id);
+      if (!levelMap.has(level)) {
+        levelMap.set(level, []);
+      }
+      levelMap.get(level)!.push(item);
+    });
+    
+    const analysis: any = {
+      totalItems: chartData.length,
+      levels: {}
+    };
+    
+    levelMap.forEach((items, level) => {
+      analysis.levels[`level${level}`] = {
+        count: items.length,
+        totalValue: items.reduce((sum, item) => sum + (item.value || 0), 0),
+        avgValue: items.length > 0 ? (items.reduce((sum, item) => sum + (item.value || 0), 0) / items.length).toFixed(1) : 0,
+        sampleItems: items.slice(0, 3).map(item => ({
+          id: item.id,
+          label: item.label.substring(0, 30) + '...',
+          value: item.value
+        }))
+      };
+    });
+    
+    return analysis;
+  }
+  
+  /**
+   * Calculate the level/depth of an item in the hierarchy
+   */
+  private getItemLevel(itemId: string): number {
+    const item = this.allData.find(i => i.id === itemId);
+    if (!item || !item.parent) return 1;
+    
+    return 1 + this.getItemLevel(item.parent);
+  }
+
+  /**
+   * Debug method to analyze tree structure and multiple parent scenarios
+   */
+  /**
+   * Debug method to find where target medications are in the hierarchy
+   */
+  public findTargetMedications(): void {
+    const targetMedCodes = ['318420003', '1332437002', '374627000'];
+    
+    targetMedCodes.forEach(code => {
+      const foundItems = this.allData.filter(item => item.id.startsWith(code));
+      
+      if (foundItems.length > 0) {
+        foundItems.forEach(item => {
+          const path = this.getNodePath(item);
+          const level = this.getItemLevel(item.id);
+        });
+      }
+    });
+  }
+
+  public debugTreeStructure(): void {
+    // Basic statistics
+    const totalItems = this.allData.length;
+    const rootItems = this.allData.filter(item => !item.parent || item.parent.trim() === '');
+    const nonRootItems = this.allData.filter(item => item.parent && item.parent.trim() !== '');
+    
+    // Analyze potential duplicates (same concept with different suffixes)
+    const conceptGroups = new Map<string, ChartItem[]>();
+    this.allData.forEach(item => {
+      const baseConceptId = item.id.split('_')[0];
+      if (!conceptGroups.has(baseConceptId)) {
+        conceptGroups.set(baseConceptId, []);
+      }
+      conceptGroups.get(baseConceptId)!.push(item);
+    });
+    
+    const duplicateConcepts = Array.from(conceptGroups.entries())
+      .filter(([_, items]) => items.length > 1)
+      .map(([conceptId, items]) => ({
+        conceptId,
+        count: items.length,
+        labels: [...new Set(items.map(i => i.label))],
+        parents: [...new Set(items.map(i => i.parent).filter(p => p))]
+      }));
+    
+    // Duplicate concept analysis completed
+    
+    // Analyze tree depth
+    const getDepth = (itemId: string, visited: Set<string> = new Set()): number => {
+      if (visited.has(itemId)) return 0; // Circular reference protection
+      visited.add(itemId);
+      
+      const item = this.allData.find(i => i.id === itemId);
+      if (!item || !item.parent) return 0;
+      
+      return 1 + getDepth(item.parent, visited);
+    };
+    
+    const depths = this.allData.map(item => getDepth(item.id));
+    const maxDepth = Math.max(...depths);
+    const avgDepth = depths.reduce((a, b) => a + b, 0) / depths.length;
+    
+    // Tree depth analysis completed
+    
+    // Tree structure debug completed
+    
+    return;
   }
 
 

@@ -508,6 +508,12 @@
   color: #333;
 }
 
+.concept-code {
+  font-weight: 400;
+  color: #666;
+  margin-left: 8px;
+}
+
 /* Statistics Cards */
 .statistics-cards {
   display: flex;

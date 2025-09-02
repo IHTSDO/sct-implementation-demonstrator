@@ -92,7 +92,7 @@
         <!-- Selected Node Name and Load Button -->
         <div class="selected-node-name" *ngIf="selectedItem && !isLoadingPatients">
           <div class="node-name-row">
-            <h3><span class="label-prefix">Selected clinical event:</span> <span class="concept-name">{{ selectedItem.label }}</span></h3>
+            <h3><span class="label-prefix">Selected clinical event:</span> <span class="concept-name">{{ selectedItem.label }}</span> <span class="concept-code">{{ selectedItem.id }}</span></h3>
             <button mat-flat-button color="primary" 
                     (click)="loadPatientsForSelectedItem()" 
                     [disabled]="!selectedItem || isLoadingPatients"

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface HierarchyNode {
   parents: string[];
@@ -32,6 +33,8 @@ export class DataAnalyticsService {
   getPartialHierarchy(codes: string[], includeTerms: boolean = true): Observable<HierarchyNode[]> {
     const url = `${this.analyticsServerUrl}/fhir/partial-hierarchy`;
     
+    // Request details logged for debugging
+    
     if (!this.enableExternalService) {
       // Return empty result to trigger fallback
       return new Observable(observer => {
@@ -49,7 +52,12 @@ export class DataAnalyticsService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.post<HierarchyNode[]>(url, requestBody, { headers });
+    return this.http.post<HierarchyNode[]>(url, requestBody, { headers }).pipe(
+      map(response => {
+        // Raw response processed successfully
+        return response;
+      })
+    );
   }
 
   /**
@@ -96,56 +104,103 @@ export class DataAnalyticsService {
   }
 
   /**
-   * Build hierarchical tree structure from flat hierarchy data with counts
+   * Build hierarchical tree structure with SNOMED CT multiple parent support
+   * This creates duplicate nodes for concepts with multiple parents (like CSV format)
    * @param hierarchyData Array of hierarchy nodes with counts
-   * @returns Hierarchical tree structure for Plotly
+   * @returns Hierarchical tree structure for Plotly with multiple parent support
    */
   buildHierarchicalTree(hierarchyData: any[]): any[] {
-    console.log('🌳 [DataAnalyticsService] Building hierarchical tree from data with counts...');
-    console.log('📊 Input hierarchy data:', hierarchyData);
+    // Debug target medication codes specifically
+    const targetMedCodes1 = ['318420003', '1332437002', '374627000'];
+    const targetMedNodes = hierarchyData.filter(n => targetMedCodes1.includes(n.code));
+    
+    // Target medications analysis completed
 
-    const nodeMap = new Map<string, any>();
-    const rootNodes: any[] = [];
+    const allNodes: any[] = [];
+    const codeCounters = new Map<string, number>(); // Track suffix numbers for each code
+    const codeToNodesMap = new Map<string, any[]>(); // Map codes to all their node instances
 
-    // Create node map with Plotly-compatible structure
+    // First pass: Create all nodes with proper suffixes (like CSV format)
     hierarchyData.forEach(node => {
-      const plotlyNode = {
-        id: `${node.code}_1`, // Add suffix for uniqueness
-        label: node.term || node.code,
-        parent: '', // Will be set based on hierarchy
-        value: node.patientCount || 0, // Use patient count for treemap size (as component expects)
-        patientCount: node.patientCount || 0, // Unique patient count
-        code: node.code,
-        term: node.term,
-        eventCount: node.eventCount,
-        childrenEventCount: node.childrenEventCount,
-        childrenPatientCount: node.childrenPatientCount,
-        directEventCount: node.directEventCount,
-        directPatientCount: node.directPatientCount,
-        children: []
-      };
-      nodeMap.set(node.code, plotlyNode);
+      if (!node.parents || node.parents.length === 0) {
+        // Root node - create once with _1 suffix
+        const rootNode = {
+          id: `${node.code}_1`,
+          label: node.term || node.code,
+          parent: '',
+          value: node.patientCount || 0,
+          patientCount: node.patientCount || 0,
+          code: node.code,
+          term: node.term,
+          originalParent: '',
+          allParents: []
+        };
+        allNodes.push(rootNode);
+        
+        // Track this node
+        if (!codeToNodesMap.has(node.code)) {
+          codeToNodesMap.set(node.code, []);
+        }
+        codeToNodesMap.get(node.code)!.push(rootNode);
+        codeCounters.set(node.code, 1);
+      } else {
+        // Create a separate node instance for each parent relationship
+        let counter = codeCounters.get(node.code) || 0;
+        
+        node.parents.forEach((parentCode: string) => {
+          counter++;
+          const duplicateNode = {
+            id: `${node.code}_${counter}`,
+            label: node.term || node.code,
+            parent: '', // Will be set in second pass
+            value: node.patientCount || 0,
+            patientCount: node.patientCount || 0,
+            code: node.code,
+            term: node.term,
+            originalParent: parentCode,
+            allParents: node.parents || []
+          };
+          allNodes.push(duplicateNode);
+          
+          // Track this node
+          if (!codeToNodesMap.has(node.code)) {
+            codeToNodesMap.set(node.code, []);
+          }
+          codeToNodesMap.get(node.code)!.push(duplicateNode);
+        });
+        
+        codeCounters.set(node.code, counter);
+      }
     });
 
-    // Build parent-child relationships
-    hierarchyData.forEach(node => {
-      const currentNode = nodeMap.get(node.code);
-      
-      if (node.parents.length === 0) {
-        // Root node
-        rootNodes.push(currentNode);
-      } else {
-        // Add to parent(s) - for now, just use the first parent
-        const parentCode = node.parents[0];
-        const parentNode = nodeMap.get(parentCode);
-        if (parentNode) {
-          parentNode.children.push(currentNode);
-          currentNode.parent = parentNode.id;
+    // Second pass: Set parent relationships (like CSV format)
+    allNodes.forEach(node => {
+      if (node.originalParent) {
+        // Find the first node instance with the matching parent code
+        const parentNodes = codeToNodesMap.get(node.originalParent);
+        if (parentNodes && parentNodes.length > 0) {
+          // Use the first instance of the parent (like CSV format: parentCode_1)
+          node.parent = parentNodes[0].id;
+        } else {
+          // If parent not found in expanded nodes, it might be a root or external reference
+          console.warn(`⚠️ Parent ${node.originalParent} not found for node ${node.code}`);
         }
       }
     });
 
-    return rootNodes;
+    // Debug the structure to match CSV format
+    const rootNodes = allNodes.filter(n => !n.parent || n.parent === '');
+    const childNodes = allNodes.filter(n => n.parent && n.parent !== '');
+    
+    // Debug target medications in the expanded tree
+    const targetMedCodes2 = ['318420003', '1332437002', '374627000'];
+    const targetMedExpandedNodes = allNodes.filter(n => targetMedCodes2.includes(n.code));
+    
+    // Target medications expanded tree analysis completed
+
+    // Removed detailed statistics logging
+
+    return allNodes;
   }
 
   /**
