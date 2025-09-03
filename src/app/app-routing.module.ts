@@ -27,6 +27,7 @@ import { PlotlyTreemapChartComponent } from './descriptive-statistics/plotly-tre
 import { BenefitsDemoComponent } from './benefits-demo/benefits-demo.component';
 import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinical-record.component';
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
+import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -58,6 +59,7 @@ const routes: Routes = [
   { path: 'benefits-demo', component: BenefitsDemoComponent },
   { path: 'clinical-record', component: ClinicalRecordComponent },
   { path: 'create-patient', component: CreatePatientComponent },
+  { path: 'encounter-record', component: EncounterRecordComponent },
   { path: '**', redirectTo: '' }
 ];
 

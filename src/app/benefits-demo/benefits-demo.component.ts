@@ -95,6 +95,12 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     }
   }
 
+  openEncounterRecord(): void {
+    if (this.selectedPatient) {
+      this.router.navigate(['/encounter-record']);
+    }
+  }
+
   createNewPatient(): void {
     this.router.navigate(['/create-patient']);
   }

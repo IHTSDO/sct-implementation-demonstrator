@@ -1,0 +1,182 @@
+<div class="encounter-record-container">
+  <!-- Header with patient info and navigation -->
+  <div class="record-header">
+    <div class="header-left">
+      <button mat-flat-button color="primary" (click)="goBack()">
+        ← Back to Patient List
+      </button>
+    </div>
+    <div class="header-center" *ngIf="patient">
+      <h1>Current Encounter</h1>
+      <div class="patient-meta">
+        <span class="patient-name">{{ getPatientDisplayName(patient) }}</span>
+        <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
+        <span class="patient-age" *ngIf="patient.birthDate">{{ getPatientAge(patient.birthDate) }}</span>
+        <span class="patient-gender" *ngIf="patient.gender">{{ patient.gender }}</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="current-date">
+        {{ currentDate | date:'longDate' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Main encounter form - Horizontal Layout -->
+  <div class="encounter-content" *ngIf="patient">
+    <div class="encounter-form-container">
+      <div class="form-card">
+        <div class="form-header">
+          <h2>
+            <mat-icon>event_note</mat-icon>
+            Current Encounter
+          </h2>
+          <div class="encounter-datetime">
+            <span class="datetime-label">Date/Time</span>
+            <div class="datetime-inputs">
+              <input type="date" [(ngModel)]="encounterDate" class="date-input" required>
+              <input type="time" [(ngModel)]="encounterTime" class="time-input" required>
+            </div>
+            <div class="datetime-display">
+              {{ getFormattedDateTime() }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-content-vertical">
+          <!-- Row 1: Reason for Encounter -->
+          <div class="form-row">
+            <div class="field-label">
+              <span class="field-title">Reason for Encounter</span>
+            </div>
+            <div class="field-content">
+              <app-autocomplete-binding 
+                [binding]="bindings.reasonForEncounter"
+                [term]="selectedReasonForEncounter?.display || ''"
+                (selectionChange)="onReasonForEncounterSelected($event)">
+              </app-autocomplete-binding>
+              <div class="selected-concept" *ngIf="selectedReasonForEncounter">
+                <span class="concept-display">{{ selectedReasonForEncounter.display }}</span>
+                <span class="concept-code">{{ selectedReasonForEncounter.code }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Diagnosis | Diagnosis Note -->
+          <div class="form-row">
+            <div class="field-label">
+              <span class="field-title">Diagnosis</span>
+            </div>
+            <div class="field-content">
+              <div class="diagnosis-row">
+                <div class="diagnosis-field">
+                  <app-autocomplete-binding 
+                    [binding]="bindings.diagnosis"
+                    [term]="selectedDiagnosis?.display || ''"
+                    (selectionChange)="onDiagnosisSelected($event)">
+                  </app-autocomplete-binding>
+                </div>
+                <div class="diagnosis-note-field">
+                  <mat-form-field class="note-field">
+                    <mat-label>Diagnosis Note</mat-label>
+                    <textarea matInput 
+                              [(ngModel)]="diagnosisNote" 
+                              rows="1" 
+                              placeholder="Free text one line diagnosis note"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="selected-concept" *ngIf="selectedDiagnosis">
+                <span class="concept-display">{{ selectedDiagnosis.display }}</span>
+                <span class="concept-code">{{ selectedDiagnosis.code }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 3: Procedure | Laterality -->
+          <div class="form-row">
+            <div class="field-label">
+              <span class="field-title">Procedure</span>
+            </div>
+            <div class="field-content">
+              <div class="procedure-row">
+                <div class="procedure-field">
+                  <app-autocomplete-binding 
+                    [binding]="bindings.procedure"
+                    [term]="selectedProcedure?.display || ''"
+                    (selectionChange)="onProcedureSelected($event)">
+                  </app-autocomplete-binding>
+                </div>
+                <div class="laterality-field">
+                  <mat-form-field class="laterality-select">
+                    <mat-label>Laterality</mat-label>
+                    <mat-select [(value)]="procedureLaterality" 
+                               placeholder="Select laterality"
+                               [disabled]="!isLateralityEnabled">
+                      <mat-option *ngFor="let option of lateralityOptions" [value]="option.value">
+                        {{ option.display }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <div class="laterality-hint" *ngIf="!isLateralityEnabled">
+                    <small>Laterality not applicable for this procedure</small>
+                  </div>
+                </div>
+              </div>
+              <div class="selected-concept" *ngIf="selectedProcedure">
+                <span class="concept-display">{{ selectedProcedure.display }}</span>
+                <span class="concept-code">{{ selectedProcedure.code }}</span>
+              </div>
+            </div>
+          </div>
+
+        <!-- Bottom Section - Encounter Notes -->
+        <div class="form-bottom">
+          <div class="encounter-notes-section">
+            <h3>Encounter Notes</h3>
+            <mat-form-field class="encounter-notes-field">
+              <mat-label>Notes</mat-label>
+              <textarea matInput 
+                        [(ngModel)]="encounterNotes" 
+                        rows="3" 
+                        placeholder="General notes about this encounter..."></textarea>
+            </mat-form-field>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button mat-flat-button 
+                    color="primary" 
+                    (click)="saveEncounter()" 
+                    [disabled]="!isFormValid() || isSaving"
+                    class="save-button">
+              <mat-spinner diameter="20" *ngIf="isSaving"></mat-spinner>
+              <mat-icon *ngIf="!isSaving">save</mat-icon>
+              {{ isSaving ? 'Saving...' : 'Save' }}
+            </button>
+            
+            <button mat-stroked-button 
+                    color="warn" 
+                    (click)="resetForm()" 
+                    [disabled]="isSaving"
+                    class="reset-button">
+              <mat-icon>refresh</mat-icon>
+              Reset Form
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No patient selected message -->
+  <div class="no-patient-message" *ngIf="!patient">
+    <div class="message-content">
+      <h2>No Patient Selected</h2>
+      <p>Please select a patient from the patient list to create an encounter record.</p>
+      <button mat-flat-button color="primary" (click)="goBack()">
+        Return to Patient List
+      </button>
+    </div>
+  </div>
+</div>
