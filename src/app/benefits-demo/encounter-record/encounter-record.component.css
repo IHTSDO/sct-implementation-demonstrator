@@ -1,6 +1,6 @@
 .encounter-record-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: auto;
+  background: transparent;
   font-family: 'Roboto', sans-serif;
 }
 
@@ -14,13 +14,9 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
-.header-left button {
-  font-weight: 500;
-}
-
 .header-center {
   text-align: center;
-  flex: 1;
+  flex: 2;
 }
 
 .header-center h1 {
@@ -64,18 +60,18 @@
 
 /* Vertical Layout - Clean Form Structure */
 .encounter-content {
-  padding: 16px 32px;
-  max-width: 1400px; /* Increased max-width for a wider viewport */
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
 }
 
 .encounter-form-container {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   overflow: hidden;
   width: 100%;
+  border-left: 4px solid #28a745;
 }
 
 .form-card {
@@ -84,12 +80,13 @@
 
 /* Enhanced Header with DateTime */
 .form-header {
-  background: linear-gradient(135deg, #1976d2, #1565c0);
-  color: white;
-  padding: 16px 24px;
+  background: transparent;
+  color: #333;
+  padding: 12px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 2px solid #e0e0e0;
 }
 
 .form-header h2 {
@@ -116,7 +113,7 @@
 .datetime-label {
   font-size: 14px;
   font-weight: 500;
-  opacity: 0.9;
+  color: #666;
 }
 
 .datetime-inputs {
@@ -126,28 +123,29 @@
 
 .date-input, .time-input {
   padding: 6px 10px;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid #ccc;
   border-radius: 4px;
-  background: rgba(255,255,255,0.1);
-  color: white;
+  background: #fff;
+  color: #333;
   font-size: 14px;
 }
 
 .date-input:focus, .time-input:focus {
   outline: none;
-  border-color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.15);
+  border-color: #1976d2;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
 }
 
 .datetime-display {
   font-size: 12px;
-  opacity: 0.8;
+  color: #666;
   max-width: 200px;
 }
 
 /* Vertical Form Content */
 .form-content-vertical {
-  padding: 20px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -158,7 +156,7 @@
   display: flex;
   gap: 20px;
   align-items: flex-start;
-  padding: 12px 0;
+  padding: 8px 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -185,8 +183,6 @@
   flex-direction: column;
   gap: 8px;
 }
-
-
 
 /* Diagnosis Row - Side by Side */
 .diagnosis-row {
@@ -263,7 +259,7 @@
 
 /* Bottom Section */
 .form-bottom {
-  padding: 20px;
+  padding: 16px;
   border-top: 1px solid #f0f0f0;
   background: #fafafa;
 }
@@ -316,35 +312,6 @@
   background: rgba(244, 67, 54, 0.1);
 }
 
-/* No patient message */
-.no-patient-message {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-  padding: 40px;
-}
-
-.message-content {
-  text-align: center;
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  max-width: 500px;
-}
-
-.message-content h2 {
-  color: #333;
-  margin-bottom: 16px;
-}
-
-.message-content p {
-  color: #666;
-  margin-bottom: 24px;
-  line-height: 1.6;
-}
-
 /* Material form field customizations */
 ::ng-deep .mat-form-field {
   width: 100%;
@@ -384,7 +351,172 @@
   font-weight: 500;
 }
 
-/* Responsive design for vertical layout */
+/* Previous Encounters Section */
+.previous-encounters-section {
+  margin-top: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  border-left: 4px solid #28a745;
+}
+
+.previous-encounters-section .section-header {
+  background: #f8f9fa;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.previous-encounters-section .section-header h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.previous-encounters-section .section-header mat-icon {
+  color: #28a745;
+}
+
+.encounters-list {
+  padding: 0;
+}
+
+.encounter-item {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.encounter-item:last-child {
+  border-bottom: none;
+}
+
+.encounter-item:hover {
+  background-color: #f8f9fa;
+}
+
+.encounter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.encounter-title {
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+}
+
+.encounter-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.encounter-status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.encounter-status-badge.finished {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.encounter-status-badge.active {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.encounter-status-badge.planned {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.delete-button {
+  color: #dc3545;
+}
+
+.delete-button:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.encounter-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.encounter-detail-item {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.encounter-detail-item strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.procedure-status.in-progress {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.procedure-status.planned {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+
+
+.no-procedures {
+  color: #666;
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Inline Procedure Display */
+.procedure-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.procedure-status-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.procedure-status-badge.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.procedure-status-badge.in-progress {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.procedure-status-badge.planned {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+/* Responsive design - consolidated media queries */
 @media (max-width: 768px) {
   .encounter-content {
     padding: 16px 20px;
@@ -432,9 +564,7 @@
   .save-button, .reset-button {
     width: 100%;
   }
-}
-
-@media (max-width: 768px) {
+  
   .record-header {
     flex-direction: column;
     gap: 16px;

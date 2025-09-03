@@ -1010,3 +1010,91 @@
 }
 
 /* Anchor point hover effect now handled above with pulse-glow animation */
+
+/* Tab Styles */
+.clinical-tabs {
+  margin-top: 20px;
+}
+
+.clinical-tabs ::ng-deep .mat-mdc-tab-header {
+  border-bottom: 2px solid #e9ecef;
+  background-color: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+.clinical-tabs ::ng-deep .mat-mdc-tab-label-container {
+  padding: 0 8px;
+}
+
+.clinical-tabs ::ng-deep .mat-mdc-tab-label {
+  min-width: 120px;
+  height: 48px;
+  font-weight: 500;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.clinical-tabs ::ng-deep .mat-mdc-tab-label.mat-mdc-tab-label-active {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.clinical-tabs ::ng-deep .mat-mdc-tab-header-pagination-chevron {
+  border-color: #6c757d;
+}
+
+.clinical-tabs ::ng-deep .mat-mdc-tab-body-wrapper {
+  background-color: #ffffff;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.clinical-tabs ::ng-deep .mat-mdc-tab-body-content {
+  padding: 0;
+}
+
+.tab-content {
+  padding: 10px;
+}
+
+.tab-content .record-section {
+  margin-bottom: 20px;
+  border-left: 4px solid #007bff;
+}
+
+.tab-content .record-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive tab adjustments */
+@media (max-width: 768px) {
+  .clinical-tabs ::ng-deep .mat-mdc-tab-label {
+    min-width: 100px;
+    font-size: 14px;
+  }
+  
+  .tab-content {
+    padding: 15px;
+  }
+}
+
+/* Timeline Tab Styling with Orange Left Border */
+.tab-content app-clinical-timeline {
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 25px !important;
+  margin-bottom: 25px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border-left: 4px solid #fd7e14 !important;
+  display: block !important;
+}
+
+/* Alternative approach - target the timeline container directly */
+app-clinical-timeline .vertical-timeline-container {
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 25px !important;
+  margin-bottom: 25px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border-left: 4px solid #fd7e14 !important;
+}

@@ -1,6 +1,5 @@
 /* Vertical Timeline Container */
 .vertical-timeline-container {
-  margin: 20px 0;
   padding: 20px;
   background: #ffffff;
   border-radius: 8px;
@@ -176,6 +175,16 @@
   background: linear-gradient(135deg, #2196F3, #1976D2);
   transform: scale(1.1);
   box-shadow: 0 4px 16px rgba(69, 183, 209, 0.4);
+}
+
+.timeline-item[data-event-type="encounter"] .event-marker {
+  background: linear-gradient(135deg, #9B59B6, #8E44AD);
+}
+
+.timeline-item[data-event-type="encounter"] .event-marker:hover {
+  background: linear-gradient(135deg, #8E44AD, #7D3C98);
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(155, 89, 182, 0.4);
 }
 
 .event-icon {
@@ -517,6 +526,10 @@
 
 .timeline-item[data-event-type="medication"] .event-marker::before {
   background: radial-gradient(circle, rgba(69, 183, 209, 0.3) 0%, transparent 70%);
+}
+
+.timeline-item[data-event-type="encounter"] .event-marker::before {
+  background: radial-gradient(circle, rgba(155, 89, 182, 0.3) 0%, transparent 70%);
 }
 
 .event-marker:hover::before {

@@ -1,35 +1,212 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PatientService, Patient, Condition, Procedure } from '../../services/patient.service';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
+import { PatientService, Patient } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { Subscription } from 'rxjs';
 
-export interface EncounterRecord {
+// FHIR Encounter Resource Interface
+export interface Encounter {
+  resourceType: 'Encounter';
   id: string;
-  patientId: string;
-  date: string;
-  time: string;
-  reasonForEncounter: {
+  status: 'planned' | 'arrived' | 'triaged' | 'in-progress' | 'onleave' | 'finished' | 'cancelled' | 'entered-in-error' | 'unknown';
+  class: {
+    system: string;
     code: string;
     display: string;
-    system: string;
-  } | null;
-  diagnosis: {
-    code: string;
-    display: string;
-    system: string;
-    note?: string;
-  } | null;
-  procedure: {
-    code: string;
-    display: string;
-    system: string;
-    laterality?: string;
-    note?: string;
-  } | null;
-  encounterNotes: string;
-  createdAt: string;
-  updatedAt: string;
+  };
+  type?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  subject: {
+    reference: string;
+    display?: string;
+  };
+  period: {
+    start: string;
+    end?: string;
+  };
+  reasonCode?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  diagnosis?: Array<{
+    condition: {
+      reference: string;
+      display?: string;
+    };
+    use?: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+    };
+    rank?: number;
+  }>;
+  note?: Array<{
+    text: string;
+    time?: string;
+    authorReference?: {
+      reference: string;
+    };
+  }>;
+  // Additional property for display purposes (not part of FHIR spec)
+  linkedProcedures?: Procedure[];
+}
+
+// FHIR Condition Resource Interface (enhanced)
+export interface Condition {
+  resourceType: 'Condition';
+  id: string;
+  clinicalStatus?: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  verificationStatus?: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  category?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  severity?: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  code: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  bodySite?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  subject: {
+    reference: string;
+    display?: string;
+  };
+  encounter?: {
+    reference: string;
+    display?: string;
+  };
+  onsetDateTime?: string;
+  recordedDate?: string;
+  recorder?: {
+    reference: string;
+  };
+  asserter?: {
+    reference: string;
+  };
+  note?: Array<{
+    text: string;
+    time?: string;
+    authorReference?: {
+      reference: string;
+    };
+  }>;
+}
+
+// FHIR Procedure Resource Interface (enhanced)
+export interface Procedure {
+  resourceType: 'Procedure';
+  id: string;
+  status: 'preparation' | 'in-progress' | 'not-done' | 'on-hold' | 'stopped' | 'completed' | 'entered-in-error' | 'unknown';
+  code: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  subject: {
+    reference: string;
+    display?: string;
+  };
+  encounter?: {
+    reference: string;
+    display?: string;
+  };
+  performedDateTime?: string;
+  performedPeriod?: {
+    start: string;
+    end?: string;
+  };
+  bodySite?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  outcome?: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  report?: Array<{
+    reference: string;
+  }>;
+  complication?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  followUp?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  note?: Array<{
+    text: string;
+    time?: string;
+    authorReference?: {
+      reference: string;
+    };
+  }>;
 }
 
 @Component({
@@ -39,7 +216,10 @@ export interface EncounterRecord {
   standalone: false
 })
 export class EncounterRecordComponent implements OnInit, OnDestroy {
-  patient: Patient | null = null;
+  @Input() patient: Patient | null = null;
+  @Output() conditionAdded = new EventEmitter<Condition>();
+  @Output() procedureAdded = new EventEmitter<Procedure>();
+  
   currentDate = new Date();
   private subscriptions: Subscription[] = [];
   
@@ -53,6 +233,9 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   procedureLaterality: string = '';
   procedureNote: string = '';
   encounterNotes: string = '';
+  
+  // Current encounter ID for linking procedures
+  currentEncounterId: string = '';
   
   // Loading states
   isSaving = false;
@@ -87,10 +270,10 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   // Track if laterality should be enabled
   isLateralityEnabled = false;
 
+  previousEncounters: Encounter[] = [];
+
   constructor(
     private patientService: PatientService,
-    private route: ActivatedRoute,
-    private router: Router,
     private terminologyService: TerminologyService
   ) { 
     // Initialize with current date and time
@@ -100,24 +283,22 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Subscribe to selected patient
-    this.subscriptions.push(
-      this.patientService.getSelectedPatient().subscribe(patient => {
-        this.patient = patient;
-        if (!patient) {
-          this.router.navigate(['/benefits-demo']);
-        }
-      })
-    );
+    // If no patient is provided as input, get it from the service
+    if (!this.patient) {
+      this.subscriptions.push(
+        this.patientService.getSelectedPatient().subscribe(patient => {
+          this.patient = patient;
+        })
+      );
+    }
+    this.loadPreviousEncounters();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  goBack(): void {
-    this.router.navigate(['/benefits-demo']);
-  }
+
 
   getPatientDisplayName(patient: Patient): string {
     if (patient.name && patient.name.length > 0) {
@@ -184,14 +365,19 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   private async checkLateralityEligibility(procedure: any): Promise<void> {
+    console.log('checkLateralityEligibility called with:', procedure);
+    
     if (!procedure || !procedure.code) {
+      console.log('Procedure or procedure.code is missing, disabling laterality');
       this.isLateralityEnabled = false;
       return;
     }
 
     try {
+      console.log('Checking laterality eligibility for procedure:', procedure.code);
       // Check if the procedure has body structure targets that are lateralizable
-      const isLateralizable = await this.isProcedureLateralizable(procedure.code);
+      const isLateralizable = await this.isProcedureLateralizable(procedure);
+      console.log('Laterality eligibility result:', isLateralizable);
       this.isLateralityEnabled = isLateralizable;
       
       // Clear laterality if not eligible
@@ -204,15 +390,16 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async isProcedureLateralizable(procedureCode: any): Promise<boolean> {
-    if (!procedureCode || !procedureCode.code) {
+  private async isProcedureLateralizable(procedureConcept: any): Promise<boolean> {
+    if (!procedureConcept || !procedureConcept.code) {
       return false;
     }
 
     try {
+      console.log('Checking procedure lateralizability:', procedureConcept);
       // Build ECL expression to check if the procedure has body structure targets
       // that are members of the lateralizable body structures reference set
-      const ecl = `(${procedureCode.code} |${procedureCode.display}| . << 363704007 |Procedure site|) AND (^723264001 |Lateralizable body structure reference set (foundation metadata concept)|)`;
+      const ecl = `(${procedureConcept.code} |${procedureConcept.display}| . << 363704007 |Procedure site|) AND (^723264001 |Lateralizable body structure reference set (foundation metadata concept)|)`;
       
       // Use terminology service to expand the ECL
       const response = await this.terminologyService.expandValueSet(ecl, '', 0, 10).toPromise();
@@ -223,6 +410,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
                         response.expansion.contains && 
                         response.expansion.contains.length > 0;
       
+      console.log('Procedure lateralizability result:', hasResults);
       return hasResults;
     } catch (error) {
       console.error('Error checking procedure lateralizability:', error);
@@ -251,33 +439,50 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     
     try {
-      const encounterRecord: EncounterRecord = {
+      const encounterRecord: Encounter = {
+        resourceType: 'Encounter',
         id: this.generateId(),
-        patientId: this.patient.id,
-        date: this.encounterDate,
-        time: this.encounterTime,
-        reasonForEncounter: this.selectedReasonForEncounter ? {
-          code: this.selectedReasonForEncounter.code,
-          display: this.selectedReasonForEncounter.display,
-          system: 'http://snomed.info/sct'
-        } : null,
-        diagnosis: this.selectedDiagnosis ? {
-          code: this.selectedDiagnosis.code,
-          display: this.selectedDiagnosis.display,
-          system: 'http://snomed.info/sct',
-          note: this.diagnosisNote || undefined
-        } : null,
-        procedure: this.selectedProcedure ? {
-          code: this.selectedProcedure.code,
-          display: this.selectedProcedure.display,
-          system: 'http://snomed.info/sct',
-          laterality: this.procedureLaterality || undefined,
-          note: this.procedureNote || undefined
-        } : null,
-        encounterNotes: this.encounterNotes,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        status: 'finished', // Assuming a finished encounter for saving
+        class: {
+          system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
+          code: 'AMB', // Ambulatory
+          display: 'Ambulatory'
+        },
+        subject: {
+          reference: `Patient/${this.patient.id}`
+        },
+        period: {
+          start: `${this.encounterDate}T${this.encounterTime}:00Z`
+        },
+                 reasonCode: this.selectedReasonForEncounter ? [{
+           coding: [{
+             system: 'http://snomed.info/sct',
+             code: this.selectedReasonForEncounter.code,
+             display: this.selectedReasonForEncounter.display
+           }],
+           text: this.selectedReasonForEncounter.display
+         }] : undefined,
+                 diagnosis: this.selectedDiagnosis ? [{
+           condition: {
+             reference: `Condition/${this.generateId()}`,
+             display: this.selectedDiagnosis.display
+           },
+           use: {
+             coding: [{
+               system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+               code: 'active',
+               display: 'Active'
+             }]
+           },
+           rank: 1
+         }] : undefined,
+        note: this.encounterNotes ? [{
+          text: this.encounterNotes
+        }] : undefined
       };
+
+      // Set current encounter ID for linking procedures
+      this.currentEncounterId = encounterRecord.id;
 
       // Save to localStorage for persistence
       this.saveEncounterToStorage(encounterRecord);
@@ -292,11 +497,17 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         await this.addProcedureFromEncounter();
       }
 
+      // Enhance the encounter with linked procedures and diagnosis display terms
+      this.addLinkedProceduresToEncounter(encounterRecord);
+      this.enhanceDiagnosisDisplay(encounterRecord);
+
+      // Add the new encounter to the previous encounters list
+      this.previousEncounters.unshift(encounterRecord);
+
       // Reset form
       this.resetForm();
 
-      // Show success message (you could use a snackbar here)
-      alert('Encounter record saved successfully!');
+
 
     } catch (error) {
       console.error('Error saving encounter:', error);
@@ -312,15 +523,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     const newCondition: Condition = {
       resourceType: 'Condition',
       id: this.generateId(),
-      subject: { reference: `Patient/${this.patient.id}` },
-      code: {
-        coding: [{
-          system: 'http://snomed.info/sct',
-          code: this.selectedDiagnosis.code,
-          display: this.selectedDiagnosis.display
-        }],
-        text: this.selectedDiagnosis.display
-      },
       clinicalStatus: {
         coding: [{
           system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
@@ -329,11 +531,23 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         }],
         text: 'Active'
       },
+      code: {
+        coding: [{
+          system: 'http://snomed.info/sct',
+          code: this.selectedDiagnosis.code,
+          display: this.selectedDiagnosis.display
+        }],
+        text: this.selectedDiagnosis.display
+      },
+      subject: {
+        reference: `Patient/${this.patient.id}`
+      },
       onsetDateTime: `${this.encounterDate}T${this.encounterTime}:00Z`,
       recordedDate: new Date().toISOString()
     };
 
     this.patientService.addPatientCondition(this.patient.id, newCondition);
+    this.conditionAdded.emit(newCondition);
   }
 
   private async addProcedureFromEncounter(): Promise<void> {
@@ -342,7 +556,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     const newProcedure: Procedure = {
       resourceType: 'Procedure',
       id: this.generateId(),
-      subject: { reference: `Patient/${this.patient.id}` },
+      status: 'completed',
       code: {
         coding: [{
           system: 'http://snomed.info/sct',
@@ -351,25 +565,44 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         }],
         text: this.selectedProcedure.display
       },
-      status: 'completed',
-      performedDateTime: `${this.encounterDate}T${this.encounterTime}:00Z`
+      subject: {
+        reference: `Patient/${this.patient.id}`
+      },
+      encounter: {
+        reference: `Encounter/${this.currentEncounterId}`
+      },
+      performedDateTime: `${this.encounterDate}T${this.encounterTime}:00Z`,
+             bodySite: this.procedureLaterality ? [{
+         coding: [{
+           system: 'http://snomed.info/sct',
+           code: this.procedureLaterality,
+           display: this.lateralityOptions.find(opt => opt.value === this.procedureLaterality)?.display || ''
+         }],
+         text: this.lateralityOptions.find(opt => opt.value === this.procedureLaterality)?.display || ''
+       }] : undefined
     };
 
+    // Save to patient service
     this.patientService.addPatientProcedure(this.patient.id, newProcedure);
+    this.procedureAdded.emit(newProcedure);
   }
 
-  private saveEncounterToStorage(encounter: EncounterRecord): void {
-    const storageKey = `encounters_${encounter.patientId}`;
-    const existingEncounters = this.getEncountersFromStorage(encounter.patientId);
+  private saveEncounterToStorage(encounter: Encounter): void {
+    const storageKey = `encounters_${encounter.subject.reference.split('/')[1]}`;
+    const existingEncounters = this.getEncountersFromStorage(encounter.subject.reference.split('/')[1]);
     existingEncounters.push(encounter);
     localStorage.setItem(storageKey, JSON.stringify(existingEncounters));
   }
 
-  private getEncountersFromStorage(patientId: string): EncounterRecord[] {
+
+
+  private getEncountersFromStorage(patientId: string): Encounter[] {
     const storageKey = `encounters_${patientId}`;
     const stored = localStorage.getItem(storageKey);
     return stored ? JSON.parse(stored) : [];
   }
+
+
 
   resetForm(): void {
     const now = new Date();
@@ -391,5 +624,142 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   isFormValid(): boolean {
     return !!(this.encounterDate && this.encounterTime && 
              (this.selectedReasonForEncounter || this.selectedDiagnosis || this.selectedProcedure || this.encounterNotes.trim()));
+  }
+
+  loadPreviousEncounters(): void {
+    if (this.patient) {
+      this.previousEncounters = this.getEncountersFromStorage(this.patient.id);
+      // Enhance encounters with linked procedures and diagnosis display terms
+      this.previousEncounters.forEach(encounter => {
+        this.addLinkedProceduresToEncounter(encounter);
+        this.enhanceDiagnosisDisplay(encounter);
+      });
+    }
+  }
+
+  private addLinkedProceduresToEncounter(encounter: Encounter): void {
+    // Get procedures that reference this encounter
+    const linkedProcedures = this.getProceduresForEncounter(encounter.id);
+    // Add procedures to encounter object for display purposes
+    (encounter as any).linkedProcedures = linkedProcedures;
+  }
+
+  private enhanceDiagnosisDisplay(encounter: Encounter): void {
+    // Enhance diagnosis with display terms if they're missing
+    if (encounter.diagnosis) {
+      encounter.diagnosis.forEach(diagnosis => {
+        if (diagnosis.condition && !diagnosis.condition.display) {
+          // Try to extract display from reference if it's a SNOMED CT concept
+          const reference = diagnosis.condition.reference;
+          if (reference && reference.includes('Condition/')) {
+            // For now, we'll use a fallback display
+            // In a real implementation, you might want to look up the concept
+            diagnosis.condition.display = 'Diagnosis (details not available)';
+          }
+        }
+      });
+    }
+  }
+
+  private getProceduresForEncounter(encounterId: string): Procedure[] {
+    if (!this.patient) return [];
+    
+    // Get procedures from patient service
+    const patientProcedures = this.patientService.getPatientProcedures(this.patient.id);
+    if (patientProcedures && patientProcedures.length > 0) {
+      return patientProcedures.filter(proc => 
+        proc.encounter && proc.encounter.reference === `Encounter/${encounterId}`
+      ).map(proc => this.convertToLocalProcedure(proc));
+    }
+    
+    return [];
+  }
+
+  private convertToLocalProcedure(serviceProcedure: any): Procedure {
+    // Convert patient service procedure to local Procedure interface
+    return {
+      resourceType: 'Procedure',
+      id: serviceProcedure.id,
+      status: serviceProcedure.status || 'completed',
+      code: {
+        coding: [{
+          system: serviceProcedure.code?.coding?.[0]?.system || 'http://snomed.info/sct',
+          code: serviceProcedure.code?.coding?.[0]?.code || '',
+          display: serviceProcedure.code?.coding?.[0]?.display || ''
+        }],
+        text: serviceProcedure.code?.text || ''
+      },
+      subject: {
+        reference: serviceProcedure.subject?.reference || `Patient/${this.patient?.id}`
+      },
+      encounter: serviceProcedure.encounter,
+      performedDateTime: serviceProcedure.performedDateTime || serviceProcedure.performedPeriod?.start || '',
+      bodySite: serviceProcedure.bodySite
+    };
+  }
+
+  trackByEncounterId(index: number, encounter: Encounter): string {
+    return encounter.id;
+  }
+
+  formatEncounterDate(dateString: string): string {
+    if (!dateString) return 'Unknown date';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getDiagnosisDisplay(diagnosis: any): string {
+    // First try to get the display from the diagnosis condition
+    if (diagnosis.condition?.display) {
+      return diagnosis.condition.display;
+    }
+    
+    // If no display, try to get it from the use coding
+    if (diagnosis.use?.coding?.[0]?.display) {
+      return diagnosis.use.coding[0].display;
+    }
+    
+    // Fallback to reference if no display is available
+    return diagnosis.condition?.reference || 'Unknown diagnosis';
+  }
+
+  getProcedureDisplay(procedure: any): string {
+    // First try to get the display from the procedure code text
+    if (procedure.code?.text) {
+      return procedure.code.text;
+    }
+    
+    // If no text, try to get it from the coding display
+    if (procedure.code?.coding?.[0]?.display) {
+      return procedure.code.coding[0].display;
+    }
+    
+    // Fallback to a generic message if no display is available
+    return 'Procedure (details not available)';
+  }
+
+  viewEncounterDetails(encounter: Encounter): void {
+    // TODO: Implement detailed view modal or navigation
+    console.log('Viewing encounter details:', encounter);
+    alert(`Encounter Details:\nDate: ${this.formatEncounterDate(encounter.period.start)}\nStatus: ${encounter.status}\nReason: ${encounter.reasonCode?.[0]?.text || 'None'}`);
+  }
+
+  deleteEncounter(encounterId: string): void {
+    if (confirm('Are you sure you want to delete this encounter?')) {
+      if (this.patient) {
+        const storageKey = `encounters_${this.patient.id}`;
+        const existingEncounters = this.getEncountersFromStorage(this.patient.id);
+        const updatedEncounters = existingEncounters.filter(enc => enc.id !== encounterId);
+        localStorage.setItem(storageKey, JSON.stringify(updatedEncounters));
+        this.previousEncounters = updatedEncounters;
+        alert('Encounter deleted successfully');
+      }
+    }
   }
 }

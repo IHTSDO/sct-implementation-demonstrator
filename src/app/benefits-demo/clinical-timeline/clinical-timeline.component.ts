@@ -3,7 +3,7 @@ import { Condition, Procedure, MedicationStatement } from '../../services/patien
 
 export interface TimelineEvent {
   id: string;
-  type: 'condition' | 'procedure' | 'medication';
+  type: 'condition' | 'procedure' | 'medication' | 'encounter';
   title: string;
   date: Date;
   conceptId: string;
@@ -23,6 +23,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
   @Input() conditions: Condition[] = [];
   @Input() procedures: Procedure[] = [];
   @Input() medications: MedicationStatement[] = [];
+  @Input() encounters: any[] = [];
 
   timelineEvents: TimelineEvent[] = [];
   sortedEvents: TimelineEvent[] = [];
@@ -31,7 +32,8 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
   readonly eventColors = {
     condition: '#FF6B6B',
     procedure: '#4ECDC4', 
-    medication: '#45B7D1'
+    medication: '#45B7D1',
+    encounter: '#9B59B6'
   };
 
   // Utility method to determine if an event should be on the left or right
@@ -44,7 +46,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['conditions'] || changes['procedures'] || changes['medications']) {
+    if (changes['conditions'] || changes['procedures'] || changes['medications'] || changes['encounters']) {
       this.processEvents();
     }
   }
@@ -106,6 +108,24 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
       }
     });
 
+    // Process encounters
+    this.encounters.forEach(encounter => {
+      const date = this.getBestDate(encounter, 'encounter');
+      if (date) {
+        this.timelineEvents.push({
+          id: encounter.id,
+          type: 'encounter',
+          title: this.getEncounterTitle(encounter),
+          date: date,
+          conceptId: this.getEncounterConceptId(encounter),
+          status: encounter.status || 'Unknown',
+          details: this.getEncounterDetails(encounter),
+          originalEvent: encounter,
+          color: this.eventColors.encounter
+        });
+      }
+    });
+
     // Sort events by date (newest first for vertical timeline)
     this.sortedEvents = this.timelineEvents.sort((a, b) => b.date.getTime() - a.date.getTime());
   }
@@ -122,6 +142,9 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
         break;
       case 'medication':
         dateString = event.effectiveDateTime || event.recordedDate;
+        break;
+      case 'encounter':
+        dateString = event.period?.start || event.recordedDate;
         break;
     }
 
@@ -178,6 +201,43 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
     return details.join(' • ');
   }
 
+  private getEncounterTitle(encounter: any): string {
+    if (encounter.reasonCode && encounter.reasonCode.length > 0) {
+      return encounter.reasonCode[0].text || 'Patient Encounter';
+    }
+    if (encounter.diagnosis && encounter.diagnosis.length > 0) {
+      return `Encounter - ${encounter.diagnosis[0].condition.display || 'Diagnosis'}`;
+    }
+    return 'Patient Encounter';
+  }
+
+  private getEncounterConceptId(encounter: any): string {
+    if (encounter.reasonCode && encounter.reasonCode.length > 0 && encounter.reasonCode[0].coding) {
+      return encounter.reasonCode[0].coding[0].code || '';
+    }
+    if (encounter.diagnosis && encounter.diagnosis.length > 0 && encounter.diagnosis[0].condition) {
+      // Extract concept ID from condition reference if available
+      return '';
+    }
+    return '';
+  }
+
+  private getEncounterDetails(encounter: any): string {
+    const details = [];
+    if (encounter.period?.start) {
+      details.push(`Date: ${this.formatDate(encounter.period.start)}`);
+    }
+    if (encounter.diagnosis && encounter.diagnosis.length > 0) {
+      const diagnosis = encounter.diagnosis[0].condition.display || 'Diagnosis recorded';
+      details.push(`Diagnosis: ${diagnosis}`);
+    }
+    if (encounter.linkedProcedures && encounter.linkedProcedures.length > 0) {
+      const procedure = encounter.linkedProcedures[0];
+      details.push(`Procedure: ${procedure.code.text || 'Procedure recorded'}`);
+    }
+    return details.join(' • ');
+  }
+
   private formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString();
   }
@@ -187,6 +247,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
       case 'condition': return 'Condition';
       case 'procedure': return 'Procedure';
       case 'medication': return 'Medication';
+      case 'encounter': return 'Encounter';
       default: return 'Event';
     }
   }
@@ -196,6 +257,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
       case 'condition': return 'medical_services';
       case 'procedure': return 'healing';
       case 'medication': return 'medication';
+      case 'encounter': return 'person_pin';
       default: return 'event';
     }
   }

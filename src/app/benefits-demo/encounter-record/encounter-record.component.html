@@ -1,27 +1,4 @@
 <div class="encounter-record-container">
-  <!-- Header with patient info and navigation -->
-  <div class="record-header">
-    <div class="header-left">
-      <button mat-flat-button color="primary" (click)="goBack()">
-        ← Back to Patient List
-      </button>
-    </div>
-    <div class="header-center" *ngIf="patient">
-      <h1>Current Encounter</h1>
-      <div class="patient-meta">
-        <span class="patient-name">{{ getPatientDisplayName(patient) }}</span>
-        <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
-        <span class="patient-age" *ngIf="patient.birthDate">{{ getPatientAge(patient.birthDate) }}</span>
-        <span class="patient-gender" *ngIf="patient.gender">{{ patient.gender }}</span>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="current-date">
-        {{ currentDate | date:'longDate' }}
-      </div>
-    </div>
-  </div>
-
   <!-- Main encounter form - Horizontal Layout -->
   <div class="encounter-content" *ngIf="patient">
     <div class="encounter-form-container">
@@ -152,7 +129,7 @@
                     class="save-button">
               <mat-spinner diameter="20" *ngIf="isSaving"></mat-spinner>
               <mat-icon *ngIf="!isSaving">save</mat-icon>
-              {{ isSaving ? 'Saving...' : 'Save' }}
+              {{ isSaving ? 'Saving...' : 'Save encounter' }}
             </button>
             
             <button mat-stroked-button 
@@ -161,7 +138,7 @@
                     [disabled]="isSaving"
                     class="reset-button">
               <mat-icon>refresh</mat-icon>
-              Reset Form
+              Reset
             </button>
           </div>
         </div>
@@ -169,14 +146,62 @@
     </div>
   </div>
 
-  <!-- No patient selected message -->
-  <div class="no-patient-message" *ngIf="!patient">
-    <div class="message-content">
-      <h2>No Patient Selected</h2>
-      <p>Please select a patient from the patient list to create an encounter record.</p>
-      <button mat-flat-button color="primary" (click)="goBack()">
-        Return to Patient List
-      </button>
+  <!-- Previous Encounters Section -->
+  <div class="previous-encounters-section" *ngIf="patient && previousEncounters.length > 0">
+    <div class="section-header">
+      <h3>
+        <mat-icon>history</mat-icon>
+        Previous Encounters
+      </h3>
+    </div>
+    
+    <div class="encounters-list">
+      <div class="encounter-item" *ngFor="let encounter of previousEncounters; trackBy: trackByEncounterId">
+        <div class="encounter-header">
+          <span class="encounter-title">{{ formatEncounterDate(encounter.period.start) }}</span>
+          <div class="encounter-header-actions">
+            <span class="encounter-status-badge" [class]="encounter.status">
+              {{ encounter.status }}
+            </span>
+            <button mat-icon-button 
+                    class="delete-button" 
+                    (click)="deleteEncounter(encounter.id)"
+                    title="Delete encounter">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </div>
+        
+        <div class="encounter-details">
+          <!-- Reason for Encounter -->
+          <span class="encounter-detail-item" *ngIf="encounter.reasonCode && encounter.reasonCode.length > 0">
+            <strong>Reason:</strong> {{ encounter.reasonCode[0].text }}
+          </span>
+          
+          <!-- Diagnosis -->
+          <span class="encounter-detail-item" *ngIf="encounter.diagnosis && encounter.diagnosis.length > 0">
+            <strong>Diagnosis:</strong> {{ getDiagnosisDisplay(encounter.diagnosis[0]) }}
+          </span>
+          
+          <!-- Procedures -->
+          <span class="encounter-detail-item" *ngIf="encounter.linkedProcedures && encounter.linkedProcedures.length > 0">
+            <strong>Procedures:</strong> {{ getProcedureDisplay(encounter.linkedProcedures[0]) }}
+            <span class="procedure-status-badge" [class]="encounter.linkedProcedures[0].status">
+              {{ encounter.linkedProcedures[0].status }}
+            </span>
+          </span>
+          
+          <!-- No Procedures Message -->
+          <span class="encounter-detail-item" *ngIf="!encounter.linkedProcedures || encounter.linkedProcedures.length === 0">
+            <strong>Procedures:</strong> <em>No procedures recorded</em>
+          </span>
+          
+          <!-- Notes -->
+          <span class="encounter-detail-item" *ngIf="encounter.note && encounter.note.length > 0">
+            <strong>Notes:</strong> {{ encounter.note[0].text }}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </div>

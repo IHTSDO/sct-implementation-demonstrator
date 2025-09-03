@@ -31,6 +31,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   conditions: Condition[] = [];
   procedures: Procedure[] = [];
   medications: MedicationStatement[] = [];
+  encounters: any[] = [];
   currentDate = new Date();
   private subscriptions: Subscription[] = [];
   
@@ -215,12 +216,19 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.procedures = this.loadCachedOrFreshData('procedures', patientId, () => this.patientService.getPatientProcedures(patientId));
     this.medications = this.loadCachedOrFreshData('medications', patientId, () => this.patientService.getPatientMedications(patientId));
     
-
+    // Load encounters from localStorage
+    this.encounters = this.getEncountersFromStorage(patientId);
   }
 
   formatDate(dateString: string | undefined): string {
     if (!dateString) return 'Unknown';
     return new Date(dateString).toLocaleDateString();
+  }
+
+  private getEncountersFromStorage(patientId: string): any[] {
+    const storageKey = `encounters_${patientId}`;
+    const stored = localStorage.getItem(storageKey);
+    return stored ? JSON.parse(stored) : [];
   }
 
   getConditionStatus(condition: Condition): string {
@@ -268,14 +276,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // First reload clinical data to get the new condition in the array
-      this.loadClinicalData(this.patient!.id);
+      // Add the new condition directly to the local array to avoid timing issues
+      this.conditions.push(event);
       
-      // Find the newly added condition by ID and map it
-      const newCondition = this.conditions.find(c => c.id === event.id);
-      if (newCondition) {
-        await this.mapSingleEventToAnchorPoint(newCondition);
-      }
+      // Map the condition to an anchor point directly
+      await this.mapSingleEventToAnchorPoint(event);
+      
+      // Reload clinical data to ensure consistency with storage
+      this.loadClinicalData(this.patient!.id);
     } catch (error) {
       console.error('Error processing new condition:', error);
     } finally {
@@ -291,14 +299,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // First reload clinical data to get the new procedure in the array
-      this.loadClinicalData(this.patient!.id);
+      // Add the new procedure directly to the local array to avoid timing issues
+      this.procedures.push(event);
       
-      // Find the newly added procedure by ID and map it
-      const newProcedure = this.procedures.find(p => p.id === event.id);
-      if (newProcedure) {
-        await this.mapSingleEventToAnchorPoint(newProcedure);
-      }
+      // Map the procedure to an anchor point directly
+      await this.mapSingleEventToAnchorPoint(event);
+      
+      // Reload clinical data to ensure consistency with storage
+      this.loadClinicalData(this.patient!.id);
     } catch (error) {
       console.error('Error processing new procedure:', error);
     } finally {
@@ -314,14 +322,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // First reload clinical data to get the new medication in the array
-      this.loadClinicalData(this.patient!.id);
+      // Add the new medication directly to the local array to avoid timing issues
+      this.medications.push(event);
       
-      // Find the newly added medication by ID and map it
-      const newMedication = this.medications.find(m => m.id === event.id);
-      if (newMedication) {
-        await this.mapSingleEventToAnchorPoint(newMedication);
-      }
+      // Map the medication to an anchor point directly
+      await this.mapSingleEventToAnchorPoint(event);
+      
+      // Reload clinical data to ensure consistency with storage
+      this.loadClinicalData(this.patient!.id);
     } catch (error) {
       console.error('Error processing new medication:', error);
     } finally {
