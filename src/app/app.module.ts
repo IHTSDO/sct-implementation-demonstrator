@@ -106,6 +106,7 @@ import { BenefitsDemoComponent } from './benefits-demo/benefits-demo.component';
 import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinical-record.component';
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
 import { ClinicalEntryComponent } from './benefits-demo/clinical-entry/clinical-entry.component';
+import { ClinicalTimelineComponent } from './benefits-demo/clinical-timeline/clinical-timeline.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -171,7 +172,8 @@ const app = initializeApp(firebaseConfig);
         BenefitsDemoComponent,
         ClinicalRecordComponent,
         CreatePatientComponent,
-        ClinicalEntryComponent
+        ClinicalEntryComponent,
+        ClinicalTimelineComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

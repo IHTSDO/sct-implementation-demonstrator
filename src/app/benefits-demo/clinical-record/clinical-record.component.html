@@ -359,6 +359,13 @@
       </div>
     </div>
 
+    <!-- Clinical Timeline Section -->
+    <app-clinical-timeline 
+      [conditions]="conditions"
+      [procedures]="procedures" 
+      [medications]="medications">
+    </app-clinical-timeline>
+
     <!-- Empty State -->
     <div class="record-section" *ngIf="conditions.length === 0 && procedures.length === 0 && medications.length === 0">
       <div class="empty-state">
