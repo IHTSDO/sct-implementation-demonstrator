@@ -20,3 +20,15 @@ To run these demos locally:
 `ng serve` 
 
 Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+## Regional specific configuration
+
+Some regions may have specific requirements and additional configuration - this configuration needs to be specified when running `ng serve` 
+
+These configuration files are at at `src/environments` and applies to various components within the SCT Demonstrator application.
+
+Run:
+`ng serve --configuration=some-region`
+
+Note: Adding new regional config must have an accompanying configuration section for both `build` and `serve` in `angular.json`.
+

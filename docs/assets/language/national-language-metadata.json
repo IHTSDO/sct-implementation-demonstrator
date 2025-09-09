@@ -111,6 +111,23 @@
                     "languageDialects": "sv-X-83461000052100,sv-X-46011000052107,en-X-900000000000509007"
                 }
             ]
+        },
+        {
+            "title": "Australian Edition",
+            "moduleUri": "http://snomed.info/sct/32506021000036107",
+            "languageCodes": [
+                "en"
+            ],
+            "languageRefsets": [
+                "32570271000036106"
+            ],
+            "contexts": [
+                {
+                    "name": "Australian English",
+                    "languageDialects": "en-X-sctlang-32570271-00003610-6"
+                }
+                
+            ]
         }
     ]
 }
