@@ -63,7 +63,7 @@
             </div>
           </div>
         </div>
-        <div class="demographics-right">
+        <div class="demographics-middle">
           <div class="body-model-container">
             <div class="model-with-annotations">
               <img 
@@ -103,6 +103,18 @@
               <!-- Connection lines are now handled dynamically via hover events -->
             </div>
           </div>
+          
+          <!-- CDS Recommendations Notice -->
+          <div class="cds-notice-section">
+            <div class="cds-notice" 
+                 [ngClass]="getCdsNoticeClass()"
+                 [class.clickable]="cdsResponse && cdsResponse.cards && cdsResponse.cards.length > 0"
+                 (click)="onCdsNoticeClick()">
+              <span class="cds-notice-text"><mat-icon class="cds-notice-icon">{{ getCdsNoticeIcon() }}</mat-icon> {{ getCdsNoticeText() }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="demographics-right">
           <div class="clinical-events-summary">
             <div class="clinical-summary-section">
               <h5>Conditions</h5>
@@ -160,7 +172,6 @@
               </ng-template>
             </div>
 
-
           </div>
         </div>
       </div>
@@ -168,9 +179,31 @@
 
     <!-- Tabbed View for Clinical Data -->
     <div class="record-section">
-      <mat-tab-group class="clinical-tabs">
-        <!-- Lists Tab -->
-        <mat-tab label="Lists">
+      <mat-tab-group class="clinical-tabs" #tabGroup>
+        <mat-tab label="Encounters">
+          <div class="tab-content">
+            <app-encounter-record 
+              [patient]="patient"
+              (conditionAdded)="onConditionAdded($event)"
+              (procedureAdded)="onProcedureAdded($event)">
+            </app-encounter-record>
+          </div>
+        </mat-tab>
+
+        <!-- Timeline Tab -->
+        <mat-tab label="Timeline">
+          <div class="tab-content">
+            <app-clinical-timeline 
+              [conditions]="conditions"
+              [procedures]="procedures" 
+              [medications]="medications"
+              [encounters]="encounters">
+            </app-clinical-timeline>
+          </div>
+        </mat-tab>
+
+        <!-- List View Tab -->
+        <mat-tab label="List View">
           <div class="tab-content">
             <!-- Conditions Section -->
             <div class="record-section">
@@ -367,25 +400,90 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Encounters">
+        <!-- CDS Tab -->
+        <mat-tab label="Decision Support" (selectChange)="onCdsTabSelected()">
           <div class="tab-content">
-            <app-encounter-record 
-              [patient]="patient"
-              (conditionAdded)="onConditionAdded($event)"
-              (procedureAdded)="onProcedureAdded($event)">
-            </app-encounter-record>
-          </div>
-        </mat-tab>
-
-        <!-- Timeline Tab -->
-        <mat-tab label="Timeline">
-          <div class="tab-content">
-            <app-clinical-timeline 
-              [conditions]="conditions"
-              [procedures]="procedures" 
-              [medications]="medications"
-              [encounters]="encounters">
-            </app-clinical-timeline>
+            <div class="cds-tab-container">
+              <h3>Decision Support</h3>
+              <p class="cds-description">
+                Get medication order recommendations based on current patient conditions and medications using SNOMED CT Clinical Decision Support services.
+              </p>
+              
+              <!-- CDS Status -->
+              <div class="cds-status">
+                <div *ngIf="!isCdsLoading && !cdsResponse && !cdsError" class="cds-initial">
+                  <mat-icon color="primary">psychology</mat-icon>
+                  <span>Click to request medication recommendations</span>
+                  <button mat-raised-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading">
+                    Request Recommendations
+                  </button>
+                </div>
+                
+                <div *ngIf="isCdsLoading" class="cds-loading">
+                  <mat-spinner diameter="24"></mat-spinner>
+                  <span>Requesting medication recommendations from CDS service...</span>
+                </div>
+                
+                <div *ngIf="cdsError" class="cds-error">
+                  <mat-icon color="warn">error</mat-icon>
+                  <div class="error-content">
+                    <strong>Error:</strong>
+                    <span>{{ cdsError }}</span>
+                    <button mat-stroked-button color="primary" (click)="submitToCdsService()" style="margin-top: 8px;">
+                      Retry
+                    </button>
+                  </div>
+                </div>
+                
+                <div *ngIf="cdsResponse && cdsResponse.cards && cdsResponse.cards.length > 0" class="cds-recommendations">
+                  <div class="recommendations-header">
+                    <mat-icon color="primary">lightbulb</mat-icon>
+                    <span>{{ cdsResponse.cards.length }} recommendation(s) received</span>
+                    <button mat-stroked-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading">
+                      Refresh
+                    </button>
+                  </div>
+                  <div class="cds-cards">
+                    <mat-card *ngFor="let card of cdsResponse.cards; let i = index" class="cds-card" [ngClass]="'indicator-' + card.indicator">
+                      <mat-card-header>
+                        <mat-card-title>
+                          <mat-icon [color]="getCardIconColor(card.indicator)">{{ getCardIcon(card.indicator) }}</mat-icon>
+                          {{ card.summary }}
+                        </mat-card-title>
+                        <mat-card-subtitle>{{ card.source.label }}</mat-card-subtitle>
+                      </mat-card-header>
+                      <mat-card-content *ngIf="card.detail">
+                        <p>{{ card.detail }}</p>
+                      </mat-card-content>
+                      <mat-card-actions>
+                        <button mat-button *ngFor="let suggestion of card.suggestions" color="primary">
+                          {{ suggestion.label }}
+                        </button>
+                        <button mat-button 
+                                *ngIf="card.source.url" 
+                                color="accent"
+                                (click)="openSourceUrl(card.source.url)"
+                                title="View source">
+                          <mat-icon>open_in_new</mat-icon>
+                          View Source
+                        </button>
+                      </mat-card-actions>
+                    </mat-card>
+                  </div>
+                </div>
+                
+                <div *ngIf="cdsResponse && (!cdsResponse.cards || cdsResponse.cards.length === 0)" class="cds-no-recommendations">
+                  <mat-icon color="accent">check_circle</mat-icon>
+                  <div class="no-recommendations-content">
+                    <strong>No specific recommendations</strong>
+                    <span>No medication order recommendations at this time based on current conditions and medications.</span>
+                    <button mat-stroked-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading" style="margin-top: 8px;">
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </mat-tab>
         

@@ -4,10 +4,7 @@
     <div class="encounter-form-container">
       <div class="form-card">
         <div class="form-header">
-          <h2>
-            <mat-icon>event_note</mat-icon>
-            Current Encounter
-          </h2>
+          <h3>Current Encounter</h3>
           <div class="encounter-datetime">
             <span class="datetime-label">Date/Time</span>
             <div class="datetime-inputs">
@@ -110,7 +107,7 @@
         <!-- Bottom Section - Encounter Notes -->
         <div class="form-bottom">
           <div class="encounter-notes-section">
-            <h3>Encounter Notes</h3>
+            <h3>Notes</h3>
             <mat-form-field class="encounter-notes-field">
               <mat-label>Notes</mat-label>
               <textarea matInput 
@@ -149,10 +146,7 @@
   <!-- Previous Encounters Section -->
   <div class="previous-encounters-section" *ngIf="patient && previousEncounters.length > 0">
     <div class="section-header">
-      <h3>
-        <mat-icon>history</mat-icon>
-        Previous Encounters
-      </h3>
+      <h3>Previous Encounters</h3>
     </div>
     
     <div class="encounters-list">
