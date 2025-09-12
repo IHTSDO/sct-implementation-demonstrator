@@ -55,7 +55,7 @@ export class PatientDataTransformerService {
   /**
    * Transform benefits-demo patient data to match mock_patients_5000.json structure
    */
-  transformPatientsToMockFormat(): TransformedPatientResponse {
+  transformPatientsToMockFormat(useIcd10Filtering: boolean = false): TransformedPatientResponse {
     // Get current patients from the service
     let patients: Patient[] = [];
     this.patientService.getPatients().subscribe(currentPatients => {
@@ -72,7 +72,13 @@ export class PatientDataTransformerService {
       const events: TransformedPatientEvent[] = [];
 
       // Add condition events
-      conditions.forEach(condition => {
+      const conditionsToProcess = useIcd10Filtering 
+        ? conditions.filter(condition => 
+            (condition as any).icd10Code && (condition as any).icd10Code.trim() !== ''
+          )
+        : conditions;
+      
+      conditionsToProcess.forEach(condition => {
         const code = this.extractCodeFromResource(condition);
         if (code) {
           events.push({
@@ -207,7 +213,7 @@ export class PatientDataTransformerService {
    * Transform benefits-demo patient data to hierarchy format (test5.csv structure)
    * Always uses SNOMED CT multiple inheritance support for proper analytics
    */
-  transformPatientsToHierarchyFormat(): Observable<HierarchyDataItem[]> {
+  transformPatientsToHierarchyFormat(useIcd10Filtering: boolean = false): Observable<HierarchyDataItem[]> {
     // Get current patients from the service
     let patients: Patient[] = [];
     this.patientService.getPatients().subscribe(currentPatients => {
@@ -224,7 +230,19 @@ export class PatientDataTransformerService {
     const allMedications: MedicationStatement[] = [];
 
     patients.forEach(patient => {
-      allConditions.push(...this.patientService.getPatientConditions(patient.id));
+      const patientConditions = this.patientService.getPatientConditions(patient.id);
+      
+      if (useIcd10Filtering) {
+        // Filter conditions to only include those with ICD-10 codes
+        const conditionsWithIcd10 = patientConditions.filter(condition => 
+          (condition as any).icd10Code && (condition as any).icd10Code.trim() !== ''
+        );
+        allConditions.push(...conditionsWithIcd10);
+      } else {
+        // Include all conditions
+        allConditions.push(...patientConditions);
+      }
+      
       allProcedures.push(...this.patientService.getPatientProcedures(patient.id));
       allMedications.push(...this.patientService.getPatientMedications(patient.id));
     });
@@ -509,7 +527,7 @@ export class PatientDataTransformerService {
   private createSimpleHierarchy(conditions: Condition[], procedures: Procedure[], medications: MedicationStatement[]): HierarchyDataItem[] {
     const codeCounts = new Map<string, { count: number, term: string, patients: Set<string> }>();
 
-    // Count codes from all clinical data
+    // Count codes from all clinical data (conditions are already filtered for ICD-10 codes)
     [...conditions, ...procedures, ...medications].forEach(resource => {
       const code = this.extractCodeFromResource(resource);
       if (code) {
@@ -579,7 +597,7 @@ export class PatientDataTransformerService {
   /**
    * Check if there is any patient data available
    */
-  hasPatientData(): boolean {
+  hasPatientData(useIcd10Filtering: boolean = false): boolean {
     // Get current patients from the service
     let patients: Patient[] = [];
     this.patientService.getPatients().subscribe(currentPatients => {
@@ -595,14 +613,24 @@ export class PatientDataTransformerService {
       const conditions = this.patientService.getPatientConditions(patient.id);
       const procedures = this.patientService.getPatientProcedures(patient.id);
       const medications = this.patientService.getPatientMedications(patient.id);
-      return conditions.length > 0 || procedures.length > 0 || medications.length > 0;
+      
+      if (useIcd10Filtering) {
+        // Only count conditions with ICD-10 codes
+        const conditionsWithIcd10 = conditions.filter(condition => 
+          (condition as any).icd10Code && (condition as any).icd10Code.trim() !== ''
+        );
+        return conditionsWithIcd10.length > 0 || procedures.length > 0 || medications.length > 0;
+      } else {
+        // Count all conditions
+        return conditions.length > 0 || procedures.length > 0 || medications.length > 0;
+      }
     });
   }
 
   /**
    * Get summary of available data
    */
-  getDataSummary(): { patients: number, conditions: number, procedures: number, medications: number } {
+  getDataSummary(useIcd10Filtering: boolean = false): { patients: number, conditions: number, procedures: number, medications: number } {
     // Get current patients from the service
     let patients: Patient[] = [];
     this.patientService.getPatients().subscribe(currentPatients => {
@@ -614,7 +642,19 @@ export class PatientDataTransformerService {
     let totalMedications = 0;
 
     patients.forEach((patient: Patient) => {
-      totalConditions += this.patientService.getPatientConditions(patient.id).length;
+      const conditions = this.patientService.getPatientConditions(patient.id);
+      
+      if (useIcd10Filtering) {
+        // Only count conditions with ICD-10 codes
+        const conditionsWithIcd10 = conditions.filter(condition => 
+          (condition as any).icd10Code && (condition as any).icd10Code.trim() !== ''
+        );
+        totalConditions += conditionsWithIcd10.length;
+      } else {
+        // Count all conditions
+        totalConditions += conditions.length;
+      }
+      
       totalProcedures += this.patientService.getPatientProcedures(patient.id).length;
       totalMedications += this.patientService.getPatientMedications(patient.id).length;
     });

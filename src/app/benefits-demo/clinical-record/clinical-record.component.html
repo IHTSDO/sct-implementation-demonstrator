@@ -120,7 +120,7 @@
               <h5>Conditions</h5>
               <div class="clinical-summary-list" *ngIf="conditions.length > 0; else noConditions">
                 <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let condition of conditions | slice:0:6; let i = index"
+                     *ngFor="let condition of getSortedConditions() | slice:0:6; let i = index"
                      (mouseenter)="onConditionHover(condition, $event)"
                      (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ condition.code.text }}</div>
@@ -138,7 +138,7 @@
               <h5>Procedures</h5>
               <div class="clinical-summary-list" *ngIf="procedures.length > 0; else noProcedures">
                 <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let procedure of procedures | slice:0:4"
+                     *ngFor="let procedure of getSortedProcedures() | slice:0:4"
                      (mouseenter)="onProcedureHover(procedure, $event)"
                      (mouseleave)="onConditionHoverEnd()"
                      title="Hover to see connection line">
@@ -157,7 +157,7 @@
               <h5>Medications</h5>
               <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
                 <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let medication of medications | slice:0:4"
+                     *ngFor="let medication of getSortedMedications() | slice:0:4"
                      (mouseenter)="onMedicationHover(medication, $event)"
                      (mouseleave)="onConditionHoverEnd()"
                      title="Hover to see connection line">
@@ -234,7 +234,7 @@
               </app-clinical-entry>
               <div class="clinical-list" *ngIf="conditions.length > 0">
                 <div class="clinical-item" 
-                     *ngFor="let condition of conditions">
+                     *ngFor="let condition of getSortedConditions()">
                   <div class="item-header">
                     <span class="item-title">{{ condition.code.text }}</span>
                     <div class="item-header-actions">
@@ -257,6 +257,15 @@
                   <div class="item-details">
                     <span class="item-concept-id" *ngIf="getConceptId(condition)">
                       SNOMED CT: {{ getConceptId(condition) }}
+                    </span>
+                    <span class="item-concept-id" *ngIf="condition.icd10Code">
+                      ICD-10: {{ condition.icd10Code }}
+                    </span>
+                    <span class="item-concept-id" *ngIf="!condition.icd10Code">
+                      ICD-10: Not mapped
+                      <a href="#" (click)="attemptIcd10Mapping(condition, $event)" class="map-link">
+                        Map
+                      </a>
                     </span>
                     <span class="item-date" *ngIf="condition.onsetDateTime">
                       Onset: {{ formatDate(condition.onsetDateTime) }}

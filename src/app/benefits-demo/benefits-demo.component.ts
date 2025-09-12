@@ -16,6 +16,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   patients: Patient[] = [];
   selectedPatient: Patient | null = null;
   showAnalytics = false;
+  analyticsMode: 'regular' | 'icd10' = 'regular';
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -100,19 +101,34 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   openAnalytics(): void {
+    this.analyticsMode = 'regular';
+    this.showAnalytics = true;
+  }
+
+  openIcd10Analytics(): void {
+    this.analyticsMode = 'icd10';
     this.showAnalytics = true;
   }
 
   hasAnalyticsData(): boolean {
-    return this.patientDataTransformer.hasPatientData();
+    return this.patientDataTransformer.hasPatientData(false);
+  }
+
+  hasIcd10AnalyticsData(): boolean {
+    return this.patientDataTransformer.hasPatientData(true);
   }
 
   getAnalyticsDataSummary(): { patients: number, conditions: number, procedures: number, medications: number } {
-    return this.patientDataTransformer.getDataSummary();
+    return this.patientDataTransformer.getDataSummary(false);
+  }
+
+  getIcd10AnalyticsDataSummary(): { patients: number, conditions: number, procedures: number, medications: number } {
+    return this.patientDataTransformer.getDataSummary(true);
   }
 
   closeAnalytics(): void {
     this.showAnalytics = false;
+    this.analyticsMode = 'regular';
   }
 
   async downloadPatientsAsZip(): Promise<void> {

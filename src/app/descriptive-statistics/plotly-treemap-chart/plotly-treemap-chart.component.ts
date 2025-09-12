@@ -53,6 +53,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
   @ViewChild('genderChartContainer', { static: false }) genderChartContainer!: ElementRef;
   @Input() useBrowserStorage: boolean = false;
+  @Input() useIcd10Filtering: boolean = false;
   
   selectedItem: ChartItem | null = null;
   private chartData: ChartItem[] = [];
@@ -143,12 +144,12 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   private loadPatientCountsFromBrowserStorage(): void {
-    if (!this.patientDataTransformer.hasPatientData()) {
+    if (!this.patientDataTransformer.hasPatientData(this.useIcd10Filtering)) {
       this.getData();
       return;
     }
 
-    const transformedResponse = this.patientDataTransformer.transformPatientsToMockFormat();
+    const transformedResponse = this.patientDataTransformer.transformPatientsToMockFormat(this.useIcd10Filtering);
     
     this.calculatePatientCounts(transformedResponse.content);
     this.getData();
@@ -204,12 +205,12 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   private loadChartDataFromBrowserStorage() {
-    if (!this.patientDataTransformer.hasPatientData()) {
+    if (!this.patientDataTransformer.hasPatientData(this.useIcd10Filtering)) {
       this.loadDefaultData();
       return;
     }
 
-    this.patientDataTransformer.transformPatientsToHierarchyFormat().subscribe({
+    this.patientDataTransformer.transformPatientsToHierarchyFormat(this.useIcd10Filtering).subscribe({
       next: (hierarchyData: HierarchyDataItem[]) => {
         // Check if we have proper parent-child relationships
         const rootItems = hierarchyData.filter(item => !item.parent || item.parent.trim() === '');

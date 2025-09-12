@@ -51,6 +51,15 @@
             <mat-icon>analytics</mat-icon>
             Analytics
           </button>
+          <!-- <button 
+            mat-flat-button
+            color="warn"
+            (click)="openIcd10Analytics()"
+            [disabled]="!hasIcd10AnalyticsData()"
+          >
+            <mat-icon>medical_services</mat-icon>
+            ICD-10 Analytics
+          </button> -->
           <button 
             mat-flat-button
             color="primary"
@@ -168,7 +177,7 @@
   <div class="analytics-full-width" *ngIf="showAnalytics">
     <div class="analytics-section">
       <div class="section-header">
-        <h2>Clinical Data Analytics</h2>
+        <h2>{{ analyticsMode === 'icd10' ? 'ICD-10 Analytics' : 'Clinical Data Analytics' }}</h2>
         <div class="header-actions">
           <button 
             mat-flat-button 
@@ -180,7 +189,10 @@
         </div>
       </div>
       <div class="analytics-container">
-        <app-plotly-treemap-chart [useBrowserStorage]="true"></app-plotly-treemap-chart>
+        <app-plotly-treemap-chart 
+          [useBrowserStorage]="true" 
+          [useIcd10Filtering]="analyticsMode === 'icd10'">
+        </app-plotly-treemap-chart>
       </div>
     </div>
   </div>

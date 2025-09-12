@@ -271,8 +271,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           next: (response: CDSResponse) => {
             this.isCdsLoading = false;
             this.cdsResponse = response;
-            console.log('CDS Response received:', response);
-            
             // Process CDS recommendations
             this.processCdsRecommendations(response);
           },
@@ -478,8 +476,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           source: card.source
         });
       });
-    } else {
-      console.log('No CDS recommendations received');
     }
   }
 
@@ -643,6 +639,124 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return 'Unknown';
   }
 
+  /**
+   * Get conditions sorted by most recently added first
+   */
+  getSortedConditions(): Condition[] {
+    return [...this.conditions].sort((a, b) => {
+      // First try to sort by recordedDate (most recent first)
+      if (a.recordedDate && b.recordedDate) {
+        return new Date(b.recordedDate).getTime() - new Date(a.recordedDate).getTime();
+      }
+      
+      // If one has recordedDate and the other doesn't, prioritize the one with recordedDate
+      if (a.recordedDate && !b.recordedDate) return -1;
+      if (!a.recordedDate && b.recordedDate) return 1;
+      
+      // If neither has recordedDate, sort by array index (newer conditions are added to the end)
+      const indexA = this.conditions.indexOf(a);
+      const indexB = this.conditions.indexOf(b);
+      return indexB - indexA; // Most recent (higher index) first
+    });
+  }
+
+  /**
+   * Get procedures sorted by most recently added first
+   */
+  getSortedProcedures(): Procedure[] {
+    return [...this.procedures].sort((a, b) => {
+      // First try to sort by performedDateTime (most recent first)
+      if (a.performedDateTime && b.performedDateTime) {
+        return new Date(b.performedDateTime).getTime() - new Date(a.performedDateTime).getTime();
+      }
+      
+      // If one has performedDateTime and the other doesn't, prioritize the one with performedDateTime
+      if (a.performedDateTime && !b.performedDateTime) return -1;
+      if (!a.performedDateTime && b.performedDateTime) return 1;
+      
+      // If neither has performedDateTime, sort by array index (newer procedures are added to the end)
+      const indexA = this.procedures.indexOf(a);
+      const indexB = this.procedures.indexOf(b);
+      return indexB - indexA; // Most recent (higher index) first
+    });
+  }
+
+  /**
+   * Get medications sorted by most recently added first
+   */
+  getSortedMedications(): MedicationStatement[] {
+    return [...this.medications].sort((a, b) => {
+      // First try to sort by effectiveDateTime (most recent first)
+      if (a.effectiveDateTime && b.effectiveDateTime) {
+        return new Date(b.effectiveDateTime).getTime() - new Date(a.effectiveDateTime).getTime();
+      }
+      
+      // If one has effectiveDateTime and the other doesn't, prioritize the one with effectiveDateTime
+      if (a.effectiveDateTime && !b.effectiveDateTime) return -1;
+      if (!a.effectiveDateTime && b.effectiveDateTime) return 1;
+      
+      // If neither has effectiveDateTime, sort by array index (newer medications are added to the end)
+      const indexA = this.medications.indexOf(a);
+      const indexB = this.medications.indexOf(b);
+      return indexB - indexA; // Most recent (higher index) first
+    });
+  }
+
+  /**
+   * Debug method to check if condition has ICD-10 code
+   */
+  hasIcd10Code(condition: Condition): boolean {
+    const hasCode = !!(condition as any).icd10Code;
+    console.log(`Condition "${condition.code.text}" has ICD-10 code: ${hasCode}`, condition);
+    return hasCode;
+  }
+
+  /**
+   * Manually attempt ICD-10 mapping for a condition
+   */
+  attemptIcd10Mapping(condition: Condition, event: Event): void {
+    event.preventDefault();
+    
+    const snomedConceptId = this.getConceptId(condition);
+    if (!snomedConceptId) {
+      console.warn('No SNOMED concept ID found for condition:', condition);
+      return;
+    }
+
+    console.log(`Attempting manual ICD-10 mapping for SNOMED concept: ${snomedConceptId}`);
+    
+    this.terminologyService.getIcd10MapTargets(snomedConceptId).subscribe({
+      next: (response) => {
+        // Extract the ICD-10 code from the response
+        if (response?.parameter && response.parameter.length > 0) {
+          // Look for the match parameter which contains the ICD-10 code
+          const matchParam = response.parameter.find((param: any) => param.name === 'match');
+          if (matchParam?.part && matchParam.part.length > 0) {
+            const conceptPart = matchParam.part.find((part: any) => part.name === 'concept');
+            if (conceptPart?.valueCoding?.code) {
+              const icd10Code = conceptPart.valueCoding.code;
+              // Store the ICD-10 code in the condition
+              (condition as any).icd10Code = icd10Code;
+              (condition as any).snomedConceptId = snomedConceptId;
+              // Save to storage after successful mapping
+              this.saveUpdatedEventsToStorage();
+            } else {
+              console.warn('No ICD-10 code found in mapping response');
+            }
+          } else {
+            console.warn('No match parameter found in mapping response');
+          }
+        } else {
+          console.warn('No parameters found in mapping response');
+        }
+      },
+      error: (error) => {
+        console.error(`Failed to get ICD-10 mapping for SNOMED concept ${snomedConceptId}:`, error);
+        alert(`Failed to map to ICD-10. Error: ${error.message || 'Unknown error'}`);
+      }
+    });
+  }
+
   getProcedureStatus(procedure: Procedure): string {
     return procedure.status || 'Unknown';
   }
@@ -681,11 +795,57 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // Add the new condition directly to the local array to avoid timing issues
       this.conditions.push(event);
       
+      // Get SNOMED concept ID for ICD-10 mapping
+      const snomedConceptId = this.getConceptId(event);
+      
+      // Get ICD-10 mapping if SNOMED concept ID is available
+      if (snomedConceptId) {
+        try {
+          this.terminologyService.getIcd10MapTargets(snomedConceptId).subscribe({
+            next: (response) => {
+              console.log('ICD-10 mapping response:', response);
+              
+              // Extract the ICD-10 code from the response
+              if (response?.parameter && response.parameter.length > 0) {
+                // Look for the match parameter which contains the ICD-10 code
+                const matchParam = response.parameter.find((param: any) => param.name === 'match');
+                if (matchParam?.part && matchParam.part.length > 0) {
+                  const conceptPart = matchParam.part.find((part: any) => part.name === 'concept');
+                  if (conceptPart?.valueCoding?.code) {
+                    const icd10Code = conceptPart.valueCoding.code;
+                    // Store the ICD-10 code in the condition
+                    event.icd10Code = icd10Code;
+                    event.snomedConceptId = snomedConceptId;
+                    console.log(`Mapped SNOMED ${snomedConceptId} to ICD-10 ${icd10Code}`);
+                    
+                    // Save to storage after ICD-10 mapping is complete
+                    this.saveUpdatedEventsToStorage();
+                  }
+                }
+              }
+            },
+            error: (error) => {
+              console.warn(`Failed to get ICD-10 mapping for SNOMED concept ${snomedConceptId}:`, error);
+              // Store just the SNOMED concept ID if ICD-10 mapping fails
+              event.snomedConceptId = snomedConceptId;
+              // Save to storage even if mapping fails
+              this.saveUpdatedEventsToStorage();
+            }
+          });
+        } catch (mappingError) {
+          console.warn(`Error calling ICD-10 mapping service for concept ${snomedConceptId}:`, mappingError);
+          // Store just the SNOMED concept ID if service call fails
+          event.snomedConceptId = snomedConceptId;
+          // Save to storage even if service call fails
+          this.saveUpdatedEventsToStorage();
+        }
+      } else {
+        // If no SNOMED concept ID, save immediately
+        this.saveUpdatedEventsToStorage();
+      }
+      
       // Map the condition to an anchor point directly
       await this.mapSingleEventToAnchorPoint(event);
-      
-      // Reload clinical data to ensure consistency with storage
-      this.loadClinicalData(this.patient!.id);
     } catch (error) {
       console.error('Error processing new condition:', error);
     } finally {

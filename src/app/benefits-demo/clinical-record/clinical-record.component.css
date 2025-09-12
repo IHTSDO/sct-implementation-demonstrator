@@ -1389,3 +1389,27 @@
   padding-top: 8px;
   border-top: 1px solid #f1f3f4;
 }
+
+/* Map Link Styles */
+.map-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.8rem;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border: 1px solid #007bff;
+  border-radius: 3px;
+  background-color: transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.map-link:hover {
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+}
+
+.map-link:active {
+  transform: translateY(1px);
+}

@@ -290,6 +290,9 @@ export interface Condition {
     time?: string;
     text: string;
   }>;
+  // Custom properties for ICD-10 mapping
+  icd10Code?: string;
+  snomedConceptId?: string;
 }
 
 export interface Procedure {
