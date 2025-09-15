@@ -138,6 +138,13 @@ export class MenuService {
       type: "internal",
       url: "/benefits-demo",
       description: "A step-by-step demonstration of building a simulated electronic health record with SNOMED CT integration."
+    },
+    {
+      name: "SNOMED Integrations Hub",
+      subtitle: "Learning demo",
+      type: "internal",
+      url: "/snomed-integrations",
+      description: "A demonstration of SNOMED CT integrations with live data. Navigate the integrations hub to explore the different integrations with other classifications, terminologies, and code systems."
     }
 
   ];
