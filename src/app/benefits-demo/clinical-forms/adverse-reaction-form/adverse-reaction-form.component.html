@@ -1,0 +1,467 @@
+<div class="adverse-reaction-form-container">
+  <div class="form-header">
+    <h2>Individual Case Safety Report (ICSR)</h2>
+    <p class="form-subtitle">Adverse Drug Reaction Reporting Form - EU ADR / ICSR</p>
+    <p class="patient-info" *ngIf="patient">
+      <strong>Patient:</strong> {{ patient.name?.[0]?.given?.[0] }} {{ patient.name?.[0]?.family }}
+      <span *ngIf="adverseReactionForm.get('age')?.value">(Age: {{ adverseReactionForm.get('age')?.value }})</span>
+    </p>
+  </div>
+
+  <form [formGroup]="adverseReactionForm" (ngSubmit)="onSubmit()" class="adverse-reaction-form">
+    
+    <!-- Case Identification & Administrative Information -->
+    <mat-expansion-panel class="form-section" expanded="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>assignment</mat-icon>
+          Case Identification & Administrative Information
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <div class="form-grid">
+        <mat-form-field>
+          <mat-label>Report ID</mat-label>
+          <input matInput formControlName="reportId" readonly>
+          <mat-hint>Auto-generated unique identifier</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Date of Receipt</mat-label>
+          <input matInput [matDatepicker]="receiptPicker" formControlName="dateOfReceipt">
+          <mat-datepicker-toggle matSuffix [for]="receiptPicker"></mat-datepicker-toggle>
+          <mat-datepicker #receiptPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Type of Report</mat-label>
+          <mat-select formControlName="reportType">
+            <mat-option *ngFor="let type of reportTypes" [value]="type">{{ type }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Reporter Type</mat-label>
+          <mat-select formControlName="reporterType">
+            <mat-option *ngFor="let type of reporterTypes" [value]="type">{{ type }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <h4>Sender Information</h4>
+      <div formGroupName="senderInformation" class="form-grid">
+        <mat-form-field>
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Country</mat-label>
+          <mat-select formControlName="country">
+            <mat-option *ngFor="let country of countries" [value]="country">{{ country }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Address</mat-label>
+          <textarea matInput formControlName="address" rows="2"></textarea>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Qualification</mat-label>
+          <input matInput formControlName="qualification">
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Patient Information -->
+    <mat-expansion-panel class="form-section">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>person</mat-icon>
+          Patient Information
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <div class="form-grid">
+        <mat-form-field>
+          <mat-label>Patient Initials</mat-label>
+          <input matInput formControlName="patientInitials" readonly>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Age</mat-label>
+          <input matInput type="number" formControlName="age" readonly>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Gender</mat-label>
+          <mat-select formControlName="gender">
+            <mat-option value="male">Male</mat-option>
+            <mat-option value="female">Female</mat-option>
+            <mat-option value="other">Other</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Date of Birth</mat-label>
+          <input matInput [matDatepicker]="birthPicker" formControlName="dateOfBirth">
+          <mat-datepicker-toggle matSuffix [for]="birthPicker"></mat-datepicker-toggle>
+          <mat-datepicker #birthPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="full-width-fields">
+        <mat-form-field class="full-width">
+          <mat-label>Relevant Medical History</mat-label>
+          <textarea matInput formControlName="medicalHistory" rows="3" readonly></textarea>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Adverse Reaction Details -->
+    <mat-expansion-panel class="form-section">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>warning</mat-icon>
+          Adverse Reaction Details
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <div class="condition-selection">
+        <h4>Select Adverse Reaction from Patient Conditions</h4>
+        <div class="two-column-layout">
+          <div class="left-column">
+            <mat-form-field class="full-width">
+              <mat-label>Choose from existing conditions</mat-label>
+              <mat-select (selectionChange)="onConditionSelected($event.value)" placeholder="Select a condition">
+                <mat-option *ngFor="let condition of conditions" [value]="condition">
+                  {{ (condition.code && condition.code.text) || condition.id || 'Unknown condition' }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="right-column">
+            <div class="medra-mappings-container">
+              <h5>MedDRA Mappings</h5>
+              
+              <!-- Loading state -->
+              <div *ngIf="isLoadingMedra" class="loading-container">
+                <mat-spinner diameter="30"></mat-spinner>
+                <p>Loading MedDRA mappings...</p>
+              </div>
+              
+              <!-- No condition selected -->
+              <div *ngIf="!selectedCondition && !isLoadingMedra" class="no-selection">
+                <mat-icon>info</mat-icon>
+                <p>Select a condition to view MedDRA mappings</p>
+              </div>
+              
+              <!-- No mappings found -->
+              <div *ngIf="selectedCondition && !isLoadingMedra && medraMappings.length === 0" class="no-mappings">
+                <mat-icon>warning</mat-icon>
+                <p>No MedDRA mappings found for this condition</p>
+                <small>This condition may not have corresponding MedDRA terms</small>
+              </div>
+              
+              <!-- Mappings found -->
+              <div *ngIf="selectedCondition && !isLoadingMedra && medraMappings.length > 0" class="mappings-list">
+                <div *ngFor="let mapping of medraMappings" class="mapping-item">
+                  <div class="mapping-display">{{ mapping.display }}</div>
+                  <div class="mapping-header">
+                    <span class="mapping-code">{{ mapping.code }}</span>
+                    <span class="mapping-system">MedDRA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="full-width-fields" formGroupName="adverseReaction">
+        <mat-form-field class="full-width">
+          <mat-label>Description of Adverse Event</mat-label>
+          <textarea matInput formControlName="description" rows="4" placeholder="Describe the adverse reaction in detail"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div formGroupName="adverseReaction" class="form-grid">
+        <mat-form-field>
+          <mat-label>Date of Onset</mat-label>
+          <input matInput [matDatepicker]="onsetPicker" formControlName="dateOfOnset">
+          <mat-datepicker-toggle matSuffix [for]="onsetPicker"></mat-datepicker-toggle>
+          <mat-datepicker #onsetPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Duration</mat-label>
+          <input matInput formControlName="duration" placeholder="e.g., 2 days, 1 week">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Date of Recovery</mat-label>
+          <input matInput [matDatepicker]="recoveryPicker" formControlName="dateOfRecovery">
+          <mat-datepicker-toggle matSuffix [for]="recoveryPicker"></mat-datepicker-toggle>
+          <mat-datepicker #recoveryPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Outcome</mat-label>
+          <mat-select formControlName="outcome">
+            <mat-option *ngFor="let outcome of outcomeOptions" [value]="outcome">{{ outcome }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="seriousness-section">
+        <h4>Seriousness Criteria</h4>
+        <p class="help-text">Select all that apply:</p>
+        <div class="checkbox-grid">
+          <mat-checkbox *ngFor="let criterion of seriousnessOptions" 
+                       [value]="criterion"
+                       (change)="updateSeriousness($event)">
+            {{ criterion }}
+          </mat-checkbox>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Suspected Medicinal Product -->
+    <mat-expansion-panel class="form-section">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>medication</mat-icon>
+          Suspected Medicinal Product
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <div class="medication-selection">
+        <h4>Select Suspected Medication from Patient Medications</h4>
+        <div class="two-column-layout">
+          <div class="left-column">
+            <mat-form-field class="full-width">
+              <mat-label>Choose from existing medications</mat-label>
+              <mat-select (selectionChange)="onMedicationSelected($event.value)" placeholder="Select a medication">
+                <mat-option *ngFor="let medication of medications" [value]="medication">
+                  {{ medication.medicationCodeableConcept?.text || 'Unknown medication' }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="right-column">
+            <div class="snomed-concept-container">
+              <h5>SNOMED Concept ID</h5>
+              
+              <!-- No medication selected -->
+              <div *ngIf="!selectedMedication" class="no-selection">
+                <mat-icon>info</mat-icon>
+                <p>Select a medication to view SNOMED concept ID</p>
+              </div>
+              
+              <!-- Concept ID found -->
+              <div *ngIf="selectedMedication" class="concept-display">
+                <div class="concept-item">
+                  <div class="concept-display">{{ selectedMedication.medicationCodeableConcept?.text || 'Unknown medication' }}</div>
+                  <div class="concept-header">
+                    <span class="concept-code">{{ getMedicationConceptId(selectedMedication) }}</span>
+                    <span class="concept-system">SNOMED CT</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div formGroupName="suspectedProduct" class="form-grid">
+        <mat-form-field>
+          <mat-label>Product Name</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Active Substance</mat-label>
+          <input matInput formControlName="activeSubstance" [readonly]="true">
+          <mat-spinner *ngIf="isLoadingIngredients" diameter="20" class="field-spinner"></mat-spinner>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Dose</mat-label>
+          <input matInput formControlName="dose" placeholder="e.g., 10 mg">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Frequency</mat-label>
+          <input matInput formControlName="frequency" placeholder="e.g., once daily">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Duration</mat-label>
+          <input matInput formControlName="duration" placeholder="e.g., 5 days">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Route of Administration</mat-label>
+          <mat-select formControlName="routeOfAdministration">
+            <mat-option value="">Select route</mat-option>
+            <mat-option *ngFor="let route of routeOfAdministrationOptions" [value]="route">{{ route }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Start Date</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Stop Date</mat-label>
+          <input matInput [matDatepicker]="stopPicker" formControlName="stopDate">
+          <mat-datepicker-toggle matSuffix [for]="stopPicker"></mat-datepicker-toggle>
+          <mat-datepicker #stopPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Batch/Lot Number</mat-label>
+          <input matInput formControlName="batchNumber">
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Concomitant Products -->
+    <mat-expansion-panel class="form-section">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>medication_liquid</mat-icon>
+          Concomitant Products
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <div class="concomitant-products-section">
+        <div class="section-header">
+          <h4>Other Medications Taken Concurrently</h4>
+          <button type="button" mat-raised-button color="primary" (click)="addConcomitantProduct()">
+            <mat-icon>add</mat-icon>
+            Add Concomitant Product
+          </button>
+        </div>
+
+        <div formArrayName="concomitantProducts" class="concomitant-products-list">
+          <div *ngFor="let product of concomitantProductsArray.controls; let i = index" 
+               [formGroupName]="i" class="concomitant-product-item">
+            
+            <div class="product-header">
+              <h5>Concomitant Product {{ i + 1 }}</h5>
+              <button type="button" mat-icon-button color="warn" (click)="removeConcomitantProduct(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field>
+                <mat-label>Product Name</mat-label>
+                <input matInput formControlName="name">
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Active Substance</mat-label>
+                <input matInput formControlName="activeSubstance">
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Dose</mat-label>
+                <input matInput formControlName="dose">
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Frequency</mat-label>
+                <input matInput formControlName="frequency">
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Start Date</mat-label>
+                <input matInput type="date" formControlName="startDate">
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Stop Date</mat-label>
+                <input matInput type="date" formControlName="stopDate">
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div *ngIf="concomitantProductsArray.length === 0" class="no-concomitant-products">
+            <p>No concomitant products added. Click "Add Concomitant Product" to include other medications.</p>
+          </div>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Follow-up Information -->
+    <mat-expansion-panel class="form-section">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>follow_the_signs</mat-icon>
+          Follow-up & Additional Information
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <div class="form-grid">
+        <mat-form-field>
+          <mat-label>Country of Reaction</mat-label>
+          <mat-select formControlName="countryOfReaction">
+            <mat-option *ngFor="let country of countries" [value]="country">{{ country }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Country of Reporter</mat-label>
+          <mat-select formControlName="countryOfReporter">
+            <mat-option *ngFor="let country of countries" [value]="country">{{ country }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="full-width-fields">
+        <mat-form-field class="full-width">
+          <mat-label>Therapeutic Measures Taken</mat-label>
+          <textarea matInput formControlName="therapeuticMeasures" rows="3" 
+                    placeholder="Describe any treatments or interventions taken to manage the adverse reaction"></textarea>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Relevant Laboratory Data</mat-label>
+          <textarea matInput formControlName="laboratoryData" rows="3" 
+                    placeholder="Include any relevant test results, laboratory values, or imaging findings"></textarea>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Literature Reference</mat-label>
+          <input matInput formControlName="literatureReference" 
+                 placeholder="If applicable, provide literature reference">
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Case Narrative</mat-label>
+          <textarea matInput formControlName="caseNarrative" rows="6" 
+                    placeholder="Provide a comprehensive narrative describing the case, including timeline, clinical course, and any other relevant details"></textarea>
+          <mat-hint>This narrative should provide a complete picture of the case for regulatory review</mat-hint>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" mat-button (click)="onCancel()" class="cancel-button">
+        <mat-icon>cancel</mat-icon>
+        Cancel
+      </button>
+      <button type="submit" mat-raised-button color="primary" class="submit-button">
+        <mat-icon>save</mat-icon>
+        Submit ICSR Report
+      </button>
+    </div>
+  </form>
+</div>

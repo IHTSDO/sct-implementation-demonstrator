@@ -306,7 +306,7 @@
                 (itemAdded)="onProcedureAdded($event)">
               </app-clinical-entry>
               <div class="clinical-list" *ngIf="procedures.length > 0">
-                <div class="clinical-item" *ngFor="let procedure of procedures">
+                <div class="clinical-item" *ngFor="let procedure of getSortedProcedures()">
                   <div class="item-header">
                     <span class="item-title">{{ procedure.code.text }}</span>
                     <div class="item-header-actions">
@@ -368,7 +368,7 @@
                 (itemAdded)="onMedicationAdded($event)">
               </app-clinical-entry>
               <div class="clinical-list" *ngIf="medications.length > 0">
-                <div class="clinical-item" *ngFor="let medication of medications">
+                <div class="clinical-item" *ngFor="let medication of getSortedMedications()">
                   <div class="item-header">
                     <span class="item-title">{{ medication.medicationCodeableConcept?.text }}</span>
                     <div class="item-header-actions">
@@ -493,6 +493,18 @@
                 </div>
               </div>
             </div>
+          </div>
+        </mat-tab>
+
+        <!-- Clinical Forms Tab -->
+        <mat-tab label="Clinical Forms">
+          <div class="tab-content">
+            <app-clinical-forms 
+              [patient]="patient"
+              [conditions]="conditions"
+              [procedures]="procedures"
+              [medications]="medications">
+            </app-clinical-forms>
           </div>
         </mat-tab>
         

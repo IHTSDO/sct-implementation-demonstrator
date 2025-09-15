@@ -1,0 +1,255 @@
+.clinical-forms-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #ffc107;
+}
+
+.forms-header {
+  margin-bottom: 25px;
+}
+
+.forms-header h3 {
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.forms-header p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.forms-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+.forms-placeholder h3 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin: 0 0 15px 0;
+  font-weight: 500;
+}
+
+.forms-placeholder p {
+  color: #6c757d;
+  font-size: 1rem;
+  margin: 0 0 30px 0;
+  line-height: 1.5;
+}
+
+.data-summary {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+  text-align: left;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  border-left: 3px solid #ffc107;
+}
+
+.data-summary h4 {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  font-weight: 500;
+}
+
+.data-summary ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.data-summary li {
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+  color: #495057;
+}
+
+.data-summary li:last-child {
+  border-bottom: none;
+}
+
+.data-summary strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.form-selection {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #ffc107;
+}
+
+.form-selector {
+  width: 100%;
+  max-width: 500px;
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+.form-placeholder,
+.no-form-selected {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+.placeholder-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.placeholder-content .placeholder-icon {
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+.placeholder-content h3 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin: 0 0 15px 0;
+  font-weight: 500;
+}
+
+.placeholder-content p {
+  color: #6c757d;
+  font-size: 1rem;
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .form-selection {
+    padding: 15px;
+  }
+  
+  .form-selector {
+    max-width: 100%;
+  }
+  
+  .form-placeholder,
+  .no-form-selected {
+    padding: 40px 15px;
+  }
+  
+  .placeholder-content .placeholder-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  .placeholder-content h3 {
+    font-size: 1.3rem;
+  }
+}
+
+.form-wrapper {
+  position: relative;
+}
+
+.submission-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 8px;
+}
+
+.submission-content {
+  text-align: center;
+  padding: 40px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.submission-content mat-spinner {
+  margin: 0 auto;
+  display: block;
+}
+
+.submission-content h3 {
+  color: #1976d2;
+  margin: 20px 0 15px 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.submission-content p {
+  color: #666;
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+.submission-details {
+  font-size: 0.9rem;
+  color: #888;
+  font-style: italic;
+}
+
+/* Snackbar styles */
+::ng-deep .success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+::ng-deep .success-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .demo-notice-snackbar {
+  background-color: #666 !important;
+  color: white !important;
+  font-size: 0.8rem !important;
+  opacity: 0.9 !important;
+}
+
+::ng-deep .demo-notice-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+  font-size: 0.8rem !important;
+}

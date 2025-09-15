@@ -438,7 +438,7 @@ export class TerminologyService {
   }
 
   getIcd10MapTargets(code: string) {
-    let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&source=http://snomed.info/sct?fhir_vs&targetSystem=http://hl7.org/fhir/sid/icd-10`
+    let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=${this.fhirUrlParam}&source=${this.fhirUrlParam}?fhir_vs&targetSystem=http://hl7.org/fhir/sid/icd-10`
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });
@@ -446,6 +446,55 @@ export class TerminologyService {
       .pipe(
         catchError(this.handleError<any>('translate', {}))
       );
+  }
+
+  getMedraMapTargets(code: string) {
+    // Use native Snowstorm API for MedDRA mappings from SNOMED CT derivatives
+    // Reference set 816210007 contains MedDRA mappings
+    const baseUrl = 'https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-DERIVATIVES/2025-01-01/members';
+    let requestUrl = `${baseUrl}?referencedComponentId=${code}&referenceSet=816210007&active=true&limit=100`;
+    
+    const headers = new HttpHeaders({
+      'Accept': 'application/json'
+    });
+    
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(
+        map(response => this.transformMedraResponse(response)),
+        catchError(this.handleError<any>('medra-mappings', { items: [] }))
+      );
+  }
+
+  private transformMedraResponse(response: any): any {
+    // Transform Snowstorm API response to match expected format
+    console.log('Raw Snowstorm API response:', response);
+    
+    if (!response || !response.items || !Array.isArray(response.items)) {
+      console.log('No valid items array in response');
+      return { parameter: [] };
+    }
+
+    const parameters = response.items
+      .filter((item: any) => {
+        const hasMapping = item.additionalFields?.mapTarget;
+        console.log('Item mapping check:', { itemId: item.referencedComponentId, hasMapping });
+        return hasMapping;
+      })
+      .map((item: any) => {
+        const transformed = {
+          name: 'concept',
+          valueCoding: {
+            code: item.additionalFields.mapTarget,
+            display: item.referencedComponent?.pt?.term || item.referencedComponent?.fsn?.term || 'Unknown MedDRA term',
+            system: 'http://www.meddra.org'
+          }
+        };
+        console.log('Transformed item:', transformed);
+        return transformed;
+      });
+
+    console.log('Final transformed parameters:', parameters);
+    return { parameter: parameters };
   }
 
   lookupOtherCodeSystems(system: string, code: string) {

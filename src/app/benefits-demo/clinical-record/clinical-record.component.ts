@@ -80,7 +80,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       name: 'Thorax',
       x: 48,
       y: 25,
-      ancestors: ['298705000', '118695007', '106048009 |Respiratory finding (finding)|', '106063007 |Cardiovascular finding (finding)|'],
+      ancestors: ['298705000 |Finding of thoracic region (finding)|', '118695007 |Procedure on thorax (procedure)|', 
+        '106048009 |Respiratory finding (finding)|', '106063007 |Cardiovascular finding (finding)|', '118669005 |Procedure on respiratory system (procedure)|'],
       description: 'Findings, disorders and procedures on the thorax',
       anatomicalSystem: 'thorax',
       defaultColor: '#45B7D1'

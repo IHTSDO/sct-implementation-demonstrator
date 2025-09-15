@@ -1,0 +1,59 @@
+<div class="clinical-forms-container">
+  <div class="forms-header">
+    <h3>Clinical Forms</h3>
+    <p *ngIf="patient">Forms for {{ patient.name?.[0]?.given?.[0] }} {{ patient.name?.[0]?.family }}</p>
+  </div>
+  
+  <div class="forms-content">
+    <div class="form-selection">
+      <mat-form-field class="form-selector">
+        <mat-label>Select Clinical Form</mat-label>
+        <mat-select [(value)]="selectedForm" (selectionChange)="onFormSelected($event.value)">
+          <mat-option *ngFor="let form of availableForms" [value]="form.id">
+            {{ form.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-container" *ngIf="selectedForm">
+      <!-- Adverse Reaction Form -->
+      <div *ngIf="selectedForm === 'adverse-reaction'" class="form-wrapper">
+        <div *ngIf="isSubmitting" class="submission-overlay">
+          <div class="submission-content">
+            <mat-spinner diameter="50"></mat-spinner>
+            <h3>Submitting ICSR Report...</h3>
+            <p>Please wait while we submit your report to the regulatory authority.</p>
+            <p class="submission-details">This may take a few moments.</p>
+          </div>
+        </div>
+        
+        <app-adverse-reaction-form 
+          [patient]="patient"
+          [conditions]="conditions"
+          [medications]="medications"
+          (formSubmitted)="onFormSubmitted($event)"
+          (formCancelled)="onFormCancelled()">
+        </app-adverse-reaction-form>
+      </div>
+
+      <!-- Placeholder for other forms -->
+      <div *ngIf="selectedForm !== 'adverse-reaction'" class="form-placeholder">
+        <div class="placeholder-content">
+          <mat-icon class="placeholder-icon">description</mat-icon>
+          <h3>{{ getSelectedFormName() }} Form</h3>
+          <p>This form is currently under development.</p>
+          <p>Coming soon...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-form-selected" *ngIf="!selectedForm">
+      <div class="placeholder-content">
+        <mat-icon class="placeholder-icon">description</mat-icon>
+        <h3>Select a Clinical Form</h3>
+        <p>Choose a form from the dropdown above to begin documenting clinical information.</p>
+      </div>
+    </div>
+  </div>
+</div>
