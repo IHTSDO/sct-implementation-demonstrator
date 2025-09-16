@@ -1,7 +1,6 @@
 <div class="clinical-forms-container">
   <div class="forms-header">
     <h3>Clinical Forms</h3>
-    <p *ngIf="patient">Forms for {{ patient.name?.[0]?.given?.[0] }} {{ patient.name?.[0]?.family }}</p>
   </div>
   
   <div class="forms-content">
@@ -37,8 +36,17 @@
         </app-adverse-reaction-form>
       </div>
 
+      <!-- Allergies Form -->
+      <div *ngIf="selectedForm === 'allergies'" class="form-wrapper">
+        <app-allergies-allergy-list 
+          [embeddedMode]="true"
+          (newProblem)="onAllergyAdded($event)"
+          (allergySaved)="onAllergySaved($event)">
+        </app-allergies-allergy-list>
+      </div>
+
       <!-- Placeholder for other forms -->
-      <div *ngIf="selectedForm !== 'adverse-reaction'" class="form-placeholder">
+      <div *ngIf="selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies'" class="form-placeholder">
         <div class="placeholder-content">
           <mat-icon class="placeholder-icon">description</mat-icon>
           <h3>{{ getSelectedFormName() }} Form</h3>

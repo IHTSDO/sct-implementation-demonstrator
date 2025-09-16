@@ -10,7 +10,8 @@
       <h1>{{ getPatientDisplayName(patient) }}</h1>
       <div class="patient-meta">
         <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
-        <span class="patient-age" *ngIf="patient.birthDate">{{ getPatientAge(patient.birthDate) }}</span>
+        <span class="patient-dob" *ngIf="patient.birthDate">DOB: {{ patient.birthDate | date:'MMM dd, yyyy' }}</span>
+        <span class="patient-age" *ngIf="patient.birthDate">Age: {{ getPatientAge(patient.birthDate) }}</span>
         <span class="patient-gender" *ngIf="patient.gender">{{ patient.gender }}</span>
         <span class="patient-status" [class.active]="patient.active">
           {{ patient.active ? 'Active' : 'Inactive' }}

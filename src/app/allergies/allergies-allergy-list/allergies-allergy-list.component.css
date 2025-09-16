@@ -91,3 +91,26 @@ pre > code {
     font-weight: lighter;
     font-size: 0.9rem;
 }
+
+/* Single column layout when FHIR resource is hidden */
+.single-column .column {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    padding-right: 20px; /* Add right padding to prevent overflow */
+}
+
+/* Additional padding for single column layout */
+.single-column #main-card {
+    padding-right: 30px; /* Extra right padding for the main card */
+}
+
+/* Ensure form fields have adequate spacing in single column */
+.single-column .smallest-form-field,
+.single-column .small-form-field {
+    margin-right: 15px; /* Extra right margin for form fields */
+}
+
+.single-column .row-centered {
+    margin-right: 10px; /* Extra right margin for centered rows */
+}

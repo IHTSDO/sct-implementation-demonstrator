@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { HighlightJsDirective } from 'ngx-highlight-js';
 import { TerminologyService } from '../../services/terminology.service';
 import { lastValueFrom, map } from 'rxjs';
@@ -15,7 +15,9 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 })
 export class AllergiesAllergyListComponent  implements OnInit {
 
+  @Input() embeddedMode: boolean = false;
   @Output() newProblem = new EventEmitter<any>();
+  @Output() allergySaved = new EventEmitter<any>();
 
   clinicalStatusOptions = [
     { system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", code: 'active', display: 'Active' },
@@ -331,6 +333,21 @@ export class AllergiesAllergyListComponent  implements OnInit {
         panelClass: ['yellow-snackbar']
       });
     }
+    this.clear();
+  }
+
+  saveAllergy() {
+    // Emit only the FHIR resource when in embedded mode
+    this.allergySaved.emit(this.outputAllergy);
+    
+    // Show success message
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 2 * 1000,
+      data: "Allergy saved successfully",
+      panelClass: ['success-snackbar']
+    });
+
+    // Clear the form
     this.clear();
   }
 

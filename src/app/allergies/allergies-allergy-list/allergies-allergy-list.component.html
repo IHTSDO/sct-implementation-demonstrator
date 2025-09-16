@@ -1,4 +1,4 @@
-<mat-card id="main-card">
+<mat-card id="main-card" [class.single-column]="embeddedMode">
     <div class="row">
         <div class="column">
             <h4>Allergy Intolerance Form
@@ -53,12 +53,14 @@
                     Propensity based model
                 </mat-slide-toggle>
             </div>
-            <mat-form-field class="form-field">
-                <mat-label>Allergy Intolerance Type</mat-label>
-                <mat-select [(ngModel)]="selectedIntoleranceType">
-                    <mat-option *ngFor="let option of intoleranceTypeOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
-                </mat-select>
-            </mat-form-field>
+            <div class="row-centered">
+                <mat-form-field class="column">
+                    <mat-label>Allergy Intolerance Type</mat-label>
+                    <mat-select [(ngModel)]="selectedIntoleranceType">
+                        <mat-option *ngFor="let option of intoleranceTypeOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
             <div class="row-centered">
                 <mat-form-field class="column">
                     <mat-label>Clinical Status</mat-label>
@@ -106,9 +108,11 @@
                 </mat-form-field>
             </div>
             <app-allergies-allergy-list-reaction [(ngModel)]="selectedReactions" (ngModelChange)="onReactionsChange($event)" (newManifestation)="newProblem.emit($event)"></app-allergies-allergy-list-reaction> 
-            <button mat-flat-button color="accent" (click)="addToProblemsList()">Save</button>
+            <button mat-flat-button color="accent" (click)="embeddedMode ? saveAllergy() : addToProblemsList()">
+                {{ embeddedMode ? 'Save Allergy' : 'Save' }}
+            </button>
         </div>
-        <div class="column">
+        <div class="column" *ngIf="!embeddedMode">
             <h4>AllergyIntolerance HL7 FHIR Resource (<a href="https://hl7.org/FHIR/allergyintolerance.html" target="_blank">link</a>)</h4>
             <div id="output">
                 <div id="save">

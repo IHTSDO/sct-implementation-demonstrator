@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Patient, Condition, Procedure, MedicationStatement } from '../../services/patient.service';
+import { Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, PatientService } from '../../services/patient.service';
 import { AdverseReactionReport } from './adverse-reaction-form/adverse-reaction-form.component';
 
 export interface ClinicalForm {
@@ -35,10 +35,17 @@ export class ClinicalFormsComponent implements OnInit {
       description: 'Individual Case Safety Report for adverse drug reactions',
       category: 'Pharmacovigilance',
       available: true
+    },
+    {
+      id: 'allergies',
+      name: 'Allergy/Intolerance Documentation',
+      description: 'Document patient allergies and intolerances using SNOMED CT terminology',
+      category: 'Clinical Documentation',
+      available: true
     }
   ];
 
-  constructor(private snackBar: MatSnackBar) { }
+  constructor(private snackBar: MatSnackBar, private patientService: PatientService) { }
 
   ngOnInit(): void {
     // Component initialization
@@ -163,6 +170,54 @@ export class ClinicalFormsComponent implements OnInit {
     console.log('Form cancelled');
     this.selectedForm = null;
     this.formCancelled.emit();
+  }
+
+  onAllergyAdded(allergyData: any): void {
+    console.log('Allergy added:', allergyData);
+    
+    // Show success message for allergy documentation
+    this.snackBar.open(
+      `✅ Allergy/Intolerance documented: ${allergyData.display || 'Unknown'}`,
+      'Close',
+      {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['success-snackbar']
+      }
+    );
+    
+    // Emit the allergy data for parent component
+    this.formSubmitted.emit({
+      type: 'allergy',
+      data: allergyData,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  onAllergySaved(allergyData: any): void {
+    console.log('Allergy saved:', allergyData);
+    
+    // Store the allergy in the PatientService if we have a selected patient
+    if (this.patient && this.patient.id) {
+      // Ensure the allergy has a proper ID and patient reference
+      const allergyToStore: AllergyIntolerance = {
+        ...allergyData,
+        id: allergyData.id || `allergy-${Date.now()}`,
+        patient: {
+          reference: `Patient/${this.patient.id}`,
+          display: this.patient.name?.[0]?.text || `${this.patient.name?.[0]?.given?.[0]} ${this.patient.name?.[0]?.family}`
+        },
+        recordedDate: new Date().toISOString()
+      };
+      
+      // Add the allergy to the patient's record
+      this.patientService.addPatientAllergy(this.patient.id, allergyToStore);
+      
+      console.log('Allergy stored for patient:', this.patient.id);
+    } else {
+      console.warn('No patient selected - allergy not stored');
+    }
   }
 
   getSelectedFormName(): string {

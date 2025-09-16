@@ -800,6 +800,150 @@ export interface MedicationStatement {
   }>;
 }
 
+export interface AllergyIntolerance {
+  resourceType: 'AllergyIntolerance';
+  id: string;
+  identifier?: Array<{
+    use?: string;
+    type?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+    system?: string;
+    value?: string;
+    period?: {
+      start?: string;
+      end?: string;
+    };
+    assigner?: {
+      reference: string;
+      display?: string;
+    };
+  }>;
+  clinicalStatus?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  verificationStatus?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  type?: 'allergy' | 'intolerance';
+  category?: Array<'food' | 'medication' | 'environment' | 'biologic'>;
+  criticality?: 'low' | 'high' | 'unable-to-assess';
+  code?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  patient?: {
+    reference: string;
+    display?: string;
+  };
+  encounter?: {
+    reference: string;
+    display?: string;
+  };
+  onsetDateTime?: string;
+  onsetAge?: {
+    value?: number;
+    unit?: string;
+    system?: string;
+    code?: string;
+  };
+  onsetPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  onsetRange?: {
+    low?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    high?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+  };
+  onsetString?: string;
+  recordedDate?: string;
+  recorder?: {
+    reference: string;
+    display?: string;
+  };
+  asserter?: {
+    reference: string;
+    display?: string;
+  };
+  lastOccurrence?: string;
+  note?: Array<{
+    authorReference?: {
+      reference: string;
+      display?: string;
+    };
+    authorString?: string;
+    time?: string;
+    text: string;
+  }>;
+  reaction?: Array<{
+    substance?: Array<{
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    }>;
+    manifestation?: Array<{
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    }>;
+    description?: string;
+    onset?: string;
+    severity?: 'mild' | 'moderate' | 'severe';
+    exposureRoute?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+    note?: Array<{
+      authorReference?: {
+        reference: string;
+        display?: string;
+      };
+      authorString?: string;
+      time?: string;
+      text: string;
+    }>;
+  }>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -1144,6 +1288,39 @@ export class PatientService {
   private savePatientMedications(patientId: string, medications: MedicationStatement[]): void {
     const key = `ehr_medications_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(medications));
+  }
+
+  // Allergies
+  getPatientAllergies(patientId: string): AllergyIntolerance[] {
+    const key = `ehr_allergies_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  addPatientAllergy(patientId: string, allergy: AllergyIntolerance): void {
+    const allergies = this.getPatientAllergies(patientId);
+    allergies.push(allergy);
+    this.savePatientAllergies(patientId, allergies);
+  }
+
+  updatePatientAllergy(patientId: string, allergyId: string, updatedAllergy: AllergyIntolerance): void {
+    const allergies = this.getPatientAllergies(patientId);
+    const index = allergies.findIndex(a => a.id === allergyId);
+    if (index !== -1) {
+      allergies[index] = updatedAllergy;
+      this.savePatientAllergies(patientId, allergies);
+    }
+  }
+
+  deletePatientAllergy(patientId: string, allergyId: string): void {
+    const allergies = this.getPatientAllergies(patientId);
+    const filteredAllergies = allergies.filter(a => a.id !== allergyId);
+    this.savePatientAllergies(patientId, filteredAllergies);
+  }
+
+  private savePatientAllergies(patientId: string, allergies: AllergyIntolerance[]): void {
+    const key = `ehr_allergies_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(allergies));
   }
 
   // Utility methods for creating sample clinical data

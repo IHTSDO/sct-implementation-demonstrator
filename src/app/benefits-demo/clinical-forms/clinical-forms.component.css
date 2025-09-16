@@ -90,10 +90,6 @@
 
 .form-selection {
   margin-bottom: 30px;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #ffc107;
 }
 
 .form-selector {
@@ -143,9 +139,6 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .form-selection {
-    padding: 15px;
-  }
   
   .form-selector {
     max-width: 100%;
