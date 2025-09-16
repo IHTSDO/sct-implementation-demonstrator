@@ -28,6 +28,7 @@ import { BenefitsDemoComponent } from './benefits-demo/benefits-demo.component';
 import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinical-record.component';
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
 import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
+import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -60,6 +61,7 @@ const routes: Routes = [
   { path: 'clinical-record', component: ClinicalRecordComponent },
   { path: 'create-patient', component: CreatePatientComponent },
   { path: 'encounter-record', component: EncounterRecordComponent },
+  { path: 'interoperability', component: InteroperabilityComponent },
   { path: '**', redirectTo: '' }
 ];
 

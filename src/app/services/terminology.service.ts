@@ -438,7 +438,7 @@ export class TerminologyService {
   }
 
   getIcd10MapTargets(code: string) {
-    let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=${this.fhirUrlParam}&source=${this.fhirUrlParam}?fhir_vs&targetSystem=http://hl7.org/fhir/sid/icd-10`
+    let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&targetSystem=http://hl7.org/fhir/sid/icd-10`
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });

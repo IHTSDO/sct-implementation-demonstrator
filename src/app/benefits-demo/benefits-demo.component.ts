@@ -131,6 +131,10 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.analyticsMode = 'regular';
   }
 
+  openInteroperability(): void {
+    this.router.navigate(['/interoperability']);
+  }
+
   async downloadPatientsAsZip(): Promise<void> {
     try {
       await this.patientService.downloadPatientsZip();

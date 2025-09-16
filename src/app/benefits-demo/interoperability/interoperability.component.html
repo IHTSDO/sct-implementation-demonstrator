@@ -1,0 +1,609 @@
+<div class="interoperability-container">
+  <div class="header">
+    <h1>Interoperability Demo</h1>
+    <p class="subtitle">Demonstrating SNOMED CT and FHIR IPS (International Patient Summary) interoperability in the clinical record</p>
+    <div class="header-actions">
+      <button mat-flat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Benefits Demo
+      </button>
+      <button mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading">
+        <mat-icon>refresh</mat-icon>
+        Reload Data
+      </button>
+      <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading">
+        <mat-icon>upload_file</mat-icon>
+        Upload IPS File
+      </button>
+      <input #fileInput type="file" accept=".json" (change)="onFileSelected($event)" style="display: none;">
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading IPS bundle...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="error-container">
+      <mat-icon class="error-icon">error</mat-icon>
+      <h3>Error Loading IPS Bundle</h3>
+      <p>{{ error }}</p>
+      <p><strong>Note:</strong> Please check that the IPS bundle file is available and properly formatted.</p>
+      <div class="error-actions">
+        <button mat-flat-button color="primary" (click)="loadExampleIPSBundle()">
+          <mat-icon>refresh</mat-icon>
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- Patient Data Display -->
+    <div *ngIf="!isLoading && !error && hasPatientData()" class="patient-data-container">
+      
+      <!-- Patient Information Card -->
+      <mat-card class="patient-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>person</mat-icon>
+            Patient Information
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="patient-info">
+            <div class="info-item">
+              <strong>Name:</strong> {{ getPatientName() }}
+            </div>
+            <div class="info-item">
+              <strong>Date of Birth:</strong> {{ getPatientBirthDate() }}
+            </div>
+            <div class="info-item">
+              <strong>Gender:</strong> {{ getPatientGender() }}
+            </div>
+          </div>
+          
+          <!-- Patient Link Selector -->
+          <div class="patient-link-section">
+            <mat-divider></mat-divider>
+            <div class="link-header">
+              <mat-icon>link</mat-icon>
+              <span>Link to Existing Patient</span>
+            </div>
+            
+            <!-- Patient Suggestion -->
+            <div *ngIf="suggestedPatient && !linkedPatient" class="patient-suggestion">
+              <div class="suggestion-header">
+                <mat-icon class="suggestion-icon">lightbulb</mat-icon>
+                <span class="suggestion-title">Suggested Match</span>
+                <span class="match-type">{{ getMatchTypeLabel(suggestedPatient.matchType) }}</span>
+              </div>
+              <div class="suggestion-content">
+                <div class="suggested-patient">
+                  <strong>{{ getPatientDisplayName(suggestedPatient) }}</strong> ({{ suggestedPatient.birthDate }})
+                </div>
+                <div class="suggestion-actions">
+                  <button mat-raised-button color="primary" (click)="acceptSuggestion()" class="accept-button">
+                    <mat-icon>check</mat-icon>
+                    Accept Suggestion
+                  </button>
+                  <button mat-button (click)="dismissSuggestion()" class="dismiss-button">
+                    <mat-icon>close</mat-icon>
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="link-controls">
+              <mat-form-field class="patient-selector">
+                <mat-label>Select existing patient</mat-label>
+                <mat-select [(value)]="selectedPatientId" (selectionChange)="onPatientSelectionChange($event)">
+                  <mat-option value="">No patient selected</mat-option>
+                  <mat-option *ngFor="let patient of availablePatients" [value]="patient.id">
+                    {{ getPatientDisplayName(patient) }} ({{ patient.birthDate }})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button 
+                mat-raised-button 
+                color="primary" 
+                [disabled]="!selectedPatientId"
+                (click)="linkPatient()"
+                class="link-button">
+                <mat-icon>link</mat-icon>
+                Link Patient
+              </button>
+            </div>
+            <div *ngIf="linkedPatient" class="linked-patient-info">
+              <mat-icon class="success-icon">check_circle</mat-icon>
+              <span>Successfully linked to: {{ getPatientDisplayName(linkedPatient) }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Conditions Section -->
+      <mat-card *ngIf="hasConditions()" class="data-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>medical_services</mat-icon>
+            Conditions ({{ patientData?.conditions?.length || 0 }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="data-list">
+            <div *ngFor="let condition of patientData?.conditions" class="data-item">
+              <div class="item-header">
+                <span class="item-title">{{ ipsReaderService.getConditionDisplay(condition) }}</span>
+                <span class="item-status">{{ ipsReaderService.getConditionStatus(condition) }}</span>
+              </div>
+              <div class="item-details">
+                <span *ngIf="condition.onsetDateTime" class="detail-item">
+                  <mat-icon>schedule</mat-icon>
+                  Onset: {{ condition.onsetDateTime | date:'short' }}
+                </span>
+                <span *ngIf="condition.recordedDate" class="detail-item">
+                  <mat-icon>edit</mat-icon>
+                  Recorded: {{ condition.recordedDate | date:'short' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Procedures Section -->
+      <mat-card *ngIf="hasProcedures()" class="data-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>local_hospital</mat-icon>
+            Procedures ({{ patientData?.procedures?.length || 0 }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="data-list">
+            <div *ngFor="let procedure of patientData?.procedures" class="data-item">
+              <div class="item-header">
+                <span class="item-title">{{ ipsReaderService.getProcedureDisplay(procedure) }}</span>
+                <span class="item-status">{{ procedure.status | titlecase }}</span>
+              </div>
+              <div class="item-details">
+                <span class="detail-item">
+                  <mat-icon>schedule</mat-icon>
+                  Performed: {{ ipsReaderService.getProcedureDate(procedure) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Medications Section -->
+      <mat-card *ngIf="hasMedications()" class="data-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>medication</mat-icon>
+            Medications ({{ patientData?.medications?.length || 0 }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="data-list">
+            <div *ngFor="let medication of patientData?.medications" class="data-item">
+              <div class="item-header">
+                <span class="item-title">{{ ipsReaderService.getMedicationDisplay(medication) }}</span>
+                <span class="item-status">{{ ipsReaderService.getMedicationStatus(medication) }}</span>
+              </div>
+              <div class="item-details">
+                <span class="detail-item">
+                  <mat-icon>schedule</mat-icon>
+                  Effective: {{ ipsReaderService.getMedicationEffectivePeriod(medication) }}
+                </span>
+                <span *ngIf="medication.dosage && medication.dosage.length > 0" class="detail-item">
+                  <mat-icon>straighten</mat-icon>
+                  Dosage: {{ medication.dosage[0].text || 'As prescribed' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Allergies Section -->
+      <mat-card *ngIf="hasAllergies()" class="data-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>warning</mat-icon>
+            Allergies ({{ patientData?.allergies?.length || 0 }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="data-list">
+            <div *ngFor="let allergy of patientData?.allergies" class="data-item">
+              <div class="item-header">
+                <span class="item-title">{{ ipsReaderService.getAllergyDisplay(allergy) }}</span>
+                <span class="item-status severity-{{ allergy.criticality || 'unknown' }}">
+                  {{ ipsReaderService.getAllergySeverity(allergy) }}
+                </span>
+              </div>
+              <div class="item-details">
+                <span *ngIf="allergy.onsetDateTime" class="detail-item">
+                  <mat-icon>schedule</mat-icon>
+                  Onset: {{ allergy.onsetDateTime | date:'short' }}
+                </span>
+                <span *ngIf="allergy.recordedDate" class="detail-item">
+                  <mat-icon>edit</mat-icon>
+                  Recorded: {{ allergy.recordedDate | date:'short' }}
+                </span>
+                <div *ngIf="ipsReaderService.getAllergyReactions(allergy).length > 0" class="reactions">
+                  <strong>Reactions:</strong>
+                  <span *ngFor="let reaction of ipsReaderService.getAllergyReactions(allergy)" class="reaction-tag">
+                    {{ reaction }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Summary -->
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>summarize</mat-icon>
+            IPS Bundle Summary
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="summary-stats">
+            <div class="stat-item">
+              <mat-icon>medical_services</mat-icon>
+              <span>{{ patientData?.conditions?.length || 0 }} Conditions</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>local_hospital</mat-icon>
+              <span>{{ patientData?.procedures?.length || 0 }} Procedures</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>medication</mat-icon>
+              <span>{{ patientData?.medications?.length || 0 }} Medications</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>warning</mat-icon>
+              <span>{{ patientData?.allergies?.length || 0 }} Allergies</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- No Data State -->
+    <div *ngIf="!isLoading && !error && !hasPatientData()" class="no-data-container">
+      <mat-icon class="no-data-icon">info</mat-icon>
+      <h3>No Patient Data Available</h3>
+      <p>The IPS bundle could not be loaded or does not contain patient information.</p>
+      <p><strong>Tip:</strong> You can upload your own IPS JSON file using the "Upload IPS File" button above.</p>
+      <div class="error-actions">
+        <button mat-flat-button color="primary" (click)="loadExampleIPSBundle()">
+          <mat-icon>refresh</mat-icon>
+          Retry Loading
+        </button>
+        <button mat-flat-button color="accent" (click)="triggerFileUpload()">
+          <mat-icon>upload_file</mat-icon>
+          Upload Your IPS File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Verification Dialog -->
+  <div *ngIf="showDataVerification" class="verification-overlay">
+    <div class="verification-dialog">
+      <div class="verification-header">
+        <h2>
+          <mat-icon>verified_user</mat-icon>
+          Data Import Verification
+        </h2>
+        <button mat-icon-button (click)="cancelImport()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="verification-content">
+        <div class="patient-info-section">
+          <h3>Importing to: {{ getPatientDisplayName(linkedPatient) }}</h3>
+          <p>Review the data comparison below before proceeding with the import.</p>
+        </div>
+
+        <!-- Data Summary -->
+        <div class="data-summary">
+          <div class="summary-card">
+            <h4>IPS Data Available</h4>
+            <div class="summary-stats">
+              <div class="stat-item">
+                <mat-icon>medical_services</mat-icon>
+                <span>{{ importSummary?.ipsData?.conditions || 0 }} Conditions</span>
+              </div>
+              <div class="stat-item">
+                <mat-icon>local_hospital</mat-icon>
+                <span>{{ importSummary?.ipsData?.procedures || 0 }} Procedures</span>
+              </div>
+              <div class="stat-item">
+                <mat-icon>medication</mat-icon>
+                <span>{{ importSummary?.ipsData?.medications || 0 }} Medications</span>
+              </div>
+              <div class="stat-item">
+                <mat-icon>warning</mat-icon>
+                <span>{{ importSummary?.ipsData?.allergies || 0 }} Allergies</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <h4>Existing Patient Data</h4>
+            <div class="summary-stats">
+              <div class="stat-item">
+                <mat-icon>medical_services</mat-icon>
+                <span>{{ importSummary?.existingData?.conditions || 0 }} Conditions</span>
+              </div>
+              <div class="stat-item">
+                <mat-icon>local_hospital</mat-icon>
+                <span>{{ importSummary?.existingData?.procedures || 0 }} Procedures</span>
+              </div>
+              <div class="stat-item">
+                <mat-icon>medication</mat-icon>
+                <span>{{ importSummary?.existingData?.medications || 0 }} Medications</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Individual Item Selection -->
+        <div class="item-selection">
+          <h4>
+            <mat-icon>checklist</mat-icon>
+            Select Items to Import
+          </h4>
+          <p>Choose which items you want to import to the patient record.</p>
+
+          <!-- Conditions -->
+          <div *ngIf="patientData && patientData.conditions && patientData.conditions.length > 0" class="category-section">
+            <div class="category-header">
+              <h5>
+                <mat-icon>medical_services</mat-icon>
+                Conditions ({{ selectedConditions.size }}/{{ patientData.conditions.length }} selected)
+              </h5>
+              <div class="category-actions">
+                <button mat-button (click)="selectAllConditions()" class="select-all-btn">
+                  <mat-icon>select_all</mat-icon>
+                  Select All
+                </button>
+                <button mat-button (click)="deselectAllConditions()" class="deselect-all-btn">
+                  <mat-icon>deselect</mat-icon>
+                  Deselect All
+                </button>
+              </div>
+            </div>
+            <div class="item-list">
+              <div *ngFor="let condition of patientData?.conditions || []" class="item-row">
+                <mat-checkbox 
+                  [checked]="selectedConditions.has(condition.id)"
+                  (change)="toggleConditionSelection(condition.id)"
+                  class="item-checkbox">
+                </mat-checkbox>
+                <div class="item-content">
+                  <div class="item-title">{{ ipsReaderService.getConditionDisplay(condition) }}</div>
+                  <div class="item-details">
+                    <span class="item-status">{{ condition.clinicalStatus?.coding?.[0]?.display || condition.clinicalStatus?.coding?.[0]?.code || 'Unknown status' }}</span>
+                    <span *ngIf="condition.onsetDateTime" class="item-date">{{ condition.onsetDateTime | date:'short' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Procedures -->
+          <div *ngIf="patientData && patientData.procedures && patientData.procedures.length > 0" class="category-section">
+            <div class="category-header">
+              <h5>
+                <mat-icon>local_hospital</mat-icon>
+                Procedures ({{ selectedProcedures.size }}/{{ patientData.procedures.length }} selected)
+              </h5>
+              <div class="category-actions">
+                <button mat-button (click)="selectAllProcedures()" class="select-all-btn">
+                  <mat-icon>select_all</mat-icon>
+                  Select All
+                </button>
+                <button mat-button (click)="deselectAllProcedures()" class="deselect-all-btn">
+                  <mat-icon>deselect</mat-icon>
+                  Deselect All
+                </button>
+              </div>
+            </div>
+            <div class="item-list">
+              <div *ngFor="let procedure of patientData?.procedures || []" class="item-row">
+                <mat-checkbox 
+                  [checked]="selectedProcedures.has(procedure.id)"
+                  (change)="toggleProcedureSelection(procedure.id)"
+                  class="item-checkbox">
+                </mat-checkbox>
+                <div class="item-content">
+                  <div class="item-title">{{ ipsReaderService.getProcedureDisplay(procedure) }}</div>
+                  <div class="item-details">
+                    <span class="item-status">{{ procedure.status }}</span>
+                    <span *ngIf="procedure.performedDateTime" class="item-date">{{ procedure.performedDateTime | date:'short' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medications -->
+          <div *ngIf="patientData && patientData.medications && patientData.medications.length > 0" class="category-section">
+            <div class="category-header">
+              <h5>
+                <mat-icon>medication</mat-icon>
+                Medications ({{ selectedMedications.size }}/{{ patientData.medications.length }} selected)
+              </h5>
+              <div class="category-actions">
+                <button mat-button (click)="selectAllMedications()" class="select-all-btn">
+                  <mat-icon>select_all</mat-icon>
+                  Select All
+                </button>
+                <button mat-button (click)="deselectAllMedications()" class="deselect-all-btn">
+                  <mat-icon>deselect</mat-icon>
+                  Deselect All
+                </button>
+              </div>
+            </div>
+            <div class="item-list">
+              <div *ngFor="let medication of patientData?.medications || []" class="item-row">
+                <mat-checkbox 
+                  [checked]="selectedMedications.has(medication.id)"
+                  (change)="toggleMedicationSelection(medication.id)"
+                  class="item-checkbox">
+                </mat-checkbox>
+                <div class="item-content">
+                  <div class="item-title">{{ ipsReaderService.getMedicationDisplay(medication) }}</div>
+                  <div class="item-details">
+                    <span class="item-status">{{ medication.status }}</span>
+                    <span *ngIf="medication.effectiveDateTime" class="item-date">{{ medication.effectiveDateTime | date:'short' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Allergies -->
+          <div *ngIf="patientData && patientData.allergies && patientData.allergies.length > 0" class="category-section">
+            <div class="category-header">
+              <h5>
+                <mat-icon>warning</mat-icon>
+                Allergies ({{ selectedAllergies.size }}/{{ patientData.allergies.length }} selected)
+              </h5>
+              <div class="category-actions">
+                <button mat-button (click)="selectAllAllergies()" class="select-all-btn">
+                  <mat-icon>select_all</mat-icon>
+                  Select All
+                </button>
+                <button mat-button (click)="deselectAllAllergies()" class="deselect-all-btn">
+                  <mat-icon>deselect</mat-icon>
+                  Deselect All
+                </button>
+              </div>
+            </div>
+            <div class="item-list">
+              <div *ngFor="let allergy of patientData?.allergies || []" class="item-row">
+                <mat-checkbox 
+                  [checked]="selectedAllergies.has(allergy.id)"
+                  (change)="toggleAllergySelection(allergy.id)"
+                  class="item-checkbox">
+                </mat-checkbox>
+                <div class="item-content">
+                  <div class="item-title">{{ ipsReaderService.getAllergyDisplay(allergy) }}</div>
+                  <div class="item-details">
+                    <span class="item-status">{{ allergy.clinicalStatus?.coding?.[0]?.display || allergy.clinicalStatus?.coding?.[0]?.code || 'Unknown status' }}</span>
+                    <span *ngIf="allergy.recordedDate" class="item-date">{{ allergy.recordedDate | date:'short' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Potential Duplicates -->
+        <div *ngIf="importSummary?.potentialDuplicates" class="duplicates-section">
+          <h4>
+            <mat-icon>warning</mat-icon>
+            Potential Duplicates Found
+          </h4>
+          
+          <!-- Duplicate Conditions -->
+          <div *ngIf="importSummary.potentialDuplicates.conditions.length > 0" class="duplicate-category">
+            <h5>Conditions ({{ importSummary.potentialDuplicates.conditions.length }})</h5>
+            <div class="duplicate-list">
+              <div *ngFor="let duplicate of importSummary.potentialDuplicates.conditions" class="duplicate-item">
+                <div class="duplicate-comparison">
+                  <div class="ips-item">
+                    <strong>IPS:</strong> {{ ipsReaderService.getConditionDisplay(duplicate.ips) }}
+                  </div>
+                  <div class="existing-item">
+                    <strong>Existing:</strong> {{ ipsReaderService.getConditionDisplay(duplicate.existing) }}
+                  </div>
+                  <div class="similarity">
+                    <mat-icon>compare_arrows</mat-icon>
+                    {{ (duplicate.similarity * 100).toFixed(0) }}% similar
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Duplicate Procedures -->
+          <div *ngIf="importSummary.potentialDuplicates.procedures.length > 0" class="duplicate-category">
+            <h5>Procedures ({{ importSummary.potentialDuplicates.procedures.length }})</h5>
+            <div class="duplicate-list">
+              <div *ngFor="let duplicate of importSummary.potentialDuplicates.procedures" class="duplicate-item">
+                <div class="duplicate-comparison">
+                  <div class="ips-item">
+                    <strong>IPS:</strong> {{ ipsReaderService.getProcedureDisplay(duplicate.ips) }}
+                  </div>
+                  <div class="existing-item">
+                    <strong>Existing:</strong> {{ ipsReaderService.getProcedureDisplay(duplicate.existing) }}
+                  </div>
+                  <div class="similarity">
+                    <mat-icon>compare_arrows</mat-icon>
+                    {{ (duplicate.similarity * 100).toFixed(0) }}% similar
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Duplicate Medications -->
+          <div *ngIf="importSummary.potentialDuplicates.medications.length > 0" class="duplicate-category">
+            <h5>Medications ({{ importSummary.potentialDuplicates.medications.length }})</h5>
+            <div class="duplicate-list">
+              <div *ngFor="let duplicate of importSummary.potentialDuplicates.medications" class="duplicate-item">
+                <div class="duplicate-comparison">
+                  <div class="ips-item">
+                    <strong>IPS:</strong> {{ ipsReaderService.getMedicationDisplay(duplicate.ips) }}
+                  </div>
+                  <div class="existing-item">
+                    <strong>Existing:</strong> {{ ipsReaderService.getMedicationDisplay(duplicate.existing) }}
+                  </div>
+                  <div class="similarity">
+                    <mat-icon>compare_arrows</mat-icon>
+                    {{ (duplicate.similarity * 100).toFixed(0) }}% similar
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Duplicates Message -->
+        <div *ngIf="!importSummary?.potentialDuplicates || 
+                    (importSummary.potentialDuplicates.conditions.length === 0 && 
+                     importSummary.potentialDuplicates.procedures.length === 0 && 
+                     importSummary.potentialDuplicates.medications.length === 0)" 
+             class="no-duplicates">
+          <mat-icon class="success-icon">check_circle</mat-icon>
+          <span>No potential duplicates found. Safe to proceed with import.</span>
+        </div>
+      </div>
+
+      <div class="verification-actions">
+        <button mat-flat-button (click)="cancelImport()">
+          <mat-icon>cancel</mat-icon>
+          Cancel
+        </button>
+        <button mat-flat-button color="primary" (click)="proceedWithImport()" [disabled]="!hasSelectedItems()">
+          <mat-icon>file_download</mat-icon>
+          Import Selected Items ({{ selectedConditions.size + selectedProcedures.size + selectedMedications.size + selectedAllergies.size }})
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
