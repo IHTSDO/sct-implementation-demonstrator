@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { MatTabGroup } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PatientService, Patient, Condition, Procedure, MedicationStatement } from '../../services/patient.service';
+import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { CdsService, CDSRequest, CDSResponse } from '../../services/cds.service';
 import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
@@ -16,6 +16,7 @@ export interface AnchorPoint {
   description: string;
   anatomicalSystem?: string;
   defaultColor?: string;
+  type?: 'circle' | 'systemic'; // Type of anchor point visual style
 }
 
 @Component({
@@ -34,6 +35,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   conditions: Condition[] = [];
   procedures: Procedure[] = [];
   medications: MedicationStatement[] = [];
+  allergies: AllergyIntolerance[] = [];
   encounters: any[] = [];
   currentDate = new Date();
   private subscriptions: Subscription[] = [];
@@ -129,12 +131,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     {
       id: 'systemic',
       name: 'Systemic',
-      x: 70,
+      x: 90,
       y: 12,
       ancestors: [], // Empty array - will be used as fallback for unmapped concepts
       description: 'General systemic conditions, multiple system disorders, skin conditions',
       anatomicalSystem: 'systemic',
-      defaultColor: '#AED6F1'
+      defaultColor: '#AED6F1',
+      type: 'systemic'
     }
   ];
 
@@ -225,6 +228,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.conditions = this.loadCachedOrFreshData('conditions', patientId, () => this.patientService.getPatientConditions(patientId));
     this.procedures = this.loadCachedOrFreshData('procedures', patientId, () => this.patientService.getPatientProcedures(patientId));
     this.medications = this.loadCachedOrFreshData('medications', patientId, () => this.patientService.getPatientMedications(patientId));
+    this.allergies = this.loadCachedOrFreshData('allergies', patientId, () => this.patientService.getPatientAllergies(patientId));
     
     // Load encounters from localStorage
     this.encounters = this.getEncountersFromStorage(patientId);
@@ -703,6 +707,87 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
+  getSortedAllergies(): AllergyIntolerance[] {
+    return [...this.allergies].sort((a, b) => {
+      // First try to sort by recordedDate (most recent first)
+      if (a.recordedDate && b.recordedDate) {
+        return new Date(b.recordedDate).getTime() - new Date(a.recordedDate).getTime();
+      }
+      
+      // If one has recordedDate and the other doesn't, prioritize the one with recordedDate
+      if (a.recordedDate && !b.recordedDate) return -1;
+      if (!a.recordedDate && b.recordedDate) return 1;
+      
+      // If neither has recordedDate, sort by array index (newer allergies are added to the end)
+      const indexA = this.allergies.indexOf(a);
+      const indexB = this.allergies.indexOf(b);
+      return indexB - indexA; // Most recent (higher index) first
+    });
+  }
+
+  getAllergyDisplayName(allergy: AllergyIntolerance): string {
+    // Try to get display name from code first
+    if (allergy.code?.coding?.[0]?.display) {
+      return allergy.code.coding[0].display;
+    }
+    
+    // Try to get display name from substance in reactions
+    if (allergy.reaction?.[0]?.substance?.[0]?.coding?.[0]?.display) {
+      return allergy.reaction[0].substance[0].coding[0].display;
+    }
+    
+    // Fallback to code text
+    if (allergy.code?.text) {
+      return allergy.code.text;
+    }
+    
+    // Final fallback
+    return 'Unknown Allergy';
+  }
+
+  getAllergyCriticality(allergy: AllergyIntolerance): string {
+    if (allergy.criticality) {
+      let criticalityText = '';
+      if (typeof allergy.criticality === 'string') {
+        criticalityText = allergy.criticality;
+      } else if (Array.isArray(allergy.criticality) && (allergy.criticality as any[]).length > 0) {
+        criticalityText = (allergy.criticality as any[])[0];
+      }
+      
+      if (criticalityText) {
+        return criticalityText.charAt(0).toUpperCase() + criticalityText.slice(1).replace('-', ' ');
+      }
+    }
+    return '';
+  }
+
+  getAllergyVerificationStatus(allergy: AllergyIntolerance): string {
+    if (allergy.verificationStatus?.coding?.[0]?.display) {
+      return allergy.verificationStatus.coding[0].display;
+    }
+    return '';
+  }
+
+  getAllergyReactions(allergy: AllergyIntolerance): string[] {
+    const reactions: string[] = [];
+    
+    if (allergy.reaction && allergy.reaction.length > 0) {
+      allergy.reaction.forEach(reaction => {
+        if (reaction.manifestation && reaction.manifestation.length > 0) {
+          reaction.manifestation.forEach(manifestation => {
+            if (manifestation.coding?.[0]?.display) {
+              reactions.push(manifestation.coding[0].display);
+            } else if (manifestation.text) {
+              reactions.push(manifestation.text);
+            }
+          });
+        }
+      });
+    }
+    
+    return reactions;
+  }
+
   /**
    * Debug method to check if condition has ICD-10 code
    */
@@ -938,6 +1023,23 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return ''; // No indication found
   }
 
+  /**
+   * Get concept ID for allergy (from substance in reactions)
+   */
+  getAllergyConceptId(allergy: any): string {
+    // Try to get concept ID from substance in reactions first
+    if (allergy.reaction?.[0]?.substance?.[0]?.coding?.[0]?.code) {
+      return allergy.reaction[0].substance[0].coding[0].code;
+    }
+    
+    // Fallback to main code
+    if (allergy.code?.coding?.[0]?.code) {
+      return allergy.code.coding[0].code;
+    }
+    
+    return ''; // No concept ID found
+  }
+
   deleteCondition(conditionId: string): void {
     if (!this.patient) return;
     
@@ -1117,6 +1219,19 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   /**
+   * Handle allergy hover - show connection line to anchor point
+   */
+  onAllergyHover(allergy: any, event: MouseEvent): void {
+    // For allergies, use the substance concept ID for mapping
+    const conceptId = this.getAllergyConceptId(allergy);
+    const anchorPoint = this.findBestAnchorPointForConcept(conceptId);
+    if (anchorPoint) {
+      const allergyElement = event.currentTarget as HTMLElement;
+      this.showConnectionLine(allergyElement, anchorPoint);
+    }
+  }
+
+  /**
    * Handle anchor point hover - show all connections and highlight related events
    */
   onAnchorPointHover(anchorPoint: AnchorPoint, event: MouseEvent): void {
@@ -1133,9 +1248,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   /**
-   * Show connection line from condition to anchor point
+   * Show connection line from clinical item to anchor point
    */
-  private showConnectionLine(conditionElement: HTMLElement, anchorPoint: AnchorPoint): void {
+  private showConnectionLine(clinicalElement: HTMLElement, anchorPoint: AnchorPoint): void {
     // Find the anchor point element on the body model
     const anchorElement = document.querySelector(`[data-anchor-id="${anchorPoint.id}"]`) as HTMLElement;
     if (!anchorElement) return;
@@ -1150,14 +1265,28 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
 
     // Calculate positions
-    const conditionRect = conditionElement.getBoundingClientRect();
+    const clinicalRect = clinicalElement.getBoundingClientRect();
     const anchorRect = anchorElement.getBoundingClientRect();
 
-    // Calculate line position and angle - start from right edge of anchor point to left border of condition box
-    const startX = anchorRect.left + anchorRect.width;
-    const startY = anchorRect.top + anchorRect.height / 2;
-    const endX = conditionRect.left;
-    const endY = conditionRect.top + conditionRect.height / 2;
+    // Determine if the clinical item is on the left or right side
+    const viewportWidth = window.innerWidth;
+    const isLeftSide = clinicalRect.left < viewportWidth / 2;
+
+    let startX: number, startY: number, endX: number, endY: number;
+
+    if (isLeftSide) {
+      // Left side (conditions/procedures): start from right border of clinical item
+      startX = clinicalRect.right;
+      startY = clinicalRect.top + clinicalRect.height / 2;
+      endX = anchorRect.left + anchorRect.width / 2;
+      endY = anchorRect.top + anchorRect.height / 2;
+    } else {
+      // Right side (medications): start from left border of clinical item
+      startX = clinicalRect.left;
+      startY = clinicalRect.top + clinicalRect.height / 2;
+      endX = anchorRect.left + anchorRect.width / 2;
+      endY = anchorRect.top + anchorRect.height / 2;
+    }
 
     const deltaX = endX - startX;
     const deltaY = endY - startY;
@@ -1261,10 +1390,24 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const startRect = startElement.getBoundingClientRect();
     const endRect = endElement.getBoundingClientRect();
 
-    const startX = endRect.left + endRect.width;
+    // Start from center of anchor point
+    const startX = endRect.left + endRect.width / 2;
     const startY = endRect.top + endRect.height / 2;
-    const endX = startRect.left;
-    const endY = startRect.top + startRect.height / 2;
+    
+    // Determine which side the clinical item is on and point to appropriate border
+    const viewportWidth = window.innerWidth;
+    const isLeftSide = startRect.left < viewportWidth / 2;
+    
+    let endX: number, endY: number;
+    if (isLeftSide) {
+      // Left side items: point to right border
+      endX = startRect.right;
+      endY = startRect.top + startRect.height / 2;
+    } else {
+      // Right side items: point to left border
+      endX = startRect.left;
+      endY = startRect.top + startRect.height / 2;
+    }
 
     const deltaX = endX - startX;
     const deltaY = endY - startY;
@@ -1405,24 +1548,26 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const patientId = this.patient.id;
     
     // Confirm deletion
-    const eventCount = this.conditions.length + this.procedures.length + this.medications.length;
+    const eventCount = this.conditions.length + this.procedures.length + this.medications.length + this.allergies.length;
     if (eventCount === 0) {
       alert('No clinical events to delete.');
       return;
     }
     
-    const confirmed = confirm(`Are you sure you want to delete all ${eventCount} clinical events for ${this.getPatientDisplayName(this.patient)}? This action cannot be undone.`);
+    const confirmed = confirm(`Are you sure you want to delete all ${eventCount} clinical events (including conditions, procedures, medications, and allergies) for ${this.getPatientDisplayName(this.patient)}? This action cannot be undone.`);
     if (!confirmed) return;
     
     // Clear all clinical data from localStorage
     localStorage.removeItem(`ehr_conditions_${patientId}`);
     localStorage.removeItem(`ehr_procedures_${patientId}`);
     localStorage.removeItem(`ehr_medications_${patientId}`);
+    localStorage.removeItem(`ehr_allergies_${patientId}`);
     
     // Clear the arrays
     this.conditions = [];
     this.procedures = [];
     this.medications = [];
+    this.allergies = [];
   }
 
 

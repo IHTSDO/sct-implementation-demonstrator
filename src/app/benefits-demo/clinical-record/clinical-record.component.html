@@ -27,7 +27,7 @@
               (click)="deleteAllEvents()"
               [disabled]="isLoadingMapping"
               title="Delete all clinical events for this patient"
-              style="margin-left: 8px;">
+              class="delete-all-button">
         <mat-icon>delete_sweep</mat-icon>
         Delete All Events
       </button>
@@ -41,81 +41,6 @@
       <h2>Summary</h2>
       <div class="demographics-container">
         <div class="demographics-left">
-          <div class="demographics-grid">
-            <div class="demographic-item">
-              <label>Full Name:</label>
-              <span>{{ getPatientDisplayName(patient) }}</span>
-            </div>
-            <div class="demographic-item">
-              <label>Date of Birth:</label>
-              <span>{{ patient.birthDate | date:'longDate' }}</span>
-            </div>
-            <div class="demographic-item">
-              <label>Age:</label>
-              <span>{{ getPatientAge(patient.birthDate) }}</span>
-            </div>
-            <div class="demographic-item">
-              <label>Gender:</label>
-              <span>{{ patient.gender || 'Not specified' }}</span>
-            </div>
-            <div class="demographic-item">
-              <label>Medical Record Number:</label>
-              <span>{{ getPatientIdentifier(patient) }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="demographics-middle">
-          <div class="body-model-container">
-            <div class="model-with-annotations">
-              <img 
-                [src]="getBodyModelImage(patient.gender)" 
-                [alt]="'Human body model - ' + (patient.gender || 'unspecified')"
-                class="body-model-image"
-              />
-              
-              <!-- Loading Overlay -->
-              <div *ngIf="isLoadingMapping" class="mapping-loader-overlay">
-                <div class="mapping-spinner"></div>
-                <div class="mapping-loader-text">Updating event mappings...</div>
-              </div>
-              
-              <!-- Anchor Points (hidden during loading) -->
-              <div 
-                *ngFor="let anchorPoint of anchorPoints" 
-                class="anchor-point"
-                [class.active]="getEventCountForAnchorPoint(anchorPoint.id) > 0"
-                [class.empty]="!hasAssociatedEvents(anchorPoint)"
-                [style.left.%]="patient.gender === 'female' ? anchorPoint.x + 4 : anchorPoint.x"
-                [style.top.%]="anchorPoint.y"
-                [style.display]="isLoadingMapping ? 'none' : 'block'"
-                [style.background-color]="anchorPoint.defaultColor"
-                [attr.data-anchor-id]="anchorPoint.id"
-                [attr.data-system]="anchorPoint.anatomicalSystem"
-                (mouseenter)="onAnchorPointHover(anchorPoint, $event)"
-                (mouseleave)="onAnchorPointHoverEnd()"
-              >
-                <div class="anchor-point-label">{{ anchorPoint.name }}</div>
-                <!-- Event count badge hidden for cleaner design -->
-                <!-- <div class="event-count" *ngIf="getEventCountForAnchorPoint(anchorPoint.id) > 0">
-                  {{ getEventCountForAnchorPoint(anchorPoint.id) }}
-                </div> -->
-              </div>
-
-              <!-- Connection lines are now handled dynamically via hover events -->
-            </div>
-          </div>
-          
-          <!-- CDS Recommendations Notice -->
-          <div class="cds-notice-section">
-            <div class="cds-notice" 
-                 [ngClass]="getCdsNoticeClass()"
-                 [class.clickable]="cdsResponse && cdsResponse.cards && cdsResponse.cards.length > 0"
-                 (click)="onCdsNoticeClick()">
-              <span class="cds-notice-text"><mat-icon class="cds-notice-icon">{{ getCdsNoticeIcon() }}</mat-icon> {{ getCdsNoticeText() }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="demographics-right">
           <div class="clinical-events-summary">
             <div class="clinical-summary-section">
               <h5>Conditions</h5>
@@ -141,8 +66,7 @@
                 <div class="clinical-summary-item hoverable-summary-condition" 
                      *ngFor="let procedure of getSortedProcedures() | slice:0:4"
                      (mouseenter)="onProcedureHover(procedure, $event)"
-                     (mouseleave)="onConditionHoverEnd()"
-                     title="Hover to see connection line">
+                     (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ procedure.code.text }}</div>
                 </div>
                 <div class="clinical-summary-item" *ngIf="procedures.length > 4" style="font-style: italic; color: #6c757d;">
@@ -153,19 +77,64 @@
                 <div class="no-clinical-data">No procedures recorded</div>
               </ng-template>
             </div>
+          </div>
+        </div>
+        <div class="demographics-middle">
+          <div class="body-model-container">
+            <div class="model-with-annotations">
+              <img 
+                [src]="getBodyModelImage(patient.gender)" 
+                [alt]="'Human body model - ' + (patient.gender || 'unspecified')"
+                class="body-model-image"
+              />
+              
+              <!-- Loading Overlay -->
+              <div *ngIf="isLoadingMapping" class="mapping-loader-overlay">
+                <div class="mapping-spinner"></div>
+                <div class="mapping-loader-text">Updating event mappings...</div>
+              </div>
+              
+              <!-- Anchor Points (hidden during loading) -->
+              <div 
+                *ngFor="let anchorPoint of anchorPoints" 
+                class="anchor-point"
+                [class.active]="getEventCountForAnchorPoint(anchorPoint.id) > 0"
+                [class.empty]="!hasAssociatedEvents(anchorPoint)"
+                [class.systemic]="anchorPoint.type === 'systemic'"
+                [style.left.%]="patient.gender === 'female' ? anchorPoint.x + 4 : anchorPoint.x"
+                [style.top.%]="anchorPoint.y"
+                [style.display]="isLoadingMapping ? 'none' : 'block'"
+                [style.background-color]="anchorPoint.defaultColor"
+                [attr.data-anchor-id]="anchorPoint.id"
+                [attr.data-system]="anchorPoint.anatomicalSystem"
+                (mouseenter)="onAnchorPointHover(anchorPoint, $event)"
+                (mouseleave)="onAnchorPointHoverEnd()"
+              >
+                <div class="anchor-point-label" *ngIf="anchorPoint.type !== 'systemic'">{{ anchorPoint.name }}</div>
+                <span *ngIf="anchorPoint.type === 'systemic'">Systemic</span>
+                <!-- Event count badge hidden for cleaner design -->
+                <!-- <div class="event-count" *ngIf="getEventCountForAnchorPoint(anchorPoint.id) > 0">
+                  {{ getEventCountForAnchorPoint(anchorPoint.id) }}
+                </div> -->
+              </div>
 
+              <!-- Connection lines are now handled dynamically via hover events -->
+            </div>
+          </div>
+        </div>
+        <div class="demographics-right">
+          <div class="clinical-events-summary">
             <div class="clinical-summary-section">
               <h5>Medications</h5>
               <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
                 <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let medication of getSortedMedications() | slice:0:4"
+                     *ngFor="let medication of getSortedMedications() | slice:0:6"
                      (mouseenter)="onMedicationHover(medication, $event)"
-                     (mouseleave)="onConditionHoverEnd()"
-                     title="Hover to see connection line">
+                     (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ medication.medicationCodeableConcept?.text }}</div>
                 </div>
-                <div class="clinical-summary-item" *ngIf="medications.length > 4" style="font-style: italic; color: #6c757d;">
-                  +{{ medications.length - 4 }} more medications
+                <div class="clinical-summary-item" *ngIf="medications.length > 6" style="font-style: italic; color: #6c757d;">
+                  +{{ medications.length - 6 }} more medications
                 </div>
               </div>
               <ng-template #noMedications>
@@ -173,6 +142,43 @@
               </ng-template>
             </div>
 
+            <div class="clinical-summary-section">
+              <h5>Allergic to:</h5>
+              <div class="clinical-summary-list" *ngIf="allergies.length > 0; else noAllergies">
+                <div class="clinical-summary-item hoverable-summary-condition" 
+                     *ngFor="let allergy of getSortedAllergies() | slice:0:4"
+                     (mouseenter)="onAllergyHover(allergy, $event)"
+                     (mouseleave)="onConditionHoverEnd()">
+                  <div class="item-name">
+                    {{ getAllergyDisplayName(allergy) }} -
+                    <span class="allergy-meta" *ngIf="getAllergyCriticality(allergy)">Criticality: {{ getAllergyCriticality(allergy) }},</span>
+                    <span class="allergy-meta" *ngIf="getAllergyVerificationStatus(allergy)">{{ getAllergyVerificationStatus(allergy) }}</span>
+                  </div>
+                  <div class="allergy-reactions" *ngIf="getAllergyReactions(allergy).length > 0">
+                    <div class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy)">Reaction: {{ reaction }}</div>
+                  </div>
+                </div>
+                <div class="clinical-summary-item" *ngIf="allergies.length > 4" style="font-style: italic; color: #6c757d;">
+                  +{{ allergies.length - 4 }} more allergies
+                </div>
+              </div>
+              <ng-template #noAllergies>
+                <div class="no-clinical-data">No allergies recorded</div>
+              </ng-template>
+            </div>
+
+            <!-- CDS Section -->
+            <div class="clinical-summary-section">
+              <h5>CDS</h5>
+              <div class="cds-notice-section">
+                <div class="cds-notice" 
+                     [ngClass]="getCdsNoticeClass()"
+                     [class.clickable]="cdsResponse && cdsResponse.cards && cdsResponse.cards.length > 0"
+                     (click)="onCdsNoticeClick()">
+                  <span class="cds-notice-text"><mat-icon class="cds-notice-icon">{{ getCdsNoticeIcon() }}</mat-icon> {{ getCdsNoticeText() }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
