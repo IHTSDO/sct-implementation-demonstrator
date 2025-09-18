@@ -9,6 +9,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GeocodingService } from 'src/app/services/geocoding.service';
+import { FirebaseService, MaturityAssessmentResult } from 'src/app/services/firebase.service';
 import { MaturityResultsComponent } from '../maturity-results/maturity-results.component';
 
 @Component({
@@ -50,11 +51,13 @@ export class MaturityMainComponent implements OnInit {
   animationState = 'enter';
   currentKpas: any[] = [];
   authorMode: boolean = false;
+  expoMode: boolean = false;
 
   @ViewChild('results') results!: MaturityResultsComponent;
 
   constructor(private http: HttpClient, private fb: FormBuilder, private dialog: MatDialog, 
-    private route: ActivatedRoute, private geocodingService: GeocodingService, private router: Router) {
+    private route: ActivatedRoute, private geocodingService: GeocodingService, private router: Router,
+    private firebaseService: FirebaseService) {
     this.responseForm = this.fb.group({
       selectedStakeholder: new FormControl(null, Validators.required), // Add stakeholder selection control
     });
@@ -62,6 +65,9 @@ export class MaturityMainComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['author']) {
         this.authorMode = true;
+      }
+      if (params['expo']) {
+        this.expoMode = true;
       }
     });
   }
@@ -79,11 +85,17 @@ export class MaturityMainComponent implements OnInit {
     } else {
       this.maturityQuestions = cloneDeep(this.baseMaturityQuestions);
     }
-    this.nameControl = new FormControl(null);
-    this.authorControl = new FormControl(null);
+    
+    // In Expo mode, make stakeholder description fields mandatory
+    const nameValidators = this.expoMode ? [Validators.required] : [];
+    const authorValidators = this.expoMode ? [Validators.required] : [];
+    const locationValidators = this.expoMode ? [Validators.required] : [];
+    
+    this.nameControl = new FormControl(null, nameValidators);
+    this.authorControl = new FormControl(null, authorValidators);
     this.timestampControl = new FormControl(new Date().toISOString());
     this.systemNameControl = new FormControl(null);
-    this.locationControl = new FormControl(null);
+    this.locationControl = new FormControl(null, locationValidators);
     this.locationResults = [];
     this.responseForm = this.fb.group({
       selectedStakeholder: new FormControl(null, Validators.required),
@@ -132,11 +144,14 @@ export class MaturityMainComponent implements OnInit {
 
   onLocationSelected(option: any) {
     // Do nothing for now
-    // console.log('Selected location:', option);
   }
 
   openDashboard(): void {
-    this.router.navigate(['/maturity/dashboard']);
+    if (this.expoMode) {
+      this.router.navigate(['/maturity/dashboard'], { queryParams: { expo: true } });
+    } else {
+      this.router.navigate(['/maturity/dashboard']);
+    }
   }
 
   startAssessment(): void {
@@ -155,8 +170,10 @@ export class MaturityMainComponent implements OnInit {
       
       // Prepare form group for the selected stakeholder KPAs
       const kpaGroup = this.fb.group({});
-      this.selectedStakeholder.kpas.forEach((kpa: any) => {
-        kpaGroup.addControl(kpa.id, this.fb.control(true));
+      this.selectedStakeholder.kpas.forEach((kpa: any, index: number) => {
+        // In Expo mode, only enable the first KPA
+        const isEnabled = this.expoMode ? index === 0 : true;
+        kpaGroup.addControl(kpa.id, this.fb.control({value: isEnabled, disabled: this.expoMode && index !== 0}));
       });
       this.responseForm.addControl('selectedKpas', kpaGroup);
 
@@ -349,10 +366,97 @@ export class MaturityMainComponent implements OnInit {
   }
 
   /**
+   * Saves the current assessment to Firebase (Expo mode only)
+   */
+  async saveToFirebase(): Promise<void> {
+    if (!this.expoMode) {
+      return;
+    }
+
+    if (!this.results) {
+      return;
+    }
+
+    try {
+      // Convert scores from 0-100 scale to 0-5 scale for display consistency
+      const convertToFiveScale = (value: number): number => {
+        return Math.round((value / 100) * 5 * 100) / 100; // Round to 2 decimal places
+      };
+
+      const currentState = {
+        selectedStakeholder: this.responseForm.get('selectedStakeholder')?.value,
+        selectedKpas: this.responseForm.get('selectedKpas')?.value,
+        responses: this.responseForm.value,
+        name: this.nameControl.value,
+        author: this.authorControl.value,
+        timestamp: this.timestampControl.value,
+        systemName: this.systemNameControl.value,
+        location: this.locationControl.value,
+        allQuestions: this.allQuestions,
+        // Raw scores (0-100 scale) - for internal calculations and utilities
+        overallScore: this.results.overallAverage,
+        kpasScores: this.results.kpaAverages,
+        // Normalized scores (0-5 scale) - for display and user-facing features
+        overallScoreNormalized: convertToFiveScale(this.results.overallAverage),
+        kpasScoresNormalized: Object.fromEntries(
+          Object.entries(this.results.kpaAverages).map(([key, value]) => [key, convertToFiveScale(value)])
+        ),
+        level: this.results.level
+      };
+
+      
+      // Create a clean data structure for Firebase (remove problematic nested arrays)
+      const firebaseData: MaturityAssessmentResult = {
+        selectedStakeholder: currentState.selectedStakeholder,
+        selectedKpas: currentState.selectedKpas,
+        name: currentState.name || '',
+        author: currentState.author || '',
+        timestamp: currentState.timestamp || new Date().toISOString(),
+        systemName: currentState.systemName || '',
+        // Remove allQuestions array as it contains nested arrays that Firebase doesn't support
+        // allQuestions: [], // Commented out to avoid nested array error
+        // Raw scores (0-100 scale) - for internal calculations and utilities
+        overallScore: currentState.overallScore || 0,
+        kpasScores: currentState.kpasScores || {},
+        // Normalized scores (0-5 scale) - for display and user-facing features
+        overallScoreNormalized: currentState.overallScoreNormalized || 0,
+        kpasScoresNormalized: currentState.kpasScoresNormalized || {},
+        level: currentState.level || '',
+        // Include only the essential question responses (these should be simple values)
+        ...currentState.responses,
+        // Override location after spread to ensure clean version is used (no nested arrays)
+        location: currentState.location ? {
+          x: currentState.location.x,
+          y: currentState.location.y,
+          label: currentState.location.label,
+          country: currentState.location.raw?.address?.country || null,
+          countryCode: currentState.location.raw?.address?.country_code || null,
+          placeName: currentState.location.raw?.name || null,
+          placeId: currentState.location.raw?.place_id || null
+        } : null
+      };
+
+      await this.firebaseService.addMaturityAssessmentResult(firebaseData, 'Expo 2025');
+      
+      // Show success message to user
+      alert('Assessment successfully saved to Expo 2025 database!');
+      
+    } catch (error) {
+      console.error('Error saving to Firebase:', error);
+      alert('Failed to save assessment to Expo 2025 database. Please try again.');
+    }
+  }
+
+  /**
    * Saves the current form state (including stakeholder, selectedKpas, and question responses)
    * as a JSON file.
    */
-  saveState(): void {
+  async saveState(): Promise<void> {
+    // Convert scores from 0-100 scale to 0-5 scale for display consistency
+    const convertToFiveScale = (value: number): number => {
+      return Math.round((value / 100) * 5 * 100) / 100; // Round to 2 decimal places
+    };
+
     const currentState = {
       selectedStakeholder: this.responseForm.get('selectedStakeholder')?.value,
       selectedKpas: this.responseForm.get('selectedKpas')?.value,
@@ -366,17 +470,23 @@ export class MaturityMainComponent implements OnInit {
       systemName: this.systemNameControl.value,
       location: this.locationControl.value,
       allQuestions: this.allQuestions,
-      overallScore: this.results?.overallAverage,
-      level: this.results?.level,
-      kpasScores: this.results?.kpaAverages   
+      // Raw scores (0-100 scale) - for internal calculations and utilities
+      overallScore: this.results?.overallAverage || 0,
+      kpasScores: this.results?.kpaAverages || {},
+      // Normalized scores (0-5 scale) - for display and user-facing features
+      overallScoreNormalized: this.results?.overallAverage ? convertToFiveScale(this.results.overallAverage) : 0,
+      kpasScoresNormalized: this.results?.kpaAverages ? Object.fromEntries(
+        Object.entries(this.results.kpaAverages).map(([key, value]) => [key, convertToFiveScale(value)])
+      ) : {},
+      level: this.results?.level
     };
 
-    console.log('Saving state:', currentState);
 
+    // Download local file
     const blob = new Blob([JSON.stringify(currentState)], { type: 'application/json' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'maturity-assessment-results.json';
+    link.download = this.expoMode ? 'expo-maturity-assessment-results.json' : 'maturity-assessment-results.json';
     link.click();
   }
 

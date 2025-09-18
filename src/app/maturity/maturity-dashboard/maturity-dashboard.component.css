@@ -2,6 +2,23 @@
     height: calc(100vh - 70px); /* or whatever height you want */
 }
 
+/* Expo Mode: Full-screen map styles */
+.expo-map-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    background: white;
+}
+
+.expo-fullscreen-map {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
 .custom-sidenav {
     width: 250px; /* or any fixed size */
     background-color: #434a55; /* light gray background */

@@ -14,6 +14,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() maturityResponse: any;
   @Input() allQuestions: any[] = [];
+  @Input() expoMode: boolean = false;
 
   private chart!: Chart;
 
@@ -32,7 +33,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   
 
   ngAfterViewInit(): void {
-    if (this.maturityResponse) {
+    if (this.maturityResponse && !this.expoMode) {
       this.generateChart();
     }
   }
@@ -48,7 +49,9 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
       this.processComments();
       this.computeKpaAverages();
       this.overallAverage = this.calculateOverallAverage(this.maturityResponse);
-      this.generateChart();
+      if (!this.expoMode) {
+        this.generateChart();
+      }
     }
   }
 

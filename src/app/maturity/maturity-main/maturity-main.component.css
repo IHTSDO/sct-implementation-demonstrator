@@ -2,6 +2,47 @@
   line-height: 18px !important;
 }
 
+/* Expo mode specific styling */
+.expo-primary-kpa-label {
+  color: #2e7d32;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.expo-disabled-kpa-label {
+  color: #757575;
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+.expo-notice {
+  border-left: 4px solid #1976d2;
+}
+
+/* Expo Send Button - Larger and more prominent */
+.expo-send-button {
+  font-size: 1.2em !important;
+  font-weight: bold !important;
+  padding: 12px 24px !important;
+  min-width: 280px !important;
+  height: 56px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.expo-send-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.expo-results-banner {
+  border-left: 4px solid #388e3c;
+}
+
+.expo-kpa-info {
+  border-left: 4px solid #f57c00;
+}
+
 .question-flow-container {
   display: flex;
   flex-direction: column;

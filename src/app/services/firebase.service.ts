@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getFirestore, collection, addDoc, query, orderBy, getDocs, limit, where } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, query, orderBy, getDocs, limit, where, onSnapshot, Unsubscribe } from 'firebase/firestore';
 
 // Interface for maturity assessment result data
 export interface MaturityAssessmentResult {
@@ -10,11 +10,15 @@ export interface MaturityAssessmentResult {
   timestamp: string;
   systemName: string;
   location: any;
-  allQuestions: any[];
+  allQuestions?: any[]; // Made optional since we're not saving it to Firebase due to nested arrays
+  // Raw scores (0-100 scale) - for internal calculations and utilities
   overallScore: number;
-  level: string;
   kpasScores: Record<string, number>;
-  eventName?: string; // For grouping assessments by event (e.g., "Expo 2026")
+  // Normalized scores (0-5 scale) - for display and user-facing features
+  overallScoreNormalized: number;
+  kpasScoresNormalized: Record<string, number>;
+  level: string;
+  eventName?: string; // For grouping assessments by event (e.g., "Expo 2025")
   [key: string]: any; // Allow for additional question responses and comments
 }
 
@@ -28,7 +32,6 @@ export class FirebaseService {
   async addScore(collectionName: string, score: any) {
     try {
       const docRef = await addDoc(collection(this.db, collectionName), score);
-      // console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -45,7 +48,7 @@ export class FirebaseService {
   /**
    * Add a maturity assessment result to Firebase
    * @param assessmentResult The maturity assessment data to save
-   * @param eventName Optional event name for grouping (e.g., "Expo 2026")
+   * @param eventName Optional event name for grouping (e.g., "Expo 2025")
    * @returns Promise that resolves when the document is added
    */
   async addMaturityAssessmentResult(assessmentResult: MaturityAssessmentResult, eventName?: string): Promise<void> {
@@ -58,7 +61,6 @@ export class FirebaseService {
       };
 
       const docRef = await addDoc(collection(this.db, 'maturityAssessments'), dataToSave);
-      console.log("Maturity assessment document written with ID: ", docRef.id);
     } catch (error) {
       console.error("Error adding maturity assessment document: ", error);
       throw error;
@@ -67,7 +69,7 @@ export class FirebaseService {
 
   /**
    * Get maturity assessment results, optionally filtered by event name
-   * @param eventName Optional event name to filter by (e.g., "Expo 2026")
+   * @param eventName Optional event name to filter by (e.g., "Expo 2025")
    * @param limitCount Optional limit for number of results (default: 50)
    * @returns Promise that resolves to array of assessment results
    */
@@ -94,12 +96,23 @@ export class FirebaseService {
       }
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as MaturityAssessmentResult & { id: string }));
+      
+      const results = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data
+        } as MaturityAssessmentResult & { id: string };
+      });
+      
+      return results;
     } catch (error) {
-      console.error("Error getting maturity assessment results: ", error);
+      console.error("❌ FirebaseService error getting maturity assessment results: ", error);
+      console.error("❌ Error details:", {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        code: (error as any)?.code,
+        stack: error instanceof Error ? error.stack : undefined
+      });
       throw error;
     }
   }
@@ -134,5 +147,38 @@ export class FirebaseService {
       console.error("Error getting maturity assessment results by event: ", error);
       throw error;
     }
+  }
+
+  // Real-time listener for maturity assessment results
+  subscribeToMaturityAssessmentResults(
+    eventName: string,
+    onDataChange: (changes: { type: 'added' | 'removed' | 'modified', data: MaturityAssessmentResult, docId: string }[]) => void,
+    limitCount: number = 50
+  ): Unsubscribe {
+    const assessmentsCol = collection(this.db, 'maturityAssessments');
+    const q = query(
+      assessmentsCol,
+      where('eventName', '==', eventName),
+      orderBy('timestamp', 'desc'),
+      limit(limitCount)
+    );
+
+    return onSnapshot(q, (snapshot) => {
+      const changes = snapshot.docChanges().map(change => {
+        const data = change.doc.data() as MaturityAssessmentResult;
+        
+        return {
+          type: change.type as 'added' | 'removed' | 'modified',
+          data: data,
+          docId: change.doc.id
+        };
+      });
+
+      if (changes.length > 0) {
+        onDataChange(changes);
+      }
+    }, (error) => {
+      console.error('❌ Real-time listener error:', error);
+    });
   }
 }

@@ -83,7 +83,7 @@
     </ng-container>
   </tbody>
 </table>
-<div class="chart-container">
+<div class="chart-container" *ngIf="!expoMode">
   <canvas #radarCanvas></canvas>
 </div>
 <br>

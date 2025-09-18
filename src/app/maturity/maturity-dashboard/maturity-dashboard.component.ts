@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Chart } from 'chart.js';
 
 import * as L from 'leaflet';
@@ -6,6 +6,9 @@ import { AfterViewInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 import { get } from 'lodash';
+import { FirebaseService, MaturityAssessmentResult } from 'src/app/services/firebase.service';
+import { ActivatedRoute } from '@angular/router';
+import { Unsubscribe } from 'firebase/firestore';
 
 @Component({
   selector: 'app-maturity-dashboard',
@@ -13,7 +16,7 @@ import { get } from 'lodash';
   styleUrl: './maturity-dashboard.component.css',
   standalone: false
 })
-export class MaturityDashboardComponent  implements AfterViewInit {
+export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('overallScoreCanvas') overallScoreCanvas!: ElementRef<HTMLCanvasElement>;
@@ -26,6 +29,18 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   opened = false;
   overallScore = 0;
   level = '';
+  expoMode: boolean = false;
+  loadingFirebaseData: boolean = false;
+  private initialDocumentIds: Set<string> = new Set();
+  
+  // Cycling callouts properties
+  private calloutCycleTimer: any;
+  private currentCalloutIndex: number = 0;
+  private mapMarkers: L.Marker[] = [];
+  
+  // Real-time listener properties
+  private firebaseUnsubscribe: Unsubscribe | null = null;
+  private markerDataMap: Map<string, { marker: L.Marker, data: any }> = new Map();
   markers: any = { 
     "1": { color: "#555", type: "triangle", size: 8, label: "Basic", font: "12px arial" },
     "2": { color: "#555", type: "triangle", size: 8, label: "Emerging", font: "12px arial" },
@@ -37,6 +52,7 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   private chart!: Chart;
   private overallScoreChart!: Chart;
   private map!: L.Map;
+  private mapOverlay: any;
 
   colorPalette = [
     { bg: 'rgba(22, 160, 133, 0.3)', border: 'rgba(22, 160, 133, 1)' },  // Teal
@@ -50,15 +66,221 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   ];
   
 
-  constructor(private _snackBar: MatSnackBar) {}
+  constructor(
+    private _snackBar: MatSnackBar,
+    private firebaseService: FirebaseService,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    // Check for Expo mode from route parameters synchronously
+    const params = this.route.snapshot.queryParams;
+    if (params['expo']) {
+      this.expoMode = true;
+      // Use setTimeout to ensure the change happens after the current change detection cycle
+      setTimeout(() => {
+        this.loadFirebaseData();
+      }, 0);
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Clean up timer and markers when component is destroyed
+    this.clearCalloutTimer();
+    this.clearMapMarkers();
+    this.clearRealtimeListener();
+    this.removeMapOverlay();
+  }
 
   ngAfterViewInit(): void {
     // this.initMap();
   }
 
   reset(): void {
-    // reload page
-    window.location.reload();
+    if (this.expoMode) {
+      // In Expo mode, just reload Firebase data instead of full page reload
+      this.uploadedData = [];
+      this.kpasNames = {};
+      this.overallScore = 0;
+      this.level = '';
+      this.loadFirebaseData();
+    } else {
+      // In regular mode, reload the page
+      window.location.reload();
+    }
+  }
+
+  /**
+   * Load Expo 2025 assessment data from Firebase
+   */
+  async loadFirebaseData(): Promise<void> {
+    this.loadingFirebaseData = true;
+    
+    try {
+      const firebaseAssessments = await this.firebaseService.getMaturityAssessmentResults('Expo 2025');
+      
+      if (firebaseAssessments.length === 0) {
+        this.loadingFirebaseData = false;
+        return;
+      }
+
+      // Track document IDs from initial load to prevent real-time notifications for existing data
+      this.initialDocumentIds.clear();
+      firebaseAssessments.forEach(assessment => {
+        if (assessment['id']) {
+          this.initialDocumentIds.add(assessment['id']);
+        }
+      });
+
+      // Convert Firebase data to the format expected by the dashboard
+      this.uploadedData = firebaseAssessments.map(assessment => this.convertFirebaseToLocalFormat(assessment));
+      
+      this.verifyFiles();
+      this.processData();
+      
+      // Set up real-time listener for future changes
+      this.setupRealtimeListener();
+      
+    } catch (error) {
+      console.error('❌ Error loading Firebase data:', error);
+      console.error('❌ Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        error: error
+      });
+      
+      this._snackBar.openFromComponent(SnackAlertComponent, {
+        duration: 5 * 1000,
+        data: `Error loading Expo 2025 data from Firebase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        panelClass: ['red-snackbar']
+      });
+    } finally {
+      this.loadingFirebaseData = false;
+    }
+  }
+
+  /**
+   * Convert Firebase assessment data to the format expected by the dashboard
+   */
+  private convertFirebaseToLocalFormat(firebaseAssessment: MaturityAssessmentResult, docId?: string): any {
+    try {
+      // Create mock allQuestions array for compatibility
+      const allQuestions = this.createMockAllQuestions(firebaseAssessment);
+      
+      const convertedData = {
+        // Basic assessment info
+        selectedStakeholder: firebaseAssessment.selectedStakeholder,
+        selectedKpas: firebaseAssessment.selectedKpas,
+        name: firebaseAssessment.name,
+        author: firebaseAssessment.author,
+        timestamp: firebaseAssessment.timestamp,
+        systemName: firebaseAssessment.systemName,
+        location: firebaseAssessment.location,
+        level: firebaseAssessment.level,
+        
+        // Use normalized scores (0-5 scale) for display
+        overallScore: firebaseAssessment.overallScoreNormalized || 0,
+        kpasScores: firebaseAssessment.kpasScoresNormalized || {},
+        
+        // Mock data for compatibility
+        allQuestions: allQuestions,
+        stakeHolderName: this.getStakeholderDisplayName(firebaseAssessment.selectedStakeholder),
+        
+        // Include raw responses for compatibility (if available)
+        responses: this.extractResponsesFromFirebase(firebaseAssessment),
+        
+        // Add color for marker styling
+        color: this.getColorForStakeholder(firebaseAssessment.selectedStakeholder),
+        
+        // Add docId for tracking
+        docId: docId
+      };
+      
+      return convertedData;
+    } catch (error) {
+      console.error('❌ Error converting Firebase assessment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create mock allQuestions array for compatibility with existing dashboard logic
+   */
+  private createMockAllQuestions(assessment: MaturityAssessmentResult): any[] {
+    const questions: any[] = [];
+    
+    // Get selected KPAs
+    const selectedKpas = Object.keys(assessment.selectedKpas).filter(kpaId => assessment.selectedKpas[kpaId]);
+    
+    selectedKpas.forEach(kpaId => {
+      questions.push({
+        stakeholderName: this.getStakeholderDisplayName(assessment.selectedStakeholder),
+        kpaName: this.getKpaDisplayName(kpaId),
+        kpaId: kpaId,
+        question: {
+          name: `${kpaId} Question`,
+          id: `${kpaId}_question`,
+          question: `Assessment for ${kpaId}`,
+          options: []
+        },
+        questionFullPath: `${assessment.selectedStakeholder}_${kpaId}_question`
+      });
+    });
+    
+    return questions;
+  }
+
+  /**
+   * Get display name for stakeholder type
+   */
+  private getStakeholderDisplayName(stakeholderId: string): string {
+    const stakeholderNames: Record<string, string> = {
+      'vendor': 'Vendor',
+      'user': 'User Organization',
+      'member': 'Member Organization'
+    };
+    return stakeholderNames[stakeholderId] || stakeholderId;
+  }
+
+  /**
+   * Get display name for KPA
+   */
+  private getKpaDisplayName(kpaId: string): string {
+    const kpaNames: Record<string, string> = {
+      'scope': 'Scope of SNOMED CT Implementation',
+      'governance': 'Governance and Strategy',
+      'training': 'User Proficiency and Training',
+      'interoperability': 'Interoperability',
+      'analytics': 'Analytics and Decision Support',
+      'adoption': 'Adoption and Engagement',
+      'extension': 'Extension and Customization'
+    };
+    return kpaNames[kpaId] || kpaId;
+  }
+
+  /**
+   * Extract question responses from Firebase data for compatibility
+   */
+  private extractResponsesFromFirebase(assessment: MaturityAssessmentResult): Record<string, any> {
+    const responses: Record<string, any> = {
+      selectedStakeholder: assessment.selectedStakeholder,
+      selectedKpas: assessment.selectedKpas,
+      name: assessment.name,
+      author: assessment.author,
+      timestamp: assessment.timestamp,
+      systemName: assessment.systemName,
+      location: assessment.location
+    };
+
+    // Add any question responses that might be stored in the Firebase document
+    Object.keys(assessment).forEach(key => {
+      if (key.includes('_') && !['selectedStakeholder', 'selectedKpas', 'name', 'author', 'timestamp', 'systemName', 'location', 'overallScore', 'kpasScores', 'overallScoreNormalized', 'kpasScoresNormalized', 'level', 'eventName', 'createdAt'].includes(key)) {
+        responses[key] = (assessment as any)[key];
+      }
+    });
+
+    return responses;
   }
 
   loadExamples(): void {
@@ -103,15 +325,117 @@ export class MaturityDashboardComponent  implements AfterViewInit {
   }
 
   private initMap(): void {
-    this.map = L.map('map').setView([20, 0], 2); // Default view
+    // Check if map container exists in DOM
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) {
+      return;
+    }
+
+    // Check if map is already initialized
+    if (this.map) {
+      return;
+    }
+    
+    // Set different initial views based on mode
+    if (this.expoMode) {
+      // For Expo mode, start with a world view
+      this.map = L.map('map').setView([20, 0], 2);
+    } else {
+      // For regular mode, use default view
+      this.map = L.map('map').setView([20, 0], 2);
+    }
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(this.map);
+    
+    // For Expo mode, add overlay and trigger a resize after a short delay to ensure proper rendering
+    if (this.expoMode) {
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize();
+          this.createMapOverlay();
+        }
+      }, 300);
+    }
+  }
+
+  private createMapOverlay(): void {
+    if (!this.map) return;
+
+    // Check if map container is ready
+    const mapContainer = this.map.getContainer();
+    if (!mapContainer) return;
+
+    // Remove existing overlay if it exists
+    this.removeMapOverlay();
+
+    // Create overlay div directly in the map container
+    const overlayDiv = document.createElement('div');
+    overlayDiv.className = 'map-overlay';
+    overlayDiv.style.cssText = `
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 15px 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      font-family: Arial, sans-serif;
+      min-width: 400px;
+      text-align: center;
+      z-index: 1000;
+    `;
+    
+    overlayDiv.innerHTML = `
+      <h2 style="margin: 0 0 8px 0; color: #333; font-size: 18px; font-weight: bold;">
+        Maturity Assessment Framework Demo
+      </h2>
+      <p style="margin: 0 0 8px 0; color: #666; font-size: 12px; font-style: italic;">
+        Try the assessment tool and place your organization or tool in the map!
+      </p>
+      <p style="margin: 0; color: #666; font-size: 14px; font-weight: bold;">
+        ${this.uploadedData.length} assessments loaded
+      </p>
+    `;
+
+    // Add to map container
+    mapContainer.appendChild(overlayDiv);
+    
+    // Store reference for later removal
+    (this.mapOverlay as any) = overlayDiv;
+  }
+
+  private removeMapOverlay(): void {
+    if (this.mapOverlay) {
+      if (this.map && this.map.getContainer()) {
+        const mapContainer = this.map.getContainer();
+        const overlayElement = this.mapOverlay as any;
+        if (overlayElement && overlayElement.parentNode) {
+          overlayElement.parentNode.removeChild(overlayElement);
+        }
+      }
+      this.mapOverlay = null;
+    }
+  }
+
+  private updateMapOverlay(): void {
+    if (!this.expoMode) return;
+
+    // Remove and recreate the overlay to update the count
+    this.createMapOverlay();
   }
 
   private updateMapMarkers(): void {
-    if (!this.map) return;
+    if (!this.map) {
+      return;
+    }
+  
+    // Clear existing markers and timer
+    this.clearMapMarkers();
+    this.clearCalloutTimer();
   
     const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
     const iconUrl = 'assets/leaflet/marker-icon.png';
@@ -128,31 +452,382 @@ export class MaturityDashboardComponent  implements AfterViewInit {
     });
   
     const bounds = L.latLngBounds([]);
+    let markersAdded = 0;
   
-    this.uploadedData.forEach(entry => {
+    this.uploadedData.forEach((entry, index) => {
       const location = entry.location || entry.responses?.location;
+      
       if (location && typeof location.y === 'number' && typeof location.x === 'number') {
         const score = entry.overallScore ?? 0;
         const scoreColor = this.getScoreColor(score);
+        
+        // Get stakeholder type and location for display
+        const stakeholderType = this.getStakeholderDisplayName(entry.stakeHolderName || '');
+        const shortLocation = this.getShortLocationName(location);
+        const locationText = shortLocation ? ` - ${shortLocation}` : '';
+        
         const label = `
           <div style="background-color:${entry.color.border}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
             ${entry.name || entry.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
+            <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
             <span style="font-weight: normal;">Maturity level: ${entry.level ?? ''}</span>
           </div>
         `;
-        L.marker([location.y, location.x])
-          .addTo(this.map)
-          .bindTooltip(label, {
+        
+        const marker = L.marker([location.y, location.x]).addTo(this.map);
+        
+        // Store marker for cycling callouts
+        this.mapMarkers.push(marker);
+        
+        // In Expo mode, don't show tooltips permanently - we'll cycle through them
+        if (!this.expoMode) {
+          marker.bindTooltip(label, {
             permanent: true,
             direction: 'top',
             offset: [0, -50],
-            className: 'map-label' // Optional: custom class for styling
-        });
+            className: 'map-label'
+          });
+        } else {
+          // In Expo mode, bind tooltip but don't show it yet
+          marker.bindTooltip(label, {
+            permanent: false,
+            direction: 'top',
+            offset: [0, -50],
+            className: 'map-label'
+          });
+        }
   
         bounds.extend([location.y, location.x]);
+        markersAdded++;
       }
     });
-  
+    
+    // Start cycling callouts in Expo mode
+    if (this.expoMode && this.mapMarkers.length > 0) {
+      this.startCalloutCycling();
+    }
+    
+    // Fit map to show all markers
+    this.fitMapToMarkers();
+  }
+
+  private clearMapMarkers(): void {
+    this.mapMarkers.forEach(marker => {
+      if (this.map) {
+        this.map.removeLayer(marker);
+      }
+    });
+    this.mapMarkers = [];
+  }
+
+  private clearCalloutTimer(): void {
+    if (this.calloutCycleTimer) {
+      clearInterval(this.calloutCycleTimer);
+      this.calloutCycleTimer = null;
+    }
+  }
+
+  private startCalloutCycling(): void {
+    if (this.mapMarkers.length === 0) return;
+    
+    // Start with the first callout
+    this.currentCalloutIndex = 0;
+    this.showCurrentCallout();
+    
+    // Set up the cycling timer
+    this.calloutCycleTimer = setInterval(() => {
+      this.hideCurrentCallout();
+      this.currentCalloutIndex = (this.currentCalloutIndex + 1) % this.mapMarkers.length;
+      this.showCurrentCallout();
+    }, 2000); // 2 seconds per callout
+  }
+
+  private showCurrentCallout(): void {
+    if (this.mapMarkers[this.currentCalloutIndex]) {
+      this.mapMarkers[this.currentCalloutIndex].openTooltip();
+    }
+  }
+
+  private hideCurrentCallout(): void {
+    if (this.mapMarkers[this.currentCalloutIndex]) {
+      this.mapMarkers[this.currentCalloutIndex].closeTooltip();
+    }
+  }
+
+  private getShortLocationName(location: any): string {
+    if (!location) return '';
+    
+    // Try to get city first, then country
+    if (location.placeName) {
+      return location.placeName;
+    }
+    
+    if (location.country) {
+      return location.country;
+    }
+    
+    // Fallback to parsing the label
+    if (location.label) {
+      const parts = location.label.split(',');
+      if (parts.length > 0) {
+        return parts[0].trim(); // First part is usually the city
+      }
+    }
+    
+    return '';
+  }
+
+  private getColorForStakeholder(stakeholderType: string): any {
+    // Define colors for different stakeholder types
+    const stakeholderColors: Record<string, any> = {
+      'vendor': { border: '#1976d2', background: '#e3f2fd' }, // Blue
+      'user': { border: '#388e3c', background: '#e8f5e8' },   // Green
+      'member': { border: '#f57c00', background: '#fff3e0' }  // Orange
+    };
+    
+    return stakeholderColors[stakeholderType] || { border: '#757575', background: '#f5f5f5' }; // Default gray
+  }
+
+  private setupRealtimeListener(): void {
+    // Clear any existing listener
+    this.clearRealtimeListener();
+    
+    this.firebaseUnsubscribe = this.firebaseService.subscribeToMaturityAssessmentResults(
+      'Expo 2025',
+      (changes) => {
+        this.handleRealtimeChanges(changes);
+      }
+    );
+  }
+
+  private clearRealtimeListener(): void {
+    if (this.firebaseUnsubscribe) {
+      this.firebaseUnsubscribe();
+      this.firebaseUnsubscribe = null;
+    }
+  }
+
+  private handleRealtimeChanges(changes: { type: 'added' | 'removed' | 'modified', data: MaturityAssessmentResult, docId: string }[]): void {
+    changes.forEach(change => {
+      // Skip changes for documents that were loaded during initial load
+      if (this.initialDocumentIds.has(change.docId)) {
+        return;
+      }
+
+      switch (change.type) {
+        case 'added':
+          this.handleAssessmentAdded(change.data, change.docId);
+          break;
+        case 'removed':
+          this.handleAssessmentRemoved(change.docId);
+          break;
+        case 'modified':
+          this.handleAssessmentModified(change.data, change.docId);
+          break;
+      }
+    });
+  }
+
+  private handleAssessmentAdded(assessment: MaturityAssessmentResult, docId: string): void {
+    
+    // Convert to local format
+    const convertedData = this.convertFirebaseToLocalFormat(assessment, docId);
+    
+    // Add to uploadedData
+    this.uploadedData.unshift(convertedData); // Add to beginning (newest first)
+    
+    // Add marker to map
+    this.addSingleMarker(convertedData, docId);
+    
+    // Update cycling system
+    this.updateCalloutCycling();
+    
+    // Update overlay count
+    this.updateMapOverlay();
+    
+    // Show notification
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 3000,
+      data: `New assessment added: ${convertedData.name}`,
+      panelClass: ['green-snackbar']
+    });
+  }
+
+  private handleAssessmentRemoved(docId: string): void {
+    
+    // Remove from uploadedData
+    const index = this.uploadedData.findIndex(item => item.docId === docId);
+    if (index !== -1) {
+      this.uploadedData.splice(index, 1);
+    }
+    
+    // Remove marker from map
+    this.removeSingleMarker(docId);
+    
+    // Update cycling system
+    this.updateCalloutCycling();
+    
+    // Update overlay count
+    this.updateMapOverlay();
+    
+    // Show notification
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 3000,
+      data: 'Assessment removed from map',
+      panelClass: ['orange-snackbar']
+    });
+  }
+
+  private handleAssessmentModified(assessment: MaturityAssessmentResult, docId: string): void {
+    
+    // Convert to local format
+    const convertedData = this.convertFirebaseToLocalFormat(assessment, docId);
+    
+    // Update in uploadedData
+    const index = this.uploadedData.findIndex(item => item.docId === docId);
+    if (index !== -1) {
+      this.uploadedData[index] = convertedData;
+    }
+    
+    // Update marker on map
+    this.updateSingleMarker(convertedData, docId);
+    
+    // Show notification
+    this._snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 3000,
+      data: `Assessment updated: ${convertedData.name}`,
+      panelClass: ['blue-snackbar']
+    });
+  }
+
+  private addSingleMarker(data: any, docId: string): void {
+    if (!this.map) return;
+    
+    const location = data.location || data.responses?.location;
+    if (!location || typeof location.y !== 'number' || typeof location.x !== 'number') {
+      return;
+    }
+    
+    const score = data.overallScore ?? 0;
+    const stakeholderType = this.getStakeholderDisplayName(data.stakeHolderName || '');
+    const shortLocation = this.getShortLocationName(location);
+    const locationText = shortLocation ? ` - ${shortLocation}` : '';
+    
+    const label = `
+      <div style="background-color:${data.color.border}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
+        ${data.name || data.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
+        <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
+        <span style="font-weight: normal;">Maturity level: ${data.level ?? ''}</span>
+      </div>
+    `;
+    
+    const marker = L.marker([location.y, location.x]).addTo(this.map);
+    
+    // Store marker with docId for tracking
+    data.docId = docId;
+    this.markerDataMap.set(docId, { marker, data });
+    
+    // Add new marker to the beginning so it gets visited sooner
+    this.mapMarkers.unshift(marker);
+    
+    // Adjust current index if we're in the middle of cycling
+    if (this.calloutCycleTimer && this.currentCalloutIndex >= 0) {
+      this.currentCalloutIndex++; // Shift index because we added to the beginning
+    }
+    
+    // Bind tooltip
+    if (!this.expoMode) {
+      marker.bindTooltip(label, {
+        permanent: true,
+        direction: 'top',
+        offset: [0, -50],
+        className: 'map-label'
+      });
+    } else {
+      marker.bindTooltip(label, {
+        permanent: false,
+        direction: 'top',
+        offset: [0, -50],
+        className: 'map-label'
+      });
+    }
+  }
+
+  private removeSingleMarker(docId: string): void {
+    const markerData = this.markerDataMap.get(docId);
+    if (!markerData) return;
+    
+    // Remove from map
+    if (this.map) {
+      this.map.removeLayer(markerData.marker);
+    }
+    
+    // Remove from arrays
+    const markerIndex = this.mapMarkers.indexOf(markerData.marker);
+    if (markerIndex !== -1) {
+      this.mapMarkers.splice(markerIndex, 1);
+      
+      // Adjust current index if we're in the middle of cycling
+      if (this.calloutCycleTimer && this.currentCalloutIndex >= 0) {
+        if (markerIndex < this.currentCalloutIndex) {
+          // Removed marker was before current position, shift index down
+          this.currentCalloutIndex--;
+        } else if (markerIndex === this.currentCalloutIndex) {
+          // Removed marker was the current one, stay at same index (next marker)
+          if (this.currentCalloutIndex >= this.mapMarkers.length) {
+            this.currentCalloutIndex = 0; // Wrap to beginning if needed
+          }
+        }
+        // If markerIndex > currentCalloutIndex, no adjustment needed
+      }
+    }
+    
+    // Remove from tracking map
+    this.markerDataMap.delete(docId);
+  }
+
+  private updateSingleMarker(data: any, docId: string): void {
+    const markerData = this.markerDataMap.get(docId);
+    if (!markerData) return;
+    
+    // Remove old marker
+    this.removeSingleMarker(docId);
+    
+    // Add updated marker
+    this.addSingleMarker(data, docId);
+  }
+
+  private updateCalloutCycling(): void {
+    if (!this.expoMode) return;
+    
+    // If no markers, stop cycling
+    if (this.mapMarkers.length === 0) {
+      this.clearCalloutTimer();
+      return;
+    }
+    
+    // If cycling is not active, start it
+    if (!this.calloutCycleTimer) {
+      this.startCalloutCycling();
+      return;
+    }
+    
+    // If we're cycling and have markers, adjust the current index if needed
+    if (this.currentCalloutIndex >= this.mapMarkers.length) {
+      this.currentCalloutIndex = 0;
+    }
+    
+    // Continue cycling with the current timer - don't restart
+  }
+
+  private fitMapToMarkers(): void {
+    if (!this.map || this.mapMarkers.length === 0) return;
+    
+    const bounds = L.latLngBounds([]);
+    this.mapMarkers.forEach(marker => {
+      bounds.extend(marker.getLatLng());
+    });
+    
     if (bounds.isValid()) {
       const northEast = bounds.getNorthEast();
       const southWest = bounds.getSouthWest();
@@ -288,17 +963,30 @@ export class MaturityDashboardComponent  implements AfterViewInit {
       const color = this.colorPalette[index % this.colorPalette.length];
       maturityResponse.color = color;
     });
-    // console.log('Processed data:', this.uploadedData);
-    this.initMap();
-    this.generateRadarChart();
-    this.generateOverallBarChart();
-    // Set this.overallScore to the vaerage of all overall scores
-    const overallScores = this.uploadedData.map(entry => entry.overallScore || 0);
-    const sum = overallScores.reduce((acc, val) => acc + val, 0);
-    this.overallScore = overallScores.length > 0 ? sum / overallScores.length : 0;
-    this.overallScore = Math.round(this.overallScore * 10) / 10;
-    this.updateMapMarkers();
-    this.setScaleLabel(this.overallScore);
+    
+    // Use setTimeout to ensure DOM is ready before initializing map
+    setTimeout(() => {
+      this.initMap();
+      
+      // Only generate charts in regular mode (not in Expo mode)
+      if (!this.expoMode) {
+        this.generateRadarChart();
+        this.generateOverallBarChart();
+      }
+      
+      // Set this.overallScore to the average of all overall scores
+      const overallScores = this.uploadedData.map(entry => entry.overallScore || 0);
+      const sum = overallScores.reduce((acc, val) => acc + val, 0);
+      this.overallScore = overallScores.length > 0 ? sum / overallScores.length : 0;
+      this.overallScore = Math.round(this.overallScore * 10) / 10;
+      
+      this.updateMapMarkers();
+      
+      // Only set scale label in regular mode
+      if (!this.expoMode) {
+        this.setScaleLabel(this.overallScore);
+      }
+    }, 100); // Small delay to ensure DOM is ready
   }
 
   private generateRadarChart(): void {
