@@ -437,20 +437,6 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     this.clearMapMarkers();
     this.clearCalloutTimer();
   
-    const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
-    const iconUrl = 'assets/leaflet/marker-icon.png';
-    const shadowUrl = 'assets/leaflet/marker-shadow.png';
-  
-    L.Marker.prototype.options.icon = L.icon({
-      iconRetinaUrl,
-      iconUrl,
-      shadowUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
-  
     const bounds = L.latLngBounds([]);
     let markersAdded = 0;
   
@@ -466,15 +452,42 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
         const shortLocation = this.getShortLocationName(location);
         const locationText = shortLocation ? ` - ${shortLocation}` : '';
         
+        // Use stakeholder colors in expo mode for better contrast with white text
+        const calloutColor = this.expoMode ? 
+          this.getColorForStakeholder(entry.selectedStakeholder || entry.responses?.selectedStakeholder).border : 
+          entry.color.border;
+          
         const label = `
-          <div style="background-color:${entry.color.border}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
+          <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
             ${entry.name || entry.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
             <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
             <span style="font-weight: normal;">Maturity level: ${entry.level ?? ''}</span>
           </div>
         `;
         
-        const marker = L.marker([location.y, location.x]).addTo(this.map);
+        // Create marker with custom color in expo mode
+        let marker: L.Marker;
+        if (this.expoMode) {
+          const markerIcon = this.createColoredMarkerIcon(calloutColor);
+          marker = L.marker([location.y, location.x], { icon: markerIcon }).addTo(this.map);
+        } else {
+          // Use default marker in regular mode
+          const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
+          const iconUrl = 'assets/leaflet/marker-icon.png';
+          const shadowUrl = 'assets/leaflet/marker-shadow.png';
+          
+          const defaultIcon = L.icon({
+            iconRetinaUrl,
+            iconUrl,
+            shadowUrl,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          });
+          
+          marker = L.marker([location.y, location.x], { icon: defaultIcon }).addTo(this.map);
+        }
         
         // Store marker for cycling callouts
         this.mapMarkers.push(marker);
@@ -578,14 +591,36 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   }
 
   private getColorForStakeholder(stakeholderType: string): any {
-    // Define colors for different stakeholder types
+    // Define colors for different stakeholder types with good contrast for white text
     const stakeholderColors: Record<string, any> = {
-      'vendor': { border: '#1976d2', background: '#e3f2fd' }, // Blue
-      'user': { border: '#388e3c', background: '#e8f5e8' },   // Green
-      'member': { border: '#f57c00', background: '#fff3e0' }  // Orange
+      'vendor': { border: '#1565c0', background: '#e3f2fd' },   // Deep Blue - excellent contrast
+      'user': { border: '#2e7d32', background: '#e8f5e8' },     // Deep Green - excellent contrast  
+      'member': { border: '#d84315', background: '#fff3e0' }    // Deep Orange-Red - excellent contrast
     };
     
-    return stakeholderColors[stakeholderType] || { border: '#757575', background: '#f5f5f5' }; // Default gray
+    return stakeholderColors[stakeholderType] || { border: '#424242', background: '#f5f5f5' }; // Default dark gray
+  }
+
+  private createColoredMarkerIcon(color: string): L.Icon {
+    // Create a custom colored marker using SVG
+    const svgIcon = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
+        <path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 7.2 12.5 28.5 12.5 28.5s12.5-21.3 12.5-28.5C25 5.6 19.4 0 12.5 0z" 
+              fill="${color}" stroke="#fff" stroke-width="1"/>
+        <circle cx="12.5" cy="12.5" r="6" fill="#fff"/>
+      </svg>
+    `;
+    
+    const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
+    
+    return L.icon({
+      iconUrl: iconUrl,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'assets/leaflet/marker-shadow.png',
+      shadowSize: [41, 41]
+    });
   }
 
   private setupRealtimeListener(): void {
@@ -713,15 +748,42 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     const shortLocation = this.getShortLocationName(location);
     const locationText = shortLocation ? ` - ${shortLocation}` : '';
     
+    // Use stakeholder colors in expo mode for better contrast with white text
+    const calloutColor = this.expoMode ? 
+      this.getColorForStakeholder(data.selectedStakeholder || data.responses?.selectedStakeholder).border : 
+      data.color.border;
+      
     const label = `
-      <div style="background-color:${data.color.border}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
+      <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
         ${data.name || data.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
         <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
         <span style="font-weight: normal;">Maturity level: ${data.level ?? ''}</span>
       </div>
     `;
     
-    const marker = L.marker([location.y, location.x]).addTo(this.map);
+    // Create marker with custom color in expo mode
+    let marker: L.Marker;
+    if (this.expoMode) {
+      const markerIcon = this.createColoredMarkerIcon(calloutColor);
+      marker = L.marker([location.y, location.x], { icon: markerIcon }).addTo(this.map);
+    } else {
+      // Use default marker in regular mode
+      const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
+      const iconUrl = 'assets/leaflet/marker-icon.png';
+      const shadowUrl = 'assets/leaflet/marker-shadow.png';
+      
+      const defaultIcon = L.icon({
+        iconRetinaUrl,
+        iconUrl,
+        shadowUrl,
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+      
+      marker = L.marker([location.y, location.x], { icon: defaultIcon }).addTo(this.map);
+    }
     
     // Store marker with docId for tracking
     data.docId = docId;
