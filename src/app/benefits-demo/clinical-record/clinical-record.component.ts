@@ -150,17 +150,36 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   ) { }
 
   ngOnInit(): void {
-    // Subscribe to selected patient
-    this.subscriptions.push(
-      this.patientService.getSelectedPatient().subscribe(patient => {
+    // Check for patientId in URL route parameters first
+    const patientIdFromRoute = this.route.snapshot.paramMap.get('patientId');
+    
+    if (patientIdFromRoute) {
+      // Load patient by ID from route parameter
+      const patient = this.patientService.getPatientById(patientIdFromRoute);
+      if (patient) {
         this.patient = patient;
-        if (patient) {
-          this.loadClinicalData(patient.id);
-        } else {
-          this.router.navigate(['/benefits-demo']);
-        }
-      })
-    );
+        this.patientService.selectPatient(patient); // Update the service
+        this.loadClinicalData(patient.id);
+      } else {
+        // Patient not found, redirect to patient list
+        console.warn('Patient not found with ID:', patientIdFromRoute);
+        this.router.navigate(['/ehr-lab']);
+      }
+    } else {
+      // Subscribe to selected patient (existing behavior)
+      this.subscriptions.push(
+        this.patientService.getSelectedPatient().subscribe(patient => {
+          this.patient = patient;
+          if (patient) {
+            this.loadClinicalData(patient.id);
+            // Update URL to include patientId for future reloads
+            this.router.navigate(['/clinical-record', patient.id], { replaceUrl: true });
+          } else {
+            this.router.navigate(['/ehr-lab']);
+          }
+        })
+      );
+    }
   }
 
   ngOnDestroy(): void {
@@ -172,7 +191,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   goBack(): void {
-    this.router.navigate(['/benefits-demo']);
+    this.router.navigate(['/ehr-lab']);
   }
 
   getPatientDisplayName(patient: Patient): string {

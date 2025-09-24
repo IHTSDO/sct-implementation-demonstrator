@@ -59,6 +59,7 @@ const routes: Routes = [
   { path: 'descriptive-analytics', component: PlotlyTreemapChartComponent },
   { path: 'ehr-lab', component: BenefitsDemoComponent },
   { path: 'clinical-record', component: ClinicalRecordComponent },
+  { path: 'clinical-record/:patientId', component: ClinicalRecordComponent },
   { path: 'create-patient', component: CreatePatientComponent },
   { path: 'encounter-record', component: EncounterRecordComponent },
   { path: 'interoperability', component: InteroperabilityComponent },

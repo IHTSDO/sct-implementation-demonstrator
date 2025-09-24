@@ -1,0 +1,527 @@
+.ai-assisted-entry-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #ff6b35;
+  max-width: 1200px;
+}
+
+.ai-header {
+  margin-bottom: 30px;
+}
+
+.ai-header h3 {
+  color: #495057;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-header h3::before {
+  content: "🤖";
+  font-size: 1.2rem;
+}
+
+.ai-description {
+  color: #6c757d;
+  margin-bottom: 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.ai-description-note {
+  color: #999;
+  font-size: 12px;
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.ai-content {
+  min-height: 500px;
+}
+
+/* Two Column Layout */
+.ai-two-column-layout {
+  display: grid;
+  grid-template-columns: 75% 25%;
+  gap: 25px;
+  height: 100%;
+}
+
+/* Left Column - Text Input */
+.ai-input-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-section h4 {
+  color: #495057;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.input-description {
+  color: #6c757d;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* AI Editor Container */
+.ai-editor-container {
+  position: relative;
+  width: 100%;
+  flex: 1;
+}
+
+.ai-editor-field {
+  width: 100%;
+  min-height: 400px;
+  background-color: #ffffff;
+  border: 2px solid #ff6b35;
+  border-radius: 12px;
+  padding: 15px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2c3e50;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  overflow-y: auto;
+  word-wrap: break-word;
+}
+
+.ai-editor-field:hover {
+  border-color: #e55a2b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.ai-editor-field:focus {
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+}
+
+/* Removed duplicate placeholder CSS - using separate div instead */
+
+.ai-placeholder {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  color: #999;
+  font-style: italic;
+  pointer-events: none;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.sample-text-section {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.sample-text-button {
+  background-color: #ff6b35 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.sample-text-button:hover:not([disabled]) {
+  background-color: #e55a2b !important;
+  box-shadow: 0 4px 8px rgba(255, 107, 53, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.sample-text-button:disabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+.sample-text-button mat-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  color: #9c27b0;
+  font-size: 14px;
+}
+
+/* Right Column - Detection Results */
+.ai-detection-column {
+  border-left: 1px solid #e9ecef;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.detection-section h4 {
+  color: #495057;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.detection-description {
+  color: #6c757d;
+  margin-bottom: 20px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Detected Categories */
+.detected-category {
+  margin-bottom: 20px;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #8e44ad;
+}
+
+.category-header h5 {
+  margin: 0;
+  color: #495057;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-header h5 mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #8e44ad;
+}
+
+.item-count {
+  background-color: #8e44ad;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* Detected Items List */
+.detected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detected-item {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+  min-width: 0; /* Allow the item to shrink */
+}
+
+.detected-item:hover {
+  background-color: #e3f2fd;
+  border-color: #bbdefb;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.item-title {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.85rem;
+}
+
+/* Colored titles for each entity type */
+.condition-title {
+  color: #8e44ad !important;
+}
+
+.procedure-title {
+  color: #17a2b8 !important;
+}
+
+.medication-title {
+  color: #28a745 !important;
+}
+
+.item-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.validate-button, .remove-button {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.validate-button {
+  background-color: #ffc107;
+  color: white;
+}
+
+.validate-button:hover:not(:disabled) {
+  background-color: #e0a800;
+}
+
+.validate-button:disabled {
+  background-color: #6c757d;
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.remove-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.remove-button:hover {
+  background-color: #c82333;
+}
+
+.validate-button mat-icon, .remove-button mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: #6c757d;
+  min-width: 0; /* Allow flex items to shrink below their content size */
+}
+
+.confidence-score {
+  font-weight: 400;
+  /* color: #28a745; */
+}
+
+
+/* Empty State */
+.empty-detection {
+  text-align: center;
+  color: #6c757d;
+  padding: 40px 20px;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.empty-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #ff6b35;
+  margin-bottom: 15px;
+}
+
+.empty-detection p {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.hint {
+  font-style: italic;
+  color: #ff6b35;
+  font-size: 12px;
+}
+
+/* Highlighted Text Display */
+.highlighted-text-display {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.highlighted-text-display h5 {
+  margin: 0 0 10px 0;
+  color: #495057;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.highlighted-text {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2c3e50;
+  background-color: #ffffff;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+/* Highlight Classes for Different Entity Types in Editor */
+.ai-editor-field ::ng-deep .highlight-condition,
+.highlighted-text ::ng-deep .highlight-condition {
+  background-color: rgba(142, 68, 173, 0.2);
+  color: #8e44ad;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border-bottom: 2px solid #8e44ad;
+}
+
+.ai-editor-field ::ng-deep .highlight-procedure,
+.highlighted-text ::ng-deep .highlight-procedure {
+  background-color: rgba(23, 162, 184, 0.2);
+  color: #17a2b8;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border-bottom: 2px solid #17a2b8;
+}
+
+.ai-editor-field ::ng-deep .highlight-medication,
+.highlighted-text ::ng-deep .highlight-medication {
+  background-color: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border-bottom: 2px solid #28a745;
+}
+
+/* Global highlight styles */
+::ng-deep .highlight-condition {
+  background-color: rgba(142, 68, 173, 0.2) !important;
+  color: #8e44ad !important;
+  font-weight: 600 !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  border-bottom: 2px solid #8e44ad !important;
+}
+
+::ng-deep .highlight-procedure {
+  background-color: rgba(23, 162, 184, 0.2) !important;
+  color: #17a2b8 !important;
+  font-weight: 600 !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  border-bottom: 2px solid #17a2b8 !important;
+}
+
+::ng-deep .highlight-medication {
+  background-color: rgba(40, 167, 69, 0.2) !important;
+  color: #28a745 !important;
+  font-weight: 600 !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  border-bottom: 2px solid #28a745 !important;
+}
+
+/* Category Header Colors */
+.conditions-header {
+  border-left-color: #8e44ad !important;
+}
+
+.conditions-header h5 mat-icon {
+  color: #8e44ad !important;
+}
+
+.conditions-count {
+  background-color: #8e44ad !important;
+}
+
+.procedures-header {
+  border-left-color: #17a2b8 !important;
+}
+
+.procedures-header h5 mat-icon {
+  color: #17a2b8 !important;
+}
+
+.procedures-count {
+  background-color: #17a2b8 !important;
+}
+
+.medications-header {
+  border-left-color: #28a745 !important;
+}
+
+.medications-header h5 mat-icon {
+  color: #28a745 !important;
+}
+
+.medications-count {
+  background-color: #28a745 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .ai-two-column-layout {
+    grid-template-columns: 70% 30%;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ai-two-column-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .ai-detection-column {
+    border-left: none;
+    border-top: 1px solid #e9ecef;
+    padding-left: 0;
+    padding-top: 20px;
+  }
+  
+  .clinical-textarea {
+    min-height: 300px !important;
+  }
+
+  .highlighted-text-display {
+    margin-top: 15px;
+    padding: 12px;
+  }
+}

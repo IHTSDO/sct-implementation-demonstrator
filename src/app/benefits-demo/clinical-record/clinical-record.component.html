@@ -187,6 +187,20 @@
     <!-- Tabbed View for Clinical Data -->
     <div class="record-section">
       <mat-tab-group class="clinical-tabs" #tabGroup>
+        <mat-tab label="AI Assisted Entry">
+          <div class="tab-content">
+            <app-ai-assisted-entry 
+              [patient]="patient"
+              [conditions]="conditions"
+              [procedures]="procedures" 
+              [medications]="medications"
+              (conditionAdded)="onConditionAdded($event)"
+              (procedureAdded)="onProcedureAdded($event)"
+              (medicationAdded)="onMedicationAdded($event)">
+            </app-ai-assisted-entry>
+          </div>
+        </mat-tab>
+
         <mat-tab label="Encounters">
           <div class="tab-content">
             <app-encounter-record 

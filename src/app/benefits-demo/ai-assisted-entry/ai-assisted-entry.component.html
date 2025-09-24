@@ -1,0 +1,160 @@
+<div class="ai-assisted-entry-container">
+  <div class="ai-content">
+    <div class="ai-two-column-layout">
+      <!-- Left Column - Text Input (75%) -->
+      <div class="ai-input-column">
+        <div class="input-section">
+          <h3>AI Assisted Data Entry</h3>
+          <p class="ai-description">
+            Intelligent clinical data entry powered by AI to streamline documentation and improve accuracy.
+          </p>
+          <p class="ai-description-note">
+            NOTE: This is a user experience demo, there is no real AI model and only a few simulated detections are shown.
+          </p>
+          <!-- Single editable field with real-time highlights -->
+          <div class="ai-editor-container">
+            <div class="ai-editor-field"
+                 contenteditable="true"
+                 (input)="onContentEdit($event)"
+                 (keyup)="onContentEdit($event)"
+                 (paste)="onPaste($event)"
+                 #editableDiv>
+            </div>
+            <div class="ai-placeholder" *ngIf="!clinicalText">
+              Type your clinical observations here. Try: "Patient has asthma, diabetes, needs surgery, takes aspirin and insulin..."
+            </div>
+          </div>
+          
+          <div class="sample-text-section">
+            <button mat-raised-button 
+                    class="sample-text-button"
+                    (click)="addSampleText()"
+                    [disabled]="isProcessing">
+              <mat-icon>auto_awesome</mat-icon>
+              Add Sample Text
+            </button>
+          </div>
+          
+          <div class="ai-status" *ngIf="isProcessing">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>AI analyzing text...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Detected Entities (25%) -->
+      <div class="ai-detection-column">
+        <div class="detection-section">
+          <h4>Detected Clinical Entities</h4>
+          <p class="detection-description">AI-detected conditions, procedures, and medications</p>
+          
+          <!-- Detected Conditions -->
+          <div class="detected-category" *ngIf="detectedConditions.length > 0">
+            <div class="category-header conditions-header">
+              <h5><mat-icon>medical_services</mat-icon> Conditions</h5>
+              <span class="item-count conditions-count">{{ detectedConditions.length }}</span>
+            </div>
+            <div class="detected-list">
+              <div class="detected-item" *ngFor="let condition of detectedConditions" [title]="getTooltipText(condition.detectedText)">
+                <div class="item-header">
+                  <span class="item-title condition-title">{{ condition.name }}</span>
+                  <div class="item-actions">
+                    <button mat-icon-button 
+                            class="validate-button" 
+                            (click)="validateCondition(condition)"
+                            title="Validate and confirm"
+                            disabled>
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button 
+                            class="remove-button" 
+                            (click)="removeDetected(condition)"
+                            title="Remove from detected">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="item-details">
+                  <span class="confidence-score">Confidence: {{ condition.confidence }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detected Procedures -->
+          <div class="detected-category" *ngIf="detectedProcedures.length > 0">
+            <div class="category-header procedures-header">
+              <h5><mat-icon>healing</mat-icon> Procedures</h5>
+              <span class="item-count procedures-count">{{ detectedProcedures.length }}</span>
+            </div>
+            <div class="detected-list">
+              <div class="detected-item" *ngFor="let procedure of detectedProcedures" [title]="getTooltipText(procedure.detectedText)">
+                <div class="item-header">
+                  <span class="item-title procedure-title">{{ procedure.name }}</span>
+                  <div class="item-actions">
+                    <button mat-icon-button 
+                            class="validate-button" 
+                            (click)="validateCondition(procedure)"
+                            title="Validate and confirm"
+                            disabled>
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button 
+                            class="remove-button" 
+                            (click)="removeDetected(procedure)"
+                            title="Remove from detected">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="item-details">
+                  <span class="confidence-score">Confidence: {{ procedure.confidence }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detected Medications -->
+          <div class="detected-category" *ngIf="detectedMedications.length > 0">
+            <div class="category-header medications-header">
+              <h5><mat-icon>medication</mat-icon> Medications</h5>
+              <span class="item-count medications-count">{{ detectedMedications.length }}</span>
+            </div>
+            <div class="detected-list">
+              <div class="detected-item" *ngFor="let medication of detectedMedications" [title]="getTooltipText(medication.detectedText)">
+                <div class="item-header">
+                  <span class="item-title medication-title">{{ medication.name }}</span>
+                  <div class="item-actions">
+                    <button mat-icon-button 
+                            class="validate-button" 
+                            (click)="validateCondition(medication)"
+                            title="Validate and confirm"
+                            disabled>
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button 
+                            class="remove-button" 
+                            (click)="removeDetected(medication)"
+                            title="Remove from detected">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="item-details">
+                  <span class="confidence-score">Confidence: {{ medication.confidence }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-detection" *ngIf="detectedConditions.length === 0 && detectedProcedures.length === 0 && detectedMedications.length === 0">
+            <mat-icon class="empty-icon">search</mat-icon>
+            <p>Start typing clinical notes to detect entities</p>
+            <p class="hint">Try: "Patient has asthma, needs surgery, takes aspirin"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -92,7 +92,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
   openClinicalRecord(): void {
     if (this.selectedPatient) {
-      this.router.navigate(['/clinical-record']);
+      this.router.navigate(['/clinical-record', this.selectedPatient.id]);
     }
   }
 
