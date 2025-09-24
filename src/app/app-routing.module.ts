@@ -57,7 +57,7 @@ const routes: Routes = [
   { path: 'sunburst-chart', component: SunburstChartComponent },
   { path: 'd3-sunburst-chart', component: D3SunburstChartComponent },
   { path: 'descriptive-analytics', component: PlotlyTreemapChartComponent },
-  { path: 'benefits-demo', component: BenefitsDemoComponent },
+  { path: 'ehr-lab', component: BenefitsDemoComponent },
   { path: 'clinical-record', component: ClinicalRecordComponent },
   { path: 'create-patient', component: CreatePatientComponent },
   { path: 'encounter-record', component: EncounterRecordComponent },

@@ -126,11 +126,11 @@ export class MenuService {
       description: "A demo of descriptive analytics for SNOMED CT, including a treemap visualization with nested boxes for hierarchical data exploration."
     },
     {
-      name: "Benefits Demo - Electronic Health Record",
+      name: "SNOMED EHR Lab",
       subtitle: "Clinical demo",
       type: "internal",
-      url: "/benefits-demo",
-      description: "A step-by-step demonstration of building a simulated electronic health record with SNOMED CT integration."
+      url: "/ehr-lab",
+      description: "A hands-on demo suite showing how to design clinical workflows that produce clean, connected, computable data—ready for safety checks, analytics, and exchange. Powered by FHIR and SNOMED CT, but framed around end-to-end information quality."
     },
     {
       name: "SNOMED Integrations Hub",
