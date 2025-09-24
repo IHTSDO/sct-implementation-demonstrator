@@ -212,205 +212,197 @@
         <!-- List View Tab -->
         <mat-tab label="List View">
           <div class="tab-content">
-            <!-- Conditions Section -->
-            <div class="record-section">
-              <div class="section-header">
-                <h3>Conditions</h3>
-                <div class="section-header-actions">
-                  <div class="processing-indicator" *ngIf="isProcessingNewEvent">
-                    <mat-spinner diameter="20"></mat-spinner>
-                    <span>Processing...</span>
-                  </div>
-                  <button mat-icon-button 
+            <!-- Clinical Entry Section - Single Row Above -->
+            <div class="record-section clinical-entry-section">
+              <div class="clinical-entry-controls">
+                <h3>Add Clinical Events</h3>
+                <div class="entry-buttons">
+                  <button mat-raised-button 
                           color="primary" 
-                          class="add-section-button" 
                           (click)="toggleConditionEntry()"
                           [disabled]="isProcessingNewEvent"
-                          title="Add Condition">
-                    <mat-icon>add</mat-icon>
+                          class="entry-toggle-button"
+                          [class.active]="conditionEntry?.showAddForm">
+                    <mat-icon>medical_services</mat-icon>
+                    Add Condition
                   </button>
-                </div>
-              </div>
-              
-              <app-clinical-entry 
-                #conditionEntry
-                [patientId]="patient.id" 
-                entryType="condition"
-                [hideButton]="true"
-                (itemAdded)="onConditionAdded($event)">
-              </app-clinical-entry>
-              <div class="clinical-list" *ngIf="conditions.length > 0">
-                <div class="clinical-item" 
-                     *ngFor="let condition of getSortedConditions()">
-                  <div class="item-header">
-                    <span class="item-title">{{ condition.code.text }}</span>
-                    <div class="item-header-actions">
-                      <span class="anchor-category-indicator" 
-                            [style.background-color]="findBestAnchorPointForConcept(getConceptId(condition))?.defaultColor"
-                            title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}">
-                        {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}
-                      </span>
-                      <span class="item-status" [class]="getConditionStatus(condition).toLowerCase()">
-                        {{ getConditionStatus(condition) }}
-                      </span>
-                      <button mat-icon-button 
-                              class="delete-button" 
-                              (click)="deleteCondition(condition.id)"
-                              title="Delete condition">
-                        <mat-icon>delete_outline</mat-icon>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="item-details">
-                    <span class="item-concept-id" *ngIf="getConceptId(condition)">
-                      SNOMED CT: {{ getConceptId(condition) }}
-                    </span>
-                    <span class="item-concept-id" *ngIf="condition.icd10Code">
-                      ICD-10: {{ condition.icd10Code }}
-                    </span>
-                    <span class="item-concept-id" *ngIf="!condition.icd10Code">
-                      ICD-10: Not mapped
-                      <a href="#" (click)="attemptIcd10Mapping(condition, $event)" class="map-link">
-                        Map
-                      </a>
-                    </span>
-                    <span class="item-date" *ngIf="condition.onsetDateTime">
-                      Onset: {{ formatDate(condition.onsetDateTime) }}
-                    </span>
-                    <span class="item-date" *ngIf="condition.recordedDate">
-                      Recorded: {{ formatDate(condition.recordedDate) }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Procedures Section -->
-            <div class="record-section">
-              <div class="section-header">
-                <h3>Procedures</h3>
-                <div class="section-header-actions">
-                  <div class="processing-indicator" *ngIf="isProcessingNewEvent">
-                    <mat-spinner diameter="20"></mat-spinner>
-                    <span>Processing...</span>
-                  </div>
-                  <button mat-icon-button 
+                  <button mat-raised-button 
                           color="primary" 
-                          class="add-section-button" 
                           (click)="toggleProcedureEntry()"
                           [disabled]="isProcessingNewEvent"
-                          title="Add Procedure">
-                    <mat-icon>add</mat-icon>
+                          class="entry-toggle-button"
+                          [class.active]="procedureEntry?.showAddForm">
+                    <mat-icon>healing</mat-icon>
+                    Add Procedure
                   </button>
+                  <button mat-raised-button 
+                          color="primary" 
+                          (click)="toggleMedicationEntry()"
+                          [disabled]="isProcessingNewEvent"
+                          class="entry-toggle-button"
+                          [class.active]="medicationEntry?.showAddForm">
+                    <mat-icon>medication</mat-icon>
+                    Add Medication
+                  </button>
+                </div>
+                <div class="processing-indicator" *ngIf="isProcessingNewEvent">
+                  <mat-spinner diameter="20"></mat-spinner>
+                  <span>Processing...</span>
                 </div>
               </div>
               
-              <app-clinical-entry 
-                #procedureEntry
-                [patientId]="patient.id" 
-                entryType="procedure"
-                [hideButton]="true"
-                (itemAdded)="onProcedureAdded($event)">
-              </app-clinical-entry>
-              <div class="clinical-list" *ngIf="procedures.length > 0">
-                <div class="clinical-item" *ngFor="let procedure of getSortedProcedures()">
-                  <div class="item-header">
-                    <span class="item-title">{{ procedure.code.text }}</span>
-                    <div class="item-header-actions">
-                      <span class="anchor-category-indicator" 
-                            [style.background-color]="findBestAnchorPointForConcept(getConceptId(procedure))?.defaultColor"
-                            title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}">
-                        {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}
-                      </span>
-                      <span class="item-status" [class]="getProcedureStatus(procedure).toLowerCase()">
-                        {{ getProcedureStatus(procedure) }}
-                      </span>
-                      <button mat-icon-button 
-                              class="delete-button" 
-                              (click)="deleteProcedure(procedure.id)"
-                              title="Delete procedure">
-                        <mat-icon>delete_outline</mat-icon>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="item-details">
-                    <span class="item-concept-id" *ngIf="getConceptId(procedure)">
-                      SNOMED CT: {{ getConceptId(procedure) }}
-                    </span>
-                    <span class="item-date" *ngIf="procedure.performedDateTime">
-                      Performed: {{ formatDate(procedure.performedDateTime) }}
-                    </span>
-                  </div>
-                </div>
+              <!-- Clinical Entry Forms -->
+              <div class="clinical-entry-forms">
+                <app-clinical-entry 
+                  #conditionEntry
+                  [patientId]="patient.id" 
+                  entryType="condition"
+                  [hideButton]="true"
+                  (itemAdded)="onConditionAdded($event)">
+                </app-clinical-entry>
+                
+                <app-clinical-entry 
+                  #procedureEntry
+                  [patientId]="patient.id" 
+                  entryType="procedure"
+                  [hideButton]="true"
+                  (itemAdded)="onProcedureAdded($event)">
+                </app-clinical-entry>
+                
+                <app-clinical-entry 
+                  #medicationEntry
+                  [patientId]="patient.id" 
+                  entryType="medication"
+                  [availableConditions]="conditions"
+                  [availableProcedures]="procedures"
+                  [hideButton]="true"
+                  (itemAdded)="onMedicationAdded($event)">
+                </app-clinical-entry>
               </div>
             </div>
 
-            <!-- Medications Section -->
-            <div class="record-section">
-              <div class="section-header">
-                <h3>Medications</h3>
-                <div class="section-header-actions">
-                  <div class="processing-indicator" *ngIf="isProcessingNewEvent">
-                    <mat-spinner diameter="20"></mat-spinner>
-                    <span>Processing...</span>
-                  </div>
-                  <button mat-icon-button 
-                          color="primary" 
-                          class="add-section-button" 
-                          (click)="toggleMedicationEntry()"
-                          [disabled]="isProcessingNewEvent"
-                          title="Add Medication">
-                    <mat-icon>add</mat-icon>
-                  </button>
+            <!-- Three Column Layout for Clinical Data -->
+            <div class="three-column-layout">
+              <!-- Conditions Column -->
+              <div class="clinical-column conditions-column">
+                <div class="column-header">
+                  <h4><mat-icon>medical_services</mat-icon> Conditions</h4>
+                  <span class="item-count">{{ conditions.length }}</span>
                 </div>
-              </div>
-              
-              <app-clinical-entry 
-                #medicationEntry
-                [patientId]="patient.id" 
-                entryType="medication"
-                [availableConditions]="conditions"
-                [availableProcedures]="procedures"
-                [hideButton]="true"
-                (itemAdded)="onMedicationAdded($event)">
-              </app-clinical-entry>
-              <div class="clinical-list" *ngIf="medications.length > 0">
-                <div class="clinical-item" *ngFor="let medication of getSortedMedications()">
-                  <div class="item-header">
-                    <span class="item-title">{{ medication.medicationCodeableConcept?.text }}</span>
-                    <div class="item-header-actions">
-                      <span class="anchor-category-indicator" 
-                            [style.background-color]="findBestAnchorPointForConcept(getMappingConceptId(medication))?.defaultColor"
-                            title="Mapped to: {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}">
-                        {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}
+                <div class="clinical-list compact" *ngIf="conditions.length > 0; else noConditions">
+                  <div class="clinical-item compact" 
+                       *ngFor="let condition of getSortedConditions()">
+                    <div class="item-header compact">
+                      <span class="item-title compact">{{ condition.code.text }}</span>
+                      <div class="item-header-actions compact">
+                        <span class="anchor-category-indicator compact" 
+                              [style.background-color]="findBestAnchorPointForConcept(getConceptId(condition))?.defaultColor"
+                              title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}">
+                          {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}
+                        </span>
+                        <button mat-icon-button 
+                                class="delete-button compact" 
+                                (click)="deleteCondition(condition.id)"
+                                title="Delete condition">
+                          <mat-icon>delete_outline</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="item-details compact inline">
+                      <span class="item-concept-id compact" *ngIf="getConceptId(condition)">
+                        {{ getConceptId(condition) }}
                       </span>
-                      <span class="item-status" [class]="getMedicationStatus(medication).toLowerCase()">
-                        {{ getMedicationStatus(medication) }}
+                      <span class="item-status compact" [class]="getConditionStatus(condition).toLowerCase()">
+                        {{ getConditionStatus(condition) }}
                       </span>
-                      <button mat-icon-button 
-                              class="delete-button" 
-                              (click)="deleteMedication(medication.id)"
-                              title="Delete medication">
-                        <mat-icon>delete_outline</mat-icon>
-                      </button>
                     </div>
                   </div>
-                  <div class="item-details">
-                    <span class="item-concept-id" *ngIf="getConceptId(medication)">
-                      SNOMED CT: {{ getConceptId(medication) }}
-                    </span>
-                    <span class="item-date" *ngIf="medication.effectiveDateTime">
-                      Effective: {{ formatDate(medication.effectiveDateTime) }}
-                    </span>
-                    <span class="item-dosage" *ngIf="medication.dosage && medication.dosage.length > 0">
-                      {{ medication.dosage[0].text }}
-                    </span>
-                    <span class="item-association" *ngIf="getMedicationAssociation(medication)">
-                      <mat-icon class="association-icon">link</mat-icon>
-                      For: {{ getMedicationAssociation(medication) }}
-                    </span>
+                </div>
+                <ng-template #noConditions>
+                  <div class="no-clinical-data compact">No conditions recorded</div>
+                </ng-template>
+              </div>
+
+              <!-- Procedures Column -->
+              <div class="clinical-column procedures-column">
+                <div class="column-header">
+                  <h4><mat-icon>healing</mat-icon> Procedures</h4>
+                  <span class="item-count">{{ procedures.length }}</span>
+                </div>
+                <div class="clinical-list compact" *ngIf="procedures.length > 0; else noProcedures">
+                  <div class="clinical-item compact" *ngFor="let procedure of getSortedProcedures()">
+                    <div class="item-header compact">
+                      <span class="item-title compact">{{ procedure.code.text }}</span>
+                      <div class="item-header-actions compact">
+                        <span class="anchor-category-indicator compact" 
+                              [style.background-color]="findBestAnchorPointForConcept(getConceptId(procedure))?.defaultColor"
+                              title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}">
+                          {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}
+                        </span>
+                        <button mat-icon-button 
+                                class="delete-button compact" 
+                                (click)="deleteProcedure(procedure.id)"
+                                title="Delete procedure">
+                          <mat-icon>delete_outline</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="item-details compact inline">
+                      <span class="item-concept-id compact" *ngIf="getConceptId(procedure)">
+                        {{ getConceptId(procedure) }}
+                      </span>
+                      <span class="item-status compact" [class]="getProcedureStatus(procedure).toLowerCase()">
+                        {{ getProcedureStatus(procedure) }}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                <ng-template #noProcedures>
+                  <div class="no-clinical-data compact">No procedures recorded</div>
+                </ng-template>
+              </div>
+
+              <!-- Medications Column -->
+              <div class="clinical-column medications-column">
+                <div class="column-header">
+                  <h4><mat-icon>medication</mat-icon> Medications</h4>
+                  <span class="item-count">{{ medications.length }}</span>
+                </div>
+                <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
+                  <div class="clinical-item compact" *ngFor="let medication of getSortedMedications()">
+                    <div class="item-header compact">
+                      <span class="item-title compact">{{ medication.medicationCodeableConcept?.text }}</span>
+                      <div class="item-header-actions compact">
+                        <span class="anchor-category-indicator compact" 
+                              [style.background-color]="findBestAnchorPointForConcept(getMappingConceptId(medication))?.defaultColor"
+                              title="Mapped to: {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}">
+                          {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}
+                        </span>
+                        <button mat-icon-button 
+                                class="delete-button compact" 
+                                (click)="deleteMedication(medication.id)"
+                                title="Delete medication">
+                          <mat-icon>delete_outline</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="item-details compact inline">
+                      <span class="item-concept-id compact" *ngIf="getConceptId(medication)">
+                        {{ getConceptId(medication) }}
+                      </span>
+                      <span class="item-status compact" [class]="getMedicationStatus(medication).toLowerCase()">
+                        {{ getMedicationStatus(medication) }}
+                      </span>
+                      <span class="item-association compact" *ngIf="getMedicationAssociation(medication)">
+                        <mat-icon class="association-icon">link</mat-icon>
+                        {{ getMedicationAssociation(medication) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noMedications>
+                  <div class="no-clinical-data compact">No medications recorded</div>
+                </ng-template>
               </div>
             </div>
           </div>
