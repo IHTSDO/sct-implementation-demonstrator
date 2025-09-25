@@ -93,6 +93,7 @@ import { LanguageConfigComponent } from './util/language-config/language-config.
 import { FlipCardComponent } from './util/flip-card/flip-card.component';
 import { RefsetViewerComponent } from './util/refset-viewer/refset-viewer.component';
 import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
+import { MaturityAdminComponent } from './maturity/maturity-admin/maturity-admin.component';
 import { NgxGaugeModule } from 'ngx-gauge';
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
@@ -168,6 +169,7 @@ const app = initializeApp(firebaseConfig);
         FlipCardComponent,
         RefsetViewerComponent,
         MaturityDashboardComponent,
+        MaturityAdminComponent,
         SvDemoComponent,
         SnomedHubComponent,
         ValuesetTranslatorComponent,

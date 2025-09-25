@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getFirestore, collection, addDoc, query, orderBy, getDocs, limit, where, onSnapshot, Unsubscribe } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, query, orderBy, getDocs, limit, where, onSnapshot, Unsubscribe, doc, deleteDoc } from 'firebase/firestore';
 
 // Interface for maturity assessment result data
 export interface MaturityAssessmentResult {
@@ -145,6 +145,22 @@ export class FirebaseService {
       return groupedResults;
     } catch (error) {
       console.error("Error getting maturity assessment results by event: ", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a maturity assessment result from Firebase
+   * @param docId The document ID of the assessment to delete
+   * @returns Promise that resolves when the document is deleted
+   */
+  async deleteMaturityAssessmentResult(docId: string): Promise<void> {
+    try {
+      const docRef = doc(this.db, 'maturityAssessments', docId);
+      await deleteDoc(docRef);
+      console.log('✅ Assessment deleted successfully:', docId);
+    } catch (error) {
+      console.error("❌ Error deleting maturity assessment document:", error);
       throw error;
     }
   }

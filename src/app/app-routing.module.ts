@@ -9,6 +9,7 @@ import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.compon
 import { ContextMainComponent } from './context/context-main/context-main.component';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
+import { MaturityAdminComponent } from './maturity/maturity-admin/maturity-admin.component';
 import { HomeComponent } from './home/home.component';
 import { NcptComponent } from './ncpt/ncpt.component';
 import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
@@ -43,6 +44,7 @@ const routes: Routes = [
   { path: 'context', component: ContextMainComponent},
   { path: 'maturity', component: MaturityMainComponent},
   { path: 'maturity/dashboard', component: MaturityDashboardComponent},
+  { path: 'maturity/admin', component: MaturityAdminComponent},
   { path: 'ncpt', component: NcptComponent },
   { path: 'triage', component: TriageGameComponent },
   { path: 'fsn', component: FsnChangesComponent },

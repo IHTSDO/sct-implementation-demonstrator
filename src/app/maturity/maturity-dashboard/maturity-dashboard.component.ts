@@ -644,19 +644,21 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
 
   private handleRealtimeChanges(changes: { type: 'added' | 'removed' | 'modified', data: MaturityAssessmentResult, docId: string }[]): void {
     changes.forEach(change => {
-      // Skip changes for documents that were loaded during initial load
-      if (this.initialDocumentIds.has(change.docId)) {
-        return;
-      }
-
       switch (change.type) {
         case 'added':
+          // Skip added events for documents that were loaded during initial load to avoid duplicates
+          if (this.initialDocumentIds.has(change.docId)) {
+            return;
+          }
           this.handleAssessmentAdded(change.data, change.docId);
           break;
         case 'removed':
+          // Always handle removal events, even for initially loaded documents
+          console.log(`Dashboard: Handling removal of doc ${change.docId}`);
           this.handleAssessmentRemoved(change.docId);
           break;
         case 'modified':
+          // Handle modification events for all documents
           this.handleAssessmentModified(change.data, change.docId);
           break;
       }
@@ -689,11 +691,16 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   }
 
   private handleAssessmentRemoved(docId: string): void {
+    console.log(`Dashboard: Attempting to remove doc ${docId} from uploadedData`);
     
     // Remove from uploadedData
     const index = this.uploadedData.findIndex(item => item.docId === docId);
+    console.log(`Dashboard: Found doc at index ${index}, current uploadedData length: ${this.uploadedData.length}`);
     if (index !== -1) {
       this.uploadedData.splice(index, 1);
+      console.log(`Dashboard: Removed from uploadedData, new length: ${this.uploadedData.length}`);
+    } else {
+      console.log('Dashboard: Doc not found in uploadedData');
     }
     
     // Remove marker from map
