@@ -47,6 +47,7 @@
               <div class="clinical-summary-list" *ngIf="conditions.length > 0; else noConditions">
                 <div class="clinical-summary-item hoverable-summary-condition" 
                      *ngFor="let condition of getSortedConditions() | slice:0:6; let i = index"
+                     [attr.data-condition-id]="condition.id"
                      (mouseenter)="onConditionHover(condition, $event)"
                      (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ condition.code.text }}</div>
@@ -65,6 +66,7 @@
               <div class="clinical-summary-list" *ngIf="procedures.length > 0; else noProcedures">
                 <div class="clinical-summary-item hoverable-summary-condition" 
                      *ngFor="let procedure of getSortedProcedures() | slice:0:4"
+                     [attr.data-procedure-id]="procedure.id"
                      (mouseenter)="onProcedureHover(procedure, $event)"
                      (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ procedure.code.text }}</div>
@@ -129,6 +131,7 @@
               <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
                 <div class="clinical-summary-item hoverable-summary-condition" 
                      *ngFor="let medication of getSortedMedications() | slice:0:6"
+                     [attr.data-medication-id]="medication.id"
                      (mouseenter)="onMedicationHover(medication, $event)"
                      (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ medication.medicationCodeableConcept?.text }}</div>
@@ -196,7 +199,8 @@
               [medications]="medications"
               (conditionAdded)="onConditionAdded($event)"
               (procedureAdded)="onProcedureAdded($event)"
-              (medicationAdded)="onMedicationAdded($event)">
+              (medicationAdded)="onMedicationAdded($event)"
+              (encounterAdded)="onEncounterAdded($event)">
             </app-ai-assisted-entry>
           </div>
         </mat-tab>

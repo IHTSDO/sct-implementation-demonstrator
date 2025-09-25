@@ -283,15 +283,20 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // If no patient is provided as input, get it from the service
-    if (!this.patient) {
-      this.subscriptions.push(
-        this.patientService.getSelectedPatient().subscribe(patient => {
-          this.patient = patient;
-        })
-      );
+    // Subscribe to patient changes to reload encounters when patient data changes
+    this.subscriptions.push(
+      this.patientService.getSelectedPatient().subscribe(patient => {
+        this.patient = patient;
+        if (patient) {
+          this.loadPreviousEncounters();
+        }
+      })
+    );
+
+    // If patient is already provided as input, load encounters immediately
+    if (this.patient) {
+      this.loadPreviousEncounters();
     }
-    this.loadPreviousEncounters();
   }
 
   ngOnDestroy(): void {
@@ -588,18 +593,16 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   private saveEncounterToStorage(encounter: Encounter): void {
-    const storageKey = `encounters_${encounter.subject.reference.split('/')[1]}`;
-    const existingEncounters = this.getEncountersFromStorage(encounter.subject.reference.split('/')[1]);
-    existingEncounters.push(encounter);
-    localStorage.setItem(storageKey, JSON.stringify(existingEncounters));
+    // Use PatientService method to ensure consistent storage
+    const patientId = encounter.subject.reference.split('/')[1];
+    this.patientService.addPatientEncounter(patientId, encounter);
   }
 
 
 
   private getEncountersFromStorage(patientId: string): Encounter[] {
-    const storageKey = `encounters_${patientId}`;
-    const stored = localStorage.getItem(storageKey);
-    return stored ? JSON.parse(stored) : [];
+    // Use the same storage key format as PatientService
+    return this.patientService.getPatientEncounters(patientId);
   }
 
 
@@ -753,11 +756,12 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   deleteEncounter(encounterId: string): void {
     if (confirm('Are you sure you want to delete this encounter?')) {
       if (this.patient) {
-        const storageKey = `encounters_${this.patient.id}`;
-        const existingEncounters = this.getEncountersFromStorage(this.patient.id);
-        const updatedEncounters = existingEncounters.filter(enc => enc.id !== encounterId);
-        localStorage.setItem(storageKey, JSON.stringify(updatedEncounters));
-        this.previousEncounters = updatedEncounters;
+        // Use PatientService method to ensure consistent storage and notifications
+        this.patientService.deletePatientEncounter(this.patient.id, encounterId);
+        
+        // Update local state
+        this.previousEncounters = this.patientService.getPatientEncounters(this.patient.id);
+        
         alert('Encounter deleted successfully');
       }
     }

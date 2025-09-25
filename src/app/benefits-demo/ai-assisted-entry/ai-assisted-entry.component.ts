@@ -8,6 +8,8 @@ interface DetectedEntity {
   confidence: number;
   detectedText: string;
   conceptId?: string;
+  alreadyExists?: boolean;
+  existingEntityId?: string;
 }
 
 @Component({
@@ -25,6 +27,7 @@ export class AiAssistedEntryComponent implements OnInit {
   @Output() conditionAdded = new EventEmitter<any>();
   @Output() procedureAdded = new EventEmitter<any>();
   @Output() medicationAdded = new EventEmitter<any>();
+  @Output() encounterAdded = new EventEmitter<any>();
   @ViewChild('editableDiv') editableDiv!: ElementRef;
 
   clinicalText: string = '';
@@ -123,7 +126,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('asthma'),
         conceptId: '195967001' // SNOMED CT code for asthma
       };
-      this.detectedConditions.push(asthmaEntity);
+      this.detectedConditions.push(this.checkForExistingEntity(asthmaEntity));
     }
 
     // Additional mock detections for conditions
@@ -136,7 +139,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('diabetes'),
         conceptId: '73211009'
       };
-      this.detectedConditions.push(diabetesEntity);
+      this.detectedConditions.push(this.checkForExistingEntity(diabetesEntity));
     }
 
     if (text.includes('hypertension') || text.includes('high blood pressure')) {
@@ -148,7 +151,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('hypertension|high blood pressure'),
         conceptId: '38341003'
       };
-      this.detectedConditions.push(hypertensionEntity);
+      this.detectedConditions.push(this.checkForExistingEntity(hypertensionEntity));
     }
 
     // Mock detections for procedures
@@ -161,7 +164,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('surgery|operation|appendectomy'),
         conceptId: '80146002'
       };
-      this.detectedProcedures.push(surgeryEntity);
+      this.detectedProcedures.push(this.checkForExistingEntity(surgeryEntity));
     }
 
     if (text.includes('x-ray') || text.includes('radiography') || text.includes('chest x-ray')) {
@@ -173,7 +176,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('x-ray|radiography|chest x-ray'),
         conceptId: '399208008'
       };
-      this.detectedProcedures.push(xrayEntity);
+      this.detectedProcedures.push(this.checkForExistingEntity(xrayEntity));
     }
 
     if (text.includes('biopsy')) {
@@ -185,7 +188,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('biopsy'),
         conceptId: '86273004'
       };
-      this.detectedProcedures.push(biopsyEntity);
+      this.detectedProcedures.push(this.checkForExistingEntity(biopsyEntity));
     }
 
     // Mock detections for medications
@@ -198,7 +201,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('aspirin|acetylsalicylic acid'),
         conceptId: '387458008'
       };
-      this.detectedMedications.push(aspirinEntity);
+      this.detectedMedications.push(this.checkForExistingEntity(aspirinEntity));
     }
 
     if (text.includes('insulin')) {
@@ -210,7 +213,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('insulin'),
         conceptId: '412210000'
       };
-      this.detectedMedications.push(insulinEntity);
+      this.detectedMedications.push(this.checkForExistingEntity(insulinEntity));
     }
 
     if (text.includes('ibuprofen') || text.includes('advil') || text.includes('motrin')) {
@@ -222,7 +225,7 @@ export class AiAssistedEntryComponent implements OnInit {
         detectedText: this.extractDetectedText('ibuprofen|advil|motrin'),
         conceptId: '387207008'
       };
-      this.detectedMedications.push(ibuprofenEntity);
+      this.detectedMedications.push(this.checkForExistingEntity(ibuprofenEntity));
     }
   }
 
@@ -283,15 +286,62 @@ export class AiAssistedEntryComponent implements OnInit {
     return `...${startText}...${endText}`;
   }
 
-  validateCondition(detectedEntity: DetectedEntity): void {
-    // Placeholder for validation logic
-    // This will be implemented later with proper validation and confirmation workflow
-    console.log('Validating condition:', detectedEntity);
-    
-    // TODO: Implement validation and confirmation logic
-    // - Show validation dialog/form
-    // - Allow user to confirm/modify the detected entity
-    // - Only then add to patient record via this.conditionAdded.emit()
+  saveAllDetected(): void {
+    if (!this.patient) return;
+
+    // Collect all detected entities for encounter creation
+    const allDetectedEntities = [
+      ...this.detectedConditions.map(c => ({ name: c.name, type: 'condition', conceptId: c.conceptId })),
+      ...this.detectedProcedures.map(p => ({ name: p.name, type: 'procedure', conceptId: p.conceptId })),
+      ...this.detectedMedications.map(m => ({ name: m.name, type: 'medication', conceptId: m.conceptId }))
+    ];
+
+    // Use centralized PatientService methods to create proper FHIR resources
+    // Only save entities that don't already exist
+    this.detectedConditions
+      .filter(condition => this.canSaveEntity(condition))
+      .forEach(condition => {
+        const newCondition = this.patientService.createConditionFromDetectedEntity(this.patient!.id, condition);
+        this.conditionAdded.emit(newCondition);
+      });
+
+    this.detectedProcedures
+      .filter(procedure => this.canSaveEntity(procedure))
+      .forEach(procedure => {
+        const newProcedure = this.patientService.createProcedureFromDetectedEntity(this.patient!.id, procedure);
+        this.procedureAdded.emit(newProcedure);
+      });
+
+    this.detectedMedications
+      .filter(medication => this.canSaveEntity(medication))
+      .forEach(medication => {
+        const newMedication = this.patientService.createMedicationFromDetectedEntity(this.patient!.id, medication);
+        this.medicationAdded.emit(newMedication);
+      });
+
+    // Create and emit encounter for this AI-assisted session
+    // Include ALL detected entities in the encounter, regardless of whether they already exist
+    if (allDetectedEntities.length > 0) {
+      const encounter = this.patientService.createEncounterFromAISession(
+        this.patient.id, 
+        this.clinicalText, 
+        allDetectedEntities
+      );
+      this.encounterAdded.emit(encounter);
+    }
+
+    // Clear all detected entities after saving
+    this.detectedConditions = [];
+    this.detectedProcedures = [];
+    this.detectedMedications = [];
+
+    console.log('All detected entities and encounter saved to patient');
+  }
+
+  hasDetectedEntities(): boolean {
+    return this.detectedConditions.length > 0 || 
+           this.detectedProcedures.length > 0 || 
+           this.detectedMedications.length > 0;
   }
 
   removeDetected(entity: DetectedEntity): void {
@@ -306,6 +356,9 @@ export class AiAssistedEntryComponent implements OnInit {
         this.detectedMedications = this.detectedMedications.filter(m => m.id !== entity.id);
         break;
     }
+    
+    // Re-apply highlighting to reflect the removal
+    this.applyHighlights();
   }
 
   getTooltipText(detectedText: string): string {
@@ -473,5 +526,76 @@ export class AiAssistedEntryComponent implements OnInit {
       case 'medication': return 'highlight-medication';
       default: return 'highlight-default';
     }
+  }
+
+  // Check if a detected entity already exists in patient data
+  private checkForExistingEntity(entity: DetectedEntity): DetectedEntity {
+    const existingEntity = this.findExistingEntity(entity);
+    if (existingEntity) {
+      entity.alreadyExists = true;
+      entity.existingEntityId = existingEntity.id;
+    } else {
+      entity.alreadyExists = false;
+      entity.existingEntityId = undefined;
+    }
+    return entity;
+  }
+
+  private findExistingEntity(entity: DetectedEntity): any {
+    switch (entity.type) {
+      case 'condition':
+        return this.conditions.find(condition => 
+          this.isEntityMatch(condition, entity)
+        );
+      case 'procedure':
+        return this.procedures.find(procedure => 
+          this.isEntityMatch(procedure, entity)
+        );
+      case 'medication':
+        return this.medications.find(medication => 
+          this.isEntityMatch(medication, entity)
+        );
+      default:
+        return null;
+    }
+  }
+
+  private isEntityMatch(existingEntity: any, detectedEntity: DetectedEntity): boolean {
+    // Check by concept ID first (most reliable)
+    if (detectedEntity.conceptId && existingEntity.code?.coding) {
+      const existingCode = existingEntity.code.coding.find((coding: any) => 
+        coding.system === 'http://snomed.info/sct' && coding.code === detectedEntity.conceptId
+      );
+      if (existingCode) return true;
+    }
+
+    // Check by display name (fallback)
+    const existingDisplay = this.getEntityDisplayName(existingEntity);
+    if (existingDisplay && existingDisplay.toLowerCase() === detectedEntity.name.toLowerCase()) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private getEntityDisplayName(entity: any): string {
+    if (entity.code?.text) return entity.code.text;
+    if (entity.code?.coding?.[0]?.display) return entity.code.coding[0].display;
+    if (entity.medicationCodeableConcept?.text) return entity.medicationCodeableConcept.text;
+    if (entity.medicationCodeableConcept?.coding?.[0]?.display) return entity.medicationCodeableConcept.coding[0].display;
+    return '';
+  }
+
+  // Get display text for existing entity status
+  getExistingStatusText(entity: DetectedEntity): string {
+    if (entity.alreadyExists) {
+      return `Already exists in patient record - will be included in encounter only`;
+    }
+    return '';
+  }
+
+  // Check if entity can be saved (not already existing)
+  canSaveEntity(entity: DetectedEntity): boolean {
+    return !entity.alreadyExists;
   }
 }

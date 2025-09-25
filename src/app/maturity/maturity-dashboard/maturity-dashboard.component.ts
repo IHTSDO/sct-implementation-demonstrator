@@ -38,6 +38,17 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   private currentCalloutIndex: number = 0;
   private mapMarkers: L.Marker[] = [];
   
+  // Continent-based cycling properties
+  private continentGroups: Map<string, { markers: L.Marker[], data: any[] }> = new Map();
+  private continentOrder: string[] = [];
+  private currentContinentIndex: number = 0;
+  private currentMarkerInContinent: number = 0;
+  private isShowingWorldView: boolean = true;
+  
+  // Debug properties
+  private debugPolygons: boolean = false; // Set to false to disable debug polygons
+  private regionPolygons: L.Rectangle[] = [];
+  
   // Real-time listener properties
   private firebaseUnsubscribe: Unsubscribe | null = null;
   private markerDataMap: Map<string, { marker: L.Marker, data: any }> = new Map();
@@ -89,6 +100,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     // Clean up timer and markers when component is destroyed
     this.clearCalloutTimer();
     this.clearMapMarkers();
+    this.clearDebugPolygons();
     this.clearRealtimeListener();
     this.removeMapOverlay();
   }
@@ -396,9 +408,23 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       <p style="margin: 0 0 8px 0; color: #666; font-size: 12px; font-style: italic;">
         Try the assessment tool and place your organization or tool in the map!
       </p>
-      <p style="margin: 0; color: #666; font-size: 14px; font-weight: bold;">
+      <p style="margin: 0 0 8px 0; color: #666; font-size: 14px; font-weight: bold;">
         ${this.uploadedData.length} assessments loaded
       </p>
+      <div style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 8px;">
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <div style="width: 12px; height: 12px; background: #1565c0; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
+          <span style="font-size: 11px; color: #333; font-weight: 500;">Vendor</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <div style="width: 12px; height: 12px; background: #2e7d32; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
+          <span style="font-size: 11px; color: #333; font-weight: 500;">User Organization</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <div style="width: 12px; height: 12px; background: #d84315; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
+          <span style="font-size: 11px; color: #333; font-weight: 500;">Member Organization</span>
+        </div>
+      </div>
     `;
 
     // Add to map container
@@ -520,8 +546,16 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       this.startCalloutCycling();
     }
     
-    // Fit map to show all markers
-    this.fitMapToMarkers();
+    // Fit map to show all markers (no animation for initial setup)
+    this.fitMapToMarkers(false);
+    
+    // Create debug polygons if enabled
+    if (this.debugPolygons) {
+      // Small delay to ensure markers are fully rendered
+      setTimeout(() => {
+        this.createDebugPolygons();
+      }, 500);
+    }
   }
 
   private clearMapMarkers(): void {
@@ -531,6 +565,9 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       }
     });
     this.mapMarkers = [];
+    
+    // Also clear debug polygons when clearing markers
+    this.clearDebugPolygons();
   }
 
   private clearCalloutTimer(): void {
@@ -543,28 +580,161 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   private startCalloutCycling(): void {
     if (this.mapMarkers.length === 0) return;
     
-    // Start with the first callout
-    this.currentCalloutIndex = 0;
-    this.showCurrentCallout();
+    // Group markers by continent
+    this.groupMarkersByContinent();
     
-    // Set up the cycling timer
+    // Start with world view
+    this.currentContinentIndex = 0;
+    this.currentMarkerInContinent = 0;
+    this.isShowingWorldView = true;
+    
+    // Show world view first, then start the continent cycling
+    this.showWorldView();
+    
+    // Set up the cycling timer - 4 seconds for world view, then continent cycling
     this.calloutCycleTimer = setInterval(() => {
-      this.hideCurrentCallout();
-      this.currentCalloutIndex = (this.currentCalloutIndex + 1) % this.mapMarkers.length;
-      this.showCurrentCallout();
-    }, 2000); // 2 seconds per callout
+      this.processContinentCycle();
+    }, 4000); // 4 seconds per phase
   }
 
-  private showCurrentCallout(): void {
-    if (this.mapMarkers[this.currentCalloutIndex]) {
-      this.mapMarkers[this.currentCalloutIndex].openTooltip();
+  /**
+   * Process the continent cycling logic
+   */
+  private processContinentCycle(): void {
+    if (this.continentOrder.length === 0) return;
+    
+    if (this.isShowingWorldView) {
+      // Move from world view to next continent
+      this.isShowingWorldView = false;
+      this.currentMarkerInContinent = 0;
+      this.showCurrentContinent();
+    } else {
+      // We're currently showing a continent
+      const currentContinent = this.continentOrder[this.currentContinentIndex];
+      const currentGroup = this.continentGroups.get(currentContinent);
+      
+      if (currentGroup && this.currentMarkerInContinent < currentGroup.markers.length) {
+        // Hide current marker callout and show next marker in same continent
+        this.hideCurrentMarkerCallout();
+        this.currentMarkerInContinent++;
+        
+        if (this.currentMarkerInContinent < currentGroup.markers.length) {
+          // Show next marker in same continent
+          this.showCurrentMarkerInContinent();
+        } else {
+          // Finished with this continent, transition back to world view
+          this.moveToNextContinent();
+        }
+      } else {
+        // No markers in current continent, move to next
+        this.moveToNextContinent();
+      }
     }
   }
 
-  private hideCurrentCallout(): void {
-    if (this.mapMarkers[this.currentCalloutIndex]) {
-      this.mapMarkers[this.currentCalloutIndex].closeTooltip();
+  /**
+   * Show world view with all markers visible, centered like initial load
+   */
+  private showWorldView(): void {
+    this.hideAllCallouts();
+    
+    if (this.mapMarkers.length > 0) {
+      // Fit to show all markers with proper world view
+      this.fitMapToMarkers(true);
+    } else {
+      // If no markers, show default world view
+      this.map.setView([20, 0], 2, {
+        animate: true,
+        duration: 0.8
+      });
     }
+  }
+
+  /**
+   * Show current continent by zooming to its bounds
+   */
+  private showCurrentContinent(): void {
+    if (this.currentContinentIndex >= this.continentOrder.length) {
+      this.isShowingWorldView = true;
+      this.showWorldView();
+      return;
+    }
+    
+    const continent = this.continentOrder[this.currentContinentIndex];
+    const bounds = this.getContinentBounds(continent);
+    
+    if (bounds && this.map) {
+      // Calculate optimal zoom level to fit the bounds exactly
+      const optimalZoom = this.calculateOptimalZoom(bounds);
+      const center = bounds.getCenter();
+      
+      console.log(`🔍 Zooming to ${continent}: center=${center.lat.toFixed(2)}, ${center.lng.toFixed(2)}, zoom=${optimalZoom}`);
+      
+      // Zoom to the exact center and calculated zoom level
+      this.map.setView(center, optimalZoom, {
+        animate: true,
+        duration: 0.8
+      });
+      
+      // Start showing markers after zoom completes
+      setTimeout(() => {
+        this.currentMarkerInContinent = 0;
+        this.showCurrentMarkerInContinent();
+      }, 900);
+    } else {
+      // No markers in this continent, move to next
+      this.moveToNextContinent();
+    }
+  }
+
+  /**
+   * Show current marker callout in the current continent
+   */
+  private showCurrentMarkerInContinent(): void {
+    const continent = this.continentOrder[this.currentContinentIndex];
+    const group = this.continentGroups.get(continent);
+    
+    if (group && this.currentMarkerInContinent < group.markers.length) {
+      const marker = group.markers[this.currentMarkerInContinent];
+      marker.openTooltip();
+    }
+  }
+
+  /**
+   * Hide current marker callout
+   */
+  private hideCurrentMarkerCallout(): void {
+    const continent = this.continentOrder[this.currentContinentIndex];
+    const group = this.continentGroups.get(continent);
+    
+    if (group && this.currentMarkerInContinent < group.markers.length) {
+      const marker = group.markers[this.currentMarkerInContinent];
+      marker.closeTooltip();
+    }
+  }
+
+  /**
+   * Hide all marker callouts
+   */
+  private hideAllCallouts(): void {
+    this.mapMarkers.forEach(marker => marker.closeTooltip());
+  }
+
+  /**
+   * Move to next continent or back to world view
+   */
+  private moveToNextContinent(): void {
+    // Always transition through world view between continents
+    this.isShowingWorldView = true;
+    this.currentContinentIndex++;
+    
+    if (this.currentContinentIndex >= this.continentOrder.length) {
+      // Finished all continents, reset to beginning
+      this.currentContinentIndex = 0;
+    }
+    
+    // Show world view as transition
+    this.showWorldView();
   }
 
   private getShortLocationName(location: any): string {
@@ -599,6 +769,396 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     };
     
     return stakeholderColors[stakeholderType] || { border: '#424242', background: '#f5f5f5' }; // Default dark gray
+  }
+
+  /**
+   * Map country codes to continents
+   */
+  private getContinentByCountryCode(countryCode: string): string {
+    const continentMapping: Record<string, string> = {
+      // US & Canada
+      'us': 'US & Canada', 'ca': 'US & Canada',
+      
+      // Mexico & Central America (including Caribbean)
+      'mx': 'Mexico & Central America', 'gt': 'Mexico & Central America', 'bz': 'Mexico & Central America', 
+      'sv': 'Mexico & Central America', 'hn': 'Mexico & Central America', 'ni': 'Mexico & Central America',
+      'cr': 'Mexico & Central America', 'pa': 'Mexico & Central America', 'cu': 'Mexico & Central America', 
+      'jm': 'Mexico & Central America', 'ht': 'Mexico & Central America', 'do': 'Mexico & Central America', 
+      'bs': 'Mexico & Central America', 'bb': 'Mexico & Central America', 'tt': 'Mexico & Central America', 
+      'gd': 'Mexico & Central America', 'vc': 'Mexico & Central America', 'lc': 'Mexico & Central America',
+      'dm': 'Mexico & Central America', 'ag': 'Mexico & Central America', 'kn': 'Mexico & Central America',
+      
+      // South America
+      'br': 'South America', 'ar': 'South America', 'co': 'South America', 've': 'South America',
+      'pe': 'South America', 'ec': 'South America', 'bo': 'South America', 'py': 'South America',
+      'uy': 'South America', 'cl': 'South America', 'gy': 'South America', 'sr': 'South America',
+      'gf': 'South America',
+      
+      // Europe
+      'gb': 'Europe', 'fr': 'Europe', 'de': 'Europe', 'it': 'Europe', 'es': 'Europe', 'pt': 'Europe',
+      'nl': 'Europe', 'be': 'Europe', 'ch': 'Europe', 'at': 'Europe', 'se': 'Europe', 'no': 'Europe',
+      'dk': 'Europe', 'fi': 'Europe', 'ie': 'Europe', 'is': 'Europe', 'pl': 'Europe', 'cz': 'Europe',
+      'sk': 'Europe', 'hu': 'Europe', 'ro': 'Europe', 'bg': 'Europe', 'hr': 'Europe', 'si': 'Europe',
+      'rs': 'Europe', 'ba': 'Europe', 'me': 'Europe', 'mk': 'Europe', 'al': 'Europe', 'gr': 'Europe',
+      'cy': 'Europe', 'mt': 'Europe', 'lu': 'Europe', 'li': 'Europe', 'mc': 'Europe', 'sm': 'Europe',
+      'va': 'Europe', 'ad': 'Europe', 'ee': 'Europe', 'lv': 'Europe', 'lt': 'Europe', 'by': 'Europe',
+      'ua': 'Europe', 'md': 'Europe', 'ru': 'Europe',
+      
+      // East Asia (China, Japan, Korea, Mongolia, Southeast Asia)
+      'cn': 'East Asia', 'jp': 'East Asia', 'kr': 'East Asia', 'kp': 'East Asia', 'mn': 'East Asia',
+      'th': 'East Asia', 'vn': 'East Asia', 'ph': 'East Asia', 'my': 'East Asia', 'sg': 'East Asia', 
+      'mm': 'East Asia', 'kh': 'East Asia', 'la': 'East Asia', 'bn': 'East Asia', 'tl': 'East Asia',
+      'id': 'East Asia', 'tw': 'East Asia', 'hk': 'East Asia', 'mo': 'East Asia',
+      
+      // West & Central Asia (India, Central Asia, Caucasus)
+      'in': 'West & Central Asia', 'pk': 'West & Central Asia', 'bd': 'West & Central Asia', 
+      'lk': 'West & Central Asia', 'mv': 'West & Central Asia', 'bt': 'West & Central Asia', 
+      'np': 'West & Central Asia', 'kz': 'West & Central Asia', 'uz': 'West & Central Asia', 
+      'tm': 'West & Central Asia', 'kg': 'West & Central Asia', 'tj': 'West & Central Asia',
+      'af': 'West & Central Asia', 'am': 'West & Central Asia', 'az': 'West & Central Asia', 
+      'ge': 'West & Central Asia',
+      
+      // Middle East
+      'sa': 'Middle East', 'ae': 'Middle East', 'qa': 'Middle East', 'kw': 'Middle East', 'bh': 'Middle East',
+      'om': 'Middle East', 'ye': 'Middle East', 'jo': 'Middle East', 'sy': 'Middle East', 'lb': 'Middle East',
+      'il': 'Middle East', 'ps': 'Middle East', 'iq': 'Middle East', 'ir': 'Middle East', 'tr': 'Middle East',
+      
+      // Africa
+      'eg': 'Africa', 'ly': 'Africa', 'tn': 'Africa', 'dz': 'Africa', 'ma': 'Africa', 'sd': 'Africa',
+      'ss': 'Africa', 'et': 'Africa', 'er': 'Africa', 'dj': 'Africa', 'so': 'Africa', 'ke': 'Africa',
+      'ug': 'Africa', 'tz': 'Africa', 'rw': 'Africa', 'bi': 'Africa', 'cd': 'Africa', 'cf': 'Africa',
+      'cm': 'Africa', 'td': 'Africa', 'ne': 'Africa', 'ng': 'Africa', 'bj': 'Africa', 'tg': 'Africa',
+      'gh': 'Africa', 'ci': 'Africa', 'bf': 'Africa', 'ml': 'Africa', 'sn': 'Africa', 'gm': 'Africa',
+      'gw': 'Africa', 'gn': 'Africa', 'sl': 'Africa', 'lr': 'Africa', 'mr': 'Africa', 'cv': 'Africa',
+      'st': 'Africa', 'gq': 'Africa', 'ga': 'Africa', 'cg': 'Africa', 'ao': 'Africa', 'na': 'Africa',
+      'bw': 'Africa', 'za': 'Africa', 'sz': 'Africa', 'ls': 'Africa', 'mz': 'Africa', 'mw': 'Africa',
+      'zm': 'Africa', 'zw': 'Africa', 'mg': 'Africa', 'mu': 'Africa', 'sc': 'Africa', 'km': 'Africa',
+      
+      // Oceania
+      'au': 'Oceania', 'nz': 'Oceania', 'pg': 'Oceania', 'fj': 'Oceania', 'sb': 'Oceania', 'vu': 'Oceania',
+      'nc': 'Oceania', 'pf': 'Oceania', 'ws': 'Oceania', 'to': 'Oceania', 'tv': 'Oceania', 'nr': 'Oceania',
+      'ki': 'Oceania', 'mh': 'Oceania', 'fm': 'Oceania', 'pw': 'Oceania', 'ck': 'Oceania', 'nu': 'Oceania'
+    };
+    
+    return continentMapping[countryCode.toLowerCase()] || 'Other';
+  }
+
+  /**
+   * Group markers by continent and create continent order
+   */
+  private groupMarkersByContinent(): void {
+    this.continentGroups.clear();
+    this.continentOrder = [];
+    
+    this.uploadedData.forEach((entry, index) => {
+      const location = entry.location || entry.responses?.location;
+      if (!location || typeof location.y !== 'number' || typeof location.x !== 'number') {
+        return;
+      }
+      
+      // Get continent from country code
+      const countryCode = location.countryCode || location.raw?.address?.country_code;
+      const continent = countryCode ? this.getContinentByCountryCode(countryCode) : 'Other';
+      
+      // Initialize continent group if it doesn't exist
+      if (!this.continentGroups.has(continent)) {
+        this.continentGroups.set(continent, { markers: [], data: [] });
+        this.continentOrder.push(continent);
+      }
+      
+      // Find the corresponding marker
+      const marker = this.mapMarkers[index];
+      if (marker) {
+        const group = this.continentGroups.get(continent)!;
+        group.markers.push(marker);
+        group.data.push(entry);
+      }
+    });
+    
+    // Sort continent order for consistent presentation
+    this.continentOrder.sort((a, b) => {
+      const order = ['US & Canada', 'Mexico & Central America', 'South America', 'Europe', 'Middle East', 'West & Central Asia', 'East Asia', 'Africa', 'Oceania', 'Other'];
+      return order.indexOf(a) - order.indexOf(b);
+    });
+    
+  }
+
+  /**
+   * Get predefined geographic bounds for each continent
+   */
+  private getContinentBounds(continent: string): L.LatLngBounds | null {
+    const group = this.continentGroups.get(continent);
+    if (!group || group.markers.length === 0) {
+      return null;
+    }
+    
+    // Use predefined geographic bounds for each continent/region
+    const continentBounds: Record<string, [[number, number], [number, number]]> = {
+      'US & Canada': [
+        [25, -170],  // Southwest: Southern US (Florida/Texas), Western Alaska
+        [62.5, -50]  // Northeast: Reduced from 75° to 62.5° (25% shorter) - excludes far northern Canada/Arctic
+      ],
+      'Mexico & Central America': [
+        [8, -120],   // Southwest: Southern Panama, Western Mexico
+        [33, -60]    // Northeast: Southern US border, Eastern Caribbean
+      ],
+      'South America': [
+        [-60, -85],  // Southwest: Southern Chile, Western Peru
+        [15, -30]    // Northeast: Northern Colombia/Venezuela, Eastern Brazil
+      ],
+      'Europe': [
+        [35, -25],   // Southwest: Southern Spain/Portugal, Atlantic
+        [65, 45]     // Northeast: Reduced from 75° to 65° (25% shorter) - excludes far northern Scandinavia/Siberia
+      ],
+      'East Asia': [
+        [-10, 95],   // Southwest: Southern Indonesia, Western Myanmar
+        [55, 180]    // Northeast: Northern Mongolia, Eastern Russia/Japan
+      ],
+      'West & Central Asia': [
+        [5, 60],     // Southwest: Southern India, Western Iran
+        [55, 100]    // Northeast: Northern Kazakhstan, Eastern China border
+      ],
+      'Middle East': [
+        [10, 25],    // Southwest: Southern Yemen, Eastern Egypt
+        [45, 65]     // Northeast: Northern Turkey, Eastern Iran
+      ],
+      'Africa': [
+        [-40, -20],  // Southwest: Southern South Africa, Western Atlantic
+        [40, 55]     // Northeast: Northern Egypt, Eastern Somalia
+      ],
+      'Oceania': [
+        [-50, 110],  // Southwest: Southern New Zealand, Western Australia
+        [-5, 180]    // Northeast: Northern Australia/Papua New Guinea, Eastern New Zealand
+      ],
+      'Other': [
+        [-60, -180], // Global bounds as fallback
+        [85, 180]
+      ]
+    };
+    
+    const bounds = continentBounds[continent];
+    if (!bounds) {
+      return null;
+    }
+    
+    return L.latLngBounds(bounds[0], bounds[1]);
+  }
+
+
+  /**
+   * Create debug polygons showing region boundaries
+   */
+  private createDebugPolygons(): void {
+    if (!this.debugPolygons || !this.map) return;
+    
+    // Clear existing polygons
+    this.clearDebugPolygons();
+    
+    // Get all region bounds
+    const regionBounds = this.getAllRegionBounds();
+    
+    // Create a rectangle for each region
+    regionBounds.forEach(({ region, bounds, hasMarkers }) => {
+      const rectangle = L.rectangle(bounds, {
+        color: hasMarkers ? '#ff0000' : '#cccccc', // Red if has markers, gray if empty
+        weight: 2,
+        opacity: 0.8,
+        fillColor: hasMarkers ? '#ff0000' : '#cccccc',
+        fillOpacity: 0.1
+      }).addTo(this.map);
+      
+      // Add label
+      const center = bounds.getCenter();
+      const label = L.marker(center, {
+        icon: L.divIcon({
+          className: 'region-label',
+          html: `<div style="background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 3px; font-size: 12px; font-weight: bold; color: ${hasMarkers ? '#ff0000' : '#666'}; border: 1px solid ${hasMarkers ? '#ff0000' : '#ccc'};">${region}</div>`,
+          iconSize: [100, 20],
+          iconAnchor: [50, 10]
+        })
+      }).addTo(this.map);
+      
+      this.regionPolygons.push(rectangle);
+      this.regionPolygons.push(label as any); // Store label as well for cleanup
+    });
+  }
+
+  /**
+   * Clear debug polygons from map
+   */
+  private clearDebugPolygons(): void {
+    this.regionPolygons.forEach(polygon => {
+      if (this.map) {
+        this.map.removeLayer(polygon);
+      }
+    });
+    this.regionPolygons = [];
+  }
+
+  /**
+   * Get bounds for all regions with marker status
+   */
+  private getAllRegionBounds(): { region: string, bounds: L.LatLngBounds, hasMarkers: boolean }[] {
+    const regionBoundsData: Record<string, [[number, number], [number, number]]> = {
+      'US & Canada': [
+        [25, -170],  // Southwest: Southern US (Florida/Texas), Western Alaska
+        [62.5, -50]  // Northeast: Reduced from 75° to 62.5° (25% shorter) - excludes far northern Canada/Arctic
+      ],
+      'Mexico & Central America': [
+        [8, -120],   // Southwest: Southern Panama, Western Mexico
+        [33, -60]    // Northeast: Southern US border, Eastern Caribbean
+      ],
+      'South America': [
+        [-60, -85],  // Southwest: Southern Chile, Western Peru
+        [15, -30]    // Northeast: Northern Colombia/Venezuela, Eastern Brazil
+      ],
+      'Europe': [
+        [35, -25],   // Southwest: Southern Spain/Portugal, Atlantic
+        [65, 45]     // Northeast: Reduced from 75° to 65° (25% shorter) - excludes far northern Scandinavia/Siberia
+      ],
+      'East Asia': [
+        [-10, 95],   // Southwest: Southern Indonesia, Western Myanmar
+        [55, 180]    // Northeast: Northern Mongolia, Eastern Russia/Japan
+      ],
+      'West & Central Asia': [
+        [5, 60],     // Southwest: Southern India, Western Iran
+        [55, 100]    // Northeast: Northern Kazakhstan, Eastern China border
+      ],
+      'Middle East': [
+        [10, 25],    // Southwest: Southern Yemen, Eastern Egypt
+        [45, 65]     // Northeast: Northern Turkey, Eastern Iran
+      ],
+      'Africa': [
+        [-40, -20],  // Southwest: Southern South Africa, Western Atlantic
+        [40, 55]     // Northeast: Northern Egypt, Eastern Somalia
+      ],
+      'Oceania': [
+        [-50, 110],  // Southwest: Southern New Zealand, Western Australia
+        [-5, 180]    // Northeast: Northern Australia/Papua New Guinea, Eastern New Zealand
+      ]
+    };
+
+    return Object.entries(regionBoundsData).map(([region, boundsArray]) => ({
+      region,
+      bounds: L.latLngBounds(boundsArray[0], boundsArray[1]),
+      hasMarkers: this.continentGroups.has(region) && this.continentGroups.get(region)!.markers.length > 0
+    }));
+  }
+
+  /**
+   * Toggle debug polygons on/off
+   */
+  public toggleDebugPolygons(): void {
+    this.debugPolygons = !this.debugPolygons;
+    
+    if (this.debugPolygons) {
+      this.createDebugPolygons();
+    } else {
+      this.clearDebugPolygons();
+    }
+    
+    console.log(`Debug polygons ${this.debugPolygons ? 'enabled' : 'disabled'}`);
+  }
+
+  /**
+   * Update continent grouping when a new marker is added
+   */
+  private updateContinentGroupingForNewMarker(marker: L.Marker, data: any): void {
+    const location = data.location || data.responses?.location;
+    if (!location || typeof location.y !== 'number' || typeof location.x !== 'number') {
+      return;
+    }
+    
+    // Get continent from country code
+    const countryCode = location.countryCode || location.raw?.address?.country_code;
+    const continent = countryCode ? this.getContinentByCountryCode(countryCode) : 'Other';
+    
+    // Initialize continent group if it doesn't exist
+    if (!this.continentGroups.has(continent)) {
+      this.continentGroups.set(continent, { markers: [], data: [] });
+      // Add to continent order if it's a new continent
+      if (!this.continentOrder.includes(continent)) {
+        this.continentOrder.push(continent);
+        // Re-sort continent order
+        this.continentOrder.sort((a, b) => {
+          const order = ['US & Canada', 'Mexico & Central America', 'South America', 'Europe', 'Middle East', 'West & Central Asia', 'East Asia', 'Africa', 'Oceania', 'Other'];
+          return order.indexOf(a) - order.indexOf(b);
+        });
+      }
+    }
+    
+    // Add marker and data to the continent group
+    const group = this.continentGroups.get(continent)!;
+    group.markers.unshift(marker); // Add to beginning for priority
+    group.data.unshift(data);
+    
+    // Update debug polygons if enabled
+    if (this.debugPolygons) {
+      this.createDebugPolygons();
+    }
+  }
+
+  /**
+   * Update continent grouping when a marker is removed
+   */
+  private updateContinentGroupingForRemovedMarker(marker: L.Marker, data: any): void {
+    const location = data.location || data.responses?.location;
+    if (!location || typeof location.y !== 'number' || typeof location.x !== 'number') {
+      return;
+    }
+    
+    // Get continent from country code
+    const countryCode = location.countryCode || location.raw?.address?.country_code;
+    const continent = countryCode ? this.getContinentByCountryCode(countryCode) : 'Other';
+    
+    const group = this.continentGroups.get(continent);
+    if (!group) return;
+    
+    // Remove marker and data from the continent group
+    const markerIndex = group.markers.indexOf(marker);
+    if (markerIndex !== -1) {
+      group.markers.splice(markerIndex, 1);
+      group.data.splice(markerIndex, 1);
+    }
+    
+    // If continent group is now empty, remove it from the order
+    if (group.markers.length === 0) {
+      this.continentGroups.delete(continent);
+      const orderIndex = this.continentOrder.indexOf(continent);
+      if (orderIndex !== -1) {
+        this.continentOrder.splice(orderIndex, 1);
+        
+        // Adjust current continent index if we removed a continent before the current one
+        if (this.currentContinentIndex > orderIndex) {
+          this.currentContinentIndex--;
+        } else if (this.currentContinentIndex === orderIndex) {
+          // We removed the current continent, reset cycling
+          if (this.currentContinentIndex >= this.continentOrder.length) {
+            this.currentContinentIndex = 0;
+          }
+          this.isShowingWorldView = true;
+        }
+      }
+    }
+    
+    // Update debug polygons if enabled
+    if (this.debugPolygons) {
+      this.createDebugPolygons();
+    }
+  }
+
+  /**
+   * Calculate optimal zoom level to fit bounds exactly
+   */
+  private calculateOptimalZoom(bounds: L.LatLngBounds): number {
+    if (!this.map) return 2;
+    
+    // Use Leaflet's built-in method to calculate the zoom level that fits the bounds
+    // with a small padding to ensure the bounds are fully visible
+    const optimalZoom = this.map.getBoundsZoom(bounds, false, L.point(20, 20));
+    
+    // Clamp between reasonable limits
+    return Math.max(2, Math.min(18, optimalZoom));
   }
 
   private createColoredMarkerIcon(color: string): L.Icon {
@@ -799,6 +1359,9 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     // Add new marker to the beginning so it gets visited sooner
     this.mapMarkers.unshift(marker);
     
+    // Update continent grouping to include the new marker
+    this.updateContinentGroupingForNewMarker(marker, data);
+    
     // Adjust current index if we're in the middle of cycling
     if (this.calloutCycleTimer && this.currentCalloutIndex >= 0) {
       this.currentCalloutIndex++; // Shift index because we added to the beginning
@@ -835,6 +1398,9 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     const markerIndex = this.mapMarkers.indexOf(markerData.marker);
     if (markerIndex !== -1) {
       this.mapMarkers.splice(markerIndex, 1);
+      
+      // Update continent grouping to remove the marker
+      this.updateContinentGroupingForRemovedMarker(markerData.marker, markerData.data);
       
       // Adjust current index if we're in the middle of cycling
       if (this.calloutCycleTimer && this.currentCalloutIndex >= 0) {
@@ -889,7 +1455,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     // Continue cycling with the current timer - don't restart
   }
 
-  private fitMapToMarkers(): void {
+  private fitMapToMarkers(animate: boolean = true): void {
     if (!this.map || this.mapMarkers.length === 0) return;
     
     const bounds = L.latLngBounds([]);
@@ -908,7 +1474,9 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       );
     
       this.map.fitBounds(expandedBounds, {
-        padding: [20, 20]
+        padding: [20, 20],
+        animate: animate,
+        duration: animate ? 0.8 : 0 // 800ms animation when animate is true
       });
     }
     

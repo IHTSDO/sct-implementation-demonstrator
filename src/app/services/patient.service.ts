@@ -800,6 +800,62 @@ export interface MedicationStatement {
   }>;
 }
 
+export interface Encounter {
+  resourceType: 'Encounter';
+  id: string;
+  status: 'planned' | 'arrived' | 'triaged' | 'in-progress' | 'onleave' | 'finished' | 'cancelled' | 'entered-in-error' | 'unknown';
+  class: {
+    system: string;
+    code: string;
+    display: string;
+  };
+  type?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  subject: {
+    reference: string;
+    display?: string;
+  };
+  period: {
+    start: string;
+    end?: string;
+  };
+  reasonCode?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  diagnosis?: Array<{
+    condition: {
+      reference: string;
+      display?: string;
+    };
+    use?: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+    };
+    rank?: number;
+  }>;
+  note?: Array<{
+    text: string;
+    time?: string;
+    authorReference?: {
+      reference: string;
+    };
+  }>;
+}
+
 export interface AllergyIntolerance {
   resourceType: 'AllergyIntolerance';
   id: string;
@@ -974,6 +1030,7 @@ export class PatientService {
       }
     }
   }
+
 
   private savePatients(patients: Patient[]): void {
     if (this.storageService.isLocalStorageSupported()) {
@@ -1389,6 +1446,186 @@ export class PatientService {
         text: 'Take as prescribed'
       }]
     };
+  }
+
+  // Centralized FHIR resource creation methods for AI-detected entities
+  createConditionFromDetectedEntity(patientId: string, detectedEntity: { name: string; conceptId?: string; confidence?: number; detectedText?: string }): Condition {
+    return {
+      resourceType: 'Condition',
+      id: `condition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      clinicalStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+          code: 'active',
+          display: 'Active'
+        }],
+        text: 'Active'
+      },
+      verificationStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
+          code: 'confirmed',
+          display: 'Confirmed'
+        }],
+        text: 'Confirmed'
+      },
+      code: {
+        coding: detectedEntity.conceptId ? [{
+          system: 'http://snomed.info/sct',
+          code: detectedEntity.conceptId,
+          display: detectedEntity.name
+        }] : undefined,
+        text: detectedEntity.name
+      },
+      subject: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      onsetDateTime: new Date().toISOString(),
+      recordedDate: new Date().toISOString()
+    };
+  }
+
+  createProcedureFromDetectedEntity(patientId: string, detectedEntity: { name: string; conceptId?: string; confidence?: number; detectedText?: string }): Procedure {
+    return {
+      resourceType: 'Procedure',
+      id: `procedure-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      status: 'completed',
+      code: {
+        coding: detectedEntity.conceptId ? [{
+          system: 'http://snomed.info/sct',
+          code: detectedEntity.conceptId,
+          display: detectedEntity.name
+        }] : undefined,
+        text: detectedEntity.name
+      },
+      subject: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      performedDateTime: new Date().toISOString()
+    };
+  }
+
+  createMedicationFromDetectedEntity(patientId: string, detectedEntity: { name: string; conceptId?: string; confidence?: number; detectedText?: string }): MedicationStatement {
+    return {
+      resourceType: 'MedicationStatement',
+      id: `medication-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      status: 'active',
+      medicationCodeableConcept: {
+        coding: detectedEntity.conceptId ? [{
+          system: 'http://snomed.info/sct',
+          code: detectedEntity.conceptId,
+          display: detectedEntity.name
+        }] : undefined,
+        text: detectedEntity.name
+      },
+      subject: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      effectiveDateTime: new Date().toISOString(),
+      dateAsserted: new Date().toISOString()
+    };
+  }
+
+  // Create encounter for AI-assisted entry session
+  createEncounterFromAISession(patientId: string, clinicalText: string, detectedEntities: { name: string; type: string; conceptId?: string }[]): Encounter {
+    const encounterId = `encounter-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const currentTime = new Date().toISOString();
+    
+    // Create reason code from detected entities
+    const reasonCode = detectedEntities.length > 0 ? [{
+      coding: [{
+        system: 'http://snomed.info/sct',
+        code: detectedEntities[0].conceptId || '308335008', // Patient consultation
+        display: detectedEntities[0].name
+      }],
+      text: detectedEntities[0].name
+    }] : undefined;
+
+    // Create diagnosis from detected conditions
+    const diagnosis = detectedEntities
+      .filter(entity => entity.type === 'condition')
+      .map((entity, index) => ({
+        condition: {
+          reference: `Condition/${entity.conceptId || 'unknown'}`,
+          display: entity.name
+        },
+        use: {
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+            code: 'active',
+            display: 'Active'
+          }]
+        },
+        rank: index + 1
+      }));
+
+    return {
+      resourceType: 'Encounter',
+      id: encounterId,
+      status: 'finished',
+      class: {
+        system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
+        code: 'AMB',
+        display: 'Ambulatory'
+      },
+      subject: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      period: {
+        start: currentTime,
+        end: currentTime
+      },
+      reasonCode: reasonCode,
+      diagnosis: diagnosis.length > 0 ? diagnosis : undefined,
+      note: [{
+        text: `AI-assisted clinical data entry session. Clinical text: "${clinicalText}"`,
+        time: currentTime,
+        authorReference: {
+          reference: 'Practitioner/ai-assistant'
+        }
+      }]
+    };
+  }
+
+  // Encounter management methods
+  getPatientEncounters(patientId: string): Encounter[] {
+    const key = `ehr_encounters_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  addPatientEncounter(patientId: string, encounter: Encounter): void {
+    const encounters = this.getPatientEncounters(patientId);
+    encounters.push(encounter);
+    this.savePatientEncounters(patientId, encounters);
+    
+    // Notify subscribers by updating the selected patient
+    const currentPatient = this.selectedPatientSubject.value;
+    if (currentPatient && currentPatient.id === patientId) {
+      this.selectedPatientSubject.next({ ...currentPatient });
+    }
+  }
+
+  private savePatientEncounters(patientId: string, encounters: Encounter[]): void {
+    const key = `ehr_encounters_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(encounters));
+  }
+
+  // Public method to delete an encounter
+  deletePatientEncounter(patientId: string, encounterId: string): void {
+    const encounters = this.getPatientEncounters(patientId);
+    const updatedEncounters = encounters.filter(enc => enc.id !== encounterId);
+    this.savePatientEncounters(patientId, updatedEncounters);
+    
+    // Notify subscribers by updating the selected patient
+    const currentPatient = this.selectedPatientSubject.value;
+    if (currentPatient && currentPatient.id === patientId) {
+      this.selectedPatientSubject.next({ ...currentPatient });
+    }
   }
 
   // Export functionality

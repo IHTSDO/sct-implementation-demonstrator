@@ -159,6 +159,37 @@
   font-size: 18px;
 }
 
+.save-all-button {
+  background-color: #28a745 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
+  transition: all 0.3s ease !important;
+  margin-left: 12px !important;
+}
+
+.save-all-button:hover:not([disabled]) {
+  background-color: #218838 !important;
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.save-all-button:disabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+.save-all-button mat-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
 .ai-status {
   display: flex;
   align-items: center;
@@ -524,4 +555,40 @@
     margin-top: 15px;
     padding: 12px;
   }
+}
+
+/* Existing entity styles */
+.existing-entity {
+  background-color: #f5f5f5 !important;
+  border-left: 4px solid #ff9800 !important;
+  opacity: 0.8;
+}
+
+.existing-entity .item-title {
+  color: #666 !important;
+}
+
+.existing-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #ff9800;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.existing-status mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Remove button styling for existing entities */
+.existing-entity .remove-button {
+  opacity: 0.8;
+}
+
+.existing-entity .remove-button:hover {
+  opacity: 1;
 }

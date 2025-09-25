@@ -33,6 +33,14 @@
               <mat-icon>auto_awesome</mat-icon>
               Add Sample Text
             </button>
+            <button mat-raised-button 
+                    color="primary"
+                    class="save-all-button"
+                    (click)="saveAllDetected()"
+                    [disabled]="isProcessing || !hasDetectedEntities()">
+              <mat-icon>save</mat-icon>
+              Save All to Patient
+            </button>
           </div>
           
           <div class="ai-status" *ngIf="isProcessing">
@@ -55,27 +63,27 @@
               <span class="item-count conditions-count">{{ detectedConditions.length }}</span>
             </div>
             <div class="detected-list">
-              <div class="detected-item" *ngFor="let condition of detectedConditions" [title]="getTooltipText(condition.detectedText)">
+              <div class="detected-item" 
+                   *ngFor="let condition of detectedConditions" 
+                   [title]="getTooltipText(condition.detectedText)"
+                   [class.existing-entity]="condition.alreadyExists">
                 <div class="item-header">
                   <span class="item-title condition-title">{{ condition.name }}</span>
                   <div class="item-actions">
                     <button mat-icon-button 
-                            class="validate-button" 
-                            (click)="validateCondition(condition)"
-                            title="Validate and confirm"
-                            disabled>
-                      <mat-icon>check</mat-icon>
-                    </button>
-                    <button mat-icon-button 
                             class="remove-button" 
                             (click)="removeDetected(condition)"
-                            title="Remove from detected">
+                            [title]="condition.alreadyExists ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
                 <div class="item-details">
                   <span class="confidence-score">Confidence: {{ condition.confidence }}%</span>
+                  <span class="existing-status" *ngIf="condition.alreadyExists">
+                    <mat-icon>info</mat-icon>
+                    {{ getExistingStatusText(condition) }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -88,27 +96,27 @@
               <span class="item-count procedures-count">{{ detectedProcedures.length }}</span>
             </div>
             <div class="detected-list">
-              <div class="detected-item" *ngFor="let procedure of detectedProcedures" [title]="getTooltipText(procedure.detectedText)">
+              <div class="detected-item" 
+                   *ngFor="let procedure of detectedProcedures" 
+                   [title]="getTooltipText(procedure.detectedText)"
+                   [class.existing-entity]="procedure.alreadyExists">
                 <div class="item-header">
                   <span class="item-title procedure-title">{{ procedure.name }}</span>
                   <div class="item-actions">
                     <button mat-icon-button 
-                            class="validate-button" 
-                            (click)="validateCondition(procedure)"
-                            title="Validate and confirm"
-                            disabled>
-                      <mat-icon>check</mat-icon>
-                    </button>
-                    <button mat-icon-button 
                             class="remove-button" 
                             (click)="removeDetected(procedure)"
-                            title="Remove from detected">
+                            [title]="procedure.alreadyExists ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
                 <div class="item-details">
                   <span class="confidence-score">Confidence: {{ procedure.confidence }}%</span>
+                  <span class="existing-status" *ngIf="procedure.alreadyExists">
+                    <mat-icon>info</mat-icon>
+                    {{ getExistingStatusText(procedure) }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -121,27 +129,27 @@
               <span class="item-count medications-count">{{ detectedMedications.length }}</span>
             </div>
             <div class="detected-list">
-              <div class="detected-item" *ngFor="let medication of detectedMedications" [title]="getTooltipText(medication.detectedText)">
+              <div class="detected-item" 
+                   *ngFor="let medication of detectedMedications" 
+                   [title]="getTooltipText(medication.detectedText)"
+                   [class.existing-entity]="medication.alreadyExists">
                 <div class="item-header">
                   <span class="item-title medication-title">{{ medication.name }}</span>
                   <div class="item-actions">
                     <button mat-icon-button 
-                            class="validate-button" 
-                            (click)="validateCondition(medication)"
-                            title="Validate and confirm"
-                            disabled>
-                      <mat-icon>check</mat-icon>
-                    </button>
-                    <button mat-icon-button 
                             class="remove-button" 
                             (click)="removeDetected(medication)"
-                            title="Remove from detected">
+                            [title]="medication.alreadyExists ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
                 <div class="item-details">
                   <span class="confidence-score">Confidence: {{ medication.confidence }}%</span>
+                  <span class="existing-status" *ngIf="medication.alreadyExists">
+                    <mat-icon>info</mat-icon>
+                    {{ getExistingStatusText(medication) }}
+                  </span>
                 </div>
               </div>
             </div>

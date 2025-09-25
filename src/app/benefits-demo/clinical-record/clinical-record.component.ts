@@ -1004,6 +1004,24 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  async onEncounterAdded(event: any): Promise<void> {
+    this.isProcessingNewEvent = true;
+    
+    try {
+      // Add the new encounter to the local array
+      this.encounters.push(event);
+      
+      // Save encounter to storage using PatientService
+      this.patientService.addPatientEncounter(this.patient!.id, event);
+      
+      console.log('Encounter added from AI-assisted entry:', event);
+    } catch (error) {
+      console.error('Error processing new encounter:', error);
+    } finally {
+      this.isProcessingNewEvent = false;
+    }
+  }
+
   // Legacy connection line methods removed - now using dynamic hover-based connections
 
   getConceptId(resource: any): string {
@@ -1361,29 +1379,16 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     );
 
     relatedEvents.forEach((eventItem, index) => {
-      // Find the corresponding element in the summary
-      const eventElements = document.querySelectorAll('.hoverable-summary-condition');
+      // Find the corresponding element in the summary using data attributes
       let eventElement: HTMLElement | null = null;
 
-      // Match the event with its DOM element
+      // Use data attributes to find the correct element
       if (eventItem.type === 'condition') {
-        const conditionIndex = this.conditions.findIndex(c => c.id === eventItem.event.id);
-        if (conditionIndex >= 0 && conditionIndex < 6) { // Only first 6 are shown in summary
-          eventElement = eventElements[conditionIndex] as HTMLElement;
-        }
+        eventElement = document.querySelector(`[data-condition-id="${eventItem.event.id}"]`) as HTMLElement;
       } else if (eventItem.type === 'procedure') {
-        const procedureIndex = this.procedures.findIndex(p => p.id === eventItem.event.id);
-        const conditionsCount = Math.min(this.conditions.length, 6);
-        if (procedureIndex >= 0 && procedureIndex < 4) { // Only first 4 are shown
-          eventElement = eventElements[conditionsCount + procedureIndex] as HTMLElement;
-        }
+        eventElement = document.querySelector(`[data-procedure-id="${eventItem.event.id}"]`) as HTMLElement;
       } else if (eventItem.type === 'medication') {
-        const medicationIndex = this.medications.findIndex(m => m.id === eventItem.event.id);
-        const conditionsCount = Math.min(this.conditions.length, 6);
-        const proceduresCount = Math.min(this.procedures.length, 4);
-        if (medicationIndex >= 0 && medicationIndex < 4) { // Only first 4 are shown
-          eventElement = eventElements[conditionsCount + proceduresCount + medicationIndex] as HTMLElement;
-        }
+        eventElement = document.querySelector(`[data-medication-id="${eventItem.event.id}"]`) as HTMLElement;
       }
 
       if (eventElement) {
@@ -1478,28 +1483,16 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     );
 
     relatedEvents.forEach((eventItem) => {
-      const eventElements = document.querySelectorAll('.hoverable-summary-condition');
+      // Find the corresponding DOM element using data attributes
       let eventElement: HTMLElement | null = null;
 
-      // Find the corresponding DOM element
+      // Use data attributes to find the correct element
       if (eventItem.type === 'condition') {
-        const conditionIndex = this.conditions.findIndex(c => c.id === eventItem.event.id);
-        if (conditionIndex >= 0 && conditionIndex < 6) {
-          eventElement = eventElements[conditionIndex] as HTMLElement;
-        }
+        eventElement = document.querySelector(`[data-condition-id="${eventItem.event.id}"]`) as HTMLElement;
       } else if (eventItem.type === 'procedure') {
-        const procedureIndex = this.procedures.findIndex(p => p.id === eventItem.event.id);
-        const conditionsCount = Math.min(this.conditions.length, 6);
-        if (procedureIndex >= 0 && procedureIndex < 4) {
-          eventElement = eventElements[conditionsCount + procedureIndex] as HTMLElement;
-        }
+        eventElement = document.querySelector(`[data-procedure-id="${eventItem.event.id}"]`) as HTMLElement;
       } else if (eventItem.type === 'medication') {
-        const medicationIndex = this.medications.findIndex(m => m.id === eventItem.event.id);
-        const conditionsCount = Math.min(this.conditions.length, 6);
-        const proceduresCount = Math.min(this.procedures.length, 4);
-        if (medicationIndex >= 0 && medicationIndex < 4) {
-          eventElement = eventElements[conditionsCount + proceduresCount + medicationIndex] as HTMLElement;
-        }
+        eventElement = document.querySelector(`[data-medication-id="${eventItem.event.id}"]`) as HTMLElement;
       }
 
       if (eventElement) {
@@ -1566,14 +1559,17 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     
     const patientId = this.patient.id;
     
+    // Get encounter count
+    const encounters = this.patientService.getPatientEncounters(patientId);
+    
     // Confirm deletion
-    const eventCount = this.conditions.length + this.procedures.length + this.medications.length + this.allergies.length;
+    const eventCount = this.conditions.length + this.procedures.length + this.medications.length + this.allergies.length + encounters.length;
     if (eventCount === 0) {
       alert('No clinical events to delete.');
       return;
     }
     
-    const confirmed = confirm(`Are you sure you want to delete all ${eventCount} clinical events (including conditions, procedures, medications, and allergies) for ${this.getPatientDisplayName(this.patient)}? This action cannot be undone.`);
+    const confirmed = confirm(`Are you sure you want to delete all ${eventCount} clinical events (including conditions, procedures, medications, allergies, and encounters) for ${this.getPatientDisplayName(this.patient)}? This action cannot be undone.`);
     if (!confirmed) return;
     
     // Clear all clinical data from localStorage
@@ -1581,12 +1577,20 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     localStorage.removeItem(`ehr_procedures_${patientId}`);
     localStorage.removeItem(`ehr_medications_${patientId}`);
     localStorage.removeItem(`ehr_allergies_${patientId}`);
+    localStorage.removeItem(`ehr_encounters_${patientId}`);
     
     // Clear the arrays
     this.conditions = [];
     this.procedures = [];
     this.medications = [];
     this.allergies = [];
+    this.encounters = [];
+    
+    // Notify other components by updating the selected patient
+    const currentPatient = this.patientService.getSelectedPatient();
+    this.patientService.selectPatient({ ...this.patient });
+    
+    alert('All clinical events have been deleted successfully.');
   }
 
 
