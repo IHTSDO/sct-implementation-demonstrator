@@ -321,20 +321,17 @@ export class AdverseReactionFormComponent implements OnInit {
     )?.code;
 
     if (!snomedCode) {
-      console.log('No SNOMED CT code found for condition:', condition);
+      console.warn('No SNOMED CT code found for condition:', condition);
       this.medraMappings = [];
       return;
     }
 
-    console.log('Fetching MedDRA mappings for SNOMED CT code:', snomedCode);
     this.isLoadingMedra = true;
     this.medraMappings = [];
 
     this.terminologyService.getMedraMapTargets(snomedCode).subscribe({
       next: (response) => {
         this.isLoadingMedra = false;
-        console.log('MedDRA mappings response:', response);
-        
         // The service transforms Snowstorm API response to FHIR-like format
         if (response && response.parameter && Array.isArray(response.parameter)) {
           // Extract MedDRA mappings from the transformed response
@@ -347,9 +344,8 @@ export class AdverseReactionFormComponent implements OnInit {
             }))
             .filter((mapping: any) => mapping.code && mapping.display); // Only include valid mappings
           
-          console.log('Processed MedDRA mappings:', this.medraMappings);
         } else {
-          console.log('No valid response parameters found');
+          console.warn('No valid response parameters found');
           this.medraMappings = [];
         }
       },
@@ -406,23 +402,17 @@ export class AdverseReactionFormComponent implements OnInit {
     // Use ECL to find active ingredients: {conceptId}.<<127489000 |Has active ingredient|
     const ecl = `${medicationConceptId}.<<127489000 |Has active ingredient|`;
     
-    console.log('Fetching active ingredients with ECL:', ecl);
-    
     this.terminologyService.expandValueSet(ecl, '', 0, 50).subscribe({
       next: (response) => {
         this.isLoadingIngredients = false;
-        console.log('Active ingredients response:', response);
-        
         if (response && response.expansion && response.expansion.contains && Array.isArray(response.expansion.contains)) {
           this.activeIngredients = response.expansion.contains.map((item: any) => ({
             code: item.code,
             display: item.display,
             system: 'http://snomed.info/sct'
           }));
-          
-          console.log('Processed active ingredients:', this.activeIngredients);
         } else {
-          console.log('No active ingredients found');
+          console.warn('No active ingredients found');
           this.activeIngredients = [];
         }
         

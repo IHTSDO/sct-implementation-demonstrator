@@ -85,6 +85,17 @@
   gap: 15px;
 }
 
+.patient-header-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.patient-header-actions button .dropdown-arrow {
+  order: 1;
+  margin-left: auto;
+}
+
 .data-summary {
   display: flex;
   align-items: center;

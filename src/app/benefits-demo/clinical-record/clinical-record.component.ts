@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { MatTabGroup } from '@angular/material/tabs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
@@ -30,6 +31,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   @ViewChild('procedureEntry') procedureEntry!: ClinicalEntryComponent;
   @ViewChild('medicationEntry') medicationEntry!: ClinicalEntryComponent;
   @ViewChild('tabGroup') tabGroup!: MatTabGroup;
+  @ViewChild('encounterRecord') encounterRecord!: any;
+  @ViewChild('clinicalTimeline') clinicalTimeline!: any;
 
   patient: Patient | null = null;
   conditions: Condition[] = [];
@@ -146,7 +149,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     private route: ActivatedRoute,
     private router: Router,
     private terminologyService: TerminologyService,
-    private cdsService: CdsService
+    private cdsService: CdsService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -249,8 +253,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.medications = this.loadCachedOrFreshData('medications', patientId, () => this.patientService.getPatientMedications(patientId));
     this.allergies = this.loadCachedOrFreshData('allergies', patientId, () => this.patientService.getPatientAllergies(patientId));
     
-    // Load encounters from localStorage
-    this.encounters = this.getEncountersFromStorage(patientId);
+    // Load encounters using PatientService
+    this.encounters = this.patientService.getPatientEncounters(patientId);
 
     // Reset CDS state when loading new patient data
     this.resetCdsState();
@@ -488,18 +492,16 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
    */
   private processCdsRecommendations(response: CDSResponse): void {
     if (response.cards && response.cards.length > 0) {
-      console.log(`Received ${response.cards.length} CDS recommendation(s)`);
-      
       // You can add UI logic here to display the recommendations
       // For now, just log them
-      response.cards.forEach((card, index) => {
-        console.log(`CDS Card ${index + 1}:`, {
-          summary: card.summary,
-          detail: card.detail,
-          indicator: card.indicator,
-          source: card.source
-        });
-      });
+      // response.cards.forEach((card, index) => {
+      //   console.log(`CDS Card ${index + 1}:`, {
+      //     summary: card.summary,
+      //     detail: card.detail,
+      //     indicator: card.indicator,
+      //     source: card.source
+      //   });
+      // });
     }
   }
 
@@ -604,7 +606,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     } else if (this.cdsResponse && (!this.cdsResponse.cards || this.cdsResponse.cards.length === 0)) {
       return 'cds-no-recommendations';
     } else {
-      return 'cds-initial';
+      // Check if there's any clinical data to analyze
+      const hasClinicalData = this.conditions.length > 0 || this.medications.length > 0;
+      return hasClinicalData ? 'cds-initial' : 'cds-no-data';
     }
   }
 
@@ -638,7 +642,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     } else if (this.cdsResponse && (!this.cdsResponse.cards || this.cdsResponse.cards.length === 0)) {
       return 'No recommendations';
     } else {
-      return 'Initializing...';
+      // Check if there's any clinical data to analyze
+      const hasClinicalData = this.conditions.length > 0 || this.medications.length > 0;
+      return hasClinicalData ? 'Ready to analyze' : 'No data to analyze';
     }
   }
 
@@ -647,11 +653,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return new Date(dateString).toLocaleDateString();
   }
 
-  private getEncountersFromStorage(patientId: string): any[] {
-    const storageKey = `encounters_${patientId}`;
-    const stored = localStorage.getItem(storageKey);
-    return stored ? JSON.parse(stored) : [];
-  }
 
   getConditionStatus(condition: Condition): string {
     if (condition.clinicalStatus?.text) {
@@ -812,7 +813,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
    */
   hasIcd10Code(condition: Condition): boolean {
     const hasCode = !!(condition as any).icd10Code;
-    console.log(`Condition "${condition.code.text}" has ICD-10 code: ${hasCode}`, condition);
     return hasCode;
   }
 
@@ -827,9 +827,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       console.warn('No SNOMED concept ID found for condition:', condition);
       return;
     }
-
-    console.log(`Attempting manual ICD-10 mapping for SNOMED concept: ${snomedConceptId}`);
-    
     this.terminologyService.getIcd10MapTargets(snomedConceptId).subscribe({
       next: (response) => {
         // Extract the ICD-10 code from the response
@@ -843,8 +840,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
               // Store the ICD-10 code in the condition
               (condition as any).icd10Code = icd10Code;
               (condition as any).snomedConceptId = snomedConceptId;
-              // Save to storage after successful mapping
-              this.saveUpdatedEventsToStorage();
+              // Update the condition in PatientService with the SNOMED concept ID
+              this.patientService.updatePatientCondition(this.patient!.id, condition.id, condition);
             } else {
               console.warn('No ICD-10 code found in mapping response');
             }
@@ -857,7 +854,16 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       },
       error: (error) => {
         console.error(`Failed to get ICD-10 mapping for SNOMED concept ${snomedConceptId}:`, error);
-        alert(`Failed to map to ICD-10. Error: ${error.message || 'Unknown error'}`);
+        this.snackBar.open(
+          `Failed to map to ICD-10. Error: ${error.message || 'Unknown error'}`,
+          'Close',
+          {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          }
+        );
       }
     });
   }
@@ -897,8 +903,31 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // Add the new condition directly to the local array to avoid timing issues
+      // Save the condition to PatientService first (now returns boolean)
+      const wasAdded = this.patientService.addPatientCondition(this.patient!.id, event);
+      
+      if (!wasAdded) {
+        // Duplicate detected - show warning and don't add to local array
+        this.snackBar.open(
+          'This condition already exists for this patient (duplicate SNOMED CT code detected).',
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['warning-snackbar']
+          }
+        );
+        return;
+      }
+      
+      // Add the new condition to the local array only if it was successfully added
       this.conditions.push(event);
+      
+      // Refresh timeline to show new condition
+      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+        this.clinicalTimeline.refreshTimeline();
+      }
       
       // Get SNOMED concept ID for ICD-10 mapping
       const snomedConceptId = this.getConceptId(event);
@@ -908,8 +937,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         try {
           this.terminologyService.getIcd10MapTargets(snomedConceptId).subscribe({
             next: (response) => {
-              console.log('ICD-10 mapping response:', response);
-              
               // Extract the ICD-10 code from the response
               if (response?.parameter && response.parameter.length > 0) {
                 // Look for the match parameter which contains the ICD-10 code
@@ -921,10 +948,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
                     // Store the ICD-10 code in the condition
                     event.icd10Code = icd10Code;
                     event.snomedConceptId = snomedConceptId;
-                    console.log(`Mapped SNOMED ${snomedConceptId} to ICD-10 ${icd10Code}`);
-                    
-                    // Save to storage after ICD-10 mapping is complete
-                    this.saveUpdatedEventsToStorage();
+                    // Update the condition in PatientService with the ICD-10 code
+                    this.patientService.updatePatientCondition(this.patient!.id, event.id, event);
                   }
                 }
               }
@@ -933,20 +958,17 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
               console.warn(`Failed to get ICD-10 mapping for SNOMED concept ${snomedConceptId}:`, error);
               // Store just the SNOMED concept ID if ICD-10 mapping fails
               event.snomedConceptId = snomedConceptId;
-              // Save to storage even if mapping fails
-              this.saveUpdatedEventsToStorage();
+              // Update the condition in PatientService with the SNOMED concept ID
+              this.patientService.updatePatientCondition(this.patient!.id, event.id, event);
             }
           });
         } catch (mappingError) {
           console.warn(`Error calling ICD-10 mapping service for concept ${snomedConceptId}:`, mappingError);
           // Store just the SNOMED concept ID if service call fails
           event.snomedConceptId = snomedConceptId;
-          // Save to storage even if service call fails
-          this.saveUpdatedEventsToStorage();
+          // Update the condition in PatientService with the SNOMED concept ID
+          this.patientService.updatePatientCondition(this.patient!.id, event.id, event);
         }
-      } else {
-        // If no SNOMED concept ID, save immediately
-        this.saveUpdatedEventsToStorage();
       }
       
       // Map the condition to an anchor point directly
@@ -966,14 +988,39 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // Add the new procedure directly to the local array to avoid timing issues
+      // Save the procedure to PatientService first (now returns boolean)
+      const wasAdded = this.patientService.addPatientProcedure(this.patient!.id, event);
+      
+      if (!wasAdded) {
+        // Duplicate detected - show warning and don't add to local array
+        this.snackBar.open(
+          'This procedure already exists for this patient (duplicate SNOMED CT code detected).',
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['warning-snackbar']
+          }
+        );
+        return;
+      }
+      
+      // Add the new procedure to the local array only if it was successfully added
       this.procedures.push(event);
+      
+      // Refresh timeline to show new procedure
+      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+        this.clinicalTimeline.refreshTimeline();
+      }
       
       // Map the procedure to an anchor point directly
       await this.mapSingleEventToAnchorPoint(event);
       
-      // Reload clinical data to ensure consistency with storage
-      this.loadClinicalData(this.patient!.id);
+      // Refresh encounter display to show newly linked procedures
+      if (this.encounterRecord && this.encounterRecord.refreshEncounterDisplay) {
+        this.encounterRecord.refreshEncounterDisplay();
+      }
     } catch (error) {
       console.error('Error processing new procedure:', error);
     } finally {
@@ -989,14 +1036,34 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // Add the new medication directly to the local array to avoid timing issues
+      // Save the medication to PatientService first (now returns boolean)
+      const wasAdded = this.patientService.addPatientMedication(this.patient!.id, event);
+      
+      if (!wasAdded) {
+        // Duplicate detected - show warning and don't add to local array
+        this.snackBar.open(
+          'This medication already exists for this patient (duplicate SNOMED CT code detected).',
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['warning-snackbar']
+          }
+        );
+        return;
+      }
+      
+      // Add the new medication to the local array only if it was successfully added
       this.medications.push(event);
+      
+      // Refresh timeline to show new medication
+      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+        this.clinicalTimeline.refreshTimeline();
+      }
       
       // Map the medication to an anchor point directly
       await this.mapSingleEventToAnchorPoint(event);
-      
-      // Reload clinical data to ensure consistency with storage
-      this.loadClinicalData(this.patient!.id);
     } catch (error) {
       console.error('Error processing new medication:', error);
     } finally {
@@ -1008,13 +1075,36 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // Add the new encounter to the local array
+      // Save encounter to storage using PatientService first (now returns boolean)
+      const wasAdded = this.patientService.addPatientEncounter(this.patient!.id, event);
+      
+      if (!wasAdded) {
+        // Duplicate detected - show warning and don't add to local array
+        this.snackBar.open(
+          'This encounter already exists for this patient (duplicate SNOMED CT code detected).',
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['warning-snackbar']
+          }
+        );
+        return;
+      }
+      
+      // Add the new encounter to the local array only if it was successfully added
       this.encounters.push(event);
       
-      // Save encounter to storage using PatientService
-      this.patientService.addPatientEncounter(this.patient!.id, event);
+      // Refresh timeline to show new encounter
+      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+        this.clinicalTimeline.refreshTimeline();
+      }
       
-      console.log('Encounter added from AI-assisted entry:', event);
+      // Refresh encounter display to show newly linked procedures
+      if (this.encounterRecord && this.encounterRecord.refreshEncounterDisplay) {
+        this.encounterRecord.refreshEncounterDisplay();
+      }
     } catch (error) {
       console.error('Error processing new encounter:', error);
     } finally {
@@ -1032,6 +1122,20 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return resource.medicationCodeableConcept.coding[0].code;
     }
     return '';
+  }
+
+  getIcd10Code(condition: any): string | null {
+    // First check if there's a direct ICD-10 code property
+    if (condition.icd10Code) {
+      return condition.icd10Code;
+    }
+    
+    // Then check if there's an ICD-10 coding in the code array
+    if (condition.code?.coding) {
+      const icd10Coding = condition.code.coding.find((c: any) => c.system === 'http://hl7.org/fhir/sid/icd-10-cm');
+      return icd10Coding?.code || null;
+    }
+    return null;
   }
 
   /**
@@ -1565,19 +1669,24 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     // Confirm deletion
     const eventCount = this.conditions.length + this.procedures.length + this.medications.length + this.allergies.length + encounters.length;
     if (eventCount === 0) {
-      alert('No clinical events to delete.');
+      this.snackBar.open(
+        'No clinical events to delete.',
+        'Close',
+        {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['info-snackbar']
+        }
+      );
       return;
     }
     
     const confirmed = confirm(`Are you sure you want to delete all ${eventCount} clinical events (including conditions, procedures, medications, allergies, and encounters) for ${this.getPatientDisplayName(this.patient)}? This action cannot be undone.`);
     if (!confirmed) return;
     
-    // Clear all clinical data from localStorage
-    localStorage.removeItem(`ehr_conditions_${patientId}`);
-    localStorage.removeItem(`ehr_procedures_${patientId}`);
-    localStorage.removeItem(`ehr_medications_${patientId}`);
-    localStorage.removeItem(`ehr_allergies_${patientId}`);
-    localStorage.removeItem(`ehr_encounters_${patientId}`);
+    // Clear all clinical data using PatientService
+    this.patientService.clearAllPatientEvents(patientId);
     
     // Clear the arrays
     this.conditions = [];
@@ -1586,38 +1695,27 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.allergies = [];
     this.encounters = [];
     
+    // Reset CDS state since there's no clinical data left
+    this.resetCdsState();
+    
+    // Reload clinical data to ensure all components are updated
+    this.loadClinicalData(patientId);
+    
     // Notify other components by updating the selected patient
     const currentPatient = this.patientService.getSelectedPatient();
     this.patientService.selectPatient({ ...this.patient });
     
-    alert('All clinical events have been deleted successfully.');
+    this.snackBar.open(
+      'All clinical events have been deleted successfully.',
+      'Close',
+      {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['success-snackbar']
+      }
+    );
   }
-
-
-
-  /**
-   * Save updated clinical events to browser storage
-   */
-  private saveUpdatedEventsToStorage(): void {
-    // Save to localStorage with patient-specific keys
-    const patientId = this.patient?.id || 'default';
-    
-    if (this.conditions.length > 0) {
-      localStorage.setItem(`ehr_conditions_${patientId}`, JSON.stringify(this.conditions));
-    }
-    
-    if (this.procedures.length > 0) {
-      localStorage.setItem(`ehr_procedures_${patientId}`, JSON.stringify(this.procedures));
-    }
-    
-    if (this.medications.length > 0) {
-      localStorage.setItem(`ehr_medications_${patientId}`, JSON.stringify(this.medications));
-    }
-    
-
-  }
-
-
 
   /**
    * Load cached data from localStorage or fallback to fresh data from service
@@ -1801,8 +1899,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     try {
       await this.mapEventToAnchorPointUsingAncestors(event, conceptId);
       
-      // Save the updated event to storage immediately
-      this.saveUpdatedEventsToStorage();
+      // The event is already saved to PatientService when it was first created
+      // No need to save again here
     } catch (error) {
       console.error(`Error mapping single event with concept ${conceptId}:`, error);
       // Default to systemic on error

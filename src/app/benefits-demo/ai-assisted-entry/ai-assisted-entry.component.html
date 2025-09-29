@@ -25,6 +25,62 @@
             </div>
           </div>
           
+          <!-- Encounter Form -->
+          <div class="encounter-form-section" *ngIf="hasDetectedEntities()">
+            <h4>Encounter Details</h4>
+            <p class="encounter-description">Configure the encounter details for this clinical session</p>
+            
+            <div class="encounter-form">
+              <!-- Reason for Encounter -->
+              <div class="form-field">
+                <label for="reasonForEncounter">Reason for Encounter</label>
+                <mat-select 
+                  id="reasonForEncounter"
+                  [(value)]="selectedReasonForEncounter"
+                  (selectionChange)="onReasonForEncounterChange($event.value)"
+                  placeholder="Select reason for encounter">
+                  <mat-option [value]="null">None</mat-option>
+                  <mat-option *ngFor="let condition of detectedConditions" 
+                              [value]="condition">
+                    {{ condition.name }}
+                  </mat-option>
+                </mat-select>
+              </div>
+
+              <!-- Diagnosis -->
+              <div class="form-field">
+                <label for="diagnosis">Diagnosis</label>
+                <mat-select 
+                  id="diagnosis"
+                  [(value)]="selectedDiagnosis"
+                  (selectionChange)="onDiagnosisChange($event.value)"
+                  placeholder="Select diagnosis">
+                  <mat-option [value]="null">None</mat-option>
+                  <mat-option *ngFor="let condition of detectedConditions" 
+                              [value]="condition">
+                    {{ condition.name }}
+                  </mat-option>
+                </mat-select>
+              </div>
+
+              <!-- Procedure -->
+              <div class="form-field">
+                <label for="procedure">Procedure</label>
+                <mat-select 
+                  id="procedure"
+                  [(value)]="selectedProcedure"
+                  (selectionChange)="onProcedureChange($event.value)"
+                  placeholder="Select procedure">
+                  <mat-option [value]="null">None</mat-option>
+                  <mat-option *ngFor="let procedure of detectedProcedures" 
+                              [value]="procedure">
+                    {{ procedure.name }}
+                  </mat-option>
+                </mat-select>
+              </div>
+            </div>
+          </div>
+
           <div class="sample-text-section">
             <button mat-raised-button 
                     class="sample-text-button"

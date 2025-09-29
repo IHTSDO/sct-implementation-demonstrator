@@ -592,3 +592,109 @@
 .existing-entity .remove-button:hover {
   opacity: 1;
 }
+
+/* Snackbar styles */
+::ng-deep .success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+::ng-deep .success-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+/* Encounter Form Section */
+.encounter-form-section {
+  margin-top: 20px;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.encounter-form-section h4 {
+  margin: 0 0 8px 0;
+  color: #495057;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.encounter-description {
+  margin: 0 0 16px 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.encounter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.form-field label {
+  font-weight: 600;
+  color: #343a40;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-field mat-select {
+  width: 100%;
+  min-width: 200px;
+}
+
+/* Angular Material v19 theming approach */
+.form-field mat-select {
+  --mdc-outlined-text-field-container-shape: 6px;
+  --mdc-outlined-text-field-outline-color: #6c757d;
+  --mdc-outlined-text-field-outline-width: 2px;
+  --mdc-outlined-text-field-container-color: #ffffff;
+  --mdc-outlined-text-field-hover-outline-color: #007bff;
+  --mdc-outlined-text-field-focus-outline-color: #007bff;
+}
+
+/* Override Material Design styles with higher specificity */
+.form-field mat-select::ng-deep .mat-mdc-select-trigger {
+  min-height: 44px !important;
+  border: 2px solid #6c757d !important;
+  border-radius: 6px !important;
+  background-color: #ffffff !important;
+  padding: 10px 14px !important;
+}
+
+.form-field mat-select::ng-deep .mat-mdc-select-trigger:hover {
+  border-color: #007bff !important;
+  background-color: #ffffff !important;
+}
+
+.form-field mat-select::ng-deep .mat-mdc-select-trigger.mat-focused {
+  border-color: #007bff !important;
+  background-color: #ffffff !important;
+}
+
+.form-field mat-select::ng-deep .mat-mdc-select-value {
+  color: #495057 !important;
+  font-weight: 500 !important;
+}
+
+.form-field mat-select::ng-deep .mat-mdc-select-placeholder {
+  color: #6c757d !important;
+  font-style: italic !important;
+}
+
+.form-field mat-select::ng-deep .mat-mdc-select-arrow {
+  color: #6c757d !important;
+}

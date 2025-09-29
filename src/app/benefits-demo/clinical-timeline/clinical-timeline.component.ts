@@ -51,6 +51,11 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
     }
   }
 
+  // Public method to manually refresh the timeline
+  refreshTimeline(): void {
+    this.processEvents();
+  }
+
   private processEvents(): void {
     this.timelineEvents = [];
     

@@ -208,6 +208,7 @@
         <mat-tab label="Encounters">
           <div class="tab-content">
             <app-encounter-record 
+              #encounterRecord
               [patient]="patient"
               (conditionAdded)="onConditionAdded($event)"
               (procedureAdded)="onProcedureAdded($event)">
@@ -219,6 +220,7 @@
         <mat-tab label="Timeline">
           <div class="tab-content">
             <app-clinical-timeline 
+              #clinicalTimeline
               [conditions]="conditions"
               [procedures]="procedures" 
               [medications]="medications"
@@ -228,12 +230,15 @@
         </mat-tab>
 
         <!-- List View Tab -->
-        <mat-tab label="List View">
+        <mat-tab label="Problems List">
           <div class="tab-content">
             <!-- Clinical Entry Section - Single Row Above -->
             <div class="record-section clinical-entry-section">
               <div class="clinical-entry-controls">
-                <h3>Add Clinical Events</h3>
+                <div class="problem-header">
+                  <h3>Add Problem</h3>
+                  <p class="problem-description">A problem is any health-related issue, diagnosis, procedure, or ongoing treatment that needs to be tracked as part of a patient's care.</p>
+                </div>
                 <div class="entry-buttons">
                   <button mat-raised-button 
                           color="primary" 
@@ -329,6 +334,9 @@
                     <div class="item-details compact inline">
                       <span class="item-concept-id compact" *ngIf="getConceptId(condition)">
                         {{ getConceptId(condition) }}
+                      </span>
+                      <span class="item-icd10-code compact" *ngIf="getIcd10Code(condition)">
+                        ICD-10: {{ getIcd10Code(condition) }}
                       </span>
                       <span class="item-status compact" [class]="getConditionStatus(condition).toLowerCase()">
                         {{ getConditionStatus(condition) }}
@@ -528,14 +536,6 @@
       </mat-tab-group>
     </div>
 
-    <!-- Empty State -->
-    <div class="record-section" *ngIf="conditions.length === 0 && procedures.length === 0 && medications.length === 0">
-      <div class="empty-state">
-        <h3>No Clinical Data Available</h3>
-        <p>This patient has no conditions, procedures, or medications recorded.</p>
-        <p>Use the "Add" buttons above to add clinical information using SNOMED CT terminology.</p>
-      </div>
-    </div>
   </div>
 
   <!-- No patient selected message -->

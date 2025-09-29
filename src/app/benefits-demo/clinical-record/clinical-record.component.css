@@ -330,6 +330,14 @@
   color: #6c757d;
 }
 
+.cds-notice-section .cds-notice.cds-no-data .cds-notice-icon {
+  color: #6c757d;
+}
+
+.cds-notice-section .cds-notice.cds-no-data .cds-notice-text {
+  color: #6c757d;
+}
+
 /* Clickable state for recommendations */
 .cds-notice-section .cds-notice.clickable {
   cursor: pointer;
@@ -677,6 +685,16 @@
   border: 1px solid #e9ecef;
 }
 
+.item-icd10-code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
 .delete-button {
   opacity: 0;
   transition: all 0.2s ease;
@@ -712,26 +730,6 @@
   opacity: 1;
 }
 
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border: 2px dashed #dee2e6;
-}
-
-.empty-state h3 {
-  color: #6c757d;
-  margin-bottom: 15px;
-  font-size: 1.3rem;
-}
-
-.empty-state p {
-  color: #6c757d;
-  margin-bottom: 10px;
-  font-size: 1rem;
-}
 
 /* No Patient Message */
 .no-patient-message {
@@ -1487,19 +1485,33 @@
 .clinical-entry-controls {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 15px;
 }
 
+.problem-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .clinical-entry-controls h3 {
-  margin: 0;
+  margin: 0 0 8px 0;
   color: #495057;
   font-size: 1.2rem;
   font-weight: 600;
   border-bottom: none;
   padding-bottom: 0;
+}
+
+.problem-description {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.4;
 }
 
 .entry-buttons {
@@ -1747,6 +1759,46 @@
   border: 1px solid #e9ecef;
   display: inline-block;
   margin-bottom: 2px;
+}
+
+.item-icd10-code.compact {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid #e9ecef;
+  display: inline-block;
+  margin-bottom: 2px;
+}
+
+/* Snackbar styles */
+::ng-deep .success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+::ng-deep .success-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .info-snackbar {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+::ng-deep .info-snackbar .mat-simple-snackbar-action {
+  color: white !important;
 }
 
 .item-status.compact {

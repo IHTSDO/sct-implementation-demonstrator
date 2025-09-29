@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Patient, Condition, Procedure, MedicationStatement, PatientService } from '../../services/patient.service';
 
 interface DetectedEntity {
@@ -35,11 +36,19 @@ export class AiAssistedEntryComponent implements OnInit {
   detectedConditions: DetectedEntity[] = [];
   detectedProcedures: DetectedEntity[] = [];
   detectedMedications: DetectedEntity[] = [];
+  
+  // Encounter form properties
+  selectedReasonForEncounter: DetectedEntity | null = null;
+  selectedDiagnosis: DetectedEntity | null = null;
+  selectedProcedure: DetectedEntity | null = null;
 
   private detectionTimeout: any;
   private isUpdatingContent: boolean = false;
 
-  constructor(private patientService: PatientService) { }
+  constructor(
+    private patientService: PatientService,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngOnInit(): void {
     // Component initialization
@@ -227,6 +236,9 @@ export class AiAssistedEntryComponent implements OnInit {
       };
       this.detectedMedications.push(this.checkForExistingEntity(ibuprofenEntity));
     }
+    
+    // Initialize encounter form with default selections after detection
+    this.initializeEncounterForm();
   }
 
   private extractDetectedText(searchTerm: string): string {
@@ -289,12 +301,34 @@ export class AiAssistedEntryComponent implements OnInit {
   saveAllDetected(): void {
     if (!this.patient) return;
 
-    // Collect all detected entities for encounter creation
-    const allDetectedEntities = [
-      ...this.detectedConditions.map(c => ({ name: c.name, type: 'condition', conceptId: c.conceptId })),
-      ...this.detectedProcedures.map(p => ({ name: p.name, type: 'procedure', conceptId: p.conceptId })),
-      ...this.detectedMedications.map(m => ({ name: m.name, type: 'medication', conceptId: m.conceptId }))
+    // Collect selected entities for encounter creation
+    const selectedEntities = [
+      ...this.detectedConditions.filter(c => this.canSaveEntity(c)).map(c => ({ name: c.name, type: 'condition', conceptId: c.conceptId })),
+      ...(this.selectedProcedure && this.canSaveEntity(this.selectedProcedure) ? [{ name: this.selectedProcedure.name, type: 'procedure', conceptId: this.selectedProcedure.conceptId }] : []),
+      ...this.detectedMedications.filter(m => this.canSaveEntity(m)).map(m => ({ name: m.name, type: 'medication', conceptId: m.conceptId }))
     ];
+
+    // Create encounter first so we can link procedures to it
+    let encounter: any = null;
+    if (selectedEntities.length > 0) {
+      // Use user-selected values for encounter creation
+      const reasonForEncounter = this.selectedReasonForEncounter ? {
+        name: this.selectedReasonForEncounter.name,
+        conceptId: this.selectedReasonForEncounter.conceptId
+      } : null;
+      
+      const diagnosis = this.selectedDiagnosis ? {
+        name: this.selectedDiagnosis.name,
+        conceptId: this.selectedDiagnosis.conceptId
+      } : null;
+      
+      encounter = this.patientService.createEncounterFromAISession(
+        this.patient.id, 
+        this.clinicalText, 
+        reasonForEncounter,
+        diagnosis
+      );
+    }
 
     // Use centralized PatientService methods to create proper FHIR resources
     // Only save entities that don't already exist
@@ -305,12 +339,65 @@ export class AiAssistedEntryComponent implements OnInit {
         this.conditionAdded.emit(newCondition);
       });
 
-    this.detectedProcedures
-      .filter(procedure => this.canSaveEntity(procedure))
-      .forEach(procedure => {
-        const newProcedure = this.patientService.createProcedureFromDetectedEntity(this.patient!.id, procedure);
+    // Save procedures - only save the selected procedure if one is selected
+    if (this.selectedProcedure && this.canSaveEntity(this.selectedProcedure)) {
+      const newProcedure = this.patientService.createProcedureFromDetectedEntity(
+        this.patient!.id, 
+        this.selectedProcedure,
+        encounter ? encounter.id : undefined
+      );
+      
+      // Check if this procedure would be a duplicate before emitting
+      const existingProcedures = this.patientService.getPatientProcedures(this.patient!.id);
+      const isDuplicate = this.patientService.isDuplicateProcedure(existingProcedures, newProcedure);
+      
+      if (!isDuplicate) {
         this.procedureAdded.emit(newProcedure);
-      });
+      } else {
+        // Find the existing procedure with the same SNOMED CT code
+        const existingProcedure = existingProcedures.find(existing => {
+          const existingCode = this.patientService.extractSnomedCode(existing);
+          const newCode = this.patientService.extractSnomedCode(newProcedure);
+          return existingCode === newCode;
+        });
+        
+        if (existingProcedure && encounter) {
+          // Link the existing procedure to the new encounter
+          existingProcedure.encounter = {
+            reference: `Encounter/${encounter.id}`,
+            display: `Encounter ${encounter.id}`
+          };
+          
+          // Update the existing procedure in storage
+          this.patientService.updatePatientProcedure(this.patient!.id, existingProcedure.id, existingProcedure);
+          
+          // Show info message about linking to existing procedure
+          this.snackBar.open(
+            `Procedure "${this.selectedProcedure.name}" already exists and has been linked to this encounter.`,
+            'Close',
+            {
+              duration: 4000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+              panelClass: ['info-snackbar']
+            }
+          );
+        } else {
+          // Show warning for duplicate procedure (fallback)
+          this.snackBar.open(
+            `Procedure "${this.selectedProcedure.name}" already exists for this patient (duplicate SNOMED CT code detected).`,
+            'Close',
+            {
+              duration: 4000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+              panelClass: ['warning-snackbar']
+            }
+          );
+        }
+      }
+    }
+
 
     this.detectedMedications
       .filter(medication => this.canSaveEntity(medication))
@@ -319,29 +406,67 @@ export class AiAssistedEntryComponent implements OnInit {
         this.medicationAdded.emit(newMedication);
       });
 
-    // Create and emit encounter for this AI-assisted session
-    // Include ALL detected entities in the encounter, regardless of whether they already exist
-    if (allDetectedEntities.length > 0) {
-      const encounter = this.patientService.createEncounterFromAISession(
-        this.patient.id, 
-        this.clinicalText, 
-        allDetectedEntities
-      );
+    // Emit encounter after all other entities are processed
+    if (encounter) {
       this.encounterAdded.emit(encounter);
+    }
+
+    // Show success notification
+    const totalSaved = selectedEntities.length;
+    if (totalSaved > 0) {
+      this.snackBar.open(
+        `Successfully saved ${totalSaved} clinical entities and created encounter`,
+        'Close',
+        {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        }
+      );
     }
 
     // Clear all detected entities after saving
     this.detectedConditions = [];
     this.detectedProcedures = [];
     this.detectedMedications = [];
-
-    console.log('All detected entities and encounter saved to patient');
+    
+    // Clear encounter form selections
+    this.selectedReasonForEncounter = null;
+    this.selectedDiagnosis = null;
+    this.selectedProcedure = null;
   }
 
   hasDetectedEntities(): boolean {
     return this.detectedConditions.length > 0 || 
            this.detectedProcedures.length > 0 || 
            this.detectedMedications.length > 0;
+  }
+
+  // Encounter form methods
+  initializeEncounterForm(): void {
+    // Use the same automatic selection logic as before
+    // First condition is the reason for encounter
+    this.selectedReasonForEncounter = this.detectedConditions.length > 0 ? this.detectedConditions[0] : null;
+    
+    // Second condition is the diagnosis (or same as reason if only one condition)
+    this.selectedDiagnosis = this.detectedConditions.length > 1 ? this.detectedConditions[1] : 
+                            (this.detectedConditions.length === 1 ? this.detectedConditions[0] : null);
+    
+    // First procedure is selected by default
+    this.selectedProcedure = this.detectedProcedures.length > 0 ? this.detectedProcedures[0] : null;
+  }
+
+  onReasonForEncounterChange(selectedEntity: DetectedEntity | null): void {
+    this.selectedReasonForEncounter = selectedEntity;
+  }
+
+  onDiagnosisChange(selectedEntity: DetectedEntity | null): void {
+    this.selectedDiagnosis = selectedEntity;
+  }
+
+  onProcedureChange(selectedEntity: DetectedEntity | null): void {
+    this.selectedProcedure = selectedEntity;
   }
 
   removeDetected(entity: DetectedEntity): void {
@@ -589,7 +714,7 @@ export class AiAssistedEntryComponent implements OnInit {
   // Get display text for existing entity status
   getExistingStatusText(entity: DetectedEntity): string {
     if (entity.alreadyExists) {
-      return `Already exists in patient record - will be included in encounter only`;
+      return `Already exists in problems list`;
     }
     return '';
   }

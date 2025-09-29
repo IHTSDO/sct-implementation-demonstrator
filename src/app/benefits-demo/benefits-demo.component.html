@@ -70,13 +70,21 @@
             <mat-icon>medical_services</mat-icon>
             ICD-10 Analytics
           </button> -->
-          <button 
-            mat-flat-button
-            color="primary"
-            (click)="createNewPatient()"
-          >
-            Create Patient
+          <button mat-flat-button color="primary" [matMenuTriggerFor]="createPatientMenu">
+            <mat-icon>person_add</mat-icon>
+            <span>Create Patient</span>
+            <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
           </button>
+          <mat-menu #createPatientMenu="matMenu">
+            <button mat-menu-item (click)="createNewPatient()">
+              <mat-icon>edit</mat-icon>
+              <span>Manual Entry</span>
+            </button>
+            <button mat-menu-item (click)="createRandomPatient()">
+              <mat-icon>auto_awesome</mat-icon>
+              <span>Generate Random</span>
+            </button>
+          </mat-menu>
         </div>
       </div>
       

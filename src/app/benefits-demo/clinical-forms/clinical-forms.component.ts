@@ -167,14 +167,11 @@ export class ClinicalFormsComponent implements OnInit {
   }
 
   onFormCancelled(): void {
-    console.log('Form cancelled');
     this.selectedForm = null;
     this.formCancelled.emit();
   }
 
   onAllergyAdded(allergyData: any): void {
-    console.log('Allergy added:', allergyData);
-    
     // Show success message for allergy documentation
     this.snackBar.open(
       `✅ Allergy/Intolerance documented: ${allergyData.display || 'Unknown'}`,
@@ -196,8 +193,6 @@ export class ClinicalFormsComponent implements OnInit {
   }
 
   onAllergySaved(allergyData: any): void {
-    console.log('Allergy saved:', allergyData);
-    
     // Store the allergy in the PatientService if we have a selected patient
     if (this.patient && this.patient.id) {
       // Ensure the allergy has a proper ID and patient reference
@@ -214,7 +209,6 @@ export class ClinicalFormsComponent implements OnInit {
       // Add the allergy to the patient's record
       this.patientService.addPatientAllergy(this.patient.id, allergyToStore);
       
-      console.log('Allergy stored for patient:', this.patient.id);
     } else {
       console.warn('No patient selected - allergy not stored');
     }

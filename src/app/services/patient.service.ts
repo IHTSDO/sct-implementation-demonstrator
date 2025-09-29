@@ -1016,6 +1016,86 @@ export class PatientService {
     // this.initializeSamplePatients(); // Deactivated - start with empty patient list
   }
 
+  // Helper methods for duplicate detection
+  public extractSnomedCode(resource: any): string | null {
+    // Extract SNOMED CT code from various resource types
+    if (resource.code?.coding) {
+      const snomedCoding = resource.code.coding.find((coding: any) => 
+        coding.system === 'http://snomed.info/sct' || 
+        coding.system === 'http://snomed.info/sct/900000000000207008'
+      );
+      return snomedCoding?.code || null;
+    }
+    
+    if (resource.medicationCodeableConcept?.coding) {
+      const snomedCoding = resource.medicationCodeableConcept.coding.find((coding: any) => 
+        coding.system === 'http://snomed.info/sct' || 
+        coding.system === 'http://snomed.info/sct/900000000000207008'
+      );
+      return snomedCoding?.code || null;
+    }
+    
+    if (resource.reasonCode && resource.reasonCode.length > 0 && resource.reasonCode[0].coding) {
+      const snomedCoding = resource.reasonCode[0].coding.find((coding: any) => 
+        coding.system === 'http://snomed.info/sct' || 
+        coding.system === 'http://snomed.info/sct/900000000000207008'
+      );
+      return snomedCoding?.code || null;
+    }
+    
+    return null;
+  }
+
+  private isDuplicateCondition(existingConditions: Condition[], newCondition: Condition): boolean {
+    const newCode = this.extractSnomedCode(newCondition);
+    if (!newCode) return false;
+    
+    return existingConditions.some(existing => {
+      const existingCode = this.extractSnomedCode(existing);
+      return existingCode === newCode;
+    });
+  }
+
+  public isDuplicateProcedure(existingProcedures: Procedure[], newProcedure: Procedure): boolean {
+    const newCode = this.extractSnomedCode(newProcedure);
+    if (!newCode) return false;
+    
+    return existingProcedures.some(existing => {
+      const existingCode = this.extractSnomedCode(existing);
+      return existingCode === newCode;
+    });
+  }
+
+  private isDuplicateMedication(existingMedications: MedicationStatement[], newMedication: MedicationStatement): boolean {
+    const newCode = this.extractSnomedCode(newMedication);
+    if (!newCode) return false;
+    
+    return existingMedications.some(existing => {
+      const existingCode = this.extractSnomedCode(existing);
+      return existingCode === newCode;
+    });
+  }
+
+  private isDuplicateAllergy(existingAllergies: AllergyIntolerance[], newAllergy: AllergyIntolerance): boolean {
+    const newCode = this.extractSnomedCode(newAllergy);
+    if (!newCode) return false;
+    
+    return existingAllergies.some(existing => {
+      const existingCode = this.extractSnomedCode(existing);
+      return existingCode === newCode;
+    });
+  }
+
+  private isDuplicateEncounter(existingEncounters: Encounter[], newEncounter: Encounter): boolean {
+    const newCode = this.extractSnomedCode(newEncounter);
+    if (!newCode) return false;
+    
+    return existingEncounters.some(existing => {
+      const existingCode = this.extractSnomedCode(existing);
+      return existingCode === newCode;
+    });
+  }
+
   private loadPatients(): void {
     if (this.storageService.isLocalStorageSupported()) {
       const storedPatients = this.storageService.getItem(this.STORAGE_KEY);
@@ -1255,10 +1335,17 @@ export class PatientService {
     return stored ? JSON.parse(stored) : [];
   }
 
-  addPatientCondition(patientId: string, condition: Condition): void {
+  addPatientCondition(patientId: string, condition: Condition): boolean {
     const conditions = this.getPatientConditions(patientId);
+    
+    // Check for duplicates based on SNOMED CT code
+    if (this.isDuplicateCondition(conditions, condition)) {
+      return false; // Duplicate found, not added
+    }
+    
     conditions.push(condition);
     this.savePatientConditions(patientId, conditions);
+    return true; // Successfully added
   }
 
   updatePatientCondition(patientId: string, conditionId: string, updatedCondition: Condition): void {
@@ -1288,10 +1375,17 @@ export class PatientService {
     return stored ? JSON.parse(stored) : [];
   }
 
-  addPatientProcedure(patientId: string, procedure: Procedure): void {
+  addPatientProcedure(patientId: string, procedure: Procedure): boolean {
     const procedures = this.getPatientProcedures(patientId);
+    
+    // Check for duplicates based on SNOMED CT code
+    if (this.isDuplicateProcedure(procedures, procedure)) {
+      return false; // Duplicate found, not added
+    }
+    
     procedures.push(procedure);
     this.savePatientProcedures(patientId, procedures);
+    return true; // Successfully added
   }
 
   updatePatientProcedure(patientId: string, procedureId: string, updatedProcedure: Procedure): void {
@@ -1321,10 +1415,17 @@ export class PatientService {
     return stored ? JSON.parse(stored) : [];
   }
 
-  addPatientMedication(patientId: string, medication: MedicationStatement): void {
+  addPatientMedication(patientId: string, medication: MedicationStatement): boolean {
     const medications = this.getPatientMedications(patientId);
+    
+    // Check for duplicates based on SNOMED CT code
+    if (this.isDuplicateMedication(medications, medication)) {
+      return false; // Duplicate found, not added
+    }
+    
     medications.push(medication);
     this.savePatientMedications(patientId, medications);
+    return true; // Successfully added
   }
 
   updatePatientMedication(patientId: string, medicationId: string, updatedMedication: MedicationStatement): void {
@@ -1354,10 +1455,17 @@ export class PatientService {
     return stored ? JSON.parse(stored) : [];
   }
 
-  addPatientAllergy(patientId: string, allergy: AllergyIntolerance): void {
+  addPatientAllergy(patientId: string, allergy: AllergyIntolerance): boolean {
     const allergies = this.getPatientAllergies(patientId);
+    
+    // Check for duplicates based on SNOMED CT code
+    if (this.isDuplicateAllergy(allergies, allergy)) {
+      return false; // Duplicate found, not added
+    }
+    
     allergies.push(allergy);
     this.savePatientAllergies(patientId, allergies);
+    return true; // Successfully added
   }
 
   updatePatientAllergy(patientId: string, allergyId: string, updatedAllergy: AllergyIntolerance): void {
@@ -1486,8 +1594,8 @@ export class PatientService {
     };
   }
 
-  createProcedureFromDetectedEntity(patientId: string, detectedEntity: { name: string; conceptId?: string; confidence?: number; detectedText?: string }): Procedure {
-    return {
+  createProcedureFromDetectedEntity(patientId: string, detectedEntity: { name: string; conceptId?: string; confidence?: number; detectedText?: string }, encounterId?: string): Procedure {
+    const procedure: Procedure = {
       resourceType: 'Procedure',
       id: `procedure-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       status: 'completed',
@@ -1505,6 +1613,15 @@ export class PatientService {
       },
       performedDateTime: new Date().toISOString()
     };
+
+    // Link to encounter if provided
+    if (encounterId) {
+      procedure.encounter = {
+        reference: `Encounter/${encounterId}`
+      };
+    }
+
+    return procedure;
   }
 
   createMedicationFromDetectedEntity(patientId: string, detectedEntity: { name: string; conceptId?: string; confidence?: number; detectedText?: string }): MedicationStatement {
@@ -1530,37 +1647,40 @@ export class PatientService {
   }
 
   // Create encounter for AI-assisted entry session
-  createEncounterFromAISession(patientId: string, clinicalText: string, detectedEntities: { name: string; type: string; conceptId?: string }[]): Encounter {
+  createEncounterFromAISession(
+    patientId: string, 
+    clinicalText: string, 
+    reasonForEncounter: { name: string; conceptId?: string } | null,
+    diagnosis: { name: string; conceptId?: string } | null
+  ): Encounter {
     const encounterId = `encounter-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const currentTime = new Date().toISOString();
     
-    // Create reason code from detected entities
-    const reasonCode = detectedEntities.length > 0 ? [{
+    // Create reason code from reason for encounter
+    const reasonCode = reasonForEncounter ? [{
       coding: [{
         system: 'http://snomed.info/sct',
-        code: detectedEntities[0].conceptId || '308335008', // Patient consultation
-        display: detectedEntities[0].name
+        code: reasonForEncounter.conceptId || '308335008', // Patient consultation
+        display: reasonForEncounter.name
       }],
-      text: detectedEntities[0].name
+      text: reasonForEncounter.name
     }] : undefined;
 
-    // Create diagnosis from detected conditions
-    const diagnosis = detectedEntities
-      .filter(entity => entity.type === 'condition')
-      .map((entity, index) => ({
-        condition: {
-          reference: `Condition/${entity.conceptId || 'unknown'}`,
-          display: entity.name
-        },
-        use: {
-          coding: [{
-            system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
-            code: 'active',
-            display: 'Active'
-          }]
-        },
-        rank: index + 1
-      }));
+    // Create diagnosis from diagnosis parameter
+    const diagnosisArray = diagnosis ? [{
+      condition: {
+        reference: `Condition/${diagnosis.conceptId || 'unknown'}`,
+        display: diagnosis.name
+      },
+      use: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+          code: 'active',
+          display: 'Active'
+        }]
+      },
+      rank: 1
+    }] : undefined;
 
     return {
       resourceType: 'Encounter',
@@ -1580,7 +1700,7 @@ export class PatientService {
         end: currentTime
       },
       reasonCode: reasonCode,
-      diagnosis: diagnosis.length > 0 ? diagnosis : undefined,
+      diagnosis: diagnosisArray,
       note: [{
         text: `AI-assisted clinical data entry session. Clinical text: "${clinicalText}"`,
         time: currentTime,
@@ -1598,8 +1718,14 @@ export class PatientService {
     return stored ? JSON.parse(stored) : [];
   }
 
-  addPatientEncounter(patientId: string, encounter: Encounter): void {
+  addPatientEncounter(patientId: string, encounter: Encounter): boolean {
     const encounters = this.getPatientEncounters(patientId);
+    
+    // Check for duplicates based on SNOMED CT code
+    if (this.isDuplicateEncounter(encounters, encounter)) {
+      return false; // Duplicate found, not added
+    }
+    
     encounters.push(encounter);
     this.savePatientEncounters(patientId, encounters);
     
@@ -1608,6 +1734,8 @@ export class PatientService {
     if (currentPatient && currentPatient.id === patientId) {
       this.selectedPatientSubject.next({ ...currentPatient });
     }
+    
+    return true; // Successfully added
   }
 
   private savePatientEncounters(patientId: string, encounters: Encounter[]): void {
@@ -1620,6 +1748,24 @@ export class PatientService {
     const encounters = this.getPatientEncounters(patientId);
     const updatedEncounters = encounters.filter(enc => enc.id !== encounterId);
     this.savePatientEncounters(patientId, updatedEncounters);
+    
+    // Notify subscribers by updating the selected patient
+    const currentPatient = this.selectedPatientSubject.value;
+    if (currentPatient && currentPatient.id === patientId) {
+      this.selectedPatientSubject.next({ ...currentPatient });
+    }
+  }
+
+  clearAllPatientEvents(patientId: string): void {
+    // Clear all clinical events for a patient
+    this.storageService.removeItem(`ehr_conditions_${patientId}`);
+    this.storageService.removeItem(`ehr_procedures_${patientId}`);
+    this.storageService.removeItem(`ehr_medications_${patientId}`);
+    this.storageService.removeItem(`ehr_allergies_${patientId}`);
+    this.storageService.removeItem(`ehr_encounters_${patientId}`);
+    
+    // Also clear old storage key format for encounters (for backwards compatibility)
+    this.storageService.removeItem(`encounters_${patientId}`);
     
     // Notify subscribers by updating the selected patient
     const currentPatient = this.selectedPatientSubject.value;

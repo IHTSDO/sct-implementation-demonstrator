@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { PatientService, Patient } from '../services/patient.service';
 import { PatientDataTransformerService } from '../services/patient-data-transformer.service';
+import { PatientSimulationService } from '../services/patient-simulation.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -22,6 +23,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   constructor(
     private patientService: PatientService,
     private patientDataTransformer: PatientDataTransformerService,
+    private patientSimulationService: PatientSimulationService,
     private router: Router
   ) { }
 
@@ -98,6 +100,13 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
   createNewPatient(): void {
     this.router.navigate(['/create-patient']);
+  }
+
+  createRandomPatient(): void {
+    const randomPatient = this.patientSimulationService.generateRandomPatient();
+    this.patientService.addPatient(randomPatient);
+    this.patientService.selectPatient(randomPatient);
+    this.router.navigate(['/clinical-record', randomPatient.id]);
   }
 
   openAnalytics(): void {

@@ -370,19 +370,14 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   private async checkLateralityEligibility(procedure: any): Promise<void> {
-    console.log('checkLateralityEligibility called with:', procedure);
-    
     if (!procedure || !procedure.code) {
-      console.log('Procedure or procedure.code is missing, disabling laterality');
       this.isLateralityEnabled = false;
       return;
     }
 
     try {
-      console.log('Checking laterality eligibility for procedure:', procedure.code);
       // Check if the procedure has body structure targets that are lateralizable
       const isLateralizable = await this.isProcedureLateralizable(procedure);
-      console.log('Laterality eligibility result:', isLateralizable);
       this.isLateralityEnabled = isLateralizable;
       
       // Clear laterality if not eligible
@@ -401,7 +396,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     }
 
     try {
-      console.log('Checking procedure lateralizability:', procedureConcept);
       // Build ECL expression to check if the procedure has body structure targets
       // that are members of the lateralizable body structures reference set
       const ecl = `(${procedureConcept.code} |${procedureConcept.display}| . << 363704007 |Procedure site|) AND (^723264001 |Lateralizable body structure reference set (foundation metadata concept)|)`;
@@ -415,7 +409,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
                         response.expansion.contains && 
                         response.expansion.contains.length > 0;
       
-      console.log('Procedure lateralizability result:', hasResults);
       return hasResults;
     } catch (error) {
       console.error('Error checking procedure lateralizability:', error);
@@ -500,6 +493,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       // If procedure is selected, also add it as a procedure to the patient
       if (this.selectedProcedure) {
         await this.addProcedureFromEncounter();
+        // Re-enhance the encounter after procedure is saved to ensure procedures are linked
+        this.addLinkedProceduresToEncounter(encounterRecord);
       }
 
       // Enhance the encounter with linked procedures and diagnosis display terms
@@ -632,12 +627,27 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   loadPreviousEncounters(): void {
     if (this.patient) {
       this.previousEncounters = this.getEncountersFromStorage(this.patient.id);
+      
+      // Sort encounters by date in descending order (newest first)
+      this.previousEncounters.sort((a, b) => {
+        const dateA = new Date(a.period.start);
+        const dateB = new Date(b.period.start);
+        return dateB.getTime() - dateA.getTime();
+      });
+      
       // Enhance encounters with linked procedures and diagnosis display terms
       this.previousEncounters.forEach(encounter => {
         this.addLinkedProceduresToEncounter(encounter);
         this.enhanceDiagnosisDisplay(encounter);
       });
     }
+  }
+
+  refreshEncounterDisplay(): void {
+    // Re-enhance all encounters with updated procedure links
+    this.previousEncounters.forEach(encounter => {
+      this.addLinkedProceduresToEncounter(encounter);
+    });
   }
 
   private addLinkedProceduresToEncounter(encounter: Encounter): void {
@@ -749,7 +759,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
   viewEncounterDetails(encounter: Encounter): void {
     // TODO: Implement detailed view modal or navigation
-    console.log('Viewing encounter details:', encounter);
     alert(`Encounter Details:\nDate: ${this.formatEncounterDate(encounter.period.start)}\nStatus: ${encounter.status}\nReason: ${encounter.reasonCode?.[0]?.text || 'None'}`);
   }
 
@@ -759,8 +768,13 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         // Use PatientService method to ensure consistent storage and notifications
         this.patientService.deletePatientEncounter(this.patient.id, encounterId);
         
-        // Update local state
+        // Update local state and sort encounters by date
         this.previousEncounters = this.patientService.getPatientEncounters(this.patient.id);
+        this.previousEncounters.sort((a, b) => {
+          const dateA = new Date(a.period.start);
+          const dateB = new Date(b.period.start);
+          return dateB.getTime() - dateA.getTime();
+        });
         
         alert('Encounter deleted successfully');
       }
