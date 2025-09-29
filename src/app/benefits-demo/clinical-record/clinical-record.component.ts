@@ -1419,13 +1419,15 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // Left side (conditions/procedures): start from right border of clinical item
       startX = clinicalRect.right;
       startY = clinicalRect.top + clinicalRect.height / 2;
-      endX = anchorRect.left + anchorRect.width / 2;
+      // End at left border of anchor point
+      endX = anchorRect.left;
       endY = anchorRect.top + anchorRect.height / 2;
     } else {
       // Right side (medications): start from left border of clinical item
       startX = clinicalRect.left;
       startY = clinicalRect.top + clinicalRect.height / 2;
-      endX = anchorRect.left + anchorRect.width / 2;
+      // End at right border of anchor point
+      endX = anchorRect.right;
       endY = anchorRect.top + anchorRect.height / 2;
     }
 
@@ -1518,21 +1520,26 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const startRect = startElement.getBoundingClientRect();
     const endRect = endElement.getBoundingClientRect();
 
-    // Start from center of anchor point
-    const startX = endRect.left + endRect.width / 2;
-    const startY = endRect.top + endRect.height / 2;
-    
     // Determine which side the clinical item is on and point to appropriate border
     const viewportWidth = window.innerWidth;
     const isLeftSide = startRect.left < viewportWidth / 2;
     
+    let startX: number, startY: number;
     let endX: number, endY: number;
+    
+    // Start from appropriate border of anchor point based on destination
     if (isLeftSide) {
-      // Left side items: point to right border
+      // Clinical item is on left side: start from left border of anchor point
+      startX = endRect.left;
+      startY = endRect.top + endRect.height / 2;
+      // Point to right border of clinical item
       endX = startRect.right;
       endY = startRect.top + startRect.height / 2;
     } else {
-      // Right side items: point to left border
+      // Clinical item is on right side: start from right border of anchor point
+      startX = endRect.right;
+      startY = endRect.top + endRect.height / 2;
+      // Point to left border of clinical item
       endX = startRect.left;
       endY = startRect.top + startRect.height / 2;
     }
