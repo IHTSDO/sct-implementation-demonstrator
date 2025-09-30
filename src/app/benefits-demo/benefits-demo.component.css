@@ -67,9 +67,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-actions {
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #f0f0f0;
 }
 
 .section-header h2 {
@@ -112,12 +117,11 @@
 }
 
 .patient-count {
-  background-color: #5f6368;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
+  color: #bdc3c7;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 400;
+  font-style: italic;
+  margin-left: 8px;
 }
 
 .header-actions {
@@ -221,9 +225,21 @@
 }
 
 .patient-header {
-  margin-bottom: 25px;
-  padding-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 10px 0 15px 0;
   border-bottom: 1px solid #ecf0f1;
+}
+
+.patient-name-section {
+  flex: 1;
+}
+
+.patient-header-actions {
+  margin-left: 20px;
+  flex-shrink: 0;
 }
 
 .patient-header h3 {
@@ -316,6 +332,19 @@
 .demographic-item .value {
   color: #2c3e50;
   font-weight: 500;
+}
+
+/* Patient Actions */
+.patient-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ecf0f1;
+}
+
+.delete-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 

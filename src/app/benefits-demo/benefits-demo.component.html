@@ -42,7 +42,10 @@
     <!-- Patient List Section -->
     <div class="patient-list-section">
       <div class="section-header">
-        <h2>Patients</h2>
+        <h2>Patients <span class="patient-count">{{ patients.length }} patients</span></h2>
+      </div>
+      
+      <div class="section-actions">
         <div class="patient-header-actions">
           <button 
             mat-flat-button
@@ -84,6 +87,10 @@
               <mat-icon>auto_awesome</mat-icon>
               <span>Generate Random</span>
             </button>
+            <button mat-menu-item (click)="createRandomPatientWithDiagnoses()">
+              <mat-icon>medical_services</mat-icon>
+              <span>Generate with Diagnoses</span>
+            </button>
           </mat-menu>
         </div>
       </div>
@@ -123,24 +130,26 @@
     <div class="patient-details-section">
       <div class="section-header">
         <h2>Selected Patient</h2>
-        <div class="header-actions" *ngIf="selectedPatient">
-          <button 
-            mat-flat-button
-            color="accent"
-            (click)="openClinicalRecord()"
-          >
-            Open Clinical Record
-          </button>
-        </div>
       </div>
       
       <div *ngIf="selectedPatient" class="selected-patient-details">
         <div class="patient-header">
-          <h3>{{ getPatientDisplayName(selectedPatient) }}</h3>
-          <div class="patient-meta">
-            <span class="patient-id">ID: {{ getPatientIdentifier(selectedPatient) }}</span>
-            <span class="patient-age" *ngIf="selectedPatient.birthDate">{{ getPatientAge(selectedPatient.birthDate) }}</span>
-            <span class="patient-gender" *ngIf="selectedPatient.gender">{{ selectedPatient.gender }}</span>
+          <div class="patient-name-section">
+            <h3>{{ getPatientDisplayName(selectedPatient) }}</h3>
+            <div class="patient-meta">
+              <span class="patient-id">ID: {{ getPatientIdentifier(selectedPatient) }}</span>
+              <span class="patient-age" *ngIf="selectedPatient.birthDate">{{ getPatientAge(selectedPatient.birthDate) }}</span>
+              <span class="patient-gender" *ngIf="selectedPatient.gender">{{ selectedPatient.gender }}</span>
+            </div>
+          </div>
+          <div class="patient-header-actions">
+            <button 
+              mat-flat-button
+              color="accent"
+              (click)="openClinicalRecord()"
+            >
+              Open Clinical Record
+            </button>
           </div>
         </div>
         
@@ -180,6 +189,19 @@
               </div>
             </div>
           </div>
+        </div>
+        
+        <!-- Delete Patient Button -->
+        <div class="patient-actions" *ngIf="selectedPatient">
+          <button 
+            mat-flat-button
+            color="warn"
+            (click)="deleteSelectedPatient()"
+            class="delete-button"
+          >
+            <mat-icon>delete</mat-icon>
+            Delete Patient
+          </button>
         </div>
       </div>
       

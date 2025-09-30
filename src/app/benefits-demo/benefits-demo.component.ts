@@ -31,7 +31,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     // Subscribe to patients list
     this.subscriptions.push(
       this.patientService.getPatients().subscribe(patients => {
-        this.patients = patients;
+        this.patients = this.sortPatientsByCreationDate(patients);
       })
     );
 
@@ -92,9 +92,65 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     return patient.id;
   }
 
+  private sortPatientsByCreationDate(patients: Patient[]): Patient[] {
+    return patients.sort((a, b) => {
+      // Extract timestamp from patient ID (format: patient-timestamp-random)
+      const getTimestampFromId = (id: string): number => {
+        const parts = id.split('-');
+        if (parts.length >= 2) {
+          const timestamp = parseInt(parts[1], 10);
+          return isNaN(timestamp) ? 0 : timestamp;
+        }
+        return 0;
+      };
+
+      const timestampA = getTimestampFromId(a.id);
+      const timestampB = getTimestampFromId(b.id);
+      
+      // Sort in descending order (newest first)
+      return timestampB - timestampA;
+    });
+  }
+
   openClinicalRecord(): void {
     if (this.selectedPatient) {
       this.router.navigate(['/clinical-record', this.selectedPatient.id]);
+    }
+  }
+
+  deleteSelectedPatient(): void {
+    if (!this.selectedPatient) {
+      return;
+    }
+
+    const patientName = this.getPatientDisplayName(this.selectedPatient);
+    const confirmation = confirm(
+      `Are you sure you want to delete patient "${patientName}"?\n\n` +
+      'This will permanently delete:\n' +
+      '• Patient record\n' +
+      '• All clinical conditions\n' +
+      '• All procedures\n' +
+      '• All medications\n' +
+      '• All allergies\n\n' +
+      'This action cannot be undone.'
+    );
+
+    if (confirmation) {
+      try {
+        // Clear all clinical data for this patient
+        this.patientService.clearAllPatientEvents(this.selectedPatient.id);
+        
+        // Delete the patient
+        this.patientService.deletePatient(this.selectedPatient.id);
+        
+        // Clear selection
+        this.patientService.selectPatient(null);
+        
+        alert(`Patient "${patientName}" has been deleted successfully.`);
+      } catch (error) {
+        console.error('Error deleting patient:', error);
+        alert('Error deleting patient. Please try again.');
+      }
     }
   }
 
@@ -107,6 +163,28 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.patientService.addPatient(randomPatient);
     this.patientService.selectPatient(randomPatient);
     this.router.navigate(['/clinical-record', randomPatient.id]);
+  }
+
+  createRandomPatientWithDiagnoses(): void {
+    this.patientSimulationService.generateRandomPatientWithDiagnoses().subscribe({
+      next: (result) => {
+        // Add the patient to the service
+        this.patientService.addPatient(result.patient);
+        
+        // Add the diagnoses as conditions
+        result.diagnoses.forEach(diagnosis => {
+          this.patientService.addPatientCondition(result.patient.id, diagnosis);
+        });
+        
+        // Select the patient and navigate to clinical record
+        this.patientService.selectPatient(result.patient);
+        this.router.navigate(['/clinical-record', result.patient.id]);
+      },
+      error: (error) => {
+        console.error('Error generating patient with diagnoses:', error);
+        alert('Error generating patient with diagnoses. Please try again.');
+      }
+    });
   }
 
   openAnalytics(): void {

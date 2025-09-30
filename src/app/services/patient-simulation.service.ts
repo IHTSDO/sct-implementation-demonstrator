@@ -1,5 +1,40 @@
 import { Injectable } from '@angular/core';
-import { Patient } from './patient.service';
+import { Patient, Condition } from './patient.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+
+export interface DiagnosisSpec {
+  label: string;
+  computedLocation: string;
+  termQueried: string;
+  snomed: {
+    code: string;
+    display: string;
+    icd10: {
+      code: string;
+    };
+    descendants: Array<{
+      code: string;
+      display: string;
+      icd10: {
+        code: string;
+      };
+    }>;
+  };
+}
+
+export interface AgeGroupSpec {
+  ageGroup: string;
+  ageStart: number;
+  ageEnd: number | null;
+  male: DiagnosisSpec[];
+  female: DiagnosisSpec[];
+}
+
+export interface PatientGenerationSpec {
+  diseasePrevalenceByAgeAndSex: AgeGroupSpec[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -85,7 +120,9 @@ export class PatientSimulationService {
     '979', '980', '984', '985', '989'
   ];
 
-  constructor() { }
+  private patientGenerationSpec: PatientGenerationSpec | null = null;
+
+  constructor(private http: HttpClient) { }
 
   /**
    * Generates a random patient with realistic data
@@ -283,5 +320,173 @@ export class PatientSimulationService {
     }
     
     return patient;
+  }
+
+  /**
+   * Loads the patient generation specification from the JSON file
+   */
+  private loadPatientGenerationSpec(): Observable<PatientGenerationSpec> {
+    if (this.patientGenerationSpec) {
+      return of(this.patientGenerationSpec);
+    }
+
+    return this.http.get<PatientGenerationSpec>('/assets/patients/patient-generation-spec.json')
+      .pipe(
+        map(spec => {
+          this.patientGenerationSpec = spec;
+          return spec;
+        }),
+        catchError(error => {
+          console.error('Error loading patient generation spec:', error);
+          return of({ diseasePrevalenceByAgeAndSex: [] });
+        })
+      );
+  }
+
+  /**
+   * Generates 1-4 random diagnoses for a patient based on their age and gender
+   */
+  generateDiagnoses(patient: Patient): Observable<Condition[]> {
+    return this.loadPatientGenerationSpec().pipe(
+      map(spec => {
+        const age = this.calculateAge(patient.birthDate || '');
+        const gender = patient.gender || 'male';
+        
+        // Find the appropriate age group
+        const ageGroup = this.findAgeGroup(spec, age);
+        if (!ageGroup) {
+          return [];
+        }
+
+        // Get the appropriate gender array
+        const genderArray = gender === 'female' ? ageGroup.female : ageGroup.male;
+        if (genderArray.length === 0) {
+          return [];
+        }
+
+        // Generate 1-4 random diagnoses
+        const numDiagnoses = Math.floor(Math.random() * 4) + 1; // 1-4 diagnoses
+        const selectedDiagnoses: DiagnosisSpec[] = [];
+        const usedCodes = new Set<string>();
+
+        // Select random diagnoses without repetition
+        while (selectedDiagnoses.length < numDiagnoses && selectedDiagnoses.length < genderArray.length) {
+          const randomIndex = Math.floor(Math.random() * genderArray.length);
+          const diagnosis = genderArray[randomIndex];
+          
+          // Check if we haven't already selected this SNOMED code
+          if (!usedCodes.has(diagnosis.snomed.code)) {
+            selectedDiagnoses.push(diagnosis);
+            usedCodes.add(diagnosis.snomed.code);
+          }
+        }
+
+        // Convert to FHIR Condition resources
+        return selectedDiagnoses.map(diagnosis => this.createConditionFromDiagnosis(patient, diagnosis));
+      })
+    );
+  }
+
+  /**
+   * Finds the appropriate age group for a given age
+   */
+  private findAgeGroup(spec: PatientGenerationSpec, age: number): AgeGroupSpec | null {
+    for (const ageGroup of spec.diseasePrevalenceByAgeAndSex) {
+      if (age >= ageGroup.ageStart && (ageGroup.ageEnd === null || age <= ageGroup.ageEnd)) {
+        return ageGroup;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Creates a FHIR Condition resource from a diagnosis specification
+   */
+  private createConditionFromDiagnosis(patient: Patient, diagnosis: DiagnosisSpec): Condition {
+    const conditionId = `condition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const currentTime = new Date().toISOString();
+
+    return {
+      resourceType: 'Condition',
+      id: conditionId,
+      clinicalStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+          code: 'active',
+          display: 'Active'
+        }],
+        text: 'Active'
+      },
+      verificationStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
+          code: 'confirmed',
+          display: 'Confirmed'
+        }],
+        text: 'Confirmed'
+      },
+      code: {
+        coding: [{
+          system: 'http://snomed.info/sct',
+          code: diagnosis.snomed.code,
+          display: diagnosis.snomed.display
+        }],
+        text: diagnosis.snomed.display
+      },
+      subject: {
+        reference: `Patient/${patient.id}`,
+        display: this.getPatientDisplayName(patient)
+      },
+      onsetDateTime: currentTime,
+      recordedDate: currentTime,
+      snomedConceptId: diagnosis.snomed.code,
+      icd10Code: diagnosis.snomed.icd10?.code || undefined,
+      computedLocation: diagnosis.computedLocation
+    } as Condition;
+  }
+
+  /**
+   * Gets the display name for a patient
+   */
+  private getPatientDisplayName(patient: Patient): string {
+    if (patient.name && patient.name.length > 0) {
+      const name = patient.name[0];
+      if (name.text) return name.text;
+      if (name.given && name.family) {
+        return `${name.given.join(' ')} ${name.family}`;
+      }
+      if (name.family) return name.family;
+    }
+    return `Patient ${patient.id}`;
+  }
+
+  /**
+   * Generates a random patient with diagnoses based on age and gender
+   */
+  generateRandomPatientWithDiagnoses(): Observable<{ patient: Patient; diagnoses: Condition[] }> {
+    const patient = this.generateRandomPatient();
+    return this.generateDiagnoses(patient).pipe(
+      map(diagnoses => ({ patient, diagnoses }))
+    );
+  }
+
+  /**
+   * Generates a patient with specific age range and diagnoses
+   */
+  generateRandomPatientWithAgeRangeAndDiagnoses(minAge: number, maxAge: number): Observable<{ patient: Patient; diagnoses: Condition[] }> {
+    const patient = this.generateRandomPatientWithAgeRange(minAge, maxAge);
+    return this.generateDiagnoses(patient).pipe(
+      map(diagnoses => ({ patient, diagnoses }))
+    );
+  }
+
+  /**
+   * Generates a patient with specific gender and diagnoses
+   */
+  generateRandomPatientWithGenderAndDiagnoses(gender: 'male' | 'female'): Observable<{ patient: Patient; diagnoses: Condition[] }> {
+    const patient = this.generateRandomPatientWithGender(gender);
+    return this.generateDiagnoses(patient).pipe(
+      map(diagnoses => ({ patient, diagnoses }))
+    );
   }
 }

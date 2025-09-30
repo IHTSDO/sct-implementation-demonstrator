@@ -293,6 +293,7 @@ export interface Condition {
   // Custom properties for ICD-10 mapping
   icd10Code?: string;
   snomedConceptId?: string;
+  computedLocation?: string;
 }
 
 export interface Procedure {
