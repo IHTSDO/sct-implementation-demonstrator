@@ -52,7 +52,6 @@ export class SunburstChartComponent implements OnInit {
           this.parseCSVData(csvData);
         },
         error: (error: any) => {
-          console.error('Error loading CSV data:', error);
           // Fallback to default data if CSV loading fails
           this.loadDefaultData();
         }
@@ -72,15 +71,12 @@ export class SunburstChartComponent implements OnInit {
           labelCount: row['label-count'] ? parseInt(row['label-count'], 10) : undefined
         }));
         
-        // Log the number of concepts without a parent
+        // Filter concepts without a parent
         const rootConcepts = this.allData.filter(item => !item.parent || item.parent.trim() === '');
-        console.log(`Number of concepts without a parent: ${rootConcepts.length}`);
-        console.log('Root concepts:', rootConcepts.map(item => ({ id: item.id, label: item.label })));
         
         this.getData();
       },
       error: (error: any) => {
-        console.error('Error parsing CSV:', error);
         this.loadDefaultData();
       }
     });
@@ -328,7 +324,6 @@ export class SunburstChartComponent implements OnInit {
     if (this.currentRootId !== '') {
       const currentRootItem = this.allData.find(item => item.id === this.currentRootId);
       if (currentRootItem && !mergedItems.find(item => item.id === this.currentRootId)) {
-        console.log('Adding current root item to merged items:', currentRootItem);
         mergedItems.unshift(currentRootItem); // Add at the beginning
       }
     }
@@ -471,7 +466,7 @@ export class SunburstChartComponent implements OnInit {
           });
         })
         .catch((error: any) => {
-          console.error('Plotly error:', error);
+          // Handle Plotly error silently
         });
     }
   }

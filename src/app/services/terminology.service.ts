@@ -302,7 +302,7 @@ export class TerminologyService {
         const cacheArray = Array.from(this.expandValuesetCache.entries());
         localStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheArray));
       } catch (error) {
-        console.error('Failed to save cache:', error);
+        // Cache save failed - continue without caching
       }
     }
   
@@ -314,7 +314,7 @@ export class TerminologyService {
           this.expandValuesetCache = new Map(parsedData);
         }
       } catch (error) {
-        console.error('Failed to load cache:', error);
+        // Cache load failed - continue without cache
       }
     }
 
@@ -351,18 +351,13 @@ export class TerminologyService {
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      console.error("There was an error!");
-      console.error(error);
       this._snackBar.openFromComponent(SnackAlertComponent, {
         duration: 5 * 1000,
         data: error.message,
         panelClass: ['red-snackbar']
       });
       // TODO: send the error to remote logging infrastructure
-      // console.error(error); // log to console instead
-  
       // TODO: better job of transforming error for user consumption
-      // console.log(`${operation} failed: ${error.message}`);
   
       // Let the app keep running by returning an empty result.
       return of(result as T);
@@ -467,17 +462,14 @@ export class TerminologyService {
 
   private transformMedraResponse(response: any): any {
     // Transform Snowstorm API response to match expected format
-    console.log('Raw Snowstorm API response:', response);
     
     if (!response || !response.items || !Array.isArray(response.items)) {
-      console.log('No valid items array in response');
       return { parameter: [] };
     }
 
     const parameters = response.items
       .filter((item: any) => {
         const hasMapping = item.additionalFields?.mapTarget;
-        console.log('Item mapping check:', { itemId: item.referencedComponentId, hasMapping });
         return hasMapping;
       })
       .map((item: any) => {
@@ -489,11 +481,9 @@ export class TerminologyService {
             system: 'http://www.meddra.org'
           }
         };
-        console.log('Transformed item:', transformed);
         return transformed;
       });
 
-    console.log('Final transformed parameters:', parameters);
     return { parameter: parameters };
   }
 

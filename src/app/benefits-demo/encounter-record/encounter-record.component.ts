@@ -385,7 +385,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         this.procedureLaterality = '';
       }
     } catch (error) {
-      console.error('Error checking laterality eligibility:', error);
       this.isLateralityEnabled = false;
     }
   }
@@ -411,7 +410,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       
       return hasResults;
     } catch (error) {
-      console.error('Error checking procedure lateralizability:', error);
       return false;
     }
   }
@@ -432,7 +430,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   async saveEncounter(): Promise<void> {
-    if (!this.patient) return;
+    if (!this.patient || this.isSaving) return;
 
     this.isSaving = true;
     
@@ -485,32 +483,22 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       // Save to localStorage for persistence
       this.saveEncounterToStorage(encounterRecord);
 
-      // If diagnosis is selected, also add it as a condition to the patient
+      // Emit events for diagnosis and procedure - let clinical-record component handle saving
       if (this.selectedDiagnosis) {
         await this.addConditionFromDiagnosis();
       }
 
-      // If procedure is selected, also add it as a procedure to the patient
       if (this.selectedProcedure) {
         await this.addProcedureFromEncounter();
-        // Re-enhance the encounter after procedure is saved to ensure procedures are linked
-        this.addLinkedProceduresToEncounter(encounterRecord);
       }
-
-      // Enhance the encounter with linked procedures and diagnosis display terms
-      this.addLinkedProceduresToEncounter(encounterRecord);
-      this.enhanceDiagnosisDisplay(encounterRecord);
-
-      // Add the new encounter to the previous encounters list
-      this.previousEncounters.unshift(encounterRecord);
 
       // Reset form
       this.resetForm();
 
-
+      // Reload encounters to reflect the new encounter (this will be triggered by the service notification)
+      // No need to manually add to previousEncounters as the subscription will handle it
 
     } catch (error) {
-      console.error('Error saving encounter:', error);
       alert('Error saving encounter record. Please try again.');
     } finally {
       this.isSaving = false;
@@ -546,7 +534,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       recordedDate: new Date().toISOString()
     };
 
-    this.patientService.addPatientCondition(this.patient.id, newCondition);
+    // Emit the condition event - let the parent component (clinical-record) handle saving
+    // This ensures consistent duplicate detection and single source of truth for condition storage
     this.conditionAdded.emit(newCondition);
   }
 
@@ -582,8 +571,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
        }] : undefined
     };
 
-    // Save to patient service
-    this.patientService.addPatientProcedure(this.patient.id, newProcedure);
+    // Emit the procedure event - let the parent component (clinical-record) handle saving
+    // This ensures consistent duplicate detection and single source of truth for procedure storage
     this.procedureAdded.emit(newProcedure);
   }
 
@@ -616,7 +605,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   private generateId(): string {
-    return 'enc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    // Add microsecond precision and ensure uniqueness
+    return 'enc-' + Date.now() + '-' + performance.now().toString().replace('.', '') + '-' + Math.random().toString(36).substr(2, 9);
   }
 
   isFormValid(): boolean {

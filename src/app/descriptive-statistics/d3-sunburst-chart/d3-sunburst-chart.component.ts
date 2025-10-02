@@ -63,7 +63,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private testD3Rendering() {
-    console.log('=== TESTING D3 RENDERING ===');
     const g = this.svg.select('g');
     
     // Add a simple test circle
@@ -83,8 +82,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
       .style('font-size', '14px')
       .style('fill', 'white')
       .text('D3 Test');
-    
-    console.log('=== D3 TEST COMPLETED ===');
   }
 
   ngOnDestroy() {
@@ -94,7 +91,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private initializeChart() {
-    console.log('=== INITIALIZING CHART ===');
     
     // Clear any existing SVG
     d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
@@ -106,20 +102,14 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
       .attr('height', this.height)
       .style('font', '10px sans-serif');
 
-    console.log('SVG created:', this.svg);
-
     // Create the main group for the sunburst
     const g = this.svg.append('g')
       .attr('transform', `translate(${this.width / 2},${this.height / 2})`);
-
-    console.log('Main group created:', g);
 
     // Add click handler for zoom
     g.on('click', (event: any, d: any) => {
       this.handleZoom(event, d);
     });
-    
-    console.log('=== CHART INITIALIZATION COMPLETED ===');
   }
 
   private loadChartData() {
@@ -129,7 +119,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
           this.parseCSVData(csvData);
         },
         error: (error: any) => {
-          console.error('Error loading CSV data:', error);
           this.loadDefaultData();
         }
       });
@@ -140,8 +129,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        console.log('=== CSV PARSING COMPLETED ===');
-        console.log('Parsed rows:', results.data.length);
         
         this.chartData = results.data.map((row: any) => ({
           id: row.id,
@@ -151,14 +138,10 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
           labelCount: row['label-count'] ? parseInt(row['label-count'], 10) : undefined
         }));
         
-        console.log('=== STARTING RECOMPUTATION ===');
         this.recomputeValues();
-        console.log('=== STARTING CHART CREATION ===');
         this.createSunburstChart();
-        console.log('=== CHART CREATION COMPLETED ===');
       },
       error: (error: any) => {
-        console.error('Error parsing CSV:', error);
         this.loadDefaultData();
       }
     });
@@ -179,7 +162,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private recomputeValues() {
-    console.log('=== STARTING VALUE RECOMPUTATION ===');
     
     const childrenMap = new Map<string, ChartItem[]>();
     
@@ -222,12 +204,9 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
     this.chartData.forEach(item => {
       processItem(item.id);
     });
-
-    console.log('=== VALUE RECOMPUTATION COMPLETED ===');
   }
 
   private createSunburstChart() {
-    console.log('=== CREATING D3 SUNBURST CHART ===');
     
     // Convert flat data to hierarchical structure
     const root = this.createHierarchy();
@@ -241,13 +220,9 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
     
     // Create the sunburst visualization with level limiting
     this.renderSunburst(rootNode);
-    
-    console.log('=== D3 SUNBURST CHART CREATED ===');
   }
 
   private createHierarchy() {
-    console.log('=== CREATING HIERARCHY ===');
-    console.log('Chart data:', this.chartData);
     
     // Create a map for quick lookup
     const itemMap = new Map<string, ChartItem>();
@@ -293,14 +268,9 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
       }
     });
 
-    console.log('Root children:', root.children);
-
     const hierarchy = d3.hierarchy(root)
       .sum((d: any) => d.value)
       .sort((a, b) => b.value! - a.value!);
-      
-    console.log('Final hierarchy:', hierarchy);
-    console.log('Hierarchy descendants:', hierarchy.descendants().length);
     
     return hierarchy;
   }
@@ -308,11 +278,7 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
 
 
   private renderSunburst(root: any) {
-    console.log('=== RENDERING SUNBURST ===');
-    console.log('Root:', root);
-    
     const g = this.svg.select('g');
-    console.log('Main group:', g);
 
     // Clear existing elements
     g.selectAll('*').remove();
@@ -323,12 +289,8 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
       return depthFromRoot <= this.maxVisibleLevels;
     });
 
-    console.log('Visible nodes:', visibleNodes.length);
-    console.log('Visible nodes data:', visibleNodes);
-
     // If no visible nodes, show a simple circle
     if (visibleNodes.length <= 1) {
-      console.log('No visible nodes, showing fallback circle');
       g.append('circle')
         .attr('cx', 0)
         .attr('cy', 0)
@@ -374,8 +336,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
         this.handleMouseOut(event, d);
       });
 
-    console.log('Paths created:', path.size());
-
     // Add labels
     const label = g.selectAll('text')
       .data(visibleNodes.slice(1))
@@ -386,8 +346,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
       .text((d: any) => d.data.label)
       .style('font-size', '10px')
       .style('pointer-events', 'none');
-
-    console.log('Labels created:', label.size());
 
     // Add breadcrumb navigation
     this.renderBreadcrumb();
@@ -408,8 +366,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
       const y = ((d.y0 + d.y1) / 2) * 0.8;
       return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
     }
-    
-    console.log('=== SUNBURST RENDERING COMPLETED ===');
   }
 
   private handleZoom(event: any, p: any) {
@@ -430,7 +386,6 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
       this.drillDown(p);
     } else {
       // This is a leaf node, just update selection
-      console.log('Clicked on leaf node:', p.data.label);
     }
   }
 

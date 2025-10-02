@@ -337,7 +337,6 @@ export class PatientSimulationService {
           return spec;
         }),
         catchError(error => {
-          console.error('Error loading patient generation spec:', error);
           return of({ diseasePrevalenceByAgeAndSex: [] });
         })
       );

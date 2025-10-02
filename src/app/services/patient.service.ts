@@ -1059,11 +1059,27 @@ export class PatientService {
 
   public isDuplicateProcedure(existingProcedures: Procedure[], newProcedure: Procedure): boolean {
     const newCode = this.extractSnomedCode(newProcedure);
+    
     if (!newCode) return false;
     
     return existingProcedures.some(existing => {
       const existingCode = this.extractSnomedCode(existing);
-      return existingCode === newCode;
+      
+      // Check if same SNOMED code
+      if (existingCode !== newCode) return false;
+      
+      // Check if same date/time
+      const existingDateTime = existing.performedDateTime || existing.performedPeriod?.start;
+      const newDateTime = newProcedure.performedDateTime || newProcedure.performedPeriod?.start;
+      if (existingDateTime !== newDateTime) return false;
+      
+      // Check if same encounter reference
+      const existingEncounter = existing.encounter?.reference;
+      const newEncounter = newProcedure.encounter?.reference;
+      if (existingEncounter !== newEncounter) return false;
+      
+      // All criteria match - this is a duplicate
+      return true;
     });
   }
 
@@ -1105,7 +1121,6 @@ export class PatientService {
           const patients = JSON.parse(storedPatients);
           this.patientsSubject.next(patients);
         } catch (error) {
-          console.error('Error loading patients from storage:', error);
           this.patientsSubject.next([]);
         }
       }
@@ -1378,6 +1393,7 @@ export class PatientService {
 
   addPatientProcedure(patientId: string, procedure: Procedure): boolean {
     const procedures = this.getPatientProcedures(patientId);
+    
     
     // Check for duplicates based on SNOMED CT code
     if (this.isDuplicateProcedure(procedures, procedure)) {
@@ -1758,6 +1774,7 @@ export class PatientService {
   }
 
   clearAllPatientEvents(patientId: string): void {
+    
     // Clear all clinical events for a patient
     this.storageService.removeItem(`ehr_conditions_${patientId}`);
     this.storageService.removeItem(`ehr_procedures_${patientId}`);
@@ -1767,6 +1784,7 @@ export class PatientService {
     
     // Also clear old storage key format for encounters (for backwards compatibility)
     this.storageService.removeItem(`encounters_${patientId}`);
+    
     
     // Notify subscribers by updating the selected patient
     const currentPatient = this.selectedPatientSubject.value;
@@ -1863,7 +1881,6 @@ export class PatientService {
       return await zip.generateAsync({ type: 'blob' });
       
     } catch (error) {
-      console.error('Error generating ZIP file:', error);
       throw new Error('Failed to generate export file');
     }
   }
@@ -1959,7 +1976,6 @@ export class PatientService {
       };
       
     } catch (error) {
-      console.error('Error importing patients from ZIP:', error);
       return { 
         success: false, 
         message: `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
