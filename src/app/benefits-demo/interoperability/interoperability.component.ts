@@ -44,7 +44,6 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.loadExampleIPSBundle();
     this.loadAvailablePatients();
   }
 

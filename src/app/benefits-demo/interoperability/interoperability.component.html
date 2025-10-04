@@ -7,13 +7,13 @@
         <mat-icon>arrow_back</mat-icon>
         Back to Benefits Demo
       </button>
-      <button mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading">
-        <mat-icon>refresh</mat-icon>
-        Reload Data
-      </button>
       <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading">
         <mat-icon>upload_file</mat-icon>
         Upload IPS File
+      </button>
+      <button *ngIf="hasPatientData()" mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading">
+        <mat-icon>refresh</mat-icon>
+        Reload Example
       </button>
       <input #fileInput type="file" accept=".json" (change)="onFileSelected($event)" style="display: none;">
     </div>
@@ -43,6 +43,36 @@
     <!-- Patient Data Display -->
     <div *ngIf="!isLoading && !error && hasPatientData()" class="patient-data-container">
       
+      <!-- Summary -->
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>summarize</mat-icon>
+            IPS Bundle Summary
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="summary-stats">
+            <div class="stat-item">
+              <mat-icon>medical_services</mat-icon>
+              <span>{{ patientData?.conditions?.length || 0 }} Conditions</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>local_hospital</mat-icon>
+              <span>{{ patientData?.procedures?.length || 0 }} Procedures</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>medication</mat-icon>
+              <span>{{ patientData?.medications?.length || 0 }} Medications</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>warning</mat-icon>
+              <span>{{ patientData?.allergies?.length || 0 }} Allergies</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
       <!-- Patient Information Card -->
       <mat-card class="patient-card">
         <mat-card-header>
@@ -246,53 +276,55 @@
           </div>
         </mat-card-content>
       </mat-card>
-
-      <!-- Summary -->
-      <mat-card class="summary-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>summarize</mat-icon>
-            IPS Bundle Summary
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="summary-stats">
-            <div class="stat-item">
-              <mat-icon>medical_services</mat-icon>
-              <span>{{ patientData?.conditions?.length || 0 }} Conditions</span>
-            </div>
-            <div class="stat-item">
-              <mat-icon>local_hospital</mat-icon>
-              <span>{{ patientData?.procedures?.length || 0 }} Procedures</span>
-            </div>
-            <div class="stat-item">
-              <mat-icon>medication</mat-icon>
-              <span>{{ patientData?.medications?.length || 0 }} Medications</span>
-            </div>
-            <div class="stat-item">
-              <mat-icon>warning</mat-icon>
-              <span>{{ patientData?.allergies?.length || 0 }} Allergies</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
     </div>
 
-    <!-- No Data State -->
-    <div *ngIf="!isLoading && !error && !hasPatientData()" class="no-data-container">
-      <mat-icon class="no-data-icon">info</mat-icon>
-      <h3>No Patient Data Available</h3>
-      <p>The IPS bundle could not be loaded or does not contain patient information.</p>
-      <p><strong>Tip:</strong> You can upload your own IPS JSON file using the "Upload IPS File" button above.</p>
-      <div class="error-actions">
-        <button mat-flat-button color="primary" (click)="loadExampleIPSBundle()">
-          <mat-icon>refresh</mat-icon>
-          Retry Loading
-        </button>
-        <button mat-flat-button color="accent" (click)="triggerFileUpload()">
-          <mat-icon>upload_file</mat-icon>
-          Upload Your IPS File
-        </button>
+    <!-- Welcome/Empty State -->
+    <div *ngIf="!isLoading && !error && !hasPatientData()" class="welcome-container">
+      <div class="welcome-content">
+        <div class="welcome-icon">
+          <mat-icon>integration_instructions</mat-icon>
+        </div>
+        <h2>Welcome to the Interoperability Demo</h2>
+        <p class="welcome-description">
+          This demo showcases how SNOMED CT and FHIR IPS (International Patient Summary) work together 
+          to enable seamless healthcare data interoperability. Upload your own IPS file or try our example 
+          to see how patient data can be imported and linked to existing records.
+        </p>
+        
+        <div class="welcome-features">
+          <div class="feature-item">
+            <mat-icon>medical_services</mat-icon>
+            <span>Import clinical conditions, procedures, and medications</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>link</mat-icon>
+            <span>Automatically link to existing patient records</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>verified_user</mat-icon>
+            <span>Detect and resolve potential data duplicates</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>science</mat-icon>
+            <span>Imported data will be available in the Demo EHR</span>
+          </div>
+        </div>
+        
+        <div class="welcome-actions">
+          <button mat-raised-button color="primary" (click)="loadExampleIPSBundle()" class="primary-action">
+            <mat-icon>play_arrow</mat-icon>
+            Try Example IPS Bundle
+          </button>
+          <button mat-stroked-button color="accent" (click)="triggerFileUpload()" class="secondary-action">
+            <mat-icon>upload_file</mat-icon>
+            Upload Your Own IPS File
+          </button>
+        </div>
+        
+        <div class="welcome-info">
+          <mat-icon>info</mat-icon>
+          <span>The example demonstrates a complete patient summary with conditions, procedures, medications, and allergies.</span>
+        </div>
       </div>
     </div>
   </div>
