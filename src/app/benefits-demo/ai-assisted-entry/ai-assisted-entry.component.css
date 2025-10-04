@@ -14,7 +14,7 @@
 
 .ai-header h3 {
   color: #495057;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   font-size: 1.2rem;
   font-weight: 600;
   display: flex;
@@ -30,6 +30,7 @@
 .ai-description {
   color: #6c757d;
   margin-bottom: 0;
+  padding-bottom: 15px;
   line-height: 1.5;
   font-size: 14px;
 }
@@ -81,6 +82,9 @@
   position: relative;
   width: 100%;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ai-editor-field {
@@ -114,13 +118,20 @@
 
 .ai-placeholder {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   color: #999;
   font-style: italic;
   pointer-events: none;
   font-size: 14px;
   line-height: 1.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 15px;
 }
 
 .sample-text-section {

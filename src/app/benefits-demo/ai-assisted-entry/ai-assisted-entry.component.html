@@ -8,20 +8,19 @@
           <p class="ai-description">
             Intelligent clinical data entry powered by AI to streamline documentation and improve accuracy.
           </p>
-          <p class="ai-description-note">
-            NOTE: This is a user experience demo, there is no real AI model and only a few simulated detections are shown.
-          </p>
           <!-- Single editable field with real-time highlights -->
           <div class="ai-editor-container">
             <div class="ai-editor-field"
-                 contenteditable="true"
+                 contenteditable="false"
                  (input)="onContentEdit($event)"
                  (keyup)="onContentEdit($event)"
                  (paste)="onPaste($event)"
                  #editableDiv>
             </div>
             <div class="ai-placeholder" *ngIf="!clinicalText">
-              Type your clinical observations here. Try: "Patient has asthma, diabetes, needs surgery, takes aspirin and insulin..."
+              This is a user experience demo, there is no real AI model and only a few simulated detections are shown.
+              <br><br>
+              Insert sample text using the button below to see a simulation of AI-assisted clincal entities detection.
             </div>
           </div>
           
@@ -122,21 +121,21 @@
               <div class="detected-item" 
                    *ngFor="let condition of detectedConditions" 
                    [title]="getTooltipText(condition.detectedText)"
-                   [class.existing-entity]="condition.alreadyExists">
+                   [class.existing-entity]="condition.isExisting">
                 <div class="item-header">
                   <span class="item-title condition-title">{{ condition.name }}</span>
                   <div class="item-actions">
                     <button mat-icon-button 
                             class="remove-button" 
                             (click)="removeDetected(condition)"
-                            [title]="condition.alreadyExists ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                            [title]="condition.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
                 <div class="item-details">
                   <span class="confidence-score">Confidence: {{ condition.confidence }}%</span>
-                  <span class="existing-status" *ngIf="condition.alreadyExists">
+                  <span class="existing-status" *ngIf="condition.isExisting">
                     <mat-icon>info</mat-icon>
                     {{ getExistingStatusText(condition) }}
                   </span>
@@ -155,21 +154,21 @@
               <div class="detected-item" 
                    *ngFor="let procedure of detectedProcedures" 
                    [title]="getTooltipText(procedure.detectedText)"
-                   [class.existing-entity]="procedure.alreadyExists">
+                   [class.existing-entity]="procedure.isExisting">
                 <div class="item-header">
                   <span class="item-title procedure-title">{{ procedure.name }}</span>
                   <div class="item-actions">
                     <button mat-icon-button 
                             class="remove-button" 
                             (click)="removeDetected(procedure)"
-                            [title]="procedure.alreadyExists ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                            [title]="procedure.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
                 <div class="item-details">
                   <span class="confidence-score">Confidence: {{ procedure.confidence }}%</span>
-                  <span class="existing-status" *ngIf="procedure.alreadyExists">
+                  <span class="existing-status" *ngIf="procedure.isExisting">
                     <mat-icon>info</mat-icon>
                     {{ getExistingStatusText(procedure) }}
                   </span>
@@ -188,21 +187,21 @@
               <div class="detected-item" 
                    *ngFor="let medication of detectedMedications" 
                    [title]="getTooltipText(medication.detectedText)"
-                   [class.existing-entity]="medication.alreadyExists">
+                   [class.existing-entity]="medication.isExisting">
                 <div class="item-header">
                   <span class="item-title medication-title">{{ medication.name }}</span>
                   <div class="item-actions">
                     <button mat-icon-button 
                             class="remove-button" 
                             (click)="removeDetected(medication)"
-                            [title]="medication.alreadyExists ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                            [title]="medication.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
                 <div class="item-details">
                   <span class="confidence-score">Confidence: {{ medication.confidence }}%</span>
-                  <span class="existing-status" *ngIf="medication.alreadyExists">
+                  <span class="existing-status" *ngIf="medication.isExisting">
                     <mat-icon>info</mat-icon>
                     {{ getExistingStatusText(medication) }}
                   </span>

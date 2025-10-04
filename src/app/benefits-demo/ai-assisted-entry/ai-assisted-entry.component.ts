@@ -1,17 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Patient, Condition, Procedure, MedicationStatement, PatientService } from '../../services/patient.service';
-
-interface DetectedEntity {
-  id: string;
-  name: string;
-  type: 'condition' | 'procedure' | 'medication';
-  confidence: number;
-  detectedText: string;
-  conceptId?: string;
-  alreadyExists?: boolean;
-  existingEntityId?: string;
-}
+import { AiCodingService, DetectedEntity, EntityDetectionResult } from '../../services/ai-coding.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-ai-assisted-entry',
@@ -19,7 +10,7 @@ interface DetectedEntity {
   styleUrls: ['./ai-assisted-entry.component.css'],
   standalone: false
 })
-export class AiAssistedEntryComponent implements OnInit {
+export class AiAssistedEntryComponent implements OnInit, OnDestroy {
   @Input() patient: Patient | null = null;
   @Input() conditions: Condition[] = [];
   @Input() procedures: Procedure[] = [];
@@ -44,14 +35,26 @@ export class AiAssistedEntryComponent implements OnInit {
 
   private detectionTimeout: any;
   private isUpdatingContent: boolean = false;
+  private detectionSubscription?: Subscription;
+  private currentSampleIndex: number = 0;
 
   constructor(
     private patientService: PatientService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private aiCodingService: AiCodingService
   ) { }
 
   ngOnInit(): void {
     // Component initialization
+  }
+
+  ngOnDestroy(): void {
+    if (this.detectionSubscription) {
+      this.detectionSubscription.unsubscribe();
+    }
+    if (this.detectionTimeout) {
+      clearTimeout(this.detectionTimeout);
+    }
   }
 
   onTextChange(): void {
@@ -65,9 +68,7 @@ export class AiAssistedEntryComponent implements OnInit {
 
     // Debounce the detection to avoid too many calls
     this.detectionTimeout = setTimeout(() => {
-      this.performMockDetection();
-      this.applyHighlights();
-      this.isProcessing = false;
+      this.performEntityDetection();
     }, 1000);
   }
 
@@ -113,167 +114,76 @@ export class AiAssistedEntryComponent implements OnInit {
     this.onTextChange();
   }
 
-  private performMockDetection(): void {
-    // Reset detected entities
-    this.detectedConditions = [];
-    this.detectedProcedures = [];
-    this.detectedMedications = [];
-
+  private performEntityDetection(): void {
     if (!this.clinicalText || this.clinicalText.trim().length === 0) {
+      // Reset detected entities if no text
+      this.detectedConditions = [];
+      this.detectedProcedures = [];
+      this.detectedMedications = [];
+      this.isProcessing = false;
       return;
     }
 
-    const text = this.clinicalText.toLowerCase();
-
-    // Mock detection for "asthma"
-    if (text.includes('asthma')) {
-      const asthmaEntity: DetectedEntity = {
-        id: 'detected-asthma-' + Date.now(),
-        name: 'Asthma',
-        type: 'condition',
-        confidence: 95,
-        detectedText: this.extractDetectedText('asthma'),
-        conceptId: '195967001' // SNOMED CT code for asthma
-      };
-      this.detectedConditions.push(this.checkForExistingEntity(asthmaEntity));
+    // Cancel previous subscription if exists
+    if (this.detectionSubscription) {
+      this.detectionSubscription.unsubscribe();
     }
 
-    // Additional mock detections for conditions
-    if (text.includes('diabetes')) {
-      const diabetesEntity: DetectedEntity = {
-        id: 'detected-diabetes-' + Date.now(),
-        name: 'Diabetes mellitus',
-        type: 'condition',
-        confidence: 92,
-        detectedText: this.extractDetectedText('diabetes'),
-        conceptId: '73211009'
-      };
-      this.detectedConditions.push(this.checkForExistingEntity(diabetesEntity));
-    }
+    // Prepare existing entities for duplicate checking
+    const existingEntities: DetectedEntity[] = [
+      ...this.conditions.map(c => ({
+        id: c.id || '',
+        name: c.code?.coding?.[0]?.display || '',
+        type: 'condition' as const,
+        confidence: 100,
+        detectedText: '',
+        conceptId: c.code?.coding?.[0]?.code || '',
+        isExisting: true
+      })),
+      ...this.procedures.map(p => ({
+        id: p.id || '',
+        name: p.code?.coding?.[0]?.display || '',
+        type: 'procedure' as const,
+        confidence: 100,
+        detectedText: '',
+        conceptId: p.code?.coding?.[0]?.code || '',
+        isExisting: true
+      })),
+      ...this.medications.map(m => ({
+        id: m.id || '',
+        name: m.medicationCodeableConcept?.coding?.[0]?.display || '',
+        type: 'medication' as const,
+        confidence: 100,
+        detectedText: '',
+        conceptId: m.medicationCodeableConcept?.coding?.[0]?.code || '',
+        isExisting: true
+      }))
+    ];
 
-    if (text.includes('hypertension') || text.includes('high blood pressure')) {
-      const hypertensionEntity: DetectedEntity = {
-        id: 'detected-hypertension-' + Date.now(),
-        name: 'Hypertension',
-        type: 'condition',
-        confidence: 90,
-        detectedText: this.extractDetectedText('hypertension|high blood pressure'),
-        conceptId: '38341003'
-      };
-      this.detectedConditions.push(this.checkForExistingEntity(hypertensionEntity));
-    }
-
-    // Mock detections for procedures
-    if (text.includes('surgery') || text.includes('operation') || text.includes('appendectomy')) {
-      const surgeryEntity: DetectedEntity = {
-        id: 'detected-surgery-' + Date.now(),
-        name: 'Appendectomy',
-        type: 'procedure',
-        confidence: 88,
-        detectedText: this.extractDetectedText('surgery|operation|appendectomy'),
-        conceptId: '80146002'
-      };
-      this.detectedProcedures.push(this.checkForExistingEntity(surgeryEntity));
-    }
-
-    if (text.includes('x-ray') || text.includes('radiography') || text.includes('chest x-ray')) {
-      const xrayEntity: DetectedEntity = {
-        id: 'detected-xray-' + Date.now(),
-        name: 'Chest X-ray',
-        type: 'procedure',
-        confidence: 95,
-        detectedText: this.extractDetectedText('x-ray|radiography|chest x-ray'),
-        conceptId: '399208008'
-      };
-      this.detectedProcedures.push(this.checkForExistingEntity(xrayEntity));
-    }
-
-    if (text.includes('biopsy')) {
-      const biopsyEntity: DetectedEntity = {
-        id: 'detected-biopsy-' + Date.now(),
-        name: 'Tissue biopsy',
-        type: 'procedure',
-        confidence: 90,
-        detectedText: this.extractDetectedText('biopsy'),
-        conceptId: '86273004'
-      };
-      this.detectedProcedures.push(this.checkForExistingEntity(biopsyEntity));
-    }
-
-    // Mock detections for medications
-    if (text.includes('aspirin') || text.includes('acetylsalicylic acid')) {
-      const aspirinEntity: DetectedEntity = {
-        id: 'detected-aspirin-' + Date.now(),
-        name: 'Aspirin',
-        type: 'medication',
-        confidence: 96,
-        detectedText: this.extractDetectedText('aspirin|acetylsalicylic acid'),
-        conceptId: '387458008'
-      };
-      this.detectedMedications.push(this.checkForExistingEntity(aspirinEntity));
-    }
-
-    if (text.includes('insulin')) {
-      const insulinEntity: DetectedEntity = {
-        id: 'detected-insulin-' + Date.now(),
-        name: 'Insulin',
-        type: 'medication',
-        confidence: 94,
-        detectedText: this.extractDetectedText('insulin'),
-        conceptId: '412210000'
-      };
-      this.detectedMedications.push(this.checkForExistingEntity(insulinEntity));
-    }
-
-    if (text.includes('ibuprofen') || text.includes('advil') || text.includes('motrin')) {
-      const ibuprofenEntity: DetectedEntity = {
-        id: 'detected-ibuprofen-' + Date.now(),
-        name: 'Ibuprofen',
-        type: 'medication',
-        confidence: 93,
-        detectedText: this.extractDetectedText('ibuprofen|advil|motrin'),
-        conceptId: '387207008'
-      };
-      this.detectedMedications.push(this.checkForExistingEntity(ibuprofenEntity));
-    }
-    
-    // Initialize encounter form with default selections after detection
-    this.initializeEncounterForm();
+    // Call the AI service for entity detection
+    this.detectionSubscription = this.aiCodingService.detectEntities(this.clinicalText, existingEntities)
+      .subscribe({
+        next: (result: EntityDetectionResult) => {
+          // Entities are already sorted by text position from the AI service
+          this.detectedConditions = result.conditions;
+          this.detectedProcedures = result.procedures;
+          this.detectedMedications = result.medications;
+          
+          // Apply highlights and initialize encounter form
+          this.applyHighlights();
+          this.initializeEncounterForm();
+          this.isProcessing = false;
+        },
+        error: (error) => {
+          this.snackBar.open('Error detecting entities: ' + error.message, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+          this.isProcessing = false;
+        }
+      });
   }
 
-  private extractDetectedText(searchTerm: string): string {
-    const terms = searchTerm.split('|');
-    const text = this.clinicalText.toLowerCase();
-    
-    for (const term of terms) {
-      const index = text.indexOf(term);
-      if (index !== -1) {
-        // Extract context around the found term, preserving word boundaries
-        let start = Math.max(0, index - 15);
-        let end = Math.min(text.length, index + term.length + 15);
-        
-        // Adjust start to avoid cutting words in half
-        if (start > 0) {
-          const spaceIndex = this.clinicalText.lastIndexOf(' ', start + 5);
-          if (spaceIndex > start - 10 && spaceIndex < start + 5) {
-            start = spaceIndex + 1;
-          }
-        }
-        
-        // Adjust end to avoid cutting words in half
-        if (end < text.length) {
-          const spaceIndex = this.clinicalText.indexOf(' ', end - 5);
-          if (spaceIndex > end - 5 && spaceIndex < end + 10) {
-            end = spaceIndex;
-          }
-        }
-        
-        const extractedText = this.clinicalText.substring(start, end).trim();
-        return this.truncateWithEllipsis(extractedText, 30); // Increased to 30 characters
-      }
-    }
-    return searchTerm;
-  }
 
   private truncateWithEllipsis(text: string, maxLength: number): string {
     if (text.length <= maxLength) {
@@ -473,12 +383,18 @@ export class AiAssistedEntryComponent implements OnInit {
     switch (entity.type) {
       case 'condition':
         this.detectedConditions = this.detectedConditions.filter(c => c.id !== entity.id);
+        // Maintain sorted order by text position
+        this.detectedConditions.sort((a, b) => (a.textPosition || 0) - (b.textPosition || 0));
         break;
       case 'procedure':
         this.detectedProcedures = this.detectedProcedures.filter(p => p.id !== entity.id);
+        // Maintain sorted order by text position
+        this.detectedProcedures.sort((a, b) => (a.textPosition || 0) - (b.textPosition || 0));
         break;
       case 'medication':
         this.detectedMedications = this.detectedMedications.filter(m => m.id !== entity.id);
+        // Maintain sorted order by text position
+        this.detectedMedications.sort((a, b) => (a.textPosition || 0) - (b.textPosition || 0));
         break;
     }
     
@@ -492,12 +408,15 @@ export class AiAssistedEntryComponent implements OnInit {
 
   addSampleText(): void {
     const sampleTexts = [
-      "Patient presents with chronic asthma and type 2 diabetes. Recent surgery performed last month. Currently taking aspirin 81mg daily and insulin as needed. Patient reports shortness of breath and requires chest X-ray. Scheduled for cardiac procedure next week.",
-      "The patient has a history of hypertension and underwent appendectomy two years ago. Currently prescribed ibuprofen for pain management and insulin for diabetes control. Needs follow-up biopsy to rule out malignancy.",
-      "Clinical assessment reveals asthma exacerbation. Patient scheduled for endoscopic procedure. Current medications include aspirin for cardiovascular protection. Blood pressure monitoring shows hypertension requiring adjustment of current treatment plan."
+      "Patient presents with acute chest pain. Diagnosed with acute myocardial infarction. Emergency percutaneous coronary angioplasty performed to restore blood flow. Currently prescribed aspirin 81mg daily and metoprolol for cardiac management.",
+      "Patient visits for severe abdominal pain in right lower quadrant. Clinical examination and imaging confirm acute appendicitis. Emergency laparoscopic appendectomy performed successfully. Post-operative management includes ibuprofen for pain control and monitoring for complications.",
+      "Patient presents with rectal bleeding and change in bowel habits over the past month. Clinical evaluation and colonoscopy reveal adenomatous polyps as the source of bleeding. Colonoscopy with polypectomy performed to remove multiple polyps. Patient prescribed iron supplements for mild anemia and scheduled for surveillance colonoscopy."
     ];
 
-    const randomSample = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+    const selectedSample = sampleTexts[this.currentSampleIndex];
+    
+    // Move to next sample for next time (cycle back to 0 when reaching the end)
+    this.currentSampleIndex = (this.currentSampleIndex + 1) % sampleTexts.length;
     
     // Clear previous detections
     this.detectedConditions = [];
@@ -505,11 +424,11 @@ export class AiAssistedEntryComponent implements OnInit {
     this.detectedMedications = [];
     
     // Clear existing content and add sample text
-    this.clinicalText = randomSample;
+    this.clinicalText = selectedSample;
     
     // Update the editable div content
     if (this.editableDiv && this.editableDiv.nativeElement) {
-      this.editableDiv.nativeElement.textContent = randomSample;
+      this.editableDiv.nativeElement.textContent = selectedSample;
     }
     
     // Trigger detection
@@ -534,12 +453,10 @@ export class AiAssistedEntryComponent implements OnInit {
     const termMap = new Map<string, string>();
     
     allDetections.forEach(detection => {
-      const searchTerms = this.getSearchTerms(detection);
+      // Use the actual detected text (matched keyword) instead of hardcoded terms
+      const detectedText = detection.detectedText.toLowerCase();
       const colorClass = this.getHighlightClass(detection.type);
-      
-      searchTerms.forEach(term => {
-        termMap.set(term.toLowerCase(), colorClass);
-      });
+      termMap.set(detectedText, colorClass);
     });
 
     // Sort terms by length (longest first) to avoid partial replacements
@@ -627,22 +544,6 @@ export class AiAssistedEntryComponent implements OnInit {
     }
   }
 
-  private getSearchTerms(detection: DetectedEntity): string[] {
-    // Map detection names to search terms
-    const termMap: { [key: string]: string[] } = {
-      'Asthma': ['asthma'],
-      'Diabetes mellitus': ['diabetes'],
-      'Hypertension': ['hypertension', 'high blood pressure'],
-      'Appendectomy': ['surgery', 'operation', 'appendectomy'],
-      'Chest X-ray': ['x-ray', 'radiography', 'chest x-ray'],
-      'Tissue biopsy': ['biopsy'],
-      'Aspirin': ['aspirin', 'acetylsalicylic acid'],
-      'Insulin': ['insulin'],
-      'Ibuprofen': ['ibuprofen', 'advil', 'motrin']
-    };
-    
-    return termMap[detection.name] || [detection.name.toLowerCase()];
-  }
 
   private getHighlightClass(type: string): string {
     switch (type) {
@@ -654,66 +555,10 @@ export class AiAssistedEntryComponent implements OnInit {
   }
 
   // Check if a detected entity already exists in patient data
-  private checkForExistingEntity(entity: DetectedEntity): DetectedEntity {
-    const existingEntity = this.findExistingEntity(entity);
-    if (existingEntity) {
-      entity.alreadyExists = true;
-      entity.existingEntityId = existingEntity.id;
-    } else {
-      entity.alreadyExists = false;
-      entity.existingEntityId = undefined;
-    }
-    return entity;
-  }
-
-  private findExistingEntity(entity: DetectedEntity): any {
-    switch (entity.type) {
-      case 'condition':
-        return this.conditions.find(condition => 
-          this.isEntityMatch(condition, entity)
-        );
-      case 'procedure':
-        return this.procedures.find(procedure => 
-          this.isEntityMatch(procedure, entity)
-        );
-      case 'medication':
-        return this.medications.find(medication => 
-          this.isEntityMatch(medication, entity)
-        );
-      default:
-        return null;
-    }
-  }
-
-  private isEntityMatch(existingEntity: any, detectedEntity: DetectedEntity): boolean {
-    // Check by concept ID first (most reliable)
-    if (detectedEntity.conceptId && existingEntity.code?.coding) {
-      const existingCode = existingEntity.code.coding.find((coding: any) => 
-        coding.system === 'http://snomed.info/sct' && coding.code === detectedEntity.conceptId
-      );
-      if (existingCode) return true;
-    }
-
-    // Check by display name (fallback)
-    const existingDisplay = this.getEntityDisplayName(existingEntity);
-    if (existingDisplay && existingDisplay.toLowerCase() === detectedEntity.name.toLowerCase()) {
-      return true;
-    }
-
-    return false;
-  }
-
-  private getEntityDisplayName(entity: any): string {
-    if (entity.code?.text) return entity.code.text;
-    if (entity.code?.coding?.[0]?.display) return entity.code.coding[0].display;
-    if (entity.medicationCodeableConcept?.text) return entity.medicationCodeableConcept.text;
-    if (entity.medicationCodeableConcept?.coding?.[0]?.display) return entity.medicationCodeableConcept.coding[0].display;
-    return '';
-  }
 
   // Get display text for existing entity status
   getExistingStatusText(entity: DetectedEntity): string {
-    if (entity.alreadyExists) {
+    if (entity.isExisting) {
       return `Already exists in problems list`;
     }
     return '';
@@ -721,6 +566,6 @@ export class AiAssistedEntryComponent implements OnInit {
 
   // Check if entity can be saved (not already existing)
   canSaveEntity(entity: DetectedEntity): boolean {
-    return !entity.alreadyExists;
+    return !entity.isExisting;
   }
 }
