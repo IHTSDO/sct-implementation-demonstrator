@@ -1,7 +1,31 @@
 .interoperability-container {
   padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Back button positioned at top left */
+.back-button-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+}
+
+.back-button-container button {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.back-button-container button:hover {
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .header {
@@ -271,11 +295,278 @@
   margin-bottom: 20px;
 }
 
-/* Patient Data Container */
+/* Patient Data Container - Row-based Layout */
 .patient-data-container {
   display: flex;
   flex-direction: column;
+  gap: 30px;
+}
+
+.data-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.left-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.right-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Placeholder section styling */
+.placeholder-section {
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  border: 2px dashed #ccc;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Merge Controls Card */
+.merge-controls-card {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border-left: 4px solid #ff9800;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Selection count in title */
+.selection-count {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #e65100;
+  margin-left: 8px;
+}
+
+/* Link required message */
+.link-required-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background-color: #e3f2fd;
+  border-radius: 6px;
+  color: #1976d2;
+  font-style: italic;
+}
+
+.link-required-message mat-icon {
+  color: #1976d2;
+  font-size: 20px;
+}
+
+/* Merge controls container */
+.merge-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Category actions */
+.category-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.select-all-btn {
+  color: #4caf50;
+  font-size: 0.8rem;
+  min-width: auto;
+  padding: 4px 8px;
+  line-height: 1.2;
+}
+
+.deselect-all-btn {
+  color: #f44336;
+  font-size: 0.8rem;
+  min-width: auto;
+  padding: 4px 8px;
+  line-height: 1.2;
+}
+
+/* Item list in merge controls */
+.merge-controls .item-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.merge-controls .item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+.merge-controls .item-row:last-child {
+  border-bottom: none;
+}
+
+.merge-controls .item-row:hover {
+  background-color: rgba(255, 152, 0, 0.05);
+}
+
+.merge-controls .item-checkbox {
+  margin-top: 2px;
+}
+
+.merge-controls .item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.merge-controls .item-title {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+  word-wrap: break-word;
+  font-size: 0.9rem;
+}
+
+.merge-controls .item-details {
+  display: flex;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: #666;
+  flex-wrap: wrap;
+}
+
+.merge-controls .item-status {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.7rem;
+}
+
+.merge-controls .item-date {
+  color: #666;
+  font-style: italic;
+  font-size: 0.7rem;
+}
+
+/* Import actions */
+.import-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.import-actions button {
+  background-color: #ff9800;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.import-actions button:hover {
+  background-color: #f57c00;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Single Save Section */
+.save-section {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c8 100%);
+  border-top: 4px solid #4caf50;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.save-container {
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 20px;
+}
+
+.save-summary h3 {
+  margin: 0 0 12px 0;
+  color: #2e7d32;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.save-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.save-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.save-stat mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.save-description {
+  margin: 0;
+  color: #2e7d32;
+  font-size: 0.9rem;
+}
+
+.save-actions {
+  flex-shrink: 0;
+}
+
+.save-button {
+  background-color: #4caf50 !important;
+  color: white !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  padding: 12px 24px !important;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.save-button:hover:not([disabled]) {
+  background-color: #43a047 !important;
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+.save-button:disabled {
+  background-color: #cccccc !important;
+  color: #666666 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
 }
 
 /* Cards */
@@ -603,6 +894,61 @@ mat-card-title mat-icon {
 @media (max-width: 768px) {
   .interoperability-container {
     padding: 10px;
+    padding-bottom: 120px; /* Add space for fixed save section */
+  }
+  
+  /* Row-based layout becomes single column on mobile */
+  .data-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  /* Save section responsive */
+  .save-section {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  .save-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+  
+  .save-summary {
+    text-align: center;
+  }
+  
+  .save-stats {
+    justify-content: center;
+    gap: 12px;
+  }
+  
+  .save-stat {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+  }
+  
+  .save-button {
+    width: 100% !important;
+    font-size: 1rem !important;
+    padding: 10px 20px !important;
+  }
+  
+  /* Back button responsive */
+  .back-button-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+  
+  .back-button-container button {
+    font-size: 0.9rem;
+    padding: 8px 12px;
   }
   
   .header h1 {
@@ -693,6 +1039,13 @@ mat-card-title mat-icon {
     flex-direction: column;
     gap: 8px;
     text-align: center;
+  }
+}
+
+/* Desktop save section positioning */
+@media (min-width: 769px) {
+  .patient-data-container {
+    padding-bottom: 100px; /* Add space for fixed save section */
   }
 }
 

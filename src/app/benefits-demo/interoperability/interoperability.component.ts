@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
 import { PatientService, Patient } from '../../services/patient.service';
+import { TerminologyService } from '../../services/terminology.service';
 
 @Component({
   selector: 'app-interoperability',
@@ -40,7 +41,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   constructor(
     public ipsReaderService: IPSReaderService,
     private patientService: PatientService,
-    private router: Router
+    private router: Router,
+    private terminologyService: TerminologyService
   ) { }
 
   ngOnInit(): void {
@@ -231,7 +233,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   acceptSuggestion(): void {
     if (this.suggestedPatient) {
       this.selectedPatientId = this.suggestedPatient.id;
-      this.linkPatient();
+      this.linkedPatient = this.suggestedPatient;
+      this.suggestedPatient = null;
+      
+      // Initialize selections (select all by default)
+      this.initializeSelections();
     }
   }
 
@@ -285,7 +291,9 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (selectedPatient) {
       this.linkedPatient = selectedPatient;
       this.suggestedPatient = null; // Clear suggestion after linking
-      this.verifyExistingData(selectedPatient.id);
+      
+      // Initialize selections (select all by default)
+      this.initializeSelections();
     }
   }
 
@@ -600,10 +608,171 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Get total count of selected items
+   */
+  getTotalSelectedCount(): number {
+    return this.selectedConditions.size + 
+           this.selectedProcedures.size + 
+           this.selectedMedications.size + 
+           this.selectedAllergies.size;
+  }
+
+  /**
+   * Import all selected items at once
+   */
+  async importAllSelectedItems(): Promise<void> {
+    if (!this.linkedPatient || !this.patientData) {
+      return;
+    }
+
+    let importedCount = 0;
+
+    // Import selected conditions
+    if (this.selectedConditions.size > 0) {
+      const selectedConditionsData = this.patientData.conditions.filter(
+        condition => this.selectedConditions.has(condition.id)
+      );
+
+      console.log(`Attempting to import ${selectedConditionsData.length} conditions for patient ${this.linkedPatient.id}`);
+      
+      for (const condition of selectedConditionsData) {
+        const snomedCode = this.patientService.extractSnomedCode(condition);
+        let icd10Code: string | undefined = undefined;
+        let computedLocation: string | undefined = undefined;
+        
+        // Try to get ICD-10 mapping if we have a SNOMED code
+        if (snomedCode) {
+          try {
+            const icd10Response = await this.terminologyService.getIcd10MapTargets(snomedCode).toPromise();
+            if (icd10Response?.parameter) {
+              const targetParam = icd10Response.parameter.find((p: any) => p.name === 'match');
+              if (targetParam?.part) {
+                const conceptPart = targetParam.part.find((part: any) => part.name === 'concept');
+                if (conceptPart?.valueCoding?.code) {
+                  icd10Code = conceptPart.valueCoding.code;
+                }
+              }
+            }
+          } catch (error) {
+            console.warn('Could not fetch ICD-10 mapping for SNOMED code:', snomedCode, error);
+          }
+
+          // Calculate anatomic location using ancestor mapping
+          try {
+            computedLocation = await this.calculateAnatomicLocation(snomedCode);
+          } catch (error) {
+            console.warn('Could not calculate anatomic location for SNOMED code:', snomedCode, error);
+            computedLocation = 'systemic'; // Default fallback
+          }
+        }
+
+        const convertedCondition = {
+          ...condition,
+          code: {
+            ...condition.code,
+            text: condition.code?.text || this.ipsReaderService.getConditionDisplay(condition)
+          },
+          // Ensure we have proper dates
+          recordedDate: condition.recordedDate || new Date().toISOString(),
+          onsetDateTime: condition.onsetDateTime || condition.recordedDate || new Date().toISOString(),
+          // Add SNOMED concept ID for easier lookup
+          snomedConceptId: snomedCode || undefined,
+          // Add ICD-10 mapping if available
+          icd10Code: icd10Code,
+          // Add computed anatomic location
+          computedLocation: computedLocation || 'systemic',
+          // Ensure proper subject reference
+          subject: {
+            reference: `Patient/${this.linkedPatient.id}`,
+            display: this.getPatientDisplayName(this.linkedPatient)
+          }
+        };
+        console.log(`Importing condition: ${convertedCondition.code.text} (SNOMED: ${snomedCode}, ICD-10: ${icd10Code || 'N/A'}, Location: ${computedLocation})`);
+        
+        const success = this.patientService.addPatientCondition(this.linkedPatient.id, convertedCondition);
+        console.log(`Condition import result: ${success}`);
+        if (success) {
+          importedCount++;
+        }
+      }
+    }
+
+    // Import selected procedures
+    if (this.selectedProcedures.size > 0) {
+      const selectedProceduresData = this.patientData.procedures.filter(
+        procedure => this.selectedProcedures.has(procedure.id)
+      );
+
+      selectedProceduresData.forEach(procedure => {
+        const convertedProcedure = {
+          ...procedure,
+          status: this.convertProcedureStatus(procedure.status),
+          code: {
+            ...procedure.code,
+            text: procedure.code?.text || 'Unknown procedure'
+          }
+        };
+        this.patientService.addPatientProcedure(this.linkedPatient.id, convertedProcedure);
+        importedCount++;
+      });
+    }
+
+    // Import selected medications
+    if (this.selectedMedications.size > 0) {
+      const selectedMedicationsData = this.patientData.medications.filter(
+        medication => this.selectedMedications.has(medication.id)
+      );
+
+      selectedMedicationsData.forEach(medication => {
+        const convertedMedication = {
+          ...medication,
+          status: this.convertMedicationStatus(medication.status),
+          medicationCodeableConcept: medication.medicationCodeableConcept ? {
+            ...medication.medicationCodeableConcept,
+            text: medication.medicationCodeableConcept.text || 'Unknown medication'
+          } : undefined
+        };
+        this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
+        importedCount++;
+      });
+    }
+
+    // Import selected allergies
+    if (this.selectedAllergies.size > 0) {
+      const selectedAllergiesData = this.patientData.allergies.filter(
+        allergy => this.selectedAllergies.has(allergy.id)
+      );
+
+      selectedAllergiesData.forEach(allergy => {
+        const convertedAllergy = {
+          ...allergy,
+          type: this.convertAllergyType(allergy.type),
+          category: this.convertAllergyCategory(allergy.category),
+          criticality: this.convertAllergyCriticality(allergy.criticality)
+        };
+        this.patientService.addPatientAllergy(this.linkedPatient.id, convertedAllergy as any);
+        importedCount++;
+      });
+    }
+
+    // Clear all selections after import
+    this.clearSelections();
+    
+    // Debug: Check what conditions are now stored for this patient
+    const storedConditions = this.patientService.getPatientConditions(this.linkedPatient.id);
+    console.log(`Patient ${this.linkedPatient.id} now has ${storedConditions.length} conditions stored:`, storedConditions);
+    
+    console.log(`Successfully imported ${importedCount} items to patient ${this.linkedPatient.id}`);
+    
+    // You could add a success snackbar here
+    // this.snackBar.open(`Successfully imported ${importedCount} items`, 'Close', { duration: 3000 });
+  }
+
+  /**
    * Navigate back to benefits demo
    */
   goBack(): void {
-    this.router.navigate(['/benefits-demo']);
+    this.router.navigate(['/ehr-lab']);
   }
 
   /**
@@ -728,12 +897,136 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         this.patientService.addPatientMedication(patientId, convertedMedication);
       });
     
-    // Note: Allergies would need to be implemented in PatientService
-    // ipsData.allergies
-    //   .filter(allergy => this.selectedAllergies.has(allergy.id))
-    //   .forEach(allergy => {
-    //     this.patientService.addPatientAllergy(patientId, allergy);
-    //   });
+    // Import selected allergies
+    ipsData.allergies
+      .filter(allergy => this.selectedAllergies.has(allergy.id))
+      .forEach(allergy => {
+        const convertedAllergy = {
+          ...allergy,
+          type: this.convertAllergyType(allergy.type),
+          category: this.convertAllergyCategory(allergy.category),
+          criticality: this.convertAllergyCriticality(allergy.criticality)
+        };
+        this.patientService.addPatientAllergy(patientId, convertedAllergy as any);
+      });
+  }
+
+  /**
+   * Import selected conditions only
+   */
+  importSelectedConditions(): void {
+    if (!this.linkedPatient || !this.patientData) {
+      return;
+    }
+
+    const selectedConditionsData = this.patientData.conditions.filter(
+      condition => this.selectedConditions.has(condition.id)
+    );
+
+    selectedConditionsData.forEach(condition => {
+      const convertedCondition = {
+        ...condition,
+        code: {
+          ...condition.code,
+          text: condition.code?.text || 'Unknown condition'
+        }
+      };
+      this.patientService.addPatientCondition(this.linkedPatient.id, convertedCondition);
+    });
+
+    // Clear selections after import
+    this.selectedConditions.clear();
+    
+    // Show success message (you could add a snackbar here)
+    console.log(`Imported ${selectedConditionsData.length} conditions`);
+  }
+
+  /**
+   * Import selected procedures only
+   */
+  importSelectedProcedures(): void {
+    if (!this.linkedPatient || !this.patientData) {
+      return;
+    }
+
+    const selectedProceduresData = this.patientData.procedures.filter(
+      procedure => this.selectedProcedures.has(procedure.id)
+    );
+
+    selectedProceduresData.forEach(procedure => {
+      const convertedProcedure = {
+        ...procedure,
+        status: this.convertProcedureStatus(procedure.status),
+        code: {
+          ...procedure.code,
+          text: procedure.code?.text || 'Unknown procedure'
+        }
+      };
+      this.patientService.addPatientProcedure(this.linkedPatient.id, convertedProcedure);
+    });
+
+    // Clear selections after import
+    this.selectedProcedures.clear();
+    
+    console.log(`Imported ${selectedProceduresData.length} procedures`);
+  }
+
+  /**
+   * Import selected medications only
+   */
+  importSelectedMedications(): void {
+    if (!this.linkedPatient || !this.patientData) {
+      return;
+    }
+
+    const selectedMedicationsData = this.patientData.medications.filter(
+      medication => this.selectedMedications.has(medication.id)
+    );
+
+    selectedMedicationsData.forEach(medication => {
+      const convertedMedication = {
+        ...medication,
+        status: this.convertMedicationStatus(medication.status),
+        medicationCodeableConcept: medication.medicationCodeableConcept ? {
+          ...medication.medicationCodeableConcept,
+          text: medication.medicationCodeableConcept.text || 'Unknown medication'
+        } : undefined
+      };
+      this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
+    });
+
+    // Clear selections after import
+    this.selectedMedications.clear();
+    
+    console.log(`Imported ${selectedMedicationsData.length} medications`);
+  }
+
+  /**
+   * Import selected allergies only
+   */
+  importSelectedAllergies(): void {
+    if (!this.linkedPatient || !this.patientData) {
+      return;
+    }
+
+    const selectedAllergiesData = this.patientData.allergies.filter(
+      allergy => this.selectedAllergies.has(allergy.id)
+    );
+
+    selectedAllergiesData.forEach(allergy => {
+      const convertedAllergy = {
+        ...allergy,
+        type: this.convertAllergyType(allergy.type),
+        category: this.convertAllergyCategory(allergy.category),
+        criticality: this.convertAllergyCriticality(allergy.criticality)
+      };
+      this.patientService.addPatientAllergy(this.linkedPatient.id, convertedAllergy as any);
+    });
+
+    // Clear selections after import
+    this.selectedAllergies.clear();
+    
+    console.log(`Imported ${selectedAllergiesData.length} allergies`);
   }
 
   /**
@@ -750,5 +1043,168 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   private convertMedicationStatus(status: string): "on-hold" | "stopped" | "completed" | "entered-in-error" | "unknown" | "active" | "intended" | "not-taken" {
     const validStatuses = ["on-hold", "stopped", "completed", "entered-in-error", "unknown", "active", "intended", "not-taken"];
     return validStatuses.includes(status) ? status as any : "unknown";
+  }
+
+  /**
+   * Convert allergy type to valid enum value
+   */
+  private convertAllergyType(type: string | undefined): "allergy" | "intolerance" | undefined {
+    if (!type) return undefined;
+    const lowerType = type.toLowerCase();
+    if (lowerType === "allergy") return "allergy";
+    if (lowerType === "intolerance") return "intolerance";
+    return "allergy"; // Default to allergy if unknown
+  }
+
+  /**
+   * Convert allergy category to valid enum values
+   */
+  private convertAllergyCategory(categories: string[] | undefined): ("food" | "medication" | "environment" | "biologic")[] | undefined {
+    if (!categories || !Array.isArray(categories)) return undefined;
+    
+    const validCategories: ("food" | "medication" | "environment" | "biologic")[] = [];
+    const categoryMap: { [key: string]: "food" | "medication" | "environment" | "biologic" } = {
+      'food': 'food',
+      'medication': 'medication',
+      'environment': 'environment',
+      'biologic': 'biologic',
+      'drug': 'medication', // Common alternative
+      'environmental': 'environment' // Common alternative
+    };
+
+    categories.forEach(category => {
+      const lowerCategory = category.toLowerCase();
+      const mappedCategory = categoryMap[lowerCategory];
+      if (mappedCategory && !validCategories.includes(mappedCategory)) {
+        validCategories.push(mappedCategory);
+      }
+    });
+
+    return validCategories.length > 0 ? validCategories : ['environment']; // Default to environment if unknown
+  }
+
+  /**
+   * Convert allergy criticality to valid enum value
+   */
+  private convertAllergyCriticality(criticality: string | undefined): "low" | "high" | "unable-to-assess" | undefined {
+    if (!criticality) return undefined;
+    const lowerCriticality = criticality.toLowerCase();
+    if (lowerCriticality === "low") return "low";
+    if (lowerCriticality === "high") return "high";
+    if (lowerCriticality === "unable-to-assess") return "unable-to-assess";
+    return "unable-to-assess"; // Default if unknown
+  }
+
+  /**
+   * Calculate anatomic location for a SNOMED concept using ancestor mapping
+   * Based on clinical-record component's anchor point system
+   */
+  private async calculateAnatomicLocation(snomedCode: string): Promise<string> {
+    // Anchor points with their ancestor concepts (simplified version from clinical-record)
+    const anchorPoints = [
+      {
+        id: 'head',
+        ancestors: ['406122000', '118690002', '384821006']
+      },
+      {
+        id: 'neck', 
+        ancestors: ['298378000', '118693000']
+      },
+      {
+        id: 'thorax',
+        ancestors: ['298705000', '118695007', '106048009', '106063007', '118669005']
+      },
+      {
+        id: 'abdomen',
+        ancestors: ['609624008', '118698009', '386617003']
+      },
+      {
+        id: 'pelvis',
+        ancestors: ['609625009', '609637006']
+      },
+      {
+        id: 'arms',
+        ancestors: ['609617007', '118700008']
+      },
+      {
+        id: 'legs',
+        ancestors: ['609618002', '118701007']
+      }
+    ];
+
+    return new Promise((resolve) => {
+      this.terminologyService.getAncestors(snomedCode).subscribe({
+        next: (response) => {
+          try {
+            const ancestorIds = this.extractConceptIdsFromExpansion(response);
+            
+            // Find the best matching anchor point
+            const bestAnchorPoint = this.findBestAnchorPointForAncestors(ancestorIds, anchorPoints);
+            
+            if (bestAnchorPoint) {
+              resolve(bestAnchorPoint.id);
+            } else {
+              resolve('systemic'); // Default fallback
+            }
+          } catch (error) {
+            console.error(`Error processing ancestors for concept ${snomedCode}:`, error);
+            resolve('systemic');
+          }
+        },
+        error: (error) => {
+          console.error(`Failed to get ancestors for concept ${snomedCode}:`, error);
+          resolve('systemic');
+        }
+      });
+    });
+  }
+
+  /**
+   * Extract concept IDs from SNOMED CT expansion response
+   */
+  private extractConceptIdsFromExpansion(response: any): string[] {
+    const conceptIds: string[] = [];
+    
+    if (response?.expansion?.contains) {
+      response.expansion.contains.forEach((concept: any) => {
+        if (concept.code) {
+          conceptIds.push(concept.code);
+        }
+      });
+    }
+    
+    return conceptIds;
+  }
+
+  /**
+   * Find the best matching anchor point based on ancestor concepts
+   */
+  private findBestAnchorPointForAncestors(ancestorIds: string[], anchorPoints: any[]): any | null {
+    // Check each anchor point to see if any of its ancestor concepts match
+    for (const anchorPoint of anchorPoints) {
+      // Extract concept IDs from anchor point ancestors (handle SNOMED format with display names)
+      const anchorPointConceptIds = anchorPoint.ancestors.map((ancestor: string) => this.extractConceptId(ancestor));
+      
+      // Check if any of the event's ancestors match any of the anchor point's ancestors
+      const hasMatch = anchorPointConceptIds.some((ancestorId: string) => ancestorIds.includes(ancestorId));
+      
+      if (hasMatch) {
+        return anchorPoint;
+      }
+    }
+    
+    return null; // No match found
+  }
+
+  /**
+   * Extract concept ID from SNOMED CT format (handles both "123456" and "123456 |Display Name|")
+   */
+  private extractConceptId(snomedString: string): string {
+    // If it contains a pipe character, extract just the ID part before the first space
+    if (snomedString.includes('|')) {
+      return snomedString.split(' ')[0].trim();
+    }
+    // Otherwise, return as-is (already just an ID)
+    return snomedString.trim();
   }
 }
