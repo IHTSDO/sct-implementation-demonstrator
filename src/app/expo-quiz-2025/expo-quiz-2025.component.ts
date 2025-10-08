@@ -170,6 +170,9 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
   // Event name for grouping quiz results
   eventName: string = 'Expo 2025';
   
+  // Background image path
+  backgroundImage: string = 'assets/img/antwerp.png';
+  
   // Loading states
   isLoadingLeaderboards: boolean = false;
   

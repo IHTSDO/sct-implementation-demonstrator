@@ -6,7 +6,7 @@
 
     <!-- Quiz Selector - Videogame Style Menu -->
     <div class="quiz-selector videogame-menu" *ngIf="showQuizSelector">
-        <div class="menu-background"></div>
+        <div class="menu-background" [style.background-image]="'url(' + backgroundImage + ')'"></div>
         <div class="menu-content">
             <div class="menu-buttons">
                 <button class="menu-btn" (click)="startQuiz('food')">
