@@ -197,7 +197,14 @@ button[mat-raised-button] {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .question-container {
+    max-width: 95%;
     padding: 16px;
+    margin: 8px;
+  }
+
+  .question-flow-container {
+    padding: 8px;
+    margin: 8px;
   }
 
   .question-container h2 {
@@ -211,6 +218,178 @@ button[mat-raised-button] {
   .question-text {
     font-size: 1.1rem;
     padding: 12px;
+  }
+
+  /* Hide flip cards container on mobile */
+  .flip-card-container {
+    display: none;
+  }
+
+  /* Button improvements for mobile */
+  .button-container {
+    flex-direction: column-reverse;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .button-container button {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+
+  /* Improve button container spacing */
+  .button-container-space-between {
+    flex-direction: column-reverse;
+    gap: 12px;
+    align-items: stretch;
+    padding-top: 3rem;
+  }
+
+  /* Fix button container layout on mobile */
+  .button-container-first {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .button-container-first .button-container {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .start-button {
+    position: static;
+    transform: none;
+    order: 2;
+  }
+
+  .secondary-button {
+    position: static;
+    order: 3;
+    font-style: italic;
+  }
+
+  /* Improve radio button touch targets */
+  .mat-radio-button {
+    margin-bottom: 16px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  /* Better spacing for options */
+  .radio-option {
+    margin-bottom: 20px;
+  }
+
+  /* Improve example text spacing on mobile */
+  .example-text {
+    margin-left: 1rem;
+    margin-top: 8px;
+  }
+
+  /* Progress bar improvements */
+  .progress-bar {
+    height: 12px;
+    margin-top: 16px;
+  }
+
+  .progress-message {
+    font-size: 1rem;
+    margin-bottom: 16px;
+  }
+
+  /* Improve form field spacing on mobile */
+  .mat-form-field {
+    margin-bottom: 36px;
+  }
+
+  /* Better checkbox spacing */
+  .kpa-checkbox {
+    margin-bottom: 16px;
+  }
+
+  /* Improve stakeholder description readability */
+  .stakeholder-description {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+
+  /* Better context section spacing */
+  .question-context {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .question-context-heading {
+    font-size: 1.1rem;
+  }
+}
+
+/* Additional mobile breakpoint for very small screens */
+@media (max-width: 480px) {
+  /* Ensure flip cards remain hidden on very small screens */
+  .flip-card-container {
+    display: none;
+  }
+
+  /* Adjust button container padding for very small screens */
+  .button-container-space-between {
+    padding-top: 2rem;
+  }
+
+  .question-container {
+    max-width: 98%;
+    padding: 12px;
+    margin: 4px;
+  }
+
+  .question-flow-container {
+    padding: 4px;
+    margin: 4px;
+  }
+
+  .question-container h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .question-container h3 {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  /* Stack buttons with more spacing on very small screens */
+  .button-container {
+    flex-direction: column-reverse;
+    gap: 16px;
+  }
+
+  .button-container button {
+    min-height: 48px;
+    font-size: 0.95rem;
+    padding: 12px 16px;
+  }
+
+  /* Improve text input sizing */
+  .mat-form-field {
+    font-size: 1rem;
+    margin-bottom: 40px;
+  }
+
+  /* Better progress bar visibility */
+  .progress-bar {
+    height: 14px;
   }
 }
 
@@ -236,11 +415,42 @@ button[mat-raised-button] {
   margin-bottom: 1rem;
 }
 
+/* Desktop layout for button-container-first */
+@media (min-width: 769px) {
+  .button-container-first {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .button-container-first .button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 16px;
+    width: auto;
+  }
+
+  .start-button {
+    position: static;
+    transform: none;
+    order: 0;
+  }
+
+  .secondary-button {
+    position: static;
+    order: 0;
+    align-self: center;
+  }
+}
+
 .button-container-space-between {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding-top: 2rem;
 }
 
 .start-button {
@@ -294,4 +504,108 @@ button[mat-raised-button] {
 
 .context-comment-spacing {
   margin-top: 16px;
+}
+
+/* General form field spacing to prevent overlap */
+.mat-form-field {
+  margin-bottom: 32px;
+}
+
+/* Ensure mat-hint has proper spacing and full visibility */
+.mat-form-field .mat-hint {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  white-space: normal !important;
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+  display: block !important;
+  word-wrap: break-word;
+}
+
+/* Override Angular Material's mat-hint restrictions */
+::ng-deep .mat-form-field-hint-wrapper {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+}
+
+::ng-deep .mat-form-field-subscript-wrapper {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  position: static !important;
+}
+
+::ng-deep .mat-hint {
+  white-space: normal !important;
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: auto !important;
+  display: block !important;
+  word-wrap: break-word;
+  line-height: 1.4 !important;
+  font-size: 0.75rem !important;
+  position: static !important;
+}
+
+/* Ensure the entire form field has enough space */
+::ng-deep .mat-form-field-wrapper {
+  padding-bottom: 2em !important;
+}
+
+/* Additional mobile-specific overrides */
+@media (max-width: 768px) {
+  ::ng-deep .mat-form-field-hint-wrapper {
+    height: auto !important;
+    min-height: 4em !important;
+  }
+  
+  ::ng-deep .mat-form-field-subscript-wrapper {
+    height: auto !important;
+    min-height: 4em !important;
+  }
+  
+  ::ng-deep .mat-hint {
+    min-height: 3em !important;
+    padding-bottom: 0.5em !important;
+  }
+  
+  ::ng-deep .mat-form-field-wrapper {
+    padding-bottom: 4em !important;
+  }
+}
+
+/* Force override for all Angular Material hint containers */
+::ng-deep .mat-form-field .mat-form-field-subscript-wrapper .mat-hint {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  -webkit-line-clamp: none !important;
+  -webkit-box-orient: unset !important;
+  display: block !important;
+}
+
+/* Override any flex or grid restrictions */
+::ng-deep .mat-form-field-subscript-wrapper {
+  display: block !important;
+  flex: none !important;
+}
+
+/* Ensure no clipping occurs */
+::ng-deep .mat-form-field {
+  overflow: visible !important;
+}
+
+::ng-deep .mat-form-field-infix {
+  overflow: visible !important;
+}
+
+/* Better spacing for form fields with top margin */
+.mat-form-field.mt-10 {
+  margin-top: 2.5rem;
+  margin-bottom: 20px;
 }

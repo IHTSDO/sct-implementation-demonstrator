@@ -1,8 +1,8 @@
 <div class="flex flex-row gap-4 justify-end flex-wrap p-2" *ngIf="authorMode">
-    <button mat-flat-button color="primary" (click)="downloadSpecification()">Download Maturiry Spec</button>
+    <button mat-flat-button color="primary" (click)="downloadSpecification()" class="min-h-[44px]">Download Maturity Spec</button>
     <!-- Load Maturity Spec Button -->
     <input hidden (change)="uploadSpecification($event)" #fileInput type="file" id="file" />
-    <button mat-flat-button color="primary" (click)="fileInput.click()">Upload Maturity Spec</button>
+    <button mat-flat-button color="primary" (click)="fileInput.click()" class="min-h-[44px]">Upload Maturity Spec</button>
 </div>
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -3">
     <div class="question-container">
@@ -32,7 +32,7 @@
                     <div flipFront>
                         <div class="text-2xl mb-4 font-bold">Why use this tool?</div>
                         <p>Identify gaps, gain insights, align with best practices, and advance SNOMED CT adoption—tailored for vendors, members, and user organizations.</p>
-                        <button mat-raised-button color="accent" (click)="myFlipCard.toggleFlip()">
+                        <button mat-raised-button color="accent" (click)="myFlipCard.toggleFlip()" class="min-h-[44px]">
                             More...
                         </button>
                     </div>
@@ -53,7 +53,7 @@
                                 <div><b>Tailored for Different Stakeholders</b> – Designed to support key stakeholders in their SNOMED CT journey.</div>
                             </div>
                         </div>
-                        <button mat-raised-button color="accent" (click)="myFlipCard.toggleFlip()">
+                        <button mat-raised-button color="accent" (click)="myFlipCard.toggleFlip()" class="min-h-[44px]">
                             Back
                         </button>
                     </div>
@@ -63,7 +63,7 @@
                     <div flipFront>
                         <div class="text-2xl mb-4 font-bold">How does it work?</div>
                         <p>Assess key areas, receive a maturity score, gain improvement insights, and generate a report to enhance SNOMED CT implementation and collaboration.</p>
-                        <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()">
+                        <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()" class="min-h-[44px]">
                             More...
                         </button>
                         </div>
@@ -84,7 +84,7 @@
                                     <div><b>Download and Share Your Report</b> – Generate a detailed report which can be stored for internal use or shared.</div>
                                 </div>
                             </div>
-                        <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()">
+                        <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()" class="min-h-[44px]">
                             Back
                         </button>
                     </div>
@@ -94,7 +94,7 @@
                     <div flipFront>
                         <div class="text-2xl mb-4 font-bold">Who should use it?</div>
                             <p>Tailored assessments for vendors, members, and user organizations to evaluate SNOMED CT integration, adoption, and clinical use.</p>
-                            <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()">
+                            <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()" class="min-h-[44px]">
                                 More...
                             </button>
                         </div>
@@ -112,29 +112,28 @@
                                     <div><b>User Organizations</b> – Analyze SNOMED CT use within healthcare systems, EHRs, and clinical workflows.</div>
                                 </div>
                             </div>
-                            <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()">
+                            <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()" class="min-h-[44px]">
                                 Back
                             </button>
                         </div>
                 </app-flip-card>
             </div>
             <div class="button-container-space-between">
-                <button  mat-flat-button color="primary" (click)="openDashboard()">
+                <button mat-flat-button color="primary" (click)="openDashboard()" class="mb-2 md:mb-0 min-h-[44px]">
                     <span *ngIf="!expoMode">MATURITY ANALYTICS DASHBOARD</span>
                     <span *ngIf="expoMode">EXPO 2025 ANALYTICS DASHBOARD</span>
                 </button>
-                <button class="start-button" mat-flat-button color="accent" (click)="startAssessment()">
+                <button class="start-button" mat-flat-button color="accent" (click)="startAssessment()" class="min-h-[44px] text-base md:text-lg font-semibold">
                     START ASSESSMENT
                 </button>
                 <input hidden (change)="loadState($event)" #fileInputState1 type="file" id="fileState" />
-                <button  mat-flat-button color="primary" (click)="fileInputState1.click()">
+                <button mat-flat-button color="primary" (click)="fileInputState1.click()" class="mt-2 md:mt-0 min-h-[44px]" *ngIf="!expoMode">
                     LOAD PREVIOUS ASSESSMENT
                 </button>
             </div>
-            <div class="button-container-space-between italic text-xs pl-4 pr-4 pt-1">
-                <div *ngIf="!expoMode">Analyze a collection of assessment results</div>
-                <div *ngIf="expoMode">View Expo 2025 assessment results from Firebase</div>
-                <div>Upload an assessmen to edit or view results</div>
+            <div class="button-container-space-between italic text-xs px-4 pt-1 text-center md:text-left">
+                <div *ngIf="!expoMode" class="mb-1 md:mb-0">Analyze a collection of assessment results</div>
+                <div *ngIf="!expoMode">Upload an assessment to edit or view results</div>
             </div>
         </div>
     </div>
@@ -143,8 +142,8 @@
     <div class="question-container" [formGroup]="responseForm">
     <h2>SNOMED Implementation Maturity assessment</h2>
     <h3>Select Stakeholder Type</h3>
-    <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
-        <div class="flex-1">
+    <div class="flex flex-col md:flex-row gap-4 md:justify-end flex-wrap p-2">
+        <div class="flex-1 min-w-0">
             <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
             <mat-radio-button *ngFor="let stakeholder of maturityQuestions.stakeHolders" [value]="stakeholder.id" class="mb-5">
                 {{ stakeholder.name }}
@@ -155,7 +154,7 @@
             Please select a stakeholder.
             </div>
         </div>
-        <div class="flex-1 mb-10">
+        <div class="flex-1 mb-10 min-w-0">
             <div *ngIf="!responseForm.controls['selectedStakeholder'].invalid">
                 <h2>Stakeholder Description</h2>
                 <div *ngIf="expoMode" class="expo-required-fields-info mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -165,7 +164,7 @@
                         Do not enter any information that you would not be comfortable to share with the public.
                     </p>
                 </div>
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full mb-6">
                     <mat-label>{{ getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name | titlecase}} name </mat-label>
                     <input matInput placeholder="Enter stakeholder name..." [formControl]="nameControl">
                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
@@ -175,14 +174,14 @@
                         Stakeholder name is required in Expo mode.
                     </mat-error>
                 </mat-form-field>
-                <mat-form-field class="w-full mt-10" *ngIf="getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name === 'Vendor'">
+                <mat-form-field class="w-full mb-6" *ngIf="getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name === 'Vendor'">
                     <mat-label>System name </mat-label>
                     <input matInput placeholder="Enter the name of the software system being evaluated..." [formControl]="systemNameControl">
                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                     <mat-hint *ngIf="!expoMode">Name of the software system being evaluated. This information is not stored.</mat-hint>
                     <mat-hint *ngIf="expoMode">Name of the software system being evaluated. This information is stored in Expo 2025 database.</mat-hint>
                 </mat-form-field>
-                <mat-form-field class="w-full mt-10">
+                <mat-form-field class="w-full mb-6">
                     <mat-label>User name </mat-label>
                     <input matInput placeholder="Enter the name of the user conducting the assessment..." [formControl]="authorControl">
                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
@@ -192,7 +191,7 @@
                         User name is required in Expo mode.
                     </mat-error>
                 </mat-form-field>
-                <mat-form-field class="w-full mt-10">
+                <mat-form-field class="w-full mb-6">
                     <mat-label>Location</mat-label>
                     <input matInput type="text" placeholder="Enter a Country, City or address..." [formControl]="locationControl" [matAutocomplete]="auto">
                     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onLocationSelected($event.option.value)" [displayWith]="displayLocation">
@@ -209,21 +208,22 @@
         </div>
     </div>
     <div class="button-container-first">
-        <div class="start-button button-container">
-            <button mat-flat-button color="primary" (click)="startOver()">
-            Back
+        <div class="button-container">
+            <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
+                Back
             </button>
             <button mat-flat-button color="primary" (click)="onStakeholderSelected()"
-            [disabled]="responseForm.controls['selectedStakeholder'].invalid || (expoMode && (nameControl.invalid || authorControl.invalid || locationControl.invalid))">
-            Select KPAs
+                [disabled]="responseForm.controls['selectedStakeholder'].invalid || (expoMode && (nameControl.invalid || authorControl.invalid || locationControl.invalid))" 
+                class="min-h-[44px]">
+                Select KPAs
             </button>
         </div>
     
         <!-- File input for loading saved state -->
         <input hidden (change)="loadState($event)" #fileInputState type="file" id="fileState" />
     
-        <button class="secondary-button" mat-flat-button (click)="fileInputState.click()">
-        Upload previous results
+        <button class="secondary-button" mat-flat-button (click)="fileInputState.click()" class="min-h-[44px]">
+            Upload previous results
         </button>
     </div>
     
@@ -258,10 +258,10 @@
         </section>
 
         <div class="button-container">
-            <button mat-flat-button color="primary" (click)="startOver()">
+            <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
                 Back
             </button>
-            <button mat-flat-button color="primary" (click)="filterKpasAndGoNext()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1">
+            <button mat-flat-button color="primary" (click)="filterKpasAndGoNext()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1" class="min-h-[44px]">
                 Start assessment
             </button>
         </div>
@@ -276,8 +276,8 @@
         <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
         <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
         <p class="question-text" [@questionAnimation]="animationState" [innerHTML]="allQuestions[currentQuestionIndex].question.question"></p>
-        <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
-            <div class="flex-1">
+        <div class="flex flex-col lg:flex-row gap-4 lg:justify-end flex-wrap p-2">
+            <div class="flex-1 min-w-0">
                 <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
                     <div class="radio-option" *ngFor="let option of allQuestions[currentQuestionIndex].question.options">
                         <mat-radio-button [value]="option.score">
@@ -291,14 +291,14 @@
                     </div>
                 </mat-radio-group>
             </div>
-            <div class="flex-1 w-full">
+            <div class="flex-1 w-full min-w-0">
                 <div *ngIf="allQuestions[currentQuestionIndex].question.context">
                   <div class="question-context-heading">How to answer this question</div>
                   <div class="question-context" [innerHTML]="allQuestions[currentQuestionIndex].question.context"></div>
                 </div>
                 <hr class="context-separator" *ngIf="allQuestions[currentQuestionIndex].question.context">
                 <div class="context-comment-spacing">
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full mb-6">
                 <mat-label><i>Optional comment</i></mat-label>
                 <textarea matInput [formControl]="currentCommentControl" placeholder="Enter your comment" rows="5"></textarea>
                 </mat-form-field>
@@ -312,18 +312,18 @@
             <!-- <button mat-flat-button color="primary" (click)="startOver()" *ngIf="currentQuestionIndex == 0">
                 Restart
             </button> -->
-            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" *ngIf="currentQuestionIndex > 0" [disabled]="currentQuestionIndex < 1">
+            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" *ngIf="currentQuestionIndex > 0" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
                 Back
             </button>
-            <button mat-flat-button color="primary" (click)="goToNextQuestion()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1">
+            <button mat-flat-button color="primary" (click)="goToNextQuestion()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1" class="min-h-[44px]">
                 Next
             </button>
-            <button mat-flat-button color="accent" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex === allQuestions.length -1" (click)="submitStakeholderResponses()">
+            <button mat-flat-button color="accent" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex === allQuestions.length -1" (click)="submitStakeholderResponses()" class="min-h-[44px]">
                 See results
             </button>
         </div>
         <div class="button-container-first">
-            <button class="secondary-button" mat-flat-button (click)="startOver()">
+            <button class="secondary-button" mat-flat-button (click)="startOver()" class="min-h-[44px]">
                 Restart assessment
             </button>
         </div>
@@ -363,38 +363,38 @@
 
         <!-- Expo Mode: Simplified buttons -->
         <div class="button-container" *ngIf="expoMode">
-            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1">
+            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
                 Back
             </button>
-            <button mat-flat-button color="primary" (click)="startOver()">
+            <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
                 Start over
             </button>
         </div>
         
         <!-- Expo Mode: Send button on its own row -->
         <div class="button-container" *ngIf="expoMode">
-            <button mat-flat-button color="accent" (click)="saveToFirebase()" class="expo-send-button">
+            <button mat-flat-button color="accent" (click)="saveToFirebase()" class="expo-send-button min-h-[44px]">
                 Send to Expo 2025 Floor Map!
             </button>
         </div>
 
         <!-- Regular Mode: Full button set -->
         <div class="button-container" *ngIf="!expoMode">
-            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1">
+            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
                 Back
             </button>
-            <button mat-flat-button color="primary" (click)="startOver()">
+            <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
                 Start over
             </button>
         </div>
         <div class="button-container" *ngIf="!expoMode">
             <!-- Download Button -->
-            <button mat-flat-button color="primary" (click)="saveState()">
+            <button mat-flat-button color="primary" (click)="saveState()" class="min-h-[44px]">
                 📥 Download results
             </button>
             
             <!-- PDF Download Button -->
-            <button mat-flat-button color="primary" (click)="downloadPdf()">📄 Download PDF</button>
+            <button mat-flat-button color="primary" (click)="downloadPdf()" class="min-h-[44px]">📄 Download PDF</button>
         </div>
     </div>
 </div>
