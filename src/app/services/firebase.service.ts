@@ -22,6 +22,15 @@ export interface MaturityAssessmentResult {
   [key: string]: any; // Allow for additional question responses and comments
 }
 
+// Interface for quiz leaderboard entry
+export interface QuizLeaderboardEntry {
+  name: string;
+  score: number;
+  quiz: string;
+  date: string;
+  eventName?: string; // For grouping by event (e.g., "Expo 2025")
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -196,5 +205,256 @@ export class FirebaseService {
     }, (error) => {
       console.error('❌ Real-time listener error:', error);
     });
+  }
+
+  /**
+   * Add a quiz leaderboard entry to Firebase
+   * @param leaderboardEntry The quiz leaderboard entry to save
+   * @param eventName Optional event name for grouping (e.g., "Expo 2025")
+   * @returns Promise that resolves when the document is added
+   */
+  async addQuizLeaderboardEntry(leaderboardEntry: QuizLeaderboardEntry, eventName?: string): Promise<void> {
+    try {
+      const dataToSave = {
+        ...leaderboardEntry,
+        eventName: eventName || 'General',
+        createdAt: new Date().toISOString()
+      };
+
+      const docRef = await addDoc(collection(this.db, 'quizLeaderboard'), dataToSave);
+      console.log('✅ Quiz leaderboard entry added successfully:', docRef.id);
+    } catch (error) {
+      console.error("❌ Error adding quiz leaderboard entry: ", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get quiz leaderboard entries, optionally filtered by quiz type and event name
+   * @param quizType Optional quiz type to filter by (e.g., "food", "snomed")
+   * @param eventName Optional event name to filter by (e.g., "Expo 2025")
+   * @param limitCount Optional limit for number of results (default: 10)
+   * @returns Promise that resolves to array of leaderboard entries
+   */
+  async getQuizLeaderboardEntries(quizType?: string, eventName?: string, limitCount: number = 10): Promise<QuizLeaderboardEntry[]> {
+    try {
+      const leaderboardCol = collection(this.db, 'quizLeaderboard');
+      
+      let q;
+      if (quizType && eventName) {
+        // Filter by both quiz type and event name
+        q = query(
+          leaderboardCol,
+          where('quiz', '==', quizType),
+          where('eventName', '==', eventName),
+          orderBy('score', 'desc'),
+          orderBy('date', 'asc'),
+          limit(limitCount)
+        );
+      } else if (quizType) {
+        // Filter by quiz type only
+        q = query(
+          leaderboardCol,
+          where('quiz', '==', quizType),
+          orderBy('score', 'desc'),
+          orderBy('date', 'asc'),
+          limit(limitCount)
+        );
+      } else if (eventName) {
+        // Filter by event name only
+        q = query(
+          leaderboardCol,
+          where('eventName', '==', eventName),
+          orderBy('score', 'desc'),
+          orderBy('date', 'asc'),
+          limit(limitCount)
+        );
+      } else {
+        // Get all results
+        q = query(
+          leaderboardCol,
+          orderBy('score', 'desc'),
+          orderBy('date', 'asc'),
+          limit(limitCount)
+        );
+      }
+
+      const querySnapshot = await getDocs(q);
+      
+      const results = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data
+        } as QuizLeaderboardEntry & { id: string };
+      });
+      
+      return results;
+    } catch (error) {
+      console.error("❌ Error getting quiz leaderboard entries: ", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get quiz leaderboard entries grouped by quiz type
+   * @param eventName Optional event name to filter by (e.g., "Expo 2025")
+   * @returns Promise that resolves to object with quiz types as keys and arrays of entries as values
+   */
+  async getQuizLeaderboardEntriesByQuizType(eventName?: string): Promise<Record<string, QuizLeaderboardEntry[]>> {
+    try {
+      const leaderboardCol = collection(this.db, 'quizLeaderboard');
+      
+      let q;
+      if (eventName) {
+        q = query(
+          leaderboardCol,
+          where('eventName', '==', eventName),
+          orderBy('score', 'desc'),
+          orderBy('date', 'asc')
+        );
+      } else {
+        q = query(
+          leaderboardCol,
+          orderBy('score', 'desc'),
+          orderBy('date', 'asc')
+        );
+      }
+      
+      const querySnapshot = await getDocs(q);
+      const allEntries = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as QuizLeaderboardEntry & { id: string }));
+
+      // Group by quiz type and keep only top 10 for each
+      const groupedResults: Record<string, QuizLeaderboardEntry[]> = {};
+      allEntries.forEach(entry => {
+        const quizType = entry.quiz;
+        if (!groupedResults[quizType]) {
+          groupedResults[quizType] = [];
+        }
+        if (groupedResults[quizType].length < 10) {
+          groupedResults[quizType].push(entry);
+        }
+      });
+
+      return groupedResults;
+    } catch (error) {
+      console.error("❌ Error getting quiz leaderboard entries by quiz type: ", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Subscribe to real-time updates for quiz leaderboard entries
+   * @param quizType Optional quiz type to filter by (e.g., "food", "snomed")
+   * @param eventName Optional event name to filter by (e.g., "Expo 2025")
+   * @param onDataChange Callback function to handle data changes
+   * @param limitCount Optional limit for number of results (default: 10)
+   * @returns Unsubscribe function to stop listening
+   */
+  subscribeToQuizLeaderboardEntries(
+    quizType: string | undefined,
+    eventName: string | undefined,
+    onDataChange: (entries: QuizLeaderboardEntry[]) => void,
+    limitCount: number = 10
+  ): Unsubscribe {
+    const leaderboardCol = collection(this.db, 'quizLeaderboard');
+    
+    let q;
+    if (quizType && eventName) {
+      // Filter by both quiz type and event name
+      q = query(
+        leaderboardCol,
+        where('quiz', '==', quizType),
+        where('eventName', '==', eventName),
+        orderBy('score', 'desc'),
+        orderBy('date', 'asc'),
+        limit(limitCount)
+      );
+    } else if (quizType) {
+      // Filter by quiz type only
+      q = query(
+        leaderboardCol,
+        where('quiz', '==', quizType),
+        orderBy('score', 'desc'),
+        orderBy('date', 'asc'),
+        limit(limitCount)
+      );
+    } else if (eventName) {
+      // Filter by event name only
+      q = query(
+        leaderboardCol,
+        where('eventName', '==', eventName),
+        orderBy('score', 'desc'),
+        orderBy('date', 'asc'),
+        limit(limitCount)
+      );
+    } else {
+      // Get all results
+      q = query(
+        leaderboardCol,
+        orderBy('score', 'desc'),
+        orderBy('date', 'asc'),
+        limit(limitCount)
+      );
+    }
+
+    return onSnapshot(q, (snapshot) => {
+      const entries = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data
+        } as QuizLeaderboardEntry & { id: string };
+      });
+      
+      onDataChange(entries);
+    }, (error) => {
+      console.error('❌ Real-time quiz leaderboard listener error:', error);
+    });
+  }
+
+  /**
+   * Subscribe to real-time updates for both quiz leaderboards
+   * @param eventName Optional event name to filter by (e.g., "Expo 2025")
+   * @param onDataChange Callback function to handle data changes
+   * @param limitCount Optional limit for number of results (default: 10)
+   * @returns Object with unsubscribe functions for both listeners
+   */
+  subscribeToAllQuizLeaderboards(
+    eventName: string | undefined,
+    onDataChange: (foodEntries: QuizLeaderboardEntry[], snomedEntries: QuizLeaderboardEntry[]) => void,
+    limitCount: number = 10
+  ): { unsubscribeFood: Unsubscribe, unsubscribeSnomed: Unsubscribe } {
+    let foodEntries: QuizLeaderboardEntry[] = [];
+    let snomedEntries: QuizLeaderboardEntry[] = [];
+
+    const updateCallback = () => {
+      onDataChange(foodEntries, snomedEntries);
+    };
+
+    const unsubscribeFood = this.subscribeToQuizLeaderboardEntries(
+      'food',
+      eventName,
+      (entries) => {
+        foodEntries = entries;
+        updateCallback();
+      },
+      limitCount
+    );
+
+    const unsubscribeSnomed = this.subscribeToQuizLeaderboardEntries(
+      'snomed',
+      eventName,
+      (entries) => {
+        snomedEntries = entries;
+        updateCallback();
+      },
+      limitCount
+    );
+
+    return { unsubscribeFood, unsubscribeSnomed };
   }
 }

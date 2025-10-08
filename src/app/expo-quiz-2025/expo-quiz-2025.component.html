@@ -4,10 +4,36 @@
         <p>Test your knowledge with our interactive quizzes!</p>
     </header>
 
-    <!-- Quiz Selector -->
-    <div class="quiz-selector" *ngIf="showQuizSelector">
-        <button class="quiz-btn" (click)="startQuiz('food')">🍽️ Global Food Quiz</button>
-        <button class="quiz-btn" (click)="startQuiz('snomed')">🏥 SNOMED CT International Quiz</button>
+    <!-- Quiz Selector - Videogame Style Menu -->
+    <div class="quiz-selector videogame-menu" *ngIf="showQuizSelector">
+        <div class="menu-background"></div>
+        <div class="menu-content">
+            <div class="menu-buttons">
+                <button class="menu-btn" (click)="startQuiz('food')">
+                    <span class="btn-icon">🍽️</span>
+                    <span class="btn-text">Global Food Quiz</span>
+                    <span class="btn-subtitle">Test your culinary knowledge</span>
+                </button>
+                <button class="menu-btn" (click)="startQuiz('snomed')">
+                    <span class="btn-icon">🏥</span>
+                    <span class="btn-text">SNOMED CT International</span>
+                    <span class="btn-subtitle">Medical terminology challenge</span>
+                </button>
+                <button class="menu-btn" (click)="viewLeaderboardFromHome()">
+                    <span class="btn-icon">🏆</span>
+                    <span class="btn-text">View Leaderboards</span>
+                    <span class="btn-subtitle">See top performers</span>
+                </button>
+            </div>
+            <div class="expo-logo-overlay">
+                <img src="/assets/img/Expo2025-Logo.png" alt="Expo 2025 Logo" class="expo-logo">
+            </div>
+            <div class="menu-decoration">
+                <div class="decoration-line"></div>
+                <div class="decoration-text">EXPO 2025</div>
+                <div class="decoration-line"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Global Food Quiz -->
@@ -47,6 +73,11 @@
                 Finish Quiz
             </button>
         </div>
+        
+        <!-- Abandon Quiz Button -->
+        <button class="abandon-quiz-btn" (click)="cancelQuiz()" title="Return to main menu">
+            🚪 Abandon Quiz
+        </button>
     </div>
 
     <!-- SNOMED CT Quiz -->
@@ -86,6 +117,11 @@
                 Finish Quiz
             </button>
         </div>
+        
+        <!-- Abandon Quiz Button -->
+        <button class="abandon-quiz-btn" (click)="cancelQuiz()" title="Return to main menu">
+            🚪 Abandon Quiz
+        </button>
     </div>
 
     <!-- Answers Modal -->
@@ -147,7 +183,15 @@
             <!-- Dual Leaderboards Display -->
             <div class="dual-leaderboards">
                 <h3>📊 Current Leaderboards</h3>
-                <div class="leaderboards-container">
+                
+                <!-- Loading Indicator -->
+                <div class="loading-container" *ngIf="isLoadingLeaderboards">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Loading leaderboards...</p>
+                </div>
+                
+                <!-- Leaderboards Content -->
+                <div class="leaderboards-container" *ngIf="!isLoadingLeaderboards">
                     <!-- Food Quiz Leaderboard -->
                     <div class="leaderboard-panel">
                         <h4>🍽️ Global Food Quiz</h4>
@@ -194,7 +238,15 @@
     <div class="modal" *ngIf="showLeaderboardModal">
         <div class="modal-content leaderboard-modal-content">
             <h2>🏆 All Quiz Leaderboards</h2>
-            <div class="leaderboards-container">
+            
+            <!-- Loading Indicator -->
+            <div class="loading-container" *ngIf="isLoadingLeaderboards">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Loading leaderboards...</p>
+            </div>
+            
+            <!-- Leaderboards Content -->
+            <div class="leaderboards-container" *ngIf="!isLoadingLeaderboards">
                 <!-- Food Quiz Leaderboard -->
                     <div class="leaderboard-panel">
                         <h4>🍽️ Global Food Quiz</h4>

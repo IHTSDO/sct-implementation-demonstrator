@@ -1,4 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { FirebaseService, QuizLeaderboardEntry } from '../services/firebase.service';
+import { Unsubscribe } from 'firebase/firestore';
 
 interface QuizQuestion {
   question: string;
@@ -11,12 +13,7 @@ interface QuizData {
   questions: QuizQuestion[];
 }
 
-interface LeaderboardEntry {
-  name: string;
-  score: number;
-  quiz: string;
-  date: string;
-}
+// Using the QuizLeaderboardEntry interface from FirebaseService
 
 @Component({
   selector: 'app-expo-quiz-2025',
@@ -165,23 +162,77 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
   // Modal data
   incorrectAnswers: any[] = [];
   playerName: string = '';
-  leaderboard: LeaderboardEntry[] = [];
-  foodLeaderboard: LeaderboardEntry[] = [];
-  snomedLeaderboard: LeaderboardEntry[] = [];
+  leaderboard: QuizLeaderboardEntry[] = [];
+  foodLeaderboard: QuizLeaderboardEntry[] = [];
+  snomedLeaderboard: QuizLeaderboardEntry[] = [];
   nameSubmitted: boolean = false;
+  
+  // Event name for grouping quiz results
+  eventName: string = 'Expo 2025';
+  
+  // Loading states
+  isLoadingLeaderboards: boolean = false;
+  
+  // Real-time listeners
+  private leaderboardUnsubscribers: { unsubscribeFood?: Unsubscribe, unsubscribeSnomed?: Unsubscribe } = {};
 
-  constructor() { }
+  constructor(private firebaseService: FirebaseService) { }
 
   ngOnInit(): void {
     this.initializeApp();
   }
 
   ngOnDestroy(): void {
-    // Clean up any event listeners if needed
+    // Clean up real-time listeners
+    this.unsubscribeFromLeaderboards();
   }
 
   private initializeApp(): void {
     // Component is ready, no additional initialization needed
+  }
+
+  private subscribeToLeaderboards(): void {
+    // Subscribe to real-time updates for both leaderboards
+    const { unsubscribeFood, unsubscribeSnomed } = this.firebaseService.subscribeToAllQuizLeaderboards(
+      this.eventName,
+      (foodEntries, snomedEntries) => {
+        this.foodLeaderboard = foodEntries;
+        this.snomedLeaderboard = snomedEntries;
+      },
+      10
+    );
+
+    this.leaderboardUnsubscribers.unsubscribeFood = unsubscribeFood;
+    this.leaderboardUnsubscribers.unsubscribeSnomed = unsubscribeSnomed;
+  }
+
+  private unsubscribeFromLeaderboards(): void {
+    if (this.leaderboardUnsubscribers.unsubscribeFood) {
+      this.leaderboardUnsubscribers.unsubscribeFood();
+      this.leaderboardUnsubscribers.unsubscribeFood = undefined;
+    }
+    if (this.leaderboardUnsubscribers.unsubscribeSnomed) {
+      this.leaderboardUnsubscribers.unsubscribeSnomed();
+      this.leaderboardUnsubscribers.unsubscribeSnomed = undefined;
+    }
+  }
+
+  async viewLeaderboardFromHome(): Promise<void> {
+    // Show modal immediately for better UX
+    this.showLeaderboardModal = true;
+    this.isLoadingLeaderboards = true;
+    
+    try {
+      // Subscribe to real-time updates
+      this.subscribeToLeaderboards();
+      
+      // Load initial data
+      await this.loadBothLeaderboards();
+    } catch (error) {
+      console.error('Error loading leaderboards:', error);
+    } finally {
+      this.isLoadingLeaderboards = false;
+    }
   }
 
   startQuiz(quizType: string): void {
@@ -271,26 +322,55 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
     this.showAnswersModal = true;
   }
 
-  viewResults(): void {
+  async viewResults(): Promise<void> {
     this.showAnswersModal = false;
-    this.loadBothLeaderboards();
     this.showResultsModal = true;
-  }
-
-  private showResults(): void {
-    this.showAnswersModal = false;
-    this.loadBothLeaderboards();
-    this.showResultsModal = true;
-  }
-
-  private loadBothLeaderboards(): void {
-    // Load food quiz leaderboard
-    const foodLeaderboardKey = 'expoQuizLeaderboard_food';
-    this.foodLeaderboard = JSON.parse(localStorage.getItem(foodLeaderboardKey) || '[]');
+    this.isLoadingLeaderboards = true;
     
-    // Load SNOMED quiz leaderboard
-    const snomedLeaderboardKey = 'expoQuizLeaderboard_snomed';
-    this.snomedLeaderboard = JSON.parse(localStorage.getItem(snomedLeaderboardKey) || '[]');
+    try {
+      // Subscribe to real-time updates
+      this.subscribeToLeaderboards();
+      
+      // Load initial data
+      await this.loadBothLeaderboards();
+    } catch (error) {
+      console.error('Error loading leaderboards:', error);
+    } finally {
+      this.isLoadingLeaderboards = false;
+    }
+  }
+
+  private async showResults(): Promise<void> {
+    this.showAnswersModal = false;
+    this.showResultsModal = true;
+    this.isLoadingLeaderboards = true;
+    
+    try {
+      // Subscribe to real-time updates
+      this.subscribeToLeaderboards();
+      
+      // Load initial data
+      await this.loadBothLeaderboards();
+    } catch (error) {
+      console.error('Error loading leaderboards:', error);
+    } finally {
+      this.isLoadingLeaderboards = false;
+    }
+  }
+
+  private async loadBothLeaderboards(): Promise<void> {
+    try {
+      // Load food quiz leaderboard from Firebase
+      this.foodLeaderboard = await this.firebaseService.getQuizLeaderboardEntries('food', this.eventName, 10);
+      
+      // Load SNOMED quiz leaderboard from Firebase
+      this.snomedLeaderboard = await this.firebaseService.getQuizLeaderboardEntries('snomed', this.eventName, 10);
+    } catch (error) {
+      console.error('Error loading leaderboards:', error);
+      // Fallback to empty arrays if Firebase fails
+      this.foodLeaderboard = [];
+      this.snomedLeaderboard = [];
+    }
   }
 
   getScoreMessage(): string {
@@ -307,63 +387,79 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
     }
   }
 
-  addToLeaderboard(): void {
+  async addToLeaderboard(): Promise<void> {
     if (!this.playerName.trim()) {
       alert('Please enter your name!');
       return;
     }
     
-    // Get existing leaderboard for current quiz
-    const leaderboardKey = `expoQuizLeaderboard_${this.currentQuiz}`;
-    let leaderboard = JSON.parse(localStorage.getItem(leaderboardKey) || '[]');
-    
-    // Add new score
-    const newEntry: LeaderboardEntry = {
-      name: this.playerName.trim(),
-      score: this.score,
-      quiz: this.currentQuiz!,
-      date: new Date().toISOString()
-    };
-    
-    leaderboard.push(newEntry);
-    
-    // Sort by score (descending) and date (ascending for same scores)
-    leaderboard.sort((a: LeaderboardEntry, b: LeaderboardEntry) => {
-      if (b.score !== a.score) {
-        return b.score - a.score;
-      }
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
-    
-    // Keep only top 10
-    leaderboard = leaderboard.slice(0, 10);
-    
-    // Save to localStorage
-    localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard));
-    
-    // Refresh both leaderboards in the current view
-    this.loadBothLeaderboards();
-    
-    // Mark name as submitted and clear input
-    this.nameSubmitted = true;
-    this.playerName = '';
-    
-    // Show success message
-    const quizName = this.currentQuiz === 'food' ? 'Global Food Quiz' : 'SNOMED CT International Quiz';
-    alert(`Great job, ${newEntry.name}! Your score has been added to the ${quizName} leaderboard!`);
+    try {
+      // Create new leaderboard entry
+      const newEntry: QuizLeaderboardEntry = {
+        name: this.playerName.trim(),
+        score: this.score,
+        quiz: this.currentQuiz!,
+        date: new Date().toISOString(),
+        eventName: this.eventName
+      };
+      
+      // Add to Firebase
+      await this.firebaseService.addQuizLeaderboardEntry(newEntry, this.eventName);
+      
+      // Refresh both leaderboards in the current view
+      await this.loadBothLeaderboards();
+      
+      // Mark name as submitted and clear input
+      this.nameSubmitted = true;
+      const playerName = this.playerName.trim();
+      this.playerName = '';
+      
+      // Show success message
+      const quizName = this.currentQuiz === 'food' ? 'Global Food Quiz' : 'SNOMED CT International Quiz';
+      alert(`Great job, ${playerName}! Your score has been added to the ${quizName} leaderboard!`);
+    } catch (error) {
+      console.error('Error adding to leaderboard:', error);
+      alert('Sorry, there was an error saving your score. Please try again.');
+    }
   }
 
-  showLeaderboard(): void {
-    const leaderboardKey = `expoQuizLeaderboard_${this.currentQuiz}`;
-    this.leaderboard = JSON.parse(localStorage.getItem(leaderboardKey) || '[]');
-    this.loadBothLeaderboards();
-    
+  async showLeaderboard(): Promise<void> {
+    // Show modal immediately
     this.showResultsModal = false;
     this.showLeaderboardModal = true;
+    this.isLoadingLeaderboards = true;
+    
+    try {
+      // Subscribe to real-time updates
+      this.subscribeToLeaderboards();
+      
+      // Load current quiz leaderboard from Firebase
+      this.leaderboard = await this.firebaseService.getQuizLeaderboardEntries(this.currentQuiz!, this.eventName, 10);
+      
+      // Also load both leaderboards for the modal
+      await this.loadBothLeaderboards();
+    } catch (error) {
+      console.error('Error loading leaderboard:', error);
+      // Fallback to empty arrays if Firebase fails
+      this.leaderboard = [];
+      this.foodLeaderboard = [];
+      this.snomedLeaderboard = [];
+    } finally {
+      this.isLoadingLeaderboards = false;
+    }
   }
 
   hideLeaderboard(): void {
     this.showLeaderboardModal = false;
+    
+    // Unsubscribe from real-time updates when hiding leaderboard
+    this.unsubscribeFromLeaderboards();
+    
+    this.resetQuiz();
+  }
+
+  cancelQuiz(): void {
+    // Simple method to return to home without saving progress
     this.resetQuiz();
   }
 
@@ -372,6 +468,9 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
     this.showAnswersModal = false;
     this.showResultsModal = false;
     this.showLeaderboardModal = false;
+    
+    // Unsubscribe from real-time updates when resetting
+    this.unsubscribeFromLeaderboards();
     
     // Show quiz selector
     this.showQuizSelector = true;

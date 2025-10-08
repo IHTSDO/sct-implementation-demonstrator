@@ -41,36 +41,175 @@ header p {
     color: #666;
 }
 
-/* Quiz Selector */
-.quiz-selector {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
+/* Videogame Style Menu */
+.videogame-menu {
+    position: relative;
+    min-height: 600px;
     margin-bottom: 40px;
-    flex-wrap: wrap;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
-.quiz-btn {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-    color: white;
-    border: none;
-    padding: 20px 40px;
-    font-size: 1.3rem;
+.menu-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/assets/img/antwerp.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.9) contrast(1.2);
+}
+
+.menu-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.3) 0%, 
+        rgba(0, 0, 0, 0.1) 50%, 
+        rgba(0, 0, 0, 0.4) 100%);
+}
+
+.menu-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 600px;
+    padding: 40px;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 400px;
+}
+
+.menu-btn {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%, 
+        rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
+    padding: 25px 30px;
+    color: white;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    min-width: 250px;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.menu-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.1), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.menu-btn:hover {
+    transform: translateX(10px) scale(1.02);
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.25) 0%, 
+        rgba(255, 255, 255, 0.15) 100%);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.menu-btn:hover::before {
+    left: 100%;
+}
+
+.menu-btn:active {
+    transform: translateX(5px) scale(0.98);
+}
+
+.btn-icon {
+    display: block;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.btn-text {
+    display: block;
+    font-size: 1.4rem;
     font-weight: bold;
+    margin-bottom: 5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    line-height: 1.2;
 }
 
-.quiz-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+.btn-subtitle {
+    display: block;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    font-style: italic;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.quiz-btn[data-quiz="snomed"] {
-    background: linear-gradient(45deg, #4834d4, #686de0);
+.expo-logo-overlay {
+    position: absolute;
+    top: 40px;
+    right: 60px;
+    z-index: 3;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.expo-logo {
+    height: 200px;
+    width: auto;
+    filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+}
+
+.expo-logo:hover {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: drop-shadow(4px 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.menu-decoration {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    opacity: 0.7;
+}
+
+.decoration-line {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+}
+
+.decoration-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 /* Quiz Container */
@@ -91,9 +230,49 @@ header p {
     border-bottom: 3px solid #e2e8f0;
 }
 
+/* Quiz Container */
+.quiz-container {
+    position: relative;
+    padding-bottom: 70px; /* Add space for the abandon button */
+}
+
+.abandon-quiz-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: linear-gradient(45deg, #e53e3e, #c53030);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(229, 62, 62, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+    opacity: 0.8;
+}
+
+.abandon-quiz-btn:hover {
+    background: linear-gradient(45deg, #c53030, #9c2626);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(229, 62, 62, 0.4);
+    opacity: 1;
+}
+
+.abandon-quiz-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 8px rgba(229, 62, 62, 0.3);
+}
+
 .quiz-header h2 {
     font-size: 2rem;
     color: #2d3748;
+    margin: 0;
 }
 
 .score-display {
@@ -720,6 +899,40 @@ header p {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* Loading Indicator */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    min-height: 200px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(66, 153, 225, 0.2);
+    border-left: 4px solid #4299e1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: #4a5568;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+    margin: 0;
+    opacity: 0.8;
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;
@@ -740,20 +953,88 @@ header p {
         font-size: 2rem;
     }
     
-    .quiz-selector {
-        flex-direction: column;
-        align-items: center;
+    .videogame-menu {
+        min-height: 500px;
+        margin-bottom: 20px;
     }
     
-    .quiz-btn {
+    .menu-content {
+        min-height: 500px;
+        padding: 15px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .menu-buttons {
+        max-width: 100%;
         width: 100%;
-        max-width: 300px;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .menu-btn {
+        width: 100%;
+        max-width: none;
+        text-align: center;
+        padding: 25px 20px;
+        margin: 0;
+    }
+    
+    .menu-btn:hover,
+    .menu-btn:active {
+        transform: translateY(-3px) scale(1.01);
+    }
+    
+    .btn-icon {
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+    }
+    
+    .btn-text {
+        font-size: 1.3rem;
+        margin-bottom: 4px;
+    }
+    
+    .btn-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .expo-logo-overlay {
+        display: none;
+    }
+    
+    .menu-decoration {
+        position: static;
+        margin-top: 30px;
+        opacity: 0.8;
+    }
+    
+    .decoration-line {
+        width: 40px;
+    }
+    
+    .decoration-text {
+        font-size: 1rem;
+        letter-spacing: 2px;
     }
     
     .quiz-header {
         flex-direction: column;
         gap: 15px;
         text-align: center;
+    }
+    
+    .quiz-container {
+        padding-bottom: 60px; /* Reduced padding for mobile */
+    }
+    
+    .abandon-quiz-btn {
+        bottom: 15px;
+        left: 15px;
+        font-size: 0.85rem;
+        padding: 8px 12px;
     }
     
     .modal-content {
@@ -784,17 +1065,130 @@ header p {
 
 /* iPad specific optimizations */
 @media (min-width: 768px) and (max-width: 1024px) {
+    .videogame-menu {
+        min-height: 550px;
+    }
+    
+    .menu-content {
+        min-height: 550px;
+        padding: 30px;
+    }
+    
+    .menu-btn {
+        padding: 30px 35px;
+        max-width: 450px;
+    }
+    
+    .btn-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    
+    .btn-text {
+        font-size: 1.6rem;
+        margin-bottom: 8px;
+    }
+    
+    .btn-subtitle {
+        font-size: 1rem;
+    }
+    
+    .expo-logo-overlay {
+        top: 30px;
+        right: 30px;
+    }
+    
+    .expo-logo {
+        height: 150px;
+    }
+    
     .option {
         padding: 25px;
         font-size: 1.2rem;
     }
     
-    .quiz-btn {
-        padding: 25px 50px;
-        font-size: 1.4rem;
-    }
-    
     .question p {
         font-size: 1.3rem;
+    }
+    
+    .abandon-quiz-btn {
+        bottom: 18px;
+        left: 18px;
+        font-size: 0.9rem;
+        padding: 9px 14px;
+    }
+}
+
+/* Extra small screens (phones in portrait) */
+@media (max-width: 480px) {
+    .videogame-menu {
+        min-height: 450px;
+        border-radius: 15px;
+    }
+    
+    .menu-content {
+        min-height: 450px;
+        padding: 10px;
+    }
+    
+    .menu-btn {
+        padding: 20px 15px;
+        border-radius: 12px;
+    }
+    
+    .btn-icon {
+        font-size: 2rem;
+        margin-bottom: 6px;
+    }
+    
+    .btn-text {
+        font-size: 1.2rem;
+        margin-bottom: 3px;
+        line-height: 1.1;
+    }
+    
+    .btn-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .menu-decoration {
+        margin-top: 20px;
+    }
+    
+    .decoration-text {
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+    
+    .decoration-line {
+        width: 30px;
+    }
+    
+    .loading-container {
+        padding: 30px 15px;
+        min-height: 150px;
+    }
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border-width: 3px;
+        margin-bottom: 15px;
+    }
+    
+    .loading-text {
+        font-size: 1rem;
+    }
+    
+    .quiz-container {
+        padding-bottom: 50px; /* Even more compact for small screens */
+    }
+    
+    .abandon-quiz-btn {
+        bottom: 12px;
+        left: 12px;
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        gap: 4px;
     }
 }
