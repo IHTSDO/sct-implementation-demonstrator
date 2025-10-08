@@ -113,6 +113,7 @@ import { ClinicalTimelineComponent } from './benefits-demo/clinical-timeline/cli
 import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
 import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
 import { AiAssistedEntryComponent } from './benefits-demo/ai-assisted-entry/ai-assisted-entry.component';
+import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -185,7 +186,8 @@ const app = initializeApp(firebaseConfig);
         ClinicalTimelineComponent,
         EncounterRecordComponent,
         InteroperabilityComponent,
-        AiAssistedEntryComponent
+        AiAssistedEntryComponent,
+        ExpoQuiz2025Component
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

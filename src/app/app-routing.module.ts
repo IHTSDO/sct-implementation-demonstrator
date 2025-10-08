@@ -30,6 +30,7 @@ import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinica
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
 import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
 import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
+import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -65,6 +66,7 @@ const routes: Routes = [
   { path: 'create-patient', component: CreatePatientComponent },
   { path: 'encounter-record', component: EncounterRecordComponent },
   { path: 'interoperability', component: InteroperabilityComponent },
+  { path: 'expo-quiz-2025', component: ExpoQuiz2025Component },
   { path: '**', redirectTo: '' }
 ];
 

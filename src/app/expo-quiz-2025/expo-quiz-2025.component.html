@@ -1,0 +1,239 @@
+<div class="container">
+    <header>
+        <h1>🎯 Expo 2025 Terminology Quiz</h1>
+        <p>Test your knowledge with our interactive quizzes!</p>
+    </header>
+
+    <!-- Quiz Selector -->
+    <div class="quiz-selector" *ngIf="showQuizSelector">
+        <button class="quiz-btn" (click)="startQuiz('food')">🍽️ Global Food Quiz</button>
+        <button class="quiz-btn" (click)="startQuiz('snomed')">🏥 SNOMED CT International Quiz</button>
+    </div>
+
+    <!-- Global Food Quiz -->
+    <div class="quiz-container" *ngIf="showFoodQuiz">
+        <div class="quiz-header">
+            <h2>🍽️ Global Food Quiz</h2>
+            <div class="score-display">Score: <span>{{ score }}</span>/5</div>
+        </div>
+        <div class="question-container" *ngIf="currentQuiz === 'food'">
+            <div class="question">
+                <h3>Question {{ currentQuestion + 1 }} of 5</h3>
+                <p [innerHTML]="getCurrentQuestion().question"></p>
+                <div class="options">
+                    <button 
+                        *ngFor="let option of getCurrentQuestion().options; let i = index"
+                        class="option"
+                        [class.selected]="selectedAnswer === i"
+                        (click)="selectAnswer(i)">
+                        {{ getOptionLetter(i) }}) {{ option }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="quiz-controls">
+            <button 
+                *ngIf="!isLastQuestion()"
+                class="next-btn"
+                [class.hidden]="!canProceed()"
+                (click)="nextQuestion()">
+                Next Question
+            </button>
+            <button 
+                *ngIf="isLastQuestion()"
+                class="finish-btn"
+                [class.hidden]="!canProceed()"
+                (click)="finishQuiz()">
+                Finish Quiz
+            </button>
+        </div>
+    </div>
+
+    <!-- SNOMED CT Quiz -->
+    <div class="quiz-container" *ngIf="showSnomedQuiz">
+        <div class="quiz-header">
+            <h2>🏥 SNOMED CT International Quiz</h2>
+            <div class="score-display">Score: <span>{{ score }}</span>/5</div>
+        </div>
+        <div class="question-container" *ngIf="currentQuiz === 'snomed'">
+            <div class="question">
+                <h3>Question {{ currentQuestion + 1 }} of 5</h3>
+                <p [innerHTML]="getCurrentQuestion().question"></p>
+                <div class="options">
+                    <button 
+                        *ngFor="let option of getCurrentQuestion().options; let i = index"
+                        class="option"
+                        [class.selected]="selectedAnswer === i"
+                        (click)="selectAnswer(i)">
+                        {{ getOptionLetter(i) }}) {{ option }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="quiz-controls">
+            <button 
+                *ngIf="!isLastQuestion()"
+                class="next-btn"
+                [class.hidden]="!canProceed()"
+                (click)="nextQuestion()">
+                Next Question
+            </button>
+            <button 
+                *ngIf="isLastQuestion()"
+                class="finish-btn"
+                [class.hidden]="!canProceed()"
+                (click)="finishQuiz()">
+                Finish Quiz
+            </button>
+        </div>
+    </div>
+
+    <!-- Answers Modal -->
+    <div class="modal" *ngIf="showAnswersModal">
+        <div class="modal-content answers-content">
+            <h2>📋 Quiz Answers & Explanations</h2>
+            <div class="answers-list">
+                <div 
+                    *ngFor="let item of incorrectAnswers"
+                    class="answer-item incorrect">
+                    <div class="answer-question">Question {{ item.index + 1 }}: {{ item.question.question }}</div>
+                    <div class="answer-options">
+                        <div 
+                            *ngFor="let option of item.question.options; let optionIndex = index"
+                            class="answer-option"
+                            [class.user-answer]="optionIndex === item.userAnswer"
+                            [class.incorrect]="optionIndex === item.userAnswer && optionIndex !== item.correctAnswer"
+                            [class.correct-answer]="optionIndex === item.correctAnswer">
+                            {{ getOptionLetter(optionIndex) }}) {{ option }}
+                        </div>
+                    </div>
+                    <div class="answer-explanation">{{ item.question.explanation }}</div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button (click)="viewResults()">View Results</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal" *ngIf="showResultsModal">
+        <div class="modal-content">
+            <h2>🎉 Quiz Complete!</h2>
+            <div class="final-score">
+                <p>Your Score: <span>{{ score }}</span>/5</p>
+                <p>{{ getScoreMessage() }}</p>
+            </div>
+            <div class="leaderboard-section" *ngIf="!nameSubmitted">
+                <h3>🏆 Add to Leaderboard</h3>
+                <input 
+                    type="text" 
+                    [(ngModel)]="playerName"
+                    placeholder="Enter your name" 
+                    maxlength="20">
+                <button class="add-score-btn" (click)="addToLeaderboard()">🏆 Add Score</button>
+            </div>
+            
+            <div class="score-submitted-section" *ngIf="nameSubmitted">
+                <h3>✅ Score Added Successfully!</h3>
+                <p>Your score has been added to the leaderboard. Check out the rankings below!</p>
+            </div>
+            
+            <!-- Play Again Button -->
+            <div class="play-again-section">
+                <button class="play-again-btn" (click)="resetQuiz()">🔄 Play Again</button>
+            </div>
+            
+            <!-- Dual Leaderboards Display -->
+            <div class="dual-leaderboards">
+                <h3>📊 Current Leaderboards</h3>
+                <div class="leaderboards-container">
+                    <!-- Food Quiz Leaderboard -->
+                    <div class="leaderboard-panel">
+                        <h4>🍽️ Global Food Quiz</h4>
+                        <div class="leaderboard-list scrollable">
+                            <div 
+                                *ngIf="foodLeaderboard.length === 0"
+                                class="no-scores">
+                                No scores yet
+                            </div>
+                            <div 
+                                *ngFor="let entry of foodLeaderboard; let i = index"
+                                class="leaderboard-item">
+                                <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
+                                <div class="leaderboard-name">{{ entry.name }}</div>
+                                <div class="leaderboard-score">{{ entry.score }}/5</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SNOMED Quiz Leaderboard -->
+                    <div class="leaderboard-panel">
+                        <h4>🏥 SNOMED CT International Quiz</h4>
+                        <div class="leaderboard-list scrollable">
+                            <div 
+                                *ngIf="snomedLeaderboard.length === 0"
+                                class="no-scores">
+                                No scores yet
+                            </div>
+                            <div 
+                                *ngFor="let entry of snomedLeaderboard; let i = index"
+                                class="leaderboard-item">
+                                <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
+                                <div class="leaderboard-name">{{ entry.name }}</div>
+                                <div class="leaderboard-score">{{ entry.score }}/5</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div class="modal" *ngIf="showLeaderboardModal">
+        <div class="modal-content leaderboard-modal-content">
+            <h2>🏆 All Quiz Leaderboards</h2>
+            <div class="leaderboards-container">
+                <!-- Food Quiz Leaderboard -->
+                    <div class="leaderboard-panel">
+                        <h4>🍽️ Global Food Quiz</h4>
+                        <div class="leaderboard-list scrollable">
+                            <div 
+                                *ngIf="foodLeaderboard.length === 0"
+                                class="no-scores">
+                                No scores yet. Be the first to add your score!
+                            </div>
+                            <div 
+                                *ngFor="let entry of foodLeaderboard; let i = index"
+                                class="leaderboard-item">
+                                <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
+                                <div class="leaderboard-name">{{ entry.name }}</div>
+                                <div class="leaderboard-score">{{ entry.score }}/5</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SNOMED Quiz Leaderboard -->
+                    <div class="leaderboard-panel">
+                        <h4>🏥 SNOMED CT International Quiz</h4>
+                        <div class="leaderboard-list scrollable">
+                            <div 
+                                *ngIf="snomedLeaderboard.length === 0"
+                                class="no-scores">
+                                No scores yet. Be the first to add your score!
+                            </div>
+                            <div 
+                                *ngFor="let entry of snomedLeaderboard; let i = index"
+                                class="leaderboard-item">
+                                <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
+                                <div class="leaderboard-name">{{ entry.name }}</div>
+                                <div class="leaderboard-score">{{ entry.score }}/5</div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <button (click)="hideLeaderboard()">Close</button>
+        </div>
+    </div>
+</div>
