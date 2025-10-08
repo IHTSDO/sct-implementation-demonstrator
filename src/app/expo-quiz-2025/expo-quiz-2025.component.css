@@ -339,12 +339,126 @@ header p {
     background: linear-gradient(45deg, #48bb78, #38a169);
     border-color: #2f855a;
     color: white;
+    animation: correctPulse 0.6s ease;
 }
 
 .option.incorrect {
     background: linear-gradient(45deg, #fc8181, #e53e3e);
     border-color: #c53030;
     color: white;
+    animation: incorrectShake 0.6s ease;
+}
+
+.option.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.option.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.correct-indicator {
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 8px;
+    font-weight: bold;
+    opacity: 0.9;
+}
+
+/* Feedback Message Styles */
+.feedback-message {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 15px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-align: center;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.feedback-message.correct-feedback {
+    background: linear-gradient(45deg, #48bb78, #38a169);
+    color: white;
+    border: 3px solid #2f855a;
+}
+
+.feedback-message.incorrect-feedback {
+    background: linear-gradient(45deg, #fc8181, #e53e3e);
+    color: white;
+    border: 3px solid #c53030;
+}
+
+/* Explanation Box Styles */
+.explanation-box {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 15px;
+    background: linear-gradient(45deg, #ebf8ff, #bee3f8);
+    border: 3px solid #4299e1;
+    animation: fadeInUp 0.6s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.explanation-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2c5282;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.explanation-text {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #2d3748;
+    font-style: italic;
+}
+
+/* Animations */
+@keyframes correctPulse {
+    0% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.05);
+    }
+    50% {
+        transform: scale(1);
+    }
+    75% {
+        transform: scale(1.03);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes incorrectShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-10px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(10px);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Quiz Controls */
@@ -499,6 +613,26 @@ header p {
     gap: 15px;
     border: 2px solid #48bb78;
     text-align: center;
+    animation: successFlash 1.5s ease;
+}
+
+@keyframes successFlash {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
+        transform: scale(1);
+    }
+    25% {
+        box-shadow: 0 0 20px 10px rgba(72, 187, 120, 0.5);
+        transform: scale(1.02);
+    }
+    50% {
+        box-shadow: 0 0 30px 15px rgba(72, 187, 120, 0.3);
+        transform: scale(1);
+    }
+    75% {
+        box-shadow: 0 0 20px 10px rgba(72, 187, 120, 0.5);
+        transform: scale(1.02);
+    }
 }
 
 .score-submitted-section h3 {

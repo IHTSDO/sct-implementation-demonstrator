@@ -51,9 +51,26 @@
                         *ngFor="let option of getCurrentQuestion().options; let i = index"
                         class="option"
                         [class.selected]="selectedAnswer === i"
+                        [class.correct]="showFeedback && (selectedAnswer === i && isAnswerCorrect || !isAnswerCorrect && i === currentCorrectAnswer)"
+                        [class.incorrect]="showFeedback && selectedAnswer === i && !isAnswerCorrect"
+                        [class.disabled]="showFeedback"
                         (click)="selectAnswer(i)">
                         {{ getOptionLetter(i) }}) {{ option }}
+                        <span *ngIf="showFeedback && !isAnswerCorrect && i === currentCorrectAnswer" class="correct-indicator">✓ Correct Answer</span>
                     </button>
+                </div>
+                
+                <!-- Feedback Message -->
+                <div class="feedback-message" *ngIf="showFeedback" 
+                     [class.correct-feedback]="isAnswerCorrect"
+                     [class.incorrect-feedback]="!isAnswerCorrect">
+                    {{ feedbackMessage }}
+                </div>
+                
+                <!-- Explanation -->
+                <div class="explanation-box" *ngIf="showFeedback">
+                    <div class="explanation-header">💡 Explanation</div>
+                    <div class="explanation-text">{{ getCurrentQuestion().explanation }}</div>
                 </div>
             </div>
         </div>
@@ -95,9 +112,26 @@
                         *ngFor="let option of getCurrentQuestion().options; let i = index"
                         class="option"
                         [class.selected]="selectedAnswer === i"
+                        [class.correct]="showFeedback && (selectedAnswer === i && isAnswerCorrect || !isAnswerCorrect && i === currentCorrectAnswer)"
+                        [class.incorrect]="showFeedback && selectedAnswer === i && !isAnswerCorrect"
+                        [class.disabled]="showFeedback"
                         (click)="selectAnswer(i)">
                         {{ getOptionLetter(i) }}) {{ option }}
+                        <span *ngIf="showFeedback && !isAnswerCorrect && i === currentCorrectAnswer" class="correct-indicator">✓ Correct Answer</span>
                     </button>
+                </div>
+                
+                <!-- Feedback Message -->
+                <div class="feedback-message" *ngIf="showFeedback" 
+                     [class.correct-feedback]="isAnswerCorrect"
+                     [class.incorrect-feedback]="!isAnswerCorrect">
+                    {{ feedbackMessage }}
+                </div>
+                
+                <!-- Explanation -->
+                <div class="explanation-box" *ngIf="showFeedback">
+                    <div class="explanation-header">💡 Explanation</div>
+                    <div class="explanation-text">{{ getCurrentQuestion().explanation }}</div>
                 </div>
             </div>
         </div>

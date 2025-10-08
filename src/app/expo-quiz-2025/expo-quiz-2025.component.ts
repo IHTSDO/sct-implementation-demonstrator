@@ -159,6 +159,12 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
   showResultsModal: boolean = false;
   showLeaderboardModal: boolean = false;
   
+  // Feedback state
+  showFeedback: boolean = false;
+  isAnswerCorrect: boolean = false;
+  feedbackMessage: string = '';
+  currentCorrectAnswer: number | null = null;
+  
   // Modal data
   incorrectAnswers: any[] = [];
   playerName: string = '';
@@ -262,10 +268,34 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
 
   private resetQuizState(): void {
     this.selectedAnswer = null;
+    this.showFeedback = false;
+    this.isAnswerCorrect = false;
+    this.feedbackMessage = '';
+    this.currentCorrectAnswer = null;
   }
 
   selectAnswer(answerIndex: number): void {
+    // Don't allow changing answer while feedback is showing
+    if (this.showFeedback) return;
+    
     this.selectedAnswer = answerIndex;
+    
+    // Check if answer is correct
+    const correctAnswer = this.quizData[this.currentQuiz!].questions[this.currentQuestion].correct;
+    this.currentCorrectAnswer = correctAnswer;
+    this.isAnswerCorrect = (answerIndex === correctAnswer);
+    
+    // Set feedback message
+    if (this.isAnswerCorrect) {
+      const messages = ['🎉 Correct!', '✨ Well done!', '🌟 Excellent!', '👏 Great job!', '💯 Perfect!'];
+      this.feedbackMessage = messages[Math.floor(Math.random() * messages.length)];
+    } else {
+      const messages = ['❌ Incorrect', '🤔 Not quite', '💭 Try again next time', '📚 Keep learning'];
+      this.feedbackMessage = messages[Math.floor(Math.random() * messages.length)];
+    }
+    
+    // Show feedback
+    this.showFeedback = true;
   }
 
   nextQuestion(): void {
@@ -283,6 +313,10 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
     // Move to next question
     this.currentQuestion++;
     this.selectedAnswer = null;
+    this.showFeedback = false;
+    this.isAnswerCorrect = false;
+    this.feedbackMessage = '';
+    this.currentCorrectAnswer = null;
   }
 
   finishQuiz(): void {
@@ -297,8 +331,8 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
       this.score++;
     }
     
-    // Show answers modal first
-    this.showAnswers();
+    // Go directly to results, skip the answers modal
+    this.showResults();
   }
 
   private showAnswers(): void {
@@ -414,12 +448,10 @@ export class ExpoQuiz2025Component implements OnInit, OnDestroy {
       
       // Mark name as submitted and clear input
       this.nameSubmitted = true;
-      const playerName = this.playerName.trim();
       this.playerName = '';
       
-      // Show success message
-      const quizName = this.currentQuiz === 'food' ? 'Global Food Quiz' : 'SNOMED CT International Quiz';
-      alert(`Great job, ${playerName}! Your score has been added to the ${quizName} leaderboard!`);
+      // Trigger flash animation by adding/removing class
+      // The leaderboard will update with real-time data and the new entry will flash
     } catch (error) {
       console.error('Error adding to leaderboard:', error);
       alert('Sorry, there was an error saving your score. Please try again.');
