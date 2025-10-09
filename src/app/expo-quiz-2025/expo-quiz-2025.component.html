@@ -93,14 +93,14 @@
         
         <!-- Abandon Quiz Button -->
         <button class="abandon-quiz-btn" (click)="cancelQuiz()" title="Return to main menu">
-            🚪 Abandon Quiz
+            🚪 Leave Quiz
         </button>
     </div>
 
     <!-- SNOMED CT Quiz -->
     <div class="quiz-container" *ngIf="showSnomedQuiz">
         <div class="quiz-header">
-            <h2>🏥 SNOMED CT International Quiz</h2>
+            <h2>🏥 Speaking Clinically: The Global Challenge of Terminology</h2>
             <div class="score-display">Score: <span>{{ score }}</span>/5</div>
         </div>
         <div class="question-container" *ngIf="currentQuiz === 'snomed'">
@@ -154,7 +154,7 @@
         
         <!-- Abandon Quiz Button -->
         <button class="abandon-quiz-btn" (click)="cancelQuiz()" title="Return to main menu">
-            🚪 Abandon Quiz
+            🚪 Leave Quiz
         </button>
     </div>
 
@@ -247,7 +247,7 @@
                     
                     <!-- SNOMED Quiz Leaderboard -->
                     <div class="leaderboard-panel">
-                        <h4>🏥 SNOMED CT International Quiz</h4>
+                        <h4>🏥 Speaking Clinically: The Global Challenge of Terminology</h4>
                         <div class="leaderboard-list scrollable">
                             <div 
                                 *ngIf="snomedLeaderboard.length === 0"
@@ -302,7 +302,7 @@
                     
                     <!-- SNOMED Quiz Leaderboard -->
                     <div class="leaderboard-panel">
-                        <h4>🏥 SNOMED CT International Quiz</h4>
+                        <h4>🏥 Speaking Clinically: The Global Challenge of Terminology</h4>
                         <div class="leaderboard-list scrollable">
                             <div 
                                 *ngIf="snomedLeaderboard.length === 0"
