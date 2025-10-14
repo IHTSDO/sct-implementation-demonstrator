@@ -860,10 +860,43 @@ header p {
 .leaderboard-modal-content {
     max-width: 1000px;
     width: 95%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.leaderboard-modal-content h2 {
+    flex-shrink: 0;
 }
 
 .leaderboard-modal-content .leaderboards-container {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    overflow-y: auto;
+    flex: 1;
+    padding: 10px 0;
+}
+
+.leaderboard-modal-content .leaderboards-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.leaderboard-modal-content .leaderboards-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.leaderboard-modal-content .leaderboards-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.leaderboard-modal-content .leaderboards-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.leaderboard-modal-content button {
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 .no-scores {
@@ -1194,6 +1227,29 @@ header p {
     .leaderboard-panel {
         padding: 15px;
     }
+    
+    /* Leaderboard modal mobile optimizations */
+    .leaderboard-modal-content {
+        max-height: 90vh;
+        padding: 20px 15px;
+        padding-top: max(20px, env(safe-area-inset-top));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+    
+    .leaderboard-modal-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .leaderboard-modal-content .leaderboards-container {
+        padding: 5px 0;
+        margin-bottom: 15px;
+    }
+    
+    .leaderboard-modal-content button {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
 }
 
 /* iPad specific optimizations */
@@ -1323,5 +1379,36 @@ header p {
         font-size: 0.8rem;
         padding: 6px 10px;
         gap: 4px;
+    }
+    
+    /* Leaderboard modal extra small screen optimizations */
+    .leaderboard-modal-content {
+        max-height: 92vh;
+        padding: 15px 10px;
+        padding-top: max(15px, env(safe-area-inset-top));
+        padding-bottom: max(25px, env(safe-area-inset-bottom));
+    }
+    
+    .leaderboard-modal-content h2 {
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+    }
+    
+    .leaderboard-modal-content .leaderboards-container {
+        padding: 3px 0;
+        margin-bottom: 12px;
+    }
+    
+    .leaderboard-modal-content button {
+        padding: 10px 15px;
+        font-size: 0.95rem;
+    }
+    
+    .leaderboard-panel h4 {
+        font-size: 1rem;
+    }
+    
+    .leaderboard-list.scrollable {
+        max-height: 250px;
     }
 }
