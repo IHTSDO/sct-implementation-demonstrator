@@ -237,6 +237,25 @@ button[mat-raised-button] {
     font-size: 1rem;
   }
 
+  /* Reorder context to appear before options in mobile view */
+  .question-container .flex-col > .flex-1:first-child {
+    order: 2;
+  }
+
+  .question-container .flex-col > .flex-1:last-child {
+    order: 1;
+  }
+
+  /* Hide comments field in mobile view */
+  .context-comment-spacing {
+    display: none;
+  }
+
+  /* Hide separator before comments in mobile view */
+  .context-separator {
+    display: none;
+  }
+
   /* Improve button container spacing */
   .button-container-space-between {
     flex-direction: column-reverse;

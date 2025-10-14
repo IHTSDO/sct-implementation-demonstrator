@@ -11,90 +11,78 @@
           "description": "Extent to which SNOMED CT is implemented across various clinical and administrative areas.",
           "questions": [
             {
-              "name": "Clinical Domains and Functional Areas",
-              "id": "clinical",
-              "question": "How extensively is SNOMED CT implemented across clinical and administrative areas?",
-              "context": "Consider how many different areas of your system use SNOMED CT.",
+              "name": "EHR Application Modules",
+              "id": "ehr_modules",
+              "question": "Across how many EHR application modules is SNOMED CT currently implemented?",
+              "context": "EHR application modules refer to functional components of the electronic health record where SNOMED CT may be used — for example, patient summary, problem list, orders, results, clinical documentation, decision support, or analytics modules.",
               "options": [
                 {
-                  "id": 0,
-                  "text": "No implementation or usage.",
-                  "score": 0,
-                  "example": "SNOMED CT is not implemented or used in any capacity."
-                },
-                {
                   "id": 1,
-                  "text": "Used in a few areas or modules but not consistently.",
-                  "score": 25,
-                  "example": "SNOMED CT is incorporated in some system components (e.g., medication ordering, clinical notes), but usage varies, and some areas still rely on free text or local codes."
+                  "text": "Very limited – Used in only one or two EHR modules.",
+                  "score": 0,
+                  "example": "Typically in pilot or testing stages; most modules do not yet use SNOMED CT."
                 },
                 {
                   "id": 2,
-                  "text": "Integrated into most clinical areas with documented use.",
-                  "score": 50,
-                  "example": "SNOMED CT is systematically applied across major clinical workflows (e.g., structured documentation, reporting) with formal documentation on its usage."
+                  "text": "Partial – Implemented in some modules, but coverage is uneven.",
+                  "score": 25,
+                  "example": "Used in a few EHR components (e.g., diagnoses or lab orders), but not routinely across others."
                 },
                 {
                   "id": 3,
-                  "text": "Implemented across both clinical and administrative functions.",
-                  "score": 75,
-                  "example": "SNOMED CT is embedded not only in clinical workflows but also in administrative processes such as billing, quality audits, and regulatory reporting."
+                  "text": "Broad – Used across several major EHR modules.",
+                  "score": 50,
+                  "example": "Actively used in multiple modules such as problem lists, documentation, and orders, but not all."
                 },
                 {
                   "id": 4,
-                  "text": "Fully integrated across all areas with continuous evaluation.",
-                  "score": 90,
-                  "example": "SNOMED CT is deeply embedded across all system components, with continuous monitoring and iterative improvements based on real-world usage and feedback."
+                  "text": "Comprehensive – Used across most or all key EHR modules.",
+                  "score": 75,
+                  "example": "SNOMED CT supports most functional areas; a few specialized modules may still be adopting it."
                 },
                 {
                   "id": 5,
-                  "text": "Advanced implementation with continuous improvement.",
+                  "text": "Fully integrated – Used in all relevant EHR modules, with ongoing expansion or optimization.",
                   "score": 100,
-                  "example": "SNOMED CT is fully integrated with advanced features, continuous monitoring, and iterative improvements based on real-world usage and feedback."
+                  "example": "SNOMED CT is implemented enterprise-wide and consistently maintained across all EHR modules."
                 }
               ]
             },
             {
-              "name": "Consistency of Use",
-              "id": "consistency",
-              "question": "Is SNOMED CT consistently used across documentation, decision support, and interoperability?",
-              "context": "Think about whether SNOMED CT is used the same way across all parts of your system.",
+              "name": "Clinical Domains",
+              "id": "clinical_domains",
+              "question": "Across how many clinical domains is SNOMED CT currently applied?",
+              "context": "Clinical domains refer to areas of clinical information where SNOMED CT concepts are used — such as diagnoses, procedures, medications, laboratory findings, anatomy, and organisms. Implementations may begin in any single domain and progressively expand to others over time.",
               "options": [
                 {
-                  "id": 0,
-                  "text": "No implementation or usage.",
-                  "score": 0,
-                  "example": "SNOMED CT is not implemented or used in any capacity."
-                },
-                {
                   "id": 1,
-                  "text": "Minimal use in isolated areas.",
-                  "score": 5,
-                  "example": "SNOMED CT is only used in a few modules, such as problem lists, and does not support decision support or interoperability."
+                  "text": "Single domain – Limited to one clinical domain.",
+                  "score": 0,
+                  "example": "Used only for one domain (e.g., procedures or findings); not yet applied to other types of data."
                 },
                 {
                   "id": 2,
-                  "text": "Some functional areas covered but with gaps.",
+                  "text": "Narrow scope – Applied in a few domains.",
                   "score": 25,
-                  "example": "SNOMED CT is used in structured documentation but is inconsistently applied in decision support or interoperability functions."
+                  "example": "Used in two or three domains (e.g., diagnoses and medications), but not consistently across others."
                 },
                 {
                   "id": 3,
-                  "text": "Consistent use in multiple modules relevant to workflows.",
+                  "text": "Moderate scope – Used in several clinical domains.",
                   "score": 50,
-                  "example": "SNOMED CT is systematically used across documentation, interoperability, and some decision support tools, with minor gaps."
+                  "example": "SNOMED CT applied to multiple domains such as findings, procedures, and laboratory results."
                 },
                 {
                   "id": 4,
-                  "text": "Consistent use for documentation, decision support, and reporting.",
+                  "text": "Broad scope – Covers most relevant clinical domains.",
                   "score": 75,
-                  "example": "SNOMED CT is well-integrated across structured documentation, clinical decision support, and data exchange for reporting."
+                  "example": "Includes use across diagnoses, procedures, medications, and findings, with growing consistency."
                 },
                 {
                   "id": 5,
-                  "text": "Continuous improvement in usage across all domains.",
+                  "text": "Comprehensive – Consistently applied across all relevant clinical domains.",
                   "score": 100,
-                  "example": "SNOMED CT usage is actively monitored, with iterative enhancements across all functions to improve consistency and effectiveness."
+                  "example": "SNOMED CT serves as the core terminology across all domains of clinical data, supporting full semantic integration and interoperability."
                 }
               ]
             }
@@ -446,93 +434,81 @@
         {
           "name": "Scope of SNOMED CT Implementation",
           "id": "scope",
-          "description": "Extent to which SNOMED CT is implemented and integrated across clinical workflows and administrative functions.",
+          "description": "Extent to which SNOMED CT is implemented and integrated across clinical areas and workflows.",
           "questions": [
             {
-              "name": "Clinical Areas and Workflows",
-              "id": "clinical",
-              "question": "How extensively is SNOMED CT used across clinical areas and workflows?",
-              "context": "Think about how many clinical areas and workflows use SNOMED CT.",
+              "name": "Clinical Areas",
+              "id": "clinical_areas",
+              "question": "In how many clinical areas or care settings is SNOMED CT currently used?",
+              "context": "Clinical areas refer to where SNOMED CT is used — for example, primary care, emergency, radiology, pathology, pharmacy, mental health, or specialty departments.",
               "options": [
                 {
-                  "id": 0,
-                  "text": "Used in only a few clinical areas or workflows.",
-                  "score": 0,
-                  "example": "SNOMED CT is used in a handful of departments (e.g., radiology, pathology) but is not widely adopted across other clinical workflows."
-                },
-                {
                   "id": 1,
-                  "text": "Implemented in select areas but not consistently across workflows.",
-                  "score": 25,
-                  "example": "SNOMED CT is used in some departments (e.g., emergency, primary care), but other areas still rely on local codes or free text."
+                  "text": "Very limited – Used in only one or two clinical areas.",
+                  "score": 0,
+                  "example": "Typically in pilot or testing stages; most departments do not yet use SNOMED CT."
                 },
                 {
                   "id": 2,
-                  "text": "Actively used across multiple clinical areas.",
-                  "score": 50,
-                  "example": "Most major clinical departments (e.g., inpatient care, outpatient services, diagnostics) have adopted SNOMED CT, but gaps remain."
+                  "text": "Partial – Implemented in some areas, but coverage is uneven.",
+                  "score": 25,
+                  "example": "Used in a few departments, but not routinely or consistently across care settings."
                 },
                 {
                   "id": 3,
-                  "text": "Comprehensively integrated across all clinical workflows.",
-                  "score": 75,
-                  "example": "SNOMED CT is fully embedded in all patient interactions, from admission to discharge, across all specialties and documentation processes."
+                  "text": "Broad – Used across several major clinical areas.",
+                  "score": 50,
+                  "example": "Actively used in multiple services (e.g., primary care, emergency, and radiology) but not all."
                 },
                 {
                   "id": 4,
-                  "text": "Continuously evaluated and improved across workflows.",
-                  "score": 90,
-                  "example": "SNOMED CT usage is systematically reviewed through audits, user feedback, and analytics, leading to ongoing refinements."
+                  "text": "Comprehensive – Used across most or all clinical areas.",
+                  "score": 75,
+                  "example": "SNOMED CT supports most departments; some smaller or specialized areas may still be adopting."
                 },
                 {
                   "id": 5,
-                  "text": "Advanced implementation with continuous improvement.",
+                  "text": "Fully integrated – Used in all relevant clinical areas, with ongoing expansion or optimization.",
                   "score": 100,
-                  "example": "SNOMED CT is fully integrated with advanced features, continuous monitoring, and iterative improvements based on real-world usage and feedback."
+                  "example": "SNOMED CT is part of enterprise-wide systems and routinely maintained across every clinical area."
                 }
               ]
             },
             {
-              "name": "Integration and Strategy",
-              "id": "integration",
-              "question": "Is SNOMED CT comprehensively integrated with documented strategies for clinical domains?",
-              "context": "Consider how well SNOMED CT is integrated into your clinical strategy.",
+              "name": "Clinical Workflows",
+              "id": "clinical_workflows",
+              "question": "How extensively is SNOMED CT embedded in clinical workflows and processes?",
+              "context": "Clinical workflows refer to how SNOMED CT is used in care processes — such as documenting diagnoses, recording procedures, ordering tests, managing care plans, or supporting decision support and reporting.",
               "options": [
                 {
-                  "id": 0,
-                  "text": "Minimal integration in documentation or clinical processes.",
-                  "score": 0,
-                  "example": "SNOMED CT is available but not actively used in clinical documentation, with no clear strategy for its adoption."
-                },
-                {
                   "id": 1,
-                  "text": "Efforts to standardize data elements exist but with gaps.",
-                  "score": 25,
-                  "example": "Some structured clinical documentation uses SNOMED CT, but local codes or free text are still common."
+                  "text": "Minimal use – Used in only a few workflows or isolated processes.",
+                  "score": 0,
+                  "example": "Applied in limited cases (e.g., only for diagnostic coding) with minimal impact on routine workflows."
                 },
                 {
                   "id": 2,
-                  "text": "Clinical workflows consistently use SNOMED CT for documentation.",
-                  "score": 50,
-                  "example": "Most standard clinical forms and templates rely on SNOMED CT for structured data entry."
+                  "text": "Developing – Used in some workflows, but inconsistently or partially applied.",
+                  "score": 25,
+                  "example": "Present in select workflows (e.g., diagnoses and problem lists) but not embedded in others."
                 },
                 {
                   "id": 3,
-                  "text": "Documented goals and strategies guide implementation.",
-                  "score": 75,
-                  "example": "A formal implementation plan exists that defines when, where, and how SNOMED CT should be used in documentation."
+                  "text": "Established – Regularly used in key clinical workflows.",
+                  "score": 50,
+                  "example": "Commonly used for documentation and ordering; clinicians interact with coded content regularly."
                 },
                 {
                   "id": 4,
-                  "text": "New use cases are identified and integrated regularly.",
-                  "score": 90,
-                  "example": "Regular evaluations lead to expanding SNOMED CT use to emerging areas such as patient-reported outcomes and remote monitoring."
+                  "text": "Comprehensive – Consistently used across most workflows.",
+                  "score": 75,
+                  "example": "Integrated into end-to-end processes, including decision support and care coordination."
                 },
                 {
                   "id": 5,
-                  "text": "Advanced implementation with continuous improvement.",
+                  "text": "Optimized – Fully embedded and continuously improved across all workflows.",
                   "score": 100,
-                  "example": "SNOMED CT is fully integrated with advanced features, continuous monitoring, and iterative improvements based on real-world usage and feedback."
+                  "example": "SNOMED CT is used throughout care processes and continuously refined for accuracy, usability, and outcomes."
                 }
               ]
             }
