@@ -67,7 +67,8 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .loading-container {
@@ -216,8 +217,9 @@
 
 /* Responsive design */
 @media (max-width: 1200px) {
-  .displayedColumns {
-    /* Hide less important columns on smaller screens */
+  /* Hide location column on medium screens */
+  .mat-column-location {
+    display: none !important;
   }
 }
 
@@ -246,6 +248,63 @@
   
   .mat-cell, .mat-header-cell {
     padding: 8px 4px;
+  }
+  
+  /* Hide columns on mobile - only show name, author, and actions */
+  .mat-column-systemName,
+  .mat-column-timestamp,
+  .mat-column-level,
+  .mat-column-overallScore,
+  .mat-column-location {
+    display: none !important;
+  }
+  
+  /* Adjust remaining columns for better mobile display */
+  .mat-column-name {
+    width: 50%;
+  }
+  
+  .mat-column-author {
+    width: 30%;
+  }
+  
+  .mat-column-actions {
+    width: 20%;
+    text-align: center;
+  }
+  
+  .name-cell strong {
+    font-size: 13px;
+  }
+  
+  .name-cell small {
+    font-size: 11px;
+  }
+  
+  /* Make delete button more touch-friendly on mobile */
+  .delete-button {
+    padding: 8px;
+  }
+  
+  .delete-button mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Ensure table has minimum width for content */
+  .assessment-table {
+    min-width: 100%;
+  }
+  
+  /* Better spacing for table cells on mobile */
+  .mat-cell {
+    padding: 10px 6px;
+  }
+  
+  .mat-header-cell {
+    padding: 10px 6px;
+    font-size: 11px;
   }
 }
 
