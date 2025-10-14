@@ -413,7 +413,7 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
 
   setExamples(box: SnomedBox) {
     this.reset();
-    if (box.refsetIds) {
+    if (box.refsetIds && box.refsetIds.length > 0) {
       this.searching = true;
       var ecl = box.refsetIds.map(refsetId => {
         return '^ ' + refsetId;
@@ -431,7 +431,7 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
   performExamplesRequest(ecl: string, count: number) {
     this.searching = true;
     const index = Math.floor(Math.random() * (20 * count)) * count;
-    this.terminologyService.expandValueSet(ecl, '', index, count).subscribe((response: any) => {
+    this.terminologyService.expandDerivativesValueSet(ecl, '', index, count).subscribe((response: any) => {
       this.searching = false;
       if (response?.expansion?.contains?.length > 0) {
         this.examples = response?.expansion?.contains?.map((item: any) => {
@@ -450,6 +450,11 @@ export class SnomedHubComponent implements AfterViewInit, OnInit {
       return index === 1 || index === 6;
     }
     return false;
+  }
+
+  isBoxClickable(box: SnomedBox): boolean {
+    // A box is clickable if it has either refsetIds or annotationValue
+    return !!(box.refsetIds && box.refsetIds.length > 0) || !!box.annotationValue;
   }
 }
 

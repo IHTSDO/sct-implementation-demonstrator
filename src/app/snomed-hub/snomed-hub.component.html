@@ -17,9 +17,15 @@
             <div *ngFor="let box of topRow" class="card label" #cardLabel [ngClass]="[
                 box.type,
                 (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
-                (searchCompleted && !box.results?.length) ? 'no-results' : ''
+                (searchCompleted && !box.results?.length) ? 'no-results' : '',
+                !isBoxClickable(box) ? 'disabled' : ''
                 ]">
-                <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
+                <div class="ripple-host" 
+                     matRipple
+                     [matRippleDisabled]="!isBoxClickable(box)"
+                     [matRippleColor]="rippleColor(box.type)" 
+                     [class.clickable]="isBoxClickable(box)"
+                     (click)="isBoxClickable(box) && boxClicked(box)">
                     {{ box.label }}
                 </div>
                 <div *ngIf="box.results?.length" class="callout-box top" [ngClass]="[box.type]">
@@ -32,9 +38,15 @@
                 <div *ngFor="let box of leftCol" class="card label" #cardLabel [ngClass]="[
                     box.type,
                     (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
-                    (searchCompleted && !box.results?.length) ? 'no-results' : ''
+                    (searchCompleted && !box.results?.length) ? 'no-results' : '',
+                    !isBoxClickable(box) ? 'disabled' : ''
                     ]">
-                    <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
+                    <div class="ripple-host" 
+                         matRipple
+                         [matRippleDisabled]="!isBoxClickable(box)"
+                         [matRippleColor]="rippleColor(box.type)" 
+                         [class.clickable]="isBoxClickable(box)"
+                         (click)="isBoxClickable(box) && boxClicked(box)">
                         {{ box.label }}
                     </div>
                     <div *ngIf="box.results?.length" class="callout-box left" [ngClass]="[box.type]">
@@ -117,9 +129,15 @@
                 <div *ngFor="let box of rightCol" class="card label" #cardLabel [ngClass]="[
                     box.type,
                     (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
-                    (searchCompleted && !box.results?.length) ? 'no-results' : ''
+                    (searchCompleted && !box.results?.length) ? 'no-results' : '',
+                    !isBoxClickable(box) ? 'disabled' : ''
                     ]">
-                    <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
+                    <div class="ripple-host" 
+                         matRipple
+                         [matRippleDisabled]="!isBoxClickable(box)"
+                         [matRippleColor]="rippleColor(box.type)" 
+                         [class.clickable]="isBoxClickable(box)"
+                         (click)="isBoxClickable(box) && boxClicked(box)">
                         {{ box.label }}
                     </div>
                     <div *ngIf="box.results?.length" class="callout-box right" [ngClass]="[box.type]">
@@ -132,9 +150,15 @@
             <div *ngFor="let box of bottomRow" class="card label" #cardLabel [ngClass]="[
                 box.type,
                 (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
-                (searchCompleted && !box.results?.length) ? 'no-results' : ''
+                (searchCompleted && !box.results?.length) ? 'no-results' : '',
+                !isBoxClickable(box) ? 'disabled' : ''
                 ]">
-                <div class="ripple-host" matRipple [matRippleColor]="rippleColor(box.type)" (click)="boxClicked(box)">
+                <div class="ripple-host" 
+                     matRipple
+                     [matRippleDisabled]="!isBoxClickable(box)"
+                     [matRippleColor]="rippleColor(box.type)" 
+                     [class.clickable]="isBoxClickable(box)"
+                     (click)="isBoxClickable(box) && boxClicked(box)">
                     {{ box.label }}
                 </div>
                 <div *ngIf="box.results?.length" class="callout-box bottom" [ngClass]="[box.type]">

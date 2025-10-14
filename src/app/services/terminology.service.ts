@@ -174,6 +174,28 @@ export class TerminologyService {
     return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
   }
 
+  getDerivativesValueSetExpansionUrl(ecl: string, terms: string, offset?: number, count?:number) {
+    if (!offset) offset = 0;
+    if (!count) count = 20;
+    if (typeof terms != 'string') {
+      terms = '';
+    }
+    let langParam = this.getComputedLanguageContext();
+    const derivativesUri = 'http://snomed.info/sct/705115006';
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${derivativesUri}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
+  }
+
+  expandDerivativesValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
+    let requestUrl = this.getDerivativesValueSetExpansionUrl(ecl, terms, offset, count);
+    const headers = new HttpHeaders({
+      'Accept-Language': this.getComputedLanguageContext()
+    });
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(
+        catchError(this.handleError<any>('expandValueSet', {}))
+      );
+  }
+
   expandValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
     let requestUrl = this.getValueSetExpansionUrl(ecl, terms, offset, count);
     const headers = new HttpHeaders({

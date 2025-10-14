@@ -251,6 +251,19 @@
   border: 4px solid #afafaf !important;
 }
 
+.card.label.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: rgba(255, 255, 255, 1) !important;
+  z-index: 2; // Higher than diagram lines (z-index: 0)
+  
+  .ripple-host {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.5; // Apply opacity only to the content, not the background
+  }
+}
+
 .diagram {
   position: relative;
 }
