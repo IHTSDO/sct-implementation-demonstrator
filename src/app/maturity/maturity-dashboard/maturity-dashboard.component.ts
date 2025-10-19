@@ -794,9 +794,12 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       'uy': 'South America', 'cl': 'South America', 'gy': 'South America', 'sr': 'South America',
       'gf': 'South America',
       
-      // Europe
+      // Belgium (separate from Europe for detailed focus)
+      'be': 'Belgium',
+      
+      // Europe (excluding Belgium)
       'gb': 'Europe', 'fr': 'Europe', 'de': 'Europe', 'it': 'Europe', 'es': 'Europe', 'pt': 'Europe',
-      'nl': 'Europe', 'be': 'Europe', 'ch': 'Europe', 'at': 'Europe', 'se': 'Europe', 'no': 'Europe',
+      'nl': 'Europe', 'ch': 'Europe', 'at': 'Europe', 'se': 'Europe', 'no': 'Europe',
       'dk': 'Europe', 'fi': 'Europe', 'ie': 'Europe', 'is': 'Europe', 'pl': 'Europe', 'cz': 'Europe',
       'sk': 'Europe', 'hu': 'Europe', 'ro': 'Europe', 'bg': 'Europe', 'hr': 'Europe', 'si': 'Europe',
       'rs': 'Europe', 'ba': 'Europe', 'me': 'Europe', 'mk': 'Europe', 'al': 'Europe', 'gr': 'Europe',
@@ -877,7 +880,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     
     // Sort continent order for consistent presentation
     this.continentOrder.sort((a, b) => {
-      const order = ['US & Canada', 'Mexico & Central America', 'South America', 'Europe', 'Middle East', 'West & Central Asia', 'East Asia', 'Africa', 'Oceania', 'Other'];
+      const order = ['US & Canada', 'Mexico & Central America', 'South America', 'Europe', 'Belgium', 'Middle East', 'West & Central Asia', 'East Asia', 'Africa', 'Oceania', 'Other'];
       return order.indexOf(a) - order.indexOf(b);
     });
     
@@ -909,6 +912,10 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       'Europe': [
         [35, -25],   // Southwest: Southern Spain/Portugal, Atlantic
         [65, 45]     // Northeast: Reduced from 75° to 65° (25% shorter) - excludes far northern Scandinavia/Siberia
+      ],
+      'Belgium': [
+        [49.5, 2.5],  // Southwest: Southern Belgium near French border
+        [52.2, 6.4]   // Northeast: Extended north for callout padding on small screens
       ],
       'East Asia': [
         [-10, 95],   // Southwest: Southern Indonesia, Western Myanmar
@@ -1016,6 +1023,10 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
         [35, -25],   // Southwest: Southern Spain/Portugal, Atlantic
         [65, 45]     // Northeast: Reduced from 75° to 65° (25% shorter) - excludes far northern Scandinavia/Siberia
       ],
+      'Belgium': [
+        [49.5, 2.5],  // Southwest: Southern Belgium near French border
+        [52.2, 6.4]   // Northeast: Extended north for callout padding on small screens
+      ],
       'East Asia': [
         [-10, 95],   // Southwest: Southern Indonesia, Western Myanmar
         [55, 180]    // Northeast: Northern Mongolia, Eastern Russia/Japan
@@ -1081,7 +1092,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
         this.continentOrder.push(continent);
         // Re-sort continent order
         this.continentOrder.sort((a, b) => {
-          const order = ['US & Canada', 'Mexico & Central America', 'South America', 'Europe', 'Middle East', 'West & Central Asia', 'East Asia', 'Africa', 'Oceania', 'Other'];
+          const order = ['US & Canada', 'Mexico & Central America', 'South America', 'Europe', 'Belgium', 'Middle East', 'West & Central Asia', 'East Asia', 'Africa', 'Oceania', 'Other'];
           return order.indexOf(a) - order.indexOf(b);
         });
       }
