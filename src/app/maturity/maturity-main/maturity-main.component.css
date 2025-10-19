@@ -190,8 +190,36 @@ button[mat-raised-button] {
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   padding: 16px;
   margin: 16px;
+  gap: 8px;
+}
+
+/* Responsive adjustments for small laptop screens */
+@media (max-width: 1200px) {
+  .flip-card-container {
+    padding: 12px;
+    margin: 12px;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .flip-card-container {
+    padding: 8px;
+    margin: 8px;
+    gap: 4px;
+  }
+}
+
+/* For very small laptops - stack cards vertically or show in single row */
+@media (max-width: 900px) {
+  .flip-card-container {
+    flex-direction: column;
+    padding: 8px;
+    margin: 8px;
+  }
 }
 
 /* Responsive adjustments */
