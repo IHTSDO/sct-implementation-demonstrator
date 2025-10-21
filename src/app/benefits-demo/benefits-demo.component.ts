@@ -3,7 +3,11 @@ import { PatientService, Patient } from '../services/patient.service';
 import { PatientDataTransformerService } from '../services/patient-data-transformer.service';
 import { PatientSimulationService } from '../services/patient-simulation.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin, of } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { BatchPatientDialogComponent } from './batch-patient-dialog/batch-patient-dialog.component';
+import { catchError, delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-benefits-demo',
@@ -15,6 +19,8 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   
   patients: Patient[] = [];
+  filteredPatients: Patient[] = [];
+  searchTerm: string = '';
   selectedPatient: Patient | null = null;
   showAnalytics = false;
   analyticsMode: 'regular' | 'icd10' = 'regular';
@@ -24,7 +30,9 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     private patientService: PatientService,
     private patientDataTransformer: PatientDataTransformerService,
     private patientSimulationService: PatientSimulationService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -32,6 +40,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.patientService.getPatients().subscribe(patients => {
         this.patients = this.sortPatientsByCreationDate(patients);
+        this.filterPatients();
       })
     );
 
@@ -41,6 +50,51 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         this.selectedPatient = patient;
       })
     );
+  }
+
+  filterPatients(): void {
+    if (!this.searchTerm.trim()) {
+      this.filteredPatients = this.patients;
+      return;
+    }
+
+    const searchLower = this.searchTerm.toLowerCase().trim();
+    this.filteredPatients = this.patients.filter(patient => {
+      if (patient.name && patient.name.length > 0) {
+        const name = patient.name[0];
+        
+        // Check family name (last name)
+        if (name.family && name.family.toLowerCase().includes(searchLower)) {
+          return true;
+        }
+        
+        // Check given names (first name, middle names, etc.)
+        if (name.given) {
+          const givenMatches = name.given.some(givenName => 
+            givenName.toLowerCase().includes(searchLower)
+          );
+          if (givenMatches) {
+            return true;
+          }
+        }
+        
+        // Check full text name if available
+        if (name.text && name.text.toLowerCase().includes(searchLower)) {
+          return true;
+        }
+      }
+      
+      return false;
+    });
+  }
+
+  onSearchChange(): void {
+    this.filterPatients();
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.filterPatients();
   }
 
   ngOnDestroy(): void {
@@ -184,6 +238,108 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         console.error('Error generating patient with diagnoses:', error);
         alert('Error generating patient with diagnoses. Please try again.');
       }
+    });
+  }
+
+  createBatchPatients(): void {
+    const dialogRef = this.dialog.open(BatchPatientDialogComponent, {
+      width: '500px',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.generateMultiplePatients(result.numberOfPatients, result.includeDiagnoses);
+      }
+    });
+  }
+
+  private async generateMultiplePatients(count: number, includeDiagnoses: boolean): Promise<void> {
+    const snackBarRef = this.snackBar.open(`Generating ${count} patients...`, 'Cancel', {
+      duration: undefined
+    });
+
+    let completed = 0;
+    let lastPatientId: string | null = null;
+
+    try {
+      for (let i = 0; i < count; i++) {
+        // Check if user cancelled
+        if (!snackBarRef) break;
+
+        if (includeDiagnoses) {
+          // Generate patient with diagnoses
+          await new Promise<void>((resolve, reject) => {
+            this.patientSimulationService.generateRandomPatientWithDiagnoses()
+              .pipe(
+                catchError(error => {
+                  console.error(`Error generating patient ${i + 1}:`, error);
+                  return of(null);
+                })
+              )
+              .subscribe({
+                next: (result) => {
+                  if (result) {
+                    // Add the patient to the service
+                    this.patientService.addPatient(result.patient);
+                    
+                    // Add the diagnoses as conditions
+                    result.diagnoses.forEach(diagnosis => {
+                      this.patientService.addPatientCondition(result.patient.id, diagnosis);
+                    });
+                    
+                    lastPatientId = result.patient.id;
+                  }
+                  completed++;
+                  snackBarRef.instance.data.message = `Generated ${completed} of ${count} patients...`;
+                  resolve();
+                },
+                error: reject
+              });
+          });
+        } else {
+          // Generate simple random patient
+          const randomPatient = this.patientSimulationService.generateRandomPatient();
+          this.patientService.addPatient(randomPatient);
+          lastPatientId = randomPatient.id;
+          completed++;
+          snackBarRef.instance.data.message = `Generated ${completed} of ${count} patients...`;
+        }
+
+        // Small delay to prevent UI freezing
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+
+      snackBarRef.dismiss();
+      
+      // Show success message
+      this.snackBar.open(`Successfully generated ${completed} patients!`, 'Close', {
+        duration: 5000,
+        panelClass: ['success-snackbar']
+      });
+
+      // Select the last created patient if available
+      if (lastPatientId) {
+        const lastPatient = this.patients.find(p => p.id === lastPatientId);
+        if (lastPatient) {
+          this.patientService.selectPatient(lastPatient);
+        }
+      }
+    } catch (error) {
+      console.error('Error in batch patient generation:', error);
+      snackBarRef.dismiss();
+      this.snackBar.open('Error generating patients. Some patients may not have been created.', 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+    }
+
+    // Handle cancel button
+    snackBarRef.onAction().subscribe(() => {
+      snackBarRef.dismiss();
+      this.snackBar.open(`Cancelled. Generated ${completed} of ${count} patients.`, 'Close', {
+        duration: 3000
+      });
     });
   }
 

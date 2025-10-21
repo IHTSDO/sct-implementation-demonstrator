@@ -1,0 +1,33 @@
+.dialog-content {
+  min-width: 400px;
+  padding: 20px 0;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.checkbox-container {
+  margin: 15px 0;
+}
+
+.progress-container {
+  min-width: 400px;
+  padding: 20px 0;
+}
+
+.progress-container p {
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+mat-dialog-actions button {
+  margin-left: 8px;
+}
+
+mat-dialog-actions button mat-icon {
+  margin-right: 8px;
+}
+

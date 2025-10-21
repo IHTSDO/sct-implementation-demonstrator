@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>Generate Multiple Patients</h2>
+
+<mat-dialog-content>
+  <div class="dialog-content" *ngIf="!isGenerating">
+    <p>Create multiple random patients at once to populate your EHR system.</p>
+    
+    <mat-form-field class="full-width">
+      <mat-label>Number of Patients</mat-label>
+      <input 
+        matInput 
+        type="number" 
+        [(ngModel)]="numberOfPatients"
+        min="1"
+        max="100"
+        [disabled]="isGenerating"
+      >
+      <mat-hint>Enter a number between 1 and 100</mat-hint>
+    </mat-form-field>
+
+    <div class="checkbox-container">
+      <mat-checkbox [(ngModel)]="includeDiagnoses" [disabled]="isGenerating">
+        Include random diagnoses for each patient
+      </mat-checkbox>
+    </div>
+  </div>
+
+  <div class="progress-container" *ngIf="isGenerating">
+    <p>Generating patients... {{ currentPatient }} / {{ numberOfPatients }}</p>
+    <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isGenerating">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onGenerate()" [disabled]="isGenerating">
+    <mat-icon>group_add</mat-icon>
+    Generate Patients
+  </button>
+</mat-dialog-actions>
+

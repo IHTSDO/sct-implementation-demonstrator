@@ -42,9 +42,9 @@
     <!-- Patient List Section -->
     <div class="patient-list-section">
       <div class="section-header">
-        <h2>Patients <span class="patient-count">{{ patients.length }} patients</span></h2>
+        <h2>Patients <span class="patient-count">{{ searchTerm ? filteredPatients.length + ' of ' + patients.length : patients.length }} patients</span></h2>
       </div>
-      
+
       <div class="section-actions">
         <div class="patient-header-actions">
           <button 
@@ -91,13 +91,40 @@
               <mat-icon>medical_services</mat-icon>
               <span>Generate with Diagnoses</span>
             </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="createBatchPatients()">
+              <mat-icon>group_add</mat-icon>
+              <span>Generate Multiple Patients</span>
+            </button>
           </mat-menu>
         </div>
       </div>
       
+      <div class="search-section">
+        <mat-form-field class="search-field">
+          <mat-label>Search patients</mat-label>
+          <input 
+            matInput 
+            [(ngModel)]="searchTerm" 
+            (input)="onSearchChange()"
+            placeholder="Search by first or last name"
+          >
+          <mat-icon matPrefix>search</mat-icon>
+          <button 
+            mat-icon-button 
+            matSuffix 
+            *ngIf="searchTerm" 
+            (click)="clearSearch()"
+            aria-label="Clear search"
+          >
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      
       <div class="patient-list">
         <div 
-          *ngFor="let patient of patients" 
+          *ngFor="let patient of filteredPatients" 
           class="patient-card"
           [class.selected]="selectedPatient?.id === patient.id"
           (click)="selectPatient(patient)"
@@ -120,8 +147,31 @@
           </div>
         </div>
         
+        <div *ngIf="filteredPatients.length === 0 && patients.length > 0" class="no-results">
+          <mat-icon class="empty-icon">search_off</mat-icon>
+          <h3>No Patients Found</h3>
+          <p>No patients match your search criteria.</p>
+          <button mat-flat-button color="primary" (click)="clearSearch()">
+            <mat-icon>clear</mat-icon>
+            Clear Search
+          </button>
+        </div>
+        
         <div *ngIf="patients.length === 0" class="no-patients">
-          <p>No patients found. Create a new patient or upload patient data to get started.</p>
+          <mat-icon class="empty-icon">people_outline</mat-icon>
+          <h3>No Patients Yet</h3>
+          <p>Get started by creating patient records for your EHR system.</p>
+          <div class="empty-state-actions">
+            <button mat-flat-button color="primary" (click)="createRandomPatientWithDiagnoses()">
+              <mat-icon>medical_services</mat-icon>
+              Create Single Patient
+            </button>
+            <button mat-flat-button color="primary" (click)="createBatchPatients()">
+              <mat-icon>group_add</mat-icon>
+              Generate Multiple Patients
+            </button>
+          </div>
+          <p class="hint-text">Or upload existing patient data using the Data menu above</p>
         </div>
       </div>
     </div>
