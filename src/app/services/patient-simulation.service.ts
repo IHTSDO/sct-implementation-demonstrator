@@ -330,13 +330,14 @@ export class PatientSimulationService {
       return of(this.patientGenerationSpec);
     }
 
-    return this.http.get<PatientGenerationSpec>('/assets/patients/patient-generation-spec.json')
+    return this.http.get<PatientGenerationSpec>('assets/patients/patient-generation-spec.json')
       .pipe(
         map(spec => {
           this.patientGenerationSpec = spec;
           return spec;
         }),
         catchError(error => {
+          console.error('Error loading patient generation spec:', error);
           return of({ diseasePrevalenceByAgeAndSex: [] });
         })
       );
