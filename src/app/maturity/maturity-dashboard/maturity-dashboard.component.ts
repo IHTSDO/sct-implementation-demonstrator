@@ -387,7 +387,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     overlayDiv.className = 'map-overlay';
     overlayDiv.style.cssText = `
       position: absolute;
-      bottom: 20px;
+      bottom: 60px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(255, 255, 255, 0.9);
