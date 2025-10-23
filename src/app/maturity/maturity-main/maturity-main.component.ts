@@ -267,6 +267,8 @@ export class MaturityMainComponent implements OnInit {
       this.currentControl = this.responseForm.get(questionPath) as FormControl;
       this.currentCommentControl = this.responseForm.get(questionPath + '_comment') as FormControl;
       this.animationState = 'enter';
+      // Scroll to top of the page after loading new content
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 200);
   }
   
@@ -279,6 +281,8 @@ export class MaturityMainComponent implements OnInit {
       this.currentControl = this.responseForm.get(questionPath) as FormControl;
       this.currentCommentControl = this.responseForm.get(questionPath + '_comment') as FormControl;
       this.animationState = 'enter';
+      // Scroll to top of the page after loading new content
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 200);
   }
   
