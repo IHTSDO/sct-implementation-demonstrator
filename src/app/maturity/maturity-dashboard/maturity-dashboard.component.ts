@@ -1583,6 +1583,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
           data: `File number ${index} is not a valid assessment results file`,
           panelClass: ['red-snackbar']
         });
+        console.error(entry);
         // remove this entry form array
         this.uploadedData.splice(index, 1);
       } else if (!entry.location?.label) {
