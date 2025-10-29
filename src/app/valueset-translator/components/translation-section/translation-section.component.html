@@ -1,0 +1,137 @@
+<!-- Edition and Language Selectors for Translation Actions -->
+<div *ngIf="shouldShowTranslationSelectors()" class="translation-selectors">
+  <h3 class="translation-selectors-title">
+    <mat-icon>language</mat-icon>
+    Output Language
+  </h3>
+  <div class="translation-selectors-content">
+    <!-- Edition Selector Button and Menu -->
+    <button mat-raised-button color="primary" [matMenuTriggerFor]="editionMenu" class="translation-button edition-button">
+      <mat-icon>book</mat-icon>
+      <span>{{ terminologyContext?.editionName || 'Select Edition' }}</span>
+    </button>
+    <mat-menu #editionMenu="matMenu">
+      <button mat-menu-item *ngFor="let edition of editionsDetails" (click)="onEditionChange(edition.editionName)">{{ edition.editionName }}</button>
+    </mat-menu>
+
+    <!-- Unified Language Selector Button and Menu -->
+    <button mat-raised-button color="accent" [matMenuTriggerFor]="langMenu" class="translation-button language-button">
+      <mat-icon>translate</mat-icon>
+      <span>{{ selectedLanguageDisplayLabel }}</span>
+    </button>
+    <mat-menu #langMenu="matMenu">
+      <p *ngIf="selectedLanRefsetConcept && !selectedContext" class="menu-text">Selected Language Refset</p>
+      <p *ngIf="selectedLanRefsetConcept && !selectedContext" class="menu-text">{{ selectedLanRefsetConcept.display }}</p>
+      <p *ngIf="selectedLanRefsetConcept && !selectedContext" class="menu-text">{{ selectedLanRefsetConcept.code }}</p>
+      <p *ngIf="selectedContext" class="menu-text">Selected Language Context</p>
+      <p *ngIf="selectedContext" class="menu-text">{{ selectedContext.name }}</p>
+      <button mat-menu-item [matMenuTriggerFor]="langCodesMenu">Language Codes</button>
+      <button mat-menu-item [matMenuTriggerFor]="langRefsetsMenu">Language Refsets</button>
+      <button mat-menu-item [matMenuTriggerFor]="langContextsMenu">Language Contexts</button>
+    </mat-menu>
+
+    <mat-menu #langCodesMenu="matMenu">
+      <button mat-menu-item *ngFor="let language of languages" (click)="onLanguageChange(language)">{{language}}</button>
+    </mat-menu>
+
+    <mat-menu #langRefsetsMenu="matMenu">
+      <button mat-menu-item *ngFor="let langRefset of languageRefsets" (click)="onLanguageRefsetChange(langRefset)">{{langRefset.display}}</button>
+    </mat-menu>
+
+    <mat-menu #langContextsMenu="matMenu">
+      <button mat-menu-item *ngFor="let context of contexts" (click)="onContextChange(context)">{{context.name}}</button>
+    </mat-menu>
+  </div>
+</div>
+
+<!-- ValueSet Metadata Form -->
+<div *ngIf="shouldShowValueSetMetadata()" class="valueset-metadata">
+  <h3 class="valueset-metadata-title">
+    <mat-icon>info</mat-icon>
+    ValueSet Metadata
+  </h3>
+  <div class="valueset-metadata-content">
+    <mat-form-field>
+      <mat-label>ValueSet URI</mat-label>
+      <input 
+        matInput 
+        [value]="valueSetMetadata.uri"
+        (input)="onMetadataChange('uri', $event.target.value)"
+        placeholder="http://example.org/fhir/ValueSet/example" 
+        required
+      >
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>ValueSet Name</mat-label>
+      <input 
+        matInput 
+        [value]="valueSetMetadata.name"
+        (input)="onMetadataChange('name', $event.target.value)"
+        placeholder="ExampleValueSet" 
+        required
+      >
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Version</mat-label>
+      <input 
+        matInput 
+        [value]="valueSetMetadata.version"
+        (input)="onMetadataChange('version', $event.target.value)"
+        placeholder="1.0.0"
+      >
+    </mat-form-field>
+  </div>
+</div>
+
+<!-- Execute Action Button -->
+<div *ngIf="shouldShowExecuteButton()" class="execute-action">
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onExecuteAction()"
+    [disabled]="isLoading || !canExecuteAction"
+    class="execute-button"
+  >
+    <mat-icon>{{ getActionIcon() }}</mat-icon>
+    <span>{{ getActionButtonText() }}</span>
+  </button>
+</div>
+
+<!-- Target Preview Table -->
+<div *ngIf="shouldShowTargetPreview()" class="target-preview-table">
+  <h3 class="target-preview-title">
+    <mat-icon>preview</mat-icon>
+    Target Preview (First 10 rows)
+  </h3>
+  <ng-container *ngIf="!isTranslationLoading; else loadingPreview">
+    <div class="target-table-container">
+      <table mat-table [dataSource]="targetPreviewData.slice(0, 10)" class="target-preview-data-table">
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef>Code</th>
+          <td mat-cell *matCellDef="let row">{{ row.code }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="originalDisplay">
+          <th mat-header-cell *matHeaderCellDef>Original Display</th>
+          <td mat-cell *matCellDef="let row">{{ row.originalDisplay }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="translatedDisplay">
+          <th mat-header-cell *matHeaderCellDef>Translated Display</th>
+          <td mat-cell *matCellDef="let row">{{ row.translatedDisplay }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['code', 'originalDisplay', 'translatedDisplay']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['code', 'originalDisplay', 'translatedDisplay']"></tr>
+      </table>
+    </div>
+  </ng-container>
+  <ng-template #loadingPreview>
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+      <p class="loading-text">Generating translation preview...</p>
+    </div>
+  </ng-template>
+</div>

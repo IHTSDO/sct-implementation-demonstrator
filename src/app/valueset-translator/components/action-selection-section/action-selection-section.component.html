@@ -1,0 +1,20 @@
+<!-- Action Selection -->
+<div *ngIf="shouldShowActionSelection()" class="action-selection">
+  <h3 class="action-title">
+    <mat-icon>play_circle</mat-icon>
+    What would you like to do?
+  </h3>
+  
+  <div class="action-buttons">
+    <button
+      *ngFor="let action of getAvailableActions()"
+      mat-raised-button
+      [color]="action.color"
+      (click)="onActionSelect(action.id)"
+      class="action-button"
+    >
+      <mat-icon>{{ action.icon }}</mat-icon>
+      <span>{{ action.label }}</span>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,66 @@
+<!-- Preview Table -->
+<div *ngIf="showPreview && previewData.length > 0 && !isLoading" class="preview-table">
+  <h3 class="preview-title">
+    <mat-icon>table_view</mat-icon>
+    Preview (First 5 rows)
+  </h3>
+  <div class="table-container">
+    <table mat-table [dataSource]="getPreviewData()" class="preview-data-table">
+      <ng-container *ngFor="let col of columns; let i = index">
+        <ng-container [matColumnDef]="i.toString()">
+          <th mat-header-cell *matHeaderCellDef>{{ col.header }}</th>
+          <td mat-cell *matCellDef="let row">{{ row[i] }}</td>
+        </ng-container>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Column Selection Form -->
+<form [formGroup]="importForm" *ngIf="shouldShowColumnForm()" class="column-form">
+  <h3 class="column-form-title">
+    <mat-icon>view_column</mat-icon>
+    Select Columns
+  </h3>
+  
+  <div class="column-selection-row">
+    <mat-form-field appearance="fill">
+      <mat-label>Code Column</mat-label>
+      <mat-select 
+        formControlName="codeColumn" 
+        required
+        (selectionChange)="onFormValueChange('codeColumn', $event.value)"
+      >
+        <mat-option *ngFor="let col of columns" [value]="col.index">
+          {{ col.header }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="importForm.get('codeColumn')?.hasError('required')">
+        Please select a code column
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Display Column (Optional)</mat-label>
+      <mat-select 
+        formControlName="displayColumn"
+        (selectionChange)="onFormValueChange('displayColumn', $event.value)"
+      >
+        <mat-option *ngFor="let col of columns" [value]="col.index">
+          {{ col.header }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-checkbox 
+      formControlName="skipHeader" 
+      class="skip-header"
+      (change)="onFormValueChange('skipHeader', $event.checked)"
+    >
+      Skip header row
+    </mat-checkbox>
+  </div>
+</form>
