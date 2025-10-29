@@ -31,6 +31,7 @@ import { CreatePatientComponent } from './benefits-demo/create-patient/create-pa
 import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
 import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
+import { PhaserGameComponent } from './phaser-game/phaser-v1/phaser-game.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -47,6 +48,7 @@ const routes: Routes = [
   { path: 'maturity/dashboard', component: MaturityDashboardComponent},
   { path: 'maturity/admin', component: MaturityAdminComponent},
   { path: 'ncpt', component: NcptComponent },
+  { path: 'phaser', component: PhaserGameComponent },
   { path: 'triage', component: TriageGameComponent },
   { path: 'fsn', component: FsnChangesComponent },
   { path: 'reports/fsn', component: FsnChangesComponent },

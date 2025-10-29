@@ -137,6 +137,14 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   public isFileLoading = false;
   public isTranslationLoading = false;
   totalCount: number = 0;
+  
+  // FHIR Package upload properties
+  showFhirServerUpload = false;
+  fhirServerUrl = '';
+  isUploading = false;
+  instructionTab = 'download';
+  generatedPackage: FHIRPackage | null = null;
+
 
   constructor(
     private fb: FormBuilder,
@@ -385,13 +393,18 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       const targetCodeCol = headers.findIndex((h: string) => h.includes('target code'));
       const targetDisplayCol = headers.findIndex((h: string) => h.includes('target display'));
       
-      // Pre-select the columns in the form
-      if (targetCodeCol !== -1 && targetDisplayCol !== -1) {
-        this.importForm.patchValue({
-          codeColumn: targetCodeCol,
-          displayColumn: targetDisplayCol
-        });
-      }
+      
+      // Always set form values for maps, even if target display column is not found
+      const formValues = {
+        codeColumn: targetCodeCol !== -1 ? targetCodeCol : 0, // Default to first column if not found
+        displayColumn: targetDisplayCol !== -1 ? targetDisplayCol : ''
+      };
+      this.importForm.patchValue(formValues);
+      
+      // Mark the form as valid for maps since we auto-configure columns
+      this.importForm.markAsTouched();
+      this.importForm.updateValueAndValidity();
+      
     }
     
     if (this.isRf2Refset) {
@@ -400,7 +413,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       if (refsetCodeCol !== -1) {
         this.importForm.patchValue({
           codeColumn: refsetCodeCol,
-          displayColumn: null // RF2 refsets typically don't have display columns
+          displayColumn: '' // RF2 refsets typically don't have display columns
         });
       }
     }
@@ -1004,7 +1017,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       this.snackBar.open('Map file downloaded with translations', 'OK', { duration: 3000 });
     } catch (error) {
-      console.error('Error downloading map file:', error);
       this.snackBar.open('Error downloading map file', 'OK', { duration: 3000 });
       this.isLoading = false;
     }
@@ -1055,7 +1067,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         await this.convertToCSV();
       }
     } catch (error) {
-      console.error('Conversion error:', error);
       this.snackBar.open('Error during conversion', 'OK', { duration: 3000 });
     } finally {
       this.isProcessing = false;
@@ -1066,11 +1077,88 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     const data = await this.readExcelFile(this.selectedFile!);
     const { source, snomed } = this.extractConcepts(data);
     
-    const packageData = this.createFHIRPackage(source, snomed);
-    const tarBlob = await this.createTarGz(packageData);
+    this.generatedPackage = this.createFHIRPackage(source, snomed);
+    const tarBlob = await this.createTarGz(this.generatedPackage);
     
     saveAs(tarBlob, `${this.valueSetName}.tgz`);
     this.snackBar.open('FHIR package generated successfully!', 'OK', { duration: 3000 });
+  }
+
+  downloadFHIRPackage(): void {
+    if (!this.generatedPackage) {
+      this.snackBar.open('No package available to download', 'OK', { duration: 3000 });
+      return;
+    }
+    
+    this.createTarGz(this.generatedPackage).then(tarBlob => {
+      saveAs(tarBlob, `${this.valueSetName}.tgz`);
+    });
+  }
+
+  toggleFhirServerInput(): void {
+    this.showFhirServerUpload = !this.showFhirServerUpload;
+    if (!this.showFhirServerUpload) {
+      this.fhirServerUrl = '';
+    }
+  }
+
+  async uploadToFhirServer(): Promise<void> {
+    if (!this.generatedPackage || !this.fhirServerUrl) {
+      this.snackBar.open('No package or server URL provided', 'OK', { duration: 3000 });
+      return;
+    }
+
+    this.isUploading = true;
+    const serverUrl = this.fhirServerUrl.endsWith('/') ? this.fhirServerUrl.slice(0, -1) : this.fhirServerUrl;
+
+    try {
+      const resources = [
+        { resource: this.generatedPackage.resources.codeSystem, type: 'CodeSystem' },
+        { resource: this.generatedPackage.resources.valueSet, type: 'ValueSet' },
+        { resource: this.generatedPackage.resources.snomedValueSet, type: 'ValueSet' },
+        { resource: this.generatedPackage.resources.conceptMap, type: 'ConceptMap' }
+      ];
+
+      const results = [];
+      for (const { resource, type } of resources) {
+        try {
+          const response = await fetch(`${serverUrl}/${type}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/fhir+json',
+              'Accept': 'application/fhir+json'
+            },
+            body: JSON.stringify(resource)
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            results.push({ type, success: true, id: result.id });
+          } else {
+            const error = await response.text();
+            results.push({ type, success: false, error: error });
+          }
+        } catch (error) {
+          results.push({ type, success: false, error: error });
+        }
+      }
+
+      const successCount = results.filter(r => r.success).length;
+      const totalCount = results.length;
+
+      if (successCount === totalCount) {
+        this.snackBar.open(`Successfully uploaded all ${totalCount} resources to FHIR server!`, 'OK', { duration: 5000 });
+      } else {
+        this.snackBar.open(`Uploaded ${successCount}/${totalCount} resources. Check console for details.`, 'OK', { duration: 5000 });
+      }
+
+      // Log detailed results
+
+    } catch (error) {
+      this.snackBar.open('Error uploading to FHIR server', 'OK', { duration: 5000 });
+    } finally {
+      this.isUploading = false;
+    }
   }
 
   private extractConcepts(data: any[]): { source: Array<{code: string, display: string}>, snomed: Array<{code: string, display: string}> } {
@@ -1613,18 +1701,37 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     this.targetValueSet = null;
     // Don't clear sourceValueSet as it's needed for JSON ValueSet operations
     // this.sourceValueSet = null;
+    
+    // Check form state after action selection
   }
 
   canExecuteAction(): boolean {
+
     if (this.isValueSetFile) {
       // For JSON ValueSets, require that sourceValueSet exists
-      return !!this.sourceValueSet;
+      const result = !!this.sourceValueSet;
+      return result;
     }
-    // Existing logic for other file types
+    
+    if (this.isMap) {
+      // For SnapSNOMED maps, only require that we have preview data
+      // Form validation is not needed since columns are auto-configured
+      const result = this.previewData.length > 0;
+      return result;
+    }
+    
+    if (this.isRf2Refset) {
+      // For RF2 refsets, require that we have preview data and valid form
+      const result = this.previewData.length > 0 && this.importForm.valid;
+      return result;
+    }
+    
     // For simple spreadsheets, require code column selection
     if (this.importForm && this.importForm.get('codeColumn')) {
-      return this.importForm.get('codeColumn')!.valid;
+      const result = this.importForm.get('codeColumn')!.valid;
+      return result;
     }
+    
     return false;
   }
 
