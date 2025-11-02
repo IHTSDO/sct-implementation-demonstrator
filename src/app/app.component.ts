@@ -6,6 +6,8 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { MenuService } from './services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
+import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
+import { CookieService } from './services/cookie.service';
 import { catchError, of, skip, Subject, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
@@ -55,7 +57,8 @@ export class AppComponent {
     private dialog: MatDialog,
     private cdRef: ChangeDetectorRef,
     private http: HttpClient,
-    private activatedRoute: ActivatedRoute) { 
+    private activatedRoute: ActivatedRoute,
+    private cookieService: CookieService) { 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         // Send pageview event to Google Analytics on each route change.
@@ -67,6 +70,21 @@ export class AppComponent {
   }
 
   ngOnInit(): void {
+    // Check embedded mode immediately from snapshot
+    const params = this.activatedRoute.snapshot.queryParams;
+    this.embeddedMode = params['embedded'] === 'true';
+    
+    // Wait a moment before checking license to ensure everything is initialized
+    setTimeout(() => {
+      // If in embedded mode, automatically accept license (no modal)
+      if (this.embeddedMode) {
+        this.cookieService.setCookie('snomedLicenseAccepted', 'true', 180);
+      } else {
+        // Check license agreement for normal mode
+        this.checkLicenseAgreement();
+      }
+    }, 500);
+    
     this.demos = this.menuService.getDemos();
     this.bindingsForExport = [];
     let spec: any[] = this.codingSpecService.getCodingSpec();
@@ -134,7 +152,7 @@ export class AppComponent {
       }
       if (params['edition']) {
         this.updateCodeSystemOptions(params['edition']);
-      } 
+      }
     });
 
     this.terminologyService.lang$.subscribe(lang => {
@@ -353,7 +371,33 @@ export class AppComponent {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('Dialog was closed. Result:', result);
+      // Dialog closed
+    });
+  }
+
+  checkLicenseAgreement(): void {
+    const licenseAccepted = this.cookieService.getCookie('snomedLicenseAccepted');
+    
+    if (!licenseAccepted) {
+      this.openLicenseDialog();
+    }
+  }
+
+  openLicenseDialog(): void {
+    const dialogRef = this.dialog.open(LicenseAgreementComponent, {
+      width: '900px',
+      disableClose: true,
+      panelClass: 'license-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        // User accepted the license - set cookie for 6 months (180 days)
+        this.cookieService.setCookie('snomedLicenseAccepted', 'true', 180);
+      } else {
+        // User declined - redirect to SNOMED International website
+        window.location.href = 'https://www.snomed.org';
+      }
     });
   }
 

@@ -34,3 +34,31 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
       @apply hover:text-blue-700;
     }
   }
+
+/* Material Snackbar styles */
+::ng-deep .warning-snackbar {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+::ng-deep .warning-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .green-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+::ng-deep .green-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}

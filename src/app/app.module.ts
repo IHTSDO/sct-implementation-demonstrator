@@ -115,6 +115,7 @@ import { InteroperabilityComponent } from './benefits-demo/interoperability/inte
 import { AiAssistedEntryComponent } from './benefits-demo/ai-assisted-entry/ai-assisted-entry.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { BatchPatientDialogComponent } from './benefits-demo/batch-patient-dialog/batch-patient-dialog.component';
+import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -189,7 +190,8 @@ const app = initializeApp(firebaseConfig);
         InteroperabilityComponent,
         AiAssistedEntryComponent,
         ExpoQuiz2025Component,
-        BatchPatientDialogComponent
+        BatchPatientDialogComponent,
+        LicenseAgreementComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,
