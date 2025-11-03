@@ -13,6 +13,32 @@
     }
 }
 
+.intro-section {
+    margin: 24px 0;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .description {
+        color: #495057;
+        margin: 0;
+        line-height: 1.6;
+        font-size: 15px;
+    }
+
+    .instructions {
+        color: #666;
+        margin: 0;
+        line-height: 1.5;
+        font-style: italic;
+    }
+}
+
 .instructions {
     color: #666;
     margin: 0 0 24px 0;
@@ -647,6 +673,25 @@ mat-progress-bar {
     mat-form-field {
       flex: 1;
       min-width: 200px;
+    }
+
+    .mapping-mode-option {
+      width: 100%;
+      padding: 16px;
+      background-color: #fff;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+
+      mat-checkbox {
+        display: block;
+      }
+
+      .option-hint {
+        margin: 8px 0 0 32px;
+        font-size: 13px;
+        color: #6c757d;
+        font-style: italic;
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from 'rxjs';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
 import { 
@@ -115,6 +115,8 @@ export class TranslationService {
         name: 'valueSet',
         resource: {
           resourceType: 'ValueSet',
+          url: 'http://snomed.info/sct/valueset/translation-temp',
+          name: 'TranslationValueSet',
           status: 'draft',
           experimental: true,
           compose: {
@@ -132,13 +134,16 @@ export class TranslationService {
   private processTranslationResult(originalCodes: CodeItem[], expandedValueSet: FHIRValueSet): TranslationResult {
     const translatedCodes = expandedValueSet.expansion?.contains?.map(concept => ({
       code: concept.code,
-      display: concept.display
+      display: concept.display || ''
     })) || [];
 
     const preview = this.generatePreview(originalCodes, translatedCodes);
 
     return {
-      original: originalCodes,
+      original: originalCodes.map(item => ({
+        code: item.code,
+        display: item.display || ''
+      })),
       translated: translatedCodes,
       preview,
       totalCount: expandedValueSet.expansion?.total || 0
@@ -146,11 +151,11 @@ export class TranslationService {
   }
 
   private isValidConcept(concept: { code: string; display: string }): boolean {
-    return concept.code && 
+    return !!concept.code && 
            concept.code !== 'undefined' && 
            concept.code !== 'null' && 
            concept.code !== '' &&
-           concept.display && 
+           !!concept.display && 
            concept.display !== 'undefined' && 
            concept.display !== 'null' && 
            concept.display !== '';

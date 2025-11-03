@@ -2,6 +2,7 @@ export interface ValueSetMetadata {
   uri: string;
   name: string;
   version: string;
+  sourceSystemUri?: string;
   description?: string;
   title?: string;
 }

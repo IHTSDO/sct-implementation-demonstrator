@@ -58,11 +58,13 @@ export class ValueSetService {
   generateFHIRPackage(
     sourceConcepts: CodeItem[], 
     snomedConcepts: CodeItem[], 
-    metadata: ValueSetMetadata
+    metadata: ValueSetMetadata,
+    mapBetweenValueSets: boolean = false
   ): FHIRPackage {
     this.validateConceptsForPackage(sourceConcepts, snomedConcepts);
 
-    const codeSystemUrl = `${metadata.uri}/CodeSystem/${metadata.name}`;
+    // Use sourceSystemUri if provided, otherwise derive from base URI
+    const codeSystemUrl = metadata.sourceSystemUri || `${metadata.uri}/CodeSystem/${metadata.name}`;
     const valueSetUrl = `${metadata.uri}/ValueSet/${metadata.name}`;
     const snomedValueSetUrl = `${metadata.uri}/ValueSet/${metadata.name}-snomed`;
     const conceptMapUrl = `${metadata.uri}/ConceptMap/${metadata.name}-to-snomed`;
@@ -70,7 +72,16 @@ export class ValueSetService {
     const codeSystem = this.createCodeSystem(sourceConcepts, codeSystemUrl, metadata);
     const valueSet = this.createValueSetResource(sourceConcepts, valueSetUrl, codeSystemUrl, metadata);
     const snomedValueSet = this.createValueSetResource(snomedConcepts, snomedValueSetUrl, 'http://snomed.info/sct', metadata);
-    const conceptMap = this.createConceptMap(sourceConcepts, snomedConcepts, conceptMapUrl, codeSystemUrl, metadata);
+    const conceptMap = this.createConceptMap(
+      sourceConcepts, 
+      snomedConcepts, 
+      conceptMapUrl, 
+      codeSystemUrl, 
+      metadata, 
+      mapBetweenValueSets, 
+      valueSetUrl, 
+      snomedValueSetUrl
+    );
 
     return {
       manifest: {
@@ -214,9 +225,16 @@ export class ValueSetService {
     sourceConcepts: CodeItem[], 
     snomedConcepts: CodeItem[], 
     url: string, 
-    sourceUri: string, 
-    metadata: ValueSetMetadata
+    codeSystemUrl: string, 
+    metadata: ValueSetMetadata,
+    mapBetweenValueSets: boolean = false,
+    valueSetUrl?: string,
+    snomedValueSetUrl?: string
   ): FHIRResource {
+    // Determine source and target URIs based on mapping mode
+    const sourceUri = mapBetweenValueSets && valueSetUrl ? valueSetUrl : codeSystemUrl;
+    const targetUri = mapBetweenValueSets && snomedValueSetUrl ? snomedValueSetUrl : 'http://snomed.info/sct';
+
     return {
       resourceType: 'ConceptMap',
       id: uuidv4(),
@@ -225,10 +243,10 @@ export class ValueSetService {
       version: metadata.version,
       status: 'active',
       sourceUri,
-      targetUri: 'http://snomed.info/sct',
+      targetUri,
       group: [{
         source: sourceUri,
-        target: 'http://snomed.info/sct',
+        target: targetUri,
         element: sourceConcepts.map((concept, index) => {
           const snomedConcept = snomedConcepts[index];
           if (!snomedConcept) {

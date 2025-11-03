@@ -56,8 +56,10 @@ export class ValuesetTranslatorRefactoredComponent implements OnInit, OnDestroy 
   valueSetMetadata: ValueSetMetadata = {
     uri: '',
     name: '',
-    version: '1.0.0'
+    version: '1.0.0',
+    sourceSystemUri: ''
   };
+  mapBetweenValueSets = false;
   targetValueSet: FHIRValueSet | null = null;
   sourceValueSet: FHIRValueSet | null = null;
   generatedPackage: FHIRPackage | null = null;
@@ -444,7 +446,8 @@ export class ValuesetTranslatorRefactoredComponent implements OnInit, OnDestroy 
       this.generatedPackage = this.valueSetService.generateFHIRPackage(
         source, 
         snomed, 
-        this.valueSetMetadata
+        this.valueSetMetadata,
+        this.mapBetweenValueSets
       );
       
       this.snackBar.open('FHIR package generated successfully!', 'OK', { duration: 3000 });

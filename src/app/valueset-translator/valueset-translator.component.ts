@@ -118,9 +118,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   showFhirOptions = false;
   showIndicators = true;
   showValueSetMetadata = true;
+  sourceSystemUri = '';
   valueSetUri = '';
   valueSetName = '';
   valueSetVersion = '1.0.0';
+  mapBetweenValueSets = false;
   targetPreviewData: Array<{code: string, originalDisplay: string, translatedDisplay: string}> = [];
   targetPreviewColumns = ['code', 'originalDisplay', 'translatedDisplay'];
   selectedAction: string | null = null;
@@ -1223,7 +1225,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       throw new Error('No valid concepts found after filtering');
     }
 
-    const codeSystemUrl = `${this.valueSetUri}/CodeSystem/${this.valueSetName}`;
+    // Use sourceSystemUri for CodeSystem, valueSetUri for ValueSets
+    const codeSystemUrl = this.sourceSystemUri;
     const valueSetUrl = `${this.valueSetUri}/ValueSet/${this.valueSetName}`;
     const snomedValueSetUrl = `${this.valueSetUri}/ValueSet/${this.valueSetName}-snomed`;
     const conceptMapUrl = `${this.valueSetUri}/ConceptMap/${this.valueSetName}-to-snomed`;
@@ -1269,6 +1272,10 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       }
     };
 
+    // Determine source and target URIs based on mapping mode
+    const sourceUri = this.mapBetweenValueSets ? valueSetUrl : codeSystemUrl;
+    const targetUri = this.mapBetweenValueSets ? snomedValueSetUrl : 'http://snomed.info/sct';
+
     const conceptMap: FHIRResource = {
       resourceType: 'ConceptMap',
       id: uuidv4(),
@@ -1276,11 +1283,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       name: `${this.valueSetName}ToSnomedMap`,
       version: this.valueSetVersion,
       status: 'active',
-      sourceUri: codeSystemUrl,
-      targetUri: 'http://snomed.info/sct',
+      sourceUri: sourceUri,
+      targetUri: targetUri,
       group: [{
-        source: codeSystemUrl,
-        target: 'http://snomed.info/sct',
+        source: sourceUri,
+        target: targetUri,
         element: validConcepts.map((concept, index) => {
           const snomedConcept = validSnomedConcepts[index];
           if (!snomedConcept) {

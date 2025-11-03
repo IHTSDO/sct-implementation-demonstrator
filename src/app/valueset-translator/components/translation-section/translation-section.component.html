@@ -52,14 +52,27 @@
   </h3>
   <div class="valueset-metadata-content">
     <mat-form-field>
+      <mat-label>Source System URI</mat-label>
+      <input 
+        matInput 
+        [value]="valueSetMetadata.sourceSystemUri"
+        (input)="onMetadataChange('sourceSystemUri', $any($event.target).value)"
+        placeholder="http://example.org/fhir/CodeSystem/example" 
+        required
+      >
+      <mat-hint>URI for the source CodeSystem</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field>
       <mat-label>ValueSet URI</mat-label>
       <input 
         matInput 
         [value]="valueSetMetadata.uri"
-        (input)="onMetadataChange('uri', $event.target.value)"
-        placeholder="http://example.org/fhir/ValueSet/example" 
+        (input)="onMetadataChange('uri', $any($event.target).value)"
+        placeholder="http://example.org/fhir" 
         required
       >
+      <mat-hint>Base URI for ValueSets</mat-hint>
     </mat-form-field>
 
     <mat-form-field>
@@ -67,7 +80,7 @@
       <input 
         matInput 
         [value]="valueSetMetadata.name"
-        (input)="onMetadataChange('name', $event.target.value)"
+        (input)="onMetadataChange('name', $any($event.target).value)"
         placeholder="ExampleValueSet" 
         required
       >
@@ -78,7 +91,7 @@
       <input 
         matInput 
         [value]="valueSetMetadata.version"
-        (input)="onMetadataChange('version', $event.target.value)"
+        (input)="onMetadataChange('version', $any($event.target).value)"
         placeholder="1.0.0"
       >
     </mat-form-field>

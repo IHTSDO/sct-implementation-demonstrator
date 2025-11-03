@@ -1,8 +1,14 @@
 <div class="main-container">
     <h2>ValueSet Utility</h2>
-    <p class="instructions">
-        Load a file (Excel, CSV, TSV, or FHIR ValueSet JSON) or enter an ECL expression to start. 
-    </p>
+    <div class="intro-section">
+        <p class="description">
+            This tool is specifically designed to help implementers bridge the gap between legacy or proprietary representations (such as spreadsheets or 
+            simple lists) and modern, standards-compliant FHIR ValueSet resources, streamlining the path to interoperable SNOMED CT implementations.
+        </p>
+        <p class="instructions">
+            Load a file (Excel, CSV, TSV, or FHIR ValueSet JSON) or enter an ECL expression to start. 
+        </p>
+    </div>
     
     <!-- Language indicators -->
     <div *ngIf="translationEnabled">
@@ -292,8 +298,15 @@
             </h3>
             <div class="valueset-metadata-content">
                 <mat-form-field>
+                    <mat-label>Source System URI</mat-label>
+                    <input matInput [(ngModel)]="sourceSystemUri" placeholder="http://example.org/fhir/CodeSystem/example" required>
+                    <mat-hint>URI for the source CodeSystem</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field>
                     <mat-label>ValueSet URI</mat-label>
-                    <input matInput [(ngModel)]="valueSetUri" placeholder="http://example.org/fhir/ValueSet/example" required>
+                    <input matInput [(ngModel)]="valueSetUri" placeholder="http://example.org/fhir" required>
+                    <mat-hint>Base URI for ValueSets</mat-hint>
                 </mat-form-field>
 
                 <mat-form-field>
@@ -305,6 +318,15 @@
                     <mat-label>Version</mat-label>
                     <input matInput [(ngModel)]="valueSetVersion" placeholder="1.0.0">
                 </mat-form-field>
+
+                <div class="mapping-mode-option">
+                    <mat-checkbox [(ngModel)]="mapBetweenValueSets">
+                        Map between ValueSets (instead of CodeSystems)
+                    </mat-checkbox>
+                    <p class="option-hint">
+                        When enabled, the ConceptMap will reference ValueSet URIs instead of CodeSystem URIs
+                    </p>
+                </div>
             </div>
         </div>
 
