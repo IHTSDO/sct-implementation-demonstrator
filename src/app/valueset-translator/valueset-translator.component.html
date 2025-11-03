@@ -118,11 +118,29 @@
                     color="primary"
                     class="ecl-button"
                     (click)="expandEcl()"
-                    [disabled]="!eclExpression.trim()"
+                    [disabled]="!eclExpression.trim() || isLoading"
                 >
                     <mat-icon>expand_more</mat-icon>
                     <span>Expand ECL</span>
                 </button>
+                
+                <!-- Progress bar during ECL expansion -->
+                <div *ngIf="isLoading && showEclInput" class="ecl-loading">
+                    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                    <p class="loading-text">Expanding ECL expression...</p>
+                </div>
+
+                <!-- Error message display -->
+                <div *ngIf="error && showEclInput" class="error-message">
+                    <mat-icon>error</mat-icon>
+                    <span>{{ error }}</span>
+                </div>
+
+                <!-- Success message display -->
+                <div *ngIf="successMessage && showEclInput" class="success-message">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>{{ successMessage }}</span>
+                </div>
             </div>
         </div>
 

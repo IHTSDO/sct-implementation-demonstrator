@@ -807,10 +807,14 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Clear preview table and reset state
     this.isLoading = true;
     this.error = null;
     this.successMessage = null;
     this.isEclResult = true;
+    this.previewData = [];
+    this.showPreview = false;
+    this.targetValueSet = null;
 
     this.terminologyService.expandValueSet(this.eclExpression, '', 0, 1000).subscribe(
       (expandedValueSet) => {

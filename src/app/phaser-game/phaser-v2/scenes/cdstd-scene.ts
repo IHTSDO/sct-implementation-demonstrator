@@ -42,7 +42,7 @@ export class CdstdScene extends Phaser.Scene {
   constructor(private terminologyService: TerminologyService) {
     super({ key: 'CdstdScene' });
     this.gameService = new GameService(terminologyService);
-    this.terminologyService.setSnowstormFhirBase('https://snowstorm-lite.nw.r.appspot.com/fhir');
+    this.terminologyService.setSnowstormFhirBase('https://implementation-demo.snomedtools.org/snowstorm-lite/fhir');
   }
 
   setSpeedMultiplier(multiplier: number) {

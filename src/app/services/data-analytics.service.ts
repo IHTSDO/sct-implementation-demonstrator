@@ -19,7 +19,7 @@ export interface PartialHierarchyRequest {
   providedIn: 'root'
 })
 export class DataAnalyticsService {
-  private readonly analyticsServerUrl = 'https://snowstorm-lite.nw.r.appspot.com';
+  private readonly analyticsServerUrl = 'https://implementation-demo.snomedtools.org/snowstorm-lite';
   private readonly enableExternalService = true; // Set to false to disable external calls (disabled due to CORS)
 
   constructor(private http: HttpClient) { }

@@ -179,6 +179,15 @@
     background-color: #e8f5e9;
     border-radius: 4px;
     color: #2e7d32;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
 }
 
 .error-message {
@@ -187,6 +196,15 @@
     background-color: #ffebee;
     border-radius: 4px;
     color: #c62828;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
 }
 
 .column-form {
@@ -412,6 +430,25 @@ mat-progress-spinner {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+    }
+
+    .ecl-loading {
+        margin-top: 16px;
+        padding: 16px;
+        background-color: #fff;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+
+        mat-progress-bar {
+            margin-bottom: 12px;
+        }
+
+        .loading-text {
+            margin: 0;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
         }
     }
 }
