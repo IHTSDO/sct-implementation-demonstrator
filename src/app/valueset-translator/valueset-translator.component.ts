@@ -527,6 +527,17 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
     this.sourceValueSet = this.sourceValueSet;
 
+    // Pre-fill ValueSet metadata fields from the source FHIR ValueSet
+    if (json.url) {
+      this.valueSetUri = json.url;
+    }
+    if (json.name) {
+      this.valueSetName = json.name;
+    }
+    if (json.version) {
+      this.valueSetVersion = json.version;
+    }
+
     this.previewData = [
       ['Code', 'Display', 'System'], // Headers
       ...(json.compose?.include?.[0]?.concept || []).map((concept: any) => [

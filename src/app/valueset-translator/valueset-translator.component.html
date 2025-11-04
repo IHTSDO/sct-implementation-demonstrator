@@ -315,7 +315,7 @@
                 ValueSet Metadata
             </h3>
             <div class="valueset-metadata-content">
-                <mat-form-field>
+                <mat-form-field *ngIf="isMap">
                     <mat-label>Source System URI</mat-label>
                     <input matInput [(ngModel)]="sourceSystemUri" placeholder="http://example.org/fhir/CodeSystem/example" required>
                     <mat-hint>URI for the source CodeSystem</mat-hint>
@@ -337,7 +337,7 @@
                     <input matInput [(ngModel)]="valueSetVersion" placeholder="1.0.0">
                 </mat-form-field>
 
-                <div class="mapping-mode-option">
+                <div class="mapping-mode-option" *ngIf="isMap">
                     <mat-checkbox [(ngModel)]="mapBetweenValueSets">
                         Map between ValueSets (instead of CodeSystems)
                     </mat-checkbox>

@@ -140,7 +140,7 @@ export class MenuService {
       description: "A demonstration of SNOMED CT integrations with live data. Navigate the integrations hub to explore the different integrations with other classifications, terminologies, and code systems."
     },
     {
-      name: "ValueSet Translator & FHIR Package Generator",
+      name: "ValueSet Utility",
       subtitle: "Tool",
       type: "internal",
       url: "/valueset-translator",
