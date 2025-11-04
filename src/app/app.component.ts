@@ -7,6 +7,7 @@ import { MenuService } from './services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
 import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
+import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 import { CookieService } from './services/cookie.service';
 import { catchError, of, skip, Subject, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -74,14 +75,15 @@ export class AppComponent {
     const params = this.activatedRoute.snapshot.queryParams;
     this.embeddedMode = params['embedded'] === 'true';
     
-    // Wait a moment before checking license to ensure everything is initialized
+    // Wait a moment before checking consent to ensure everything is initialized
     setTimeout(() => {
-      // If in embedded mode, automatically accept license (no modal)
+      // If in embedded mode, automatically accept cookies and license (no modals)
       if (this.embeddedMode) {
+        this.cookieService.setCookie('cookiesAccepted', 'true', 180);
         this.cookieService.setCookie('snomedLicenseAccepted', 'true', 180);
       } else {
-        // Check license agreement for normal mode
-        this.checkLicenseAgreement();
+        // Check cookie consent first, then license agreement
+        this.checkCookieConsent();
       }
     }, 500);
     
@@ -372,6 +374,40 @@ export class AppComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       // Dialog closed
+    });
+  }
+
+  checkCookieConsent(): void {
+    const cookiesAccepted = this.cookieService.getCookie('cookiesAccepted');
+    
+    if (!cookiesAccepted) {
+      this.openCookieConsentBanner();
+    } else {
+      // If cookies are already accepted, proceed to check license
+      this.checkLicenseAgreement();
+    }
+  }
+
+  openCookieConsentBanner(): void {
+    const dialogRef = this.dialog.open(CookieConsentComponent, {
+      width: '100%',
+      maxWidth: '100vw',
+      position: { bottom: '0' },
+      disableClose: true,
+      panelClass: 'cookie-consent-banner',
+      hasBackdrop: false
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        // User accepted cookies - set cookie for 6 months (180 days)
+        this.cookieService.setCookie('cookiesAccepted', 'true', 180);
+        // Now check license agreement
+        this.checkLicenseAgreement();
+      } else {
+        // User declined - redirect to SNOMED International website
+        window.location.href = 'https://www.snomed.org';
+      }
     });
   }
 

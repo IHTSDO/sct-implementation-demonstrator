@@ -62,3 +62,19 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 ::ng-deep .green-snackbar .mat-simple-snackbar-action {
   color: white !important;
 }
+
+/* Cookie Consent Banner styles */
+::ng-deep .cookie-consent-banner .mat-mdc-dialog-container {
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+
+::ng-deep .cookie-consent-banner .mat-mdc-dialog-surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}

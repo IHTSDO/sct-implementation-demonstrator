@@ -116,6 +116,7 @@ import { AiAssistedEntryComponent } from './benefits-demo/ai-assisted-entry/ai-a
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { BatchPatientDialogComponent } from './benefits-demo/batch-patient-dialog/batch-patient-dialog.component';
 import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
+import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -191,7 +192,8 @@ const app = initializeApp(firebaseConfig);
         AiAssistedEntryComponent,
         ExpoQuiz2025Component,
         BatchPatientDialogComponent,
-        LicenseAgreementComponent
+        LicenseAgreementComponent,
+        CookieConsentComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,
