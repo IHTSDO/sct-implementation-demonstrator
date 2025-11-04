@@ -1,0 +1,8 @@
+pandas
+tqdm
+halo
+matplotlib
+plotly
+openpyxl
+requests
+python-dotenv

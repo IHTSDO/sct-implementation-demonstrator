@@ -40,3 +40,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Python environment and data
+python/.env
+python/data/
+python/output/
+python/__pycache__/
