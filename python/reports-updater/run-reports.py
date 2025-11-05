@@ -44,7 +44,7 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     
     # HTML files -> Angular assets (for web serving)
-    assets_dir = os.path.join(os.path.dirname(__file__), "../src/assets/reports")
+    assets_dir = os.path.join(os.path.dirname(__file__), "../../src/assets/reports")
     os.makedirs(assets_dir, exist_ok=True)
 
     inactivations_xlsx = os.path.join(output_dir, "detect-inactivations.xlsx")

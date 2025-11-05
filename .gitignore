@@ -42,7 +42,7 @@ testem.log
 Thumbs.db
 
 # Python environment and data
-python/.env
-python/data/
-python/output/
-python/__pycache__/
+python/reports-updater/.env
+python/reports-updater/data/
+python/reports-updater/output/
+python/**/__pycache__/

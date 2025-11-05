@@ -26,10 +26,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r python/requirements.txt
+          pip install -r python/reports-updater/requirements.txt
 
       - name: Run SNOMED Report Generator
-        working-directory: ./python
+        working-directory: ./python/reports-updater
         env:
           SNOMED_USER: ${{ secrets.SNOMED_USER }}
           SNOMED_PASSWORD: ${{ secrets.SNOMED_PASSWORD }}
