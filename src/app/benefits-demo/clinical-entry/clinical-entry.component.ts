@@ -142,7 +142,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
       recordedDate: new Date().toISOString()
     };
 
-    this.patientService.addPatientCondition(this.patientId, newCondition);
+    // Let the parent component handle adding to the service
     this.itemAdded.emit(newCondition);
     this.resetForm();
   }
@@ -167,7 +167,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
       performedDateTime: new Date().toISOString()
     };
 
-    this.patientService.addPatientProcedure(this.patientId, newProcedure);
+    // Let the parent component handle adding to the service
     this.itemAdded.emit(newProcedure);
     this.resetForm();
   }
@@ -203,7 +203,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
       }];
     }
 
-    this.patientService.addPatientMedication(this.patientId, newMedication);
+    // Let the parent component handle adding to the service
     this.itemAdded.emit(newMedication);
     this.resetForm();
   }
