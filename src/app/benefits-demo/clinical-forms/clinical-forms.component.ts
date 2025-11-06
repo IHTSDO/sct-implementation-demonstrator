@@ -195,10 +195,22 @@ export class ClinicalFormsComponent implements OnInit {
   onAllergySaved(allergyData: any): void {
     // Store the allergy in the PatientService if we have a selected patient
     if (this.patient && this.patient.id) {
-      // Ensure the allergy has a proper ID and patient reference
+      // Normalize criticality field (form sends it as array, FHIR expects string)
+      let criticality: 'low' | 'high' | 'unable-to-assess' | undefined = undefined;
+      if (allergyData.criticality) {
+        if (Array.isArray(allergyData.criticality) && allergyData.criticality.length > 0) {
+          criticality = allergyData.criticality[0];
+        } else if (typeof allergyData.criticality === 'string') {
+          criticality = allergyData.criticality as any;
+        }
+      }
+      
+      // Ensure the allergy has a proper unique ID and patient reference
+      // Always generate a unique ID to avoid hardcoded "medication" ID from the form
       const allergyToStore: AllergyIntolerance = {
         ...allergyData,
-        id: allergyData.id || `allergy-${Date.now()}`,
+        id: `allergy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        criticality: criticality,
         patient: {
           reference: `Patient/${this.patient.id}`,
           display: this.patient.name?.[0]?.text || `${this.patient.name?.[0]?.given?.[0]} ${this.patient.name?.[0]?.family}`

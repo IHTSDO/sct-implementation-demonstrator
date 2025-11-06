@@ -33,6 +33,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   @ViewChild('tabGroup') tabGroup!: MatTabGroup;
   @ViewChild('encounterRecord') encounterRecord!: any;
   @ViewChild('clinicalTimeline') clinicalTimeline!: any;
+  @ViewChild('clinicalForms') clinicalForms!: any;
 
   patient: Patient | null = null;
   conditions: Condition[] = [];
@@ -766,18 +767,30 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   getAllergyCriticality(allergy: AllergyIntolerance): string {
-    if (allergy.criticality) {
-      let criticalityText = '';
-      if (typeof allergy.criticality === 'string') {
-        criticalityText = allergy.criticality;
-      } else if (Array.isArray(allergy.criticality) && (allergy.criticality as any[]).length > 0) {
-        criticalityText = (allergy.criticality as any[])[0];
-      }
-      
-      if (criticalityText) {
-        return criticalityText.charAt(0).toUpperCase() + criticalityText.slice(1).replace('-', ' ');
+    if (!allergy.criticality) {
+      return '';
+    }
+    
+    let criticalityText = '';
+    
+    // Handle different formats
+    if (typeof allergy.criticality === 'string') {
+      criticalityText = allergy.criticality;
+    } else if (Array.isArray(allergy.criticality) && (allergy.criticality as any[]).length > 0) {
+      criticalityText = (allergy.criticality as any[])[0];
+    } else if (typeof allergy.criticality === 'object' && !Array.isArray(allergy.criticality)) {
+      // Check if it's an empty object or has properties
+      const keys = Object.keys(allergy.criticality);
+      if (keys.length === 0) {
+        return ''; // Empty object
       }
     }
+    
+    if (criticalityText) {
+      // Capitalize and format (e.g., "high" -> "High", "unable-to-assess" -> "Unable to assess")
+      return criticalityText.charAt(0).toUpperCase() + criticalityText.slice(1).replace(/-/g, ' ');
+    }
+    
     return '';
   }
 
@@ -1032,6 +1045,20 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.medicationEntry.toggleAddForm();
   }
 
+  openAllergyForm(): void {
+    // Switch to Clinical Forms tab (index 5)
+    if (this.tabGroup) {
+      this.tabGroup.selectedIndex = 5;
+      
+      // Set the selected form to 'allergies' after a brief delay to ensure tab is rendered
+      setTimeout(() => {
+        if (this.clinicalForms) {
+          this.clinicalForms.selectedForm = 'allergies';
+        }
+      }, 100);
+    }
+  }
+
   async onMedicationAdded(event: any): Promise<void> {
     this.isProcessingNewEvent = true;
     
@@ -1235,7 +1262,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const condition = this.conditions.find(c => c.id === conditionId);
     if (condition && confirm(`Are you sure you want to delete the condition "${condition.code.text}"?`)) {
       this.patientService.deletePatientCondition(this.patient.id, conditionId);
-      this.loadClinicalData(this.patient.id);
+      // Reload conditions directly from service to ensure fresh data
+      this.conditions = this.patientService.getPatientConditions(this.patient.id);
     }
   }
 
@@ -1245,7 +1273,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const procedure = this.procedures.find(p => p.id === procedureId);
     if (procedure && confirm(`Are you sure you want to delete the procedure "${procedure.code.text}"?`)) {
       this.patientService.deletePatientProcedure(this.patient.id, procedureId);
-      this.loadClinicalData(this.patient.id);
+      // Reload procedures directly from service to ensure fresh data
+      this.procedures = this.patientService.getPatientProcedures(this.patient.id);
     }
   }
 
@@ -1255,7 +1284,22 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const medication = this.medications.find(m => m.id === medicationId);
     if (medication && confirm(`Are you sure you want to delete the medication "${medication.medicationCodeableConcept?.text}"?`)) {
       this.patientService.deletePatientMedication(this.patient.id, medicationId);
-      this.loadClinicalData(this.patient.id);
+      // Reload medications directly from service to ensure fresh data
+      this.medications = this.patientService.getPatientMedications(this.patient.id);
+    }
+  }
+
+  deleteAllergy(allergyId: string): void {
+    if (!this.patient) return;
+    
+    const allergy = this.allergies.find(a => a.id === allergyId);
+    if (allergy) {
+      const allergyName = this.getAllergyDisplayName(allergy);
+      if (confirm(`Are you sure you want to delete the allergy "${allergyName}"?`)) {
+        this.patientService.deletePatientAllergy(this.patient.id, allergyId);
+        // Reload allergies directly from service to ensure fresh data
+        this.allergies = this.patientService.getPatientAllergies(this.patient.id);
+      }
     }
   }
 

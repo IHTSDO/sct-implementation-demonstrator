@@ -1871,3 +1871,97 @@
     min-width: 0;
   }
 }
+
+/* Allergies Subsection Styles */
+.allergies-subsection {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px solid #e9ecef;
+}
+
+.subsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 8px;
+}
+
+.subsection-header h5 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.subsection-header h5 mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #f39c12;
+}
+
+.subsection-header .item-count {
+  background-color: #f39c12;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.clinical-item.compact.allergy-item {
+  border-left: 3px solid #f39c12;
+  padding-left: 10px;
+}
+
+.criticality-badge.compact {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.criticality-badge.high {
+  background-color: #dc3545;
+  color: white;
+}
+
+.criticality-badge.low {
+  background-color: #28a745;
+  color: white;
+}
+
+.allergy-category.compact {
+  background-color: #e9ecef;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  text-transform: capitalize;
+}
+
+.allergy-reactions.compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background-color: #fff3cd;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #856404;
+}
+
+.allergy-reactions.compact .reactions-label {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.allergy-reactions.compact .reaction-item {
+  font-style: italic;
+}

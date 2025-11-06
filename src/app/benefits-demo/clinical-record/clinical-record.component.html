@@ -267,6 +267,13 @@
                     <mat-icon>medication</mat-icon>
                     Add Medication
                   </button>
+                  <button mat-raised-button 
+                          color="warn" 
+                          (click)="openAllergyForm()"
+                          class="entry-toggle-button">
+                    <mat-icon>warning</mat-icon>
+                    Add Allergy
+                  </button>
                 </div>
                 <div class="processing-indicator" *ngIf="isProcessingNewEvent">
                   <mat-spinner diameter="20"></mat-spinner>
@@ -347,6 +354,53 @@
                 <ng-template #noConditions>
                   <div class="no-clinical-data compact">No conditions recorded</div>
                 </ng-template>
+
+                <!-- Allergies Section -->
+                <div class="allergies-subsection" *ngIf="allergies.length > 0">
+                  <div class="subsection-header">
+                    <h5><mat-icon>warning</mat-icon> Allergies & Intolerances</h5>
+                    <span class="item-count">{{ allergies.length }}</span>
+                  </div>
+                  <div class="clinical-list compact">
+                    <div class="clinical-item compact allergy-item" 
+                         *ngFor="let allergy of getSortedAllergies()">
+                      <div class="item-header compact">
+                        <span class="item-title compact">{{ getAllergyDisplayName(allergy) }}</span>
+                        <div class="item-header-actions compact">
+                          <span class="criticality-badge compact" 
+                                [class.high]="getAllergyCriticality(allergy) === 'high'"
+                                [class.low]="getAllergyCriticality(allergy) === 'low'"
+                                *ngIf="getAllergyCriticality(allergy)">
+                            {{ getAllergyCriticality(allergy) }}
+                          </span>
+                          <button mat-icon-button 
+                                  class="delete-button compact" 
+                                  (click)="deleteAllergy(allergy.id)"
+                                  title="Delete allergy">
+                            <mat-icon>delete_outline</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="item-details compact inline">
+                        <span class="item-concept-id compact" *ngIf="getAllergyConceptId(allergy)">
+                          {{ getAllergyConceptId(allergy) }}
+                        </span>
+                        <span class="item-status compact" *ngIf="getAllergyVerificationStatus(allergy)">
+                          {{ getAllergyVerificationStatus(allergy) }}
+                        </span>
+                        <span class="allergy-category compact" *ngIf="allergy.category && allergy.category.length > 0">
+                          {{ allergy.category.join(', ') }}
+                        </span>
+                      </div>
+                      <div class="allergy-reactions compact" *ngIf="getAllergyReactions(allergy).length > 0">
+                        <span class="reactions-label">Reactions:</span>
+                        <span class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy); let last = last">
+                          {{ reaction }}<span *ngIf="!last">, </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- Procedures Column -->
@@ -525,6 +579,7 @@
         <mat-tab label="Clinical Forms">
           <div class="tab-content">
             <app-clinical-forms 
+              #clinicalForms
               [patient]="patient"
               [conditions]="conditions"
               [procedures]="procedures"
