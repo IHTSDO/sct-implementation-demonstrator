@@ -1112,6 +1112,54 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  async onClinicalFormSubmitted(event: any): Promise<void> {
+    // Handle clinical form submissions (allergies, adverse reactions, etc.)
+    if (event.type === 'allergy' && this.patient) {
+      this.isLoadingMapping = true;
+      
+      try {
+        // Reload allergies from the service to update the summary
+        this.allergies = this.patientService.getPatientAllergies(this.patient.id);
+        
+        // Map newly created conditions to anatomical locations
+        if (event.newConditions && event.newConditions.length > 0) {
+          // Map each new condition to its anatomical location
+          for (const condition of event.newConditions) {
+            await this.mapSingleEventToAnchorPoint(condition);
+            // Update the condition in storage with the computed location
+            this.patientService.updatePatientCondition(this.patient.id, condition.id, condition);
+          }
+        }
+        
+        // Reload conditions after mapping to get the updated computedLocation
+        this.conditions = this.patientService.getPatientConditions(this.patient.id);
+        
+        // Show success notification (already shown in clinical-forms component, but update here if needed)
+        const message = event.newConditionsCount > 0
+          ? `Allergy updated. Summary and ${event.newConditionsCount} reaction(s) mapped to body diagram.`
+          : 'Allergy record updated successfully';
+        
+        this.snackBar.open(
+          message,
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
+          }
+        );
+        
+        // Refresh timeline if available to show both allergies and new conditions
+        if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+          this.clinicalTimeline.refreshTimeline();
+        }
+      } finally {
+        this.isLoadingMapping = false;
+      }
+    }
+  }
+
   // Legacy connection line methods removed - now using dynamic hover-based connections
 
   getConceptId(resource: any): string {

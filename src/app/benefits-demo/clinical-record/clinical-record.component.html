@@ -528,7 +528,8 @@
               [patient]="patient"
               [conditions]="conditions"
               [procedures]="procedures"
-              [medications]="medications">
+              [medications]="medications"
+              (formSubmitted)="onClinicalFormSubmitted($event)">
             </app-clinical-forms>
           </div>
         </mat-tab>

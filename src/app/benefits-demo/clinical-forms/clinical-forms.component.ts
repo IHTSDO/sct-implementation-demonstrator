@@ -207,11 +207,159 @@ export class ClinicalFormsComponent implements OnInit {
       };
       
       // Add the allergy to the patient's record
-      this.patientService.addPatientAllergy(this.patient.id, allergyToStore);
+      const wasAdded = this.patientService.addPatientAllergy(this.patient.id, allergyToStore);
+      
+      if (wasAdded) {
+        // Create conditions from allergy reactions (manifestations)
+        const newConditionsAdded = this.createConditionsFromAllergyReactions(allergyToStore);
+        
+        // Show success message
+        const message = newConditionsAdded > 0 
+          ? `Allergy/Intolerance saved successfully. ${newConditionsAdded} reaction(s) added to problem list.`
+          : 'Allergy/Intolerance saved successfully';
+        
+        this.snackBar.open(
+          message,
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
+          }
+        );
+        
+        // Emit the allergy data to parent component to update the summary
+        // Include the newly created conditions so they can be mapped to anatomical locations
+        const newConditions = this.getNewConditionsFromReactions(allergyToStore);
+        this.formSubmitted.emit({
+          type: 'allergy',
+          data: allergyToStore,
+          timestamp: new Date().toISOString(),
+          newConditionsCount: newConditionsAdded,
+          newConditions: newConditions
+        });
+      } else {
+        // Duplicate detected
+        this.snackBar.open(
+          'This allergy already exists for this patient',
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['warning-snackbar']
+          }
+        );
+      }
       
     } else {
       console.warn('No patient selected - allergy not stored');
     }
+  }
+
+  private newlyCreatedConditions: Condition[] = [];
+
+  private createConditionsFromAllergyReactions(allergy: AllergyIntolerance): number {
+    if (!this.patient || !allergy.reaction || allergy.reaction.length === 0) {
+      return 0;
+    }
+
+    // Reset the tracking array
+    this.newlyCreatedConditions = [];
+    let newConditionsCount = 0;
+    const existingConditions = this.patientService.getPatientConditions(this.patient.id);
+
+    // Iterate through all reactions in the allergy
+    for (const reaction of allergy.reaction) {
+      if (!reaction.manifestation || reaction.manifestation.length === 0) {
+        continue;
+      }
+
+      // Iterate through all manifestations (symptoms) in the reaction
+      for (const manifestation of reaction.manifestation) {
+        // Check if this manifestation already exists as a condition
+        const manifestationCode = manifestation.coding?.[0]?.code;
+        const manifestationDisplay = manifestation.coding?.[0]?.display || manifestation.text;
+
+        if (!manifestationDisplay) {
+          continue; // Skip if no display name
+        }
+
+        // Check if condition already exists
+        const conditionExists = existingConditions.some(condition => {
+          // Check by SNOMED code if available
+          if (manifestationCode && condition.code?.coding?.[0]?.code === manifestationCode) {
+            return true;
+          }
+          // Otherwise check by display text
+          return condition.code?.text === manifestationDisplay;
+        });
+
+        if (!conditionExists) {
+          // Create a new condition for this manifestation
+          const newCondition: Condition = {
+            resourceType: 'Condition',
+            id: `condition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            clinicalStatus: {
+              coding: [{
+                system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+                code: 'active',
+                display: 'Active'
+              }],
+              text: 'Active'
+            },
+            verificationStatus: {
+              coding: [{
+                system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
+                code: 'confirmed',
+                display: 'Confirmed'
+              }],
+              text: 'Confirmed'
+            },
+            category: [{
+              coding: [{
+                system: 'http://terminology.hl7.org/CodeSystem/condition-category',
+                code: 'problem-list-item',
+                display: 'Problem List Item'
+              }],
+              text: 'Problem List Item'
+            }],
+            code: {
+              coding: manifestation.coding ? [...manifestation.coding] : undefined,
+              text: manifestationDisplay
+            },
+            subject: {
+              reference: `Patient/${this.patient.id}`,
+              display: this.patient.name?.[0]?.text || `${this.patient.name?.[0]?.given?.[0]} ${this.patient.name?.[0]?.family}`
+            },
+            onsetDateTime: allergy.onsetDateTime || new Date().toISOString(),
+            recordedDate: new Date().toISOString(),
+            note: [{
+              text: `Manifestation of allergic reaction to ${allergy.code?.text || 'unknown substance'}`,
+              time: new Date().toISOString()
+            }]
+          };
+
+          // Add the condition to the patient's record
+          const added = this.patientService.addPatientCondition(this.patient.id, newCondition);
+          if (added) {
+            newConditionsCount++;
+            // Also add to local conditions array so UI updates
+            this.conditions.push(newCondition);
+            // Track this newly created condition
+            this.newlyCreatedConditions.push(newCondition);
+          }
+        }
+      }
+    }
+
+    return newConditionsCount;
+  }
+
+  private getNewConditionsFromReactions(allergy: AllergyIntolerance): Condition[] {
+    // Return the tracked newly created conditions
+    return [...this.newlyCreatedConditions];
   }
 
   getSelectedFormName(): string {
