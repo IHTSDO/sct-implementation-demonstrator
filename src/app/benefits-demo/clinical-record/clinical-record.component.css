@@ -47,6 +47,7 @@
 .patient-meta {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 20px;
   font-size: 0.95rem;
   color: #6c757d;
