@@ -1,0 +1,131 @@
+.questionnaire-form-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.questionnaire-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.questionnaire-header h3 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.questionnaire-description {
+  margin: 8px 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.questionnaire-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.draft {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.status-badge.active {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-badge.retired {
+  background-color: #6c757d;
+  color: white;
+}
+
+.version-info {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.lforms-container {
+  margin: 24px 0;
+  min-height: 200px;
+}
+
+.lforms-container.hidden {
+  display: none;
+}
+
+.loading-questionnaire {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.loading-questionnaire p {
+  margin-top: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.no-questionnaire {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.no-questionnaire mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.no-questionnaire p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.no-questionnaire .hint {
+  font-size: 0.9rem;
+  margin-top: 8px;
+  color: #999;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.form-actions button {
+  min-width: 140px;
+}
+
+.form-actions button mat-icon {
+  margin-right: 8px;
+}
+

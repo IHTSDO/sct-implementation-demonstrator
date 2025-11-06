@@ -112,6 +112,7 @@ import { ClinicalEntryComponent } from './benefits-demo/clinical-entry/clinical-
 import { ClinicalTimelineComponent } from './benefits-demo/clinical-timeline/clinical-timeline.component';
 import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
 import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
+import { QuestionnaireFormComponent } from './benefits-demo/questionnaire-form/questionnaire-form.component';
 import { AiAssistedEntryComponent } from './benefits-demo/ai-assisted-entry/ai-assisted-entry.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { BatchPatientDialogComponent } from './benefits-demo/batch-patient-dialog/batch-patient-dialog.component';
@@ -189,6 +190,7 @@ const app = initializeApp(firebaseConfig);
         ClinicalTimelineComponent,
         EncounterRecordComponent,
         InteroperabilityComponent,
+        QuestionnaireFormComponent,
         AiAssistedEntryComponent,
         ExpoQuiz2025Component,
         BatchPatientDialogComponent,

@@ -45,8 +45,18 @@
         </app-allergies-allergy-list>
       </div>
 
+      <!-- Questionnaire Forms -->
+      <div *ngIf="isQuestionnaireForm(selectedForm)" class="form-wrapper">
+        <app-questionnaire-form
+          [questionnaire]="getQuestionnaire(selectedForm)"
+          [questionnaireId]="selectedForm"
+          (formSubmitted)="onQuestionnaireSubmitted($event)"
+          (formCancelled)="onFormCancelled()">
+        </app-questionnaire-form>
+      </div>
+
       <!-- Placeholder for other forms -->
-      <div *ngIf="selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies'" class="form-placeholder">
+      <div *ngIf="selectedForm && !isQuestionnaireForm(selectedForm) && selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies'" class="form-placeholder">
         <div class="placeholder-content">
           <mat-icon class="placeholder-icon">description</mat-icon>
           <h3>{{ getSelectedFormName() }} Form</h3>

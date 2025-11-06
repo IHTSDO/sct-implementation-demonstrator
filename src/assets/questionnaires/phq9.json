@@ -1,0 +1,359 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "phq9",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2024-01-01T00:00:00Z"
+  },
+  "url": "http://example.org/Questionnaire/phq9",
+  "identifier": [
+    {
+      "system": "http://loinc.org",
+      "value": "44249-1"
+    }
+  ],
+  "version": "1.0",
+  "name": "PHQ9",
+  "title": "Patient Health Questionnaire-9 (PHQ-9)",
+  "status": "active",
+  "description": "The PHQ-9 is a multipurpose instrument for screening, diagnosing, monitoring and measuring the severity of depression.",
+  "code": [
+    {
+      "system": "http://loinc.org",
+      "code": "44249-1",
+      "display": "PHQ-9 quick depression assessment panel"
+    }
+  ],
+  "item": [
+    {
+      "linkId": "phq9-intro",
+      "type": "display",
+      "text": "Over the last 2 weeks, how often have you been bothered by any of the following problems?"
+    },
+    {
+      "linkId": "q1",
+      "type": "choice",
+      "text": "1. Little interest or pleasure in doing things",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "q2",
+      "type": "choice",
+      "text": "2. Feeling down, depressed, or hopeless",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "q3",
+      "type": "choice",
+      "text": "3. Trouble falling or staying asleep, or sleeping too much",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "q4",
+      "type": "choice",
+      "text": "4. Feeling tired or having little energy",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "q5",
+      "type": "choice",
+      "text": "5. Poor appetite or overeating",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "q6",
+      "type": "choice",
+      "text": "6. Feeling bad about yourself - or that you are a failure or have let yourself or your family down",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "q7",
+      "type": "choice",
+      "text": "7. Trouble concentrating on things, such as reading the newspaper or watching television",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "q8",
+      "type": "choice",
+      "text": "8. Moving or speaking so slowly that other people could have noticed. Or the opposite - being so fidgety or restless that you have been moving around a lot more than usual",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "q9",
+      "type": "choice",
+      "text": "9. Thoughts that you would be better off dead, or of hurting yourself in some way",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6568-5",
+            "display": "Not at all"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6569-3",
+            "display": "Several days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6570-1",
+            "display": "More than half the days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA6571-9",
+            "display": "Nearly every day"
+          }
+        }
+      ]
+    }
+  ]
+}
+

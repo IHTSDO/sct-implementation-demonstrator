@@ -73,11 +73,16 @@ export class QuestionnairesMainComponent implements OnInit{
   }
 
   loadScript() {
+    // Check if LForms is already loaded
+    if (typeof LForms !== 'undefined') {
+      return;
+    }
+
     const script = document.createElement('script');
-    script.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/36.3.2/webcomponent/lhc-forms.js'; // Replace with the actual URL of your JS library
+    script.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/36.3.2/webcomponent/lhc-forms.js';
     script.onload = () => {
       const script2 = document.createElement('script');
-      script2.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/36.3.2/fhir/R4/lformsFHIR.min.js'; // Replace with the actual URL of your JS library
+      script2.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/36.3.2/fhir/R4/lformsFHIR.min.js';
       script2.onload = () => {
         // Script has loaded
         // Initialize or use the library here, if necessary

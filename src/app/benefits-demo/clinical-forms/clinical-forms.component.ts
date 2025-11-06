@@ -1,5 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpClient } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
 import { Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, PatientService } from '../../services/patient.service';
 import { AdverseReactionReport } from './adverse-reaction-form/adverse-reaction-form.component';
 
@@ -42,10 +44,38 @@ export class ClinicalFormsComponent implements OnInit {
       description: 'Document patient allergies and intolerances using SNOMED CT terminology',
       category: 'Clinical Documentation',
       available: true
+    },
+    {
+      id: 'questionnaire-phq9',
+      name: 'PHQ-9 Depression Screening',
+      description: 'Patient Health Questionnaire-9 for depression screening',
+      category: 'Questionnaires',
+      available: true
+    },
+    {
+      id: 'questionnaire-gad7',
+      name: 'GAD-7 Anxiety Screening',
+      description: 'Generalized Anxiety Disorder 7-item scale',
+      category: 'Questionnaires',
+      available: true
+    },
+    {
+      id: 'questionnaire-carcinoma',
+      name: 'Carcinoma of the Exocrine Pancreas - Histopathology Reporting Form',
+      description: 'Comprehensive histopathology reporting form for pancreatic carcinoma',
+      category: 'Questionnaires',
+      available: true
     }
   ];
 
-  constructor(private snackBar: MatSnackBar, private patientService: PatientService) { }
+  // Store loaded questionnaires
+  private questionnaires: { [key: string]: any } = {};
+
+  constructor(
+    private snackBar: MatSnackBar, 
+    private patientService: PatientService,
+    private http: HttpClient
+  ) { }
 
   ngOnInit(): void {
     // Component initialization
@@ -53,6 +83,50 @@ export class ClinicalFormsComponent implements OnInit {
 
   onFormSelected(formId: string): void {
     this.selectedForm = formId;
+    
+    // Load questionnaire if it's a questionnaire form
+    if (formId && formId.startsWith('questionnaire-')) {
+      this.loadQuestionnaire(formId);
+    }
+  }
+
+  private async loadQuestionnaire(formId: string): Promise<void> {
+    // Check if already loaded
+    if (this.questionnaires[formId]) {
+      return;
+    }
+
+    // Map form IDs to actual filenames (handle special cases with spaces/parentheses)
+    const filenameMap: { [key: string]: string } = {
+      'questionnaire-phq9': 'phq9.json',
+      'questionnaire-gad7': 'gad7.json',
+      'questionnaire-carcinoma': 'Carcinoma-of-the-Exocrine-Pancreas-Histopathology-Reporting-Form.R4 (11).json'
+    };
+
+    const questionnaireFile = filenameMap[formId] || formId.replace('questionnaire-', '') + '.json';
+    
+    try {
+      const data = await lastValueFrom(this.http.get(`assets/questionnaires/${questionnaireFile}`));
+      this.questionnaires[formId] = data;
+    } catch (error) {
+      this.snackBar.open(
+        `Failed to load questionnaire: ${questionnaireFile}`,
+        'Close',
+        {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        }
+      );
+    }
+  }
+
+  getQuestionnaire(formId: string | null): any {
+    if (!formId) return null;
+    return this.questionnaires[formId] || null;
+  }
+
+  isQuestionnaireForm(formId: string | null): boolean {
+    return !!(formId && formId.startsWith('questionnaire-'));
   }
 
   async onFormSubmitted(formData: any): Promise<void> {
@@ -169,6 +243,30 @@ export class ClinicalFormsComponent implements OnInit {
   onFormCancelled(): void {
     this.selectedForm = null;
     this.formCancelled.emit();
+  }
+
+  onQuestionnaireSubmitted(data: any): void {
+    // Show success message
+    this.snackBar.open(
+      `Questionnaire response saved successfully`,
+      'Close',
+      {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['success-snackbar']
+      }
+    );
+
+    // Emit the questionnaire response data
+    this.formSubmitted.emit({
+      type: 'questionnaire-response',
+      data: data,
+      timestamp: new Date().toISOString()
+    });
+
+    // Reset form selection
+    this.selectedForm = null;
   }
 
   onAllergyAdded(allergyData: any): void {
