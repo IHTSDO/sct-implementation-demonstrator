@@ -145,6 +145,13 @@ export class MenuService {
       type: "internal",
       url: "/valueset-translator",
       description: "An utility for transforming SNOMED CT value sets from non-standard formats (Excel, CSV, Snap2SNOMED maps) into standards-compliant FHIR ValueSet resources and packages."
+    },
+    {
+      name: "Analytics with Snolytical",
+      subtitle: "Analytics demo",
+      type: "external",
+      url: "https://training-snolytical.ihtsdotools.org/",
+      description: "A health data analytics demonstrator leveraging the SNOMED CT hierarchy. The demo shows how clinicians can get hand-on and engage with their SNOMED coded data directly, by building and running their own basic data-science reports. "
     }
 
   ];
