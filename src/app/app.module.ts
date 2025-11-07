@@ -118,6 +118,7 @@ import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component
 import { BatchPatientDialogComponent } from './benefits-demo/batch-patient-dialog/batch-patient-dialog.component';
 import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
+import { FormRecordsComponent } from './benefits-demo/form-records/form-records.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -195,7 +196,8 @@ const app = initializeApp(firebaseConfig);
         ExpoQuiz2025Component,
         BatchPatientDialogComponent,
         LicenseAgreementComponent,
-        CookieConsentComponent
+        CookieConsentComponent,
+        FormRecordsComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

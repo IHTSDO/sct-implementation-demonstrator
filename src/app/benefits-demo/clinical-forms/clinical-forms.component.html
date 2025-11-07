@@ -2,76 +2,93 @@
   <div class="forms-header">
     <h3>Clinical Forms</h3>
   </div>
-  
-  <div class="forms-content">
-    <div class="form-selection">
-      <mat-form-field class="form-selector">
-        <mat-label>Select Clinical Form</mat-label>
-        <mat-select [(value)]="selectedForm" (selectionChange)="onFormSelected($event.value)">
-          <mat-option *ngFor="let form of availableForms" [value]="form.id">
-            {{ form.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
 
-    <div class="form-container" *ngIf="selectedForm">
-      <!-- Adverse Reaction Form -->
-      <div *ngIf="selectedForm === 'adverse-reaction'" class="form-wrapper">
-        <div *ngIf="isSubmitting" class="submission-overlay">
-          <div class="submission-content">
-            <mat-spinner diameter="50"></mat-spinner>
-            <h3>Submitting ICSR Report...</h3>
-            <p>Please wait while we submit your report to the regulatory authority.</p>
-            <p class="submission-details">This may take a few moments.</p>
+  <!-- Tab Group for Data Entry and Form Records -->
+  <mat-tab-group class="forms-tabs" [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+    
+    <!-- Data Entry Tab -->
+    <mat-tab label="Data Entry">
+      <div class="tab-content">
+        <div class="forms-content">
+          <div class="form-selection">
+            <mat-form-field class="form-selector">
+              <mat-label>Select Clinical Form</mat-label>
+              <mat-select [(value)]="selectedForm" (selectionChange)="onFormSelected($event.value)">
+                <mat-option *ngFor="let form of availableForms" [value]="form.id">
+                  {{ form.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="form-container" *ngIf="selectedForm">
+            <!-- Adverse Reaction Form -->
+            <div *ngIf="selectedForm === 'adverse-reaction'" class="form-wrapper">
+              <div *ngIf="isSubmitting" class="submission-overlay">
+                <div class="submission-content">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <h3>Submitting ICSR Report...</h3>
+                  <p>Please wait while we submit your report to the regulatory authority.</p>
+                  <p class="submission-details">This may take a few moments.</p>
+                </div>
+              </div>
+              
+              <app-adverse-reaction-form 
+                [patient]="patient"
+                [conditions]="conditions"
+                [medications]="medications"
+                (formSubmitted)="onFormSubmitted($event)"
+                (formCancelled)="onFormCancelled()">
+              </app-adverse-reaction-form>
+            </div>
+
+            <!-- Allergies Form -->
+            <div *ngIf="selectedForm === 'allergies'" class="form-wrapper">
+              <app-allergies-allergy-list 
+                [embeddedMode]="true"
+                (newProblem)="onAllergyAdded($event)"
+                (allergySaved)="onAllergySaved($event)">
+              </app-allergies-allergy-list>
+            </div>
+
+            <!-- Questionnaire Forms -->
+            <div *ngIf="isQuestionnaireForm(selectedForm)" class="form-wrapper">
+              <app-questionnaire-form
+                [questionnaire]="getQuestionnaire(selectedForm)"
+                [questionnaireId]="selectedForm"
+                (formSubmitted)="onQuestionnaireSubmitted($event)"
+                (formCancelled)="onFormCancelled()">
+              </app-questionnaire-form>
+            </div>
+
+            <!-- Placeholder for other forms -->
+            <div *ngIf="selectedForm && !isQuestionnaireForm(selectedForm) && selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies'" class="form-placeholder">
+              <div class="placeholder-content">
+                <mat-icon class="placeholder-icon">description</mat-icon>
+                <h3>{{ getSelectedFormName() }} Form</h3>
+                <p>This form is currently under development.</p>
+                <p>Coming soon...</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="no-form-selected" *ngIf="!selectedForm">
+            <div class="placeholder-content">
+              <mat-icon class="placeholder-icon">description</mat-icon>
+              <h3>Select a Clinical Form</h3>
+              <p>Choose a form from the dropdown above to begin documenting clinical information.</p>
+            </div>
           </div>
         </div>
-        
-        <app-adverse-reaction-form 
-          [patient]="patient"
-          [conditions]="conditions"
-          [medications]="medications"
-          (formSubmitted)="onFormSubmitted($event)"
-          (formCancelled)="onFormCancelled()">
-        </app-adverse-reaction-form>
       </div>
+    </mat-tab>
 
-      <!-- Allergies Form -->
-      <div *ngIf="selectedForm === 'allergies'" class="form-wrapper">
-        <app-allergies-allergy-list 
-          [embeddedMode]="true"
-          (newProblem)="onAllergyAdded($event)"
-          (allergySaved)="onAllergySaved($event)">
-        </app-allergies-allergy-list>
+    <!-- Form Records Tab -->
+    <mat-tab label="Form Records">
+      <div class="tab-content">
+        <app-form-records [patientId]="patient?.id || null"></app-form-records>
       </div>
+    </mat-tab>
 
-      <!-- Questionnaire Forms -->
-      <div *ngIf="isQuestionnaireForm(selectedForm)" class="form-wrapper">
-        <app-questionnaire-form
-          [questionnaire]="getQuestionnaire(selectedForm)"
-          [questionnaireId]="selectedForm"
-          (formSubmitted)="onQuestionnaireSubmitted($event)"
-          (formCancelled)="onFormCancelled()">
-        </app-questionnaire-form>
-      </div>
-
-      <!-- Placeholder for other forms -->
-      <div *ngIf="selectedForm && !isQuestionnaireForm(selectedForm) && selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies'" class="form-placeholder">
-        <div class="placeholder-content">
-          <mat-icon class="placeholder-icon">description</mat-icon>
-          <h3>{{ getSelectedFormName() }} Form</h3>
-          <p>This form is currently under development.</p>
-          <p>Coming soon...</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="no-form-selected" *ngIf="!selectedForm">
-      <div class="placeholder-content">
-        <mat-icon class="placeholder-icon">description</mat-icon>
-        <h3>Select a Clinical Form</h3>
-        <p>Choose a form from the dropdown above to begin documenting clinical information.</p>
-      </div>
-    </div>
-  </div>
+  </mat-tab-group>
 </div>

@@ -1001,6 +1001,39 @@ export interface AllergyIntolerance {
   }>;
 }
 
+export interface QuestionnaireResponse {
+  resourceType: 'QuestionnaireResponse';
+  id: string;
+  identifier?: {
+    system?: string;
+    value?: string;
+  };
+  questionnaire?: string; // Canonical URL of the Questionnaire
+  status: 'in-progress' | 'completed' | 'amended' | 'entered-in-error' | 'stopped';
+  subject?: {
+    reference: string;
+    display?: string;
+  };
+  encounter?: {
+    reference: string;
+    display?: string;
+  };
+  authored?: string; // DateTime when completed
+  author?: {
+    reference: string;
+    display?: string;
+  };
+  source?: {
+    reference: string;
+    display?: string;
+  };
+  item?: Array<any>; // QuestionnaireResponse items (answers)
+  // Custom metadata for display
+  questionnaireTitle?: string;
+  questionnaireId?: string; // Our internal ID (like 'questionnaire-phq9')
+  questionnaireName?: string; // Display name
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -1505,6 +1538,40 @@ export class PatientService {
     this.storageService.saveItem(key, JSON.stringify(allergies));
   }
 
+  // QuestionnaireResponses
+  getPatientQuestionnaireResponses(patientId: string): QuestionnaireResponse[] {
+    const key = `ehr_questionnaire_responses_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  addPatientQuestionnaireResponse(patientId: string, response: QuestionnaireResponse): boolean {
+    const responses = this.getPatientQuestionnaireResponses(patientId);
+    responses.push(response);
+    this.savePatientQuestionnaireResponses(patientId, responses);
+    return true; // Successfully added
+  }
+
+  updatePatientQuestionnaireResponse(patientId: string, responseId: string, updatedResponse: QuestionnaireResponse): void {
+    const responses = this.getPatientQuestionnaireResponses(patientId);
+    const index = responses.findIndex(r => r.id === responseId);
+    if (index !== -1) {
+      responses[index] = updatedResponse;
+      this.savePatientQuestionnaireResponses(patientId, responses);
+    }
+  }
+
+  deletePatientQuestionnaireResponse(patientId: string, responseId: string): void {
+    const responses = this.getPatientQuestionnaireResponses(patientId);
+    const filteredResponses = responses.filter(r => r.id !== responseId);
+    this.savePatientQuestionnaireResponses(patientId, filteredResponses);
+  }
+
+  private savePatientQuestionnaireResponses(patientId: string, responses: QuestionnaireResponse[]): void {
+    const key = `ehr_questionnaire_responses_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(responses));
+  }
+
   // Utility methods for creating sample clinical data
   createSampleCondition(patientId: string, conditionText: string): Condition {
     return {
@@ -1781,6 +1848,7 @@ export class PatientService {
     this.storageService.removeItem(`ehr_medications_${patientId}`);
     this.storageService.removeItem(`ehr_allergies_${patientId}`);
     this.storageService.removeItem(`ehr_encounters_${patientId}`);
+    this.storageService.removeItem(`ehr_questionnaire_responses_${patientId}`);
     
     // Also clear old storage key format for encounters (for backwards compatibility)
     this.storageService.removeItem(`encounters_${patientId}`);

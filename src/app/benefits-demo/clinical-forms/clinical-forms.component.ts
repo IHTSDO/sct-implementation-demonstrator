@@ -1,9 +1,10 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, PatientService } from '../../services/patient.service';
 import { AdverseReactionReport } from './adverse-reaction-form/adverse-reaction-form.component';
+import { FormRecordsComponent } from '../form-records/form-records.component';
 
 export interface ClinicalForm {
   id: string;
@@ -26,9 +27,11 @@ export class ClinicalFormsComponent implements OnInit {
   @Input() medications: MedicationStatement[] = [];
   @Output() formSubmitted = new EventEmitter<any>();
   @Output() formCancelled = new EventEmitter<void>();
+  @ViewChild(FormRecordsComponent) formRecordsComponent?: FormRecordsComponent;
 
   selectedForm: string | null = null;
   isSubmitting: boolean = false;
+  selectedTabIndex: number = 0;
   
   availableForms: ClinicalForm[] = [
     {
@@ -65,6 +68,13 @@ export class ClinicalFormsComponent implements OnInit {
       description: 'Comprehensive histopathology reporting form for pancreatic carcinoma',
       category: 'Questionnaires',
       available: true
+    },
+    {
+      id: 'questionnaire-terminology-bindings',
+      name: 'A simple form with terminology bindings',
+      description: 'Simple form demonstrating SNOMED CT terminology bindings',
+      category: 'Questionnaires',
+      available: true
     }
   ];
 
@@ -79,6 +89,17 @@ export class ClinicalFormsComponent implements OnInit {
 
   ngOnInit(): void {
     // Component initialization
+  }
+
+  onTabChange(index: number): void {
+    // When switching to Form Records tab (index 1), refresh the list
+    if (index === 1 && this.formRecordsComponent) {
+      setTimeout(() => {
+        if (this.formRecordsComponent) {
+          this.formRecordsComponent.refresh();
+        }
+      }, 100);
+    }
   }
 
   onFormSelected(formId: string): void {
@@ -100,7 +121,8 @@ export class ClinicalFormsComponent implements OnInit {
     const filenameMap: { [key: string]: string } = {
       'questionnaire-phq9': 'phq9.json',
       'questionnaire-gad7': 'gad7.json',
-      'questionnaire-carcinoma': 'Carcinoma-of-the-Exocrine-Pancreas-Histopathology-Reporting-Form.R4 (11).json'
+      'questionnaire-carcinoma': 'Carcinoma-of-the-Exocrine-Pancreas-Histopathology-Reporting-Form.R4 (11).json',
+      'questionnaire-terminology-bindings': 'A simple form with terminology bindings-v4.json'
     };
 
     const questionnaireFile = filenameMap[formId] || formId.replace('questionnaire-', '') + '.json';
@@ -267,6 +289,19 @@ export class ClinicalFormsComponent implements OnInit {
 
     // Reset form selection
     this.selectedForm = null;
+
+    // Switch to Form Records tab and refresh the list after a short delay
+    setTimeout(() => {
+      // Switch to Form Records tab (index 1)
+      this.selectedTabIndex = 1;
+      
+      // Give the tab time to render, then refresh
+      setTimeout(() => {
+        if (this.formRecordsComponent) {
+          this.formRecordsComponent.refresh();
+        }
+      }, 100);
+    }, 500);
   }
 
   onAllergyAdded(allergyData: any): void {

@@ -1,0 +1,185 @@
+<div class="form-records-container">
+  <div class="records-header">
+    <h3>Form Records</h3>
+    <p class="subtitle">View completed questionnaires and clinical forms</p>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading form records...</p>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && questionnaireResponses.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">description</mat-icon>
+    <h3>No Form Records</h3>
+    <p>Complete questionnaires and clinical forms to see them listed here.</p>
+  </div>
+
+  <!-- Records list -->
+  <div *ngIf="!isLoading && questionnaireResponses.length > 0" class="records-list">
+    <mat-card *ngFor="let response of questionnaireResponses" class="record-card" (click)="viewResponse(response)">
+      <mat-card-header>
+        <mat-icon mat-card-avatar [color]="getFormTypeColor(response)">
+          {{ getFormTypeIcon(response) }}
+        </mat-icon>
+        <mat-card-title>
+          {{ response.questionnaireName || response.questionnaireTitle || 'Questionnaire' }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ formatDate(response.authored) }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="record-summary">
+          <mat-chip-set>
+            <mat-chip>
+              <mat-icon>check_circle</mat-icon>
+              {{ response.status || 'Completed' }}
+            </mat-chip>
+          </mat-chip-set>
+          <p class="summary-text">{{ getResponseSummary(response) }}</p>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-button color="primary" (click)="viewResponse(response)">
+          <mat-icon>visibility</mat-icon>
+          View
+        </button>
+        <button mat-button (click)="exportResponse(response, $event)">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+        <button mat-button color="warn" (click)="deleteResponse(response, $event)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Response viewer with flip card -->
+  <div *ngIf="selectedResponse" class="response-viewer-overlay" (click)="closeViewer()">
+    <div class="response-viewer" (click)="$event.stopPropagation()">
+      
+      <!-- Flip Card Container -->
+      <div class="flip-card" [class.flipped]="isFlipped">
+        <div class="flip-card-inner">
+          
+          <!-- Front: Human-readable Q&A -->
+          <div class="flip-card-front">
+            <div class="viewer-header">
+              <h2>{{ selectedResponse.questionnaireName || 'Questionnaire Response' }}</h2>
+              <div class="header-actions">
+                <button mat-raised-button color="primary" (click)="flipCard()">
+                  <mat-icon>code</mat-icon>
+                  View FHIR JSON
+                </button>
+                <button mat-icon-button (click)="closeViewer()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+            
+            <div class="viewer-metadata">
+              <div class="metadata-item">
+                <strong>Date:</strong> {{ formatDate(selectedResponse.authored) }}
+              </div>
+              <div class="metadata-item">
+                <strong>Status:</strong> {{ selectedResponse.status }}
+              </div>
+              <div class="metadata-item">
+                <strong>ID:</strong> {{ selectedResponse.id }}
+              </div>
+            </div>
+
+            <div class="viewer-content">
+              <h3>Questions & Answers</h3>
+              
+              <div class="qa-container">
+                <div *ngIf="getQuestionAnswerPairs(selectedResponse).length === 0" class="no-answers">
+                  <mat-icon>info</mat-icon>
+                  <p>No answers found in this response</p>
+                </div>
+                
+                <div *ngFor="let qa of getQuestionAnswerPairs(selectedResponse); let i = index" class="qa-item">
+                  <div class="question-number">{{ i + 1 }}</div>
+                  <div class="qa-content">
+                    <div class="question">{{ qa.question }}</div>
+                    <div class="answer" [class.answer-choice]="qa.type === 'choice'" 
+                                       [class.answer-boolean]="qa.type === 'boolean'"
+                                       [class.answer-group]="qa.type === 'group'">
+                      <mat-icon *ngIf="qa.type === 'boolean'">
+                        {{ qa.answer === 'Yes' ? 'check_circle' : 'cancel' }}
+                      </mat-icon>
+                      <mat-icon *ngIf="qa.type === 'choice'">radio_button_checked</mat-icon>
+                      <span>{{ qa.answer }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="viewer-actions">
+              <button mat-raised-button (click)="exportResponse(selectedResponse, $event)">
+                <mat-icon>download</mat-icon>
+                Export JSON
+              </button>
+              <button mat-raised-button color="primary" (click)="closeViewer()">
+                Close
+              </button>
+            </div>
+          </div>
+
+          <!-- Back: FHIR JSON -->
+          <div class="flip-card-back">
+            <div class="viewer-header">
+              <h2>FHIR QuestionnaireResponse (JSON)</h2>
+              <div class="header-actions">
+                <button mat-raised-button color="primary" (click)="flipCard()">
+                  <mat-icon>article</mat-icon>
+                  View Readable Format
+                </button>
+                <button mat-icon-button (click)="closeViewer()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+            
+            <div class="viewer-metadata">
+              <div class="metadata-item">
+                <strong>Resource Type:</strong> QuestionnaireResponse
+              </div>
+              <div class="metadata-item">
+                <strong>Format:</strong> FHIR R4
+              </div>
+              <div class="metadata-item">
+                <strong>ID:</strong> {{ selectedResponse.id }}
+              </div>
+            </div>
+
+            <div class="viewer-content">
+              <h3>Response Data (FHIR Format)</h3>
+              <pre class="json-viewer">{{ selectedResponse | json }}</pre>
+            </div>
+
+            <div class="viewer-actions">
+              <button mat-raised-button (click)="exportResponse(selectedResponse, $event)">
+                <mat-icon>download</mat-icon>
+                Export JSON
+              </button>
+              <button mat-raised-button color="primary" (click)="closeViewer()">
+                Close
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

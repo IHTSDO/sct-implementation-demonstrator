@@ -21,6 +21,18 @@
   font-size: 1rem;
 }
 
+.forms-tabs {
+  margin-top: 20px;
+}
+
+.forms-tabs ::ng-deep .mat-mdc-tab-body-wrapper {
+  padding-top: 20px;
+}
+
+.tab-content {
+  min-height: 400px;
+}
+
 .forms-placeholder {
   text-align: center;
   padding: 40px 20px;

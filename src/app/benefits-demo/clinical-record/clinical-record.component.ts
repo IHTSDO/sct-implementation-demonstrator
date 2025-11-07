@@ -1140,7 +1140,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async onClinicalFormSubmitted(event: any): Promise<void> {
-    // Handle clinical form submissions (allergies, adverse reactions, etc.)
+    // Handle clinical form submissions (allergies, adverse reactions, questionnaires, etc.)
     if (event.type === 'allergy' && this.patient) {
       this.isLoadingMapping = true;
       
@@ -1184,7 +1184,288 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       } finally {
         this.isLoadingMapping = false;
       }
+    } else if (event.type === 'questionnaire-response' && this.patient) {
+      // Handle questionnaire response submission
+      try {
+        const questionnaireData = event.data;
+        
+        // Create FHIR QuestionnaireResponse resource
+        const questionnaireResponse: any = {
+          resourceType: 'QuestionnaireResponse',
+          id: `qr-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          status: 'completed',
+          authored: questionnaireData.timestamp || new Date().toISOString(),
+          subject: {
+            reference: `Patient/${this.patient.id}`,
+            display: this.patient.name?.[0]?.text || `${this.patient.name?.[0]?.given?.[0]} ${this.patient.name?.[0]?.family}`
+          },
+          // Store the original response data
+          item: questionnaireData.response?.items || [],
+          // Custom metadata for display
+          questionnaireId: questionnaireData.questionnaire?.lformsVersion || questionnaireData.questionnaire?.code?.[0]?.code,
+          questionnaireName: questionnaireData.questionnaire?.name || questionnaireData.questionnaire?.title,
+          questionnaireTitle: questionnaireData.questionnaire?.title || questionnaireData.questionnaire?.name,
+          // Store the complete questionnaire and response for later viewing
+          _completeData: questionnaireData
+        };
+        
+        // Save to patient service
+        this.patientService.addPatientQuestionnaireResponse(this.patient.id, questionnaireResponse);
+        
+        // Process SDC observationExtract - extract observations as Conditions
+        const extractedConditions = await this.extractConditionsFromQuestionnaire(
+          questionnaireData.questionnaire, 
+          questionnaireData.response
+        );
+        
+        let successMessage = `✅ Questionnaire "${questionnaireResponse.questionnaireName || 'Response'}" saved successfully`;
+        
+        if (extractedConditions > 0) {
+          successMessage += `. ${extractedConditions} condition(s) extracted.`;
+          // Reload conditions to update the UI
+          this.conditions = this.patientService.getPatientConditions(this.patient.id);
+        }
+        
+        // Show success notification
+        this.snackBar.open(
+          successMessage,
+          'Close',
+          {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
+          }
+        );
+        
+      } catch (error) {
+        console.error('Error saving questionnaire response:', error);
+        this.snackBar.open(
+          '❌ Error saving questionnaire response',
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          }
+        );
+      }
     }
+  }
+
+  // SDC Observation Extract - Create Conditions from Questionnaire Responses
+  private async extractConditionsFromQuestionnaire(questionnaire: any, response: any): Promise<number> {
+    if (!questionnaire || !response || !this.patient) {
+      return 0;
+    }
+
+    let conditionsCreated = 0;
+
+    try {
+      // Find items in the questionnaire that have observationExtract extension
+      const extractableItems = this.findExtractableItems(questionnaire.items || questionnaire.item || []);
+
+      // Process each extractable item
+      for (const questionnaireItem of extractableItems) {
+        // Check if this is a Risk Factor question
+        const isRiskFactor = this.isRiskFactorItem(questionnaireItem);
+
+        if (isRiskFactor) {
+          // Find the corresponding response
+          const responseItem = this.findResponseItem(response.items || [], questionnaireItem.linkId);
+
+          if (responseItem && responseItem.value) {
+            // Extract conditions from the response
+            const extracted = await this.createConditionsFromRiskFactorResponse(
+              questionnaireItem,
+              responseItem,
+              questionnaire.title || 'Questionnaire'
+            );
+            conditionsCreated += extracted;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error extracting conditions from questionnaire:', error);
+    }
+
+    return conditionsCreated;
+  }
+
+  private findExtractableItems(items: any[]): any[] {
+    const extractable: any[] = [];
+
+    for (const item of items) {
+      // Check if item has observationExtract extension set to true
+      if (item.extension) {
+        const extractExtension = item.extension.find((ext: any) =>
+          ext.url === 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract' &&
+          ext.valueBoolean === true
+        );
+
+        if (extractExtension) {
+          extractable.push(item);
+        }
+      }
+
+      // Recursively check nested items
+      if (item.item && Array.isArray(item.item)) {
+        extractable.push(...this.findExtractableItems(item.item));
+      }
+      if (item.items && Array.isArray(item.items)) {
+        extractable.push(...this.findExtractableItems(item.items));
+      }
+    }
+
+    return extractable;
+  }
+
+  private isRiskFactorItem(item: any): boolean {
+    // Check if the item's code indicates it's a Risk Factor
+    // Support both FHIR Questionnaire format and LForms format
+    
+    // LForms format - check codeList
+    if (item.codeList && Array.isArray(item.codeList)) {
+      const hasRiskFactor = item.codeList.some((coding: any) =>
+        coding.code === 'Risk factor (observable entity)' ||
+        coding.code === '80943009' || // SNOMED CT code for Risk factor
+        (coding.display && coding.display.toLowerCase().includes('risk factor'))
+      );
+      if (hasRiskFactor) return true;
+    }
+    
+    // LForms format - check questionCode
+    if (item.questionCode === 'Risk factor (observable entity)') {
+      return true;
+    }
+    
+    // FHIR Questionnaire format - check code array
+    if (item.code && Array.isArray(item.code)) {
+      return item.code.some((coding: any) =>
+        coding.code === 'Risk factor (observable entity)' ||
+        coding.code === '80943009' || // SNOMED CT code for Risk factor
+        (coding.display && coding.display.toLowerCase().includes('risk factor'))
+      );
+    }
+    
+    return false;
+  }
+
+  private findResponseItem(responseItems: any[], linkId: string): any {
+    for (const item of responseItems) {
+      if (item.linkId === linkId) {
+        return item;
+      }
+
+      // Recursively search in nested items
+      if (item.items && Array.isArray(item.items)) {
+        const found = this.findResponseItem(item.items, linkId);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  private async createConditionsFromRiskFactorResponse(
+    questionnaireItem: any,
+    responseItem: any,
+    questionnaireName: string
+  ): Promise<number> {
+    if (!this.patient) return 0;
+
+    let created = 0;
+    const value = responseItem.value;
+
+    // Handle different response types
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      // Single coded value (Coding)
+      // Support both 'display' and 'text' fields (LForms uses 'text')
+      if (value.code && (value.display || value.text)) {
+        const condition = this.createConditionFromCoding(value, questionnaireName);
+        if (condition) {
+          const added = this.patientService.addPatientCondition(this.patient.id, condition);
+          if (added) {
+            created++;
+            // Map to body location if applicable
+            await this.mapSingleEventToAnchorPoint(condition);
+            this.patientService.updatePatientCondition(this.patient.id, condition.id, condition);
+          }
+        }
+      }
+    } else if (Array.isArray(value)) {
+      // Multiple coded values
+      for (const coding of value) {
+        if (coding.code && (coding.display || coding.text)) {
+          const condition = this.createConditionFromCoding(coding, questionnaireName);
+          if (condition) {
+            const added = this.patientService.addPatientCondition(this.patient.id, condition);
+            if (added) {
+              created++;
+              // Map to body location if applicable
+              await this.mapSingleEventToAnchorPoint(condition);
+              this.patientService.updatePatientCondition(this.patient.id, condition.id, condition);
+            }
+          }
+        }
+      }
+    }
+
+    return created;
+  }
+
+  private createConditionFromCoding(coding: any, source: string): any {
+    if (!this.patient) return null;
+
+    // Support both 'display' and 'text' fields (LForms uses 'text')
+    const displayText = coding.display || coding.text;
+
+    return {
+      resourceType: 'Condition',
+      id: `condition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      clinicalStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+          code: 'active',
+          display: 'Active'
+        }],
+        text: 'Active'
+      },
+      verificationStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
+          code: 'confirmed',
+          display: 'Confirmed'
+        }],
+        text: 'Confirmed'
+      },
+      category: [{
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-category',
+          code: 'problem-list-item',
+          display: 'Problem List Item'
+        }],
+        text: 'Problem List Item'
+      }],
+      code: {
+        coding: [{
+          system: coding.system || 'http://snomed.info/sct',
+          code: coding.code,
+          display: displayText
+        }],
+        text: displayText || coding.code
+      },
+      subject: {
+        reference: `Patient/${this.patient.id}`,
+        display: this.patient.name?.[0]?.text || `${this.patient.name?.[0]?.given?.[0]} ${this.patient.name?.[0]?.family}`
+      },
+      onsetDateTime: new Date().toISOString(),
+      recordedDate: new Date().toISOString(),
+      note: [{
+        text: `Extracted from questionnaire: ${source}`,
+        time: new Date().toISOString()
+      }]
+    };
   }
 
   // Legacy connection line methods removed - now using dynamic hover-based connections
