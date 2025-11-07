@@ -119,6 +119,7 @@ import { BatchPatientDialogComponent } from './benefits-demo/batch-patient-dialo
 import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 import { FormRecordsComponent } from './benefits-demo/form-records/form-records.component';
+import { CdsPanelComponent } from './benefits-demo/cds-panel/cds-panel.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -197,7 +198,8 @@ const app = initializeApp(firebaseConfig);
         BatchPatientDialogComponent,
         LicenseAgreementComponent,
         CookieConsentComponent,
-        FormRecordsComponent
+        FormRecordsComponent,
+        CdsPanelComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

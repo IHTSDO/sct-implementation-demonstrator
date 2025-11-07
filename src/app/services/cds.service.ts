@@ -152,6 +152,7 @@ export interface CDSRequest {
     patient: CDSPatient;
     conditions: CDSBundle<CDSCondition>;
     draftMedicationRequests: CDSBundle<CDSMedicationRequest>;
+    allergies: CDSBundle<any>;
   };
 }
 
@@ -215,7 +216,8 @@ export class CdsService {
   buildCDSRequest(
     patient: CDSPatient,
     conditions: CDSCondition[],
-    medications: CDSMedicationRequest[]
+    medications: CDSMedicationRequest[],
+    allergies: any[] = []
   ): CDSRequest {
     return {
       hook: 'order-page',
@@ -277,6 +279,32 @@ export class CdsService {
             response: {
               status: '200 OK',
               etag: 'W/"4"'
+            }
+          }))
+        },
+        allergies: {
+          resourceType: 'Bundle',
+          id: this.generateId(),
+          meta: {
+            lastUpdated: new Date().toISOString()
+          },
+          type: 'searchset',
+          total: allergies.length,
+          link: [
+            {
+              relation: 'self',
+              url: `${this.fhirBaseUrl}/AllergyIntolerance?patient=${patient.id}`
+            }
+          ],
+          entry: allergies.map(allergy => ({
+            fullUrl: `${this.fhirBaseUrl}/AllergyIntolerance/${allergy.id}`,
+            resource: allergy,
+            search: {
+              mode: 'match'
+            },
+            response: {
+              status: '200 OK',
+              etag: 'W/"5"'
             }
           }))
         }

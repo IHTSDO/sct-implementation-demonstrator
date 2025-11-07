@@ -4,8 +4,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
-import { CdsService, CDSRequest, CDSResponse } from '../../services/cds.service';
 import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
+import { CdsState } from '../cds-panel/cds-panel.component';
 import { Subscription, forkJoin, of, delay } from 'rxjs';
 
 export interface AnchorPoint {
@@ -52,10 +52,17 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   // Loading state for processing new events
   isProcessingNewEvent = false;
 
-  // CDS service state
-  isCdsLoading = false;
-  cdsResponse: CDSResponse | null = null;
-  cdsError: string | null = null;
+  // CDS state from CDS panel component
+  cdsState: CdsState = {
+    isLoading: false,
+    hasError: false,
+    hasNoData: false,
+    hasRecommendations: false,
+    hasExecuted: false,
+    recommendationCount: 0,
+    errorMessage: null,
+    noDataMessage: null
+  };
 
   // No separate cache needed - we'll add location directly to the clinical events
 
@@ -150,7 +157,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     private route: ActivatedRoute,
     private router: Router,
     private terminologyService: TerminologyService,
-    private cdsService: CdsService,
     private snackBar: MatSnackBar
   ) { }
 
@@ -257,396 +263,66 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     // Load encounters using PatientService
     this.encounters = this.patientService.getPatientEncounters(patientId);
 
-    // Reset CDS state when loading new patient data
-    this.resetCdsState();
-    
-    // Automatically trigger CDS request for new patient if we have clinical data
-    this.triggerAutomaticCdsRequest();
+    // CDS panel component now handles CDS logic
   }
 
-  /**
-   * Submit patient information to CDS service for medication order recommendations
-   */
-  submitToCdsService(): void {
-    if (!this.patient) {
-      console.warn('No patient data available for CDS submission');
-      return;
-    }
-
-    // Check if we have clinical data to send
-    if (this.conditions.length === 0 && this.medications.length === 0) {
-      this.cdsError = 'No conditions or medications available for CDS analysis. Please add some clinical data first.';
-      console.warn('No clinical data available for CDS submission');
-      return;
-    }
-
-    // Reset CDS state
-    this.cdsError = null;
-    this.cdsResponse = null;
-    this.isCdsLoading = true;
-
-    try {
-      // Convert patient data to CDS format
-      const cdsPatient = this.convertPatientToCdsFormat(this.patient);
-      const cdsConditions = this.convertConditionsToCdsFormat(this.conditions);
-      const cdsMedications = this.convertMedicationsToCdsFormat(this.medications);
-
-      // Build CDS request
-      const cdsRequest = this.cdsService.buildCDSRequest(cdsPatient, cdsConditions, cdsMedications);
-
-      // Submit to CDS service
-      this.subscriptions.push(
-        this.cdsService.postMedicationOrderSelect(cdsRequest).subscribe({
-          next: (response: CDSResponse) => {
-            this.isCdsLoading = false;
-            this.cdsResponse = response;
-            // Process CDS recommendations
-            this.processCdsRecommendations(response);
-          },
-          error: (error) => {
-            this.isCdsLoading = false;
-            this.cdsError = `CDS Service Error: ${error.message || 'Unknown error'}`;
-            console.error('CDS Service error:', error);
-          }
-        })
-      );
-    } catch (error: any) {
-      this.isCdsLoading = false;
-      this.cdsError = `CDS Request Error: ${error.message || 'Unknown error'}`;
-      console.error('Error building CDS request:', error);
-    }
+  onCdsStateChange(state: CdsState): void {
+    this.cdsState = state;
   }
 
-  /**
-   * Convert Patient service format to CDS Patient format
-   */
-  private convertPatientToCdsFormat(patient: Patient): any {
-    return {
-      resourceType: 'Patient',
-      id: patient.id,
-      gender: patient.gender || 'unknown',
-      birthDate: patient.birthDate || '1990-01-01',
-      identifier: [
-        {
-          type: {
-            coding: [
-              {
-                system: 'http://terminology.hl7.org/CodeSystem/v2-0203',
-                code: 'MR',
-                display: 'Medical Record Number'
-              }
-            ],
-            text: 'Medical Record Number'
-          },
-          system: 'http://hospital.smarthealthit.org',
-          value: patient.id
-        }
-      ],
-      name: [
-        {
-          use: 'official',
-          family: patient.name?.[0]?.family || 'Unknown',
-          given: patient.name?.[0]?.given || ['Unknown'],
-          prefix: []
-        }
-      ]
-    };
-  }
-
-  /**
-   * Convert Condition service format to CDS Condition format
-   */
-  private convertConditionsToCdsFormat(conditions: Condition[]): any[] {
-    return conditions.map(condition => ({
-      resourceType: 'Condition',
-      id: condition.id || this.generateId(),
-      clinicalStatus: {
-        coding: [
-          {
-            system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
-            code: condition.clinicalStatus?.coding?.[0]?.code || 'active'
-          }
-        ]
-      },
-      verificationStatus: {
-        coding: [
-          {
-            system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
-            code: 'confirmed'
-          }
-        ]
-      },
-      code: {
-        coding: [
-          {
-            system: 'http://snomed.info/sct',
-            code: condition.code?.coding?.[0]?.code || '404684003',
-            display: condition.code?.coding?.[0]?.display || condition.code?.text || 'Unknown condition'
-          }
-        ],
-        text: condition.code?.text || condition.code?.coding?.[0]?.display || 'Unknown condition'
-      },
-      subject: {
-        reference: `Patient/${this.patient?.id}`
-      },
-      encounter: {
-        reference: `Encounter/${this.generateId()}`
-      },
-      onsetDateTime: condition.onsetDateTime || new Date().toISOString(),
-      recordedDate: condition.recordedDate || new Date().toISOString()
-    }));
-  }
-
-  /**
-   * Convert MedicationStatement service format to CDS MedicationRequest format
-   */
-  private convertMedicationsToCdsFormat(medications: MedicationStatement[]): any[] {
-    return medications.map(medication => {
-      // Get medication text for unit detection
-      const medicationText = medication.medicationCodeableConcept?.text || 
-                            medication.medicationCodeableConcept?.coding?.[0]?.display || 
-                            'Unknown medication';
-      
-      // Check if medication is a tablet
-      const isTablet = medicationText.toLowerCase().includes('tablet');
-      
-      // Check if medication is oral
-      const isOral = medicationText.toLowerCase().includes('oral');
-      
-      // Create doseQuantity object with conditional unit
-      const doseQuantity: any = { value: 1 };
-      if (isTablet) {
-        doseQuantity.unit = 'Tablet';
-      }
-      
-      // Create route object if oral
-      const route = isOral ? {
-        coding: [
-          {
-            code: "",
-            display: "O"
-          }
-        ],
-        text: "O"
-      } : undefined;
-
-      return {
-        resourceType: 'MedicationRequest',
-        id: medication.id || this.generateId(),
-        status: 'active',
-        intent: 'order',
-        medicationCodeableConcept: {
-          coding: [
-            {
-              system: 'http://snomed.info/sct',
-              code: medication.medicationCodeableConcept?.coding?.[0]?.code || '387207008',
-              display: medication.medicationCodeableConcept?.coding?.[0]?.display || 
-                       medication.medicationCodeableConcept?.text || 'Unknown medication'
-            }
-          ],
-          text: medicationText
-        },
-        subject: {
-          reference: `Patient/${this.patient?.id}`
-        },
-        encounter: {
-          reference: `Encounter/${this.generateId()}`
-        },
-        authoredOn: medication.effectiveDateTime || new Date().toISOString(),
-        requester: {
-          reference: `Practitioner/${this.generateId()}`
-        },
-        dosageInstruction: [
-          {
-            sequence: 1,
-            timing: {
-              repeat: {
-                frequency: 1,
-                period: 1,
-                periodUnit: 'd'
-              }
-            },
-            asNeededBoolean: false,
-            ...(route && { route }),
-            doseAndRate: [
-              {
-                type: {
-                  coding: [
-                    {
-                      system: 'http://terminology.hl7.org/CodeSystem/dose-rate-type',
-                      code: 'ordered',
-                      display: 'Ordered'
-                    }
-                  ]
-                },
-                doseQuantity: doseQuantity
-              }
-            ]
-          }
-        ]
-      };
-    });
-  }
-
-  /**
-   * Process CDS recommendations and display them to the user
-   */
-  private processCdsRecommendations(response: CDSResponse): void {
-    if (response.cards && response.cards.length > 0) {
-      // You can add UI logic here to display the recommendations
-      // For now, just log them
-      // response.cards.forEach((card, index) => {
-      //   console.log(`CDS Card ${index + 1}:`, {
-      //     summary: card.summary,
-      //     detail: card.detail,
-      //     indicator: card.indicator,
-      //     source: card.source
-      //   });
-      // });
-    }
-  }
-
-  /**
-   * Generate a simple UUID for IDs
-   */
-  private generateId(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
-
-  /**
-   * Handle CDS tab selection
-   */
-  onCdsTabSelected(): void {
-    // Tab focus no longer triggers automatic CDS request
-    // CDS requests are now triggered automatically when patient data loads
-  }
-
-  /**
-   * Handle click on CDS notice - focus on CDS tab if there are recommendations
-   */
-  onCdsNoticeClick(): void {
-    if (this.cdsResponse && this.cdsResponse.cards && this.cdsResponse.cards.length > 0) {
-      // Use MatTabGroup API to select the CDS tab (index 3: Encounters, Timeline, List View, Decision Support)
-      this.tabGroup.selectedIndex = 3;
-    }
-  }
-
-  /**
-   * Open source URL in a new tab
-   */
-  openSourceUrl(url: string): void {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
-
-  /**
-   * Reset CDS state
-   */
-  private resetCdsState(): void {
-    this.isCdsLoading = false;
-    this.cdsResponse = null;
-    this.cdsError = null;
-  }
-
-  /**
-   * Automatically trigger CDS request when patient data is loaded
-   */
-  private triggerAutomaticCdsRequest(): void {
-    // Only trigger if we have clinical data to analyze
-    if (this.conditions.length > 0 || this.medications.length > 0) {
-      // Add a small delay to ensure the UI is ready
-      setTimeout(() => {
-        this.submitToCdsService();
-      }, 500);
-    }
-  }
-
-  /**
-   * Get icon for CDS card based on indicator
-   */
-  getCardIcon(indicator: string): string {
-    switch (indicator) {
-      case 'critical':
-        return 'error';
-      case 'warning':
-        return 'warning';
-      case 'info':
-      default:
-        return 'info';
-    }
-  }
-
-  /**
-   * Get icon color for CDS card based on indicator
-   */
-  getCardIconColor(indicator: string): string {
-    switch (indicator) {
-      case 'critical':
-        return 'warn';
-      case 'warning':
-        return 'accent';
-      case 'info':
-      default:
-        return 'primary';
-    }
-  }
-
-  /**
-   * Get CSS class for CDS notice based on current state
-   */
   getCdsNoticeClass(): string {
-    if (this.isCdsLoading) {
+    if (this.cdsState.isLoading) {
       return 'cds-loading';
-    } else if (this.cdsError) {
+    } else if (this.cdsState.hasError) {
       return 'cds-error';
-    } else if (this.cdsResponse && this.cdsResponse.cards && this.cdsResponse.cards.length > 0) {
+    } else if (this.cdsState.hasRecommendations) {
       return 'cds-has-recommendations';
-    } else if (this.cdsResponse && (!this.cdsResponse.cards || this.cdsResponse.cards.length === 0)) {
+    } else if (this.cdsState.hasNoData) {
+      return 'cds-no-data';
+    } else if (this.cdsState.hasExecuted) {
       return 'cds-no-recommendations';
     } else {
-      // Check if there's any clinical data to analyze
-      const hasClinicalData = this.conditions.length > 0 || this.medications.length > 0;
-      return hasClinicalData ? 'cds-initial' : 'cds-no-data';
+      return 'cds-initial';
     }
   }
 
-  /**
-   * Get icon for CDS notice based on current state
-   */
   getCdsNoticeIcon(): string {
-    if (this.isCdsLoading) {
+    if (this.cdsState.isLoading) {
       return 'access_time';
-    } else if (this.cdsError) {
+    } else if (this.cdsState.hasError) {
       return 'error';
-    } else if (this.cdsResponse && this.cdsResponse.cards && this.cdsResponse.cards.length > 0) {
+    } else if (this.cdsState.hasRecommendations) {
       return 'settings';
-    } else if (this.cdsResponse && (!this.cdsResponse.cards || this.cdsResponse.cards.length === 0)) {
+    } else if (this.cdsState.hasExecuted) {
+      // No recommendations
       return 'check_circle';
     } else {
       return 'settings';
     }
   }
 
-  /**
-   * Get text for CDS notice based on current state
-   */
   getCdsNoticeText(): string {
-    if (this.isCdsLoading) {
+    if (this.cdsState.isLoading) {
       return 'Analyzing...';
-    } else if (this.cdsError) {
+    } else if (this.cdsState.hasError) {
       return 'Error occurred';
-    } else if (this.cdsResponse && this.cdsResponse.cards && this.cdsResponse.cards.length > 0) {
-      return `${this.cdsResponse.cards.length} recommendation${this.cdsResponse.cards.length === 1 ? '' : 's'}`;
-    } else if (this.cdsResponse && (!this.cdsResponse.cards || this.cdsResponse.cards.length === 0)) {
+    } else if (this.cdsState.hasRecommendations) {
+      return `${this.cdsState.recommendationCount} recommendation${this.cdsState.recommendationCount === 1 ? '' : 's'}`;
+    } else if (this.cdsState.hasNoData) {
+      return 'No data to analyze';
+    } else if (this.cdsState.hasExecuted) {
+      // CDS executed but no recommendations found
       return 'No recommendations';
     } else {
-      // Check if there's any clinical data to analyze
-      const hasClinicalData = this.conditions.length > 0 || this.medications.length > 0;
-      return hasClinicalData ? 'Ready to analyze' : 'No data to analyze';
+      // Shouldn't reach here with autoTrigger enabled, but just in case
+      return 'Ready to analyze';
     }
+  }
+
+  onCdsNoticeClick(): void {
+    // Switch to Decision Support tab (index 4) when clicking on CDS notice
+    // Tab order: 0=AI Entry, 1=Encounters, 2=Timeline, 3=Problems List, 4=Decision Support, 5=Clinical Forms
+    this.tabGroup.selectedIndex = 4;
   }
 
   formatDate(dateString: string | undefined): string {
@@ -935,7 +611,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       }
       
       // Add the new condition to the local array only if it was successfully added
-      this.conditions.push(event);
+      // Create new array reference to trigger Angular change detection
+      this.conditions = [...this.conditions, event];
       
       // Refresh timeline to show new condition
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
@@ -1020,7 +697,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       }
       
       // Add the new procedure to the local array only if it was successfully added
-      this.procedures.push(event);
+      // Create new array reference to trigger Angular change detection
+      this.procedures = [...this.procedures, event];
       
       // Refresh timeline to show new procedure
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
@@ -1082,7 +760,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       }
       
       // Add the new medication to the local array only if it was successfully added
-      this.medications.push(event);
+      // Create new array reference to trigger Angular change detection
+      this.medications = [...this.medications, event];
       
       // Refresh timeline to show new medication
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
@@ -2075,8 +1754,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.allergies = [];
     this.encounters = [];
     
-    // Reset CDS state since there's no clinical data left
-    this.resetCdsState();
+    // CDS panel component will reset its own state when data changes
     
     // Reload clinical data to ensure all components are updated
     this.loadClinicalData(patientId);
