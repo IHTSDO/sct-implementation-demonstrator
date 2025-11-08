@@ -947,10 +947,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
       // Process each extractable item
       for (const questionnaireItem of extractableItems) {
-        // Check if this is a Risk Factor question
-        const isRiskFactor = this.isRiskFactorItem(questionnaireItem);
+        // Check if this is a recognized observable entity (Risk Factor, Diagnosis, etc.)
+        const isRecognizedObservable = this.isObservableRecognized(questionnaireItem);
 
-        if (isRiskFactor) {
+        if (isRecognizedObservable) {
           // Find the corresponding response
           const responseItem = this.findResponseItem(response.items || [], questionnaireItem.linkId);
 
@@ -1000,32 +1000,47 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return extractable;
   }
 
-  private isRiskFactorItem(item: any): boolean {
-    // Check if the item's code indicates it's a Risk Factor
+  // Recognized observable entity codes (SNOMED CT)
+  // These codes are language-independent and work in multilingual environments
+  private readonly RECOGNIZED_OBSERVABLES = {
+    DIAGNOSIS: '439401001',
+    RISK_FACTOR: '80943009'
+  };
+
+  private isObservableRecognized(item: any): boolean {
+    // Check if the item's code indicates it's a recognized observable entity (Diagnosis, Risk Factor, etc.)
     // Support both FHIR Questionnaire format and LForms format
+    // Match ONLY by SNOMED CT codes (language-independent)
+    
+    const recognizedCodes = Object.values(this.RECOGNIZED_OBSERVABLES);
     
     // LForms format - check codeList
+    // Note: Some LForms implementations may have the SNOMED code in either 'code' or 'system' field
     if (item.codeList && Array.isArray(item.codeList)) {
-      const hasRiskFactor = item.codeList.some((coding: any) =>
-        coding.code === 'Risk factor (observable entity)' ||
-        coding.code === '80943009' || // SNOMED CT code for Risk factor
-        (coding.display && coding.display.toLowerCase().includes('risk factor'))
+      const hasRecognizedObservable = item.codeList.some((coding: any) =>
+        recognizedCodes.includes(coding.code) || recognizedCodes.includes(coding.system)
       );
-      if (hasRiskFactor) return true;
+      if (hasRecognizedObservable) {
+        return true;
+      }
     }
     
-    // LForms format - check questionCode
-    if (item.questionCode === 'Risk factor (observable entity)') {
-      return true;
+    // LForms format - check questionCodeSystem (the SNOMED code is stored here)
+    if (item.questionCodeSystem && typeof item.questionCodeSystem === 'string') {
+      if (recognizedCodes.includes(item.questionCodeSystem)) {
+        return true;
+      }
     }
     
     // FHIR Questionnaire format - check code array
+    // Note: Check both 'code' and 'system' fields for flexibility
     if (item.code && Array.isArray(item.code)) {
-      return item.code.some((coding: any) =>
-        coding.code === 'Risk factor (observable entity)' ||
-        coding.code === '80943009' || // SNOMED CT code for Risk factor
-        (coding.display && coding.display.toLowerCase().includes('risk factor'))
+      const hasRecognizedObservable = item.code.some((coding: any) =>
+        recognizedCodes.includes(coding.code) || recognizedCodes.includes(coding.system)
       );
+      if (hasRecognizedObservable) {
+        return true;
+      }
     }
     
     return false;
