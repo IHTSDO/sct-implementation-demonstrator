@@ -226,12 +226,19 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   // Form data
   encounterDate: string = '';
   encounterTime: string = '';
-  selectedReasonForEncounter: any = null;
-  selectedDiagnosis: any = null;
-  diagnosisNote: string = '';
-  selectedProcedure: any = null;
-  procedureLaterality: string = '';
-  procedureNote: string = '';
+  
+  // Multiple entries support
+  reasonsForEncounter: any[] = [];
+  currentReasonForEncounter: any = null;
+  
+  diagnoses: Array<{concept: any, note: string}> = [];
+  currentDiagnosis: any = null;
+  currentDiagnosisNote: string = '';
+  
+  procedures: Array<{concept: any, laterality: string}> = [];
+  currentProcedure: any = null;
+  currentProcedureLaterality: string = '';
+  
   encounterNotes: string = '';
   
   // Current encounter ID for linking procedures
@@ -239,6 +246,9 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   
   // Loading states
   isSaving = false;
+  
+  // Track if laterality should be enabled for current procedure
+  isLateralityEnabled = false;
   
   // SNOMED ECL bindings for different fields
   readonly bindings = {
@@ -266,9 +276,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     { value: '24028007', display: 'Right' },
     { value: '51440002', display: 'Bilateral' }
   ];
-
-  // Track if laterality should be enabled
-  isLateralityEnabled = false;
 
   previousEncounters: Encounter[] = [];
 
@@ -357,16 +364,58 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   onReasonForEncounterSelected(concept: any): void {
-    this.selectedReasonForEncounter = concept;
+    this.currentReasonForEncounter = concept;
+  }
+
+  addReasonForEncounter(): void {
+    if (this.currentReasonForEncounter && !this.reasonsForEncounter.find(r => r.code === this.currentReasonForEncounter.code)) {
+      this.reasonsForEncounter.push({...this.currentReasonForEncounter});
+      this.currentReasonForEncounter = null;
+    }
+  }
+
+  removeReasonForEncounter(index: number): void {
+    this.reasonsForEncounter.splice(index, 1);
   }
 
   onDiagnosisSelected(concept: any): void {
-    this.selectedDiagnosis = concept;
+    this.currentDiagnosis = concept;
+  }
+
+  addDiagnosis(): void {
+    if (this.currentDiagnosis && !this.diagnoses.find(d => d.concept.code === this.currentDiagnosis.code)) {
+      this.diagnoses.push({
+        concept: {...this.currentDiagnosis},
+        note: this.currentDiagnosisNote
+      });
+      this.currentDiagnosis = null;
+      this.currentDiagnosisNote = '';
+    }
+  }
+
+  removeDiagnosis(index: number): void {
+    this.diagnoses.splice(index, 1);
   }
 
   onProcedureSelected(concept: any): void {
-    this.selectedProcedure = concept;
+    this.currentProcedure = concept;
     this.checkLateralityEligibility(concept);
+  }
+
+  addProcedure(): void {
+    if (this.currentProcedure && !this.procedures.find(p => p.concept.code === this.currentProcedure.code)) {
+      this.procedures.push({
+        concept: {...this.currentProcedure},
+        laterality: this.currentProcedureLaterality
+      });
+      this.currentProcedure = null;
+      this.currentProcedureLaterality = '';
+      this.isLateralityEnabled = false;
+    }
+  }
+
+  removeProcedure(index: number): void {
+    this.procedures.splice(index, 1);
   }
 
   private async checkLateralityEligibility(procedure: any): Promise<void> {
@@ -382,7 +431,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       
       // Clear laterality if not eligible
       if (!isLateralizable) {
-        this.procedureLaterality = '';
+        this.currentProcedureLaterality = '';
       }
     } catch (error) {
       this.isLateralityEnabled = false;
@@ -414,19 +463,19 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     }
   }
 
-  clearReasonForEncounter(): void {
-    this.selectedReasonForEncounter = null;
+  clearCurrentReasonForEncounter(): void {
+    this.currentReasonForEncounter = null;
   }
 
-  clearDiagnosis(): void {
-    this.selectedDiagnosis = null;
-    this.diagnosisNote = '';
+  clearCurrentDiagnosis(): void {
+    this.currentDiagnosis = null;
+    this.currentDiagnosisNote = '';
   }
 
-  clearProcedure(): void {
-    this.selectedProcedure = null;
-    this.procedureLaterality = '';
-    this.procedureNote = '';
+  clearCurrentProcedure(): void {
+    this.currentProcedure = null;
+    this.currentProcedureLaterality = '';
+    this.isLateralityEnabled = false;
   }
 
   async saveEncounter(): Promise<void> {
@@ -435,13 +484,43 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     
     try {
+      // Build reasonCode array from multiple reasons
+      const reasonCode = this.reasonsForEncounter.length > 0 
+        ? this.reasonsForEncounter.map(reason => ({
+            coding: [{
+              system: 'http://snomed.info/sct',
+              code: reason.code,
+              display: reason.display
+            }],
+            text: reason.display
+          }))
+        : undefined;
+
+      // Build diagnosis array from multiple diagnoses
+      const diagnosis = this.diagnoses.length > 0
+        ? this.diagnoses.map((diag, index) => ({
+            condition: {
+              reference: `Condition/${this.generateId()}`,
+              display: diag.concept.display
+            },
+            use: {
+              coding: [{
+                system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+                code: 'active',
+                display: 'Active'
+              }]
+            },
+            rank: index + 1
+          }))
+        : undefined;
+
       const encounterRecord: Encounter = {
         resourceType: 'Encounter',
         id: this.generateId(),
-        status: 'finished', // Assuming a finished encounter for saving
+        status: 'finished',
         class: {
           system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
-          code: 'AMB', // Ambulatory
+          code: 'AMB',
           display: 'Ambulatory'
         },
         subject: {
@@ -450,28 +529,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         period: {
           start: `${this.encounterDate}T${this.encounterTime}:00Z`
         },
-                 reasonCode: this.selectedReasonForEncounter ? [{
-           coding: [{
-             system: 'http://snomed.info/sct',
-             code: this.selectedReasonForEncounter.code,
-             display: this.selectedReasonForEncounter.display
-           }],
-           text: this.selectedReasonForEncounter.display
-         }] : undefined,
-                 diagnosis: this.selectedDiagnosis ? [{
-           condition: {
-             reference: `Condition/${this.generateId()}`,
-             display: this.selectedDiagnosis.display
-           },
-           use: {
-             coding: [{
-               system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
-               code: 'active',
-               display: 'Active'
-             }]
-           },
-           rank: 1
-         }] : undefined,
+        reasonCode,
+        diagnosis,
         note: this.encounterNotes ? [{
           text: this.encounterNotes
         }] : undefined
@@ -483,20 +542,21 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       // Save to localStorage for persistence
       this.saveEncounterToStorage(encounterRecord);
 
-      // Emit events for diagnosis and procedure - let clinical-record component handle saving
-      if (this.selectedDiagnosis) {
-        await this.addConditionFromDiagnosis();
+      // Emit events for all diagnoses
+      for (const diag of this.diagnoses) {
+        await this.addConditionFromDiagnosis(diag.concept, diag.note);
       }
 
-      if (this.selectedProcedure) {
-        await this.addProcedureFromEncounter();
+      // Emit events for all procedures
+      for (const proc of this.procedures) {
+        await this.addProcedureFromEncounter(proc.concept, proc.laterality);
       }
 
       // Reset form
       this.resetForm();
 
-      // Reload encounters to reflect the new encounter (this will be triggered by the service notification)
-      // No need to manually add to previousEncounters as the subscription will handle it
+      // Reload encounters to reflect the new encounter
+      // The subscription will handle updating previousEncounters
 
     } catch (error) {
       alert('Error saving encounter record. Please try again.');
@@ -505,8 +565,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async addConditionFromDiagnosis(): Promise<void> {
-    if (!this.selectedDiagnosis || !this.patient) return;
+  private async addConditionFromDiagnosis(diagnosisConcept: any, note: string): Promise<void> {
+    if (!diagnosisConcept || !this.patient) return;
 
     const newCondition: Condition = {
       resourceType: 'Condition',
@@ -522,16 +582,19 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       code: {
         coding: [{
           system: 'http://snomed.info/sct',
-          code: this.selectedDiagnosis.code,
-          display: this.selectedDiagnosis.display
+          code: diagnosisConcept.code,
+          display: diagnosisConcept.display
         }],
-        text: this.selectedDiagnosis.display
+        text: diagnosisConcept.display
       },
       subject: {
         reference: `Patient/${this.patient.id}`
       },
       onsetDateTime: `${this.encounterDate}T${this.encounterTime}:00Z`,
-      recordedDate: new Date().toISOString()
+      recordedDate: new Date().toISOString(),
+      note: note ? [{
+        text: note
+      }] : undefined
     };
 
     // Emit the condition event - let the parent component (clinical-record) handle saving
@@ -539,8 +602,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     this.conditionAdded.emit(newCondition);
   }
 
-  private async addProcedureFromEncounter(): Promise<void> {
-    if (!this.selectedProcedure || !this.patient) return;
+  private async addProcedureFromEncounter(procedureConcept: any, laterality: string): Promise<void> {
+    if (!procedureConcept || !this.patient) return;
 
     const newProcedure: Procedure = {
       resourceType: 'Procedure',
@@ -549,10 +612,10 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       code: {
         coding: [{
           system: 'http://snomed.info/sct',
-          code: this.selectedProcedure.code,
-          display: this.selectedProcedure.display
+          code: procedureConcept.code,
+          display: procedureConcept.display
         }],
-        text: this.selectedProcedure.display
+        text: procedureConcept.display
       },
       subject: {
         reference: `Patient/${this.patient.id}`
@@ -561,14 +624,14 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         reference: `Encounter/${this.currentEncounterId}`
       },
       performedDateTime: `${this.encounterDate}T${this.encounterTime}:00Z`,
-             bodySite: this.procedureLaterality ? [{
-         coding: [{
-           system: 'http://snomed.info/sct',
-           code: this.procedureLaterality,
-           display: this.lateralityOptions.find(opt => opt.value === this.procedureLaterality)?.display || ''
-         }],
-         text: this.lateralityOptions.find(opt => opt.value === this.procedureLaterality)?.display || ''
-       }] : undefined
+      bodySite: laterality ? [{
+        coding: [{
+          system: 'http://snomed.info/sct',
+          code: laterality,
+          display: this.lateralityOptions.find(opt => opt.value === laterality)?.display || ''
+        }],
+        text: this.lateralityOptions.find(opt => opt.value === laterality)?.display || ''
+      }] : undefined
     };
 
     // Emit the procedure event - let the parent component (clinical-record) handle saving
@@ -595,12 +658,20 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     const now = new Date();
     this.encounterDate = now.toISOString().split('T')[0];
     this.encounterTime = now.toTimeString().split(' ')[0].substring(0, 5);
-    this.selectedReasonForEncounter = null;
-    this.selectedDiagnosis = null;
-    this.diagnosisNote = '';
-    this.selectedProcedure = null;
-    this.procedureLaterality = '';
-    this.procedureNote = '';
+    
+    // Clear arrays
+    this.reasonsForEncounter = [];
+    this.diagnoses = [];
+    this.procedures = [];
+    
+    // Clear current selections
+    this.currentReasonForEncounter = null;
+    this.currentDiagnosis = null;
+    this.currentDiagnosisNote = '';
+    this.currentProcedure = null;
+    this.currentProcedureLaterality = '';
+    this.isLateralityEnabled = false;
+    
     this.encounterNotes = '';
   }
 
@@ -611,7 +682,10 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
   isFormValid(): boolean {
     return !!(this.encounterDate && this.encounterTime && 
-             (this.selectedReasonForEncounter || this.selectedDiagnosis || this.selectedProcedure || this.encounterNotes.trim()));
+             (this.reasonsForEncounter.length > 0 || 
+              this.diagnoses.length > 0 || 
+              this.procedures.length > 0 || 
+              this.encounterNotes.trim()));
   }
 
   loadPreviousEncounters(): void {
@@ -745,6 +819,23 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     
     // Fallback to a generic message if no display is available
     return 'Procedure (details not available)';
+  }
+
+  getLateralityDisplay(lateralityCode: string): string {
+    const option = this.lateralityOptions.find(opt => opt.value === lateralityCode);
+    return option ? option.display : lateralityCode;
+  }
+
+  getProcedureLaterality(procedure: any): string | null {
+    // Extract laterality from procedure bodySite if available
+    if (procedure.bodySite && procedure.bodySite.length > 0) {
+      const bodySite = procedure.bodySite[0];
+      if (bodySite.coding && bodySite.coding.length > 0) {
+        return bodySite.coding[0].display || bodySite.text || null;
+      }
+      return bodySite.text || null;
+    }
+    return null;
   }
 
   viewEncounterDetails(encounter: Encounter): void {

@@ -24,23 +24,45 @@
               <span class="field-title">Reason for Encounter</span>
             </div>
             <div class="field-content">
-              <div class="field-with-info">
-                <app-autocomplete-binding 
-                  [binding]="bindings.reasonForEncounter"
-                  [term]="selectedReasonForEncounter?.display || ''"
-                  (selectionChange)="onReasonForEncounterSelected($event)">
-                </app-autocomplete-binding>
-                <button mat-icon-button 
-                        class="info-button"
-                        [matMenuTriggerFor]="reasonForEncounterMenu"
-                        matTooltip="Click for more information"
-                        matTooltipPosition="above">
-                  <mat-icon>info_outline</mat-icon>
+              <div class="field-with-info-and-add">
+                <div class="field-with-info">
+                  <app-autocomplete-binding 
+                    [binding]="bindings.reasonForEncounter"
+                    [term]="currentReasonForEncounter?.display || ''"
+                    (selectionChange)="onReasonForEncounterSelected($event)">
+                  </app-autocomplete-binding>
+                  <button mat-icon-button 
+                          class="info-button"
+                          [matMenuTriggerFor]="reasonForEncounterMenu"
+                          matTooltip="Click for more information"
+                          matTooltipPosition="above">
+                    <mat-icon>info_outline</mat-icon>
+                  </button>
+                </div>
+                <button mat-raised-button 
+                        color="accent" 
+                        (click)="addReasonForEncounter()" 
+                        [disabled]="!currentReasonForEncounter"
+                        class="add-item-button">
+                  <mat-icon>add</mat-icon>
+                  Add
                 </button>
               </div>
-              <div class="selected-concept" *ngIf="selectedReasonForEncounter">
-                <span class="concept-display">{{ selectedReasonForEncounter.display }}</span>
-                <span class="concept-code">{{ selectedReasonForEncounter.code }}</span>
+              
+              <!-- List of added reasons -->
+              <div class="added-items-list" *ngIf="reasonsForEncounter.length > 0">
+                <div class="added-item" *ngFor="let reason of reasonsForEncounter; let i = index">
+                  <div class="item-main">
+                    <span class="item-display">{{ reason.display }}</span>
+                    <span class="item-code">{{ reason.code }}</span>
+                  </div>
+                  <button mat-icon-button 
+                          (click)="removeReasonForEncounter(i)" 
+                          class="remove-item-button"
+                          matTooltip="Remove">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -75,7 +97,7 @@
                   <div class="field-with-info">
                     <app-autocomplete-binding 
                       [binding]="bindings.diagnosis"
-                      [term]="selectedDiagnosis?.display || ''"
+                      [term]="currentDiagnosis?.display || ''"
                       (selectionChange)="onDiagnosisSelected($event)">
                     </app-autocomplete-binding>
                     <button mat-icon-button 
@@ -92,9 +114,9 @@
                     <mat-form-field class="note-field">
                       <mat-label>Diagnosis Note</mat-label>
                       <textarea matInput 
-                                [(ngModel)]="diagnosisNote" 
+                                [(ngModel)]="currentDiagnosisNote" 
                                 rows="1" 
-                                placeholder="Free text one line diagnosis note"></textarea>
+                                placeholder="Optional note"></textarea>
                     </mat-form-field>
                     <button mat-icon-button 
                             class="info-button"
@@ -105,10 +127,34 @@
                     </button>
                   </div>
                 </div>
+                <button mat-raised-button 
+                        color="accent" 
+                        (click)="addDiagnosis()" 
+                        [disabled]="!currentDiagnosis"
+                        class="add-item-button">
+                  <mat-icon>add</mat-icon>
+                  Add
+                </button>
               </div>
-              <div class="selected-concept" *ngIf="selectedDiagnosis">
-                <span class="concept-display">{{ selectedDiagnosis.display }}</span>
-                <span class="concept-code">{{ selectedDiagnosis.code }}</span>
+              
+              <!-- List of added diagnoses -->
+              <div class="added-items-list" *ngIf="diagnoses.length > 0">
+                <div class="added-item" *ngFor="let diag of diagnoses; let i = index">
+                  <div class="item-main">
+                    <span class="item-display">{{ diag.concept.display }}</span>
+                    <span class="item-code">{{ diag.concept.code }}</span>
+                  </div>
+                  <div class="item-note" *ngIf="diag.note">
+                    <mat-icon class="note-icon">note</mat-icon>
+                    <span>{{ diag.note }}</span>
+                  </div>
+                  <button mat-icon-button 
+                          (click)="removeDiagnosis(i)" 
+                          class="remove-item-button"
+                          matTooltip="Remove">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -156,7 +202,7 @@
                   <div class="field-with-info">
                     <app-autocomplete-binding 
                       [binding]="bindings.procedure"
-                      [term]="selectedProcedure?.display || ''"
+                      [term]="currentProcedure?.display || ''"
                       (selectionChange)="onProcedureSelected($event)">
                     </app-autocomplete-binding>
                     <button mat-icon-button 
@@ -172,7 +218,7 @@
                   <div class="field-with-info">
                     <mat-form-field class="laterality-select">
                       <mat-label>Laterality</mat-label>
-                      <mat-select [(value)]="procedureLaterality" 
+                      <mat-select [(value)]="currentProcedureLaterality" 
                                  placeholder="Select laterality"
                                  [disabled]="!isLateralityEnabled">
                         <mat-option *ngFor="let option of lateralityOptions" [value]="option.value">
@@ -188,14 +234,35 @@
                       <mat-icon>info_outline</mat-icon>
                     </button>
                   </div>
-                  <div class="laterality-hint" *ngIf="!isLateralityEnabled">
+                  <div class="laterality-hint" *ngIf="!isLateralityEnabled && currentProcedure">
                     <small>Laterality not applicable for this procedure</small>
                   </div>
                 </div>
+                <button mat-raised-button 
+                        color="accent" 
+                        (click)="addProcedure()" 
+                        [disabled]="!currentProcedure"
+                        class="add-item-button">
+                  <mat-icon>add</mat-icon>
+                  Add
+                </button>
               </div>
-              <div class="selected-concept" *ngIf="selectedProcedure">
-                <span class="concept-display">{{ selectedProcedure.display }}</span>
-                <span class="concept-code">{{ selectedProcedure.code }}</span>
+              
+              <!-- List of added procedures -->
+              <div class="added-items-list" *ngIf="procedures.length > 0">
+                <div class="added-item" *ngFor="let proc of procedures; let i = index">
+                  <div class="item-main">
+                    <span class="item-display">{{ proc.concept.display }}</span>
+                    <span class="item-code">{{ proc.concept.code }}</span>
+                    <span class="item-laterality" *ngIf="proc.laterality">{{ getLateralityDisplay(proc.laterality) }}</span>
+                  </div>
+                  <button mat-icon-button 
+                          (click)="removeProcedure(i)" 
+                          class="remove-item-button"
+                          matTooltip="Remove">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -310,33 +377,51 @@
         </div>
         
         <div class="encounter-details">
-          <!-- Reason for Encounter -->
-          <span class="encounter-detail-item" *ngIf="encounter.reasonCode && encounter.reasonCode.length > 0">
-            <strong>Reason:</strong> {{ encounter.reasonCode[0].text }}
-          </span>
+          <!-- Reasons for Encounter -->
+          <div class="encounter-detail-item" *ngIf="encounter.reasonCode && encounter.reasonCode.length > 0">
+            <strong>Reason(s):</strong>
+            <div class="encounter-detail-list">
+              <span class="encounter-detail-badge" *ngFor="let reason of encounter.reasonCode">
+                {{ reason.text }}
+              </span>
+            </div>
+          </div>
           
-          <!-- Diagnosis -->
-          <span class="encounter-detail-item" *ngIf="encounter.diagnosis && encounter.diagnosis.length > 0">
-            <strong>Diagnosis:</strong> {{ getDiagnosisDisplay(encounter.diagnosis[0]) }}
-          </span>
+          <!-- Diagnoses -->
+          <div class="encounter-detail-item" *ngIf="encounter.diagnosis && encounter.diagnosis.length > 0">
+            <strong>Diagnosis:</strong>
+            <div class="encounter-detail-list">
+              <span class="encounter-detail-badge" *ngFor="let diag of encounter.diagnosis">
+                {{ getDiagnosisDisplay(diag) }}
+              </span>
+            </div>
+          </div>
           
           <!-- Procedures -->
-          <span class="encounter-detail-item" *ngIf="encounter.linkedProcedures && encounter.linkedProcedures.length > 0">
-            <strong>Procedures:</strong> {{ getProcedureDisplay(encounter.linkedProcedures[0]) }}
-            <span class="procedure-status-badge" [class]="encounter.linkedProcedures[0].status">
-              {{ encounter.linkedProcedures[0].status }}
-            </span>
-          </span>
+          <div class="encounter-detail-item" *ngIf="encounter.linkedProcedures && encounter.linkedProcedures.length > 0">
+            <strong>Procedure(s):</strong>
+            <div class="encounter-detail-list">
+              <span class="encounter-detail-badge" *ngFor="let proc of encounter.linkedProcedures">
+                {{ getProcedureDisplay(proc) }}
+                <span class="procedure-laterality-badge" *ngIf="getProcedureLaterality(proc)">
+                  {{ getProcedureLaterality(proc) }}
+                </span>
+                <span class="procedure-status-badge mini" [class]="proc.status">
+                  {{ proc.status }}
+                </span>
+              </span>
+            </div>
+          </div>
           
           <!-- No Procedures Message -->
-          <span class="encounter-detail-item" *ngIf="!encounter.linkedProcedures || encounter.linkedProcedures.length === 0">
-            <strong>Procedures:</strong> <em> No procedures recorded</em>
-          </span>
+          <div class="encounter-detail-item" *ngIf="!encounter.linkedProcedures || encounter.linkedProcedures.length === 0">
+            <strong>Procedure(s):</strong> <em>No procedures recorded</em>
+          </div>
           
           <!-- Notes -->
-          <span class="encounter-detail-item" *ngIf="encounter.note && encounter.note.length > 0">
+          <div class="encounter-detail-item" *ngIf="encounter.note && encounter.note.length > 0">
             <strong>Notes:</strong> {{ encounter.note[0].text }}
-          </span>
+          </div>
         </div>
       </div>
     </div>
