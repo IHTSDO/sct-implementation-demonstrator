@@ -1034,6 +1034,16 @@ export interface QuestionnaireResponse {
   questionnaireName?: string; // Display name
 }
 
+export interface PatientSimilarityResult {
+  patient: Patient;
+  score: number;
+  breakdown?: {
+    nameScore: number;
+    birthDateScore: number;
+    genderScore: number;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -2049,5 +2059,212 @@ export class PatientService {
         message: `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
       };
     }
+  }
+
+  // ========================================
+  // Patient Similarity Matching Methods
+  // ========================================
+
+  /**
+   * Find and rank patients by similarity to a given FHIR Patient resource
+   * @param referencePatient - The FHIR Patient resource to compare against
+   * @param includeBreakdown - Whether to include detailed score breakdown
+   * @returns Array of patients sorted by similarity score (highest first)
+   */
+  findSimilarPatients(referencePatient: Patient, includeBreakdown: boolean = false): PatientSimilarityResult[] {
+    const availablePatients = this.patientsSubject.value;
+    
+    if (!referencePatient || availablePatients.length === 0) {
+      return [];
+    }
+
+    // Calculate score for each patient
+    const results: PatientSimilarityResult[] = availablePatients.map(patient => {
+      const scoreData = this.calculatePatientSimilarity(referencePatient, patient, includeBreakdown);
+      return scoreData;
+    });
+
+    // Sort by score (highest first)
+    results.sort((a, b) => b.score - a.score);
+
+    return results;
+  }
+
+  /**
+   * Calculate similarity score between two FHIR Patient resources
+   * Weights: Name (50%), Birth Date (35%), Gender (15%)
+   */
+  private calculatePatientSimilarity(referencePatient: Patient, comparePatient: Patient, includeBreakdown: boolean = false): PatientSimilarityResult {
+    const referenceName = this.getPatientDisplayName(referencePatient).toLowerCase();
+    const compareName = this.getPatientDisplayName(comparePatient).toLowerCase();
+    const referenceBirthDate = referencePatient.birthDate || '';
+    const compareBirthDate = comparePatient.birthDate || '';
+    const referenceGender = referencePatient.gender?.toLowerCase();
+    const compareGender = comparePatient.gender?.toLowerCase();
+
+    const nameScore = this.calculateNameSimilarity(referenceName, compareName);
+    const birthDateScore = this.calculateBirthDateSimilarity(referenceBirthDate, compareBirthDate);
+    const genderScore = this.calculateGenderSimilarity(referenceGender, compareGender);
+
+    // Weighted average
+    const totalScore = (nameScore * 0.5) + (birthDateScore * 0.35) + (genderScore * 0.15);
+    
+    const result: PatientSimilarityResult = {
+      patient: comparePatient,
+      score: totalScore
+    };
+
+    if (includeBreakdown) {
+      result.breakdown = {
+        nameScore,
+        birthDateScore,
+        genderScore
+      };
+    }
+
+    return result;
+  }
+
+  /**
+   * Calculate name similarity using Levenshtein distance and word matching
+   */
+  private calculateNameSimilarity(name1: string, name2: string): number {
+    if (!name1 || !name2) return 0;
+    
+    const n1 = name1.toLowerCase().trim();
+    const n2 = name2.toLowerCase().trim();
+    
+    // Exact match
+    if (n1 === n2) return 1.0;
+    
+    // Calculate Levenshtein-based similarity
+    const levenshteinScore = this.levenshteinSimilarity(n1, n2);
+    
+    // Calculate word-based similarity
+    const wordScore = this.wordMatchSimilarity(n1, n2);
+    
+    // Use the higher of the two scores (more forgiving)
+    return Math.max(levenshteinScore, wordScore);
+  }
+
+  /**
+   * Calculate Levenshtein distance and convert to similarity score (0-1)
+   */
+  private levenshteinSimilarity(str1: string, str2: string): number {
+    const distance = this.levenshteinDistance(str1, str2);
+    const maxLength = Math.max(str1.length, str2.length);
+    if (maxLength === 0) return 1.0;
+    return 1 - (distance / maxLength);
+  }
+
+  /**
+   * Calculate Levenshtein distance between two strings
+   */
+  private levenshteinDistance(str1: string, str2: string): number {
+    const m = str1.length;
+    const n = str2.length;
+    const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        if (str1[i - 1] === str2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1];
+        } else {
+          dp[i][j] = Math.min(
+            dp[i - 1][j] + 1,    // deletion
+            dp[i][j - 1] + 1,    // insertion
+            dp[i - 1][j - 1] + 1 // substitution
+          );
+        }
+      }
+    }
+
+    return dp[m][n];
+  }
+
+  /**
+   * Calculate word-based matching similarity
+   */
+  private wordMatchSimilarity(name1: string, name2: string): number {
+    const words1 = name1.split(/\s+/).filter(w => w.length > 0);
+    const words2 = name2.split(/\s+/).filter(w => w.length > 0);
+    
+    if (words1.length === 0 || words2.length === 0) return 0;
+    
+    let matches = 0;
+    const totalWords = Math.max(words1.length, words2.length);
+    
+    for (const word1 of words1) {
+      for (const word2 of words2) {
+        if (word1 === word2) {
+          matches++;
+          break;
+        } else if (word1.length > 2 && word2.length > 2) {
+          // Partial match for longer words
+          if (word1.includes(word2) || word2.includes(word1)) {
+            matches += 0.7; // Partial credit
+            break;
+          }
+        }
+      }
+    }
+    
+    return matches / totalWords;
+  }
+
+  /**
+   * Calculate birth date similarity (0-1)
+   */
+  private calculateBirthDateSimilarity(date1: string, date2: string): number {
+    if (!date1 || !date2) return 0;
+    if (date1 === date2) return 1.0;
+    
+    try {
+      const d1 = new Date(date1);
+      const d2 = new Date(date2);
+      
+      // Calculate difference in years
+      const yearDiff = Math.abs(d1.getFullYear() - d2.getFullYear());
+      
+      // Exact match
+      if (yearDiff === 0 && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate()) {
+        return 1.0;
+      }
+      
+      // Penalize by 0.2 for each year of difference (max 5 years)
+      const score = Math.max(0, 1.0 - (yearDiff * 0.2));
+      return score;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  /**
+   * Calculate gender similarity (0-1)
+   */
+  private calculateGenderSimilarity(gender1: string | undefined, gender2: string | undefined): number {
+    if (!gender1 || !gender2) return 0;
+    
+    const g1 = gender1.toLowerCase().trim();
+    const g2 = gender2.toLowerCase().trim();
+    
+    return g1 === g2 ? 1.0 : 0.0;
+  }
+
+  /**
+   * Format similarity score as percentage string
+   */
+  formatScoreAsPercentage(score: number): string {
+    return `${(score * 100).toFixed(0)}%`;
+  }
+
+  /**
+   * Get patient display name (public for use in components)
+   */
+  public getPatientName(patient: Patient): string {
+    return this.getPatientDisplayName(patient);
   }
 }

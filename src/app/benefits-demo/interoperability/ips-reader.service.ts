@@ -150,10 +150,19 @@ export class IPSReaderService {
       return result;
     }
 
+    // First, create a map of all Medication resources by their ID
+    const medicationMap = new Map<string, any>();
+    bundle.entry.forEach(entry => {
+      if (entry?.resource?.resourceType === 'Medication') {
+        const medication = entry.resource;
+        medicationMap.set(medication.id, medication);
+      }
+    });
+
     // Process each entry in the bundle
     bundle.entry.forEach((entry, index) => {
       if (entry && entry.resource) {
-        this.processResource(entry.resource, result);
+        this.processResource(entry.resource, result, medicationMap);
       }
     });
 
@@ -163,7 +172,7 @@ export class IPSReaderService {
   /**
    * Process individual resources and categorize them
    */
-  private processResource(resource: IPSResource, result: ProcessedPatientData): void {
+  private processResource(resource: IPSResource, result: ProcessedPatientData, medicationMap?: Map<string, any>): void {
     switch (resource.resourceType) {
       case 'Patient':
         result.patient = resource as Patient;
@@ -175,12 +184,40 @@ export class IPSReaderService {
         result.procedures.push(resource as Procedure);
         break;
       case 'MedicationStatement':
-        result.medications.push(resource as MedicationStatement);
+        const medicationStatement = resource as MedicationStatement;
+        
+        // If the medication uses a reference, resolve it to get the actual medication data
+        if (medicationStatement.medicationReference && medicationMap) {
+          const medicationId = this.extractIdFromReference(medicationStatement.medicationReference.reference);
+          const medication = medicationMap.get(medicationId);
+          
+          if (medication && medication.code) {
+            // Create a copy with medicationCodeableConcept for easier display
+            const enhancedMedicationStatement = {
+              ...medicationStatement,
+              medicationCodeableConcept: medication.code
+            };
+            result.medications.push(enhancedMedicationStatement);
+          } else {
+            result.medications.push(medicationStatement);
+          }
+        } else {
+          result.medications.push(medicationStatement);
+        }
         break;
       case 'AllergyIntolerance':
         result.allergies.push(resource as AllergyIntolerance);
         break;
     }
+  }
+
+  /**
+   * Extract ID from a FHIR reference (e.g., "Medication/123" -> "123")
+   */
+  private extractIdFromReference(reference: string | undefined): string {
+    if (!reference) return '';
+    const parts = reference.split('/');
+    return parts.length > 1 ? parts[parts.length - 1] : reference;
   }
 
   /**

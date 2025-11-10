@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
-import { PatientService, Patient } from '../../services/patient.service';
+import { PatientService, Patient, PatientSimilarityResult } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 
 @Component({
@@ -22,6 +22,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   linkedPatient: any = null;
   suggestedPatient: any = null;
   availablePatients: Patient[] = [];
+  sortedPatientsWithScores: PatientSimilarityResult[] = [];
   private subscriptions: Subscription[] = [];
   
   // Data verification properties
@@ -34,6 +35,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   selectedProcedures: Set<string> = new Set();
   selectedMedications: Set<string> = new Set();
   selectedAllergies: Set<string> = new Set();
+  
+  // Current patient data
+  existingConditions: any[] = [];
+  existingMedications: any[] = [];
+  existingAllergies: any[] = [];
 
   // File upload
   @ViewChild('fileInput') fileInput!: ElementRef;
@@ -60,12 +66,44 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.patientService.getPatients().subscribe(patients => {
         this.availablePatients = patients;
+        // Calculate scores and sort if we have IPS data
+        if (this.patientData?.patient) {
+          this.calculateAndSortPatientsByScore();
+        }
         // Re-run suggestion logic if we already have IPS data
         if (this.patientData) {
           this.findSuggestedPatient();
         }
       })
     );
+  }
+
+  /**
+   * Calculate similarity scores for all patients and sort them using PatientService
+   */
+  private calculateAndSortPatientsByScore(): void {
+    if (!this.patientData?.patient || this.availablePatients.length === 0) {
+      this.sortedPatientsWithScores = [];
+      return;
+    }
+
+    // Use PatientService to find similar patients
+    this.sortedPatientsWithScores = this.patientService.findSimilarPatients(this.patientData.patient, false);
+  }
+
+  /**
+   * Get similarity score for a specific patient
+   */
+  getPatientScore(patientId: string): number {
+    const item = this.sortedPatientsWithScores.find(p => p.patient.id === patientId);
+    return item ? item.score : 0;
+  }
+
+  /**
+   * Format score as percentage
+   */
+  formatScoreAsPercentage(score: number): string {
+    return this.patientService.formatScoreAsPercentage(score);
   }
 
   /**
@@ -81,6 +119,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.patientData = data;
         this.isLoading = false;
+        this.calculateAndSortPatientsByScore();
         this.findSuggestedPatient();
       },
       error: (error) => {
@@ -157,74 +196,32 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Find suggested patient based on name and birth date matches
+   * Find suggested patient based on similarity score from PatientService
    */
   findSuggestedPatient(): void {
-    if (!this.patientData?.patient || this.availablePatients.length === 0) {
+    if (!this.patientData?.patient || this.sortedPatientsWithScores.length === 0) {
       return;
     }
 
-    const ipsPatient = this.patientData.patient;
-    const ipsName = this.getPatientName().toLowerCase();
-    const ipsBirthDate = ipsPatient.birthDate;
-
-    // Find exact matches first
-    let exactMatch = this.availablePatients.find(patient => {
-      const patientName = this.getPatientDisplayName(patient).toLowerCase();
-      return patientName === ipsName && patient.birthDate === ipsBirthDate;
-    });
-
-    if (exactMatch) {
-      this.suggestedPatient = { ...exactMatch, matchType: 'exact' };
+    // Get the top match from our sorted list
+    const topMatch = this.sortedPatientsWithScores[0];
+    
+    if (!topMatch || topMatch.score < 0.5) {
+      // No good matches found
       return;
     }
 
-    // Find name similarity matches
-    let nameMatch = this.availablePatients.find(patient => {
-      const patientName = this.getPatientDisplayName(patient).toLowerCase();
-      const similarity = this.calculateNameSimilarity(ipsName, patientName);
-      return similarity > 0.8 && patient.birthDate === ipsBirthDate;
-    });
-
-    if (nameMatch) {
-      this.suggestedPatient = { ...nameMatch, matchType: 'name' };
-      return;
+    // Determine match type based on score
+    let matchType = 'possible';
+    if (topMatch.score >= 0.95) {
+      matchType = 'exact';
+    } else if (topMatch.score >= 0.8) {
+      matchType = 'name';
+    } else if (topMatch.score >= 0.6) {
+      matchType = 'date';
     }
 
-    // Find birth date matches with partial name similarity
-    let dateMatch = this.availablePatients.find(patient => {
-      const patientName = this.getPatientDisplayName(patient).toLowerCase();
-      const similarity = this.calculateNameSimilarity(ipsName, patientName);
-      return similarity > 0.6 && patient.birthDate === ipsBirthDate;
-    });
-
-    if (dateMatch) {
-      this.suggestedPatient = { ...dateMatch, matchType: 'date' };
-    }
-  }
-
-  /**
-   * Calculate name similarity using simple string comparison
-   */
-  private calculateNameSimilarity(name1: string, name2: string): number {
-    const words1 = name1.split(' ');
-    const words2 = name2.split(' ');
-    
-    let matches = 0;
-    let totalWords = Math.max(words1.length, words2.length);
-    
-    for (const word1 of words1) {
-      for (const word2 of words2) {
-        if (word1 === word2 || 
-            (word1.length > 2 && word2.length > 2 && 
-             (word1.includes(word2) || word2.includes(word1)))) {
-          matches++;
-          break;
-        }
-      }
-    }
-    
-    return matches / totalWords;
+    this.suggestedPatient = { ...topMatch.patient, matchType: matchType, score: topMatch.score };
   }
 
   /**
@@ -292,9 +289,182 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       this.linkedPatient = selectedPatient;
       this.suggestedPatient = null; // Clear suggestion after linking
       
+      // Load existing data for this patient
+      this.loadExistingPatientData();
+      
       // Initialize selections (select all by default)
       this.initializeSelections();
     }
+  }
+
+  /**
+   * Load existing data for the linked patient
+   */
+  private loadExistingPatientData(): void {
+    if (!this.linkedPatient) {
+      this.existingConditions = [];
+      this.existingMedications = [];
+      this.existingAllergies = [];
+      return;
+    }
+    
+    this.existingConditions = this.patientService.getPatientConditions(this.linkedPatient.id);
+    this.existingMedications = this.patientService.getPatientMedications(this.linkedPatient.id);
+    this.existingAllergies = this.patientService.getPatientAllergies(this.linkedPatient.id);
+  }
+
+  /**
+   * Create a new patient based on IPS patient data
+   */
+  createNewPatient(): void {
+    if (!this.patientData?.patient) {
+      return;
+    }
+
+    const ipsPatient = this.patientData.patient;
+    
+    // Generate unique ID for the new patient
+    const newPatientId = `patient-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Use the IPS patient data directly with a new ID and ensure required fields
+    const newPatient: Patient = {
+      ...ipsPatient,
+      id: newPatientId,
+      resourceType: 'Patient',
+      active: ipsPatient.active !== undefined ? ipsPatient.active : true
+    };
+
+    // Add the new patient to the service
+    this.patientService.addPatient(newPatient);
+    
+    // Link to the newly created patient
+    this.linkedPatient = newPatient;
+    this.selectedPatientId = newPatientId;
+    this.suggestedPatient = null;
+    
+    // Load existing data (will be empty for new patient)
+    this.loadExistingPatientData();
+    
+    // Initialize selections (select all by default)
+    this.initializeSelections();
+    
+    console.log(`Created new patient: ${newPatientId}`, newPatient);
+  }
+
+  /**
+   * Add a condition from IPS to the selection by clicking on it
+   */
+  addConditionFromIPS(conditionId: string): void {
+    if (!this.linkedPatient) {
+      return;
+    }
+
+    // Toggle selection
+    if (this.selectedConditions.has(conditionId)) {
+      this.selectedConditions.delete(conditionId);
+    } else {
+      this.selectedConditions.add(conditionId);
+    }
+  }
+
+  /**
+   * Check if a condition from IPS is already added (selected)
+   */
+  isConditionAdded(conditionId: string): boolean {
+    return this.selectedConditions.has(conditionId);
+  }
+
+  /**
+   * Get selected conditions from IPS (to show first in the merge list)
+   */
+  getSelectedIPSConditions(): any[] {
+    if (!this.patientData?.conditions) {
+      return [];
+    }
+    
+    return this.patientData.conditions.filter(condition => 
+      this.selectedConditions.has(condition.id)
+    );
+  }
+
+  // ========================================
+  // Medications Methods
+  // ========================================
+
+  /**
+   * Add a medication from IPS to the selection by clicking on it
+   */
+  addMedicationFromIPS(medicationId: string): void {
+    if (!this.linkedPatient) {
+      return;
+    }
+
+    // Toggle selection
+    if (this.selectedMedications.has(medicationId)) {
+      this.selectedMedications.delete(medicationId);
+    } else {
+      this.selectedMedications.add(medicationId);
+    }
+  }
+
+  /**
+   * Check if a medication from IPS is already added (selected)
+   */
+  isMedicationAdded(medicationId: string): boolean {
+    return this.selectedMedications.has(medicationId);
+  }
+
+  /**
+   * Get selected medications from IPS (to show first in the merge list)
+   */
+  getSelectedIPSMedications(): any[] {
+    if (!this.patientData?.medications) {
+      return [];
+    }
+    
+    return this.patientData.medications.filter(medication => 
+      this.selectedMedications.has(medication.id)
+    );
+  }
+
+  // ========================================
+  // Allergies Methods
+  // ========================================
+
+  /**
+   * Add an allergy from IPS to the selection by clicking on it
+   */
+  addAllergyFromIPS(allergyId: string): void {
+    if (!this.linkedPatient) {
+      return;
+    }
+
+    // Toggle selection
+    if (this.selectedAllergies.has(allergyId)) {
+      this.selectedAllergies.delete(allergyId);
+    } else {
+      this.selectedAllergies.add(allergyId);
+    }
+  }
+
+  /**
+   * Check if an allergy from IPS is already added (selected)
+   */
+  isAllergyAdded(allergyId: string): boolean {
+    return this.selectedAllergies.has(allergyId);
+  }
+
+  /**
+   * Get selected allergies from IPS (to show first in the merge list)
+   */
+  getSelectedIPSAllergies(): any[] {
+    if (!this.patientData?.allergies) {
+      return [];
+    }
+    
+    return this.patientData.allergies.filter(allergy => 
+      this.selectedAllergies.has(allergy.id)
+    );
   }
 
   /**
@@ -358,6 +528,38 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Simple text similarity check for duplicate detection
+   * Uses basic word matching for performance
+   */
+  private simpleTextSimilarity(text1: string, text2: string): number {
+    if (!text1 || !text2) return 0;
+    
+    const t1 = text1.toLowerCase().trim();
+    const t2 = text2.toLowerCase().trim();
+    
+    // Exact match
+    if (t1 === t2) return 1.0;
+    
+    // Check if one contains the other
+    if (t1.includes(t2) || t2.includes(t1)) {
+      return 0.9;
+    }
+    
+    // Word-based matching
+    const words1 = t1.split(/\s+/);
+    const words2 = t2.split(/\s+/);
+    let matches = 0;
+    
+    for (const word1 of words1) {
+      if (words2.includes(word1)) {
+        matches++;
+      }
+    }
+    
+    return matches / Math.max(words1.length, words2.length);
+  }
+
+  /**
    * Find duplicate conditions
    */
   private findDuplicateConditions(ipsConditions: any[], existingConditions: any[]): any[] {
@@ -367,14 +569,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       const ipsText = ipsCondition.code?.text || '';
       const existingMatch = existingConditions.find(existing => {
         const existingText = existing.code?.text || '';
-        return this.calculateNameSimilarity(ipsText.toLowerCase(), existingText.toLowerCase()) > 0.8;
+        return this.simpleTextSimilarity(ipsText, existingText) > 0.8;
       });
       
       if (existingMatch) {
         duplicates.push({
           ips: ipsCondition,
           existing: existingMatch,
-          similarity: this.calculateNameSimilarity(ipsText.toLowerCase(), existingMatch.code?.text?.toLowerCase() || '')
+          similarity: this.simpleTextSimilarity(ipsText, existingMatch.code?.text || '')
         });
       }
     });
@@ -392,14 +594,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       const ipsText = ipsProcedure.code?.text || '';
       const existingMatch = existingProcedures.find(existing => {
         const existingText = existing.code?.text || '';
-        return this.calculateNameSimilarity(ipsText.toLowerCase(), existingText.toLowerCase()) > 0.8;
+        return this.simpleTextSimilarity(ipsText, existingText) > 0.8;
       });
       
       if (existingMatch) {
         duplicates.push({
           ips: ipsProcedure,
           existing: existingMatch,
-          similarity: this.calculateNameSimilarity(ipsText.toLowerCase(), existingMatch.code?.text?.toLowerCase() || '')
+          similarity: this.simpleTextSimilarity(ipsText, existingMatch.code?.text || '')
         });
       }
     });
@@ -417,14 +619,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       const ipsText = ipsMedication.medicationCodeableConcept?.text || '';
       const existingMatch = existingMedications.find(existing => {
         const existingText = existing.medicationCodeableConcept?.text || '';
-        return this.calculateNameSimilarity(ipsText.toLowerCase(), existingText.toLowerCase()) > 0.8;
+        return this.simpleTextSimilarity(ipsText, existingText) > 0.8;
       });
       
       if (existingMatch) {
         duplicates.push({
           ips: ipsMedication,
           existing: existingMatch,
-          similarity: this.calculateNameSimilarity(ipsText.toLowerCase(), existingMatch.medicationCodeableConcept?.text?.toLowerCase() || '')
+          similarity: this.simpleTextSimilarity(ipsText, existingMatch.medicationCodeableConcept?.text || '')
         });
       }
     });
@@ -823,6 +1025,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
           next: (data) => {
             this.patientData = data;
             this.isLoading = false;
+            this.calculateAndSortPatientsByScore();
             this.findSuggestedPatient();
             // Clear the file input
             this.fileInput.nativeElement.value = '';
