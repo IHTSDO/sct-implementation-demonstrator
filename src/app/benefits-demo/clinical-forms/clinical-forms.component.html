@@ -3,7 +3,7 @@
     <h3>Clinical Forms</h3>
   </div>
 
-  <!-- Tab Group for Data Entry and Form Records -->
+  <!-- Tab Group for Data Entry, Form Records, and Manage Questionnaires -->
   <mat-tab-group class="forms-tabs" [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
     
     <!-- Data Entry Tab -->
@@ -14,9 +14,16 @@
             <mat-form-field class="form-selector">
               <mat-label>Select Clinical Form</mat-label>
               <mat-select [(value)]="selectedForm" (selectionChange)="onFormSelected($event.value)">
-                <mat-option *ngFor="let form of availableForms" [value]="form.id">
-                  {{ form.name }}
-                </mat-option>
+                <mat-optgroup label="Built-in Forms">
+                  <mat-option *ngFor="let form of availableForms" [value]="form.id">
+                    {{ form.name }}
+                  </mat-option>
+                </mat-optgroup>
+                <mat-optgroup label="Custom Questionnaires" *ngIf="customQuestionnaires.length > 0">
+                  <mat-option *ngFor="let form of customQuestionnaires" [value]="form.id">
+                    {{ form.name }}
+                  </mat-option>
+                </mat-optgroup>
               </mat-select>
             </mat-form-field>
           </div>
@@ -87,6 +94,130 @@
     <mat-tab label="Form Records">
       <div class="tab-content">
         <app-form-records [patientId]="patient?.id || null"></app-form-records>
+      </div>
+    </mat-tab>
+
+    <!-- Manage Questionnaires Tab -->
+    <mat-tab label="Manage Questionnaires">
+      <div class="tab-content manage-tab">
+        <div class="manage-header">
+          <h4>Custom Questionnaires</h4>
+          <p>Upload and manage custom FHIR Questionnaire resources</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+          <h5>
+            <mat-icon>upload_file</mat-icon>
+            Upload New Questionnaire
+          </h5>
+          <p class="upload-description">
+            Upload a FHIR Questionnaire resource in JSON format. The questionnaire will be available for all patients.
+          </p>
+          
+          <div class="upload-controls">
+            <input 
+              type="file" 
+              #fileInput 
+              accept=".json" 
+              (change)="onQuestionnaireFileSelected($event)"
+              style="display: none">
+            
+            <button 
+              mat-raised-button 
+              color="primary"
+              (click)="fileInput.click()"
+              [disabled]="isUploadingQuestionnaire">
+              <mat-icon>add_circle</mat-icon>
+              Choose File
+            </button>
+
+            <div *ngIf="isUploadingQuestionnaire" class="upload-progress">
+              <mat-spinner diameter="24"></mat-spinner>
+              <span>Uploading...</span>
+            </div>
+
+            <div *ngIf="uploadError" class="upload-error">
+              <mat-icon>error</mat-icon>
+              {{ uploadError }}
+            </div>
+          </div>
+
+          <div class="upload-info">
+            <mat-icon>info</mat-icon>
+            <div>
+              <strong>Requirements:</strong>
+              <ul>
+                <li>Valid FHIR Questionnaire resource (resourceType: "Questionnaire")</li>
+                <li>JSON format (.json file)</li>
+                <li>Must include title or name field</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing Questionnaires Section -->
+        <div class="questionnaires-section">
+          <div class="section-header">
+            <h5>
+              <mat-icon>list</mat-icon>
+              Uploaded Questionnaires ({{ customQuestionnaires.length }})
+            </h5>
+            <button 
+              mat-stroked-button 
+              color="warn"
+              (click)="deleteAllCustomQuestionnaires()"
+              *ngIf="customQuestionnaires.length > 0">
+              <mat-icon>delete_sweep</mat-icon>
+              Delete All
+            </button>
+          </div>
+
+          <div *ngIf="customQuestionnaires.length === 0" class="no-questionnaires">
+            <mat-icon>folder_open</mat-icon>
+            <p>No custom questionnaires uploaded yet</p>
+            <p class="hint">Upload a FHIR Questionnaire JSON file to get started</p>
+          </div>
+
+          <div *ngIf="customQuestionnaires.length > 0" class="questionnaires-list">
+            <mat-card *ngFor="let q of customQuestionnaires" class="questionnaire-card">
+              <mat-card-header>
+                <mat-icon mat-card-avatar>description</mat-icon>
+                <mat-card-title>{{ q.name }}</mat-card-title>
+                <mat-card-subtitle>{{ q.category }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <p class="description">{{ q.description }}</p>
+                <div class="metadata">
+                  <span class="metadata-item">
+                    <mat-icon>event</mat-icon>
+                    Uploaded: {{ getFormattedDate(q.uploadedDate) }}
+                  </span>
+                  <span class="metadata-item" *ngIf="q.data.id">
+                    <mat-icon>fingerprint</mat-icon>
+                    ID: {{ q.data.id }}
+                  </span>
+                </div>
+              </mat-card-content>
+              <mat-card-actions>
+                <button 
+                  mat-button 
+                  color="accent"
+                  (click)="selectedTabIndex = 0; onFormSelected(q.id)">
+                  <mat-icon>edit_note</mat-icon>
+                  Use Form
+                </button>
+                <button 
+                  mat-button 
+                  color="warn"
+                  (click)="deleteCustomQuestionnaire(q.id, q.name)">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
       </div>
     </mat-tab>
 

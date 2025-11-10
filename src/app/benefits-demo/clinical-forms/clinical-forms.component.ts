@@ -5,6 +5,7 @@ import { lastValueFrom } from 'rxjs';
 import { Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, PatientService } from '../../services/patient.service';
 import { AdverseReactionReport } from './adverse-reaction-form/adverse-reaction-form.component';
 import { FormRecordsComponent } from '../form-records/form-records.component';
+import { CustomQuestionnaireService, CustomQuestionnaire } from '../../services/custom-questionnaire.service';
 
 export interface ClinicalForm {
   id: string;
@@ -32,6 +33,11 @@ export class ClinicalFormsComponent implements OnInit {
   selectedForm: string | null = null;
   isSubmitting: boolean = false;
   selectedTabIndex: number = 0;
+  
+  // Custom questionnaires management
+  customQuestionnaires: CustomQuestionnaire[] = [];
+  isUploadingQuestionnaire: boolean = false;
+  uploadError: string | null = null;
   
   availableForms: ClinicalForm[] = [
     {
@@ -84,11 +90,198 @@ export class ClinicalFormsComponent implements OnInit {
   constructor(
     private snackBar: MatSnackBar, 
     private patientService: PatientService,
-    private http: HttpClient
+    private http: HttpClient,
+    private customQuestionnaireService: CustomQuestionnaireService
   ) { }
 
   ngOnInit(): void {
-    // Component initialization
+    // Load custom questionnaires from localStorage
+    this.loadCustomQuestionnaires();
+  }
+
+  private loadCustomQuestionnaires(): void {
+    this.customQuestionnaires = this.customQuestionnaireService.getAllCustomQuestionnaires();
+  }
+
+  /**
+   * Get all available forms (built-in + custom questionnaires)
+   */
+  get allAvailableForms(): ClinicalForm[] {
+    const customForms: ClinicalForm[] = this.customQuestionnaires.map(cq => ({
+      id: cq.id,
+      name: cq.name,
+      description: cq.description,
+      category: cq.category,
+      available: true
+    }));
+
+    return [...this.availableForms, ...customForms];
+  }
+
+  /**
+   * Handle file upload for FHIR Questionnaire
+   */
+  onQuestionnaireFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    if (!file.name.endsWith('.json')) {
+      this.uploadError = 'Please select a JSON file';
+      this.snackBar.open('Please select a JSON file', 'Close', {
+        duration: 4000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    this.isUploadingQuestionnaire = true;
+    this.uploadError = null;
+
+    const reader = new FileReader();
+    
+    reader.onload = (e: any) => {
+      try {
+        const jsonContent = JSON.parse(e.target.result);
+        
+        // Attempt to add the questionnaire
+        const result = this.customQuestionnaireService.addCustomQuestionnaire(jsonContent);
+        
+        if (result.success) {
+          // Reload custom questionnaires
+          this.loadCustomQuestionnaires();
+          
+          // Show success message
+          this.snackBar.open(
+            `✅ Questionnaire "${jsonContent.title || jsonContent.name}" uploaded successfully!`,
+            'Close',
+            {
+              duration: 5000,
+              panelClass: ['success-snackbar']
+            }
+          );
+          
+          // Clear the file input
+          event.target.value = '';
+        } else {
+          this.uploadError = result.error || 'Failed to upload questionnaire';
+          this.snackBar.open(
+            `❌ ${result.error || 'Failed to upload questionnaire'}`,
+            'Close',
+            {
+              duration: 6000,
+              panelClass: ['error-snackbar']
+            }
+          );
+        }
+      } catch (error) {
+        this.uploadError = 'Invalid JSON file';
+        this.snackBar.open(
+          '❌ Invalid JSON file. Please ensure the file contains valid JSON.',
+          'Close',
+          {
+            duration: 6000,
+            panelClass: ['error-snackbar']
+          }
+        );
+      } finally {
+        this.isUploadingQuestionnaire = false;
+      }
+    };
+
+    reader.onerror = () => {
+      this.uploadError = 'Failed to read file';
+      this.snackBar.open(
+        '❌ Failed to read file',
+        'Close',
+        {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        }
+      );
+      this.isUploadingQuestionnaire = false;
+    };
+
+    reader.readAsText(file);
+  }
+
+  /**
+   * Delete a custom questionnaire
+   */
+  deleteCustomQuestionnaire(id: string, name: string): void {
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+      return;
+    }
+
+    const success = this.customQuestionnaireService.deleteCustomQuestionnaire(id);
+    
+    if (success) {
+      // Reload custom questionnaires
+      this.loadCustomQuestionnaires();
+      
+      // If the deleted questionnaire was selected, clear selection
+      if (this.selectedForm === id) {
+        this.selectedForm = null;
+      }
+      
+      this.snackBar.open(
+        `✅ Questionnaire "${name}" deleted successfully`,
+        'Close',
+        {
+          duration: 4000,
+          panelClass: ['success-snackbar']
+        }
+      );
+    } else {
+      this.snackBar.open(
+        `❌ Failed to delete questionnaire`,
+        'Close',
+        {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        }
+      );
+    }
+  }
+
+  /**
+   * Delete all custom questionnaires
+   */
+  deleteAllCustomQuestionnaires(): void {
+    if (!confirm('Are you sure you want to delete ALL custom questionnaires? This action cannot be undone.')) {
+      return;
+    }
+
+    const success = this.customQuestionnaireService.deleteAllCustomQuestionnaires();
+    
+    if (success) {
+      this.loadCustomQuestionnaires();
+      
+      if (this.selectedForm && this.customQuestionnaireService.isCustomQuestionnaire(this.selectedForm)) {
+        this.selectedForm = null;
+      }
+      
+      this.snackBar.open(
+        '✅ All custom questionnaires deleted successfully',
+        'Close',
+        {
+          duration: 4000,
+          panelClass: ['success-snackbar']
+        }
+      );
+    } else {
+      this.snackBar.open(
+        '❌ Failed to delete questionnaires',
+        'Close',
+        {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        }
+      );
+    }
   }
 
   onTabChange(index: number): void {
@@ -108,6 +301,17 @@ export class ClinicalFormsComponent implements OnInit {
     // Load questionnaire if it's a questionnaire form
     if (formId && formId.startsWith('questionnaire-')) {
       this.loadQuestionnaire(formId);
+    } else if (formId && this.customQuestionnaireService.isCustomQuestionnaire(formId)) {
+      // Load custom questionnaire
+      this.loadCustomQuestionnaireData(formId);
+    }
+  }
+
+  private loadCustomQuestionnaireData(formId: string): void {
+    const customQ = this.customQuestionnaireService.getCustomQuestionnaire(formId);
+    if (customQ) {
+      // Store it in the questionnaires cache
+      this.questionnaires[formId] = customQ.data;
     }
   }
 
@@ -148,7 +352,7 @@ export class ClinicalFormsComponent implements OnInit {
   }
 
   isQuestionnaireForm(formId: string | null): boolean {
-    return !!(formId && formId.startsWith('questionnaire-'));
+    return !!(formId && (formId.startsWith('questionnaire-') || this.customQuestionnaireService.isCustomQuestionnaire(formId)));
   }
 
   async onFormSubmitted(formData: any): Promise<void> {
@@ -508,7 +712,15 @@ export class ClinicalFormsComponent implements OnInit {
   }
 
   getSelectedFormName(): string {
-    const form = this.availableForms.find(f => f.id === this.selectedForm);
+    const form = this.allAvailableForms.find(f => f.id === this.selectedForm);
     return form ? form.name : 'Unknown Form';
+  }
+
+  /**
+   * Get formatted upload date for a custom questionnaire
+   */
+  getFormattedDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   }
 }

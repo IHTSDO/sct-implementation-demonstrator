@@ -258,3 +258,270 @@
   color: white !important;
   font-size: 0.8rem !important;
 }
+
+/* Manage Questionnaires Tab Styles */
+.manage-tab {
+  padding: 20px 0;
+}
+
+.manage-header {
+  margin-bottom: 30px;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 15px;
+}
+
+.manage-header h4 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin: 0 0 5px 0;
+  font-weight: 500;
+}
+
+.manage-header p {
+  color: #6c757d;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.upload-section {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  border: 2px dashed #dee2e6;
+}
+
+.upload-section h5 {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin: 0 0 10px 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-section h5 mat-icon {
+  color: #1976d2;
+}
+
+.upload-description {
+  color: #6c757d;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.upload-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.upload-controls button {
+  min-width: 150px;
+}
+
+.upload-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.upload-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f44336;
+  font-weight: 500;
+  padding: 8px 12px;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.upload-info {
+  display: flex;
+  gap: 12px;
+  padding: 15px;
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  border-left: 4px solid #1976d2;
+}
+
+.upload-info mat-icon {
+  color: #1976d2;
+  flex-shrink: 0;
+}
+
+.upload-info strong {
+  color: #1976d2;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.upload-info ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #495057;
+}
+
+.upload-info li {
+  margin: 4px 0;
+  line-height: 1.5;
+}
+
+.questionnaires-section {
+  margin-top: 30px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.section-header h5 {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-header h5 mat-icon {
+  color: #6c757d;
+}
+
+.no-questionnaires {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+.no-questionnaires mat-icon {
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+.no-questionnaires p {
+  color: #6c757d;
+  margin: 10px 0;
+  font-size: 1rem;
+}
+
+.no-questionnaires .hint {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #999;
+}
+
+.questionnaires-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.questionnaire-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.questionnaire-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.questionnaire-card mat-card-header {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px 8px 0 0;
+}
+
+.questionnaire-card mat-card-header mat-icon[mat-card-avatar] {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #1976d2;
+}
+
+.questionnaire-card mat-card-title {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.questionnaire-card mat-card-subtitle {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.questionnaire-card mat-card-content {
+  padding: 16px;
+}
+
+.questionnaire-card .description {
+  color: #495057;
+  line-height: 1.5;
+  margin: 0 0 15px 0;
+}
+
+.questionnaire-card .metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.questionnaire-card .metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.questionnaire-card .metadata-item mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.questionnaire-card mat-card-actions {
+  padding: 8px 16px 16px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Responsive design for manage tab */
+@media (max-width: 768px) {
+  .questionnaires-list {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .upload-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upload-controls button {
+    width: 100%;
+  }
+}
