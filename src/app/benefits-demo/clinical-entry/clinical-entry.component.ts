@@ -17,6 +17,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
   @Input() availableConditions: Condition[] = [];
   @Input() availableProcedures: Procedure[] = [];
   @Output() itemAdded = new EventEmitter<any>();
+  @Output() formOpened = new EventEmitter<ClinicalEntryType>();
   @ViewChild('autocompleteBinding') autocompleteBinding: any;
 
   selectedConcept: any;
@@ -75,12 +76,23 @@ export class ClinicalEntryComponent implements AfterViewInit {
     if (!this.showAddForm) {
       this.resetForm();
     } else {
+      // Notify parent that this form was opened
+      this.formOpened.emit(this.entryType);
+      
       // Focus the input field after the form is shown
       setTimeout(() => {
         if (this.autocompleteBinding) {
           this.autocompleteBinding.focus();
         }
       }, 100);
+    }
+  }
+
+  // Method to close the form from outside (called by parent)
+  closeForm() {
+    if (this.showAddForm) {
+      this.showAddForm = false;
+      this.resetForm();
     }
   }
 

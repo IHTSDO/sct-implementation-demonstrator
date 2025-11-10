@@ -588,6 +588,19 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.conditionEntry.toggleAddForm();
   }
 
+  onClinicalEntryFormOpened(entryType: 'condition' | 'procedure' | 'medication'): void {
+    // Close all other forms when one is opened
+    if (entryType !== 'condition' && this.conditionEntry) {
+      this.conditionEntry.closeForm();
+    }
+    if (entryType !== 'procedure' && this.procedureEntry) {
+      this.procedureEntry.closeForm();
+    }
+    if (entryType !== 'medication' && this.medicationEntry) {
+      this.medicationEntry.closeForm();
+    }
+  }
+
   async onConditionAdded(event: any): Promise<void> {
     this.isProcessingNewEvent = true;
     

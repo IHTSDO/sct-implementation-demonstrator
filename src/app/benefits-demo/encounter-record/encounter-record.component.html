@@ -24,17 +24,45 @@
               <span class="field-title">Reason for Encounter</span>
             </div>
             <div class="field-content">
-              <app-autocomplete-binding 
-                [binding]="bindings.reasonForEncounter"
-                [term]="selectedReasonForEncounter?.display || ''"
-                (selectionChange)="onReasonForEncounterSelected($event)">
-              </app-autocomplete-binding>
+              <div class="field-with-info">
+                <app-autocomplete-binding 
+                  [binding]="bindings.reasonForEncounter"
+                  [term]="selectedReasonForEncounter?.display || ''"
+                  (selectionChange)="onReasonForEncounterSelected($event)">
+                </app-autocomplete-binding>
+                <button mat-icon-button 
+                        class="info-button"
+                        [matMenuTriggerFor]="reasonForEncounterMenu"
+                        matTooltip="Click for more information"
+                        matTooltipPosition="above">
+                  <mat-icon>info_outline</mat-icon>
+                </button>
+              </div>
               <div class="selected-concept" *ngIf="selectedReasonForEncounter">
                 <span class="concept-display">{{ selectedReasonForEncounter.display }}</span>
                 <span class="concept-code">{{ selectedReasonForEncounter.code }}</span>
               </div>
             </div>
           </div>
+
+          <!-- Reason for Encounter Info Menu -->
+          <mat-menu #reasonForEncounterMenu="matMenu" class="info-menu">
+            <div class="info-popover" (click)="$event.stopPropagation()">
+              <h3>Reason for Encounter</h3>
+              <p>
+                The Reason for Encounter field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
+              </p>
+              <p>
+                Reason for Encounter options are retrieved here using <strong>&lt; 404684003 | Clinical finding | OR &lt; 71388002 | Procedure | OR &lt; 243796009 | Situation with explicit context | OR &lt; 272379006 | Event |</strong>
+              </p>
+              <p>
+                Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
+              </p>
+              <p>
+                If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
+              </p>
+            </div>
+          </mat-menu>
 
           <!-- Row 2: Diagnosis | Diagnosis Note -->
           <div class="form-row">
@@ -44,20 +72,38 @@
             <div class="field-content">
               <div class="diagnosis-row">
                 <div class="diagnosis-field">
-                  <app-autocomplete-binding 
-                    [binding]="bindings.diagnosis"
-                    [term]="selectedDiagnosis?.display || ''"
-                    (selectionChange)="onDiagnosisSelected($event)">
-                  </app-autocomplete-binding>
+                  <div class="field-with-info">
+                    <app-autocomplete-binding 
+                      [binding]="bindings.diagnosis"
+                      [term]="selectedDiagnosis?.display || ''"
+                      (selectionChange)="onDiagnosisSelected($event)">
+                    </app-autocomplete-binding>
+                    <button mat-icon-button 
+                            class="info-button"
+                            [matMenuTriggerFor]="diagnosisMenu"
+                            matTooltip="Click for more information"
+                            matTooltipPosition="above">
+                      <mat-icon>info_outline</mat-icon>
+                    </button>
+                  </div>
                 </div>
                 <div class="diagnosis-note-field">
-                  <mat-form-field class="note-field">
-                    <mat-label>Diagnosis Note</mat-label>
-                    <textarea matInput 
-                              [(ngModel)]="diagnosisNote" 
-                              rows="1" 
-                              placeholder="Free text one line diagnosis note"></textarea>
-                  </mat-form-field>
+                  <div class="field-with-info">
+                    <mat-form-field class="note-field">
+                      <mat-label>Diagnosis Note</mat-label>
+                      <textarea matInput 
+                                [(ngModel)]="diagnosisNote" 
+                                rows="1" 
+                                placeholder="Free text one line diagnosis note"></textarea>
+                    </mat-form-field>
+                    <button mat-icon-button 
+                            class="info-button"
+                            [matMenuTriggerFor]="diagnosisNoteMenu"
+                            matTooltip="Click for more information"
+                            matTooltipPosition="above">
+                      <mat-icon>info_outline</mat-icon>
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="selected-concept" *ngIf="selectedDiagnosis">
@@ -67,6 +113,38 @@
             </div>
           </div>
 
+          <!-- Diagnosis Info Menu -->
+          <mat-menu #diagnosisMenu="matMenu" class="info-menu">
+            <div class="info-popover" (click)="$event.stopPropagation()">
+              <h3>Diagnosis</h3>
+              <p>
+                The Diagnosis field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
+              </p>
+              <p>
+                Diagnosis options are retrieved here using <strong>&lt; 404684003 | Clinical finding |</strong>
+              </p>
+              <p>
+                Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
+              </p>
+              <p>
+                If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
+              </p>
+            </div>
+          </mat-menu>
+
+          <!-- Diagnosis Note Info Menu -->
+          <mat-menu #diagnosisNoteMenu="matMenu" class="info-menu">
+            <div class="info-popover" (click)="$event.stopPropagation()">
+              <h3>Diagnosis Note</h3>
+              <p>
+                The Diagnosis Note field allows a user to qualify the SNOMED CT concept in the Diagnosis field. In other words, to add more detail to the SNOMED CT concept if necessary.
+              </p>
+              <p>
+                This field is one example of how to deal with a SNOMED CT concept that might not be specific enough. This approach allows the user to choose the closest available SNOMED CT concept and then provide the extra details that are necessary.
+              </p>
+            </div>
+          </mat-menu>
+
           <!-- Row 3: Procedure | Laterality -->
           <div class="form-row">
             <div class="field-label">
@@ -75,23 +153,41 @@
             <div class="field-content">
               <div class="procedure-row">
                 <div class="procedure-field">
-                  <app-autocomplete-binding 
-                    [binding]="bindings.procedure"
-                    [term]="selectedProcedure?.display || ''"
-                    (selectionChange)="onProcedureSelected($event)">
-                  </app-autocomplete-binding>
+                  <div class="field-with-info">
+                    <app-autocomplete-binding 
+                      [binding]="bindings.procedure"
+                      [term]="selectedProcedure?.display || ''"
+                      (selectionChange)="onProcedureSelected($event)">
+                    </app-autocomplete-binding>
+                    <button mat-icon-button 
+                            class="info-button"
+                            [matMenuTriggerFor]="procedureMenu"
+                            matTooltip="Click for more information"
+                            matTooltipPosition="above">
+                      <mat-icon>info_outline</mat-icon>
+                    </button>
+                  </div>
                 </div>
                 <div class="laterality-field">
-                  <mat-form-field class="laterality-select">
-                    <mat-label>Laterality</mat-label>
-                    <mat-select [(value)]="procedureLaterality" 
-                               placeholder="Select laterality"
-                               [disabled]="!isLateralityEnabled">
-                      <mat-option *ngFor="let option of lateralityOptions" [value]="option.value">
-                        {{ option.display }}
-                      </mat-option>
-                    </mat-select>
-                  </mat-form-field>
+                  <div class="field-with-info">
+                    <mat-form-field class="laterality-select">
+                      <mat-label>Laterality</mat-label>
+                      <mat-select [(value)]="procedureLaterality" 
+                                 placeholder="Select laterality"
+                                 [disabled]="!isLateralityEnabled">
+                        <mat-option *ngFor="let option of lateralityOptions" [value]="option.value">
+                          {{ option.display }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button 
+                            class="info-button"
+                            [matMenuTriggerFor]="lateralityMenu"
+                            matTooltip="Click for more information"
+                            matTooltipPosition="above">
+                      <mat-icon>info_outline</mat-icon>
+                    </button>
+                  </div>
                   <div class="laterality-hint" *ngIf="!isLateralityEnabled">
                     <small>Laterality not applicable for this procedure</small>
                   </div>
@@ -103,6 +199,53 @@
               </div>
             </div>
           </div>
+
+          <!-- Procedure Info Menu -->
+          <mat-menu #procedureMenu="matMenu" class="info-menu">
+            <div class="info-popover" (click)="$event.stopPropagation()">
+              <h3>Procedure</h3>
+              <p>
+                The Procedure field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
+              </p>
+              <p>
+                Procedure options are retrieved here using <strong>&lt; 71388002 | Procedure |</strong>
+              </p>
+              <p>
+                Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
+              </p>
+              <p>
+                If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
+              </p>
+              <p>
+                This field is an example of where you might use the <strong>modelling</strong> in a SNOMED CT concept to pre-populate or enable other fields. The Laterality field will pre-populate if you select a concept whose procedure site has been modelled with a laterality (e.g. 735085002 | Excision of left breast lump |).
+              </p>
+              <p>
+                The laterality will also become enabled for user input when a concept has a procedure site, but no laterality has been specified (e.g. 392021009 | Lumpectomy of breast |). This will be further refined to restrict enablement to procedure sites in the SNOMED CT lateralisable concept reference set.
+              </p>
+            </div>
+          </mat-menu>
+
+          <!-- Laterality Info Menu -->
+          <mat-menu #lateralityMenu="matMenu" class="info-menu">
+            <div class="info-popover" (click)="$event.stopPropagation()">
+              <h3>Laterality</h3>
+              <p>
+                The Laterality field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
+              </p>
+              <p>
+                Laterality options are retrieved here using <strong>&lt; 182353008 | Side |</strong>
+              </p>
+              <p>
+                This field is an example of a field that is populated based on the <strong>modelling</strong> of a concept in another field. The Procedure field controls the enablement and available choices of this Laterality field.
+              </p>
+              <p>
+                The Laterality field will pre-populate if you select a procedure concept whose procedure site has been modelled with a laterality (e.g. 735085002 | Excision of left breast lump |).
+              </p>
+              <p>
+                The laterality will also become enabled for user input when a procedure concept has a procedure site, but no laterality has been specified (e.g. 392021009 | Lumpectomy of breast |). This will be further refined to restrict enablement to procedure sites in the SNOMED CT lateralisable concept reference set.
+              </p>
+            </div>
+          </mat-menu>
 
         <!-- Bottom Section - Encounter Notes -->
         <div class="form-bottom">

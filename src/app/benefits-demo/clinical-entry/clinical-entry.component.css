@@ -31,6 +31,105 @@
   min-width: 0; /* Allows flex item to shrink below its content size */
 }
 
+/* Info Button and Field with Info Container */
+.field-with-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.field-with-info app-autocomplete-binding {
+  flex: 1;
+}
+
+.info-button {
+  flex-shrink: 0;
+  margin-top: 8px;
+  width: 32px;
+  height: 32px;
+  color: #1976d2;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.info-button:hover {
+  opacity: 1;
+  background-color: rgba(25, 118, 210, 0.08);
+  transform: scale(1.05);
+}
+
+.info-button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Info Popover Menu Styling */
+::ng-deep .mat-mdc-menu-panel.info-menu {
+  max-width: 600px !important;
+  min-width: 450px !important;
+}
+
+.info-popover {
+  padding: 20px;
+  max-width: 600px;
+  background: white;
+  cursor: default;
+}
+
+.info-popover h3 {
+  margin: 0 0 16px 0;
+  color: #1976d2;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: 8px;
+}
+
+.info-popover p {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.info-popover p:last-child {
+  margin-bottom: 0;
+}
+
+.info-popover strong {
+  color: #1976d2;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  background: #e3f2fd;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.info-popover .ecl-expression {
+  background: #f5f5f5;
+  border-left: 3px solid #1976d2;
+  padding: 12px;
+  margin: 12px 0;
+  border-radius: 4px;
+}
+
+.info-popover .ecl-expression strong {
+  display: block;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
 .association-section {
   flex: 1;
   min-width: 200px;
@@ -76,5 +175,24 @@
   
   .action-section button {
     width: 100%;
+  }
+
+  /* Info button responsive adjustments */
+  ::ng-deep .mat-mdc-menu-panel.info-menu {
+    max-width: 90vw !important;
+    min-width: 300px !important;
+  }
+
+  .info-popover {
+    padding: 16px;
+    max-width: 90vw;
+  }
+
+  .info-popover h3 {
+    font-size: 16px;
+  }
+
+  .info-popover p {
+    font-size: 13px;
   }
 }

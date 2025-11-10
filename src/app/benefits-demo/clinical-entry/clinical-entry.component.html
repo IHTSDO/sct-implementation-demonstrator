@@ -8,12 +8,21 @@
     <div class="form-content">
       <div class="input-row">
         <div class="search-section">
-          <app-autocomplete-binding 
-            #autocompleteBinding
-            [binding]="currentBinding" 
-            [term]="term" 
-            (selectionChange)="updateConcept($event)">
-          </app-autocomplete-binding>
+          <div class="field-with-info">
+            <app-autocomplete-binding 
+              #autocompleteBinding
+              [binding]="currentBinding" 
+              [term]="term" 
+              (selectionChange)="updateConcept($event)">
+            </app-autocomplete-binding>
+            <button mat-icon-button 
+                    class="info-button"
+                    [matMenuTriggerFor]="entryInfoMenu"
+                    matTooltip="Click for more information about this field"
+                    matTooltipPosition="above">
+              <mat-icon>info_outline</mat-icon>
+            </button>
+          </div>
         </div>
         
         <!-- Association dropdown for medications -->
@@ -48,4 +57,29 @@
       </div>
     </div>
   </div>
+
+  <!-- Info Menu for Clinical Entry -->
+  <mat-menu #entryInfoMenu="matMenu" class="info-menu">
+    <div class="info-popover" (click)="$event.stopPropagation()">
+      <h3>{{ sectionTitle.replace('Add ', '') }} - Terminology Binding</h3>
+      <p>
+        This field uses SNOMED CT Expression Constraint Language (ECL) to retrieve options from a FHIR-based SNOMED CT terminology server.
+      </p>
+      <p>
+        The ECL expression used for this binding is:
+      </p>
+      <p class="ecl-expression">
+        <strong>{{ currentBinding.ecl }}</strong>
+      </p>
+      <p>
+        Options are filtered based on user input and the field is implemented with an auto-complete component to limit user typing and improve the selection experience.
+      </p>
+      <p>
+        If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
+      </p>
+      <p *ngIf="entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)">
+        <em>Note: You can associate this medication with an existing condition or procedure by selecting the reason for indication from the dropdown.</em>
+      </p>
+    </div>
+  </mat-menu>
 </div>

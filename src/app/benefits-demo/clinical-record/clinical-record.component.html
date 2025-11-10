@@ -287,7 +287,8 @@
                   [patientId]="patient.id" 
                   entryType="condition"
                   [hideButton]="true"
-                  (itemAdded)="onConditionAdded($event)">
+                  (itemAdded)="onConditionAdded($event)"
+                  (formOpened)="onClinicalEntryFormOpened($event)">
                 </app-clinical-entry>
                 
                 <app-clinical-entry 
@@ -295,7 +296,8 @@
                   [patientId]="patient.id" 
                   entryType="procedure"
                   [hideButton]="true"
-                  (itemAdded)="onProcedureAdded($event)">
+                  (itemAdded)="onProcedureAdded($event)"
+                  (formOpened)="onClinicalEntryFormOpened($event)">
                 </app-clinical-entry>
                 
                 <app-clinical-entry 
@@ -305,7 +307,8 @@
                   [availableConditions]="conditions"
                   [availableProcedures]="procedures"
                   [hideButton]="true"
-                  (itemAdded)="onMedicationAdded($event)">
+                  (itemAdded)="onMedicationAdded($event)"
+                  (formOpened)="onClinicalEntryFormOpened($event)">
                 </app-clinical-entry>
               </div>
             </div>
