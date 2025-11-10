@@ -352,11 +352,42 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Check if a condition already exists in the patient's records
+   */
+  isConditionAlreadyRecorded(condition: any): boolean {
+    if (!this.linkedPatient || this.existingConditions.length === 0) {
+      return false;
+    }
+
+    const snomedCode = this.patientService.extractSnomedCode(condition);
+    if (!snomedCode) {
+      // If no SNOMED code, check by text similarity
+      const conditionText = condition.code?.text || '';
+      return this.existingConditions.some(existing => {
+        const existingText = existing.code?.text || '';
+        return this.simpleTextSimilarity(conditionText, existingText) > 0.9;
+      });
+    }
+
+    // Check if SNOMED code already exists
+    return this.existingConditions.some(existing => {
+      const existingCode = this.patientService.extractSnomedCode(existing);
+      return existingCode === snomedCode;
+    });
+  }
+
+  /**
    * Add a condition from IPS to the selection by clicking on it
    */
   addConditionFromIPS(conditionId: string): void {
     if (!this.linkedPatient) {
       return;
+    }
+
+    // Find the condition to check if it's already recorded
+    const condition = this.patientData?.conditions.find(c => c.id === conditionId);
+    if (condition && this.isConditionAlreadyRecorded(condition)) {
+      return; // Don't allow adding if already recorded
     }
 
     // Toggle selection
@@ -387,9 +418,47 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Check if there are available conditions to add (not already recorded)
+   */
+  hasAvailableConditions(): boolean {
+    if (!this.patientData?.conditions || !this.linkedPatient) {
+      return false;
+    }
+    
+    return this.patientData.conditions.some(condition => 
+      !this.isConditionAlreadyRecorded(condition)
+    );
+  }
+
   // ========================================
   // Medications Methods
   // ========================================
+
+  /**
+   * Check if a medication already exists in the patient's records
+   */
+  isMedicationAlreadyRecorded(medication: any): boolean {
+    if (!this.linkedPatient || this.existingMedications.length === 0) {
+      return false;
+    }
+
+    const snomedCode = this.patientService.extractSnomedCode(medication);
+    if (!snomedCode) {
+      // If no SNOMED code, check by text similarity
+      const medicationText = medication.medicationCodeableConcept?.text || '';
+      return this.existingMedications.some(existing => {
+        const existingText = existing.medicationCodeableConcept?.text || '';
+        return this.simpleTextSimilarity(medicationText, existingText) > 0.9;
+      });
+    }
+
+    // Check if SNOMED code already exists
+    return this.existingMedications.some(existing => {
+      const existingCode = this.patientService.extractSnomedCode(existing);
+      return existingCode === snomedCode;
+    });
+  }
 
   /**
    * Add a medication from IPS to the selection by clicking on it
@@ -397,6 +466,12 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   addMedicationFromIPS(medicationId: string): void {
     if (!this.linkedPatient) {
       return;
+    }
+
+    // Find the medication to check if it's already recorded
+    const medication = this.patientData?.medications.find(m => m.id === medicationId);
+    if (medication && this.isMedicationAlreadyRecorded(medication)) {
+      return; // Don't allow adding if already recorded
     }
 
     // Toggle selection
@@ -427,9 +502,47 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Check if there are available medications to add (not already recorded)
+   */
+  hasAvailableMedications(): boolean {
+    if (!this.patientData?.medications || !this.linkedPatient) {
+      return false;
+    }
+    
+    return this.patientData.medications.some(medication => 
+      !this.isMedicationAlreadyRecorded(medication)
+    );
+  }
+
   // ========================================
   // Allergies Methods
   // ========================================
+
+  /**
+   * Check if an allergy already exists in the patient's records
+   */
+  isAllergyAlreadyRecorded(allergy: any): boolean {
+    if (!this.linkedPatient || this.existingAllergies.length === 0) {
+      return false;
+    }
+
+    const snomedCode = this.patientService.extractSnomedCode(allergy);
+    if (!snomedCode) {
+      // If no SNOMED code, check by text similarity
+      const allergyText = allergy.code?.text || '';
+      return this.existingAllergies.some(existing => {
+        const existingText = existing.code?.text || '';
+        return this.simpleTextSimilarity(allergyText, existingText) > 0.9;
+      });
+    }
+
+    // Check if SNOMED code already exists
+    return this.existingAllergies.some(existing => {
+      const existingCode = this.patientService.extractSnomedCode(existing);
+      return existingCode === snomedCode;
+    });
+  }
 
   /**
    * Add an allergy from IPS to the selection by clicking on it
@@ -437,6 +550,12 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   addAllergyFromIPS(allergyId: string): void {
     if (!this.linkedPatient) {
       return;
+    }
+
+    // Find the allergy to check if it's already recorded
+    const allergy = this.patientData?.allergies.find(a => a.id === allergyId);
+    if (allergy && this.isAllergyAlreadyRecorded(allergy)) {
+      return; // Don't allow adding if already recorded
     }
 
     // Toggle selection
@@ -464,6 +583,19 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     
     return this.patientData.allergies.filter(allergy => 
       this.selectedAllergies.has(allergy.id)
+    );
+  }
+
+  /**
+   * Check if there are available allergies to add (not already recorded)
+   */
+  hasAvailableAllergies(): boolean {
+    if (!this.patientData?.allergies || !this.linkedPatient) {
+      return false;
+    }
+    
+    return this.patientData.allergies.some(allergy => 
+      !this.isAllergyAlreadyRecorded(allergy)
     );
   }
 
@@ -660,7 +792,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Initialize selections (select all by default)
+   * Initialize selections (select all by default, except already recorded items)
    */
   private initializeSelections(): void {
     this.selectedConditions.clear();
@@ -669,9 +801,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.selectedAllergies.clear();
 
     if (this.patientData) {
-      // Select all conditions by default
+      // Select all conditions by default (except already recorded)
       this.patientData.conditions.forEach(condition => {
-        this.selectedConditions.add(condition.id);
+        if (!this.isConditionAlreadyRecorded(condition)) {
+          this.selectedConditions.add(condition.id);
+        }
       });
 
       // Select all procedures by default
@@ -679,14 +813,18 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         this.selectedProcedures.add(procedure.id);
       });
 
-      // Select all medications by default
+      // Select all medications by default (except already recorded)
       this.patientData.medications.forEach(medication => {
-        this.selectedMedications.add(medication.id);
+        if (!this.isMedicationAlreadyRecorded(medication)) {
+          this.selectedMedications.add(medication.id);
+        }
       });
 
-      // Select all allergies by default
+      // Select all allergies by default (except already recorded)
       this.patientData.allergies.forEach(allergy => {
-        this.selectedAllergies.add(allergy.id);
+        if (!this.isAllergyAlreadyRecorded(allergy)) {
+          this.selectedAllergies.add(allergy.id);
+        }
       });
     }
   }

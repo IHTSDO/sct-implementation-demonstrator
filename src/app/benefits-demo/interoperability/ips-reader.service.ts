@@ -178,7 +178,16 @@ export class IPSReaderService {
         result.patient = resource as Patient;
         break;
       case 'Condition':
-        result.conditions.push(resource as Condition);
+        const condition = resource as Condition;
+        
+        // Filter out "absent or unknown" conditions (special IPS negation statements)
+        const isAbsentCondition = condition.code?.coding?.some(coding => 
+          coding.system === 'http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips'
+        );
+        
+        if (!isAbsentCondition) {
+          result.conditions.push(condition);
+        }
         break;
       case 'Procedure':
         result.procedures.push(resource as Procedure);
@@ -186,18 +195,38 @@ export class IPSReaderService {
       case 'MedicationStatement':
         const medicationStatement = resource as MedicationStatement;
         
+        // Check for "absent or unknown" medication statements
+        let isAbsentMedication = false;
+        if (medicationStatement.medicationCodeableConcept?.coding) {
+          isAbsentMedication = medicationStatement.medicationCodeableConcept.coding.some(coding => 
+            coding.system === 'http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips'
+          );
+        }
+        
+        // Skip absent/unknown medications
+        if (isAbsentMedication) {
+          break;
+        }
+        
         // If the medication uses a reference, resolve it to get the actual medication data
         if (medicationStatement.medicationReference && medicationMap) {
           const medicationId = this.extractIdFromReference(medicationStatement.medicationReference.reference);
           const medication = medicationMap.get(medicationId);
           
           if (medication && medication.code) {
-            // Create a copy with medicationCodeableConcept for easier display
-            const enhancedMedicationStatement = {
-              ...medicationStatement,
-              medicationCodeableConcept: medication.code
-            };
-            result.medications.push(enhancedMedicationStatement);
+            // Check if the referenced medication is also an absent/unknown concept
+            const isAbsentReferencedMed = medication.code?.coding?.some((coding: any) => 
+              coding.system === 'http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips'
+            );
+            
+            if (!isAbsentReferencedMed) {
+              // Create a copy with medicationCodeableConcept for easier display
+              const enhancedMedicationStatement = {
+                ...medicationStatement,
+                medicationCodeableConcept: medication.code
+              };
+              result.medications.push(enhancedMedicationStatement);
+            }
           } else {
             result.medications.push(medicationStatement);
           }
@@ -206,7 +235,16 @@ export class IPSReaderService {
         }
         break;
       case 'AllergyIntolerance':
-        result.allergies.push(resource as AllergyIntolerance);
+        const allergyIntolerance = resource as AllergyIntolerance;
+        
+        // Filter out "absent or unknown" allergies (special IPS negation statements)
+        const isAbsentOrUnknown = allergyIntolerance.code?.coding?.some(coding => 
+          coding.system === 'http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips'
+        );
+        
+        if (!isAbsentOrUnknown) {
+          result.allergies.push(allergyIntolerance);
+        }
         break;
     }
   }

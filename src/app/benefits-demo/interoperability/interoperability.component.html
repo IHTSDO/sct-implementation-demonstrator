@@ -153,7 +153,7 @@
               </div>
               <div *ngIf="linkedPatient" class="linked-patient-info">
                 <mat-icon class="success-icon">check_circle</mat-icon>
-                <span>Successfully linked to: {{ getPatientDisplayName(linkedPatient) }}</span>
+                <span>Linking IPS data to: {{ getPatientDisplayName(linkedPatient) }}</span>
               </div>
             </mat-card-content>
           </mat-card>
@@ -177,7 +177,7 @@
                   <strong>Name:</strong> {{ getPatientName() }}
                 </div>
                 <div class="info-item">
-                  <strong>Date of Birth:</strong> {{ getPatientBirthDate() }}
+                  <strong>Date of Birth:</strong> {{ patientData?.patient?.birthDate | date:'mediumDate' }}
                 </div>
                 <div class="info-item">
                   <strong>Gender:</strong> {{ getPatientGender() }}
@@ -207,7 +207,7 @@
                   <strong>Name:</strong> {{ getPatientDisplayName(linkedPatient) }}
                 </div>
                 <div class="info-item">
-                  <strong>Date of Birth:</strong> {{ linkedPatient.birthDate }}
+                  <strong>Date of Birth:</strong> {{ linkedPatient.birthDate | date:'mediumDate' }}
                 </div>
                 <div class="info-item">
                   <strong>Gender:</strong> {{ linkedPatient.gender | titlecase }}
@@ -239,15 +239,20 @@
               <div class="data-list">
                 <div *ngFor="let condition of patientData?.conditions" 
                      class="data-item clickable-item"
-                     [class.selected-item]="isConditionAdded(condition.id)"
+                     [class.selected-item]="isConditionAdded(condition.id) && !isConditionAlreadyRecorded(condition)"
                      [class.disabled-item]="!linkedPatient"
-                     (click)="linkedPatient && addConditionFromIPS(condition.id)">
+                     [class.already-recorded-item]="linkedPatient && isConditionAlreadyRecorded(condition)"
+                     (click)="linkedPatient && !isConditionAlreadyRecorded(condition) && addConditionFromIPS(condition.id)">
                   <div class="item-header">
-                    <mat-icon class="add-icon" *ngIf="linkedPatient">
+                    <mat-icon class="add-icon" *ngIf="linkedPatient && !isConditionAlreadyRecorded(condition)">
                       {{ isConditionAdded(condition.id) ? 'check_circle' : 'add_circle_outline' }}
                     </mat-icon>
+                    <mat-icon class="add-icon recorded-icon" *ngIf="linkedPatient && isConditionAlreadyRecorded(condition)">
+                      verified
+                    </mat-icon>
                     <span class="item-title">{{ ipsReaderService.getConditionDisplay(condition) }}</span>
-                    <span class="item-status">{{ ipsReaderService.getConditionStatus(condition) }}</span>
+                    <span class="item-status" *ngIf="!isConditionAlreadyRecorded(condition)">{{ ipsReaderService.getConditionStatus(condition) }}</span>
+                    <span class="already-recorded-badge" *ngIf="linkedPatient && isConditionAlreadyRecorded(condition)">Already Recorded</span>
                   </div>
                   <div class="item-details">
                     <span *ngIf="condition.onsetDateTime" class="detail-item">
@@ -281,9 +286,15 @@
               </div>
               
               <div *ngIf="linkedPatient" class="merge-controls">
-                <p class="merge-hint">
+                <p class="merge-hint" *ngIf="hasAvailableConditions()">
                   <mat-icon>info</mat-icon>
                   Click on conditions in the left panel to add them here
+                </p>
+
+                <!-- All items already recorded message -->
+                <p class="all-recorded-message" *ngIf="!hasAvailableConditions() && existingConditions.length > 0">
+                  <mat-icon>check_circle</mat-icon>
+                  All IPS conditions are already recorded
                 </p>
 
                 <!-- Selected IPS Conditions (New - shown first) -->
@@ -436,15 +447,20 @@
               <div class="data-list">
                 <div *ngFor="let medication of patientData?.medications" 
                      class="data-item clickable-item"
-                     [class.selected-item]="isMedicationAdded(medication.id)"
+                     [class.selected-item]="isMedicationAdded(medication.id) && !isMedicationAlreadyRecorded(medication)"
                      [class.disabled-item]="!linkedPatient"
-                     (click)="linkedPatient && addMedicationFromIPS(medication.id)">
+                     [class.already-recorded-item]="linkedPatient && isMedicationAlreadyRecorded(medication)"
+                     (click)="linkedPatient && !isMedicationAlreadyRecorded(medication) && addMedicationFromIPS(medication.id)">
                   <div class="item-header">
-                    <mat-icon class="add-icon" *ngIf="linkedPatient">
+                    <mat-icon class="add-icon" *ngIf="linkedPatient && !isMedicationAlreadyRecorded(medication)">
                       {{ isMedicationAdded(medication.id) ? 'check_circle' : 'add_circle_outline' }}
                     </mat-icon>
+                    <mat-icon class="add-icon recorded-icon" *ngIf="linkedPatient && isMedicationAlreadyRecorded(medication)">
+                      verified
+                    </mat-icon>
                     <span class="item-title">{{ ipsReaderService.getMedicationDisplay(medication) }}</span>
-                    <span class="item-status">{{ ipsReaderService.getMedicationStatus(medication) }}</span>
+                    <span class="item-status" *ngIf="!isMedicationAlreadyRecorded(medication)">{{ ipsReaderService.getMedicationStatus(medication) }}</span>
+                    <span class="already-recorded-badge" *ngIf="linkedPatient && isMedicationAlreadyRecorded(medication)">Already Recorded</span>
                   </div>
                   <div class="item-details">
                     <span class="detail-item">
@@ -478,9 +494,15 @@
               </div>
               
               <div *ngIf="linkedPatient" class="merge-controls">
-                <p class="merge-hint">
+                <p class="merge-hint" *ngIf="hasAvailableMedications()">
                   <mat-icon>info</mat-icon>
                   Click on medications in the left panel to add them here
+                </p>
+
+                <!-- All items already recorded message -->
+                <p class="all-recorded-message" *ngIf="!hasAvailableMedications() && existingMedications.length > 0">
+                  <mat-icon>check_circle</mat-icon>
+                  All IPS medications are already recorded
                 </p>
 
                 <!-- Selected IPS Medications (New - shown first) -->
@@ -552,17 +574,22 @@
               <div class="data-list">
                 <div *ngFor="let allergy of patientData?.allergies" 
                      class="data-item clickable-item"
-                     [class.selected-item]="isAllergyAdded(allergy.id)"
+                     [class.selected-item]="isAllergyAdded(allergy.id) && !isAllergyAlreadyRecorded(allergy)"
                      [class.disabled-item]="!linkedPatient"
-                     (click)="linkedPatient && addAllergyFromIPS(allergy.id)">
+                     [class.already-recorded-item]="linkedPatient && isAllergyAlreadyRecorded(allergy)"
+                     (click)="linkedPatient && !isAllergyAlreadyRecorded(allergy) && addAllergyFromIPS(allergy.id)">
                   <div class="item-header">
-                    <mat-icon class="add-icon" *ngIf="linkedPatient">
+                    <mat-icon class="add-icon" *ngIf="linkedPatient && !isAllergyAlreadyRecorded(allergy)">
                       {{ isAllergyAdded(allergy.id) ? 'check_circle' : 'add_circle_outline' }}
                     </mat-icon>
+                    <mat-icon class="add-icon recorded-icon" *ngIf="linkedPatient && isAllergyAlreadyRecorded(allergy)">
+                      verified
+                    </mat-icon>
                     <span class="item-title">{{ ipsReaderService.getAllergyDisplay(allergy) }}</span>
-                    <span class="item-status severity-{{ allergy.criticality || 'unknown' }}">
+                    <span class="item-status severity-{{ allergy.criticality || 'unknown' }}" *ngIf="!isAllergyAlreadyRecorded(allergy)">
                       {{ ipsReaderService.getAllergySeverity(allergy) }}
                     </span>
+                    <span class="already-recorded-badge" *ngIf="linkedPatient && isAllergyAlreadyRecorded(allergy)">Already Recorded</span>
                   </div>
                   <div class="item-details">
                     <span *ngIf="allergy.onsetDateTime" class="detail-item">
@@ -602,9 +629,15 @@
               </div>
               
               <div *ngIf="linkedPatient" class="merge-controls">
-                <p class="merge-hint">
+                <p class="merge-hint" *ngIf="hasAvailableAllergies()">
                   <mat-icon>info</mat-icon>
                   Click on allergies in the left panel to add them here
+                </p>
+
+                <!-- All items already recorded message -->
+                <p class="all-recorded-message" *ngIf="!hasAvailableAllergies() && existingAllergies.length > 0">
+                  <mat-icon>check_circle</mat-icon>
+                  All IPS allergies are already recorded
                 </p>
 
                 <!-- Selected IPS Allergies (New - shown first) -->
