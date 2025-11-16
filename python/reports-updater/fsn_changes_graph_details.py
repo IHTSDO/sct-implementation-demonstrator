@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import numpy as np
 from matplotlib import cm
 from halo import Halo
-from ci_utils import is_ci
+from ci_utils import is_ci, convert_numpy_types
 
 def generate_fsn_changes_report(
     fsn_changes_data_path: str,
@@ -131,7 +131,9 @@ def generate_fsn_changes_report(
     # --- Generate JSON for HTML ---
     spinner.start("Generating Plotly JSON...")
     # Use json.dumps to ensure arrays are serialized as JSON arrays, not binary format
-    fig_json = json.dumps(fig.to_dict())
+    # Convert NumPy types to native Python types for JSON serialization
+    fig_dict = convert_numpy_types(fig.to_dict())
+    fig_json = json.dumps(fig_dict)
     spinner.succeed("Plotly JSON generated.")
 
     # --- HTML Template ---
