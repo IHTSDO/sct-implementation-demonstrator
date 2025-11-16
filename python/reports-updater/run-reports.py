@@ -13,22 +13,23 @@ from new_concepts import detect_new_concepts
 from new_concepts_graph_details import generate_new_concepts_report
 from file_locator import getFilePath
 from syndication_downloader import download_latest_international
+from ci_utils import is_ci, log
 
 def main():
     # ------------------------------------------------------------------
     # 1. Descargar y extraer release SNOMED (vía syndication feed)
     # ------------------------------------------------------------------
-    print("------------------------------------------------------")
-    print("🔽 Downloading and extracting latest SNOMED International release...")
-    print("------------------------------------------------------")
+    log("------------------------------------------------------")
+    log("🔽 Downloading and extracting latest SNOMED International release...")
+    log("------------------------------------------------------")
 
     root_folder = download_latest_international("data")
-    print(f"Using release folder: {root_folder}")
+    log(f"Using release folder: {root_folder}")
 
     # ------------------------------------------------------------------
     # 2. Localizar archivos RF2
     # ------------------------------------------------------------------
-    print('Locating files in:', root_folder)
+    log(f'Locating files in: {root_folder}')
     concept_full_path = getFilePath(root_folder, "concept", "full")
     concept_snapshot_path = getFilePath(root_folder, "concept", "snapshot")
     description_full_path = getFilePath(root_folder, "description", "full")
@@ -57,9 +58,9 @@ def main():
     # ------------------------------------------------------------------
     # 4. Generar reportes
     # ------------------------------------------------------------------
-    print("------------------------------------------------------")
-    print("🧮 Running SNOMED analytics pipeline...")
-    print("------------------------------------------------------")
+    log("------------------------------------------------------")
+    log("🧮 Running SNOMED analytics pipeline...")
+    log("------------------------------------------------------")
 
     detect_inactivations(
         concept_full_path,
@@ -84,11 +85,11 @@ def main():
     )
     generate_new_concepts_report(new_concepts_xlsx, new_concepts_html, 1500)
 
-    print("------------------------------------------------------")
+    log("------------------------------------------------------")
     print("✅ All reports generated successfully!")
     print(f"   Excel files: {output_dir}")
     print(f"   HTML files:  {assets_dir}")
-    print("------------------------------------------------------")
+    log("------------------------------------------------------")
 
 
 if __name__ == "__main__":

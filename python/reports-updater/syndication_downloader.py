@@ -3,6 +3,7 @@ import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from download_and_extract import download_and_extract_snomed
+from ci_utils import is_ci, log
 
 ATOM_NS = {"atom": "http://www.w3.org/2005/Atom"}
 NCTS_NS = {"ncts": "http://ns.electronichealth.net.au/ncts/syndication/asf/extensions/1.0.0"}
@@ -20,7 +21,7 @@ def get_latest_international_release(feed_url="https://mlds.ihtsdotools.org/api/
     Note: The feed itself is public and doesn't require authentication.
     Authentication is only needed when downloading the actual ZIP files.
     """
-    print("Fetching syndication feed (public access)...")
+    log("Fetching syndication feed (public access)...")
     
     # The feed is public, no authentication needed
     response = requests.get(feed_url)
@@ -90,11 +91,11 @@ def get_latest_international_release(feed_url="https://mlds.ihtsdotools.org/api/
     entries.sort(key=sort_key, reverse=True)
     latest = entries[0]
 
-    print(f"✓ Latest International Edition: {latest['title']}")
-    print(f"  Published: {latest.get('published', 'N/A')}")
-    print(f"  Version: {latest['content_version']}")
-    print(f"  Package Type: {latest['category']}")
-    print(f"  Download URL: {latest['zip_url'][:80]}...")
+    log(f"✓ Latest International Edition: {latest['title']}")
+    log(f"  Published: {latest.get('published', 'N/A')}")
+    log(f"  Version: {latest['content_version']}")
+    log(f"  Package Type: {latest['category']}")
+    log(f"  Download URL: {latest['zip_url'][:80]}...")
     
     return latest["zip_url"], latest["title"]
 
@@ -115,12 +116,12 @@ def download_latest_international(download_dir="data"):
             "Note: Credentials are needed to download the ZIP files (not for reading the feed)."
         )
     
-    print(f"📋 Credentials found for: {user}")
-    print()
+    log(f"📋 Credentials found for: {user}")
+    log("")
     
     zip_url, title = get_latest_international_release()
-    print()
-    print(f"📥 Downloading SNOMED International Edition: {title}")
+    log("")
+    log(f"📥 Downloading SNOMED International Edition: {title}")
     root_folder = download_and_extract_snomed(zip_url, output_dir=download_dir)
     return root_folder
 

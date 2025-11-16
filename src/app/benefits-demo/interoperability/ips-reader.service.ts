@@ -221,9 +221,17 @@ export class IPSReaderService {
             
             if (!isAbsentReferencedMed) {
               // Create a copy with medicationCodeableConcept for easier display
+              // Clean FHIR extensions from coding (like _display) that may cause issues
+              const cleanMedicationCode = this.cleanCodeableConceptExtensions(medication.code);
+              
+              // Ensure text field exists - use first coding display if not present
+              if (!cleanMedicationCode.text && cleanMedicationCode.coding && cleanMedicationCode.coding.length > 0) {
+                cleanMedicationCode.text = cleanMedicationCode.coding[0].display || cleanMedicationCode.coding[0].code;
+              }
+              
               const enhancedMedicationStatement = {
                 ...medicationStatement,
-                medicationCodeableConcept: medication.code
+                medicationCodeableConcept: cleanMedicationCode
               };
               result.medications.push(enhancedMedicationStatement);
             }
@@ -460,6 +468,36 @@ export class IPSReaderService {
       }
       return 'Unknown reaction';
     });
+  }
+
+  /**
+   * Clean FHIR extension fields from CodeableConcept (like _display)
+   * These extensions can cause issues when copying data between resources
+   */
+  private cleanCodeableConceptExtensions(codeableConcept: any): any {
+    if (!codeableConcept) {
+      return codeableConcept;
+    }
+
+    const cleanConcept = { ...codeableConcept };
+
+    // Clean coding array if it exists
+    if (cleanConcept.coding && Array.isArray(cleanConcept.coding)) {
+      cleanConcept.coding = cleanConcept.coding.map((coding: any) => {
+        // Create a clean copy without extension fields (fields starting with _)
+        const cleanCoding: any = {};
+        
+        for (const key in coding) {
+          if (!key.startsWith('_')) {
+            cleanCoding[key] = coding[key];
+          }
+        }
+        
+        return cleanCoding;
+      });
+    }
+
+    return cleanConcept;
   }
 
   /**

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+import json
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.io as pio
 from halo import Halo
 import numpy as np
 from matplotlib import cm
 from tqdm import tqdm
+from ci_utils import is_ci
 
 def generate_new_concepts_report(
     input_file="sct-changes-reports/list-new-concepts.xlsx",
@@ -28,8 +29,9 @@ def generate_new_concepts_report(
         Maximum number of example rows to display in the details pop-up when clicking a bar.
         Defaults to 500.
     """
-    print(f"Generating new concepts report...")
-    spinner = Halo(text='Starting new concept chart generation...', spinner='dots')
+    if not is_ci():
+        print(f"Generating new concepts report...")
+    spinner = Halo(text='Starting new concept chart generation...', spinner='dots', enabled=not is_ci())
     spinner.start("Loading the dataset...")
 
     # -------------------------------------------------------------------------
@@ -79,7 +81,7 @@ def generate_new_concepts_report(
     # -------------------------------------------------------------------------
     # 5. Add stacked bar traces
     # -------------------------------------------------------------------------
-    for tag in tqdm(grouped.columns, desc="Processing Semantic Tags", unit="tag"):
+    for tag in tqdm(grouped.columns, desc="Processing Semantic Tags", unit="tag", disable=is_ci()):
         fig.add_trace(
             go.Bar(
                 x=grouped.index.tolist(),
@@ -134,7 +136,8 @@ def generate_new_concepts_report(
     # 7. Generate JSON for the Plotly figure
     # -------------------------------------------------------------------------
     spinner.start("Generating Plotly JSON...")
-    fig_json = pio.to_json(fig)
+    # Use json.dumps to ensure arrays are serialized as JSON arrays, not binary format
+    fig_json = json.dumps(fig.to_dict())
     spinner.succeed("Plotly JSON generated.")
 
     # -------------------------------------------------------------------------

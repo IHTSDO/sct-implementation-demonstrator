@@ -86,6 +86,9 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
       // Build CDS request
       const cdsRequest = this.cdsService.buildCDSRequest(cdsPatient, cdsConditions, cdsMedications, cdsAllergies);
 
+      // Log the request for debugging
+      console.log('CDS Request:', JSON.stringify(cdsRequest, null, 2));
+
       // Submit to CDS service
       this.subscriptions.push(
         this.cdsService.postMedicationOrderSelect(cdsRequest).subscribe({
@@ -205,15 +208,36 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
                             medication.medicationCodeableConcept?.coding?.[0]?.display || 
                             'Unknown medication';
       
-      const isTablet = medicationText.toLowerCase().includes('tablet');
-      const isOral = medicationText.toLowerCase().includes('oral');
+      const textLower = medicationText.toLowerCase();
+      const medicationCode = medication.medicationCodeableConcept?.coding?.[0]?.code;
+      const isTablet = textLower.includes('tablet');
+      const isOral = textLower.includes('oral');
+      
+      // Known tablet medications by SNOMED CT code
+      const knownTabletCodes = [
+        '108774000',  // Product containing anastrozole (medicinal product) - typically 1mg tablet
+        '318352004',  // Propranolol hydrochloride 10 mg oral tablet
+        '327373002'   // Anastrozole 1 mg oral tablet
+      ];
+      
+      // Check if it's likely an oral medication based on various indicators
+      const likelyOral = isOral || isTablet || 
+                        textLower.includes('capsule') ||
+                        textLower.includes('suspension') ||
+                        textLower.includes('solution') ||
+                        textLower.includes('pill') ||
+                        textLower.includes('extract') ||  // herbal extracts are typically oral
+                        (medicationCode === '108774000') || // anastrozole is typically oral
+                        (medicationCode === '412588001');   // black cohosh extract
       
       const doseQuantity: any = { value: 1 };
-      if (isTablet) {
+      if (isTablet || knownTabletCodes.includes(medicationCode || '')) {
         doseQuantity.unit = 'Tablet';
       }
       
-      const route = isOral ? {
+      // Include route if it's oral or likely oral
+      // Use simple format that works with dummy CDS service
+      const route = likelyOral ? {
         coding: [{ code: "", display: "O" }],
         text: "O"
       } : undefined;
@@ -277,42 +301,90 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   }
 
   private convertAllergiesToCdsFormat(allergies: AllergyIntolerance[]): any[] {
-    return allergies.map(allergy => ({
-      resourceType: 'AllergyIntolerance',
-      id: allergy.id || this.generateId(),
-      clinicalStatus: allergy.clinicalStatus || {
-        coding: [{
-          system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical',
-          code: 'active',
-          display: 'Active'
-        }]
-      },
-      verificationStatus: allergy.verificationStatus || {
-        coding: [{
-          system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-verification',
-          code: 'confirmed',
-          display: 'Confirmed'
-        }]
-      },
-      type: allergy.type || 'allergy',
-      category: allergy.category || ['medication'],
-      criticality: allergy.criticality || 'low',
-      code: {
-        coding: [
-          {
-            system: 'http://snomed.info/sct',
-            code: allergy.code?.coding?.[0]?.code || '419199007',
-            display: allergy.code?.coding?.[0]?.display || allergy.code?.text || 'Allergy'
+    return allergies.map(allergy => {
+      // Clean up reaction array - remove empty coding objects
+      const cleanedReactions = (allergy.reaction || []).map((reaction: any) => {
+        const cleanedReaction: any = {};
+        
+        // Only include substance if it has valid coding
+        if (reaction.substance && reaction.substance.length > 0) {
+          const validSubstance = reaction.substance.filter((s: any) => 
+            s.coding && s.coding.length > 0 && s.coding.some((c: any) => c.code)
+          );
+          if (validSubstance.length > 0) {
+            cleanedReaction.substance = validSubstance;
           }
-        ],
-        text: allergy.code?.text || 'Allergy'
-      },
-      patient: {
-        reference: `Patient/${this.patient?.id}`
-      },
-      recordedDate: allergy.recordedDate || new Date().toISOString(),
-      reaction: allergy.reaction || []
-    }));
+        }
+        
+        // Only include manifestation if it has valid coding
+        if (reaction.manifestation && reaction.manifestation.length > 0) {
+          const validManifestation = reaction.manifestation.filter((m: any) => 
+            m.coding && m.coding.length > 0 && m.coding.some((c: any) => c.code)
+          );
+          if (validManifestation.length > 0) {
+            cleanedReaction.manifestation = validManifestation;
+          }
+        }
+        
+        // Only include exposureRoute if it has valid coding
+        if (reaction.exposureRoute?.coding && reaction.exposureRoute.coding.length > 0) {
+          const validCoding = reaction.exposureRoute.coding.filter((c: any) => c.code);
+          if (validCoding.length > 0) {
+            cleanedReaction.exposureRoute = {
+              ...reaction.exposureRoute,
+              coding: validCoding
+            };
+          }
+        }
+        
+        return Object.keys(cleanedReaction).length > 0 ? cleanedReaction : undefined;
+      }).filter((r: any) => r !== undefined);
+
+      return {
+        resourceType: 'AllergyIntolerance',
+        id: allergy.id || this.generateId(),
+        clinicalStatus: allergy.clinicalStatus || {
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical',
+            code: 'active',
+            display: 'Active'
+          }]
+        },
+        verificationStatus: allergy.verificationStatus || {
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-verification',
+            code: 'confirmed',
+            display: 'Confirmed'
+          }]
+        },
+        type: allergy.type || 'allergy',
+        category: this.normalizeAllergyCategory(allergy.category),
+        criticality: allergy.criticality || 'low',
+        code: {
+          coding: [
+            {
+              system: 'http://snomed.info/sct',
+              code: allergy.code?.coding?.[0]?.code || '419199007',
+              display: allergy.code?.coding?.[0]?.display || allergy.code?.text || 'Allergy'
+            }
+          ],
+          text: allergy.code?.text || 'Allergy'
+        },
+        patient: {
+          reference: `Patient/${this.patient?.id}`
+        },
+        recordedDate: allergy.recordedDate || new Date().toISOString(),
+        reaction: cleanedReactions
+      };
+    });
+  }
+
+  private normalizeAllergyCategory(category: any): string[] {
+    if (!category || !Array.isArray(category)) {
+      return ['medication'];
+    }
+    // Normalize to lowercase to ensure consistency
+    return category.map((c: string) => c.toLowerCase());
   }
 
   private processCdsRecommendations(response: CDSResponse): void {

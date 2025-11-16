@@ -5,6 +5,7 @@ from tqdm import tqdm
 from halo import Halo
 import multiprocessing
 from multiprocessing import Pool
+from ci_utils import is_ci
 
 def process_concept_group(args):
     """Process a single concept group to detect inactivations."""
@@ -32,8 +33,9 @@ def detect_inactivations(concept_full_path,
     and writes them out with conceptId, FSN, the effectiveTime when the concept was 
     inactivated, and the inactivation reason to an Excel (.xlsx) file.
     """
-    print("Detecting inactivations...")
-    spinner = Halo(text='Starting inactivation detection process...', spinner='dots')
+    if not is_ci():
+        print("Detecting inactivations...")
+    spinner = Halo(text='Starting inactivation detection process...', spinner='dots', enabled=not is_ci())
 
     # Check if files exist
     if not os.path.exists(concept_full_path):
@@ -70,10 +72,11 @@ def detect_inactivations(concept_full_path,
     results = []
     with Pool(processes=multiprocessing.cpu_count()) as pool:
         # pool.imap(...) returns an iterator lazily
-        # We'll wrap that in tqdm so we get a progress bar
+        # We'll wrap that in tqdm so we get a progress bar (disabled in CI)
         for res in tqdm(pool.imap(process_concept_group, arg_list),
                         total=len(arg_list),
-                        desc="Processing concepts in parallel"):
+                        desc="Processing concepts in parallel",
+                        disable=is_ci()):
             if res is not None:
                 results.append(res)
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
+import json
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.io as pio
 import numpy as np
 from matplotlib import cm
 from halo import Halo
+from ci_utils import is_ci
 
 def generate_fsn_changes_report(
     fsn_changes_data_path: str,
@@ -23,10 +24,11 @@ def generate_fsn_changes_report(
     output_path : str
         Path where the output HTML report should be written.
     """
-    print("Generating FSN Changes Report...")
+    if not is_ci():
+        print("Generating FSN Changes Report...")
 
-    # Initialize Halo spinner
-    spinner = Halo(text="Starting FSN Changes Report Generation...", spinner="dots")
+    # Initialize Halo spinner (disabled in CI to reduce log verbosity)
+    spinner = Halo(text="Starting FSN Changes Report Generation...", spinner="dots", enabled=not is_ci())
     spinner.start()
 
     # --- Load Dataset ---
@@ -128,7 +130,8 @@ def generate_fsn_changes_report(
 
     # --- Generate JSON for HTML ---
     spinner.start("Generating Plotly JSON...")
-    fig_json = pio.to_json(fig)
+    # Use json.dumps to ensure arrays are serialized as JSON arrays, not binary format
+    fig_json = json.dumps(fig.to_dict())
     spinner.succeed("Plotly JSON generated.")
 
     # --- HTML Template ---

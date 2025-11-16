@@ -246,6 +246,34 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Normalize partial date strings to full ISO timestamps
+   * Converts formats like "2015-03" or "2015" to "2015-03-01T00:00:00.000Z" or "2015-01-01T00:00:00.000Z"
+   */
+  private normalizePartialDateToISO(partialDate: string | undefined): string {
+    if (!partialDate) {
+      return new Date().toISOString();
+    }
+
+    // If it's already a full ISO timestamp, return as is
+    if (partialDate.includes('T') || partialDate.length > 10) {
+      return partialDate;
+    }
+
+    // Handle "YYYY-MM" format
+    if (partialDate.match(/^\d{4}-\d{2}$/)) {
+      return `${partialDate}-01T00:00:00.000Z`;
+    }
+
+    // Handle "YYYY" format
+    if (partialDate.match(/^\d{4}$/)) {
+      return `${partialDate}-01-01T00:00:00.000Z`;
+    }
+
+    // Fallback to current date
+    return new Date().toISOString();
+  }
+
+  /**
    * Get match type label for display
    */
   getMatchTypeLabel(matchType: string): string {
@@ -1064,14 +1092,35 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       );
 
       selectedMedicationsData.forEach(medication => {
-        const convertedMedication = {
-          ...medication,
+        // Normalize to match clinical-entry structure
+        const convertedMedication: any = {
+          resourceType: 'MedicationStatement',
+          id: medication.id,
           status: this.convertMedicationStatus(medication.status),
           medicationCodeableConcept: medication.medicationCodeableConcept ? {
-            ...medication.medicationCodeableConcept,
-            text: medication.medicationCodeableConcept.text || 'Unknown medication'
-          } : undefined
+            coding: medication.medicationCodeableConcept.coding || [],
+            text: medication.medicationCodeableConcept.text || 
+                  medication.medicationCodeableConcept.coding?.[0]?.display || 
+                  medication.medicationCodeableConcept.coding?.[0]?.code || 
+                  'Medication'
+          } : undefined,
+          subject: medication.subject || {
+            reference: `Patient/${this.linkedPatient.id}`,
+            display: this.getPatientDisplayName(this.linkedPatient)
+          },
+          // Use effectiveDateTime (like clinical-entry) instead of effectivePeriod
+          // Normalize partial dates to full ISO timestamps
+          effectiveDateTime: this.normalizePartialDateToISO(
+            medication.effectiveDateTime || (medication as any).effectivePeriod?.start
+          ),
+          // Preserve dosage if it exists
+          dosage: medication.dosage || [{
+            text: 'As prescribed'
+          }],
+          // Preserve reasonReference if it exists (medication association)
+          ...((medication as any).reasonReference && { reasonReference: (medication as any).reasonReference })
         };
+        
         this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
         importedCount++;
       });
@@ -1103,6 +1152,9 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     console.log(`Patient ${this.linkedPatient.id} now has ${storedConditions.length} conditions stored:`, storedConditions);
     
     console.log(`Successfully imported ${importedCount} items to patient ${this.linkedPatient.id}`);
+    
+    // Navigate to clinical record with patient ID
+    this.router.navigate(['/clinical-record', this.linkedPatient.id]);
     
     // You could add a success snackbar here
     // this.snackBar.open(`Successfully imported ${importedCount} items`, 'Close', { duration: 3000 });
@@ -1227,14 +1279,36 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     ipsData.medications
       .filter(medication => this.selectedMedications.has(medication.id))
       .forEach(medication => {
-        const convertedMedication = {
-          ...medication,
+        // Normalize to match clinical-entry structure
+        const patient = this.availablePatients.find(p => p.id === patientId);
+        const convertedMedication: any = {
+          resourceType: 'MedicationStatement',
+          id: medication.id,
           status: this.convertMedicationStatus(medication.status),
           medicationCodeableConcept: medication.medicationCodeableConcept ? {
-            ...medication.medicationCodeableConcept,
-            text: medication.medicationCodeableConcept.text || 'Unknown medication'
-          } : undefined
+            coding: medication.medicationCodeableConcept.coding || [],
+            text: medication.medicationCodeableConcept.text || 
+                  medication.medicationCodeableConcept.coding?.[0]?.display || 
+                  medication.medicationCodeableConcept.coding?.[0]?.code || 
+                  'Medication'
+          } : undefined,
+          subject: medication.subject || {
+            reference: `Patient/${patientId}`,
+            display: patient ? this.getPatientDisplayName(patient) : `Patient ${patientId}`
+          },
+          // Use effectiveDateTime (like clinical-entry) instead of effectivePeriod
+          // Normalize partial dates to full ISO timestamps
+          effectiveDateTime: this.normalizePartialDateToISO(
+            medication.effectiveDateTime || (medication as any).effectivePeriod?.start
+          ),
+          // Preserve dosage if it exists
+          dosage: medication.dosage || [{
+            text: 'As prescribed'
+          }],
+          // Preserve reasonReference if it exists (medication association)
+          ...((medication as any).reasonReference && { reasonReference: (medication as any).reasonReference })
         };
+        
         this.patientService.addPatientMedication(patientId, convertedMedication);
       });
     
@@ -1325,14 +1399,34 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     );
 
     selectedMedicationsData.forEach(medication => {
-      const convertedMedication = {
-        ...medication,
+      // Normalize to match clinical-entry structure
+      const convertedMedication: any = {
+        resourceType: 'MedicationStatement',
+        id: medication.id,
         status: this.convertMedicationStatus(medication.status),
         medicationCodeableConcept: medication.medicationCodeableConcept ? {
-          ...medication.medicationCodeableConcept,
-          text: medication.medicationCodeableConcept.text || 'Unknown medication'
-        } : undefined
+          coding: medication.medicationCodeableConcept.coding || [],
+          text: medication.medicationCodeableConcept.text || 
+                medication.medicationCodeableConcept.coding?.[0]?.display || 
+                medication.medicationCodeableConcept.coding?.[0]?.code || 
+                'Medication'
+        } : undefined,
+        subject: medication.subject || {
+          reference: `Patient/${this.linkedPatient.id}`,
+          display: this.getPatientDisplayName(this.linkedPatient)
+        },
+        // Use effectiveDateTime (like clinical-entry) instead of effectivePeriod
+        effectiveDateTime: medication.effectiveDateTime || 
+                           (medication as any).effectivePeriod?.start || 
+                           new Date().toISOString(),
+        // Preserve dosage if it exists
+        dosage: medication.dosage || [{
+          text: 'As prescribed'
+        }],
+        // Preserve reasonReference if it exists (medication association)
+        ...((medication as any).reasonReference && { reasonReference: (medication as any).reasonReference })
       };
+      
       this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
     });
 

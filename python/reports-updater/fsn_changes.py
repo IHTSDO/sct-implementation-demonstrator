@@ -4,6 +4,7 @@ import csv
 from collections import defaultdict
 import pandas as pd
 from halo import Halo
+from ci_utils import is_ci
 
 FSN_TYPE_ID = "900000000000003001"
 
@@ -111,8 +112,9 @@ def detect_fsn_changes(
     output_path : str
         Path to the resulting .xlsx file for FSN changes.
     """
-    print("Detecting FSN changes...")
-    spinner = Halo(text='Starting FSN changes detection process...', spinner='dots')
+    if not is_ci():
+        print("Detecting FSN changes...")
+    spinner = Halo(text='Starting FSN changes detection process...', spinner='dots', enabled=not is_ci())
 
     # Load active concepts
     spinner.start("Loading active concepts...")

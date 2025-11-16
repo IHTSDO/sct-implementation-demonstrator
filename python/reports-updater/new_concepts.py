@@ -5,6 +5,7 @@ import pandas as pd
 from tqdm import tqdm
 from halo import Halo
 from multiprocessing import Pool, cpu_count
+from ci_utils import is_ci
 
 def process_concept_group(args):
     """
@@ -38,7 +39,7 @@ def detect_new_concepts(concept_full_path,
     earliest active row. Merges the concept FSN from the description snapshot,
     then writes them out to Excel.
     """
-    spinner = Halo(text='Starting new concept detection...', spinner='dots')
+    spinner = Halo(text='Starting new concept detection...', spinner='dots', enabled=not is_ci())
 
     # ----------------------------------------------------------------------
     # 1. Check file existence
@@ -91,7 +92,8 @@ def detect_new_concepts(concept_full_path,
             tqdm(
                 pool.imap(process_concept_group, group_args),
                 total=len(group_args),
-                desc="Processing concepts in parallel"
+                desc="Processing concepts in parallel",
+                disable=is_ci()
             )
         )
 

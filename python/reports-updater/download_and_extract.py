@@ -2,6 +2,7 @@ import os
 import zipfile
 import requests
 from tqdm import tqdm
+from ci_utils import is_ci
 
 def download_and_extract_snomed(url, output_dir="data"):
     """
@@ -11,7 +12,8 @@ def download_and_extract_snomed(url, output_dir="data"):
     os.makedirs(output_dir, exist_ok=True)
     zip_path = os.path.join(output_dir, "snomed_release.zip")
 
-    print(f"Downloading SNOMED release...")
+    if not is_ci():
+        print(f"Downloading SNOMED release...")
     auth_user = os.getenv("SNOMED_USER")
     auth_pass = os.getenv("SNOMED_PASSWORD")
 
@@ -19,7 +21,7 @@ def download_and_extract_snomed(url, output_dir="data"):
     session = requests.Session()
     session.auth = (auth_user, auth_pass)
     
-    # Download with progress bar
+    # Download with progress bar (disabled in CI)
     with session.get(url, stream=True) as r:
         if r.status_code == 401:
             raise RuntimeError(
@@ -39,33 +41,36 @@ def download_and_extract_snomed(url, output_dir="data"):
         # Get total file size
         total_size = int(r.headers.get('content-length', 0))
         
-        # Download with progress bar
+        # Download with progress bar (disabled in CI)
         with open(zip_path, "wb") as f:
             with tqdm(
                 total=total_size,
                 unit='B',
                 unit_scale=True,
                 unit_divisor=1024,
-                desc="Download progress"
+                desc="Download progress",
+                disable=is_ci()
             ) as pbar:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
                     pbar.update(len(chunk))
 
-    print(f"✓ Downloaded {os.path.getsize(zip_path) / (1024*1024):.1f} MB")
-    print("Extracting ZIP file...")
+    if not is_ci():
+        print(f"✓ Downloaded {os.path.getsize(zip_path) / (1024*1024):.1f} MB")
+        print("Extracting ZIP file...")
     
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        # Extract with progress
+        # Extract with progress (disabled in CI)
         members = zip_ref.namelist()
-        with tqdm(total=len(members), desc="Extraction progress") as pbar:
+        with tqdm(total=len(members), desc="Extraction progress", disable=is_ci()) as pbar:
             for member in members:
                 zip_ref.extract(member, output_dir)
                 pbar.update(1)
 
     # Clean up ZIP file
     os.remove(zip_path)
-    print("✓ ZIP file cleaned up")
+    if not is_ci():
+        print("✓ ZIP file cleaned up")
 
     # Detect top-level folder
     extracted_dirs = [
@@ -77,5 +82,6 @@ def download_and_extract_snomed(url, output_dir="data"):
         raise FileNotFoundError("No SNOMED folder found after extraction.")
     
     release_root = extracted_dirs[0]
-    print(f"✓ SNOMED release extracted to: {os.path.basename(release_root)}")
+    if not is_ci():
+        print(f"✓ SNOMED release extracted to: {os.path.basename(release_root)}")
     return release_root
