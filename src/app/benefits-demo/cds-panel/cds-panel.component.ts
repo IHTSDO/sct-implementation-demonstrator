@@ -86,9 +86,6 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
       // Build CDS request
       const cdsRequest = this.cdsService.buildCDSRequest(cdsPatient, cdsConditions, cdsMedications, cdsAllergies);
 
-      // Log the request for debugging
-      console.log('CDS Request:', JSON.stringify(cdsRequest, null, 2));
-
       // Submit to CDS service
       this.subscriptions.push(
         this.cdsService.postMedicationOrderSelect(cdsRequest).subscribe({
