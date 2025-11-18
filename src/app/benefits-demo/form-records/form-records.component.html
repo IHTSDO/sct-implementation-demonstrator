@@ -105,17 +105,39 @@
                   <p>No answers found in this response</p>
                 </div>
                 
-                <div *ngFor="let qa of getQuestionAnswerPairs(selectedResponse); let i = index" class="qa-item">
-                  <div class="question-number">{{ i + 1 }}</div>
+                <div *ngFor="let qa of getQuestionAnswerPairs(selectedResponse); let i = index" 
+                     class="qa-item" 
+                     [class.qa-section]="qa.isSection"
+                     [style.margin-left.px]="qa.level * 24">
+                  <div class="question-number" 
+                       [class.question-number-section]="qa.isSection"
+                       *ngIf="!qa.isSection">
+                    {{ i + 1 }}
+                  </div>
+                  <div class="section-indicator" *ngIf="qa.isSection">
+                    <mat-icon>folder</mat-icon>
+                  </div>
                   <div class="qa-content">
-                    <div class="question">{{ qa.question }}</div>
-                    <div class="answer" [class.answer-choice]="qa.type === 'choice'" 
-                                       [class.answer-boolean]="qa.type === 'boolean'"
-                                       [class.answer-group]="qa.type === 'group'">
+                    <div class="question" [class.question-section]="qa.isSection">
+                      {{ qa.question }}
+                      <span *ngIf="qa.hasSubItems" class="sub-items-count">
+                        ({{ qa.hasSubItems ? 'contains sub-items' : '' }})
+                      </span>
+                    </div>
+                    <div class="answer" 
+                         *ngIf="qa.answer && !qa.isSection"
+                         [class.answer-choice]="qa.type === 'choice'" 
+                         [class.answer-boolean]="qa.type === 'boolean'"
+                         [class.answer-number]="qa.type === 'number'"
+                         [class.answer-text]="qa.type === 'text'">
                       <mat-icon *ngIf="qa.type === 'boolean'">
                         {{ qa.answer === 'Yes' ? 'check_circle' : 'cancel' }}
                       </mat-icon>
-                      <mat-icon *ngIf="qa.type === 'choice'">radio_button_checked</mat-icon>
+                      <mat-icon *ngIf="qa.type === 'number'">numbers</mat-icon>
+                      <span [innerHTML]="formatAnswerForDisplay(qa.answer)"></span>
+                    </div>
+                    <div class="section-info" *ngIf="qa.isSection && qa.answer">
+                      <mat-icon>info</mat-icon>
                       <span>{{ qa.answer }}</span>
                     </div>
                   </div>
@@ -124,6 +146,10 @@
             </div>
 
             <div class="viewer-actions">
+              <button mat-raised-button (click)="copyToClipboard(selectedResponse, $event)">
+                <mat-icon>content_copy</mat-icon>
+                Copy JSON
+              </button>
               <button mat-raised-button (click)="exportResponse(selectedResponse, $event)">
                 <mat-icon>download</mat-icon>
                 Export JSON
@@ -163,10 +189,14 @@
 
             <div class="viewer-content">
               <h3>Response Data (FHIR Format)</h3>
-              <pre class="json-viewer">{{ selectedResponse | json }}</pre>
+              <pre class="json-viewer">{{ formatJSON(selectedResponse) }}</pre>
             </div>
 
             <div class="viewer-actions">
+              <button mat-raised-button (click)="copyToClipboard(selectedResponse, $event)">
+                <mat-icon>content_copy</mat-icon>
+                Copy JSON
+              </button>
               <button mat-raised-button (click)="exportResponse(selectedResponse, $event)">
                 <mat-icon>download</mat-icon>
                 Export JSON

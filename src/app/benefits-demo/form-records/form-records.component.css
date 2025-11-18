@@ -262,17 +262,37 @@
 }
 
 .json-viewer {
-  background: #f5f5f5;
-  border: 1px solid #ddd;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #3e3e3e;
   border-radius: 4px;
   padding: 16px;
   font-family: 'Courier New', monospace;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.6;
   overflow-x: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
-  max-height: 400px;
+  max-height: calc(85vh - 300px);
+  overflow-y: auto;
+}
+
+.json-viewer::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.json-viewer::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+.json-viewer::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.json-viewer::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
 
 .viewer-actions {
@@ -332,6 +352,13 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.qa-item.qa-section {
+  background: #fff9e6;
+  border-left-color: #ff9800;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
 .question-number {
   display: flex;
   align-items: flex-start;
@@ -347,6 +374,26 @@
   flex-shrink: 0;
 }
 
+.question-number-section {
+  display: none;
+}
+
+.section-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.section-indicator mat-icon {
+  color: #ff9800;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
 .qa-content {
   flex: 1;
   display: flex;
@@ -359,6 +406,19 @@
   color: #333;
   font-size: 15px;
   line-height: 1.5;
+}
+
+.question.question-section {
+  font-weight: 600;
+  color: #e65100;
+  font-size: 16px;
+}
+
+.sub-items-count {
+  font-size: 12px;
+  color: #999;
+  font-weight: normal;
+  font-style: italic;
 }
 
 .answer {
@@ -410,6 +470,55 @@
   border-color: #ffcc80;
   color: #e65100;
   font-style: italic;
+}
+
+.answer-number {
+  background: #e1f5fe;
+  border-color: #81d4fa;
+  color: #0277bd;
+}
+
+.answer-number mat-icon {
+  color: #0288d1;
+}
+
+.answer-text {
+  background: #fafafa;
+  border-color: #e0e0e0;
+  color: #424242;
+}
+
+.section-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff3e0;
+  border-radius: 4px;
+  color: #e65100;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.section-info mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #ff9800;
+}
+
+.code-highlight {
+  background: #fff9c4;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #f57f17;
+}
+
+.system-highlight {
+  color: #7b1fa2;
+  font-weight: 500;
 }
 
 /* Responsive design */

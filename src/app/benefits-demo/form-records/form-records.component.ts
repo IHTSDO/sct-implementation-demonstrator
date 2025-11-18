@@ -227,13 +227,37 @@ export class FormRecordsComponent implements OnChanges {
   }
 
   // Get readable question/answer pairs from response
-  getQuestionAnswerPairs(response: QuestionnaireResponse): Array<{question: string, answer: string, type: string}> {
-    const pairs: Array<{question: string, answer: string, type: string}> = [];
+  getQuestionAnswerPairs(response: QuestionnaireResponse): Array<{
+    question: string, 
+    answer: string, 
+    type: string,
+    level: number,
+    isSection: boolean,
+    hasSubItems: boolean
+  }> {
+    const pairs: Array<{
+      question: string, 
+      answer: string, 
+      type: string,
+      level: number,
+      isSection: boolean,
+      hasSubItems: boolean
+    }> = [];
     
     try {
       const completeData = (response as any)._completeData;
+      // Try different data locations
+      let items = null;
       if (completeData?.response?.items) {
-        this.extractQAPairs(completeData.response.items, pairs);
+        items = completeData.response.items;
+      } else if ((response as any).item) {
+        items = (response as any).item;
+      } else if ((response as any).items) {
+        items = (response as any).items;
+      }
+      
+      if (items) {
+        this.extractQAPairs(items, pairs);
       }
     } catch (error) {
       console.error('Error extracting Q&A pairs:', error);
@@ -242,73 +266,259 @@ export class FormRecordsComponent implements OnChanges {
     return pairs;
   }
 
-  private extractQAPairs(items: any[], pairs: Array<{question: string, answer: string, type: string}>, level: number = 0): void {
+  private extractQAPairs(items: any[], pairs: Array<{
+    question: string, 
+    answer: string, 
+    type: string,
+    level: number,
+    isSection: boolean,
+    hasSubItems: boolean
+  }>, level: number = 0): void {
     if (!items || !Array.isArray(items)) return;
     
     for (const item of items) {
-      // Only add if there's a question and an answer
-      if (item.question) {
+      const hasSubItems = item.items && Array.isArray(item.items) && item.items.length > 0;
+      const isSection = hasSubItems && (item.value === undefined || item.value === null || item.value === '');
+      
+      // Only add if there's a question
+      if (item.question || item.text) {
+        const questionText = item.question || item.text || 'Untitled';
         let answer = '';
         let type = 'text';
         
         // Extract answer based on type
         if (item.value !== undefined && item.value !== null && item.value !== '') {
-          if (typeof item.value === 'object') {
-            // Handle coded values (Coding datatype)
-            // Check for both 'display' and 'text' fields (different standards use different names)
-            const displayText = item.value.display || item.value.text;
-            
-            if (item.value.code && displayText) {
-              // Show both text/display and code for coded values
-              answer = `${displayText} [${item.value.code}]`;
-              type = 'choice';
-            } else if (item.value.code) {
-              // Only code available
-              answer = item.value.code;
-              type = 'choice';
-            } else if (displayText) {
-              // Only display/text available
-              answer = displayText;
-              type = 'choice';
-            } else if (item.value.value !== undefined) {
-              // Quantity datatype
-              answer = item.value.value.toString();
-              type = item.value.unit ? 'quantity' : 'text';
-              if (item.value.unit) {
-                answer += ' ' + item.value.unit;
-              }
-            } else {
-              // Fallback for other object types
-              answer = JSON.stringify(item.value);
-            }
-          } else if (typeof item.value === 'boolean') {
-            answer = item.value ? 'Yes' : 'No';
-            type = 'boolean';
-          } else {
-            // Simple text value - just show the value
-            answer = item.value.toString();
-            type = 'text';
-          }
-        } else if (item.items && item.items.length > 0) {
-          // If no direct answer but has sub-items, it's a group
-          type = 'group';
-          answer = `(${item.items.length} sub-items)`;
+          answer = this.formatAnswerValue(item.value, item);
+          type = this.determineAnswerType(item.value, item);
+        } else if (isSection) {
+          // Section header
+          answer = `Section with ${item.items.length} sub-item${item.items.length > 1 ? 's' : ''}`;
+          type = 'section';
         }
         
-        // Add the pair if we have an answer
-        if (answer) {
-          pairs.push({
-            question: item.question,
-            answer: answer,
-            type: type
-          });
-        }
+        // Add the pair
+        pairs.push({
+          question: questionText,
+          answer: answer,
+          type: type,
+          level: level,
+          isSection: isSection,
+          hasSubItems: hasSubItems
+        });
       }
       
       // Recursively process nested items
       if (item.items && Array.isArray(item.items)) {
         this.extractQAPairs(item.items, pairs, level + 1);
       }
+    }
+  }
+
+  private formatAnswerValue(value: any, item: any): string {
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    
+    if (typeof value === 'number') {
+      return value.toString();
+    }
+    
+    if (typeof value === 'string') {
+      return value;
+    }
+    
+    if (typeof value === 'object') {
+      // Handle array values first
+      if (Array.isArray(value)) {
+        return value.map(v => this.formatAnswerValue(v, item)).join(', ');
+      }
+      
+      // Handle simple objects with text/display property (e.g., { text: "femenino" })
+      // Check this BEFORE checking for coding/code to prioritize simple text objects
+      if (value.text && !value.code && !value.coding && !value.value) {
+        return value.text;
+      }
+      
+      if (value.display && !value.code && !value.coding && !value.value) {
+        return value.display;
+      }
+      
+      // Handle Coding/CodeableConcept
+      if (value.coding || value.code) {
+        const coding = Array.isArray(value.coding) ? value.coding[0] : value;
+        const display = coding.display || coding.text || '';
+        const code = coding.code || '';
+        const system = coding.system || '';
+        
+        if (display && code) {
+          const systemName = this.getSystemDisplayName(system);
+          return `${display} [${code}${systemName ? ` - ${systemName}` : ''}]`;
+        } else if (code) {
+          return code;
+        } else if (display) {
+          return display;
+        }
+      }
+      
+      // Handle Quantity
+      if (value.value !== undefined) {
+        let result = value.value.toString();
+        if (value.unit) {
+          result += ' ' + value.unit;
+        }
+        return result;
+      }
+      
+      // Fallback - try to extract any readable property
+      // Check text/display even if there are other properties
+      if (value.text) return value.text;
+      if (value.display) return value.display;
+      
+      // Last resort: show as JSON but only if it's a simple object
+      const keys = Object.keys(value);
+      if (keys.length <= 3) {
+        // For simple objects, try to show a readable format
+        if (keys.length === 1 && keys[0] === 'text') {
+          return value.text;
+        }
+        if (keys.length === 1 && keys[0] === 'display') {
+          return value.display;
+        }
+        // If it's a simple object with text as one of the keys, prefer text
+        if (keys.includes('text') && keys.length <= 2) {
+          return value.text;
+        }
+      }
+      
+      return JSON.stringify(value);
+    }
+    
+    return String(value);
+  }
+
+  private determineAnswerType(value: any, item: any): string {
+    if (typeof value === 'boolean') {
+      return 'boolean';
+    }
+    
+    if (typeof value === 'number') {
+      return 'number';
+    }
+    
+    if (typeof value === 'object') {
+      if (value.coding || value.code) {
+        return 'choice';
+      }
+      if (value.value !== undefined) {
+        return 'number';
+      }
+    }
+    
+    return 'text';
+  }
+
+  private getSystemDisplayName(system: string): string {
+    const systemMap: { [key: string]: string } = {
+      'http://snomed.info/sct': 'SNOMED CT',
+      'http://hl7.org/fhir/sid/icf': 'ICF',
+      'http://loinc.org': 'LOINC',
+      'http://unitsofmeasure.org': 'UCUM'
+    };
+    return systemMap[system] || '';
+  }
+
+  formatAnswerForDisplay(answer: string): string {
+    // Escape HTML and highlight codes/systems
+    const escaped = answer
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    
+    // Highlight codes in brackets [code]
+    return escaped.replace(
+      /\[([^\]]+)\]/g, 
+      '<span class="code-highlight">[$1]</span>'
+    );
+  }
+
+  formatJSON(obj: any): string {
+    return JSON.stringify(obj, null, 2);
+  }
+
+  copyToClipboard(response: QuestionnaireResponse, event: Event): void {
+    event.stopPropagation();
+    
+    try {
+      const dataStr = JSON.stringify(response, null, 2);
+      
+      // Use the Clipboard API if available
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(dataStr).then(() => {
+          this.snackBar.open(
+            'JSON copied to clipboard successfully',
+            'Close',
+            {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            }
+          );
+        }).catch((err) => {
+          console.error('Error copying to clipboard:', err);
+          this.fallbackCopyToClipboard(dataStr);
+        });
+      } else {
+        // Fallback for older browsers
+        this.fallbackCopyToClipboard(dataStr);
+      }
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      this.snackBar.open(
+        'Error copying to clipboard',
+        'Close',
+        {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        }
+      );
+    }
+  }
+
+  private fallbackCopyToClipboard(text: string): void {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        this.snackBar.open(
+          'JSON copied to clipboard successfully',
+          'Close',
+          {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          }
+        );
+      } else {
+        throw new Error('Copy command failed');
+      }
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      this.snackBar.open(
+        'Error copying to clipboard. Please copy manually.',
+        'Close',
+        {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        }
+      );
+    } finally {
+      document.body.removeChild(textArea);
     }
   }
 }
