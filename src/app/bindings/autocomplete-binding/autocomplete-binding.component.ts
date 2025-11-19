@@ -64,8 +64,10 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
   writeValue(value: any): void {
     if (value && typeof value === 'object' && value.display) {
         this.formControl.setValue(value.display, { emitEvent: false });
+        this.selectedConcept = value; // Store the full concept object including code
     } else {
         this.formControl.setValue(value, { emitEvent: false });
+        this.selectedConcept = value && typeof value === 'object' ? value : {};
     }
   }
 
@@ -83,8 +85,10 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
 
         if (this.term && typeof this.term === 'object' && this.term["display"]) {
             this.formControl.setValue(this.term["display"]);
+            this.selectedConcept = this.term; // Store the full concept object
         } else {
             this.formControl.setValue(this.term);
+            this.selectedConcept = {};
         }
     }
   }
@@ -135,7 +139,9 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
   change(event: any) {
     const item = event?.option?.value;
     if (item) {
-      this.optionSelected({ code: item.code, display: item.display });
+      const concept = { code: item.code, display: item.display };
+      this.selectedConcept = concept; // Update selectedConcept before calling optionSelected
+      this.optionSelected(concept);
       this.formControl.setValue(item.display); // Set the form control's value to the selected option's display
     }
   }

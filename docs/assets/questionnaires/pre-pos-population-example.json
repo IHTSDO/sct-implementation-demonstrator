@@ -1,0 +1,2149 @@
+{
+  "resourceType": "Questionnaire",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+    ]
+  },
+  "title": "Evaluación Funcional",
+  "status": "draft",
+  "item": [
+    {
+      "type": "choice",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
+          "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "autocomplete",
+                "display": "Auto-complete"
+              }
+            ]
+          }
+        },
+        {
+          "valueBoolean": true,
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract"
+        }
+      ],
+      "linkId": "482928412650",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "439401001",
+          "display": "Diagnosis (observable entity)"
+        }
+      ],
+      "text": "Diagnóstico",
+      "repeats": true,
+      "answerValueSet": "http://snomed.info/sct/449081005?fhir_vs=ecl/%3C%20404684003"
+    },
+    {
+      "type": "integer",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/maxValue",
+          "valueInteger": 120
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 0
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+          "valueDuration": {
+            "value": 99,
+            "unit": "years",
+            "system": "http://unitsofmeasure.org",
+            "code": "a"
+          }
+        }
+      ],
+      "linkId": "124333116950",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "424144002",
+          "display": "424144002 |Current chronological age (observable entity)|"
+        }
+      ],
+      "text": "Edad"
+    },
+    {
+      "type": "choice",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+          "valueDuration": {
+            "value": 99,
+            "unit": "years",
+            "system": "http://unitsofmeasure.org",
+            "code": "a"
+          }
+        }
+      ],
+      "linkId": "757360039447",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "263495000",
+          "display": "Gender (observable entity)"
+        }
+      ],
+      "text": "Sexo",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "display": "Masculino"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Femenino"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "choice",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "195513394502",
+              "text": "Categoría o dominio",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b114",
+                    "display": "b114 - Funciones de la orientación"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b117",
+                    "display": "b117 - Funciones intelectuales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b122",
+                    "display": "b122 - Funciones psicosociales globales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b125",
+                    "display": "b125 - Funciones relacionadas con la predisposición y el funcionamiento intrapersonal"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b130",
+                    "display": "b130 - Funciones relacionadas con el energia y los impulsos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b134",
+                    "display": "b134 - Funciones del sueño"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b140",
+                    "display": "b140 - Funciones de la atención"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b144",
+                    "display": "b144 - Funciones de la memoria"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b147",
+                    "display": "b147 - Funciones psicomotoras"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b152",
+                    "display": "b152 - Funciones Emocionales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b160",
+                    "display": "b160 - Funciones del pensamiento"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b163",
+                    "display": "b163 - Funciones cognitivas básicas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b164",
+                    "display": "b164 - Funciones cognitivas superiores"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b167",
+                    "display": "b167 - Funciones mentales del lenguaje"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b172",
+                    "display": "b172 - Funciones relacionadas con el cálculo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b176",
+                    "display": "b176 - Funciones mentales relacionadas con el encadenamiento de movientos complejos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b210",
+                    "display": "b210 - Funciones visuales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b215",
+                    "display": "b215 - Funciones de las estructuras adyacentes al ojo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b230",
+                    "display": "b230 - Funciones auditivas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b235",
+                    "display": "b235 - Funciones vestibulares"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b240",
+                    "display": "b240 - Sensaciones asociadas con la audición y con la función vestibular"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b250",
+                    "display": "b250 - Función gustativa"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b255",
+                    "display": "b255 - Función olfativa"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b260",
+                    "display": "b260 - Función propioceptiva"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b265",
+                    "display": "b265 - Funciones tactiles"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b270",
+                    "display": "b270 - Funciones sensoriales relacionadas con la temperatura y otros estimulos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b280",
+                    "display": "b280 - Sensación de dolor"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b310",
+                    "display": "b310 - Funciones de la voz"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b320",
+                    "display": "b320 - Funciones de articualción"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b330",
+                    "display": "b330 - Funciones relacionadas con la fluidez y ritmo del habla"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b440",
+                    "display": "b440 - Funciones Respiratorias"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b445",
+                    "display": "b445 - Funciones de los musculos respiratorios y musculos implicados en la respiracion"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b510",
+                    "display": "b510 - Funciones relacionadas con la ingesta"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b525",
+                    "display": "b525 - Funciones relacionadas con la defecación"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b530",
+                    "display": "b530 - Funciones relacionadas con el mantenimiento del peso"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b555",
+                    "display": "b555 - Funciones de las glandulas endocrinas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b610",
+                    "display": "b610 - Funciones relacionadas con la excreción urinaria"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b620",
+                    "display": "b620 - Funciones urinarias"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b630",
+                    "display": "b630 - Sensaciones asociadas con la funciones urinarias"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b640",
+                    "display": "b640 - Funciones sexuales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b670",
+                    "display": "b670 - Sensaciones asociadas con las funciones genitales y reproductoras"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b710",
+                    "display": "b710 - Funciones relacionadas con la movilidad de las articulaciones"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b715",
+                    "display": "b715 - Funciones relacionadas con la estabilidad de las articulaciones"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b720",
+                    "display": "b720 - Funciones relacionadas con la movilidad de los huesos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b730",
+                    "display": "b730 - Funciones relacionadas con la fuerza muscular"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b735",
+                    "display": "b735 - Funciones relacionadas con el tono muscular"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b740",
+                    "display": "b740 - Funciones relacionadas con la resistencia muscular"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b750",
+                    "display": "b750 - Funciones relacionadas con los reflejos motores"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b755",
+                    "display": "b755 - Funciones relacionads con los reflejos de movimiento involuntario"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b760",
+                    "display": "b760 - Funciones relacionados con el control de los movimientos voluntarios"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b761",
+                    "display": "b761 - Funciones relacionadas con los movimientos expontaneos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b765",
+                    "display": "b765 - Funciones relacionadas con los movimientos involuntarios"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b770",
+                    "display": "b770 - Funciones relacionadas con el patrón de la marcha"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b780",
+                    "display": "b780 - Sensaciones relacionadas con el musculo y las funciones del movimiento"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b810",
+                    "display": "b810 - Funciones protectoras de la piel"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "b820",
+                    "display": "b820 - Funciones reparadoras de la piel"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "choice",
+              "linkId": "498034640526",
+              "text": "Magnitud de la deficiencia",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm0",
+                    "display": "0 - No hay deficiencia"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm1",
+                    "display": "1 - Deficiencia leve"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm2",
+                    "display": "2 - Deficiencia moderada"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm3",
+                    "display": "3 - Deficiencia grave"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm4",
+                    "display": "4 - Deficiencia completa"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm8",
+                    "display": "8 - Sin especificar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm9",
+                    "display": "9 - No aplicable"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "875687682157",
+          "text": "Funciones corporales",
+          "repeats": true
+        },
+        {
+          "item": [
+            {
+              "type": "open-choice",
+              "linkId": "535752844216",
+              "text": "Categoría o dominio",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s110",
+                    "display": "s110 - Estructura del cerebro"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s120",
+                    "display": "s120 - Medula espinal y estructuras relacionadas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s220",
+                    "display": "s220 - Estructura del globo ocular"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s230",
+                    "display": "s230 - Estructura perifericas oculares"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s240",
+                    "display": "s240 - Estructura de oído externo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s250",
+                    "display": "s250 - Estructura del oído medio"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s260",
+                    "display": "s260 - Estructura de oído interno"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s310",
+                    "display": "s310 - Estructura de la nariz"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s320",
+                    "display": "s320 - Estructura de la boca"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s330",
+                    "display": "s330 - Estructura de la faringe"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s340",
+                    "display": "s340 - Estructura de la laringe"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s410",
+                    "display": "s410 - Estructura del sistema cardiovascular"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s430",
+                    "display": "s430 - Estructura del sistema respiratorio"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s540",
+                    "display": "s540 - Estructura del intestino"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s610",
+                    "display": "s610 - Esturctura del sistema urinario"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s710",
+                    "display": "s710 - Estructura de cabeza y cuello"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s720",
+                    "display": "s720 - Estructura de la región del hombro"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s730",
+                    "display": "s730 - Estructura de extremidad superior"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s750",
+                    "display": "s750 - Estructura de la extremidad inferior"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s760",
+                    "display": "s760 - Estructura del tronco"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "s810",
+                    "display": "s810 - Estructura de las áreas de la piel"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "choice",
+              "linkId": "321037404502",
+              "text": "Magnitud de la deficiencia",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm0",
+                    "display": "0 - No hay deficiencia"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm1",
+                    "display": "1 - Deficiencia leve"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm2",
+                    "display": "2 - Deficiencia moderada"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm3",
+                    "display": "3 - Deficiencia grave"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm4",
+                    "display": "4 - Deficiencia completa"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm8",
+                    "display": "8 - Sin especificar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qm9",
+                    "display": "9 - No aplicable"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "choice",
+              "linkId": "111551403973",
+              "text": "Naturaleza del daño",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs0",
+                    "display": "0 - No hay cambio en la estructura"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs1",
+                    "display": "1 - Ausencia total"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs2",
+                    "display": "2 - Ausencia parcial"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs3",
+                    "display": "3 - Parte adicional"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs4",
+                    "display": "4 - Dimensión aberrante"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs5",
+                    "display": "5 - Discontinuidad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs6",
+                    "display": "6 - Posición desviada"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs7",
+                    "display": "7 - Cambios cualitativos en la estructura"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs8",
+                    "display": "8 - No especificado"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qs9",
+                    "display": "9 - No aplicable"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "choice",
+              "linkId": "384467412336",
+              "text": "Localización del daño",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql0",
+                    "display": "0 - Más de una region"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql1",
+                    "display": "1 - Derecha"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql2",
+                    "display": "2 - Izquierda"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql3",
+                    "display": "3 - Ambos lados"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql4",
+                    "display": "4 - Parte delantera"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql5",
+                    "display": "5 - Parte trasera"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql6",
+                    "display": "6 - Proximal"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql7",
+                    "display": "7 - Distal"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql8",
+                    "display": "8 - No especificado"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "ql9",
+                    "display": "9 - No aplicable"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "112237408017",
+          "text": "Estructuras corporales",
+          "repeats": true
+        },
+        {
+          "item": [
+            {
+              "type": "choice",
+              "linkId": "331208732644",
+              "text": "Categoría o dominio",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d110",
+                    "display": "d110 - Mirar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d115",
+                    "display": "d115 - Escuchar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d120",
+                    "display": "d120 - Otras experiencias sensoriales intencionadas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d130",
+                    "display": "d130 - Copiar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d131",
+                    "display": "d131 - Aprender mediante acciones con objetos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d132",
+                    "display": "d132 - Adquirir información"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d133",
+                    "display": "d133 - Adquirir lenguaje"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d134",
+                    "display": "d134 - Adquirir lenguaje adicional"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d135",
+                    "display": "d135 - Repetir"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d137",
+                    "display": "d137 - Adquirir conceptos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d140",
+                    "display": "d140 - Aprender a leer"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d145",
+                    "display": "d145 - Aprender a escribir"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d150",
+                    "display": "d150 - Aprender a calcular"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d155",
+                    "display": "d155 - Adquirir habilidades"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d160",
+                    "display": "d160 - Centrar la atención"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d161",
+                    "display": "d161 - Dirigir la atención"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d163",
+                    "display": "d163 - Pensar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d166",
+                    "display": "d166 - Leer"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d170",
+                    "display": "d170 - Escribir"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d172",
+                    "display": "d172 - Calcular"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d175",
+                    "display": "d175 - Resolver problemas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d177",
+                    "display": "d177 - Tomar desiciones"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d210",
+                    "display": "d210 - Llevar acabo una unica tarea"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d220",
+                    "display": "d220 - Llevar a cabo multiples tareas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d230",
+                    "display": "d230 - Llevar a cabo rutinas diarias"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d240",
+                    "display": "d240 - Manejo del estrés y otras demandas psicologicas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d250",
+                    "display": "d250 - Manejo del comportamietno propio"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d310",
+                    "display": "d310 - Comunicación recepción de mensajes hablados"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d315",
+                    "display": "d315 - Comunicación recepción de mensajes no verbales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d320",
+                    "display": "d320 - Comunicación y recepción de mensaje de lenguaje de signos convencional"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d325",
+                    "display": "d325 - Comunicación recepción de mensajes escritos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d330",
+                    "display": "d330 - Hablar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d331",
+                    "display": "d331 - Pre lenguaje"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d335",
+                    "display": "d335 - Producción de lenguajes no verbales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d340",
+                    "display": "d340 - Producción de mensajes en lenguaje de signos convencionales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d345",
+                    "display": "d345 - Mensajes escritos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d350",
+                    "display": "d350 - Conversación"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d355",
+                    "display": "d355 - Discusion"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d360",
+                    "display": "d360 - Utilizacion de dispositivos y tecnicas de comunicacion"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d410",
+                    "display": "d410 - Cambiar las posturas corporales básicas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d415",
+                    "display": "d415 - Mantener posición del cuerpo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d420",
+                    "display": "d420 - Transferir el propio cuerpo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d430",
+                    "display": "d430 - Levantar y llevar objetos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d435",
+                    "display": "d435 - Mover objetos con las extremidades inferiores"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d440",
+                    "display": "d440 - Uso fino de la mano"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d445",
+                    "display": "d445 - Uso de la mano y el brazo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d450",
+                    "display": "d450 - Andar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d455",
+                    "display": "d455 - Desplazarse por el entorno"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d460",
+                    "display": "d460 - Desplazarse por distintos lugares"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d465",
+                    "display": "d465 - Desplazarse utilizando algún tipo de equipamiento"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d470",
+                    "display": "d470 - Utilizacion de medios de transporte"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d475",
+                    "display": "d475 - Conducción"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d510",
+                    "display": "d510 - Lavarse"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d520",
+                    "display": "d520 - Cuidado de partes del cuerpo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d530",
+                    "display": "d530 - Higiene personal relacionada con proceso de excresión"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d540",
+                    "display": "d540 - Vestirse"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d550",
+                    "display": "d550 - Comer"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d560",
+                    "display": "d560 - Beber"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d570",
+                    "display": "d570 - Cuidado de la propia salud"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d571",
+                    "display": "d571 - Cuidado de la propia seguridad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d620",
+                    "display": "d620 - Adquisicion de bienes y servcios"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d630",
+                    "display": "d630 - Preparar comidas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d640",
+                    "display": "d640 - Realizar los que haceres de la casa"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d660",
+                    "display": "d660 - Ayudar a los demás"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d710",
+                    "display": "d710 - Interacciones interpersonales básica"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d720",
+                    "display": "d720 - Interacciones personales complejas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d730",
+                    "display": "d730 - Relacionarse con extraños"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d740",
+                    "display": "d740 - Relaciones formales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d750",
+                    "display": "d750 - Relaciones sociales informales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d760",
+                    "display": "d760 - Relaciones familiares"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d770",
+                    "display": "d770 - Relaciones intimas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d810",
+                    "display": "d810 - Educación no reglada"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d815",
+                    "display": "d815 - Educación preescolar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d820",
+                    "display": "d820 - Educación escolar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d830",
+                    "display": "d830 - Educacion Superior"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d845",
+                    "display": "d845 - Conseguir, mantener y finalizar un trabajo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d850",
+                    "display": "d850 - Trabajo remunerado"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d855",
+                    "display": "d855 - Trabajo no remunerado"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d860",
+                    "display": "d860 - Transacciones economicas basicas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d870",
+                    "display": "d870 - Autosuficiencia economica"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d880",
+                    "display": "d880 - Participación en el juego"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d910",
+                    "display": "d910 - Vida comunitaria"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d920",
+                    "display": "d920 - Tiempo libre y ocio"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d930",
+                    "display": "d930 - Religion y espiritualidad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "d940",
+                    "display": "d940 - Derechos humanos"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "choice",
+              "linkId": "412617864391",
+              "text": "Desempeño",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qp0",
+                    "display": "0 - No hay dificultad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qp1",
+                    "display": "1 - Dificultad leve"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qp2",
+                    "display": "2 - Dificultad moderada"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qp3",
+                    "display": "3 - Dificultad grave"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qp4",
+                    "display": "4 - Dificultad completa"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qp8",
+                    "display": "8 - Dificultad sin especificar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qp9",
+                    "display": "9 - Dificultad no aplicable"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "choice",
+              "linkId": "945488209107",
+              "text": "Capacidad",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qc0",
+                    "display": "0 - No hay dificultad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qc1",
+                    "display": "1 - Dificultad leve"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qc2",
+                    "display": "2 - Dificultad moderada"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qc3",
+                    "display": "3 - Dificultad grave"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qc4",
+                    "display": "4 - Dificultad completa"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qc8",
+                    "display": "8 - Dificultad sin especificar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "qc9",
+                    "display": "9 - Dificultad no aplicable"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "260686142411",
+          "text": "Actividad y participación",
+          "repeats": true
+        },
+        {
+          "item": [
+            {
+              "type": "choice",
+              "linkId": "298093811700",
+              "text": "Categoria o dominio",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e110",
+                    "display": "e110 - Productos o sustancias para el consumo personal"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e115",
+                    "display": "e115 - Productos y tecnologías para uso personal en la vida diaria"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e120",
+                    "display": "e120 - Productos y tecnologías para la movilidad y el transporte personal en espacios cerrados y abiertos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e125",
+                    "display": "e125 - Productos y tecnologías para la comunicación"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e130",
+                    "display": "e130 - Productos y tecnologías para la educación"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e135",
+                    "display": "e135 - Productos y tecnología para el empleo"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e140",
+                    "display": "e140 - Productos y tecnologías para las actividades, culturales, deportivas"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e150",
+                    "display": "e150 - Diseño, construccion, materiales de construccion y tecnologia arquitectonica para edificio de usos público"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e155",
+                    "display": "e155 - Diseño, construcción, materiales de construcción y tecnología arquitectonica para edificios de uso privado"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e165",
+                    "display": "e165 - Pertenencias"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e225",
+                    "display": "e225 - Clima"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e240",
+                    "display": "e240 - Luz"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e250",
+                    "display": "e250 - Sonido"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e310",
+                    "display": "e310 - Familiares cercanos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e315",
+                    "display": "e315 - Otros familiares"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e320",
+                    "display": "e320 - Amigos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e325",
+                    "display": "e325 - Conocidos, compañeros, colegas, vecinos, miembro de la comunidad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e330",
+                    "display": "e330 - Personas en cargos de autoridad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e340",
+                    "display": "e340 - Cuidadores y personal de ayuda"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e355",
+                    "display": "e355 - Profesionales de la salud"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e360",
+                    "display": "e360 - Otros profesionales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e410",
+                    "display": "e410 - Actitudes individuales de miembros de la familia cercana"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e415",
+                    "display": "e415 - Actitudes individuales de otros familiares"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e420",
+                    "display": "e420 - Actitudes individuales de amigos"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e425",
+                    "display": "e425 - Actitudes individuales de conocidos, compañeros, colegas, vecinos y meiembros de la comunidadpersonas en cargo de autoridad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e430",
+                    "display": "e430 - Actitudes individuales de personas en cargo de autoridad"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e440",
+                    "display": "e440 - Actitudes individuales de cuidadores y personal de ayuda"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e450",
+                    "display": "e450 - Actitudes individuales de profesionales de la salud"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e455",
+                    "display": "e455 - Actitudes individuales de profesionales relacionados con la salud"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e460",
+                    "display": "e460 - Actitudes sociales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e465",
+                    "display": "e465 - Normas, costubres e ideologia socal"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e525",
+                    "display": "e525 - Servicios, sistemas y politicas de vivienda"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e535",
+                    "display": "e535 - Servicios y politicas de comunicación"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e540",
+                    "display": "e540 - Servicios, sistemas y políticas de transporte"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e550",
+                    "display": "e550 - Servcios, Sistemas y politicas legales"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e560",
+                    "display": "e560 - Servcios, Sistema y politicas de seguridad social"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e570",
+                    "display": "e570 - Servcios, Sistema y politicas de seguridad social"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e575",
+                    "display": "e575 - Servicios, sistemas y politicas de apoyo social"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e580",
+                    "display": "e580 - Servcios, Sistema y politicas sanitarias"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e585",
+                    "display": "e585 - Servicios, sistemas y politicas de educación formación"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/sid/icf",
+                    "code": "e590",
+                    "display": "e590 - Servicios, sistemas y políticas laborales y de empleos"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "choice",
+              "linkId": "954233918169",
+              "text": "Calificador",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "code": "qb4",
+                    "display": "Barrera 4"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qb3",
+                    "display": "Barrera 3"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qb2",
+                    "display": "Barrera 2"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qb1",
+                    "display": "Barrera 1"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qb0",
+                    "display": "No hay barrera"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qf0",
+                    "display": "No hay facilitador"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qf1",
+                    "display": "Facilitador 1"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qf2",
+                    "display": "Facilitador 2"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qf3",
+                    "display": "Facilitador 3"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qf4",
+                    "display": "Facilitador 4"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qb8",
+                    "display": "Barrera sin especificar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qb9",
+                    "display": "Barrera no aplicable"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qf8",
+                    "display": "Facilitador sin especificar"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "code": "qf9",
+                    "display": "Facilitador no aplicable"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "363696063084",
+          "text": "Factores ambientales",
+          "repeats": true
+        }
+      ],
+      "type": "group",
+      "linkId": "389378557260",
+      "text": "Evaluación funcional"
+    },
+    {
+      "type": "text",
+      "linkId": "306297516670",
+      "text": "Objetivos del tratamiento",
+      "item": [
+        {
+          "linkId": "306297516670_helpText",
+          "type": "display",
+          "text": "Identifique las categorías a trabajar con metas al alcanzar en cuanto a la categoría de valor de los calificadores",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "help",
+                    "display": "Help-Button"
+                  }
+                ],
+                "text": "Help-Button"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "string",
+      "linkId": "583771088077",
+      "text": "Plan de tratamiento",
+      "item": [
+        {
+          "linkId": "583771088077_helpText",
+          "type": "display",
+          "text": "Describa las intervenciones a realizar en el paciente para cumplir el objetivo",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "help",
+                    "display": "Help-Button"
+                  }
+                ],
+                "text": "Help-Button"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "boolean",
+      "linkId": "398977273773",
+      "text": "Valoración del deficit"
+    },
+    {
+      "type": "boolean",
+      "linkId": "669264226181",
+      "text": "Valoración de discapacidad"
+    }
+  ]
+}

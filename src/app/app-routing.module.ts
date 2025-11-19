@@ -32,6 +32,7 @@ import { EncounterRecordComponent } from './benefits-demo/encounter-record/encou
 import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { PhaserGameComponent } from './phaser-game/phaser-v1/phaser-game.component';
+import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -69,6 +70,7 @@ const routes: Routes = [
   { path: 'encounter-record', component: EncounterRecordComponent },
   { path: 'interoperability', component: InteroperabilityComponent },
   { path: 'expo-quiz-2025', component: ExpoQuiz2025Component },
+  { path: 'ehds-laboratory-demo', component: EhdsLaboratoryDemoComponent },
   { path: '**', redirectTo: '' }
 ];
 

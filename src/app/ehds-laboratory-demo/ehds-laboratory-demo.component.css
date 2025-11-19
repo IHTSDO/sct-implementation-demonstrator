@@ -1,0 +1,24 @@
+#main-panel {
+    padding: 10px;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+h3 {
+    margin-top: 0px;
+}
+
+#guideLink {
+    font-size: smaller;
+}
+
+.long-tooltip {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    font-weight: lighter;
+    font-size: 0.9rem;
+}
+

@@ -1,0 +1,131 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "example-custom-questionnaire",
+  "url": "http://example.org/fhir/Questionnaire/example-custom-questionnaire",
+  "version": "1.0.0",
+  "name": "ExampleCustomQuestionnaire",
+  "title": "Example Custom Questionnaire",
+  "status": "active",
+  "description": "This is an example custom questionnaire for testing the upload functionality. It demonstrates basic question types and SNOMED CT bindings.",
+  "date": "2024-01-01",
+  "publisher": "Example Organization",
+  "item": [
+    {
+      "linkId": "1",
+      "text": "Patient Information",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "1.1",
+          "text": "What is the patient's chief complaint?",
+          "type": "string",
+          "required": true
+        },
+        {
+          "linkId": "1.2",
+          "text": "When did symptoms begin?",
+          "type": "date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "text": "Symptom Assessment",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "2.1",
+          "text": "Rate the severity of symptoms",
+          "type": "choice",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "255604002",
+                "display": "Mild"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "6736007",
+                "display": "Moderate"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "24484000",
+                "display": "Severe"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "2.2",
+          "text": "Does the patient have fever?",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "linkId": "2.3",
+          "text": "Additional symptoms (select all that apply)",
+          "type": "choice",
+          "repeats": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "25064002",
+                "display": "Headache"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "49727002",
+                "display": "Cough"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "62315008",
+                "display": "Diarrhea"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "422587007",
+                "display": "Nausea"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "text": "Clinical Notes",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "3.1",
+          "text": "Additional clinical observations",
+          "type": "text",
+          "required": false
+        },
+        {
+          "linkId": "3.2",
+          "text": "Recommended follow-up in days",
+          "type": "integer",
+          "required": false
+        }
+      ]
+    }
+  ]
+}
+

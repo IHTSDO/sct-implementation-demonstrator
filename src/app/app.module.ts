@@ -120,6 +120,9 @@ import { LicenseAgreementComponent } from './license-agreement/license-agreement
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 import { FormRecordsComponent } from './benefits-demo/form-records/form-records.component';
 import { CdsPanelComponent } from './benefits-demo/cds-panel/cds-panel.component';
+import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
+import { DiagnosticReportFormComponent } from './ehds-laboratory-demo/diagnostic-report-form/diagnostic-report-form.component';
+import { SpecimenFormComponent } from './ehds-laboratory-demo/specimen-form/specimen-form.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -199,7 +202,10 @@ const app = initializeApp(firebaseConfig);
         LicenseAgreementComponent,
         CookieConsentComponent,
         FormRecordsComponent,
-        CdsPanelComponent
+        CdsPanelComponent,
+        EhdsLaboratoryDemoComponent,
+        DiagnosticReportFormComponent,
+        SpecimenFormComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

@@ -1,0 +1,15 @@
+<div id="main-panel">
+    <h3>EHDS Laboratory Demo
+        <button mat-icon-button color="primary" [matMenuTriggerFor]="infoPopoverMenu">
+            <mat-icon>info</mat-icon>
+        </button>
+        <mat-menu #infoPopoverMenu="matMenu">
+            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
+                <h4>EHDS Laboratory Demo</h4>
+                <p>This is a demonstration of laboratory data implementation for the European Health Data Space (EHDS).</p>
+            </span>
+        </mat-menu>
+    </h3>
+    <app-diagnostic-report-form></app-diagnostic-report-form>
+</div>
+

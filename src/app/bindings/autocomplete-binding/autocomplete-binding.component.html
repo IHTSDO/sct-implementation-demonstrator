@@ -2,7 +2,8 @@
   <mat-label *ngIf="binding.title">{{ binding.title }}</mat-label>
   <input #inputElement type="text" placeholder="{{ formControl.value?.display || binding.title || 'Search...' }}" matInput [formControl]="formControl" [matAutocomplete]="auto">
   <!-- [value]="(formControl.value?.display) ? formControl.value.display : ''"> -->
-  <mat-hint>{{ binding.note }}</mat-hint>
+  <mat-hint *ngIf="selectedConcept?.code">SNOMED CT: {{ selectedConcept.code }}</mat-hint>
+  <mat-hint *ngIf="!selectedConcept?.code">{{ binding.note }}</mat-hint>
   <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()" *ngIf="formControl.value">
     <mat-icon>close</mat-icon>
   </button>

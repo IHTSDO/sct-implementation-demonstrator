@@ -1,0 +1,155 @@
+<div class="specimen-form-container">
+  <h2 mat-dialog-title class="form-header-title">Specimen Information</h2>
+  <div mat-dialog-content class="specimen-dialog-content">
+    <p class="form-subtitle">
+      EHDS Laboratory Specimen - FHIR Specimen Profile
+      <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu.html" target="_blank" rel="noopener noreferrer" class="profile-link">
+        <mat-icon>link</mat-icon>
+      </a>
+    </p>
+
+    <form [formGroup]="specimenForm" (ngSubmit)="onSubmit()" class="specimen-form">
+    <!-- Row 1: Status, Type, Received time -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>info</mat-icon>
+        Basic Information
+      </h3>
+      <div class="form-grid">
+        <mat-form-field>
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status" required>
+            <mat-option [value]="null">Select status</mat-option>
+            <mat-option *ngFor="let status of statusOptions" [value]="status.code">
+              {{ status.display }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="specimenForm.get('status')?.value">
+            {{ getStatusDefinition(specimenForm.get('status')?.value) }}
+          </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type" required>
+            <mat-option [value]="null">Select specimen type</mat-option>
+            <mat-option *ngFor="let type of typeOptions" [value]="type">
+              {{ type.display }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="specimenForm.get('type')?.value">
+            SNOMED CT: {{ specimenForm.get('type')?.value?.code || '' }}
+          </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Received Time</mat-label>
+          <input matInput [matDatepicker]="receivedTimePicker" formControlName="receivedTime" placeholder="Select received time">
+          <mat-datepicker-toggle matSuffix [for]="receivedTimePicker"></mat-datepicker-toggle>
+          <mat-datepicker #receivedTimePicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Row 2: Collection.BodySite, Collection.Method, Collection.fastingStatus -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>science</mat-icon>
+        Collection Information
+      </h3>
+      <div class="form-grid">
+        <app-autocomplete-binding 
+          [binding]="collectionBodySiteBinding" 
+          formControlName="collectionBodySite"
+          (selectionChange)="onCollectionBodySiteSelected($event)">
+        </app-autocomplete-binding>
+
+        <mat-form-field>
+          <mat-label>Collection Method</mat-label>
+          <mat-select formControlName="collectionMethod">
+            <mat-option [value]="null">Select collection method</mat-option>
+            <mat-option *ngFor="let method of collectionMethodOptions" [value]="method">
+              {{ method.display }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="specimenForm.get('collectionMethod')?.value">
+            SNOMED CT: {{ specimenForm.get('collectionMethod')?.value?.code || '' }}
+          </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Collection Fasting Status</mat-label>
+          <mat-select formControlName="collectionFastingStatus">
+            <mat-option [value]="null">Select fasting status</mat-option>
+            <mat-option *ngFor="let status of collectionFastingStatusOptions" [value]="status">
+              {{ status.display }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="specimenForm.get('collectionFastingStatus')?.value">
+            Code: {{ specimenForm.get('collectionFastingStatus')?.value?.code || '' }}
+          </mat-hint>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Row 3: Processing.procedure, Container.type, Condition -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>settings</mat-icon>
+        Processing & Container
+      </h3>
+      <div class="form-grid">
+        <mat-form-field>
+          <mat-label>Processing Procedure</mat-label>
+          <mat-select formControlName="processingProcedure">
+            <mat-option [value]="null">Select processing procedure</mat-option>
+            <mat-option *ngFor="let procedure of processingProcedureOptions" [value]="procedure">
+              {{ procedure.display }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="specimenForm.get('processingProcedure')?.value">
+            Code: {{ specimenForm.get('processingProcedure')?.value?.code || '' }}
+          </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Container Type</mat-label>
+          <mat-select formControlName="containerType">
+            <mat-option [value]="null">Select container type</mat-option>
+            <mat-option *ngFor="let container of containerTypeOptions" [value]="container">
+              {{ container.display }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="specimenForm.get('containerType')?.value">
+            SNOMED CT: {{ specimenForm.get('containerType')?.value?.code || '' }}
+          </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Condition</mat-label>
+          <mat-select formControlName="condition">
+            <mat-option [value]="null">Select specimen condition</mat-option>
+            <mat-option *ngFor="let condition of conditionOptions" [value]="condition">
+              {{ condition.display }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="specimenForm.get('condition')?.value">
+            Code: {{ specimenForm.get('condition')?.value?.code || '' }}
+          </mat-hint>
+        </mat-form-field>
+      </div>
+    </div>
+
+    </form>
+  </div>
+  <div mat-dialog-actions class="form-actions">
+    <button type="button" mat-button (click)="onCancel()" class="cancel-button">
+      <mat-icon>cancel</mat-icon>
+      Cancel
+    </button>
+    <button type="button" mat-raised-button color="primary" (click)="onSubmit()" class="submit-button">
+      <mat-icon>save</mat-icon>
+      Save Specimen
+    </button>
+  </div>
+</div>

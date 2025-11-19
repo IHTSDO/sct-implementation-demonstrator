@@ -2812,7 +2812,7 @@
       "male": [
         {
           "label": "Road injuries",
-          "computedLocation": "systemic",
+          "computedLocation": "legs",
           "termQueried": "Road injuries",
           "snomed": {
             "code": "214031005",
@@ -4037,7 +4037,7 @@
         },
         {
           "label": "Musculoskeletal disorders",
-          "computedLocation": "systemic",
+          "computedLocation": "legs",
           "termQueried": "Musculoskeletal disorders",
           "snomed": {
             "code": "928000",
@@ -4658,7 +4658,7 @@
         },
         {
           "label": "Diabetes mellitus type 2",
-          "computedLocation": "abdomen",
+          "computedLocation": "systemic",
           "termQueried": "Diabetes mellitus type 2",
           "snomed": {
             "code": "44054006",
@@ -4910,7 +4910,7 @@
         },
         {
           "label": "Musculoskeletal disorders (low back pain)",
-          "computedLocation": "systemic",
+          "computedLocation": "abdomen",
           "termQueried": "Musculoskeletal disorders",
           "snomed": {
             "code": "279039007",
@@ -5374,7 +5374,7 @@
         },
         {
           "label": "Musculoskeletal disorders (low back pain, osteoarthritis)",
-          "computedLocation": "systemic",
+          "computedLocation": "abdomen",
           "termQueried": "Musculoskeletal disorders",
           "snomed": {
             "code": "396275006",
@@ -5997,7 +5997,7 @@
         },
         {
           "label": "Stroke",
-          "computedLocation": "thorax",
+          "computedLocation": "head",
           "termQueried": "Stroke",
           "snomed": {
             "code": "230690007",
@@ -6767,7 +6767,7 @@
         },
         {
           "label": "Diabetes complications",
-          "computedLocation": "abdomen",
+          "computedLocation": "systemic",
           "termQueried": "Diabetes complications",
           "snomed": {
             "code": "74627003",
@@ -7385,7 +7385,7 @@
         },
         {
           "label": "Osteoarthritis and musculoskeletal disorders",
-          "computedLocation": "systemic",
+          "computedLocation": "legs",
           "termQueried": "Osteoarthritis",
           "snomed": {
             "code": "396275006",
