@@ -297,13 +297,29 @@
 }
 
 .valueset-badge {
-  background-color: #2e7d32;
-  color: white;
+  background-color: #2e7d32 !important;
+  color: white !important;
 }
 
 .valueset-badge:hover {
-  background-color: #1b5e20;
+  background-color: #1b5e20 !important;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.valueset-badge:visited {
+  background-color: #2e7d32 !important;
+  color: white !important;
+}
+
+.valueset-badge:active {
+  background-color: #1b5e20 !important;
+  color: white !important;
+}
+
+.valueset-badge:focus {
+  background-color: #2e7d32 !important;
+  color: white !important;
+  outline: none;
 }
 
 /* FHIR Menu Styles */
