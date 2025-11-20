@@ -248,6 +248,160 @@
   margin-bottom: 0;
 }
 
+/* FHIR Badge Styles */
+.fhir-field-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.fhir-badges-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.fhir-badge {
+  align-self: flex-start;
+  margin-bottom: 0;
+  margin-left: 0;
+  z-index: 10;
+  background-color: #d32f2f;
+  color: white;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: auto;
+  line-height: 1.1;
+  height: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.fhir-badge:hover {
+  background-color: #b71c1c;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.fhir-badge:focus {
+  background-color: #b71c1c;
+  outline: none;
+}
+
+.valueset-badge {
+  background-color: #2e7d32;
+  color: white;
+}
+
+.valueset-badge:hover {
+  background-color: #1b5e20;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* FHIR Menu Styles */
+::ng-deep .fhir-menu-panel {
+  max-width: 500px !important;
+  min-width: 400px !important;
+  padding: 0 !important;
+}
+
+.fhir-menu-content {
+  padding: 10px;
+  background-color: white;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.fhir-menu-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #1976d2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fhir-menu-header h4 {
+  margin: 0;
+  color: #1976d2;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  flex: 1;
+}
+
+.fhir-menu-link {
+  color: #1976d2;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.fhir-menu-link:hover {
+  color: #1565c0;
+}
+
+.fhir-menu-link mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+}
+
+.fhir-menu-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fhir-menu-item {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.fhir-label {
+  font-weight: 600;
+  color: #424242;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  min-width: 100px;
+  max-width: 100px;
+  flex-shrink: 0;
+}
+
+.fhir-value {
+  color: #616161;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.fhir-value .valueset-link {
+  color: #1976d2;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.fhir-value .valueset-link:hover {
+  color: #1565c0;
+  text-decoration: underline;
+}
+
 .reference-section {
   margin-top: 8px;
 }
