@@ -46,3 +46,4 @@ python/reports-updater/.env
 python/reports-updater/data/
 python/reports-updater/output/
 python/**/__pycache__/
+data/**
