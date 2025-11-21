@@ -192,6 +192,29 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+.conclusion-code-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conclusion-code-input-container {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.conclusion-code-input-container app-autocomplete-binding {
+  flex: 1;
+  min-width: 0;
+}
+
+.add-conclusion-code-button {
+  margin-top: 8px;
+  flex-shrink: 0;
 }
 
 .conclusion-codes-box .reference-placeholder {
@@ -318,6 +341,32 @@
 
 .valueset-badge:focus {
   background-color: #2e7d32 !important;
+  color: white !important;
+  outline: none;
+}
+
+.sct-badge {
+  background-color: #42a5f5 !important;
+  color: white !important;
+}
+
+.sct-badge:hover {
+  background-color: #2196f3 !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.sct-badge:visited {
+  background-color: #42a5f5 !important;
+  color: white !important;
+}
+
+.sct-badge:active {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+.sct-badge:focus {
+  background-color: #42a5f5 !important;
   color: white !important;
   outline: none;
 }
@@ -530,6 +579,25 @@
   color: #495057;
   font-weight: 500;
   font-size: 0.9rem;
+}
+
+.reference-item-display .reference-info .code-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reference-item-display .reference-info .code-display {
+  color: #495057;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.reference-item-display .reference-info .code-snomed {
+  color: #6c757d;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
 }
 
 .specimen-details {

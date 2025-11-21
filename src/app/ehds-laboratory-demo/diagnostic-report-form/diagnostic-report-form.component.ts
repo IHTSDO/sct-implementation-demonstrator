@@ -75,6 +75,14 @@ export class DiagnosticReportFormComponent implements OnInit {
   isFlipped = false;
   fhirJson = '';
 
+  // Binding for Conclusion Codes autocomplete
+  // ECL: <<404684003 |Clinical finding (finding)|
+  conclusionCodeBinding = {
+    ecl: '<<404684003 |Clinical finding (finding)|',
+    title: 'Conclusion Code',
+    note: 'Search for clinical findings'
+  };
+
   constructor(
     private fb: FormBuilder,
     private fhirService: EhdsLaboratoryFhirService,
@@ -180,6 +188,7 @@ export class DiagnosticReportFormComponent implements OnInit {
       // Conclusion
       conclusion: [''],
       conclusionCode: [[]],
+      conclusionCodeAutocomplete: [null], // Temporary control for autocomplete
       
       // Document
       presentedForm: [null]
@@ -248,8 +257,28 @@ export class DiagnosticReportFormComponent implements OnInit {
   }
 
   onAddConclusionCode(): void {
-    // TODO: Implement conclusion code selection dialog
-    console.log('Add Conclusion Code clicked');
+    const selectedCode = this.diagnosticReportForm.get('conclusionCodeAutocomplete')?.value;
+    if (selectedCode && selectedCode.code && selectedCode.display) {
+      const codes = this.conclusionCodes;
+      codes.push({
+        code: selectedCode.code,
+        system: 'http://snomed.info/sct',
+        display: selectedCode.display
+      });
+      this.diagnosticReportForm.patchValue({ conclusionCode: codes });
+      // Reset the autocomplete
+      this.diagnosticReportForm.patchValue({ conclusionCodeAutocomplete: null });
+    }
+  }
+
+  onConclusionCodeSelected(event: any): void {
+    // This is called when a code is selected from the autocomplete
+    // The value is already set in the form control
+  }
+
+  get canAddConclusionCode(): boolean {
+    const value = this.diagnosticReportForm.get('conclusionCodeAutocomplete')?.value;
+    return value && value.code && value.display;
   }
 
   onUploadPresentedForm(): void {

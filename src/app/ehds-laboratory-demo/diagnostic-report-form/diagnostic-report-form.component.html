@@ -758,40 +758,170 @@
       <div class="combined-section">
         <!-- Interpretation -->
         <div class="conclusion-interpretation-box">
-          <mat-form-field class="full-width">
-            <mat-label>Clinical Conclusion (Interpretation)</mat-label>
-            <textarea matInput formControlName="conclusion" rows="3" 
-                      placeholder="Concise and clinically contextualized summary conclusion of the diagnostic report"></textarea>
-          </mat-form-field>
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="conclusionMenu">
+                FHIR
+              </button>
+            </div>
+            <mat-menu #conclusionMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>DiagnosticReport.conclusion</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu-definitions.html#DiagnosticReport.conclusion" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Concise and clinically contextualized summary conclusion (interpretation/impression) of the diagnostic report.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">Clinical conclusion (interpretation) of test results</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">string</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Primitive Value:</span>
+                    <span class="fhir-value">This primitive element may be present, or absent, or replaced by an extension</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Obligations:</span>
+                    <span class="fhir-value">Actor SHALL:handle LabReportHandler</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Requirements:</span>
+                    <span class="fhir-value">Need to be able to provide a conclusion that is not lost among the basic result data.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Alternate Names:</span>
+                    <span class="fhir-value">Report</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field class="full-width">
+              <mat-label>Clinical Conclusion (Interpretation)</mat-label>
+              <textarea matInput formControlName="conclusion" rows="3" 
+                        placeholder="Concise and clinically contextualized summary conclusion of the diagnostic report"></textarea>
+            </mat-form-field>
+          </div>
         </div>
 
         <!-- Conclusion Codes -->
         <div class="conclusion-codes-box">
           <div class="reference-section">
+            <!-- Autocomplete and Add Button -->
+            <div class="conclusion-code-wrapper">
+              <div class="fhir-badges-container">
+                <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="conclusionCodeMenu">
+                  FHIR
+                </button>
+                <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/R4/valueset-clinical-findings.html', 'Conclusion Code', 'Terminology binding for Conclusion Code')">
+                  BINDING (SCT)
+                </button>
+              </div>
+              <mat-menu #conclusionCodeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                <div class="fhir-menu-content">
+                  <div class="fhir-menu-header">
+                    <h4>DiagnosticReport.conclusionCode</h4>
+                    <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu-definitions.html#DiagnosticReport.conclusionCode" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                      <mat-icon>link</mat-icon>
+                    </a>
+                  </div>
+                  <div class="fhir-menu-body">
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Definition:</span>
+                      <span class="fhir-value">One or more codes that represent the summary conclusion (interpretation/impression) of the diagnostic report.</span>
+                    </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Short:</span>
+                      <span class="fhir-value">Codes for the clinical conclusion of test results</span>
+                    </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Control:</span>
+                      <span class="fhir-value">0..*</span>
+                    </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Binding:</span>
+                      <span class="fhir-value">For example codes, see SNOMEDCTClinicalFindings (example to <a href="http://hl7.org/fhir/ValueSet/clinical-findings" target="_blank" rel="noopener noreferrer" class="valueset-link">http://hl7.org/fhir/ValueSet/clinical-findings</a>). Diagnosis codes provided as adjuncts to the report.</span>
+                    </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Type:</span>
+                      <span class="fhir-value">CodeableConcept</span>
+                    </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Is Modifier:</span>
+                      <span class="fhir-value">false</span>
+                    </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Summary:</span>
+                      <span class="fhir-value">false</span>
+                    </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Invariants:</span>
+                      <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-menu>
+              <div class="conclusion-code-input-container">
+                <app-autocomplete-binding 
+                  [binding]="conclusionCodeBinding" 
+                  formControlName="conclusionCodeAutocomplete"
+                  (selectionChange)="onConclusionCodeSelected($event)">
+                </app-autocomplete-binding>
+                <button 
+                  type="button" 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="onAddConclusionCode()" 
+                  [disabled]="!canAddConclusionCode"
+                  class="add-conclusion-code-button">
+                  <mat-icon>add</mat-icon>
+                  Add
+                </button>
+              </div>
+            </div>
+
+            <!-- List of Added Codes -->
             <div *ngIf="conclusionCodes.length === 0" class="reference-placeholder">
               <mat-icon>code</mat-icon>
               <p>No conclusion codes added</p>
-              <button type="button" mat-raised-button color="primary" (click)="onAddConclusionCode()" [disabled]="true">
-                <mat-icon>add</mat-icon>
-                Add Conclusion Code
-              </button>
             </div>
 
             <div *ngIf="conclusionCodes.length > 0" class="reference-list">
               <div *ngFor="let code of conclusionCodes; let i = index" class="reference-item-display">
                 <div class="reference-info">
                   <mat-icon>code</mat-icon>
-                  <span>Conclusion Code {{ i + 1 }}</span>
+                  <div class="code-info">
+                    <span class="code-display">{{ code.display }}</span>
+                    <span class="code-snomed">SNOMED CT: {{ code.code }}</span>
+                  </div>
                   <button type="button" mat-icon-button color="warn" (click)="removeConclusionCode(i)">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
-              </div>
-              <div class="add-more-button">
-                <button type="button" mat-raised-button color="primary" (click)="onAddConclusionCode()" [disabled]="true">
-                  <mat-icon>add</mat-icon>
-                  Add Conclusion Code
-                </button>
               </div>
             </div>
           </div>
