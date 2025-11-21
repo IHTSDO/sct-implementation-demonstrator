@@ -6,7 +6,12 @@
           <div class="header-row">
             <div>
               <h2>EHDS Laboratory Diagnostic Report</h2>
-              <p class="form-subtitle">MyHealth&#64;EU Laboratory Report - FHIR DiagnosticReport Profile</p>
+              <p class="form-subtitle">
+                MyHealth&#64;EU Laboratory Report - FHIR DiagnosticReport Profile
+                <button type="button" mat-button class="fhir-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu.html', 'DiagnosticReport Profile', 'FHIR Resource')">
+                  FHIR
+                </button>
+              </p>
             </div>
             <button type="button" mat-raised-button color="primary" (click)="flipCard()">
               <mat-icon>code</mat-icon>
@@ -29,9 +34,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="statusMenu">
               FHIR
             </button>
-            <a href="http://hl7.org/fhir/ValueSet/observation-status" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://hl7.org/fhir/ValueSet/observation-status', 'Status')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #statusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -184,9 +189,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="languageMenu">
               FHIR
             </button>
-            <a href="http://terminology.ehdsi.eu/ValueSet/eHDSILanguage" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILanguage.html', 'Language')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #languageMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -215,7 +220,7 @@
                 </div>
                 <div class="fhir-menu-item">
                   <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHOULD be taken from CommonLanguages (preferred to <a href="http://hl7.org/fhir/ValueSet/languages" target="_blank" rel="noopener noreferrer" class="valueset-link">http://hl7.org/fhir/ValueSet/languages</a>). A human language. Required: <a href="http://terminology.ehdsi.eu/ValueSet/eHDSILanguage" target="_blank" rel="noopener noreferrer" class="valueset-link">http://terminology.ehdsi.eu/ValueSet/eHDSILanguage</a></span>
+                  <span class="fhir-value">The codes SHOULD be taken from CommonLanguages (preferred to <a href="http://hl7.org/fhir/ValueSet/languages" target="_blank" rel="noopener noreferrer" class="valueset-link">http://hl7.org/fhir/ValueSet/languages</a>). A human language. Required: <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILanguage.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILanguage.html</a></span>
                 </div>
                 <div class="fhir-menu-item">
                   <span class="fhir-label">Additional Bindings:</span>
@@ -319,9 +324,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="codeMenu">
               FHIR
             </button>
-            <a href="http://terminology.ehdsi.eu/ValueSet/eHDSILaboratoryReportTypes" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILaboratoryReportTypes.html', 'Report Type')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #codeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -350,7 +355,7 @@
                 </div>
                 <div class="fhir-menu-item">
                   <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHALL be taken from eHDSI Laboratory Report Types (required to <a href="http://terminology.ehdsi.eu/ValueSet/eHDSILaboratoryReportTypes" target="_blank" rel="noopener noreferrer" class="valueset-link">http://terminology.ehdsi.eu/ValueSet/eHDSILaboratoryReportTypes</a>)</span>
+                  <span class="fhir-value">The codes SHALL be taken from eHDSI Laboratory Report Types (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILaboratoryReportTypes.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILaboratoryReportTypes.html</a>)</span>
                 </div>
                 <div class="fhir-menu-item">
                   <span class="fhir-label">Type:</span>
@@ -391,9 +396,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="studyTypeMenu">
               FHIR
             </button>
-            <a href="http://terminology.ehdsi.eu/ValueSet/eHDSILabStudyType" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabStudyType.html', 'Study Type')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #studyTypeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -426,7 +431,7 @@
                 </div>
                 <div class="fhir-menu-item">
                   <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHALL be taken from eHDSI Laboratory Study Types (required to <a href="http://terminology.ehdsi.eu/ValueSet/eHDSILabStudyType" target="_blank" rel="noopener noreferrer" class="valueset-link">http://terminology.ehdsi.eu/ValueSet/eHDSILabStudyType</a>)</span>
+                  <span class="fhir-value">The codes SHALL be taken from eHDSI Laboratory Study Types (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabStudyType.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabStudyType.html</a>)</span>
                 </div>
                 <div class="fhir-menu-item">
                   <span class="fhir-label">Type:</span>
@@ -474,9 +479,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="specialtyMenu">
               FHIR
             </button>
-            <a href="http://hl7.eu/fhir/laboratory/ValueSet/lab-specialty-eu-lab" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://hl7.eu/fhir/laboratory/ValueSet/lab-specialty-eu-lab', 'Specialty')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #specialtyMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">

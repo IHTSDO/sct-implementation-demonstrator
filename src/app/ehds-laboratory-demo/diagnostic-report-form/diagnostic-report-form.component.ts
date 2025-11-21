@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { EhdsLaboratoryFhirService, FhirDiagnosticReport } from '../../services/ehds-laboratory-fhir.service';
 import { SpecimenFormComponent, SpecimenData } from '../specimen-form/specimen-form.component';
+import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 
 export interface DiagnosticReportData {
   // Identification & Status
@@ -379,6 +380,16 @@ export class DiagnosticReportFormComponent implements OnInit {
       link.click();
       window.URL.revokeObjectURL(url);
     }
+  }
+
+  openValuesetDialog(valuesetUrl: string, fieldName: string, dialogTitle?: string): void {
+    this.dialog.open(ValuesetDialogComponent, {
+      width: '90%',
+      maxWidth: '1200px',
+      height: '90vh',
+      data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
+      panelClass: 'valueset-dialog-container'
+    });
   }
 }
 

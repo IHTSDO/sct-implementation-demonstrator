@@ -1,0 +1,59 @@
+.valueset-dialog-title {
+  margin: 0 !important;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.iframe-container {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.valueset-iframe {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border: none;
+  display: block;
+  overflow: hidden;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 10;
+  gap: 16px;
+}
+
+.loading-text {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+mat-dialog-actions {
+  margin: 0 !important;
+  padding: 12px 24px !important;
+  border-top: 1px solid #e0e0e0;
+  min-height: auto !important;
+  height: auto !important;
+  flex-shrink: 0;
+}
+
+mat-dialog-actions button {
+  margin: 0 !important;
+}

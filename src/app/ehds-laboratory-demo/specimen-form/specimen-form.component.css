@@ -190,6 +190,32 @@
   outline: none;
 }
 
+.sct-badge {
+  background-color: #42a5f5 !important;
+  color: white !important;
+}
+
+.sct-badge:hover {
+  background-color: #2196f3 !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.sct-badge:visited {
+  background-color: #42a5f5 !important;
+  color: white !important;
+}
+
+.sct-badge:active {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+.sct-badge:focus {
+  background-color: #42a5f5 !important;
+  color: white !important;
+  outline: none;
+}
+
 /* FHIR Menu Styles */
 ::ng-deep .fhir-menu-panel {
   max-width: 500px !important;

@@ -3,9 +3,9 @@
   <div mat-dialog-content class="specimen-dialog-content">
     <p class="form-subtitle">
       EHDS Laboratory Specimen - FHIR Specimen Profile
-      <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu.html" target="_blank" rel="noopener noreferrer" class="profile-link">
-        <mat-icon>link</mat-icon>
-      </a>
+      <button type="button" mat-button class="fhir-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu.html', 'Specimen Profile', 'FHIR Resource')">
+        FHIR
+      </button>
     </p>
 
     <form [formGroup]="specimenForm" (ngSubmit)="onSubmit()" class="specimen-form">
@@ -21,9 +21,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="statusMenu">
               FHIR
             </button>
-            <a href="http://hl7.org/fhir/ValueSet/specimen-status" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://hl7.org/fhir/ValueSet/specimen-status', 'Status')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #statusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -92,9 +92,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="typeMenu">
               FHIR
             </button>
-            <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabSpecimenTypeWithExceptions.html" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
-              BINDING
-            </a>
+            <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabSpecimenTypeWithExceptions.html', 'Type')">
+              Binding (SCT)
+            </button>
           </div>
           <mat-menu #typeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -226,9 +226,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionBodySiteMenu">
               FHIR
             </button>
-            <a href="https://hl7.org/fhir/extensions/5.2.0/StructureDefinition-bodySite.html" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
-              BINDING
-            </a>
+            <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/R5/valueset-body-site.html', 'Collection Body Site')">
+              Binding (SCT)
+            </button>
           </div>
           <mat-menu #collectionBodySiteMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -257,7 +257,7 @@
                 </div>
                 <div class="fhir-menu-item">
                   <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHALL be taken from eHDSI Body Site With Exceptions (required to <a href="https://hl7.org/fhir/extensions/5.2.0/StructureDefinition-bodySite.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/extensions/5.2.0/StructureDefinition-bodySite.html</a>).</span>
+                  <span class="fhir-value">The codes SHALL be taken from eHDSI Body Site With Exceptions (required to <a href="https://hl7.org/fhir/R5/valueset-body-site.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/R5/valueset-body-site.html</a>).</span>
                 </div>
                 <div class="fhir-menu-item">
                   <span class="fhir-label">Type:</span>
@@ -290,9 +290,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionMethodMenu">
               FHIR
             </button>
-            <a href="http://hl7.org/fhir/ValueSet/specimen-collection-method" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
-              BINDING
-            </a>
+            <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('http://hl7.org/fhir/ValueSet/specimen-collection-method', 'Collection Method')">
+              Binding (SCT)
+            </button>
           </div>
           <mat-menu #collectionMethodMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -357,9 +357,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionFastingStatusMenu">
               FHIR
             </button>
-            <a href="http://terminology.hl7.org/ValueSet/v2-0916" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://terminology.hl7.org/ValueSet/v2-0916', 'Collection Fasting Status')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #collectionFastingStatusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -441,9 +441,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="processingProcedureMenu">
               FHIR
             </button>
-            <a href="https://hl7.org/fhir/R4/valueset-specimen-processing-procedure.html" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://hl7.org/fhir/ValueSet/specimen-processing-procedure', 'Processing Procedure')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #processingProcedureMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -508,9 +508,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="containerTypeMenu">
               FHIR
             </button>
-            <a href="http://hl7.eu/fhir/laboratory/ValueSet/lab-specimenContainer-eu-lab" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
-              BINDING
-            </a>
+            <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('http://hl7.eu/fhir/laboratory/ValueSet/lab-specimenContainer-eu-lab', 'Container Type')">
+              Binding (SCT)
+            </button>
           </div>
           <mat-menu #containerTypeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">
@@ -575,9 +575,9 @@
             <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="conditionMenu">
               FHIR
             </button>
-            <a href="http://terminology.hl7.org/ValueSet/v2-0493" target="_blank" rel="noopener noreferrer" class="fhir-badge valueset-badge">
+            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://terminology.hl7.org/ValueSet/v2-0493', 'Condition')">
               BINDING
-            </a>
+            </button>
           </div>
           <mat-menu #conditionMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
             <div class="fhir-menu-content">

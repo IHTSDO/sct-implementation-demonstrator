@@ -78,3 +78,35 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   padding: 0 !important;
   border-radius: 0 !important;
 }
+
+/* ValueSet Dialog styles */
+::ng-deep .valueset-dialog-container .mat-mdc-dialog-container {
+  padding: 0 !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+::ng-deep .valueset-dialog-container .mat-mdc-dialog-inner-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+::ng-deep .valueset-dialog-container .mat-mdc-dialog-surface {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+::ng-deep .valueset-dialog-container .mat-mdc-dialog-component-host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+}

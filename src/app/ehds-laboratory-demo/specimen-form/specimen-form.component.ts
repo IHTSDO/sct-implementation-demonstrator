@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 
 export interface SpecimenData {
   status: string;
@@ -257,7 +258,8 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<SpecimenFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private dialog: MatDialog
   ) {
     this.specimenForm = this.createForm();
   }
@@ -345,5 +347,15 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
   getStatusDefinition(code: string): string {
     const status = this.statusOptions.find(opt => opt.code === code);
     return status ? status.definition : '';
+  }
+
+  openValuesetDialog(valuesetUrl: string, fieldName: string, dialogTitle?: string): void {
+    this.dialog.open(ValuesetDialogComponent, {
+      width: '90%',
+      maxWidth: '1200px',
+      height: '90vh',
+      data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
+      panelClass: 'valueset-dialog-container'
+    });
   }
 }
