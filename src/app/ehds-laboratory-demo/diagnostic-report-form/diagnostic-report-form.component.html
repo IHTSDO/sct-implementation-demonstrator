@@ -906,14 +906,14 @@
 
             <!-- List of Added Codes -->
             <div *ngIf="conclusionCodes.length === 0" class="reference-placeholder">
-              <mat-icon>code</mat-icon>
+              <mat-icon>local_hospital</mat-icon>
               <p>No conclusion codes added</p>
             </div>
 
             <div *ngIf="conclusionCodes.length > 0" class="reference-list">
               <div *ngFor="let code of conclusionCodes; let i = index" class="reference-item-display">
                 <div class="reference-info">
-                  <mat-icon>code</mat-icon>
+                  <mat-icon>local_hospital</mat-icon>
                   <div class="code-info">
                     <span class="code-display">{{ code.display }}</span>
                     <span class="code-snomed">SNOMED CT: {{ code.code }}</span>
