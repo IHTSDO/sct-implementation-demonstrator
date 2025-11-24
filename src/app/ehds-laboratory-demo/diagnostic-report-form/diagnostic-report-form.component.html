@@ -562,21 +562,19 @@
             Subject (Patient)
           </h3>
           <div class="reference-section">
-            <div *ngIf="!hasSubject" class="reference-placeholder">
-              <mat-icon>person_add</mat-icon>
-              <p>No patient selected</p>
-              <button type="button" mat-raised-button color="primary" (click)="onAddSubject()" [disabled]="true">
-                <mat-icon>add</mat-icon>
-                Add Patient
-              </button>
-            </div>
+            <mat-form-field class="full-width">
+              <mat-label>Select Patient</mat-label>
+              <mat-select [value]="selectedSubjectReference" (selectionChange)="onSubjectSelected($event.value)">
+                <mat-option [value]="null">No patient selected</mat-option>
+                <mat-option *ngFor="let patient of patientExamples" [value]="patient.reference">
+                  {{ patient.display }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
             <div *ngIf="hasSubject" class="reference-display">
               <div class="reference-info">
                 <mat-icon>person</mat-icon>
-                <span>Patient reference added</span>
-                <button type="button" mat-icon-button (click)="diagnosticReportForm.patchValue({ subject: null })">
-                  <mat-icon>close</mat-icon>
-                </button>
+                <span>{{ diagnosticReportForm.get('subject')?.value?.display }}</span>
               </div>
             </div>
           </div>
@@ -590,41 +588,37 @@
           </h3>
           <div class="personnel-grid">
             <div class="reference-item">
-              <div *ngIf="!hasPerformer" class="reference-placeholder">
-                <mat-icon>person_add</mat-icon>
-                <p>No performer selected</p>
-                <button type="button" mat-raised-button color="primary" (click)="onAddPerformer()" [disabled]="true">
-                  <mat-icon>add</mat-icon>
-                  Add Performer
-                </button>
-              </div>
+              <mat-form-field class="full-width">
+                <mat-label>Select Performer</mat-label>
+                <mat-select [value]="selectedPerformerReference" (selectionChange)="onPerformerSelected($event.value)">
+                  <mat-option [value]="null">No performer selected</mat-option>
+                  <mat-option *ngFor="let performer of performerExamples" [value]="performer.reference">
+                    {{ performer.display }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
               <div *ngIf="hasPerformer" class="reference-display">
                 <div class="reference-info">
                   <mat-icon>person</mat-icon>
-                  <span>Performer reference added</span>
-                  <button type="button" mat-icon-button (click)="diagnosticReportForm.patchValue({ performer: null })">
-                    <mat-icon>close</mat-icon>
-                  </button>
+                  <span>{{ diagnosticReportForm.get('performer')?.value?.display }}</span>
                 </div>
               </div>
             </div>
 
             <div class="reference-item">
-              <div *ngIf="!hasResultsInterpreter" class="reference-placeholder">
-                <mat-icon>person_add</mat-icon>
-                <p>No results interpreter selected</p>
-                <button type="button" mat-raised-button color="primary" (click)="onAddResultsInterpreter()" [disabled]="true">
-                  <mat-icon>add</mat-icon>
-                  Add Results Interpreter
-                </button>
-              </div>
+              <mat-form-field class="full-width">
+                <mat-label>Select Results Interpreter</mat-label>
+                <mat-select [value]="selectedResultsInterpreterReference" (selectionChange)="onResultsInterpreterSelected($event.value)">
+                  <mat-option [value]="null">No results interpreter selected</mat-option>
+                  <mat-option *ngFor="let interpreter of resultsInterpreterExamples" [value]="interpreter.reference">
+                    {{ interpreter.display }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
               <div *ngIf="hasResultsInterpreter" class="reference-display">
                 <div class="reference-info">
                   <mat-icon>person</mat-icon>
-                  <span>Results interpreter reference added</span>
-                  <button type="button" mat-icon-button (click)="diagnosticReportForm.patchValue({ resultsInterpreter: null })">
-                    <mat-icon>close</mat-icon>
-                  </button>
+                  <span>{{ diagnosticReportForm.get('resultsInterpreter')?.value?.display }}</span>
                 </div>
               </div>
             </div>
@@ -906,14 +900,14 @@
 
             <!-- List of Added Codes -->
             <div *ngIf="conclusionCodes.length === 0" class="reference-placeholder">
-              <mat-icon>local_hospital</mat-icon>
+              <mat-icon>medical_services</mat-icon>
               <p>No conclusion codes added</p>
             </div>
 
             <div *ngIf="conclusionCodes.length > 0" class="reference-list">
               <div *ngFor="let code of conclusionCodes; let i = index" class="reference-item-display">
                 <div class="reference-info">
-                  <mat-icon>local_hospital</mat-icon>
+                  <mat-icon>medical_services</mat-icon>
                   <div class="code-info">
                     <span class="code-display">{{ code.display }}</span>
                     <span class="code-snomed">SNOMED CT: {{ code.code }}</span>

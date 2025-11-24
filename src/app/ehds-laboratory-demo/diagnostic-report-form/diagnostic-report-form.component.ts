@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EhdsLaboratoryFhirService, FhirDiagnosticReport } from '../../services/ehds-laboratory-fhir.service';
 import { SpecimenFormComponent, SpecimenData } from '../specimen-form/specimen-form.component';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
+import { PATIENT_EXAMPLES, PERFORMER_EXAMPLES, RESULTS_INTERPRETER_EXAMPLES, ReferenceExample } from './diagnostic-report-examples.data';
 
 export interface DiagnosticReportData {
   // Identification & Status
@@ -74,6 +75,11 @@ export class DiagnosticReportFormComponent implements OnInit {
   diagnosticReportForm: FormGroup;
   isFlipped = false;
   fhirJson = '';
+
+  // Example data for selection
+  patientExamples = PATIENT_EXAMPLES;
+  performerExamples = PERFORMER_EXAMPLES;
+  resultsInterpreterExamples = RESULTS_INTERPRETER_EXAMPLES;
 
   // Binding for Conclusion Codes autocomplete
   // ECL: <<404684003 |Clinical finding (finding)|
@@ -196,19 +202,37 @@ export class DiagnosticReportFormComponent implements OnInit {
   }
 
 
-  onAddSubject(): void {
-    // TODO: Implement subject selection dialog
-    console.log('Add Subject clicked');
+  onSubjectSelected(selectedValue: string): void {
+    if (selectedValue && selectedValue !== 'null') {
+      const selectedPatient = this.patientExamples.find(p => p.reference === selectedValue);
+      if (selectedPatient) {
+        this.diagnosticReportForm.patchValue({ subject: selectedPatient });
+      }
+    } else {
+      this.diagnosticReportForm.patchValue({ subject: null });
+    }
   }
 
-  onAddPerformer(): void {
-    // TODO: Implement performer selection dialog
-    console.log('Add Performer clicked');
+  onPerformerSelected(selectedValue: string): void {
+    if (selectedValue && selectedValue !== 'null') {
+      const selectedPerformer = this.performerExamples.find(p => p.reference === selectedValue);
+      if (selectedPerformer) {
+        this.diagnosticReportForm.patchValue({ performer: selectedPerformer });
+      }
+    } else {
+      this.diagnosticReportForm.patchValue({ performer: null });
+    }
   }
 
-  onAddResultsInterpreter(): void {
-    // TODO: Implement results interpreter selection dialog
-    console.log('Add Results Interpreter clicked');
+  onResultsInterpreterSelected(selectedValue: string): void {
+    if (selectedValue && selectedValue !== 'null') {
+      const selectedInterpreter = this.resultsInterpreterExamples.find(i => i.reference === selectedValue);
+      if (selectedInterpreter) {
+        this.diagnosticReportForm.patchValue({ resultsInterpreter: selectedInterpreter });
+      }
+    } else {
+      this.diagnosticReportForm.patchValue({ resultsInterpreter: null });
+    }
   }
 
   onAddBasedOn(): void {
@@ -329,6 +353,18 @@ export class DiagnosticReportFormComponent implements OnInit {
 
   get hasResultsInterpreter(): boolean {
     return !!this.diagnosticReportForm.get('resultsInterpreter')?.value;
+  }
+
+  get selectedSubjectReference(): string | null {
+    return this.diagnosticReportForm.get('subject')?.value?.reference || null;
+  }
+
+  get selectedPerformerReference(): string | null {
+    return this.diagnosticReportForm.get('performer')?.value?.reference || null;
+  }
+
+  get selectedResultsInterpreterReference(): string | null {
+    return this.diagnosticReportForm.get('resultsInterpreter')?.value?.reference || null;
   }
 
   get hasBasedOn(): boolean {
