@@ -3,6 +3,8 @@
  * Pre-configured examples for Patient, Performer, and Results Interpreter selection
  */
 
+import { SpecimenData } from '../specimen-form/specimen-form.component';
+
 export interface ReferenceExample {
   reference: string;
   display: string;
@@ -11,6 +13,11 @@ export interface ReferenceExample {
     system: string;
     value: string;
   };
+}
+
+export interface ServiceRequestExample extends ReferenceExample {
+  subjectReference?: string; // Reference to Patient
+  specimenReference?: string; // Reference to Specimen (optional)
 }
 
 export const PATIENT_EXAMPLES: ReferenceExample[] = [
@@ -102,4 +109,167 @@ export const RESULTS_INTERPRETER_EXAMPLES: ReferenceExample[] = [
     }
   }
 ];
+
+export const SERVICE_REQUEST_EXAMPLES: ServiceRequestExample[] = [
+  {
+    reference: 'ServiceRequest/example-sr-001',
+    display: 'Complete Blood Count (CBC) - Request #SR-001',
+    type: 'ServiceRequest',
+    identifier: {
+      system: 'http://hospital.example.org/service-requests',
+      value: 'SR-001'
+    },
+    subjectReference: 'Patient/example-patient-001',
+    specimenReference: 'Specimen/example-specimen-001'
+  },
+  {
+    reference: 'ServiceRequest/example-sr-002',
+    display: 'Basic Metabolic Panel (BMP) - Request #SR-002',
+    type: 'ServiceRequest',
+    identifier: {
+      system: 'http://hospital.example.org/service-requests',
+      value: 'SR-002'
+    },
+    subjectReference: 'Patient/example-patient-002',
+    specimenReference: 'Specimen/example-specimen-002'
+  },
+  {
+    reference: 'ServiceRequest/example-sr-003',
+    display: 'Lipid Panel - Request #SR-003',
+    type: 'ServiceRequest',
+    identifier: {
+      system: 'http://hospital.example.org/service-requests',
+      value: 'SR-003'
+    },
+    subjectReference: 'Patient/example-patient-001',
+    specimenReference: 'Specimen/example-specimen-003'
+  },
+  {
+    reference: 'ServiceRequest/example-sr-004',
+    display: 'Liver Function Tests (LFT) - Request #SR-004',
+    type: 'ServiceRequest',
+    identifier: {
+      system: 'http://hospital.example.org/service-requests',
+      value: 'SR-004'
+    },
+    subjectReference: 'Patient/example-patient-003',
+    specimenReference: 'Specimen/example-specimen-004'
+  }
+];
+
+// Specimen examples mapped by reference
+export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
+  'Specimen/example-specimen-001': {
+    status: 'available',
+    type: {
+      code: '122555007',
+      system: 'http://snomed.info/sct',
+      display: 'Venous blood specimen'
+    },
+    receivedTime: new Date(),
+    collectionBodySite: {
+      code: '368208006',
+      display: 'Vein structure'
+    },
+    collectionMethod: {
+      code: '82078001',
+      system: 'http://snomed.info/sct',
+      display: 'Venipuncture'
+    },
+    collectionFastingStatus: null,
+    processingProcedure: null,
+    containerType: {
+      code: '467989009',
+      system: 'http://snomed.info/sct',
+      display: 'Blood collection tube'
+    },
+    condition: null
+  },
+  'Specimen/example-specimen-002': {
+    status: 'available',
+    type: {
+      code: '122555007',
+      system: 'http://snomed.info/sct',
+      display: 'Venous blood specimen'
+    },
+    receivedTime: new Date(),
+    collectionBodySite: {
+      code: '368208006',
+      display: 'Vein structure'
+    },
+    collectionMethod: {
+      code: '82078001',
+      system: 'http://snomed.info/sct',
+      display: 'Venipuncture'
+    },
+    collectionFastingStatus: {
+      code: '39801008',
+      system: 'http://snomed.info/sct',
+      display: 'Fasting'
+    },
+    processingProcedure: null,
+    containerType: {
+      code: '467989009',
+      system: 'http://snomed.info/sct',
+      display: 'Blood collection tube'
+    },
+    condition: null
+  },
+  'Specimen/example-specimen-003': {
+    status: 'available',
+    type: {
+      code: '122555007',
+      system: 'http://snomed.info/sct',
+      display: 'Venous blood specimen'
+    },
+    receivedTime: new Date(),
+    collectionBodySite: {
+      code: '368208006',
+      display: 'Vein structure'
+    },
+    collectionMethod: {
+      code: '82078001',
+      system: 'http://snomed.info/sct',
+      display: 'Venipuncture'
+    },
+    collectionFastingStatus: {
+      code: '260415000',
+      system: 'http://snomed.info/sct',
+      display: 'Non-fasting'
+    },
+    processingProcedure: null,
+    containerType: {
+      code: '467989009',
+      system: 'http://snomed.info/sct',
+      display: 'Blood collection tube'
+    },
+    condition: null
+  },
+  'Specimen/example-specimen-004': {
+    status: 'available',
+    type: {
+      code: '122555007',
+      system: 'http://snomed.info/sct',
+      display: 'Venous blood specimen'
+    },
+    receivedTime: new Date(),
+    collectionBodySite: {
+      code: '368208006',
+      display: 'Vein structure'
+    },
+    collectionMethod: {
+      code: '82078001',
+      system: 'http://snomed.info/sct',
+      display: 'Venipuncture'
+    },
+    collectionFastingStatus: null,
+    processingProcedure: null,
+    containerType: {
+      code: '467989009',
+      system: 'http://snomed.info/sct',
+      display: 'Blood collection tube'
+    },
+    condition: null
+  }
+};
 

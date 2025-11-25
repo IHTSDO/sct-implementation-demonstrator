@@ -25,6 +25,7 @@ import { MatFormFieldControl } from '@angular/material/form-field';
 export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlValueAccessor  {
   @Input() binding: any;
   @Input() term: string = "";
+  @Input() readonly: boolean = false;
   @Output() selectionChange = new EventEmitter<any>();
   @Output() cleared = new EventEmitter<any>();
   @ViewChild('inputElement') inputElement!: ElementRef<HTMLInputElement>;
@@ -79,27 +80,22 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
     this.onTouched = fn;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['term']) {
-        this.term = changes['term'].currentValue;
-
-        if (this.term && typeof this.term === 'object' && this.term["display"]) {
-            this.formControl.setValue(this.term["display"]);
-            this.selectedConcept = this.term; // Store the full concept object
-        } else {
-            this.formControl.setValue(this.term);
-            this.selectedConcept = {};
-        }
-    }
-  }
 
 
   ngOnInit(): void {
+      // Disable form control if readonly
+      if (this.readonly) {
+        this.formControl.disable();
+      }
+      
       this.autoFilter = this.formControl.valueChanges.pipe(
         debounceTime(300),
         distinctUntilChanged(),
         /** 1️⃣  Launch request only when term ≥ 3 chars */
         switchMap((term: string) => {
+          if (this.readonly) {
+            return of([]); // Don't search if readonly
+          }
           if (term?.length >= 3) {
             this.loading = true;
             /** 2️⃣  Emit [] immediately, then emit the server result */
@@ -117,6 +113,27 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, ControlV
           return of([]);
         })
       );
+  }
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['readonly']) {
+      if (this.readonly) {
+        this.formControl.disable();
+      } else {
+        this.formControl.enable();
+      }
+    }
+    if (changes['term']) {
+        this.term = changes['term'].currentValue;
+
+        if (this.term && typeof this.term === 'object' && this.term["display"]) {
+            this.formControl.setValue(this.term["display"]);
+            this.selectedConcept = this.term; // Store the full concept object
+        } else {
+            this.formControl.setValue(this.term);
+            this.selectedConcept = {};
+        }
+    }
   }
 
   onTermChange() {

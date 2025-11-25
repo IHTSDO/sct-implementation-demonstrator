@@ -1,4 +1,9 @@
-<h2 mat-dialog-title class="valueset-dialog-title">{{ dialogTitle }}</h2>
+<h2 mat-dialog-title class="valueset-dialog-title">
+  <span>{{ dialogTitle }}</span>
+  <a href="#" (click)="openInNewTab(); $event.preventDefault()" class="open-new-tab-link" title="Open in new tab">
+    <mat-icon>open_in_new</mat-icon>
+  </a>
+</h2>
 <div class="iframe-container">
   <div class="loading-overlay" *ngIf="isLoading">
     <mat-spinner diameter="50"></mat-spinner>

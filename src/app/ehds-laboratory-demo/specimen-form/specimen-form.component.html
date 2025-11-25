@@ -1,5 +1,5 @@
 <div class="specimen-form-container">
-  <h2 mat-dialog-title class="form-header-title">Specimen Information</h2>
+  <h2 mat-dialog-title class="form-header-title">{{ isViewOnly ? 'View Specimen Information' : 'Specimen Information' }}</h2>
   <div mat-dialog-content class="specimen-dialog-content">
     <p class="form-subtitle">
       EHDS Laboratory Specimen - FHIR Specimen Profile
@@ -281,6 +281,7 @@
           <app-autocomplete-binding 
             [binding]="collectionBodySiteBinding" 
             formControlName="collectionBodySite"
+            [readonly]="isViewOnly"
             (selectionChange)="onCollectionBodySiteSelected($event)">
           </app-autocomplete-binding>
         </div>
@@ -651,10 +652,10 @@
   </div>
   <div mat-dialog-actions class="form-actions">
     <button type="button" mat-button (click)="onCancel()" class="cancel-button">
-      <mat-icon>cancel</mat-icon>
-      Cancel
+      <mat-icon>{{ isViewOnly ? 'close' : 'cancel' }}</mat-icon>
+      {{ isViewOnly ? 'Close' : 'Cancel' }}
     </button>
-    <button type="button" mat-raised-button color="primary" (click)="onSubmit()" class="submit-button">
+    <button *ngIf="!isViewOnly" type="button" mat-raised-button color="primary" (click)="onSubmit()" class="submit-button">
       <mat-icon>save</mat-icon>
       Save Specimen
     </button>

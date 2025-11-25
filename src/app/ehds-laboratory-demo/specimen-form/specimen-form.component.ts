@@ -50,6 +50,7 @@ export interface SpecimenData {
 })
 export class SpecimenFormComponent implements OnInit, AfterViewInit {
   specimenForm: FormGroup;
+  isViewOnly: boolean = false;
 
   // Binding for Collection Body Site autocomplete
   // ECL: << 442083009 |Anatomical or acquired body structure (body structure)|
@@ -262,6 +263,15 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog
   ) {
     this.specimenForm = this.createForm();
+    // Check if data contains viewOnly flag
+    if (this.data && typeof this.data === 'object') {
+      if ('viewOnly' in this.data) {
+        this.isViewOnly = this.data.viewOnly === true;
+      }
+      if (this.isViewOnly) {
+        this.specimenForm.disable();
+      }
+    }
   }
 
   ngOnInit(): void {
@@ -270,7 +280,12 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     // Load data after view is initialized to ensure all form controls are ready
     if (this.data) {
-      this.loadFormData(this.data);
+      const dataToLoad = (this.data && typeof this.data === 'object' && 'specimen' in this.data) ? this.data.specimen : this.data;
+      this.loadFormData(dataToLoad);
+      // Disable form if viewOnly mode
+      if (this.isViewOnly) {
+        this.specimenForm.disable();
+      }
     }
   }
 

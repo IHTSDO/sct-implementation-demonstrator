@@ -5,6 +5,31 @@
   flex-shrink: 0;
   font-weight: bold;
   font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.open-new-tab-link {
+  display: inline-flex;
+  align-items: center;
+  color: #1976d2;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  margin-left: auto;
+}
+
+.open-new-tab-link:hover {
+  opacity: 1;
+}
+
+.open-new-tab-link mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .iframe-container {

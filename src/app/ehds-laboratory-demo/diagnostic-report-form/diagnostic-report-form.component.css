@@ -532,6 +532,26 @@
   font-size: 0.9rem;
 }
 
+.order-request-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.order-request-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.reference-display-inline {
+  background-color: #e8f5e9;
+  border: 1px solid #4caf50;
+  border-radius: 6px;
+  padding: 10px 12px;
+  flex: 1;
+  min-width: 0;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -555,8 +575,8 @@
 }
 
 .reference-item-display {
-  background-color: #f8f9fa;
-  border: 1px solid #e0e0e0;
+  background-color: #e8f5e9;
+  border: 1px solid #4caf50;
   border-radius: 6px;
   padding: 10px 12px;
 }
@@ -568,7 +588,7 @@
 }
 
 .reference-item-display .reference-info mat-icon:first-child {
-  color: #1976d2;
+  color: #4caf50;
   font-size: 1.25rem;
   width: 1.25rem;
   height: 1.25rem;
@@ -576,7 +596,7 @@
 
 .reference-item-display .reference-info span {
   flex: 1;
-  color: #495057;
+  color: #2e7d32;
   font-weight: 500;
   font-size: 0.9rem;
 }
@@ -609,7 +629,7 @@
 
 .specimen-title {
   font-weight: 600;
-  color: #1976d2;
+  color: #2e7d32;
   font-size: 0.95rem;
 }
 
@@ -619,20 +639,20 @@
   align-items: center;
   gap: 4px;
   font-size: 0.85rem;
-  color: #6c757d;
+  color: #388e3c;
 }
 
 .specimen-type {
   font-weight: 500;
-  color: #495057;
+  color: #2e7d32;
 }
 
 .specimen-status {
-  color: #6c757d;
+  color: #388e3c;
 }
 
 .specimen-container {
-  color: #6c757d;
+  color: #388e3c;
   font-style: italic;
 }
 

@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EhdsLaboratoryFhirService, FhirDiagnosticReport } from '../../services/ehds-laboratory-fhir.service';
 import { SpecimenFormComponent, SpecimenData } from '../specimen-form/specimen-form.component';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
-import { PATIENT_EXAMPLES, PERFORMER_EXAMPLES, RESULTS_INTERPRETER_EXAMPLES, ReferenceExample } from './diagnostic-report-examples.data';
+import { PATIENT_EXAMPLES, PERFORMER_EXAMPLES, RESULTS_INTERPRETER_EXAMPLES, SERVICE_REQUEST_EXAMPLES, SPECIMEN_EXAMPLES, ReferenceExample, ServiceRequestExample } from './diagnostic-report-examples.data';
 
 export interface DiagnosticReportData {
   // Identification & Status
@@ -80,6 +80,7 @@ export class DiagnosticReportFormComponent implements OnInit {
   patientExamples = PATIENT_EXAMPLES;
   performerExamples = PERFORMER_EXAMPLES;
   resultsInterpreterExamples = RESULTS_INTERPRETER_EXAMPLES;
+  serviceRequestExamples = SERVICE_REQUEST_EXAMPLES;
 
   // Binding for Conclusion Codes autocomplete
   // ECL: <<404684003 |Clinical finding (finding)|
@@ -235,9 +236,40 @@ export class DiagnosticReportFormComponent implements OnInit {
     }
   }
 
-  onAddBasedOn(): void {
-    // TODO: Implement ServiceRequest selection dialog
-    console.log('Add Based On (ServiceRequest) clicked');
+  onBasedOnSelected(selectedValue: string): void {
+    if (selectedValue && selectedValue !== 'null') {
+      const selectedServiceRequest = this.serviceRequestExamples.find(sr => sr.reference === selectedValue);
+      if (selectedServiceRequest) {
+        this.diagnosticReportForm.patchValue({ basedOn: selectedServiceRequest });
+        
+        // Automatically select the associated subject (patient)
+        if (selectedServiceRequest.subjectReference) {
+          const associatedPatient = this.patientExamples.find(p => p.reference === selectedServiceRequest.subjectReference);
+          if (associatedPatient) {
+            this.diagnosticReportForm.patchValue({ subject: associatedPatient });
+          }
+        }
+        
+        // Automatically add the associated specimen if available
+        if (selectedServiceRequest.specimenReference) {
+          const associatedSpecimen = SPECIMEN_EXAMPLES[selectedServiceRequest.specimenReference];
+          if (associatedSpecimen) {
+            const currentSpecimens = this.specimens;
+            // Only add if not already present (check by type or create a simple comparison)
+            const specimenExists = currentSpecimens.some(s => 
+              s.type?.code === associatedSpecimen.type?.code && 
+              s.type?.system === associatedSpecimen.type?.system
+            );
+            if (!specimenExists) {
+              currentSpecimens.push(associatedSpecimen);
+              this.diagnosticReportForm.patchValue({ specimen: currentSpecimens });
+            }
+          }
+        }
+      }
+    } else {
+      this.diagnosticReportForm.patchValue({ basedOn: null });
+    }
   }
 
   onAddSpecimen(): void {
@@ -254,6 +286,16 @@ export class DiagnosticReportFormComponent implements OnInit {
         specimens.push(result);
         this.diagnosticReportForm.patchValue({ specimen: specimens });
       }
+    });
+  }
+
+  viewSpecimen(index: number): void {
+    const specimen = this.specimens[index];
+    const dialogRef = this.dialog.open(SpecimenFormComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false,
+      data: { specimen: specimen, viewOnly: true }
     });
   }
 
@@ -365,6 +407,10 @@ export class DiagnosticReportFormComponent implements OnInit {
 
   get selectedResultsInterpreterReference(): string | null {
     return this.diagnosticReportForm.get('resultsInterpreter')?.value?.reference || null;
+  }
+
+  get selectedBasedOnReference(): string | null {
+    return this.diagnosticReportForm.get('basedOn')?.value?.reference || null;
   }
 
   get hasBasedOn(): boolean {
