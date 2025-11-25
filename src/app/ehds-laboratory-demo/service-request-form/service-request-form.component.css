@@ -1,4 +1,4 @@
-.specimen-form-container {
+.service-request-form-container {
   padding: 0;
   background-color: #ffffff;
 }
@@ -10,7 +10,7 @@
   margin: 0;
 }
 
-.specimen-dialog-content {
+.service-request-dialog-content {
   padding: 20px 24px;
   max-height: 70vh;
   overflow-y: auto;
@@ -47,18 +47,18 @@
 }
 
 /* Subtle hints styling */
-.specimen-form ::ng-deep .mat-mdc-form-field-hint-wrapper {
+.service-request-form ::ng-deep .mat-mdc-form-field-hint-wrapper {
   opacity: 0.5;
 }
 
-.specimen-form ::ng-deep .mat-mdc-form-field-hint {
+.service-request-form ::ng-deep .mat-mdc-form-field-hint {
   color: rgba(0, 0, 0, 0.4);
   font-size: 0.65rem;
   font-weight: 400;
   line-height: 1.2;
 }
 
-.specimen-form {
+.service-request-form {
   display: flex;
   flex-direction: column;
   gap: 12px;

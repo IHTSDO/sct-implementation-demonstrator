@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { EhdsLaboratoryFhirService, FhirDiagnosticReport } from '../../services/ehds-laboratory-fhir.service';
 import { SpecimenFormComponent, SpecimenData } from '../specimen-form/specimen-form.component';
+import { ServiceRequestFormComponent, ServiceRequestData } from '../service-request-form/service-request-form.component';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 import { PATIENT_EXAMPLES, PERFORMER_EXAMPLES, RESULTS_INTERPRETER_EXAMPLES, SERVICE_REQUEST_EXAMPLES, SPECIMEN_EXAMPLES, ReferenceExample, ServiceRequestExample } from './diagnostic-report-examples.data';
 
@@ -240,7 +241,24 @@ export class DiagnosticReportFormComponent implements OnInit {
     if (selectedValue && selectedValue !== 'null') {
       const selectedServiceRequest = this.serviceRequestExamples.find(sr => sr.reference === selectedValue);
       if (selectedServiceRequest) {
-        this.diagnosticReportForm.patchValue({ basedOn: selectedServiceRequest });
+        // Create a ServiceRequestData object from the example
+        const serviceRequestData: ServiceRequestData = {
+          identifier: selectedServiceRequest.identifier?.value || '',
+          status: 'active',
+          intent: 'order',
+          priority: 'routine',
+          code: null,
+          subject: selectedServiceRequest.subjectReference ? {
+            reference: selectedServiceRequest.subjectReference,
+            display: this.patientExamples.find(p => p.reference === selectedServiceRequest.subjectReference)?.display || ''
+          } : null,
+          authoredOn: new Date(),
+          requester: null,
+          reasonCode: null,
+          bodySite: null
+        };
+        
+        this.diagnosticReportForm.patchValue({ basedOn: { ...selectedServiceRequest, data: serviceRequestData } });
         
         // Automatically select the associated subject (patient)
         if (selectedServiceRequest.subjectReference) {
@@ -270,6 +288,59 @@ export class DiagnosticReportFormComponent implements OnInit {
     } else {
       this.diagnosticReportForm.patchValue({ basedOn: null });
     }
+  }
+
+  viewServiceRequest(): void {
+    const basedOn = this.diagnosticReportForm.get('basedOn')?.value;
+    const serviceRequestData = basedOn?.data || this.createServiceRequestDataFromExample(basedOn);
+    
+    const dialogRef = this.dialog.open(ServiceRequestFormComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false,
+      data: { serviceRequest: serviceRequestData, viewOnly: true }
+    });
+  }
+
+  editServiceRequest(): void {
+    const basedOn = this.diagnosticReportForm.get('basedOn')?.value;
+    const serviceRequestData = basedOn?.data || this.createServiceRequestDataFromExample(basedOn);
+    
+    const dialogRef = this.dialog.open(ServiceRequestFormComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false,
+      data: serviceRequestData
+    });
+
+    dialogRef.afterClosed().subscribe((result: ServiceRequestData | undefined) => {
+      if (result) {
+        const updatedBasedOn = {
+          ...basedOn,
+          data: result,
+          display: result.code?.display || basedOn?.display || 'Service Request'
+        };
+        this.diagnosticReportForm.patchValue({ basedOn: updatedBasedOn });
+      }
+    });
+  }
+
+  private createServiceRequestDataFromExample(example: any): ServiceRequestData {
+    return {
+      identifier: example?.identifier?.value || '',
+      status: 'active',
+      intent: 'order',
+      priority: 'routine',
+      code: null,
+      subject: example?.subjectReference ? {
+        reference: example.subjectReference,
+        display: this.patientExamples.find(p => p.reference === example.subjectReference)?.display || ''
+      } : null,
+      authoredOn: new Date(),
+      requester: null,
+      reasonCode: null,
+      bodySite: null
+    };
   }
 
   onAddSpecimen(): void {

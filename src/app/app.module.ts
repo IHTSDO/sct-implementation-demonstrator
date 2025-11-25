@@ -123,6 +123,7 @@ import { CdsPanelComponent } from './benefits-demo/cds-panel/cds-panel.component
 import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
 import { DiagnosticReportFormComponent } from './ehds-laboratory-demo/diagnostic-report-form/diagnostic-report-form.component';
 import { SpecimenFormComponent } from './ehds-laboratory-demo/specimen-form/specimen-form.component';
+import { ServiceRequestFormComponent } from './ehds-laboratory-demo/service-request-form/service-request-form.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -205,7 +206,8 @@ const app = initializeApp(firebaseConfig);
         CdsPanelComponent,
         EhdsLaboratoryDemoComponent,
         DiagnosticReportFormComponent,
-        SpecimenFormComponent
+        SpecimenFormComponent,
+        ServiceRequestFormComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

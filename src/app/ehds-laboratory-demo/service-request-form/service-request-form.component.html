@@ -1,0 +1,482 @@
+<div class="service-request-form-container">
+  <h2 mat-dialog-title class="form-header-title">{{ isViewOnly ? 'View Service Request Information' : 'Service Request Information' }}</h2>
+  <div mat-dialog-content class="service-request-dialog-content">
+    <p class="form-subtitle">
+      EHDS Laboratory Service Request - FHIR ServiceRequest Profile
+      <button type="button" mat-button class="fhir-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu.html', 'ServiceRequest Profile', 'FHIR Resource')">
+        FHIR
+      </button>
+    </p>
+
+    <form [formGroup]="serviceRequestForm" (ngSubmit)="onSubmit()" class="service-request-form">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>info</mat-icon>
+          Basic Information
+        </h3>
+        <div class="form-grid">
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="identifierMenu">
+                FHIR
+              </button>
+            </div>
+            <mat-menu #identifierMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.identifier</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.identifier" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Identifiers assigned to this order instance by the orderer and/or the receiver and/or order fulfiller.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">1..*</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">Identifier</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Identifier</mat-label>
+              <input matInput formControlName="identifier" placeholder="e.g., SR-001">
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="statusMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://hl7.org/fhir/ValueSet/request-status', 'Status')">
+                BINDING
+              </button>
+            </div>
+            <mat-menu #statusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.status</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.status" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">The status of the order.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">1..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from RequestStatus (required to <a href="http://hl7.org/fhir/ValueSet/request-status" target="_blank" rel="noopener noreferrer" class="valueset-link">http://hl7.org/fhir/ValueSet/request-status|4.0.1</a>).</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Status *</mat-label>
+              <mat-select formControlName="status" required>
+                <mat-option [value]="null">Select status</mat-option>
+                <mat-option *ngFor="let status of statusOptions" [value]="status.code">
+                  {{ status.display }}
+                </mat-option>
+              </mat-select>
+              <mat-hint *ngIf="serviceRequestForm.get('status')?.value">
+                {{ getStatusDefinition(serviceRequestForm.get('status')?.value) }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="intentMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://hl7.org/fhir/ValueSet/request-intent', 'Intent')">
+                BINDING
+              </button>
+            </div>
+            <mat-menu #intentMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.intent</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.intent" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Whether the request is a proposal, plan, an original order or a reflex order.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">1..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from RequestIntent (required to <a href="http://hl7.org/fhir/ValueSet/request-intent" target="_blank" rel="noopener noreferrer" class="valueset-link">http://hl7.org/fhir/ValueSet/request-intent|4.0.1</a>).</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Intent *</mat-label>
+              <mat-select formControlName="intent" required>
+                <mat-option [value]="null">Select intent</mat-option>
+                <mat-option *ngFor="let intent of intentOptions" [value]="intent.code">
+                  {{ intent.display }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Code -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>local_hospital</mat-icon>
+          Service Code
+        </h3>
+        <div class="form-grid">
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="codeMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabCodeWithExceptions.html', 'Code')">
+                BINDING
+              </button>
+            </div>
+            <mat-menu #codeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.code</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.code" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">A code that identifies a particular service (i.e., procedure) that has been requested.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">1..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from eHDSI Lab Code With Exceptions (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabCodeWithExceptions.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabCodeWithExceptions.html</a>).</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Service Code *</mat-label>
+              <mat-select formControlName="code" required>
+                <mat-option [value]="null">Select service code</mat-option>
+                <mat-option *ngFor="let code of codeOptions" [value]="code">
+                  {{ code.display }}
+                </mat-option>
+              </mat-select>
+              <mat-hint *ngIf="serviceRequestForm.get('code')?.value">
+                Code: {{ serviceRequestForm.get('code')?.value?.code || '' }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="priorityMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('http://hl7.org/fhir/ValueSet/request-priority', 'Priority')">
+                BINDING
+              </button>
+            </div>
+            <mat-menu #priorityMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.priority</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.priority" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Indicates how quickly the ServiceRequest should be addressed with respect to other requests.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">1..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from RequestPriority (required to <a href="http://hl7.org/fhir/ValueSet/request-priority" target="_blank" rel="noopener noreferrer" class="valueset-link">http://hl7.org/fhir/ValueSet/request-priority|4.0.1</a>).</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Priority *</mat-label>
+              <mat-select formControlName="priority" required>
+                <mat-option [value]="null">Select priority</mat-option>
+                <mat-option *ngFor="let priority of priorityOptions" [value]="priority.code">
+                  {{ priority.display }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subject & Requester -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>person</mat-icon>
+          Subject & Requester
+        </h3>
+        <div class="form-grid">
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="subjectMenu">
+                FHIR
+              </button>
+            </div>
+            <mat-menu #subjectMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.subject</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.subject" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">On whom or what the service is to be performed.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">1..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">Reference(Patient)</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Subject (Patient)</mat-label>
+              <input matInput [value]="getSubjectDisplay()" placeholder="Patient reference" readonly>
+              <mat-hint *ngIf="serviceRequestForm.get('subject')?.value">
+                Reference: {{ serviceRequestForm.get('subject')?.value?.reference || '' }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="requesterMenu">
+                FHIR
+              </button>
+            </div>
+            <mat-menu #requesterMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.requester</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.requester" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">The individual who initiated the request and has responsibility for its activation.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">Reference(Practitioner, PractitionerRole, Organization, Patient, RelatedPerson, Device)</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Requester</mat-label>
+              <input matInput [value]="getRequesterDisplay()" placeholder="Requester reference" readonly>
+              <mat-hint *ngIf="serviceRequestForm.get('requester')?.value">
+                Reference: {{ serviceRequestForm.get('requester')?.value?.reference || '' }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="authoredOnMenu">
+                FHIR
+              </button>
+            </div>
+            <mat-menu #authoredOnMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.authoredOn</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.authoredOn" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">When the request was made.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">dateTime</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Authored On</mat-label>
+              <input matInput [matDatepicker]="authoredOnPicker" formControlName="authoredOn" readonly>
+              <mat-datepicker-toggle matSuffix [for]="authoredOnPicker"></mat-datepicker-toggle>
+              <mat-datepicker #authoredOnPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reason & Body Site -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>description</mat-icon>
+          Reason & Body Site
+        </h3>
+        <div class="form-grid">
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="reasonCodeMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIOrderReason.html', 'Reason Code')">
+                BINDING
+              </button>
+            </div>
+            <mat-menu #reasonCodeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.reasonCode</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.reasonCode" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">An explanation or justification for why this service is being requested.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">1..*</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from eHDSI Order Reason (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIOrderReason.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIOrderReason.html</a>).</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Reason Code *</mat-label>
+              <mat-select formControlName="reasonCode" required>
+                <mat-option [value]="null">Select reason code</mat-option>
+                <mat-option *ngFor="let reason of reasonCodeOptions" [value]="reason">
+                  {{ reason.display }}
+                </mat-option>
+              </mat-select>
+              <mat-hint *ngIf="serviceRequestForm.get('reasonCode')?.value">
+                Code: {{ serviceRequestForm.get('reasonCode')?.value?.code || '' }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="bodySiteMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('http://hl7.org/fhir/ValueSet/body-site', 'Body Site')">
+                BINDING (SCT)
+              </button>
+            </div>
+            <mat-menu #bodySiteMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>ServiceRequest.bodySite</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.bodySite" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Anatomic location where the procedure should be performed.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..*</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from SNOMED CT Body Structures (example to <a href="http://hl7.org/fhir/ValueSet/body-site" target="_blank" rel="noopener noreferrer" class="valueset-link">http://hl7.org/fhir/ValueSet/body-site</a>).</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <app-autocomplete-binding 
+              [binding]="bodySiteBinding" 
+              formControlName="bodySite"
+              [readonly]="isViewOnly">
+            </app-autocomplete-binding>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+  <div mat-dialog-actions class="form-actions">
+    <button type="button" mat-button (click)="onCancel()" class="cancel-button">
+      <mat-icon>{{ isViewOnly ? 'close' : 'cancel' }}</mat-icon>
+      {{ isViewOnly ? 'Close' : 'Cancel' }}
+    </button>
+    <button *ngIf="!isViewOnly" type="button" mat-raised-button color="primary" (click)="onSubmit()" class="submit-button">
+      <mat-icon>save</mat-icon>
+      Save Service Request
+    </button>
+  </div>
+</div>
+

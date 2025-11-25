@@ -612,12 +612,18 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
-          <div *ngIf="hasBasedOn" class="reference-display-inline">
-            <div class="reference-info">
-              <mat-icon>assignment</mat-icon>
-              <span>{{ diagnosticReportForm.get('basedOn')?.value?.display }}</span>
-            </div>
+        <div *ngIf="hasBasedOn" class="reference-display-inline">
+          <div class="reference-info">
+            <mat-icon>assignment</mat-icon>
+            <span>{{ diagnosticReportForm.get('basedOn')?.value?.display }}</span>
+            <button type="button" mat-icon-button color="primary" (click)="viewServiceRequest()" title="View service request">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button type="button" mat-icon-button color="primary" (click)="editServiceRequest()" title="Edit service request">
+              <mat-icon>edit</mat-icon>
+            </button>
           </div>
+        </div>
         </div>
       </div>
     </div>
