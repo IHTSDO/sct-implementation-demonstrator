@@ -1,0 +1,359 @@
+.observation-result-form-container {
+  padding: 0;
+  background-color: #ffffff;
+}
+
+.form-header-title {
+  color: #1976d2;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.observation-result-dialog-content {
+  padding: 20px 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.form-subtitle {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-subtitle .profile-link {
+  color: #1976d2;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+  margin-left: 4px;
+}
+
+.form-subtitle .profile-link:hover {
+  color: #1565c0;
+}
+
+.form-subtitle .profile-link mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+/* Subtle hints styling */
+.observation-result-form ::ng-deep .mat-mdc-form-field-hint-wrapper {
+  opacity: 0.5;
+}
+
+.observation-result-form ::ng-deep .mat-mdc-form-field-hint {
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 0.65rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.observation-result-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px 15px;
+  background-color: #fafafa;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1976d2;
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.section-title mat-icon {
+  color: #1976d2;
+  font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.form-grid mat-form-field {
+  min-width: 0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Alignment for form fields */
+.form-grid {
+  align-items: start;
+}
+
+.value-type-grid {
+  align-items: start;
+}
+
+.value-type-grid.quantity-layout {
+  grid-template-columns: 1fr 2fr 1fr;
+}
+
+.value-type-grid.string-layout {
+  grid-template-columns: 1fr 2fr;
+}
+
+.value-type-grid.codeable-concept-layout {
+  grid-template-columns: 1fr 2fr;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.cancel-button,
+.submit-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* FHIR Badge Styles */
+.fhir-field-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.fhir-badges-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.fhir-badge {
+  align-self: flex-start;
+  margin-bottom: 0;
+  margin-left: 0;
+  z-index: 10;
+  background-color: #d32f2f !important;
+  color: white !important;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: auto;
+  line-height: 1.1;
+  height: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.form-subtitle .fhir-badge {
+  background-color: #d32f2f !important;
+  color: white !important;
+}
+
+.fhir-badge:hover {
+  background-color: #b71c1c;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.fhir-badge:focus {
+  background-color: #b71c1c;
+  outline: none;
+}
+
+.valueset-badge {
+  background-color: #2e7d32 !important;
+  color: white !important;
+}
+
+.valueset-badge:hover {
+  background-color: #1b5e20 !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.valueset-badge:visited {
+  background-color: #2e7d32 !important;
+  color: white !important;
+}
+
+.valueset-badge:active {
+  background-color: #1b5e20 !important;
+  color: white !important;
+}
+
+.valueset-badge:focus {
+  background-color: #2e7d32 !important;
+  color: white !important;
+  outline: none;
+}
+
+.sct-badge {
+  background-color: #42a5f5 !important;
+  color: white !important;
+}
+
+.sct-badge:hover {
+  background-color: #2196f3 !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.sct-badge:visited {
+  background-color: #42a5f5 !important;
+  color: white !important;
+}
+
+.sct-badge:active {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+.sct-badge:focus {
+  background-color: #42a5f5 !important;
+  color: white !important;
+  outline: none;
+}
+
+/* FHIR Menu Styles */
+::ng-deep .fhir-menu-panel {
+  max-width: 500px !important;
+  min-width: 400px !important;
+  padding: 0 !important;
+}
+
+.fhir-menu-content {
+  padding: 10px;
+  background-color: white;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.fhir-menu-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #1976d2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fhir-menu-header h4 {
+  margin: 0;
+  color: #1976d2;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  flex: 1;
+}
+
+.fhir-menu-link {
+  color: #1976d2;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.fhir-menu-link:hover {
+  color: #1565c0;
+}
+
+.fhir-menu-link mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+}
+
+.fhir-menu-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fhir-menu-item {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.fhir-label {
+  font-weight: 600;
+  color: #424242;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  min-width: 100px;
+  max-width: 100px;
+  flex-shrink: 0;
+}
+
+.fhir-value {
+  color: #616161;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.fhir-value .valueset-link {
+  color: #1976d2;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.fhir-value .valueset-link:hover {
+  color: #1565c0;
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+

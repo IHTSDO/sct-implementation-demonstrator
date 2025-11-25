@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EhdsLaboratoryFhirService, FhirDiagnosticReport } from '../../services/ehds-laboratory-fhir.service';
 import { SpecimenFormComponent, SpecimenData } from '../specimen-form/specimen-form.component';
 import { ServiceRequestFormComponent, ServiceRequestData } from '../service-request-form/service-request-form.component';
+import { ObservationResultFormComponent, ObservationResultData } from '../observation-result-form/observation-result-form.component';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 import { PATIENT_EXAMPLES, PERFORMER_EXAMPLES, RESULTS_INTERPRETER_EXAMPLES, SERVICE_REQUEST_EXAMPLES, SPECIMEN_EXAMPLES, ReferenceExample, ServiceRequestExample } from './diagnostic-report-examples.data';
 
@@ -389,8 +390,62 @@ export class DiagnosticReportFormComponent implements OnInit {
   }
 
   onAddResult(): void {
-    // TODO: Implement observation result selection/creation dialog
-    console.log('Add Result (Observation) clicked');
+    const dialogRef = this.dialog.open(ObservationResultFormComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false,
+      data: {
+        observation: {
+          status: 'final',
+          code: null,
+          subject: this.diagnosticReportForm.get('subject')?.value || null,
+          effectiveDateTime: null,
+          valueQuantity: null,
+          valueString: null,
+          valueCodeableConcept: null,
+          interpretation: null,
+          referenceRange: null,
+          performer: this.diagnosticReportForm.get('performer')?.value || null,
+          note: null
+        }
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: ObservationResultData | undefined) => {
+      if (result) {
+        const currentResults = this.results;
+        currentResults.push(result);
+        this.diagnosticReportForm.patchValue({ result: currentResults });
+      }
+    });
+  }
+
+  viewResult(index: number): void {
+    const result = this.results[index];
+    const dialogRef = this.dialog.open(ObservationResultFormComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false,
+      data: { observation: result, viewOnly: true }
+    });
+  }
+
+  editResult(index: number): void {
+    const result = this.results[index];
+    const dialogRef = this.dialog.open(ObservationResultFormComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false,
+      data: result
+    });
+
+    dialogRef.afterClosed().subscribe((updatedResult: ObservationResultData | undefined) => {
+      if (updatedResult) {
+        const currentResults = [...this.results];
+        currentResults[index] = updatedResult;
+        this.diagnosticReportForm.patchValue({ result: currentResults });
+      }
+    });
   }
 
   onAddConclusionCode(): void {

@@ -675,6 +675,60 @@
   justify-content: center;
 }
 
+.result-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-title {
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 0.95rem;
+}
+
+.result-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #1976d2;
+}
+
+.result-code {
+  font-weight: 500;
+}
+
+.result-value {
+  color: #424242;
+}
+
+.result-status {
+  color: #666;
+  text-transform: capitalize;
+}
+
+.result-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.result-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-actions button mat-icon {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .add-more-button {
   margin-top: 12px;
   display: flex;

@@ -1,0 +1,360 @@
+import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
+
+export interface ObservationResultData {
+  status: string;
+  code: {
+    code: string;
+    system: string;
+    display: string;
+  } | null;
+  subject: {
+    reference: string;
+    display: string;
+  } | null;
+  effectiveDateTime: Date | null;
+  valueQuantity: {
+    value: number;
+    unit: string;
+    system?: string;
+    code?: string;
+  } | null;
+  valueString: string | null;
+  valueCodeableConcept: {
+    code: string;
+    system: string;
+    display: string;
+  } | null;
+  interpretation: {
+    code: string;
+    system: string;
+    display: string;
+  } | null;
+  referenceRange: {
+    low?: {
+      value: number;
+      unit: string;
+    };
+    high?: {
+      value: number;
+      unit: string;
+    };
+    text?: string;
+  } | null;
+  performer: {
+    reference: string;
+    display: string;
+  } | null;
+  note: string | null;
+}
+
+@Component({
+  selector: 'app-observation-result-form',
+  templateUrl: './observation-result-form.component.html',
+  styleUrls: ['./observation-result-form.component.css'],
+  standalone: false
+})
+export class ObservationResultFormComponent implements OnInit, AfterViewInit {
+  observationForm: FormGroup;
+  isViewOnly: boolean = false;
+  valueType: 'quantity' | 'string' | 'codeableConcept' = 'quantity';
+
+  // Status options from FHIR ObservationStatus ValueSet
+  // https://hl7.org/fhir/R4/valueset-observation-status.html
+  statusOptions = [
+    { code: 'registered', display: 'Registered', definition: 'The existence of the observation is registered, but there is no result yet available.' },
+    { code: 'preliminary', display: 'Preliminary', definition: 'This is an initial or interim observation: data may be incomplete or unverified.' },
+    { code: 'final', display: 'Final', definition: 'The observation is complete and verified by an authorized person.' },
+    { code: 'amended', display: 'Amended', definition: 'Subsequent to being Final, the observation has been modified subsequent to being Final.' },
+    { code: 'corrected', display: 'Corrected', definition: 'Subsequent to being Final, the observation has been modified to correct an error in the original result.' },
+    { code: 'cancelled', display: 'Cancelled', definition: 'The observation is unavailable because the measurement was not started or not completed.' },
+    { code: 'entered-in-error', display: 'Entered in Error', definition: 'The observation has been withdrawn following previous Final release.' },
+    { code: 'unknown', display: 'Unknown', definition: 'The authoring/source system does not know which of the status values currently applies for this observation.' }
+  ];
+
+  // Code options - Common laboratory test codes (LOINC)
+  codeOptions = [
+    { code: '718-7', system: 'http://loinc.org', display: 'Hemoglobin [Mass/volume] in Blood' },
+    { code: '789-8', system: 'http://loinc.org', display: 'Erythrocytes [#/volume] in Blood by Automated count' },
+    { code: '786-4', system: 'http://loinc.org', display: 'Leukocytes [#/volume] in Blood by Automated count' },
+    { code: '777-3', system: 'http://loinc.org', display: 'Platelets [#/volume] in Blood by Automated count' },
+    { code: '6690-2', system: 'http://loinc.org', display: 'Leukocytes [#/volume] in Blood by Manual count' },
+    { code: '2160-0', system: 'http://loinc.org', display: 'Creatinine [Mass/volume] in Serum or Plasma' },
+    { code: '33914-3', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood' },
+    { code: '2085-9', system: 'http://loinc.org', display: 'Cholesterol [Mass/volume] in Serum or Plasma' },
+    { code: '2571-8', system: 'http://loinc.org', display: 'Triglyceride [Mass/volume] in Serum or Plasma' },
+    { code: '2089-1', system: 'http://loinc.org', display: 'Cholesterol in LDL [Mass/volume] in Serum or Plasma' }
+  ];
+
+  // Interpretation options from FHIR Observation Interpretation ValueSet
+  // https://hl7.org/fhir/valueset-observation-interpretation.html
+  // Includes all non-deprecated codes from the valueset (excluding abstract codes)
+  interpretationOptions = [
+    // Normal/Abnormal interpretations
+    { code: 'N', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Normal', definition: 'Interpretation within normal range.' },
+    { code: 'A', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Abnormal', definition: 'Interpretation outside normal range.' },
+    { code: 'AA', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Critical Abnormal', definition: 'Interpretation critically outside normal range.' },
+    
+    // High/Low interpretations
+    { code: 'H', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'High', definition: 'Interpretation above normal range.' },
+    { code: 'HH', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Critical High', definition: 'Interpretation critically above normal range.' },
+    { code: 'L', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Low', definition: 'Interpretation below normal range.' },
+    { code: 'LL', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Critical Low', definition: 'Interpretation critically below normal range.' },
+    
+    // Susceptibility interpretations
+    { code: 'S', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Susceptible', definition: 'Susceptible interpretation.' },
+    { code: 'R', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Resistant', definition: 'Resistant interpretation.' },
+    { code: 'I', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Intermediate', definition: 'Intermediate interpretation.' },
+    { code: 'MS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Moderately Susceptible', definition: 'Moderately susceptible interpretation.' },
+    { code: 'VS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Very Susceptible', definition: 'Very susceptible interpretation.' },
+    { code: 'NCL', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'No CLSI defined breakpoint', definition: 'No CLSI defined breakpoint.' },
+    { code: 'SDD', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Susceptible-dose dependent', definition: 'Susceptible-dose dependent interpretation.' },
+    { code: 'SYN-R', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Synergy - resistant', definition: 'Synergy - resistant interpretation.' },
+    { code: 'SYN-S', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Synergy - susceptible', definition: 'Synergy - susceptible interpretation.' },
+    
+    // Change interpretations
+    { code: 'B', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Better', definition: 'The current result or observation value has improved compared to the previous result or observation value.' },
+    { code: 'W', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Worse', definition: 'The current result or observation value has deteriorated compared to the previous result or observation value.' },
+    { code: 'U', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Significant change up', definition: 'Significant change up.' },
+    { code: 'D', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Significant change down', definition: 'Significant change down.' },
+    
+    // Expectation interpretations
+    { code: 'EXP', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Expected', definition: 'This result has been evaluated in light of known contraindicators. Once those contraindicators have been taken into account the result is determined to be "Expected".' },
+    { code: 'UNE', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Unexpected', definition: 'This result has been evaluated in light of known contraindicators. Once those contraindicators have been taken into account the result is determined to be "Unexpected".' },
+    
+    // Reactivity interpretations
+    { code: 'NR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Non-reactive', definition: 'An absence finding used to indicate that the specified component / analyte did not react measurably with the reagent.' },
+    { code: 'RR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Reactive', definition: 'A presence finding used to indicate that the specified component / analyte reacted with the reagent above the reliably measurable limit of the performed test.' },
+    { code: 'WR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Weakly reactive', definition: 'A weighted presence finding used to indicate that the specified component / analyte reacted with the reagent, but below the reliably measurable limit of the performed test.' },
+    
+    // Genetic interpretations
+    { code: 'CAR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Carrier', definition: 'The patient is considered as carrier based on the testing results. A carrier is an individual who carries an altered form of a gene which can lead to having a child or offspring in future generations with a genetic disorder.' },
+    { code: 'POS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Positive', definition: 'Positive interpretation.' },
+    { code: 'NEG', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Negative', definition: 'Negative interpretation.' },
+    { code: 'IND', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Indeterminate', definition: 'Indeterminate interpretation.' },
+    { code: 'DET', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Detected', definition: 'Detected interpretation.' },
+    { code: 'ND', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Not Detected', definition: 'Not detected interpretation.' },
+    { code: 'HU', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Homozygote', definition: 'Homozygote interpretation.' },
+    
+    // Scale/Instrument interpretations
+    { code: '<', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Below absolute low-off instrument scale', definition: 'Below absolute low-off instrument scale interpretation.' },
+    { code: '>', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Above absolute high-off instrument scale', definition: 'Above absolute high-off instrument scale interpretation.' },
+    { code: '<LLOQ', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Below lower limit of quantitation', definition: 'Below lower limit of quantitation interpretation.' },
+    { code: '>ULOQ', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Above upper limit of quantitation', definition: 'Above upper limit of quantitation interpretation.' },
+    
+    // Other interpretations
+    { code: 'IE', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Insufficient evidence', definition: 'Insufficient evidence interpretation.' },
+    { code: 'QCF', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Quality control failure', definition: 'Quality control failure interpretation.' },
+    { code: 'TOX', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Toxic', definition: 'Toxic interpretation.' },
+    { code: 'ACUTE', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Acute', definition: 'Acute interpretation.' },
+    { code: 'CHRONIC', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Chronic', definition: 'Chronic interpretation.' },
+    { code: 'REACT', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Reactive', definition: 'Reactive interpretation.' },
+    { code: 'NONR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Non-reactive', definition: 'Non-reactive interpretation.' },
+    { code: 'HIGHRES', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'High Resolution', definition: 'High resolution interpretation.' },
+    { code: 'RES', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Resistant', definition: 'Resistant interpretation.' },
+    { code: 'MOD', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Moderate', definition: 'Moderate interpretation.' },
+    { code: 'SENS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Sensitive', definition: 'Sensitive interpretation.' }
+  ];
+
+  // Binding for CodeableConcept autocomplete
+  valueCodeableConceptBinding = {
+    ecl: '<< 138875005 |SNOMED CT Concept (SNOMED RT+CTV3)|',
+    title: 'Value (Codeable Concept)',
+    note: 'Search for SNOMED CT concepts'
+  };
+
+  // Common units for laboratory values
+  unitOptions = [
+    { code: 'g/L', display: 'g/L', system: 'http://unitsofmeasure.org' },
+    { code: 'mg/dL', display: 'mg/dL', system: 'http://unitsofmeasure.org' },
+    { code: 'mmol/L', display: 'mmol/L', system: 'http://unitsofmeasure.org' },
+    { code: '10*3/uL', display: '10³/µL', system: 'http://unitsofmeasure.org' },
+    { code: '10*6/uL', display: '10⁶/µL', system: 'http://unitsofmeasure.org' },
+    { code: '%', display: '%', system: 'http://unitsofmeasure.org' },
+    { code: 'fL', display: 'fL', system: 'http://unitsofmeasure.org' },
+    { code: 'pg', display: 'pg', system: 'http://unitsofmeasure.org' }
+  ];
+
+  constructor(
+    private fb: FormBuilder,
+    public dialogRef: MatDialogRef<ObservationResultFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private dialog: MatDialog
+  ) {
+    this.observationForm = this.createForm();
+    // Check if data contains viewOnly flag
+    if (this.data && typeof this.data === 'object') {
+      if ('viewOnly' in this.data) {
+        this.isViewOnly = this.data.viewOnly === true;
+      }
+      if (this.isViewOnly) {
+        this.observationForm.disable();
+        // Also explicitly disable nested form groups
+        this.observationForm.get('valueQuantity')?.disable();
+        this.observationForm.get('referenceRange')?.disable();
+      }
+    }
+  }
+
+  ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void {
+    // Load data after view is initialized to ensure all form controls are ready
+    if (this.data) {
+      const dataToLoad = (this.data && typeof this.data === 'object' && 'observation' in this.data) ? this.data.observation : this.data;
+      this.loadFormData(dataToLoad);
+      // Disable form if viewOnly mode
+      if (this.isViewOnly) {
+        this.observationForm.disable();
+        // Also explicitly disable nested form groups
+        this.observationForm.get('valueQuantity')?.disable();
+        this.observationForm.get('referenceRange')?.disable();
+      }
+    }
+  }
+
+  private loadFormData(data: ObservationResultData): void {
+    setTimeout(() => {
+      const matchedCode = data.code && data.code.code ? this.codeOptions.find(opt => opt.code === data.code!.code) : null;
+      const matchedInterpretation = data.interpretation && data.interpretation.code ? this.interpretationOptions.find(opt => opt.code === data.interpretation!.code) : null;
+
+      // Determine value type
+      if (data.valueQuantity) {
+        this.valueType = 'quantity';
+      } else if (data.valueString) {
+        this.valueType = 'string';
+      } else if (data.valueCodeableConcept) {
+        this.valueType = 'codeableConcept';
+      }
+
+      this.observationForm.patchValue({
+        status: data.status || '',
+        code: matchedCode || null,
+        subject: data.subject || null,
+        effectiveDateTime: data.effectiveDateTime ? new Date(data.effectiveDateTime) : null,
+        valueQuantity: data.valueQuantity ? {
+          value: data.valueQuantity.value || null,
+          unit: data.valueQuantity.unit || ''
+        } : { value: null, unit: '' },
+        valueString: data.valueString || '',
+        valueCodeableConcept: data.valueCodeableConcept || null,
+        interpretation: matchedInterpretation || null,
+        referenceRange: data.referenceRange ? {
+          text: data.referenceRange.text || ''
+        } : { text: '' },
+        performer: data.performer || null,
+        note: data.note || ''
+      }, { emitEvent: false });
+
+      this.updateValueType();
+    }, 100);
+  }
+
+  private createForm(): FormGroup {
+    return this.fb.group({
+      status: ['final', Validators.required],
+      code: [null, Validators.required],
+      subject: [null],
+      effectiveDateTime: [null],
+      valueQuantity: this.fb.group({
+        value: [null],
+        unit: ['']
+      }),
+      valueString: [''],
+      valueCodeableConcept: [null],
+      interpretation: [null],
+      referenceRange: this.fb.group({
+        text: ['']
+      }),
+      performer: [null],
+      note: ['']
+    });
+  }
+
+  updateValueType(): void {
+    // Clear other value types when switching
+    if (this.valueType === 'quantity') {
+      this.observationForm.patchValue({ 
+        valueString: '', 
+        valueCodeableConcept: null 
+      });
+    } else if (this.valueType === 'string') {
+      this.observationForm.patchValue({ 
+        valueQuantity: { value: null, unit: '' }, 
+        valueCodeableConcept: null 
+      });
+    } else if (this.valueType === 'codeableConcept') {
+      this.observationForm.patchValue({ 
+        valueQuantity: { value: null, unit: '' }, 
+        valueString: '' 
+      });
+    }
+  }
+
+  onSubmit(): void {
+    if (this.observationForm.valid) {
+      const formValue = this.observationForm.value;
+      const formData: ObservationResultData = {
+        status: formValue.status,
+        code: formValue.code,
+        subject: formValue.subject,
+        effectiveDateTime: formValue.effectiveDateTime,
+        valueQuantity: (this.valueType === 'quantity' && formValue.valueQuantity?.value) ? {
+          value: formValue.valueQuantity.value,
+          unit: formValue.valueQuantity.unit || '',
+          system: 'http://unitsofmeasure.org',
+          code: formValue.valueQuantity.unit || ''
+        } : null,
+        valueString: this.valueType === 'string' ? formValue.valueString : null,
+        valueCodeableConcept: this.valueType === 'codeableConcept' ? formValue.valueCodeableConcept : null,
+        interpretation: formValue.interpretation,
+        referenceRange: formValue.referenceRange?.text ? {
+          text: formValue.referenceRange.text
+        } : null,
+        performer: formValue.performer,
+        note: formValue.note || null
+      };
+      this.dialogRef.close(formData);
+    } else {
+      Object.keys(this.observationForm.controls).forEach(key => {
+        this.observationForm.get(key)?.markAsTouched();
+      });
+    }
+  }
+
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+
+  getStatusDefinition(code: string): string {
+    const status = this.statusOptions.find(opt => opt.code === code);
+    return status ? status.definition : '';
+  }
+
+  openValuesetDialog(valuesetUrl: string, fieldName: string, dialogTitle?: string): void {
+    this.dialog.open(ValuesetDialogComponent, {
+      width: '90%',
+      maxWidth: '1200px',
+      height: '90vh',
+      data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
+      panelClass: 'valueset-dialog-container'
+    });
+  }
+
+
+  get valueQuantityValueControl(): FormControl {
+    return this.observationForm.get('valueQuantity')?.get('value') as FormControl;
+  }
+
+  get valueQuantityUnitControl(): FormControl {
+    return this.observationForm.get('valueQuantity')?.get('unit') as FormControl;
+  }
+
+  get referenceRangeTextControl(): FormControl {
+    return this.observationForm.get('referenceRange')?.get('text') as FormControl;
+  }
+}
+

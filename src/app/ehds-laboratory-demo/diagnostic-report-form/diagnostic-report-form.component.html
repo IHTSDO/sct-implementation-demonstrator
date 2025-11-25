@@ -945,7 +945,7 @@
         <div *ngIf="results.length === 0" class="reference-placeholder">
           <mat-icon>bar_chart</mat-icon>
           <p>No results added</p>
-          <button type="button" mat-raised-button color="primary" (click)="onAddResult()" [disabled]="true">
+          <button type="button" mat-raised-button color="primary" (click)="onAddResult()">
             <mat-icon>add</mat-icon>
             Add Result
           </button>
@@ -955,14 +955,34 @@
           <div *ngFor="let result of results; let i = index" class="reference-item-display">
             <div class="reference-info">
               <mat-icon>bar_chart</mat-icon>
-              <span>Observation Result {{ i + 1 }}</span>
-              <button type="button" mat-icon-button color="warn" (click)="removeResult(i)">
-                <mat-icon>delete</mat-icon>
-              </button>
+              <div class="result-details">
+                <span class="result-title">Observation Result {{ i + 1 }}</span>
+                <div class="result-info" *ngIf="result.code">
+                  <span class="result-code">{{ result.code.display }}</span>
+                  <span class="result-value" *ngIf="result.valueQuantity">
+                    • {{ result.valueQuantity.value }} {{ result.valueQuantity.unit }}
+                  </span>
+                  <span class="result-value" *ngIf="result.valueString">
+                    • {{ result.valueString }}
+                  </span>
+                  <span class="result-status" *ngIf="result.status"> • {{ result.status }}</span>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button type="button" mat-icon-button color="primary" (click)="viewResult(i)" title="View result">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button type="button" mat-icon-button color="primary" (click)="editResult(i)" title="Edit result">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button type="button" mat-icon-button color="warn" (click)="removeResult(i)" title="Delete result">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
           <div class="add-more-button">
-            <button type="button" mat-raised-button color="primary" (click)="onAddResult()" [disabled]="true">
+            <button type="button" mat-raised-button color="primary" (click)="onAddResult()">
               <mat-icon>add</mat-icon>
               Add Result
             </button>
