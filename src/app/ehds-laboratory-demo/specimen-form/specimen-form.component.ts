@@ -369,6 +369,8 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
       width: '90%',
       maxWidth: '1200px',
       height: '90vh',
+      autoFocus: false,
+      restoreFocus: true,
       data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
       panelClass: 'valueset-dialog-container'
     });

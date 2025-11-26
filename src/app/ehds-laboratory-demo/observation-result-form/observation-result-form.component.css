@@ -249,13 +249,13 @@
 .loinc-badge {
   background-color: #fbc02d !important;
   color: #000000 !important;
-  font-weight: 500;
   cursor: default;
+  pointer-events: none;
 }
 
 .loinc-badge:hover {
-  background-color: #f9a825 !important;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  background-color: #fbc02d !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .loinc-badge:focus {

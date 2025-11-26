@@ -299,6 +299,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
+      autoFocus: false,
+      restoreFocus: true,
       data: { serviceRequest: serviceRequestData, viewOnly: true }
     });
   }
@@ -311,6 +313,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
+      autoFocus: false,
+      restoreFocus: true,
       data: serviceRequestData
     });
 
@@ -349,6 +353,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
+      autoFocus: false,
+      restoreFocus: true,
       data: null
     });
 
@@ -367,6 +373,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
+      autoFocus: false,
+      restoreFocus: true,
       data: { specimen: specimen, viewOnly: true }
     });
   }
@@ -377,6 +385,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
+      autoFocus: false,
+      restoreFocus: true,
       data: specimen
     });
 
@@ -394,6 +404,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
+      autoFocus: false,
+      restoreFocus: true,
       data: {
         observation: {
           status: 'final',
@@ -426,6 +438,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
+      autoFocus: false,
+      restoreFocus: true,
       data: { observation: result, viewOnly: true }
     });
   }
@@ -436,6 +450,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
+      autoFocus: false,
+      restoreFocus: true,
       data: result
     });
 
@@ -636,6 +652,8 @@ export class DiagnosticReportFormComponent implements OnInit {
       width: '90%',
       maxWidth: '1200px',
       height: '90vh',
+      autoFocus: false,
+      restoreFocus: true,
       data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
       panelClass: 'valueset-dialog-container'
     });

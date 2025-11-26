@@ -201,9 +201,13 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
       }
       if (this.isViewOnly) {
         this.observationForm.disable();
-        // Also explicitly disable nested form groups
+        // Also explicitly disable nested form groups and controls
         this.observationForm.get('valueQuantity')?.disable();
         this.observationForm.get('referenceRange')?.disable();
+        // Disable individual nested controls
+        this.valueQuantityUnitControl?.disable();
+        this.valueQuantityValueControl?.disable();
+        this.referenceRangeTextControl?.disable();
       }
     }
   }
@@ -219,9 +223,13 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
       // Disable form if viewOnly mode
       if (this.isViewOnly) {
         this.observationForm.disable();
-        // Also explicitly disable nested form groups
+        // Also explicitly disable nested form groups and controls
         this.observationForm.get('valueQuantity')?.disable();
         this.observationForm.get('referenceRange')?.disable();
+        // Disable individual nested controls
+        this.valueQuantityUnitControl?.disable();
+        this.valueQuantityValueControl?.disable();
+        this.referenceRangeTextControl?.disable();
       }
     }
   }
@@ -353,6 +361,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
       width: '90%',
       maxWidth: '1200px',
       height: '90vh',
+      autoFocus: false,
+      restoreFocus: true,
       data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
       panelClass: 'valueset-dialog-container'
     });

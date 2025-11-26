@@ -71,7 +71,7 @@
               <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabCodeWithExceptions.html', 'Code')">
                 BINDING
               </button>
-              <button *ngIf="loincCode" type="button" mat-button class="fhir-badge loinc-badge" disabled>
+              <button *ngIf="loincCode" type="button" mat-button class="fhir-badge loinc-badge" tabindex="-1">
                 LOINC: {{ loincCode }}
               </button>
             </div>
@@ -267,7 +267,7 @@
             </mat-menu>
             <mat-form-field>
               <mat-label>Unit</mat-label>
-              <mat-select [formControl]="valueQuantityUnitControl" [disabled]="isViewOnly">
+              <mat-select [formControl]="valueQuantityUnitControl">
                 <mat-option [value]="''">Select unit</mat-option>
                 <mat-option *ngFor="let unit of unitOptions" [value]="unit.code">
                   {{ unit.display }}
