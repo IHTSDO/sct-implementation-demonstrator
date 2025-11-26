@@ -71,6 +71,9 @@
               <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabCodeWithExceptions.html', 'Code')">
                 BINDING
               </button>
+              <button *ngIf="loincCode" type="button" mat-button class="fhir-badge loinc-badge" disabled>
+                LOINC: {{ loincCode }}
+              </button>
             </div>
             <mat-menu #codeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
               <div class="fhir-menu-content">
@@ -96,18 +99,14 @@
                 </div>
               </div>
             </mat-menu>
-            <mat-form-field>
-              <mat-label>Test Code *</mat-label>
-              <mat-select formControlName="code" required>
-                <mat-option [value]="null">Select test code</mat-option>
-                <mat-option *ngFor="let code of codeOptions" [value]="code">
-                  {{ code.display }}
-                </mat-option>
-              </mat-select>
-              <mat-hint *ngIf="observationForm.get('code')?.value">
-                Code: {{ observationForm.get('code')?.value?.code || '' }}
-              </mat-hint>
-            </mat-form-field>
+            <app-autocomplete-binding 
+              [binding]="codeBinding" 
+              formControlName="code"
+              [terminologyServer]="'https://browser.loincsnomed.org/fhir'"
+              [editionUri]="'http://snomed.info/sct/11010000107'"
+              [readonly]="isViewOnly"
+              (selectionChange)="onCodeSelected($event)">
+            </app-autocomplete-binding>
           </div>
 
           <div class="fhir-field-wrapper">

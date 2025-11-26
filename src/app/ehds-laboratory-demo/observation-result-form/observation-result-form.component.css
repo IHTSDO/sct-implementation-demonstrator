@@ -246,6 +246,24 @@
   outline: none;
 }
 
+.loinc-badge {
+  background-color: #fbc02d !important;
+  color: #000000 !important;
+  font-weight: 500;
+  cursor: default;
+}
+
+.loinc-badge:hover {
+  background-color: #f9a825 !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.loinc-badge:focus {
+  background-color: #fbc02d !important;
+  color: #000000 !important;
+  outline: none;
+}
+
 /* FHIR Menu Styles */
 ::ng-deep .fhir-menu-panel {
   max-width: 500px !important;

@@ -1233,10 +1233,10 @@
         </div>
         <div class="fhir-output-container">
           <div class="fhir-actions">
-            <button mat-icon-button (click)="downloadFhirResource()" matTooltip="Download FHIR Resource">
+            <button type="button" mat-icon-button (click)="downloadFhirResource(); $event.stopPropagation()" matTooltip="Download FHIR Resource">
               <mat-icon>cloud_download</mat-icon>
             </button>
-            <button mat-icon-button (click)="copyToClipboard()" matTooltip="Copy FHIR Resource">
+            <button type="button" mat-icon-button (click)="copyToClipboard(); $event.stopPropagation()" matTooltip="Copy FHIR Resource">
               <mat-icon>content_copy</mat-icon>
             </button>
           </div>

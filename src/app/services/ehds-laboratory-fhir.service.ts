@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { DiagnosticReportData } from '../ehds-laboratory-demo/diagnostic-report-form/diagnostic-report-form.component';
 import { SpecimenData } from '../ehds-laboratory-demo/specimen-form/specimen-form.component';
+import { ObservationResultData } from '../ehds-laboratory-demo/observation-result-form/observation-result-form.component';
+import { ServiceRequestData } from '../ehds-laboratory-demo/service-request-form/service-request-form.component';
 
 export interface FhirDiagnosticReport {
   resourceType: 'DiagnosticReport';
@@ -40,6 +42,51 @@ export interface FhirDiagnosticReport {
       value?: string;
     };
     display?: string;
+  } | {
+    resourceType: 'ServiceRequest';
+    id?: string;
+    meta?: {
+      profile?: string[];
+    };
+    identifier?: Array<{
+      value?: string;
+    }>;
+    status?: string;
+    intent?: string;
+    priority?: string;
+    code?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+    subject?: {
+      reference?: string;
+      display?: string;
+    };
+    authoredOn?: string;
+    requester?: {
+      reference?: string;
+      display?: string;
+    };
+    reasonCode?: Array<{
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    }>;
+    bodySite?: Array<{
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    }>;
   }>;
   status: string;
   category?: Array<{
@@ -178,6 +225,67 @@ export interface FhirDiagnosticReport {
       value?: string;
     };
     display?: string;
+  } | {
+    resourceType: 'Observation';
+    id?: string;
+    meta?: {
+      profile?: string[];
+    };
+    status?: string;
+    code?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+    subject?: {
+      reference?: string;
+      display?: string;
+    };
+    effectiveDateTime?: string;
+    valueQuantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    valueString?: string;
+    valueCodeableConcept?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+    interpretation?: Array<{
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    }>;
+    referenceRange?: Array<{
+      low?: {
+        value?: number;
+        unit?: string;
+      };
+      high?: {
+        value?: number;
+        unit?: string;
+      };
+      text?: string;
+    }>;
+    performer?: Array<{
+      reference?: string;
+      display?: string;
+    }>;
+    note?: Array<{
+      text?: string;
+    }>;
   }>;
   conclusion?: string;
   conclusionCode?: Array<{
@@ -291,7 +399,17 @@ export class EhdsLaboratoryFhirService {
 
     // Based On (ServiceRequest)
     if (formData.basedOn) {
-      diagnosticReport.basedOn = [this.createReference(formData.basedOn)];
+      // Check if basedOn has full data (from ServiceRequestFormComponent)
+      // It can be stored as basedOn.data or directly as ServiceRequestData
+      if (formData.basedOn.data) {
+        diagnosticReport.basedOn = [this.generateServiceRequest(formData.basedOn.data, 0)];
+      } else if (formData.basedOn.status && formData.basedOn.intent) {
+        // Check if it's already a ServiceRequestData object
+        diagnosticReport.basedOn = [this.generateServiceRequest(formData.basedOn as ServiceRequestData, 0)];
+      } else {
+        // Otherwise, create a simple reference
+        diagnosticReport.basedOn = [this.createReference(formData.basedOn)];
+      }
     }
 
     // Specimen (inline, not as references)
@@ -301,7 +419,15 @@ export class EhdsLaboratoryFhirService {
 
     // Results (Observations)
     if (formData.result && formData.result.length > 0) {
-      diagnosticReport.result = formData.result.map(res => this.createReference(res));
+      diagnosticReport.result = formData.result.map((res, index) => {
+        // Check if res is a full ObservationResultData object
+        if (res.status && res.code) {
+          return this.generateObservation(res, index);
+        } else {
+          // Otherwise, create a simple reference
+          return this.createReference(res);
+        }
+      });
     }
 
     // Conclusion
@@ -311,27 +437,37 @@ export class EhdsLaboratoryFhirService {
 
     // Conclusion Code
     if (formData.conclusionCode && formData.conclusionCode.length > 0) {
-      diagnosticReport.conclusionCode = formData.conclusionCode.map(code => {
-        if (typeof code === 'object' && code.coding) {
-          return code;
-        } else if (typeof code === 'object' && code.code) {
+      diagnosticReport.conclusionCode = formData.conclusionCode
+        .filter(code => code != null) // Filter out null/undefined values
+        .map(code => {
+          // If already a CodeableConcept with coding array
+          if (typeof code === 'object' && code.coding && Array.isArray(code.coding)) {
+            return code;
+          }
+          // If it's an object with code, system, display structure
+          if (typeof code === 'object' && code.code) {
+            const codeableConcept: any = {
+              coding: [{
+                system: code.system || 'http://snomed.info/sct',
+                code: code.code,
+                display: code.display || code.code
+              }]
+            };
+            // Add text if display is available
+            if (code.display) {
+              codeableConcept.text = code.display;
+            }
+            return codeableConcept;
+          }
+          // Fallback: treat as string code
           return {
             coding: [{
-              system: code.system || 'http://snomed.info/sct',
-              code: code.code,
-              display: code.display
-            }],
-            text: code.display
+              system: 'http://snomed.info/sct',
+              code: String(code),
+              display: String(code)
+            }]
           };
-        }
-        return {
-          coding: [{
-            system: 'http://snomed.info/sct',
-            code: code,
-            display: code
-          }]
-        };
-      });
+        });
     }
 
     // Presented Form (PDF)
@@ -462,6 +598,219 @@ export class EhdsLaboratoryFhirService {
     }
 
     return specimen;
+  }
+
+  /**
+   * Generates a FHIR Observation resource from ObservationResultData
+   * Following the EHDS Laboratory Observation profile specification
+   */
+  generateObservation(observationData: ObservationResultData, index: number): any {
+    const observation: any = {
+      resourceType: 'Observation',
+      id: `observation-${index + 1}`,
+      meta: {
+        profile: ['http://fhir.ehdsi.eu/laboratory/StructureDefinition/Observation-resultslab-lab-myhealtheu']
+      }
+    };
+
+    // Status
+    if (observationData.status) {
+      observation.status = observationData.status;
+    }
+
+    // Code
+    if (observationData.code) {
+      const codings: any[] = [{
+        system: observationData.code.system,
+        code: observationData.code.code,
+        display: observationData.code.display
+      }];
+      
+      // Add LOINC code if available
+      if (observationData.code.loincCode) {
+        codings.push({
+          system: 'http://loinc.org',
+          code: observationData.code.loincCode,
+          display: observationData.code.display
+        });
+      }
+      
+      observation.code = {
+        coding: codings,
+        text: observationData.code.display
+      };
+    }
+
+    // Subject
+    if (observationData.subject) {
+      observation.subject = this.createReference(observationData.subject);
+    }
+
+    // Effective DateTime
+    if (observationData.effectiveDateTime) {
+      observation.effectiveDateTime = this.formatDateTime(observationData.effectiveDateTime);
+    }
+
+    // Value (Quantity, String, or CodeableConcept)
+    if (observationData.valueQuantity) {
+      observation.valueQuantity = {
+        value: observationData.valueQuantity.value,
+        unit: observationData.valueQuantity.unit,
+        system: observationData.valueQuantity.system || 'http://unitsofmeasure.org',
+        code: observationData.valueQuantity.code || observationData.valueQuantity.unit
+      };
+    } else if (observationData.valueString) {
+      observation.valueString = observationData.valueString;
+    } else if (observationData.valueCodeableConcept) {
+      observation.valueCodeableConcept = {
+        coding: [{
+          system: observationData.valueCodeableConcept.system,
+          code: observationData.valueCodeableConcept.code,
+          display: observationData.valueCodeableConcept.display
+        }],
+        text: observationData.valueCodeableConcept.display
+      };
+    }
+
+    // Interpretation
+    if (observationData.interpretation) {
+      observation.interpretation = [{
+        coding: [{
+          system: observationData.interpretation.system,
+          code: observationData.interpretation.code,
+          display: observationData.interpretation.display
+        }],
+        text: observationData.interpretation.display
+      }];
+    }
+
+    // Reference Range
+    if (observationData.referenceRange) {
+      const refRange: any = {};
+      if (observationData.referenceRange.low) {
+        refRange.low = {
+          value: observationData.referenceRange.low.value,
+          unit: observationData.referenceRange.low.unit,
+          system: 'http://unitsofmeasure.org'
+        };
+      }
+      if (observationData.referenceRange.high) {
+        refRange.high = {
+          value: observationData.referenceRange.high.value,
+          unit: observationData.referenceRange.high.unit,
+          system: 'http://unitsofmeasure.org'
+        };
+      }
+      if (observationData.referenceRange.text) {
+        refRange.text = observationData.referenceRange.text;
+      }
+      if (Object.keys(refRange).length > 0) {
+        observation.referenceRange = [refRange];
+      }
+    }
+
+    // Performer
+    if (observationData.performer) {
+      observation.performer = [this.createReference(observationData.performer)];
+    }
+
+    // Note
+    if (observationData.note) {
+      observation.note = [{
+        text: observationData.note
+      }];
+    }
+
+    return observation;
+  }
+
+  /**
+   * Generates a FHIR ServiceRequest resource from ServiceRequestData
+   * Following the EHDS Laboratory ServiceRequest profile specification
+   */
+  generateServiceRequest(serviceRequestData: ServiceRequestData, index: number): any {
+    const serviceRequest: any = {
+      resourceType: 'ServiceRequest',
+      id: `servicerequest-${index + 1}`,
+      meta: {
+        profile: ['http://fhir.ehdsi.eu/laboratory/StructureDefinition/ServiceRequest-lab-myhealtheu']
+      }
+    };
+
+    // Identifier
+    if (serviceRequestData.identifier) {
+      serviceRequest.identifier = [{
+        value: serviceRequestData.identifier
+      }];
+    }
+
+    // Status
+    if (serviceRequestData.status) {
+      serviceRequest.status = serviceRequestData.status;
+    }
+
+    // Intent
+    if (serviceRequestData.intent) {
+      serviceRequest.intent = serviceRequestData.intent;
+    }
+
+    // Priority
+    if (serviceRequestData.priority) {
+      serviceRequest.priority = serviceRequestData.priority;
+    }
+
+    // Code
+    if (serviceRequestData.code) {
+      serviceRequest.code = {
+        coding: [{
+          system: serviceRequestData.code.system,
+          code: serviceRequestData.code.code,
+          display: serviceRequestData.code.display
+        }],
+        text: serviceRequestData.code.display
+      };
+    }
+
+    // Subject
+    if (serviceRequestData.subject) {
+      serviceRequest.subject = this.createReference(serviceRequestData.subject);
+    }
+
+    // Authored On
+    if (serviceRequestData.authoredOn) {
+      serviceRequest.authoredOn = this.formatDateTime(serviceRequestData.authoredOn);
+    }
+
+    // Requester
+    if (serviceRequestData.requester) {
+      serviceRequest.requester = this.createReference(serviceRequestData.requester);
+    }
+
+    // Reason Code
+    if (serviceRequestData.reasonCode) {
+      serviceRequest.reasonCode = [{
+        coding: [{
+          system: serviceRequestData.reasonCode.system,
+          code: serviceRequestData.reasonCode.code,
+          display: serviceRequestData.reasonCode.display
+        }],
+        text: serviceRequestData.reasonCode.display
+      }];
+    }
+
+    // Body Site
+    if (serviceRequestData.bodySite) {
+      serviceRequest.bodySite = [{
+        coding: [{
+          system: 'http://snomed.info/sct',
+          code: serviceRequestData.bodySite.code,
+          display: serviceRequestData.bodySite.display
+        }],
+        text: serviceRequestData.bodySite.display
+      }];
+    }
+
+    return serviceRequest;
   }
 
   /**

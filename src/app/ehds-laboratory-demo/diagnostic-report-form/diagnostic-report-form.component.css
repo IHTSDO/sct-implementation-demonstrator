@@ -912,6 +912,18 @@ button[mat-button] {
   transform: rotateY(180deg);
 }
 
+/* Hide and disable interaction with the back side when front is visible */
+.flip-card:not(.flipped) .flip-card-back {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Hide and disable interaction with the front side when back is visible */
+.flip-card.flipped .flip-card-front {
+  pointer-events: none;
+  visibility: hidden;
+}
+
 /* FHIR Output Styles */
 .fhir-header {
   margin-bottom: 20px;
@@ -962,13 +974,15 @@ button[mat-button] {
   overflow: visible;
 }
 
+
 .fhir-actions {
   position: absolute;
   top: 10px;
   right: 10px;
   display: flex;
   gap: 8px;
-  z-index: 10;
+  z-index: 1000;
+  pointer-events: auto;
 }
 
 .fhir-actions button {
@@ -977,6 +991,9 @@ button[mat-button] {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 1001;
+  pointer-events: auto;
 }
 
 .fhir-actions button mat-icon {

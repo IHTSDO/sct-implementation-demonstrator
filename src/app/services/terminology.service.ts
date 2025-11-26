@@ -207,14 +207,16 @@ export class TerminologyService {
       );
   }
 
-  getAlternateIdentifiers(conceptId: string) {
+  getAlternateIdentifiers(conceptId: string, fhirBase?: string) {
     // This uses the native API
-    let requestUrl = this.snowstormFhirBase.replace('fhir', 'snowstorm/snomed-ct/browser/MAIN/LOINC/concepts/' + conceptId);
+    // Use provided fhirBase or default to snowstormFhirBase
+    const baseUrl = fhirBase || this.snowstormFhirBase;
+    let requestUrl = baseUrl.replace('fhir', 'snowstorm/snomed-ct/browser/MAIN/LOINC/concepts/' + conceptId);
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });
     return this.http.get<any>(requestUrl, { headers })
-      .pipe(map(response => response.alternateIdentifiers), // Extract only alternateIdentifiers
+      .pipe(map(response => response.alternateIdentifiers || []), // Extract only alternateIdentifiers, default to empty array
         catchError(this.handleError<any>('getAlternateIdentifiers', [])) // Handle errors and return an empty array if needed
       );
   }
@@ -361,9 +363,12 @@ export class TerminologyService {
       terms = '';
     }
     let langParam = this.getComputedLanguageContext();
-    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${fhirUrl}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
+    // For LOINC SNOMED server, use simpler language parameter (just 'en' instead of language refset)
+    const isLoincSnomedServer = fhirBase.includes('loincsnomed');
+    const languageParam = isLoincSnomedServer ? 'en' : langParam;
+    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${encodeURIComponent(fhirUrl)}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${encodeURIComponent(terms)}&language=${languageParam}&displayLanguage=${languageParam}`;
     const headers = new HttpHeaders({
-      'Accept-Language': this.getComputedLanguageContext()
+      'Accept-Language': languageParam
     });
     return this.http.get<any>(requestUrl, { headers })
       .pipe(

@@ -598,23 +598,35 @@ export class DiagnosticReportFormComponent implements OnInit {
     }
   }
 
-  copyToClipboard(): void {
+  copyToClipboard(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     if (this.fhirJson) {
       navigator.clipboard.writeText(this.fhirJson).then(() => {
         // Could show a snackbar here
         console.log('FHIR JSON copied to clipboard');
+      }).catch(err => {
+        console.error('Failed to copy to clipboard:', err);
       });
     }
   }
 
-  downloadFhirResource(): void {
+  downloadFhirResource(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     if (this.fhirJson) {
       const blob = new Blob([this.fhirJson], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = 'diagnostic-report-' + new Date().getTime() + '.json';
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     }
   }

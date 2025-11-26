@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
+import { TerminologyService } from '../../services/terminology.service';
 
 export interface ObservationResultData {
   status: string;
@@ -9,6 +10,7 @@ export interface ObservationResultData {
     code: string;
     system: string;
     display: string;
+    loincCode?: string | null; // LOINC code obtained from alternate identifiers
   } | null;
   subject: {
     reference: string;
@@ -165,6 +167,13 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
     note: 'Search for SNOMED CT concepts'
   };
 
+  // Binding for Observation Code (LOINC via SNOMED CT)
+  codeBinding = {
+    ecl: '^ 635121010000106 |Logical Observation Identifiers Names and Codes Observation Reference Set (foundation metadata concept)|',
+    title: 'Test Code',
+    note: 'Search for laboratory test codes'
+  };
+
   // Common units for laboratory values
   unitOptions = [
     { code: 'g/L', display: 'g/L', system: 'http://unitsofmeasure.org' },
@@ -181,7 +190,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ObservationResultFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private terminologyService: TerminologyService
   ) {
     this.observationForm = this.createForm();
     // Check if data contains viewOnly flag
@@ -218,7 +228,11 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
 
   private loadFormData(data: ObservationResultData): void {
     setTimeout(() => {
-      const matchedCode = data.code && data.code.code ? this.codeOptions.find(opt => opt.code === data.code!.code) : null;
+      // For code, use data.code directly (autocomplete-binding expects {code, display} format)
+      const codeValue = data.code ? {
+        code: data.code.code,
+        display: data.code.display
+      } : null;
       const matchedInterpretation = data.interpretation && data.interpretation.code ? this.interpretationOptions.find(opt => opt.code === data.interpretation!.code) : null;
 
       // Determine value type
@@ -232,7 +246,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
 
       this.observationForm.patchValue({
         status: data.status || '',
-        code: matchedCode || null,
+        code: codeValue,
         subject: data.subject || null,
         effectiveDateTime: data.effectiveDateTime ? new Date(data.effectiveDateTime) : null,
         valueQuantity: data.valueQuantity ? {
@@ -355,6 +369,48 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
 
   get referenceRangeTextControl(): FormControl {
     return this.observationForm.get('referenceRange')?.get('text') as FormControl;
+  }
+
+  get loincCode(): string | null {
+    const codeValue = this.observationForm.get('code')?.value;
+    return codeValue?.loincCode || null;
+  }
+
+  onCodeSelected(concept: any): void {
+    if (concept && concept.code) {
+      // Get LOINC code from alternate identifiers using the LOINC SNOMED server
+      const loincSnomedServer = 'https://browser.loincsnomed.org/fhir';
+      this.terminologyService.getAlternateIdentifiers(concept.code, loincSnomedServer).subscribe({
+        next: (alternateIdentifiers) => {
+          const loincCode = this.getAlternateIdentifierByScheme(alternateIdentifiers, '30051010000102');
+          
+          // Update the form control with both SNOMED CT and LOINC codes
+          const currentCodeValue = this.observationForm.get('code')?.value;
+          if (currentCodeValue) {
+            // Store LOINC code as a property on the code object
+            const updatedCode = {
+              ...currentCodeValue,
+              loincCode: loincCode || null
+            };
+            this.observationForm.patchValue({ code: updatedCode }, { emitEvent: false });
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching LOINC code:', err);
+          // Continue without LOINC code if there's an error
+        }
+      });
+    }
+  }
+
+  getAlternateIdentifierByScheme(alternateIdentifiers: any[], identifierSchemeConceptId: string): string | null {
+    // Find the alternate identifier that matches the given identifier scheme concept ID
+    const matchingIdentifier = alternateIdentifiers.find(
+      (identifier: any) => identifier.identifierScheme?.conceptId === identifierSchemeConceptId
+    );
+    
+    // Return the alternateIdentifier value if found, otherwise return null
+    return matchingIdentifier ? matchingIdentifier.alternateIdentifier : null;
   }
 }
 
