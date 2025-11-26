@@ -897,6 +897,7 @@ button[mat-button] {
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  transition: visibility 0s linear 0.3s, pointer-events 0s linear 0.3s;
 }
 
 /* Make the flip-card grow with the visible content */
@@ -916,12 +917,23 @@ button[mat-button] {
 .flip-card:not(.flipped) .flip-card-back {
   pointer-events: none;
   visibility: hidden;
+  transition: visibility 0s linear 0.3s, pointer-events 0s linear 0.3s;
 }
 
 /* Hide and disable interaction with the front side when back is visible */
 .flip-card.flipped .flip-card-front {
   pointer-events: none;
   visibility: hidden;
+  transition: visibility 0s linear 0.3s, pointer-events 0s linear 0.3s;
+}
+
+/* Show content immediately when becoming visible */
+.flip-card.flipped .flip-card-back {
+  transition: visibility 0s linear 0s, pointer-events 0s linear 0s;
+}
+
+.flip-card:not(.flipped) .flip-card-front {
+  transition: visibility 0s linear 0s, pointer-events 0s linear 0s;
 }
 
 /* FHIR Output Styles */
