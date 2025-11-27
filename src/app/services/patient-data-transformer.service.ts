@@ -10,6 +10,7 @@ export interface TransformedPatient {
   dobYear: number;
   dataset: string;
   events: TransformedPatientEvent[];
+  name?: string;
 }
 
 export interface TransformedPatientEvent {
@@ -122,7 +123,8 @@ export class PatientDataTransformerService {
         gender: this.mapGenderToMockFormat(patient.gender),
         dobYear: this.extractBirthYear(patient.birthDate),
         dataset: 'BrowserStorage',
-        events: events
+        events: events,
+        name: this.extractPatientName(patient)
       };
 
       return transformedPatient;
@@ -492,6 +494,35 @@ export class PatientDataTransformerService {
 
     const year = new Date(birthDate).getFullYear();
     return isNaN(year) ? 1990 : year;
+  }
+
+  /**
+   * Extract patient name from FHIR Patient resource
+   */
+  private extractPatientName(patient: Patient): string | undefined {
+    if (!patient.name || patient.name.length === 0) {
+      return undefined;
+    }
+
+    // Prefer 'official' name, then 'usual', then first available
+    const officialName = patient.name.find(n => n.use === 'official');
+    const usualName = patient.name.find(n => n.use === 'usual');
+    const nameToUse = officialName || usualName || patient.name[0];
+
+    // Build name from family and given names
+    if (nameToUse.text) {
+      return nameToUse.text;
+    }
+
+    const parts: string[] = [];
+    if (nameToUse.family) {
+      parts.push(nameToUse.family);
+    }
+    if (nameToUse.given && nameToUse.given.length > 0) {
+      parts.push(...nameToUse.given);
+    }
+
+    return parts.length > 0 ? parts.join(' ') : undefined;
   }
 
   /**

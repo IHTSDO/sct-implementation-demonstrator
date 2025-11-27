@@ -150,7 +150,7 @@
           <div class="patient-card" *ngFor="let patient of patients">
             <div class="patient-header">
               <div class="patient-info">
-                <h4>Patient {{ patient.id }}</h4>
+                <h4>{{ patient.name || 'Patient ' + patient.id }}</h4>
                 <span class="event-count" 
                       [matTooltip]="getPatientEventsTooltip(patient)"
                       [matTooltipPosition]="'right'"

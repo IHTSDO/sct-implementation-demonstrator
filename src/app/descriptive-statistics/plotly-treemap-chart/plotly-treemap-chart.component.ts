@@ -27,6 +27,7 @@ interface Patient {
   dobYear: number;
   dataset: string;
   events: PatientEvent[];
+  name?: string;
 }
 
 interface PatientResponse {
