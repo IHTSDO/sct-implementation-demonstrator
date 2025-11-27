@@ -126,12 +126,12 @@
 }
 
 .subject-box {
-  flex: 1;
+  flex: 1.5;
   min-width: 0;
 }
 
 .personnel-box {
-  flex: 2;
+  flex: 2.5;
   min-width: 0;
 }
 
@@ -139,6 +139,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.subject-box mat-form-field,
+.personnel-box mat-form-field {
+  width: 100%;
+  min-width: 250px;
 }
 
 .order-box {
