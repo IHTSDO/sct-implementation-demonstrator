@@ -11,14 +11,14 @@
   </div>
   <div class="error-overlay" *ngIf="hasError">
     <mat-icon class="error-icon" [class.success-icon]="openedInNewTab">check_circle</mat-icon>
-    <h3 class="error-title">{{ openedInNewTab ? 'Contenido Abierto en Nueva Pestaña' : 'No se Puede Cargar el Contenido' }}</h3>
+    <h3 class="error-title">{{ openedInNewTab ? 'Content Opened in New Tab' : 'Content Cannot Be Loaded' }}</h3>
     <p class="error-message">{{ errorMessage }}</p>
     <p class="error-detail" *ngIf="!openedInNewTab">
-      Esto puede deberse a que el sitio externo redirige a HTTP, lo cual está bloqueado por razones de seguridad cuando se visualiza sobre HTTPS.
+      This may be due to the external site redirecting to HTTP, which is blocked for security reasons when viewing over HTTPS.
     </p>
     <button mat-raised-button color="primary" (click)="openInNewTab()">
       <mat-icon>open_in_new</mat-icon>
-      {{ openedInNewTab ? 'Abrir Nuevamente en Nueva Pestaña' : 'Abrir en Nueva Pestaña' }}
+      {{ openedInNewTab ? 'Open Again in New Tab' : 'Open in New Tab' }}
     </button>
   </div>
   <iframe 

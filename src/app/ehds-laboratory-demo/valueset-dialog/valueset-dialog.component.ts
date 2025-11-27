@@ -138,7 +138,7 @@ export class ValuesetDialogComponent {
 
     this.openedInNewTab = true;
     this.hasError = true;
-    this.errorMessage = 'El contenido no pudo cargarse en el iframe debido a restricciones de seguridad (mixed content). Se abrió automáticamente en una nueva pestaña donde debería funcionar correctamente.';
+    this.errorMessage = 'The content could not be loaded in the iframe due to security restrictions (mixed content). It has been automatically opened in a new tab where it should work correctly.';
     
     // Open in new tab
     window.open(this.url, '_blank');
