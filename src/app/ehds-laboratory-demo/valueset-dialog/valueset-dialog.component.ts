@@ -25,10 +25,19 @@ export class ValuesetDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: { url: string; fieldName: string; dialogTitle?: string },
     private sanitizer: DomSanitizer
   ) {
-    this.url = data.url;
-    this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(data.url);
+    // Convert HTTP URLs to HTTPS to avoid mixed content errors
+    this.url = this.convertToHttps(data.url);
+    this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
     this.fieldName = data.fieldName || 'Field';
     this.dialogTitle = data.dialogTitle || `Terminology binding for ${this.fieldName}`;
+  }
+
+  private convertToHttps(url: string): string {
+    // Convert HTTP URLs to HTTPS to avoid mixed content errors when deployed over HTTPS
+    if (url.startsWith('http://')) {
+      return url.replace('http://', 'https://');
+    }
+    return url;
   }
 
   openInNewTab(): void {
