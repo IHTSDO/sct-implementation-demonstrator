@@ -211,6 +211,13 @@ export class ServiceRequestFormComponent implements OnInit, AfterViewInit {
   }
 
   openValuesetDialog(valuesetUrl: string, fieldName: string, dialogTitle?: string): void {
+    console.log('[ServiceRequestForm] openValuesetDialog called');
+    console.log('[ServiceRequestForm] valuesetUrl:', valuesetUrl);
+    console.log('[ServiceRequestForm] fieldName:', fieldName);
+    console.log('[ServiceRequestForm] dialogTitle:', dialogTitle);
+    console.log('[ServiceRequestForm] URL starts with http://?', valuesetUrl.startsWith('http://'));
+    console.log('[ServiceRequestForm] URL starts with https://?', valuesetUrl.startsWith('https://'));
+    
     this.dialog.open(ValuesetDialogComponent, {
       width: '90%',
       maxWidth: '1200px',

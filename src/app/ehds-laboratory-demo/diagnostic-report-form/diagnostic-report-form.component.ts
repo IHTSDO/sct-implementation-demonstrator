@@ -648,6 +648,13 @@ export class DiagnosticReportFormComponent implements OnInit {
   }
 
   openValuesetDialog(valuesetUrl: string, fieldName: string, dialogTitle?: string): void {
+    console.log('[DiagnosticReportForm] openValuesetDialog called');
+    console.log('[DiagnosticReportForm] valuesetUrl:', valuesetUrl);
+    console.log('[DiagnosticReportForm] fieldName:', fieldName);
+    console.log('[DiagnosticReportForm] dialogTitle:', dialogTitle);
+    console.log('[DiagnosticReportForm] URL starts with http://?', valuesetUrl.startsWith('http://'));
+    console.log('[DiagnosticReportForm] URL starts with https://?', valuesetUrl.startsWith('https://'));
+    
     this.dialog.open(ValuesetDialogComponent, {
       width: '90%',
       maxWidth: '1200px',

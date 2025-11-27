@@ -25,18 +25,35 @@ export class ValuesetDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: { url: string; fieldName: string; dialogTitle?: string },
     private sanitizer: DomSanitizer
   ) {
+    console.log('[ValuesetDialog] Received URL:', data.url);
+    console.log('[ValuesetDialog] Field Name:', data.fieldName);
+    console.log('[ValuesetDialog] Dialog Title:', data.dialogTitle);
+    
     // Convert HTTP URLs to HTTPS to avoid mixed content errors
     this.url = this.convertToHttps(data.url);
+    
+    console.log('[ValuesetDialog] Converted URL:', this.url);
+    console.log('[ValuesetDialog] URL starts with http://?', this.url.startsWith('http://'));
+    console.log('[ValuesetDialog] URL starts with https://?', this.url.startsWith('https://'));
+    
     this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
     this.fieldName = data.fieldName || 'Field';
     this.dialogTitle = data.dialogTitle || `Terminology binding for ${this.fieldName}`;
   }
 
   private convertToHttps(url: string): string {
+    console.log('[ValuesetDialog] convertToHttps - Input URL:', url);
+    console.log('[ValuesetDialog] convertToHttps - URL type:', typeof url);
+    console.log('[ValuesetDialog] convertToHttps - URL starts with http://?', url.startsWith('http://'));
+    
     // Convert HTTP URLs to HTTPS to avoid mixed content errors when deployed over HTTPS
     if (url.startsWith('http://')) {
-      return url.replace('http://', 'https://');
+      const converted = url.replace('http://', 'https://');
+      console.log('[ValuesetDialog] convertToHttps - Converted from HTTP to HTTPS:', converted);
+      return converted;
     }
+    
+    console.log('[ValuesetDialog] convertToHttps - No conversion needed, returning:', url);
     return url;
   }
 
@@ -45,6 +62,8 @@ export class ValuesetDialogComponent {
   }
 
   onIframeLoad(): void {
+    console.log('[ValuesetDialog] Iframe loaded - URL:', this.url);
+    console.log('[ValuesetDialog] Iframe loaded - Safe URL:', this.safeUrl);
     this.isLoading = false;
   }
 }

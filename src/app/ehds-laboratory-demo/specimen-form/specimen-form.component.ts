@@ -365,6 +365,13 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
   }
 
   openValuesetDialog(valuesetUrl: string, fieldName: string, dialogTitle?: string): void {
+    console.log('[SpecimenForm] openValuesetDialog called');
+    console.log('[SpecimenForm] valuesetUrl:', valuesetUrl);
+    console.log('[SpecimenForm] fieldName:', fieldName);
+    console.log('[SpecimenForm] dialogTitle:', dialogTitle);
+    console.log('[SpecimenForm] URL starts with http://?', valuesetUrl.startsWith('http://'));
+    console.log('[SpecimenForm] URL starts with https://?', valuesetUrl.startsWith('https://'));
+    
     this.dialog.open(ValuesetDialogComponent, {
       width: '90%',
       maxWidth: '1200px',
