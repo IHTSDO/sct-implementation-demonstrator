@@ -357,13 +357,6 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
   }
 
   openValuesetDialog(valuesetUrl: string, fieldName: string, dialogTitle?: string): void {
-    console.log('[ObservationResultForm] openValuesetDialog called');
-    console.log('[ObservationResultForm] valuesetUrl:', valuesetUrl);
-    console.log('[ObservationResultForm] fieldName:', fieldName);
-    console.log('[ObservationResultForm] dialogTitle:', dialogTitle);
-    console.log('[ObservationResultForm] URL starts with http://?', valuesetUrl.startsWith('http://'));
-    console.log('[ObservationResultForm] URL starts with https://?', valuesetUrl.startsWith('https://'));
-    
     this.dialog.open(ValuesetDialogComponent, {
       width: '90%',
       maxWidth: '1200px',

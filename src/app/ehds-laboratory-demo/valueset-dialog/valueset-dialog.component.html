@@ -5,16 +5,29 @@
   </a>
 </h2>
 <div class="iframe-container">
-  <div class="loading-overlay" *ngIf="isLoading">
+  <div class="loading-overlay" *ngIf="isLoading && !hasError">
     <mat-spinner diameter="50"></mat-spinner>
     <p class="loading-text">Loading...</p>
+  </div>
+  <div class="error-overlay" *ngIf="hasError">
+    <mat-icon class="error-icon" [class.success-icon]="openedInNewTab">check_circle</mat-icon>
+    <h3 class="error-title">{{ openedInNewTab ? 'Contenido Abierto en Nueva Pestaña' : 'No se Puede Cargar el Contenido' }}</h3>
+    <p class="error-message">{{ errorMessage }}</p>
+    <p class="error-detail" *ngIf="!openedInNewTab">
+      Esto puede deberse a que el sitio externo redirige a HTTP, lo cual está bloqueado por razones de seguridad cuando se visualiza sobre HTTPS.
+    </p>
+    <button mat-raised-button color="primary" (click)="openInNewTab()">
+      <mat-icon>open_in_new</mat-icon>
+      {{ openedInNewTab ? 'Abrir Nuevamente en Nueva Pestaña' : 'Abrir en Nueva Pestaña' }}
+    </button>
   </div>
   <iframe 
     [src]="safeUrl" 
     class="valueset-iframe"
     frameborder="0"
     allowfullscreen
-    (load)="onIframeLoad()">
+    (load)="onIframeLoad()"
+    [style.display]="hasError ? 'none' : 'block'">
   </iframe>
 </div>
 <mat-dialog-actions align="end">

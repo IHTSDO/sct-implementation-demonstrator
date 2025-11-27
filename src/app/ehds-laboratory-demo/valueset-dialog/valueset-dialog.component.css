@@ -70,6 +70,59 @@
   font-size: 0.9rem;
 }
 
+.error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  z-index: 20;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #f44336;
+}
+
+.error-icon.success-icon {
+  color: #4caf50;
+}
+
+.error-title {
+  margin: 0;
+  color: #333;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.error-message {
+  margin: 0;
+  color: #666;
+  font-size: 1rem;
+  max-width: 600px;
+}
+
+.error-detail {
+  margin: 8px 0 0 0;
+  color: #999;
+  font-size: 0.875rem;
+  max-width: 600px;
+}
+
+.error-overlay button {
+  margin-top: 8px;
+}
+
 mat-dialog-actions {
   margin: 0 !important;
   padding: 12px 24px !important;
