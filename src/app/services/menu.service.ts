@@ -152,6 +152,13 @@ export class MenuService {
       type: "external",
       url: "https://training-snolytical.ihtsdotools.org/",
       description: "A health data analytics demonstrator leveraging the SNOMED CT hierarchy. The demo shows how clinicians can get hand-on and engage with their SNOMED coded data directly, by building and running their own basic data-science reports. "
+    },
+    {
+      name: "Module Dependency Reference Set Viewer",
+      subtitle: "Learning demo",
+      type: "internal",
+      url: "/mdrs-viewer",
+      description: "A graphical viewer for the Module Dependency Reference Set (MDRS) that displays dependencies between SNOMED CT modules, showing which module versions depend on which other module versions."
     }
 
   ];

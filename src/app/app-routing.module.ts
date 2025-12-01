@@ -33,6 +33,7 @@ import { InteroperabilityComponent } from './benefits-demo/interoperability/inte
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { PhaserGameComponent } from './phaser-game/phaser-v1/phaser-game.component';
 import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
+import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -71,6 +72,7 @@ const routes: Routes = [
   { path: 'interoperability', component: InteroperabilityComponent },
   { path: 'expo-quiz-2025', component: ExpoQuiz2025Component },
   { path: 'ehds-laboratory-demo', component: EhdsLaboratoryDemoComponent },
+  { path: 'mdrs-viewer', component: MdrsViewerComponent },
   { path: '**', redirectTo: '' }
 ];
 

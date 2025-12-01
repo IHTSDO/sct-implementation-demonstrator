@@ -125,6 +125,7 @@ import { DiagnosticReportFormComponent } from './ehds-laboratory-demo/diagnostic
 import { SpecimenFormComponent } from './ehds-laboratory-demo/specimen-form/specimen-form.component';
 import { ServiceRequestFormComponent } from './ehds-laboratory-demo/service-request-form/service-request-form.component';
 import { ObservationResultFormComponent } from './ehds-laboratory-demo/observation-result-form/observation-result-form.component';
+import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -209,7 +210,8 @@ const app = initializeApp(firebaseConfig);
         DiagnosticReportFormComponent,
         SpecimenFormComponent,
         ServiceRequestFormComponent,
-        ObservationResultFormComponent
+        ObservationResultFormComponent,
+        MdrsViewerComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

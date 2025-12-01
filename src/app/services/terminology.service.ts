@@ -586,6 +586,33 @@ export class TerminologyService {
       );
     }
 
+  getNativeCodeSystems() {
+    // Use the configured FHIR server URL and replace /fhir with /snowstorm/snomed-ct
+    const snowstormBase = this.snowstormFhirBase.replace('/fhir', '/snowstorm/snomed-ct');
+    let requestUrl = `${snowstormBase}/codesystems`;
+    const headers = new HttpHeaders({
+      'Accept': 'application/json',
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(
+        catchError(this.handleError<any>('getNativeCodeSystems', {}))
+      );
+  }
+
+  getFhirCodeSystems() {
+    // Use the configured FHIR server URL to get CodeSystems
+    let requestUrl = `${this.snowstormFhirBase}/CodeSystem`;
+    const headers = new HttpHeaders({
+      'Accept': 'application/fhir+json',
+      'Accept-Language': this.lang
+    });
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(
+        catchError(this.handleError<any>('getFhirCodeSystems', {}))
+      );
+  }
+
   /**
    * Creates a FHIR ValueSet Parameters resource from a list of codes
    * @param codes Array of objects containing code and optional display

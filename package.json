@@ -24,6 +24,7 @@
     "@types/papaparse": "^5.3.16",
     "@types/plotly.js": "^3.0.3",
     "@types/uuid": "^10.0.0",
+    "@viz-js/viz": "^3.21.0",
     "bad-words": "^3.0.4",
     "chart.js": "^4.4.7",
     "d3": "^7.9.0",
