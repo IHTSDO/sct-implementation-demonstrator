@@ -1,11 +1,7 @@
 name: Generate SNOMED Reports
 
 on:
-  schedule:
-    # Runs automatically on the 2nd of each month at 3 AM UTC
-    - cron: "0 3 2 * *"
-  
-  # Allows manual execution at any time via GitHub UI:
+  # Manual execution only via GitHub UI:
   # Actions -> Generate SNOMED Reports -> Run workflow
   workflow_dispatch:
 
