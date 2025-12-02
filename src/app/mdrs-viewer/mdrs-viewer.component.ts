@@ -107,10 +107,22 @@ export class MdrsViewerComponent implements OnInit, OnDestroy, AfterViewInit {
       debounceTime(500), // Wait 500ms after last change before executing
       takeUntil(this.destroy$)
     ).subscribe(([fhirBase, fhirUrlParam]) => {
-      // Only react to changes after initial load is complete and in server mode
-      if (!this.initialLoadComplete || this.dataSourceMode !== 'server') {
+      // Only react to changes after initial load is complete
+      if (!this.initialLoadComplete) {
         return;
       }
+      
+      // If in upload mode, reset to server mode when FHIR URI changes
+      if (this.dataSourceMode === 'upload') {
+        this.dataSourceMode = 'server';
+        this.uploadedFile = null;
+      }
+      
+      // Only proceed if in server mode
+      if (this.dataSourceMode !== 'server') {
+        return;
+      }
+      
       // Clear selection and table when server or edition changes
       this.clearSelection();
       this.dependencyRows = [];
