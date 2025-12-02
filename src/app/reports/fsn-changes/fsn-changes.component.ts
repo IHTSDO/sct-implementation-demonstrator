@@ -16,8 +16,9 @@ export class FsnChangesComponent implements OnInit {
     private elementRef: ElementRef) { }
   
   ngOnInit(): void {
-      // Load the HTML file
-      this.http.get('assets/reports/fsn_changes_with_details.html', { responseType: 'text' }).subscribe((html) => {
+      // Load the HTML file with cache busting parameter
+      const url = `assets/reports/fsn_changes_with_details.html?t=${Date.now()}`;
+      this.http.get(url, { responseType: 'text' }).subscribe((html) => {
         this.loading = false;
         // Create a div element to hold the HTML
         const container = this.elementRef.nativeElement.querySelector('#chart-container');
