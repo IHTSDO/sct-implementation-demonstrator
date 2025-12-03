@@ -8,8 +8,117 @@
   margin-bottom: 20px;
 }
 
+.gender-distribution-container {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0 10px 0;
+}
+
+.gender-slider {
+  flex: 1;
+  min-width: 0;
+}
+
+.slider-label {
+  font-weight: 500;
+  color: #666;
+  font-size: 14px;
+  min-width: 50px;
+  text-align: center;
+}
+
+.slider-value {
+  text-align: center;
+  margin-top: 5px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.age-distribution-container {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.age-inputs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.age-input {
+  flex: 1;
+  width: auto;
+}
+
+.age-total {
+  text-align: center;
+  margin-top: 5px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.age-total.invalid {
+  color: #f44336;
+}
+
+.error-text {
+  color: #f44336;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
 .checkbox-container {
   margin: 15px 0;
+}
+
+.diagnoses-range-container {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.section-label {
+  margin: 0 0 10px 0;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 8px;
+}
+
+.range-input {
+  flex: 1;
+  width: auto;
+}
+
+.range-separator {
+  color: #666;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.range-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
 }
 
 .progress-container {

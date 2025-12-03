@@ -20,6 +20,7 @@ export interface DiagnosisSpec {
       icd10: {
         code: string;
       };
+      computedLocation?: string;
     }>;
   };
 }
@@ -192,9 +193,44 @@ export class PatientSimulationService {
     return genders[Math.floor(Math.random() * genders.length)];
   }
 
+  /**
+   * Gets a random gender based on a probability distribution
+   * @param maleProbability Probability of male (0.0 to 1.0). 0.5 = 50/50, 1.0 = all male, 0.0 = all female
+   * @returns 'male' or 'female'
+   */
+  getRandomGenderWithDistribution(maleProbability: number = 0.5): string {
+    // Clamp probability between 0 and 1
+    const prob = Math.max(0, Math.min(1, maleProbability));
+    return Math.random() < prob ? 'male' : 'female';
+  }
+
+  /**
+   * Gets a random age group based on a probability distribution
+   * @param ageDistribution Object with children, adults, and elderly percentages (should sum to 100)
+   * @returns Age range tuple [minAge, maxAge]
+   */
+  getRandomAgeGroupWithDistribution(ageDistribution: { children: number; adults: number; elderly: number }): [number, number] {
+    const random = Math.random() * 100;
+    
+    if (random < ageDistribution.children) {
+      return [0, 18];
+    } else if (random < ageDistribution.children + ageDistribution.adults) {
+      return [18, 65];
+    } else {
+      return [65, 100]; // Max age 100 for elderly
+    }
+  }
+
   private getRandomFirstName(gender: string): string {
     const names = gender === 'male' ? this.maleFirstNames : this.femaleFirstNames;
     return names[Math.floor(Math.random() * names.length)];
+  }
+
+  /**
+   * Gets a random first name for a given gender (public method)
+   */
+  getRandomFirstNameForGender(gender: 'male' | 'female'): string {
+    return this.getRandomFirstName(gender);
   }
 
   private getRandomLastName(): string {
@@ -344,9 +380,12 @@ export class PatientSimulationService {
   }
 
   /**
-   * Generates 1-4 random diagnoses for a patient based on their age and gender
+   * Generates random diagnoses for a patient based on their age and gender
+   * @param patient The patient to generate diagnoses for
+   * @param minDiagnoses Minimum number of diagnoses (default: 1)
+   * @param maxDiagnoses Maximum number of diagnoses (default: 4)
    */
-  generateDiagnoses(patient: Patient): Observable<Condition[]> {
+  generateDiagnoses(patient: Patient, minDiagnoses: number = 1, maxDiagnoses: number = 4): Observable<Condition[]> {
     return this.loadPatientGenerationSpec().pipe(
       map(spec => {
         const age = this.calculateAge(patient.birthDate || '');
@@ -364,8 +403,12 @@ export class PatientSimulationService {
           return [];
         }
 
-        // Generate 1-4 random diagnoses
-        const numDiagnoses = Math.floor(Math.random() * 4) + 1; // 1-4 diagnoses
+        // Ensure min and max are valid
+        const min = Math.max(1, Math.min(minDiagnoses, maxDiagnoses));
+        const max = Math.max(min, Math.min(maxDiagnoses, genderArray.length));
+        
+        // Generate random number of diagnoses within the specified range
+        const numDiagnoses = Math.floor(Math.random() * (max - min + 1)) + min;
         const selectedDiagnoses: DiagnosisSpec[] = [];
         const usedCodes = new Set<string>();
 
@@ -401,10 +444,35 @@ export class PatientSimulationService {
 
   /**
    * Creates a FHIR Condition resource from a diagnosis specification
+   * If descendants are available, randomly selects one to use instead of the main code
    */
   private createConditionFromDiagnosis(patient: Patient, diagnosis: DiagnosisSpec): Condition {
     const conditionId = `condition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const currentTime = new Date().toISOString();
+
+    // Select a random descendant if available, otherwise use the main diagnosis code
+    let snomedCode: string;
+    let snomedDisplay: string;
+    let icd10Code: string | undefined;
+    let computedLocation: string;
+
+    if (diagnosis.snomed.descendants && diagnosis.snomed.descendants.length > 0) {
+      // Select a random descendant
+      const randomIndex = Math.floor(Math.random() * diagnosis.snomed.descendants.length);
+      const selectedDescendant = diagnosis.snomed.descendants[randomIndex];
+      
+      snomedCode = selectedDescendant.code;
+      snomedDisplay = selectedDescendant.display;
+      icd10Code = selectedDescendant.icd10?.code || undefined;
+      // Use the descendant's computedLocation if available, otherwise fall back to diagnosis computedLocation
+      computedLocation = selectedDescendant.computedLocation || diagnosis.computedLocation;
+    } else {
+      // Use the main diagnosis code
+      snomedCode = diagnosis.snomed.code;
+      snomedDisplay = diagnosis.snomed.display;
+      icd10Code = diagnosis.snomed.icd10?.code || undefined;
+      computedLocation = diagnosis.computedLocation;
+    }
 
     return {
       resourceType: 'Condition',
@@ -428,10 +496,10 @@ export class PatientSimulationService {
       code: {
         coding: [{
           system: 'http://snomed.info/sct',
-          code: diagnosis.snomed.code,
-          display: diagnosis.snomed.display
+          code: snomedCode,
+          display: snomedDisplay
         }],
-        text: diagnosis.snomed.display
+        text: snomedDisplay
       },
       subject: {
         reference: `Patient/${patient.id}`,
@@ -439,9 +507,9 @@ export class PatientSimulationService {
       },
       onsetDateTime: currentTime,
       recordedDate: currentTime,
-      snomedConceptId: diagnosis.snomed.code,
-      icd10Code: diagnosis.snomed.icd10?.code || undefined,
-      computedLocation: diagnosis.computedLocation
+      snomedConceptId: snomedCode,
+      icd10Code: icd10Code,
+      computedLocation: computedLocation
     } as Condition;
   }
 
@@ -462,30 +530,63 @@ export class PatientSimulationService {
 
   /**
    * Generates a random patient with diagnoses based on age and gender
+   * @param minDiagnoses Minimum number of diagnoses (default: 1)
+   * @param maxDiagnoses Maximum number of diagnoses (default: 4)
+   * @param maleProbability Probability of male gender (0.0 to 1.0, default: 0.5)
+   * @param ageDistribution Optional age distribution object
    */
-  generateRandomPatientWithDiagnoses(): Observable<{ patient: Patient; diagnoses: Condition[] }> {
-    const patient = this.generateRandomPatient();
-    return this.generateDiagnoses(patient).pipe(
+  generateRandomPatientWithDiagnoses(
+    minDiagnoses: number = 1, 
+    maxDiagnoses: number = 4, 
+    maleProbability: number = 0.5,
+    ageDistribution?: { children: number; adults: number; elderly: number }
+  ): Observable<{ patient: Patient; diagnoses: Condition[] }> {
+    const gender = this.getRandomGenderWithDistribution(maleProbability);
+    
+    let patient: Patient;
+    if (ageDistribution) {
+      const [minAge, maxAge] = this.getRandomAgeGroupWithDistribution(ageDistribution);
+      patient = this.generateRandomPatientWithAgeRange(minAge, maxAge);
+    } else {
+      patient = this.generateRandomPatient();
+    }
+    
+    // Set gender after age generation
+    patient.gender = gender;
+    // Update name to match gender
+    const firstName = this.getRandomFirstName(gender);
+    if (patient.name && patient.name.length > 0) {
+      patient.name[0].given = [firstName];
+    }
+    
+    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses).pipe(
       map(diagnoses => ({ patient, diagnoses }))
     );
   }
 
   /**
    * Generates a patient with specific age range and diagnoses
+   * @param minAge Minimum age
+   * @param maxAge Maximum age
+   * @param minDiagnoses Minimum number of diagnoses (default: 1)
+   * @param maxDiagnoses Maximum number of diagnoses (default: 4)
    */
-  generateRandomPatientWithAgeRangeAndDiagnoses(minAge: number, maxAge: number): Observable<{ patient: Patient; diagnoses: Condition[] }> {
+  generateRandomPatientWithAgeRangeAndDiagnoses(minAge: number, maxAge: number, minDiagnoses: number = 1, maxDiagnoses: number = 4): Observable<{ patient: Patient; diagnoses: Condition[] }> {
     const patient = this.generateRandomPatientWithAgeRange(minAge, maxAge);
-    return this.generateDiagnoses(patient).pipe(
+    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses).pipe(
       map(diagnoses => ({ patient, diagnoses }))
     );
   }
 
   /**
    * Generates a patient with specific gender and diagnoses
+   * @param gender Patient gender
+   * @param minDiagnoses Minimum number of diagnoses (default: 1)
+   * @param maxDiagnoses Maximum number of diagnoses (default: 4)
    */
-  generateRandomPatientWithGenderAndDiagnoses(gender: 'male' | 'female'): Observable<{ patient: Patient; diagnoses: Condition[] }> {
+  generateRandomPatientWithGenderAndDiagnoses(gender: 'male' | 'female', minDiagnoses: number = 1, maxDiagnoses: number = 4): Observable<{ patient: Patient; diagnoses: Condition[] }> {
     const patient = this.generateRandomPatientWithGender(gender);
-    return this.generateDiagnoses(patient).pipe(
+    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses).pipe(
       map(diagnoses => ({ patient, diagnoses }))
     );
   }

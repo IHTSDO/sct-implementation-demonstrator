@@ -249,12 +249,26 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.generateMultiplePatients(result.numberOfPatients, result.includeDiagnoses);
+        this.generateMultiplePatients(
+          result.numberOfPatients, 
+          result.includeDiagnoses,
+          result.minDiagnoses,
+          result.maxDiagnoses,
+          result.genderDistribution,
+          result.ageDistribution
+        );
       }
     });
   }
 
-  private async generateMultiplePatients(count: number, includeDiagnoses: boolean): Promise<void> {
+  private async generateMultiplePatients(
+    count: number, 
+    includeDiagnoses: boolean, 
+    minDiagnoses: number = 1, 
+    maxDiagnoses: number = 4, 
+    genderDistribution: number = 0.5,
+    ageDistribution?: { children: number; adults: number; elderly: number }
+  ): Promise<void> {
     const snackBarRef = this.snackBar.open(`Generating ${count} patients...`, 'Cancel', {
       duration: undefined
     });
@@ -270,7 +284,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         if (includeDiagnoses) {
           // Generate patient with diagnoses
           await new Promise<void>((resolve, reject) => {
-            this.patientSimulationService.generateRandomPatientWithDiagnoses()
+            this.patientSimulationService.generateRandomPatientWithDiagnoses(minDiagnoses, maxDiagnoses, genderDistribution, ageDistribution)
               .pipe(
                 catchError(error => {
                   console.error(`Error generating patient ${i + 1}:`, error);
@@ -298,8 +312,24 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
               });
           });
         } else {
-          // Generate simple random patient
-          const randomPatient = this.patientSimulationService.generateRandomPatient();
+          // Generate simple random patient with gender and age distribution
+          const gender = this.patientSimulationService.getRandomGenderWithDistribution(genderDistribution);
+          
+          let randomPatient: Patient;
+          if (ageDistribution) {
+            const [minAge, maxAge] = this.patientSimulationService.getRandomAgeGroupWithDistribution(ageDistribution);
+            randomPatient = this.patientSimulationService.generateRandomPatientWithAgeRange(minAge, maxAge);
+            // Set gender after age generation
+            randomPatient.gender = gender;
+            // Update name to match gender
+            const firstName = this.patientSimulationService.getRandomFirstNameForGender(gender as 'male' | 'female');
+            if (randomPatient.name && randomPatient.name.length > 0) {
+              randomPatient.name[0].given = [firstName];
+            }
+          } else {
+            randomPatient = this.patientSimulationService.generateRandomPatientWithGender(gender as 'male' | 'female');
+          }
+          
           this.patientService.addPatient(randomPatient);
           lastPatientId = randomPatient.id;
           completed++;

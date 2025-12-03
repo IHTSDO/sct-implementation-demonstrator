@@ -163,6 +163,16 @@
                   {{ patient.gender }}
                 </span>
                 <span class="age-badge">{{ getPatientAge(patient.dobYear) }} years</span>
+                <button 
+                  mat-icon-button 
+                  class="open-record-button"
+                  (click)="openPatientRecord(patient)"
+                  [matTooltip]="'Open clinical record in new window'"
+                  [matTooltipPosition]="'left'"
+                  aria-label="Open clinical record"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
               </div>
             </div>
           </div>

@@ -17,10 +17,113 @@
       <mat-hint>Enter a number between 1 and 100</mat-hint>
     </mat-form-field>
 
+    <div class="gender-distribution-container">
+      <p class="section-label">Gender Distribution</p>
+      <div class="slider-container">
+        <span class="slider-label">Female</span>
+        <mat-slider 
+          class="gender-slider"
+          [min]="0"
+          [max]="1"
+          [step]="0.05"
+          [disabled]="isGenerating"
+          [displayWith]="formatGenderLabel"
+        >
+          <input matSliderThumb [(ngModel)]="genderDistribution" name="genderDistribution">
+        </mat-slider>
+        <span class="slider-label">Male</span>
+      </div>
+      <div class="slider-value">
+        <span>{{ genderDistributionLabel }}</span>
+      </div>
+      <mat-hint class="range-hint">Adjust the probability of generating male vs female patients</mat-hint>
+    </div>
+
+    <div class="age-distribution-container">
+      <p class="section-label">Age Distribution</p>
+      <div class="age-inputs">
+        <mat-form-field class="age-input">
+          <mat-label>Children (0-18)</mat-label>
+          <mat-select 
+            [(ngModel)]="ageDistribution.children"
+            [disabled]="isGenerating"
+            name="ageChildren"
+          >
+            <mat-option *ngFor="let option of ageDistributionOptions" [value]="option">
+              {{ option }}%
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field class="age-input">
+          <mat-label>Adults (18-65)</mat-label>
+          <mat-select 
+            [(ngModel)]="ageDistribution.adults"
+            [disabled]="isGenerating"
+            name="ageAdults"
+          >
+            <mat-option *ngFor="let option of ageDistributionOptions" [value]="option">
+              {{ option }}%
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field class="age-input">
+          <mat-label>Elderly (65+)</mat-label>
+          <mat-select 
+            [(ngModel)]="ageDistribution.elderly"
+            [disabled]="isGenerating"
+            name="ageElderly"
+          >
+            <mat-option *ngFor="let option of ageDistributionOptions" [value]="option">
+              {{ option }}%
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="age-total" [class.invalid]="!ageDistributionValid">
+        <span>Total: {{ ageDistributionTotal }}%</span>
+        <span *ngIf="!ageDistributionValid" class="error-text"> (Must equal 100%)</span>
+      </div>
+      <mat-hint class="range-hint">Select percentages in 10% increments. Total must equal 100%.</mat-hint>
+    </div>
+
     <div class="checkbox-container">
       <mat-checkbox [(ngModel)]="includeDiagnoses" [disabled]="isGenerating">
         Include random diagnoses for each patient
       </mat-checkbox>
+    </div>
+
+    <div *ngIf="includeDiagnoses" class="diagnoses-range-container">
+      <p class="section-label">Number of Diagnoses per Patient</p>
+      <div class="range-inputs">
+        <mat-form-field class="range-input">
+          <mat-label>Minimum</mat-label>
+          <input 
+            matInput 
+            type="number" 
+            [(ngModel)]="minDiagnoses"
+            min="1"
+            max="10"
+            [disabled]="isGenerating"
+          >
+        </mat-form-field>
+        
+        <span class="range-separator">to</span>
+        
+        <mat-form-field class="range-input">
+          <mat-label>Maximum</mat-label>
+          <input 
+            matInput 
+            type="number" 
+            [(ngModel)]="maxDiagnoses"
+            min="1"
+            max="10"
+            [disabled]="isGenerating"
+          >
+        </mat-form-field>
+      </div>
+      <mat-hint class="range-hint">Each patient will have a random number of diagnoses between these values</mat-hint>
     </div>
   </div>
 
@@ -32,7 +135,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()" [disabled]="isGenerating">Cancel</button>
-  <button mat-flat-button color="primary" (click)="onGenerate()" [disabled]="isGenerating">
+  <button mat-flat-button color="primary" (click)="onGenerate()" [disabled]="isGenerating || !ageDistributionValid">
     <mat-icon>group_add</mat-icon>
     Generate Patients
   </button>

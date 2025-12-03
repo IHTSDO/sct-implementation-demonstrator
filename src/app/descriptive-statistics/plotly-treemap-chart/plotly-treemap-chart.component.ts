@@ -1,5 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import Plotly from 'plotly.js-dist';
 import Papa from 'papaparse';
 import { PatientDataTransformerService, TransformedPatientResponse, HierarchyDataItem } from '../../services/patient-data-transformer.service';
@@ -88,7 +89,8 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   constructor(
     private http: HttpClient, 
     private cdr: ChangeDetectorRef,
-    private patientDataTransformer: PatientDataTransformerService
+    private patientDataTransformer: PatientDataTransformerService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -1013,6 +1015,16 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
 
   public getPatientEventCount(patient: Patient): number {
     return patient.events.length;
+  }
+
+  /**
+   * Opens the patient's clinical record in a new window
+   */
+  public openPatientRecord(patient: Patient): void {
+    // Build URL with hash for hash-based routing
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}/#/clinical-record/${patient.id}`;
+    window.open(url, '_blank');
   }
 
   public getPatientEventsForConcept(patient: Patient, conceptId: string): PatientEvent[] {
