@@ -9,7 +9,6 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class BatchPatientDialogComponent {
   numberOfPatients: number = 10;
-  includeDiagnoses: boolean = true;
   minDiagnoses: number = 1;
   maxDiagnoses: number = 4;
   genderDistribution: number = 0.5; // 0.0 = all female, 0.5 = 50/50, 1.0 = all male
@@ -59,18 +58,18 @@ export class BatchPatientDialogComponent {
   }
 
   onGenerate(): void {
-    if (this.numberOfPatients < 1 || this.numberOfPatients > 100) {
-      alert('Please enter a number between 1 and 100');
+    if (this.numberOfPatients < 1 || this.numberOfPatients > 500) {
+      alert('Please enter a number between 1 and 500');
       return;
     }
     
-    if (this.minDiagnoses < 1 || this.minDiagnoses > 10) {
-      alert('Minimum diagnoses must be between 1 and 10');
+    if (this.minDiagnoses < 0 || this.minDiagnoses > 10) {
+      alert('Minimum diagnoses must be between 0 and 10');
       return;
     }
     
-    if (this.maxDiagnoses < 1 || this.maxDiagnoses > 10) {
-      alert('Maximum diagnoses must be between 1 and 10');
+    if (this.maxDiagnoses < 0 || this.maxDiagnoses > 10) {
+      alert('Maximum diagnoses must be between 0 and 10');
       return;
     }
     
@@ -84,9 +83,12 @@ export class BatchPatientDialogComponent {
       return;
     }
     
+    // Determine if diagnoses should be included based on min/max values
+    const includeDiagnoses = this.minDiagnoses > 0 || this.maxDiagnoses > 0;
+    
     this.dialogRef.close({
       numberOfPatients: this.numberOfPatients,
-      includeDiagnoses: this.includeDiagnoses,
+      includeDiagnoses: includeDiagnoses,
       minDiagnoses: this.minDiagnoses,
       maxDiagnoses: this.maxDiagnoses,
       genderDistribution: this.genderDistribution,

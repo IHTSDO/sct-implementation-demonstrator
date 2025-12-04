@@ -382,12 +382,17 @@ export class PatientSimulationService {
   /**
    * Generates random diagnoses for a patient based on their age and gender
    * @param patient The patient to generate diagnoses for
-   * @param minDiagnoses Minimum number of diagnoses (default: 1)
-   * @param maxDiagnoses Maximum number of diagnoses (default: 4)
+   * @param minDiagnoses Minimum number of diagnoses (default: 1, 0 means no diagnoses)
+   * @param maxDiagnoses Maximum number of diagnoses (default: 4, 0 means no diagnoses)
    */
   generateDiagnoses(patient: Patient, minDiagnoses: number = 1, maxDiagnoses: number = 4): Observable<Condition[]> {
     return this.loadPatientGenerationSpec().pipe(
       map(spec => {
+        // If both min and max are 0, return empty array (no diagnoses)
+        if (minDiagnoses === 0 && maxDiagnoses === 0) {
+          return [];
+        }
+
         const age = this.calculateAge(patient.birthDate || '');
         const gender = patient.gender || 'male';
         
@@ -403,8 +408,8 @@ export class PatientSimulationService {
           return [];
         }
 
-        // Ensure min and max are valid
-        const min = Math.max(1, Math.min(minDiagnoses, maxDiagnoses));
+        // Ensure min and max are valid (allow 0, but if both are 0, we already returned above)
+        const min = Math.max(0, Math.min(minDiagnoses, maxDiagnoses));
         const max = Math.max(min, Math.min(maxDiagnoses, genderArray.length));
         
         // Generate random number of diagnoses within the specified range

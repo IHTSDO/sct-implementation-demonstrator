@@ -1,11 +1,64 @@
+::ng-deep mat-dialog-content {
+  padding-top: 12px !important;
+}
+
 .dialog-content {
-  min-width: 400px;
+  width: 100%;
   padding: 20px 0;
+}
+
+.dialog-content p {
+  margin: 10px 0 20px 0;
+  line-height: 1.6;
+  color: #333;
+}
+
+.dialog-content p a {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.dialog-content p a:hover {
+  border-bottom-color: #1976d2;
+}
+
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-top: 10px;
+}
+
+.column-left,
+.column-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.column-left .full-width,
+.column-right .age-distribution-container {
+  align-self: stretch;
+}
+
+@media (max-width: 1024px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .dialog-content {
+    min-width: 500px;
+    max-width: 100%;
+  }
 }
 
 .full-width {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .gender-distribution-container {
@@ -44,7 +97,7 @@
 }
 
 .age-distribution-container {
-  margin: 20px 0;
+  margin: 0;
   padding: 15px;
   background-color: #f5f5f5;
   border-radius: 4px;
@@ -52,6 +105,7 @@
 
 .age-inputs {
   display: flex;
+  flex-direction: row;
   gap: 15px;
   margin-bottom: 10px;
 }
@@ -77,10 +131,6 @@
   color: #f44336;
   font-size: 12px;
   margin-left: 5px;
-}
-
-.checkbox-container {
-  margin: 15px 0;
 }
 
 .diagnoses-range-container {
@@ -130,6 +180,30 @@
   margin-bottom: 15px;
   font-size: 14px;
   color: #666;
+}
+
+/* Header styling */
+::ng-deep h2[mat-dialog-title],
+::ng-deep .mat-mdc-dialog-title,
+::ng-deep .mdc-dialog__title {
+  margin: 0 !important;
+  padding: 20px 24px !important;
+  background: linear-gradient(to bottom, #fafafa 0%, #ffffff 100%) !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  font-size: 1.75rem !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+}
+
+/* Footer styling */
+mat-dialog-actions {
+  margin: 0 !important;
+  padding: 16px 24px !important;
+  background: linear-gradient(to top, #fafafa 0%, #ffffff 100%);
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+  min-height: auto !important;
 }
 
 mat-dialog-actions button {

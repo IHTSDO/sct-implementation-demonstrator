@@ -243,7 +243,8 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
   createBatchPatients(): void {
     const dialogRef = this.dialog.open(BatchPatientDialogComponent, {
-      width: '500px',
+      width: '80vw',
+      maxWidth: '1400px',
       disableClose: false
     });
 
