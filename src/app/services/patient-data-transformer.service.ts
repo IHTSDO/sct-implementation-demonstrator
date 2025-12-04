@@ -214,13 +214,61 @@ export class PatientDataTransformerService {
   /**
    * Transform benefits-demo patient data to hierarchy format (test5.csv structure)
    * Always uses SNOMED CT multiple inheritance support for proper analytics
+   * @param useIcd10Filtering Filter to only include conditions with ICD-10 codes
+   * @param genderFilter Optional gender filter: 'ALL', 'MALE', or 'FEMALE'. Defaults to 'ALL'
+   * @param ageRange Optional age range filter: [minAge, maxAge]. Defaults to [0, 100]
    */
-  transformPatientsToHierarchyFormat(useIcd10Filtering: boolean = false): Observable<HierarchyDataItem[]> {
+  transformPatientsToHierarchyFormat(
+    useIcd10Filtering: boolean = false,
+    genderFilter: string = 'ALL',
+    ageRange: [number, number] = [0, 100]
+  ): Observable<HierarchyDataItem[]> {
     // Get current patients from the service
     let patients: Patient[] = [];
     this.patientService.getPatients().subscribe(currentPatients => {
       patients = currentPatients;
     }).unsubscribe();
+
+    if (patients.length === 0) {
+      return of([]);
+    }
+
+    // Apply demographic filters if specified
+    if (genderFilter !== 'ALL' || ageRange[0] !== 0 || ageRange[1] !== 100) {
+      patients = patients.filter(patient => {
+        // Gender filter - normalize both values for case-insensitive comparison
+        if (genderFilter !== 'ALL') {
+          const patientGender = patient.gender?.toLowerCase() || '';
+          const filterGender = genderFilter.toUpperCase();
+          
+          // Map filter values ('MALE', 'FEMALE') to patient gender format ('male', 'female')
+          let normalizedFilter = '';
+          if (filterGender === 'MALE') {
+            normalizedFilter = 'male';
+          } else if (filterGender === 'FEMALE') {
+            normalizedFilter = 'female';
+          } else {
+            normalizedFilter = filterGender.toLowerCase();
+          }
+          
+          if (patientGender !== normalizedFilter) {
+            return false;
+          }
+        }
+        
+        // Age filter
+        if (patient.birthDate) {
+          const currentYear = new Date().getFullYear();
+          const birthYear = new Date(patient.birthDate).getFullYear();
+          const age = currentYear - birthYear;
+          if (age < ageRange[0] || age > ageRange[1]) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+    }
 
     if (patients.length === 0) {
       return of([]);

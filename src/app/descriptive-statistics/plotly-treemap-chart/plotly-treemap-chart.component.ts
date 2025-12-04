@@ -1,9 +1,10 @@
 import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import Plotly from 'plotly.js-dist';
 import Papa from 'papaparse';
 import { PatientDataTransformerService, TransformedPatientResponse, HierarchyDataItem } from '../../services/patient-data-transformer.service';
+import { PatientService } from '../../services/patient.service';
 
 interface ChartItem {
   id: string;
@@ -63,7 +64,6 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   public currentRootId: string = '';
   public maxLevels = 4;
   public isLoading = false;
-  public rootNodeCount: number = 0;
   public searchTerm: string = '';
   public searchResults: ChartItem[] = [];
   public patients: Patient[] = [];
@@ -72,6 +72,14 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   public showGenderChart = false;
   public loadingMessage = '';
   private shouldCreateGenderChart = false;
+  
+  // Filter properties
+  public selectedGender: string = 'ALL'; // 'ALL', 'MALE', 'FEMALE'
+  public ageRange: [number, number] = [0, 100];
+  public minAge: number = 0;
+  public maxAge: number = 100;
+  private allPatients: Patient[] = []; // Store all patients for filtering
+  private isDraggingSlider: boolean = false; // Track if user is dragging the slider
   private colorMap = new Map<string, string>();
   private colorPalette = [
     '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
@@ -90,10 +98,31 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     private http: HttpClient, 
     private cdr: ChangeDetectorRef,
     private patientDataTransformer: PatientDataTransformerService,
-    private router: Router
+    private patientService: PatientService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
+    // Check if we're accessing from ehr-lab route
+    const currentUrl = this.router.url;
+    if (currentUrl.includes('/ehr-lab/analytics')) {
+      this.useBrowserStorage = true;
+    }
+    
+    // Check for ICD-10 mode query parameter
+    this.route.queryParams.subscribe(params => {
+      if (params['mode'] === 'icd10') {
+        this.useIcd10Filtering = true;
+      }
+    });
+    
+    // Ensure ageRange is initialized
+    this.ageRange = [this.minAge, this.maxAge];
+    
+    // Load patient counts first to initialize allPatients
+    this.loadPatientCounts();
+    
     this.loadChartData();
     
     // Add resize listener for responsive charts
@@ -117,6 +146,13 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       window.removeEventListener('resize', this.resizeListener);
     }
     
+    // Clean up slider mouse listeners
+    if (this.sliderMouseUpListener) {
+      window.removeEventListener('mouseup', this.sliderMouseUpListener);
+      window.removeEventListener('touchend', this.sliderMouseUpListener);
+      this.sliderMouseUpListener = null;
+    }
+    
     // Clean up charts
     if (this.genderChart && this.genderChartContainer) {
       Plotly.purge(this.genderChartContainer.nativeElement);
@@ -136,34 +172,55 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       .subscribe({
         next: (response: PatientResponse) => {
           this.calculatePatientCounts(response.content);
-          this.getData();
+          // Don't call getData() here as it's called separately in ngOnInit
         },
         error: (error: any) => {
           console.error('Error loading patient data for counts:', error);
           // Continue without patient counts if loading fails
-          this.getData();
         }
       });
   }
 
   private loadPatientCountsFromBrowserStorage(): void {
     if (!this.patientDataTransformer.hasPatientData(this.useIcd10Filtering)) {
-      this.getData();
+      // Don't call getData() here as it's called separately in ngOnInit
       return;
     }
 
     const transformedResponse = this.patientDataTransformer.transformPatientsToMockFormat(this.useIcd10Filtering);
     
     this.calculatePatientCounts(transformedResponse.content);
-    this.getData();
+    // Don't call getData() here as it's called separately in ngOnInit
   }
 
   private calculatePatientCounts(patients: Patient[]): void {
+    // Store all patients for filtering (store original unfiltered patients)
+    this.allPatients = patients;
+    console.log('📊 [calculatePatientCounts] Initialized allPatients with', this.allPatients.length, 'patients');
+    
+    // Ensure ageRange is initialized
+    if (!this.ageRange || this.ageRange.length !== 2) {
+      this.ageRange = [this.minAge, this.maxAge];
+    }
+    
+    // Calculate max age from patients if we have any
+    if (patients.length > 0) {
+      const ages = patients.map(p => this.getPatientAge(p.dobYear));
+      const maxPatientAge = Math.max(...ages);
+      if (maxPatientAge > this.maxAge) {
+        this.maxAge = Math.min(100, Math.ceil(maxPatientAge / 5) * 5); // Round up to nearest 5
+        this.ageRange[1] = this.maxAge;
+      }
+    }
+    
+    // Apply filters to get filtered patients
+    const filteredPatients = this.applyFilters(patients);
+    
     // Create a map to store patient counts for each concept
     const conceptPatientCounts = new Map<string, Set<string>>();
     
     // Process each patient's events
-    patients.forEach(patient => {
+    filteredPatients.forEach(patient => {
       patient.events.forEach(event => {
         const conceptId = event.conceptId.toString();
         if (!conceptPatientCounts.has(conceptId)) {
@@ -179,10 +236,8 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       const patientSet = conceptPatientCounts.get(baseConceptId);
       item.patientCount = patientSet ? patientSet.size : 0;
       
-      // Use patient count as the value for the treemap if available
-      if (item.patientCount > 0) {
-        item.value = item.patientCount;
-      }
+      // Always use patient count as the value for the treemap
+      item.value = item.patientCount;
     });
   }
 
@@ -213,16 +268,40 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       return;
     }
 
-    this.patientDataTransformer.transformPatientsToHierarchyFormat(this.useIcd10Filtering).subscribe({
+    // Ensure ageRange is initialized and synchronized
+    if (!this.ageRange || this.ageRange.length !== 2) {
+      this.ageRange = [this.minAge, this.maxAge];
+    } else {
+      // Always sync ageRange with current minAge and maxAge values
+      this.ageRange = [this.minAge, this.maxAge];
+    }
+
+    // Pass current filter values (will be defaults on initial load: 'ALL', [0, 100])
+    this.patientDataTransformer.transformPatientsToHierarchyFormat(
+      this.useIcd10Filtering,
+      this.selectedGender,
+      this.ageRange
+    ).subscribe({
       next: (hierarchyData: HierarchyDataItem[]) => {
         // Check if we have proper parent-child relationships
         const rootItems = hierarchyData.filter(item => !item.parent || item.parent.trim() === '');
         const childItems = hierarchyData.filter(item => item.parent && item.parent.trim() !== '');
         
+        if (hierarchyData.length === 0) {
+          // Show empty state when filters exclude all patients
+          this.isLoading = false;
+          this.allData = [];
+          this.chartData = [];
+          this.selectedItem = null;
+          this.cdr.detectChanges();
+          return;
+        }
+        
         this.parseHierarchyData(hierarchyData);
       },
       error: (error: any) => {
         console.error('Error loading hierarchy data from browser storage:', error);
+        this.isLoading = false;
         this.loadDefaultData();
       }
     });
@@ -242,9 +321,6 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
           labelCount: row['label-count'] ? parseInt(row['label-count'], 10) : undefined
         }));
         
-        // Calculate and store the root node count
-        this.calculateRootNodeCount();
-        
         this.getData();
       },
       error: (error: any) => {
@@ -255,6 +331,13 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   private parseHierarchyData(hierarchyData: HierarchyDataItem[]) {
+    if (!hierarchyData || hierarchyData.length === 0) {
+      console.warn('No hierarchy data received, loading default data');
+      this.isLoading = false;
+      this.loadDefaultData();
+      return;
+    }
+    
     this.allData = hierarchyData.map((item: HierarchyDataItem) => ({
       id: item.id,
       label: item.label,
@@ -266,9 +349,6 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     
     // Debug the parsed hierarchy data
     // Minimal logging for parsed data
-    
-    // Calculate and store the root node count
-    this.calculateRootNodeCount();
     
     // Automatically find target medications for debugging
     setTimeout(() => {
@@ -293,8 +373,13 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
           const levelsToShow = this.useBrowserStorage ? 4 : this.maxLevels;
           this.chartData = this.getItemsUpToLevel([firstRoot], 1, levelsToShow);
           this.currentRootId = firstRoot.id;
-          // Auto-select the root item
-          this.selectedItem = firstRoot;
+          // Update selected item with fresh data from allData
+          const updatedSelectedItem = this.allData.find(item => item.id === firstRoot.id);
+          if (updatedSelectedItem) {
+            this.selectedItem = { ...updatedSelectedItem }; // Create a new object to trigger change detection
+          } else {
+            this.selectedItem = { ...firstRoot };
+          }
           
           // Debug target medications in chart data
           const targetMedCodes = ['318420003', '1332437002', '374627000'];
@@ -324,8 +409,13 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
           const levelsToShow = this.useBrowserStorage ? 4 : this.maxLevels;
           this.chartData = this.getItemsUpToLevel([rootItem], 1, levelsToShow);
           this.currentRootId = rootId;
-          // Auto-select the current root item
-          this.selectedItem = rootItem;
+          // Update selected item with fresh data from allData
+          const updatedSelectedItem = this.allData.find(item => item.id === rootItem.id);
+          if (updatedSelectedItem) {
+            this.selectedItem = { ...updatedSelectedItem }; // Create a new object to trigger change detection
+          } else {
+            this.selectedItem = { ...rootItem };
+          }
           
           // Trigger change detection to update statistics
           this.cdr.detectChanges();
@@ -339,15 +429,22 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
 
   private getItemsUpToLevel(items: ChartItem[], currentLevel: number, maxLevels: number = this.maxLevels): ChartItem[] {
     if (currentLevel >= maxLevels) {
-      return items;
+      // Return fresh copies of items at max level
+      return items.map(item => {
+        const freshItem = this.allData.find(d => d.id === item.id);
+        return freshItem ? { ...freshItem } : { ...item };
+      });
     }
 
     const result: ChartItem[] = [];
     
     for (const item of items) {
-      result.push(item);
+      // Always get fresh data from allData and create a new object to ensure we have the latest values
+      const freshItem = this.allData.find(d => d.id === item.id);
+      const itemToAdd = freshItem ? { ...freshItem } : { ...item };
+      result.push(itemToAdd);
       
-      const children = this.allData.filter(child => child.parent === item.id);
+      const children = this.allData.filter(child => child.parent === itemToAdd.id);
       // Level logging removed for cleaner output
       
       if (children.length > 0) {
@@ -375,6 +472,12 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   private initializeChart() {
     const data = this.convertToPlotlyTreemapData();
     
+    // Check if we have valid data
+    if (!data || data.length === 0 || !data[0].values || data[0].values.length === 0) {
+      console.warn('No data to display in chart');
+      return;
+    }
+    
     const layout = {
       width: this.chartContainer.nativeElement.offsetWidth,
       height: this.chartContainer.nativeElement.offsetHeight,
@@ -389,7 +492,9 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       displayModeBar: false
     };
 
+    // Always create a new plot (destroys previous one automatically)
     Plotly.newPlot(this.chartContainer.nativeElement, data, layout, config).then(() => {
+      this.chart = this.chartContainer.nativeElement;
       this.chartContainer.nativeElement.on('plotly_click', (data: any) => {
         this.handleChartClick(data);
       });
@@ -408,20 +513,29 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     const textColors: string[] = [];
 
     this.chartData.forEach((item) => {
-      ids.push(item.id);
-      labels.push(item.label);
+      // Always get the freshest value from allData to ensure we have the latest filtered counts
+      const freshItem = this.allData.find(d => d.id === item.id);
+      const currentItem = freshItem || item;
+      
+      // Ensure we have a valid value (at least 0)
+      const value = currentItem.value || 0;
+      
+      ids.push(currentItem.id);
+      labels.push(currentItem.label);
       
       // If this is the current root item, make it a true root (no parent)
       // Otherwise, use its original parent
-      const parent = (item.id === this.currentRootId) ? '' : (item.parent || '');
+      const parent = (currentItem.id === this.currentRootId) ? '' : (currentItem.parent || '');
       parents.push(parent);
       
-      values.push(item.value);
+      // Use a minimum value of 0.1 for items with 0 patients so they still appear in the chart
+      // This allows users to see that the concept exists but has no matching patients
+      values.push(value > 0 ? value : 0.1);
       
       // Treemap item logging removed
       
       // Use consistent color based on item ID
-      const colorIndex = this.getColorIndexForItem(item.id);
+      const colorIndex = this.getColorIndexForItem(currentItem.id);
       const backgroundColor = this.colorPalette[colorIndex];
       colors.push(backgroundColor);
       
@@ -429,10 +543,10 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       textColors.push(this.getContrastTextColor(backgroundColor));
       
       // Add special hover text for current root
-      if (item.id === this.currentRootId) {
-        hoverTexts.push(`<b>${item.label}</b><br>Patients: ${item.value}<br><i>Click to go back</i>`);
+      if (currentItem.id === this.currentRootId) {
+        hoverTexts.push(`<b>${currentItem.label}</b><br>Patients: ${value}<br><i>Click to go back</i>`);
       } else {
-        hoverTexts.push(`<b>${item.label}</b><br>Patients: ${item.value}`);
+        hoverTexts.push(`<b>${currentItem.label}</b><br>Patients: ${value}`);
       }
     });
 
@@ -528,6 +642,10 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
         this.getData(currentItem.parent);
       }
     }
+  }
+
+  public goBackToEhrLab(): void {
+    this.router.navigate(['/ehr-lab']);
   }
 
   public goToRoot() {
@@ -704,13 +822,23 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     setTimeout(() => {
       this.loadingMessage = 'Processing patient data...';
       
-      // Filter patients that have events with any of the descendant conceptIds
-      this.patients = patients.filter(patient => {
+      // First apply demographic filters
+      const filteredPatients = this.applyFilters(patients);
+      
+      // Then filter patients that have events with any of the descendant conceptIds
+      this.patients = filteredPatients.filter(patient => {
         const hasMatchingEvent = patient.events.some(event => {
           const eventConceptId = event.conceptId.toString();
           return descendantConceptIds.includes(eventConceptId);
         });
         return hasMatchingEvent;
+      });
+      
+      // Sort patients alphabetically by name
+      this.patients.sort((a, b) => {
+        const nameA = (a.name || `Patient ${a.id}`).toLowerCase();
+        const nameB = (b.name || `Patient ${b.id}`).toLowerCase();
+        return nameA.localeCompare(nameB);
       });
       
       this.isLoadingPatients = false;
@@ -726,6 +854,111 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
         }
       }, 0);
     }, 0);
+  }
+  
+  private applyFilters(patients: Patient[]): Patient[] {
+    // Ensure ageRange is initialized
+    if (!this.ageRange || this.ageRange.length !== 2) {
+      this.ageRange = [this.minAge, this.maxAge];
+    }
+    
+    return patients.filter(patient => {
+      // Gender filter - case insensitive comparison
+      if (this.selectedGender !== 'ALL' && patient.gender?.toLowerCase() !== this.selectedGender.toLowerCase()) {
+        return false;
+      }
+      
+      // Age filter
+      if (!patient.dobYear) {
+        return false; // Skip patients without age information
+      }
+      
+      const age = this.getPatientAge(patient.dobYear);
+      if (age < this.ageRange[0] || age > this.ageRange[1]) {
+        return false;
+      }
+      
+      return true;
+    });
+  }
+  
+  public onFilterChange(): void {
+    // Ensure ageRange is synchronized with minAge and maxAge
+    if (!this.ageRange || this.ageRange.length !== 2) {
+      this.ageRange = [this.minAge, this.maxAge];
+    } else {
+      this.ageRange = [this.minAge, this.maxAge];
+    }
+    
+    // Set loading state
+    this.isLoading = true;
+    
+    // Destroy existing Plotly chart
+    if (this.chart) {
+      Plotly.purge(this.chartContainer.nativeElement);
+      this.chart = null;
+    }
+    
+    // Clear current state
+    this.selectedItem = null;
+    this.showPatients = false;
+    this.showGenderChart = false;
+    this.patients = [];
+    
+    // Reload chart data - this will use the same process as initial load but with current filters
+    this.loadChartData();
+  }
+  
+  private sliderMouseUpListener: (() => void) | null = null;
+  
+  public onSliderDragStart(): void {
+    if (!this.isDraggingSlider) {
+      this.isDraggingSlider = true;
+      
+      // Add global mouse up listener to catch when user releases mouse anywhere
+      this.sliderMouseUpListener = () => {
+        this.onSliderDragEnd();
+      };
+      
+      window.addEventListener('mouseup', this.sliderMouseUpListener, true);
+      window.addEventListener('touchend', this.sliderMouseUpListener, true);
+    }
+  }
+  
+  public onSliderDragEnd(): void {
+    if (this.isDraggingSlider) {
+      this.isDraggingSlider = false;
+      
+      // Remove global listeners
+      if (this.sliderMouseUpListener) {
+        window.removeEventListener('mouseup', this.sliderMouseUpListener, true);
+        window.removeEventListener('touchend', this.sliderMouseUpListener, true);
+        this.sliderMouseUpListener = null;
+      }
+      
+      // Small delay to ensure ngModel values are synced
+      setTimeout(() => {
+        // Update ageRange and trigger filter change when user releases the slider
+        this.onAgeRangeChange();
+      }, 100);
+    }
+  }
+  
+  public onAgeRangeChange(): void {
+    // Don't do anything if user is still dragging
+    if (this.isDraggingSlider) {
+      return;
+    }
+    
+    // Ensure minAge <= maxAge
+    if (this.minAge > this.maxAge) {
+      this.minAge = this.maxAge;
+    }
+    if (this.maxAge < this.minAge) {
+      this.maxAge = this.minAge;
+    }
+    this.ageRange = [this.minAge, this.maxAge];
+    this.onFilterChange();
   }
 
   private getAllDescendantConceptIds(conceptId: string): string[] {
@@ -780,25 +1013,9 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     return '';
   }
 
-  public getIncidencePercentage(): string {
-    if (!this.selectedItem || !this.selectedItem.value) {
-      return '0.0';
-    }
-    
-    // Always use the root node count for percentage calculation
-    const affectedPatients = this.selectedItem.value;
-    const percentage = (affectedPatients / this.rootNodeCount) * 100;
-    
-    return percentage.toFixed(2);
-  }
 
-  private calculateRootNodeCount(): void {
-    // Calculate the total count from root items (items with no parent)
-    const rootItems = this.allData.filter(item => !item.parent || item.parent.trim() === '');
-    this.rootNodeCount = rootItems.reduce((sum, item) => sum + (item.value || 0), 0);
-  }
 
-  private getTotalPopulationCount(): number {
+  private getTotalPopulationCountNumber(): number {
     // If we're at the root level (no current root selected)
     if (!this.currentRootId) {
       const rootItems = this.allData.filter(item => !item.parent || item.parent.trim() === '');
@@ -815,15 +1032,6 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     return 0;
   }
 
-  public getVariantCount(): number {
-    if (!this.selectedItem) {
-      return 0;
-    }
-    
-    // Count all descendant nodes (including the selected item itself)
-    const descendantConceptIds = this.getAllDescendantConceptIds(this.selectedItem.id.split('_')[0]);
-    return descendantConceptIds.length;
-  }
 
   private autoLoadPatientsIfNeeded(): void {
     if (this.selectedItem && this.selectedItem.value <= 5000 && !this.showPatients) {
@@ -1012,6 +1220,10 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     const currentYear = new Date().getFullYear();
     return currentYear - dobYear;
   }
+  
+  public formatAgeLabel(value: number): string {
+    return `${value}`;
+  }
 
   public getPatientEventCount(patient: Patient): number {
     return patient.events.length;
@@ -1064,6 +1276,62 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       // If any error occurs, return original string
       return dateString;
     }
+  }
+
+  public getTotalPopulationCount(): string {
+    // Return total number of patients in repository (unfiltered)
+    // If allPatients is not initialized, try to get it from the transformer
+    if (this.allPatients.length === 0) {
+      if (this.useBrowserStorage) {
+        const transformedResponse = this.patientDataTransformer.transformPatientsToMockFormat(this.useIcd10Filtering);
+        this.allPatients = transformedResponse.content;
+      }
+    }
+    return this.allPatients.length.toLocaleString();
+  }
+  
+  public getFilteredPopulationCount(): string {
+    // Return number of patients after applying current filters
+    // Ensure we have all patients first
+    if (this.allPatients.length === 0) {
+      if (this.useBrowserStorage) {
+        const transformedResponse = this.patientDataTransformer.transformPatientsToMockFormat(this.useIcd10Filtering);
+        this.allPatients = transformedResponse.content;
+      }
+    }
+    
+    if (this.allPatients.length === 0) {
+      return '0';
+    }
+    
+    const filteredPatients = this.applyFilters(this.allPatients);
+    return filteredPatients.length.toLocaleString();
+  }
+
+  public getActiveFiltersDescription(): string {
+    const parts: string[] = [];
+    
+    // Gender filter description
+    if (this.selectedGender === 'ALL') {
+      parts.push('all genders');
+    } else if (this.selectedGender === 'MALE') {
+      parts.push('male patients');
+    } else if (this.selectedGender === 'FEMALE') {
+      parts.push('female patients');
+    }
+    
+    // Age range filter description
+    if (this.minAge === 0 && this.maxAge === 100) {
+      parts.push('all ages');
+    } else if (this.minAge === 0) {
+      parts.push(`ages up to ${this.maxAge} years`);
+    } else if (this.maxAge === 100) {
+      parts.push(`ages ${this.minAge} years and above`);
+    } else {
+      parts.push(`ages ${this.minAge}-${this.maxAge} years`);
+    }
+    
+    return parts.join(', ');
   }
 
   public getTotalPatientsCount(): string {

@@ -16,6 +16,153 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Filters Row */
+.filters-row {
+  background-color: white;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.filters-content {
+  padding: 20px;
+}
+
+/* Population Statistics Row */
+.population-stats-row {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.population-stats-content {
+  width: 100%;
+}
+
+.population-stats-content .statistics-cards {
+  margin-bottom: 0;
+}
+
+.population-total-card .stat-icon {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.patients-filtered-card .stat-icon {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+
+.filters-container {
+  display: flex;
+  gap: 40px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 200px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.filter-group .gender-options,
+.filter-group .age-slider-container {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-height: 40px;
+}
+
+.filter-group:hover {
+  background-color: #ffffff;
+  border-color: #ff9800;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.1);
+}
+
+.filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0;
+}
+
+.filter-label-icon {
+  color: #ff9800;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.filter-select {
+  width: 150px;
+}
+
+.gender-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gender-option {
+  min-width: 70px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.gender-option.active {
+  background-color: #ff9800;
+  color: white;
+}
+
+.gender-option:hover:not(.active) {
+  background-color: #f0f0f0;
+}
+
+.age-filter-group {
+  flex: 1;
+  min-width: 300px;
+}
+
+.age-slider-container {
+  padding: 0;
+  padding-right: 15px;
+}
+
+.age-range-slider {
+  width: 100%;
+}
+
+
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .age-filter-group {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .age-inputs {
+    flex-wrap: wrap;
+  }
+}
+
 .header-content {
   display: flex;
   justify-content: space-between;
@@ -140,6 +287,33 @@
   border-radius: 8px;
   padding: 20px;
   border: 1px solid #e0e0e0;
+}
+
+.navigation-controls {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.navigation-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.root-btn {
+  flex-shrink: 0;
+}
+
+.navigation-controls .current-root {
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  font-size: 14px;
+  color: #495057;
+  flex: 1;
+  min-width: 0;
 }
 
 .search-container h3 {
@@ -497,6 +671,13 @@
   gap: 15px;
 }
 
+.filter-description {
+  margin: 8px 0 0 0;
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+}
+
 .label-prefix {
   font-weight: 400;
   color: #666;
@@ -551,20 +732,6 @@
   flex-shrink: 0;
 }
 
-.incidence-card .stat-icon {
-  background-color: #e3f2fd;
-  color: #1976d2;
-}
-
-.patients-selected-card .stat-icon {
-  background-color: #e8f5e8;
-  color: #2e7d32;
-}
-
-.variants-card .stat-icon {
-  background-color: #f3e5f5;
-  color: #7b1fa2;
-}
 
 .stat-icon mat-icon {
   font-size: 24px;
@@ -630,26 +797,33 @@
 .patient-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 }
 
 .patient-header h4 {
   margin: 0;
   color: #212529;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.patient-number {
+  color: #6c757d;
+  font-weight: 500;
+  font-size: 14px;
+  min-width: 20px;
 }
 
 .event-count {
-  font-size: 12px;
+  font-size: 13px;
   color: #6c757d;
   cursor: help;
-  padding: 2px 6px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  border: 1px solid #e9ecef;
-  display: inline-block;
-  width: fit-content;
+  font-weight: 400;
+  margin-left: 4px;
 }
 
 .event-count:hover {

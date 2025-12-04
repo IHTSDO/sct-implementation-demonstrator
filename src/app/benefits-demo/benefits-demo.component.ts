@@ -375,13 +375,11 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   openAnalytics(): void {
-    this.analyticsMode = 'regular';
-    this.showAnalytics = true;
+    this.router.navigate(['/ehr-lab/analytics']);
   }
 
   openIcd10Analytics(): void {
-    this.analyticsMode = 'icd10';
-    this.showAnalytics = true;
+    this.router.navigate(['/ehr-lab/analytics'], { queryParams: { mode: 'icd10' } });
   }
 
   hasAnalyticsData(): boolean {

@@ -4,14 +4,10 @@
     <div class="header-content">
       <h3>Descriptive Population Analysis</h3>
       <div class="chart-controls">
-        <button mat-button color="primary" (click)="goToRoot()" *ngIf="currentRootId !== ''" [disabled]="isLoading">
-          <mat-icon>home</mat-icon>
-          Back to Root
+        <button mat-button color="primary" (click)="goBackToEhrLab()" *ngIf="useBrowserStorage">
+          <mat-icon>arrow_back</mat-icon>
+          Back to EHR Lab
         </button>
-
-        <div class="current-root" *ngIf="currentRootId !== ''">
-          <span>Current: {{ getCurrentRootLabel() }}</span>
-        </div>
         <div class="loading-indicator" *ngIf="isLoading">
           <mat-spinner diameter="20"></mat-spinner>
           <span>Loading...</span>
@@ -19,6 +15,91 @@
       </div>
     </div>
   </div>
+  
+  <!-- Row 1.5: Population Statistics -->
+  <div class="population-stats-row">
+    <div class="population-stats-content">
+      <div class="statistics-cards">
+        <div class="stat-card population-total-card">
+          <div class="stat-icon">
+            <mat-icon>groups</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ getTotalPopulationCount() }}</div>
+            <div class="stat-label">Total Population</div>
+            <div class="stat-description">All patients in repository</div>
+          </div>
+        </div>
+        
+        <div class="stat-card patients-filtered-card">
+          <div class="stat-icon">
+            <mat-icon>filter_list</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ getFilteredPopulationCount() }}</div>
+            <div class="stat-label">Patients Selected</div>
+            <div class="stat-description">After applying filters</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Row 1.6: Filters -->
+  <div class="filters-row">
+    <div class="filters-content">
+      <div class="filters-container">
+        <div class="filter-group">
+          <label>
+            <mat-icon class="filter-label-icon">people</mat-icon>
+            Gender
+          </label>
+          <div class="gender-options">
+            <button mat-button 
+                    [class.active]="selectedGender === 'ALL'"
+                    (click)="selectedGender = 'ALL'; onFilterChange()"
+                    class="gender-option">
+              All
+            </button>
+            <button mat-button 
+                    [class.active]="selectedGender === 'FEMALE'"
+                    (click)="selectedGender = 'FEMALE'; onFilterChange()"
+                    class="gender-option">
+              Female
+            </button>
+            <button mat-button 
+                    [class.active]="selectedGender === 'MALE'"
+                    (click)="selectedGender = 'MALE'; onFilterChange()"
+                    class="gender-option">
+              Male
+            </button>
+          </div>
+        </div>
+        
+        <div class="filter-group age-filter-group">
+          <label>
+            <mat-icon class="filter-label-icon">calendar_today</mat-icon>
+            Age Range: {{ minAge }} - {{ maxAge }} years
+          </label>
+          <div class="age-slider-container">
+            <mat-slider 
+              [min]="0" 
+              [max]="100" 
+              [step]="1"
+              [discrete]="true"
+              [showTickMarks]="true"
+              [displayWith]="formatAgeLabel"
+              color="accent"
+              class="age-range-slider">
+              <input [(ngModel)]="minAge" (mousedown)="onSliderDragStart()" (touchstart)="onSliderDragStart()" matSliderStartThumb>
+              <input [(ngModel)]="maxAge" (mousedown)="onSliderDragStart()" (touchstart)="onSliderDragStart()" matSliderEndThumb>
+            </mat-slider>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <!-- Row 2: Chart and Search -->
   <div class="chart-row">
     <div class="chart-container-wrapper">
@@ -36,13 +117,23 @@
     </div>
     
     <div class="search-container">
-      <h3>Search Clinical Events</h3>
+      <div class="navigation-controls" *ngIf="currentRootId !== ''">
+        <div class="navigation-row">
+          <button mat-button color="primary" (click)="goToRoot()" [disabled]="isLoading" class="root-btn">
+            <mat-icon>home</mat-icon>
+            Root
+          </button>
+          <div class="current-root">
+            <span>Current: {{ getCurrentRootLabel() }}</span>
+          </div>
+        </div>
+      </div>
       <div class="search-box">
         <div class="custom-search-input">
           <input type="text" 
                  [(ngModel)]="searchTerm" 
                  (input)="onSearchInput()"
-                 placeholder="Search (e.g., 'resp fin')"
+                 placeholder="Search clinical events (e.g., 'resp fin')"
                  class="search-input">
           <mat-icon class="search-icon">search</mat-icon>
         </div>
@@ -101,62 +192,29 @@
               Load {{ selectedItem.value.toLocaleString() || 0 }} patients
             </button>
           </div>
+          <p class="filter-description">Showing results for {{ getActiveFiltersDescription() }}</p>
         </div>
         
-        <!-- Statistics Cards -->
-        <div class="statistics-cards" *ngIf="selectedItem && !isLoadingPatients">
-          <div class="stat-card patients-selected-card">
-            <div class="stat-icon">
-              <mat-icon>people</mat-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ selectedItem.value.toLocaleString() || 0 }}</div>
-              <div class="stat-label">Patients Selected</div>
-              <div class="stat-description" *ngIf="showPatients">Loaded from dataset</div>
-              <div class="stat-description" *ngIf="!showPatients">Click "Load Patients" to view</div>
-            </div>
-          </div>
-          
-          <div class="stat-card incidence-card">
-            <div class="stat-icon">
-              <mat-icon>trending_up</mat-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ getIncidencePercentage() }}%</div>
-              <div class="stat-label">Incidence in Sample</div>
-              <div class="stat-description">{{ selectedItem.value.toLocaleString() || 0 }} of {{ rootNodeCount.toLocaleString() }} patients</div>
-            </div>
-          </div>
-          
-          <div class="stat-card variants-card">
-            <div class="stat-icon">
-              <mat-icon>account_tree</mat-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ getVariantCount() }}</div>
-              <div class="stat-label">Clinical Variants</div>
-              <div class="stat-description">Total descendant concepts</div>
-            </div>
-          </div>
-        </div>
-
         <!-- Population Pyramid Chart -->
         <div class="gender-chart-container" *ngIf="showGenderChart && !isLoadingPatients && patients.length > 0">
-          <h4>Clinical Event Distribution by Age and Gender</h4>
+          <h4>Clinical Event Distribution by Age and Gender ({{ patients.length.toLocaleString() }} patients)</h4>
           <div #genderChartContainer id="genderChartContainer"></div>
         </div>
         
         <div class="patients-content" *ngIf="!isLoadingPatients && patients.length > 0">
-          <div class="patient-card" *ngFor="let patient of patients">
+          <div class="patient-card" *ngFor="let patient of patients; let i = index">
             <div class="patient-header">
               <div class="patient-info">
-                <h4>{{ patient.name || 'Patient ' + patient.id }}</h4>
-                <span class="event-count" 
-                      [matTooltip]="getPatientEventsTooltip(patient)"
-                      [matTooltipPosition]="'right'"
-                      [matTooltipClass]="'patient-events-tooltip'">
-                  {{ getPatientEventCount(patient) }} events
-                </span>
+                <h4>
+                  <span class="patient-number">{{ i + 1 }}.</span> 
+                  {{ patient.name || 'Patient ' + patient.id }}
+                  <span class="event-count" 
+                        [matTooltip]="getPatientEventsTooltip(patient)"
+                        [matTooltipPosition]="'right'"
+                        [matTooltipClass]="'patient-events-tooltip'">
+                    ({{ getPatientEventCount(patient) }} events)
+                  </span>
+                </h4>
               </div>
               <div class="patient-basic-info">
                 <span class="gender-badge" [class.male]="patient.gender === 'MALE'" [class.female]="patient.gender === 'FEMALE'">
@@ -164,6 +222,7 @@
                 </span>
                 <span class="age-badge">{{ getPatientAge(patient.dobYear) }} years</span>
                 <button 
+                  *ngIf="useBrowserStorage"
                   mat-icon-button 
                   class="open-record-button"
                   (click)="openPatientRecord(patient)"
