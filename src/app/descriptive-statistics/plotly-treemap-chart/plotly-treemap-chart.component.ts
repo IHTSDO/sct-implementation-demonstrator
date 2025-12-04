@@ -1234,9 +1234,11 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
    */
   public openPatientRecord(patient: Patient): void {
     // Build URL with hash for hash-based routing
-    const baseUrl = window.location.origin;
-    const url = `${baseUrl}/#/clinical-record/${patient.id}`;
-    window.open(url, '_blank');
+    // Get current URL and replace the hash part
+    const currentUrl = window.location.href;
+    const baseUrl = currentUrl.split('#')[0]; // Get everything before the hash
+    const newUrl = `${baseUrl}#/clinical-record/${patient.id}`;
+    window.open(newUrl, '_blank');
   }
 
   public getPatientEventsForConcept(patient: Patient, conceptId: string): PatientEvent[] {
