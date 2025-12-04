@@ -296,17 +296,80 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   }
 
   loadExamples(): void {
-    const exampleFiles = [
-      'assets/maturity/dashboard-examples/maturity-assessment-results (9).json',
-      'assets/maturity/dashboard-examples/maturity-assessment-results (10).json',
-      'assets/maturity/dashboard-examples/maturity-assessment-results (11).json'
-    ];
+    // Load index file that lists all available JSON files
+    const indexUrl = 'assets/maturity/dashboard-examples/index.json';
+    
     this.uploadedData = [];
     this.kpasNames = {};
-    this.totalFilesCount = exampleFiles.length;
-    this.filesReadCount = 0;
-    for (const file of exampleFiles) {
-      this.readJSONFileFromUrl(file);
+    
+    fetch(indexUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error fetching index file: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(indexData => {
+        // Get the list of files from the index
+        const exampleFiles = indexData.files.map((filename: string) => 
+          `assets/maturity/dashboard-examples/${filename}`
+        );
+        
+        this.totalFilesCount = exampleFiles.length;
+        this.filesReadCount = 0;
+        
+        // Load each file listed in the index
+        for (const file of exampleFiles) {
+          this.readJSONFileFromUrl(file);
+        }
+      })
+      .catch(error => {
+        console.error('Error loading example files index:', error);
+        this._snackBar.openFromComponent(SnackAlertComponent, {
+          duration: 5 * 1000,
+          data: `Error loading example files: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          panelClass: ['red-snackbar']
+        });
+      });
+  }
+
+  /**
+   * Convert 0-100 scale to 0-5 scale for display (same as maturity-results component)
+   */
+  private convertToFiveScale(value: number): number {
+    return Math.round((value / 100) * 5 * 100) / 100; // Round to 2 decimal places
+  }
+
+  /**
+   * Normalize scores in the data entry: use normalized scores if available, otherwise convert from 0-100 to 0-5
+   */
+  private normalizeScores(entry: any): void {
+    // If normalized scores exist, use them directly
+    if (entry.overallScoreNormalized !== undefined) {
+      entry.overallScore = entry.overallScoreNormalized;
+    } else if (entry.overallScore !== undefined && entry.overallScore > 5) {
+      // If overallScore is > 5, it's likely in 0-100 scale, convert it
+      entry.overallScore = this.convertToFiveScale(entry.overallScore);
+    }
+
+    // Normalize KPA scores
+    if (entry.kpasScoresNormalized !== undefined) {
+      entry.kpasScores = entry.kpasScoresNormalized;
+    } else if (entry.kpasScores) {
+      // Check if any KPA score is > 5, indicating 0-100 scale
+      const hasLargeScores = Object.values(entry.kpasScores).some(
+        (score: any) => typeof score === 'number' && score > 5
+      );
+      
+      if (hasLargeScores) {
+        // Convert all KPA scores from 0-100 to 0-5
+        entry.kpasScores = Object.fromEntries(
+          Object.entries(entry.kpasScores).map(([key, value]) => [
+            key,
+            typeof value === 'number' ? this.convertToFiveScale(value) : value
+          ])
+        );
+      }
     }
   }
 
@@ -319,6 +382,8 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
         return response.json();
       })
       .then(jsonContent => {
+        // Normalize scores before adding to uploadedData
+        this.normalizeScores(jsonContent);
         this.uploadedData.push(jsonContent);
         this.filesReadCount++;
         if (this.filesReadCount === this.totalFilesCount) {
@@ -1494,7 +1559,13 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   }
 
   getScoreColor(score: number): string {
-    const clamped = Math.max(1, Math.min(5, score));
+    // Clamp score to valid range (0-5), allowing 0 for "None"
+    const clamped = Math.max(0, Math.min(5, score));
+    
+    // Handle score of 0 (None) - return gray
+    if (clamped === 0) {
+      return '#808080'; // Gray for None
+    }
     
     // Factor for darkening each color channel.
     const darkenFactor = 0.7; // Adjust as desired (0.7, 0.9, etc.)
@@ -1551,6 +1622,8 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       try {
         // Convert the file content from text to JSON
         const jsonContent = JSON.parse(reader.result as string);
+        // Normalize scores before adding to uploadedData
+        this.normalizeScores(jsonContent);
         // You can store it for later use (for example, building charts or metrics)
         this.uploadedData.push(jsonContent);
       } catch (error) {
