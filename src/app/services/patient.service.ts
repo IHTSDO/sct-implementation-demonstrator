@@ -1034,6 +1034,22 @@ export interface QuestionnaireResponse {
   questionnaireName?: string; // Display name
 }
 
+export interface OpenEHRComposition {
+  resourceType: 'OpenEHRComposition';
+  id: string;
+  templateId: string;
+  templateName?: string;
+  composition: any; // The actual openEHR composition in FLAT format
+  webTemplate?: any; // The web template used
+  authored?: string; // DateTime when completed
+  subject?: {
+    reference: string;
+    display?: string;
+  };
+  // Custom metadata for display
+  compositionName?: string;
+}
+
 export interface PatientSimilarityResult {
   patient: Patient;
   score: number;
@@ -1580,6 +1596,40 @@ export class PatientService {
   private savePatientQuestionnaireResponses(patientId: string, responses: QuestionnaireResponse[]): void {
     const key = `ehr_questionnaire_responses_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(responses));
+  }
+
+  // OpenEHR Compositions
+  getPatientOpenEHRCompositions(patientId: string): OpenEHRComposition[] {
+    const key = `ehr_openehr_compositions_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  addPatientOpenEHRComposition(patientId: string, composition: OpenEHRComposition): boolean {
+    const compositions = this.getPatientOpenEHRCompositions(patientId);
+    compositions.push(composition);
+    this.savePatientOpenEHRCompositions(patientId, compositions);
+    return true; // Successfully added
+  }
+
+  updatePatientOpenEHRComposition(patientId: string, compositionId: string, updatedComposition: OpenEHRComposition): void {
+    const compositions = this.getPatientOpenEHRCompositions(patientId);
+    const index = compositions.findIndex(c => c.id === compositionId);
+    if (index !== -1) {
+      compositions[index] = updatedComposition;
+      this.savePatientOpenEHRCompositions(patientId, compositions);
+    }
+  }
+
+  deletePatientOpenEHRComposition(patientId: string, compositionId: string): void {
+    const compositions = this.getPatientOpenEHRCompositions(patientId);
+    const filteredCompositions = compositions.filter(c => c.id !== compositionId);
+    this.savePatientOpenEHRCompositions(patientId, filteredCompositions);
+  }
+
+  private savePatientOpenEHRCompositions(patientId: string, compositions: OpenEHRComposition[]): void {
+    const key = `ehr_openehr_compositions_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(compositions));
   }
 
   // Utility methods for creating sample clinical data

@@ -109,6 +109,47 @@
   max-width: 500px;
 }
 
+.form-option-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.form-name {
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.form-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.badge-fhir {
+  background-color: #d32f2f;
+  color: #ffffff;
+}
+
+.badge-openehr {
+  background-color: #1976d2;
+  color: #ffffff;
+}
+
+/* Style badges in mat-select panel */
+::ng-deep .mat-mdc-select-panel .mat-mdc-option .form-badge {
+  margin-left: auto;
+}
+
 .form-container {
   margin-top: 20px;
 }
@@ -244,6 +285,15 @@
 }
 
 ::ng-deep .error-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .warning-snackbar {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+::ng-deep .warning-snackbar .mat-simple-snackbar-action {
   color: white !important;
 }
 

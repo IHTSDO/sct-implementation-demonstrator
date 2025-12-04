@@ -16,12 +16,22 @@
               <mat-select [(value)]="selectedForm" (selectionChange)="onFormSelected($event.value)">
                 <mat-optgroup label="Built-in Forms">
                   <mat-option *ngFor="let form of availableForms" [value]="form.id">
-                    {{ form.name }}
+                    <div class="form-option-content">
+                      <span class="form-name">{{ form.name }}</span>
+                      <span class="form-badge" 
+                            [class.badge-fhir]="getFormType(form.id) === 'fhir'"
+                            [class.badge-openehr]="getFormType(form.id) === 'openehr'">
+                        {{ getFormType(form.id) === 'openehr' ? 'openEHR' : 'FHIR' }}
+                      </span>
+                    </div>
                   </mat-option>
                 </mat-optgroup>
                 <mat-optgroup label="Custom Questionnaires" *ngIf="customQuestionnaires.length > 0">
                   <mat-option *ngFor="let form of customQuestionnaires" [value]="form.id">
-                    {{ form.name }}
+                    <div class="form-option-content">
+                      <span class="form-name">{{ form.name }}</span>
+                      <span class="form-badge badge-fhir">FHIR</span>
+                    </div>
                   </mat-option>
                 </mat-optgroup>
               </mat-select>
@@ -68,8 +78,18 @@
               </app-questionnaire-form>
             </div>
 
+            <!-- openEHR Forms -->
+            <div *ngIf="isOpenehrForm(selectedForm)" class="form-wrapper">
+              <app-openehr-form
+                [webTemplate]="getOpenehrTemplate(selectedForm)"
+                [templateId]="selectedForm"
+                (formSubmitted)="onOpenehrFormSubmitted($event)"
+                (formCancelled)="onFormCancelled()">
+              </app-openehr-form>
+            </div>
+
             <!-- Placeholder for other forms -->
-            <div *ngIf="selectedForm && !isQuestionnaireForm(selectedForm) && selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies'" class="form-placeholder">
+            <div *ngIf="selectedForm && !isQuestionnaireForm(selectedForm) && !isOpenehrForm(selectedForm) && selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies'" class="form-placeholder">
               <div class="placeholder-content">
                 <mat-icon class="placeholder-icon">description</mat-icon>
                 <h3>{{ getSelectedFormName() }} Form</h3>

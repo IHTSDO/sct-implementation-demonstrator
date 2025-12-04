@@ -1,7 +1,9 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { PatientService, QuestionnaireResponse } from '../../services/patient.service';
+import { PatientService, QuestionnaireResponse, OpenEHRComposition } from '../../services/patient.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+
+export type FormRecord = QuestionnaireResponse | OpenEHRComposition;
 
 @Component({
   selector: 'app-form-records',
@@ -13,8 +15,10 @@ export class FormRecordsComponent implements OnChanges {
   @Input() patientId: string | null = null;
   
   questionnaireResponses: QuestionnaireResponse[] = [];
+  openehrCompositions: OpenEHRComposition[] = [];
+  allFormRecords: FormRecord[] = [];
   isLoading: boolean = false;
-  selectedResponse: QuestionnaireResponse | null = null;
+  selectedResponse: FormRecord | null = null;
   isFlipped: boolean = false;
 
   constructor(
@@ -25,32 +29,40 @@ export class FormRecordsComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['patientId'] && this.patientId) {
-      this.loadQuestionnaireResponses();
+      this.loadAllFormRecords();
     }
   }
 
   // Public method to refresh the list (can be called from parent)
   refresh(): void {
-    this.loadQuestionnaireResponses();
+    this.loadAllFormRecords();
   }
 
-  loadQuestionnaireResponses(): void {
+  loadAllFormRecords(): void {
     if (!this.patientId) {
       this.questionnaireResponses = [];
+      this.openehrCompositions = [];
+      this.allFormRecords = [];
       return;
     }
 
     this.isLoading = true;
     try {
+      // Load both questionnaire responses and openEHR compositions
       this.questionnaireResponses = this.patientService.getPatientQuestionnaireResponses(this.patientId);
-      // Sort by date, most recent first
-      this.questionnaireResponses.sort((a, b) => {
-        const dateA = new Date(a.authored || 0).getTime();
-        const dateB = new Date(b.authored || 0).getTime();
+      this.openehrCompositions = this.patientService.getPatientOpenEHRCompositions(this.patientId);
+      
+      // Combine and sort by date, most recent first
+      this.allFormRecords = [
+        ...this.questionnaireResponses,
+        ...this.openehrCompositions
+      ].sort((a, b) => {
+        const dateA = new Date((a as any).authored || 0).getTime();
+        const dateB = new Date((b as any).authored || 0).getTime();
         return dateB - dateA;
       });
     } catch (error) {
-      console.error('Error loading questionnaire responses:', error);
+      console.error('Error loading form records:', error);
       this.snackBar.open(
         'Error loading form records',
         'Close',
@@ -64,9 +76,22 @@ export class FormRecordsComponent implements OnChanges {
     }
   }
 
-  viewResponse(response: QuestionnaireResponse): void {
+  loadQuestionnaireResponses(): void {
+    // Keep for backward compatibility, but use loadAllFormRecords
+    this.loadAllFormRecords();
+  }
+
+  viewResponse(response: FormRecord): void {
     this.selectedResponse = response;
     this.isFlipped = false; // Reset to front view when opening
+  }
+
+  isOpenEHRComposition(record: FormRecord): record is OpenEHRComposition {
+    return record.resourceType === 'OpenEHRComposition';
+  }
+
+  isQuestionnaireResponse(record: FormRecord): record is QuestionnaireResponse {
+    return record.resourceType === 'QuestionnaireResponse';
   }
 
   closeViewer(): void {
@@ -78,18 +103,26 @@ export class FormRecordsComponent implements OnChanges {
     this.isFlipped = !this.isFlipped;
   }
 
-  deleteResponse(response: QuestionnaireResponse, event: Event): void {
+  deleteResponse(response: FormRecord, event: Event): void {
     event.stopPropagation();
     
     if (!this.patientId) return;
 
+    const recordName = this.isOpenEHRComposition(response) 
+      ? (response.compositionName || 'openEHR composition')
+      : (response.questionnaireName || 'questionnaire');
+
     const confirmDelete = confirm(
-      `Are you sure you want to delete this "${response.questionnaireName || 'questionnaire'}" response?`
+      `Are you sure you want to delete this "${recordName}"?`
     );
 
     if (confirmDelete) {
-      this.patientService.deletePatientQuestionnaireResponse(this.patientId, response.id);
-      this.loadQuestionnaireResponses();
+      if (this.isOpenEHRComposition(response)) {
+        this.patientService.deletePatientOpenEHRComposition(this.patientId, response.id);
+      } else {
+        this.patientService.deletePatientQuestionnaireResponse(this.patientId, response.id);
+      }
+      this.loadAllFormRecords();
       
       this.snackBar.open(
         'Form record deleted successfully',
@@ -107,17 +140,21 @@ export class FormRecordsComponent implements OnChanges {
     }
   }
 
-  exportResponse(response: QuestionnaireResponse, event: Event): void {
+  exportResponse(response: FormRecord, event: Event): void {
     event.stopPropagation();
     
     try {
       const dataStr = JSON.stringify(response, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       
+      const filename = this.isOpenEHRComposition(response)
+        ? `openehr-composition-${response.id}.json`
+        : `questionnaire-response-${response.id}.json`;
+      
       const url = window.URL.createObjectURL(dataBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `questionnaire-response-${response.id}.json`;
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -161,7 +198,11 @@ export class FormRecordsComponent implements OnChanges {
     }
   }
 
-  getFormTypeIcon(response: QuestionnaireResponse): string {
+  getFormTypeIcon(response: FormRecord): string {
+    if (this.isOpenEHRComposition(response)) {
+      return 'storage';
+    }
+    
     const name = (response.questionnaireName || '').toLowerCase();
     
     if (name.includes('phq') || name.includes('depression')) {
@@ -175,7 +216,11 @@ export class FormRecordsComponent implements OnChanges {
     return 'description';
   }
 
-  getFormTypeColor(response: QuestionnaireResponse): string {
+  getFormTypeColor(response: FormRecord): string {
+    if (this.isOpenEHRComposition(response)) {
+      return 'primary'; // Blue for openEHR
+    }
+    
     const name = (response.questionnaireName || '').toLowerCase();
     
     if (name.includes('phq') || name.includes('depression')) {
@@ -189,8 +234,34 @@ export class FormRecordsComponent implements OnChanges {
     return '';
   }
 
+  getFormRecordName(response: FormRecord): string {
+    if (this.isOpenEHRComposition(response)) {
+      return response.compositionName || response.templateName || 'openEHR Composition';
+    }
+    return response.questionnaireName || response.questionnaireTitle || 'Questionnaire';
+  }
+
+  getFormRecordType(response: FormRecord): string {
+    if (this.isOpenEHRComposition(response)) {
+      return 'openEHR';
+    }
+    return 'FHIR';
+  }
+
   // Format response data for display
-  getResponseSummary(response: QuestionnaireResponse): string {
+  getResponseSummary(response: FormRecord): string {
+    if (this.isOpenEHRComposition(response)) {
+      // Count fields in the composition
+      const composition = response.composition;
+      if (composition && typeof composition === 'object') {
+        const keys = Object.keys(composition).filter(k => 
+          k !== 'ctx' && composition[k] !== null && composition[k] !== undefined
+        );
+        return `${keys.length} field(s) completed`;
+      }
+      return 'openEHR Composition';
+    }
+    
     try {
       const completeData = (response as any)._completeData;
       if (completeData?.response) {
@@ -227,7 +298,7 @@ export class FormRecordsComponent implements OnChanges {
   }
 
   // Get readable question/answer pairs from response
-  getQuestionAnswerPairs(response: QuestionnaireResponse): Array<{
+  getQuestionAnswerPairs(response: FormRecord): Array<{
     question: string, 
     answer: string, 
     type: string,
@@ -244,6 +315,32 @@ export class FormRecordsComponent implements OnChanges {
       hasSubItems: boolean
     }> = [];
     
+    // Handle openEHR compositions
+    if (this.isOpenEHRComposition(response)) {
+      const composition = response.composition;
+      if (composition && typeof composition === 'object') {
+        // Extract fields from FLAT format composition
+        Object.keys(composition).forEach(key => {
+          if (key !== 'ctx' && composition[key] !== null && composition[key] !== undefined) {
+            const value = composition[key];
+            const fieldName = this.formatFieldName(key);
+            const fieldValue = this.formatCompositionValue(value);
+            
+            pairs.push({
+              question: fieldName,
+              answer: fieldValue,
+              type: typeof value === 'object' ? 'object' : typeof value,
+              level: 0,
+              isSection: false,
+              hasSubItems: false
+            });
+          }
+        });
+      }
+      return pairs;
+    }
+    
+    // Handle FHIR QuestionnaireResponse
     try {
       const completeData = (response as any)._completeData;
       // Try different data locations
@@ -264,6 +361,39 @@ export class FormRecordsComponent implements OnChanges {
     }
     
     return pairs;
+  }
+
+  private formatFieldName(key: string): string {
+    // Convert FLAT format path to readable name
+    return key
+      .replace(/\//g, ' / ')
+      .replace(/\[at\d+\]/g, '')
+      .replace(/\[0\]/g, '')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  private formatCompositionValue(value: any): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        return value.map(v => this.formatCompositionValue(v)).join(', ');
+      }
+      // Try to extract meaningful display value
+      if (value.value !== undefined) {
+        return String(value.value) + (value.unit ? ` ${value.unit}` : '');
+      }
+      if (value.text) {
+        return value.text;
+      }
+      if (value.display) {
+        return value.display;
+      }
+      return JSON.stringify(value);
+    }
+    return String(value);
   }
 
   private extractQAPairs(items: any[], pairs: Array<{
@@ -445,7 +575,7 @@ export class FormRecordsComponent implements OnChanges {
     return JSON.stringify(obj, null, 2);
   }
 
-  copyToClipboard(response: QuestionnaireResponse, event: Event): void {
+  copyToClipboard(response: FormRecord, event: Event): void {
     event.stopPropagation();
     
     try {

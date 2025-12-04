@@ -2,7 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angu
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
-import { Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, PatientService } from '../../services/patient.service';
+import { Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, PatientService, OpenEHRComposition } from '../../services/patient.service';
 import { AdverseReactionReport } from './adverse-reaction-form/adverse-reaction-form.component';
 import { FormRecordsComponent } from '../form-records/form-records.component';
 import { CustomQuestionnaireService, CustomQuestionnaire } from '../../services/custom-questionnaire.service';
@@ -81,11 +81,21 @@ export class ClinicalFormsComponent implements OnInit {
       description: 'Simple form demonstrating SNOMED CT terminology bindings',
       category: 'Questionnaires',
       available: true
+    },
+    {
+      id: 'openehr-vital-signs',
+      name: 'Vital signs',
+      description: 'openEHR template for documenting vital signs: body temperature, blood pressure, BMI, height, weight, pulse, respiration, and pulse oximetry',
+      category: 'openEHR Templates',
+      available: true
     }
   ];
 
   // Store loaded questionnaires
   private questionnaires: { [key: string]: any } = {};
+  
+  // Store loaded openEHR templates
+  private openehrTemplates: { [key: string]: any } = {};
 
   constructor(
     private snackBar: MatSnackBar, 
@@ -304,6 +314,9 @@ export class ClinicalFormsComponent implements OnInit {
     } else if (formId && this.customQuestionnaireService.isCustomQuestionnaire(formId)) {
       // Load custom questionnaire
       this.loadCustomQuestionnaireData(formId);
+    } else if (formId && formId.startsWith('openehr-')) {
+      // Load openEHR template
+      this.loadOpenehrTemplate(formId);
     }
   }
 
@@ -353,6 +366,86 @@ export class ClinicalFormsComponent implements OnInit {
 
   isQuestionnaireForm(formId: string | null): boolean {
     return !!(formId && (formId.startsWith('questionnaire-') || this.customQuestionnaireService.isCustomQuestionnaire(formId)));
+  }
+
+  isOpenehrForm(formId: string | null): boolean {
+    return !!(formId && formId.startsWith('openehr-'));
+  }
+
+  getFormType(formId: string | null): 'fhir' | 'openehr' | 'custom' | null {
+    if (!formId) return null;
+    if (formId.startsWith('openehr-')) return 'openehr';
+    if (this.customQuestionnaireService.isCustomQuestionnaire(formId)) return 'fhir'; // Custom questionnaires are FHIR
+    // All other forms (questionnaires, adverse-reaction, allergies) are FHIR
+    return 'fhir';
+  }
+
+  private async loadOpenehrTemplate(formId: string): Promise<void> {
+    // Check if already loaded
+    if (this.openehrTemplates[formId]) {
+      return;
+    }
+
+    // Map form IDs to JSON filenames (pre-converted using @medblocks/wtg or EHRbase)
+    const filenameMap: { [key: string]: string } = {
+      'openehr-vital-signs': 'vital_signs.json'
+    };
+
+    const templateFile = filenameMap[formId];
+    
+    if (!templateFile) {
+      this.snackBar.open(
+        `Template file not found for: ${formId}`,
+        'Close',
+        {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        }
+      );
+      return;
+    }
+
+    try {
+      // Load JSON file directly (pre-converted using @medblocks/wtg or EHRbase)
+      const webTemplateJson = await lastValueFrom(this.http.get<any>(`assets/openehr/${templateFile}`));
+      
+      // Convert format if needed (EHRbase uses templateId, Medblocks expects template_id)
+      let webTemplate: any;
+      if (webTemplateJson.templateId && !webTemplateJson.template_id) {
+        // Convert from EHRbase format to Medblocks format
+        webTemplate = {
+          template_id: webTemplateJson.templateId,
+          tree: webTemplateJson.tree
+        };
+      } else {
+        // Already in correct format
+        webTemplate = webTemplateJson;
+      }
+      
+      // Validate that it's a valid web template
+      if (!webTemplate || !webTemplate.template_id || !webTemplate.tree) {
+        throw new Error('Invalid web template format');
+      }
+      
+      // Store the web template directly (no conversion needed - already in correct format)
+      this.openehrTemplates[formId] = webTemplate;
+    } catch (error) {
+      console.error('Error loading openEHR template:', error);
+      this.snackBar.open(
+        `Failed to load openEHR template: ${templateFile}. Error: ${(error as Error).message}`,
+        'Close',
+        {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        }
+      );
+    }
+  }
+
+
+  getOpenehrTemplate(formId: string | null): any {
+    if (!formId) return null;
+    return this.openehrTemplates[formId] || null;
   }
 
   async onFormSubmitted(formData: any): Promise<void> {
@@ -487,6 +580,94 @@ export class ClinicalFormsComponent implements OnInit {
     // Emit the questionnaire response data
     this.formSubmitted.emit({
       type: 'questionnaire-response',
+      data: data,
+      timestamp: new Date().toISOString()
+    });
+
+    // Reset form selection
+    this.selectedForm = null;
+
+    // Switch to Form Records tab and refresh the list after a short delay
+    setTimeout(() => {
+      // Switch to Form Records tab (index 1)
+      this.selectedTabIndex = 1;
+      
+      // Give the tab time to render, then refresh
+      setTimeout(() => {
+        if (this.formRecordsComponent) {
+          this.formRecordsComponent.refresh();
+        }
+      }, 100);
+    }, 500);
+  }
+
+  onOpenehrFormSubmitted(data: any): void {
+    // Check if composition has any data (even if just a date)
+    const hasCompositionData = data.composition && typeof data.composition === 'object' && Object.keys(data.composition).length > 0;
+    
+    // Save the composition to patient's record if patient is selected
+    if (this.patient && this.patient.id) {
+      if (hasCompositionData) {
+        const compositionRecord: OpenEHRComposition = {
+          resourceType: 'OpenEHRComposition',
+          id: `openehr-composition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          templateId: data.webTemplate?.template_id || this.selectedForm || '',
+          templateName: data.webTemplate?.tree?.name || '',
+          composition: data.composition,
+          webTemplate: data.webTemplate,
+          authored: data.timestamp || new Date().toISOString(),
+          subject: {
+            reference: `Patient/${this.patient.id}`,
+            display: this.patient.name?.[0]?.text || `${this.patient.name?.[0]?.given?.[0]} ${this.patient.name?.[0]?.family}`
+          },
+          compositionName: data.webTemplate?.tree?.name || 'openEHR Composition'
+        };
+
+        this.patientService.addPatientOpenEHRComposition(this.patient.id, compositionRecord);
+        
+        // Show success message
+        this.snackBar.open(
+          `openEHR composition saved successfully`,
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
+          }
+        );
+      } else {
+        // No composition data
+        this.snackBar.open(
+          `Warning: No data to save. Please fill in at least one field.`,
+          'Close',
+          {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['warning-snackbar']
+          }
+        );
+        return; // Don't continue if there's no data
+      }
+    } else {
+      // No patient selected
+      this.snackBar.open(
+        `Warning: No patient selected. Composition not saved.`,
+        'Close',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['warning-snackbar']
+        }
+      );
+      return; // Don't continue if there's no patient
+    }
+
+    // Emit the openEHR composition data
+    this.formSubmitted.emit({
+      type: 'openehr-composition',
       data: data,
       timestamp: new Date().toISOString()
     });

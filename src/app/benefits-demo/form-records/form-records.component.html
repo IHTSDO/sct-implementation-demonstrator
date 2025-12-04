@@ -11,21 +11,28 @@
   </div>
 
   <!-- Empty state -->
-  <div *ngIf="!isLoading && questionnaireResponses.length === 0" class="empty-state">
+  <div *ngIf="!isLoading && allFormRecords.length === 0" class="empty-state">
     <mat-icon class="empty-icon">description</mat-icon>
     <h3>No Form Records</h3>
     <p>Complete questionnaires and clinical forms to see them listed here.</p>
   </div>
 
   <!-- Records list -->
-  <div *ngIf="!isLoading && questionnaireResponses.length > 0" class="records-list">
-    <mat-card *ngFor="let response of questionnaireResponses" class="record-card" (click)="viewResponse(response)">
+  <div *ngIf="!isLoading && allFormRecords.length > 0" class="records-list">
+    <mat-card *ngFor="let response of allFormRecords" class="record-card" (click)="viewResponse(response)">
       <mat-card-header>
         <mat-icon mat-card-avatar [color]="getFormTypeColor(response)">
           {{ getFormTypeIcon(response) }}
         </mat-icon>
         <mat-card-title>
-          {{ response.questionnaireName || response.questionnaireTitle || 'Questionnaire' }}
+          <div class="title-with-badge">
+            <span>{{ getFormRecordName(response) }}</span>
+            <span class="form-type-badge" 
+                  [class.badge-fhir]="getFormRecordType(response) === 'FHIR'"
+                  [class.badge-openehr]="getFormRecordType(response) === 'openEHR'">
+              {{ getFormRecordType(response) }}
+            </span>
+          </div>
         </mat-card-title>
         <mat-card-subtitle>
           {{ formatDate(response.authored) }}
@@ -37,7 +44,7 @@
           <mat-chip-set>
             <mat-chip>
               <mat-icon>check_circle</mat-icon>
-              {{ response.status || 'Completed' }}
+              {{ isQuestionnaireResponse(response) ? (response.status || 'Completed') : 'Completed' }}
             </mat-chip>
           </mat-chip-set>
           <p class="summary-text">{{ getResponseSummary(response) }}</p>
@@ -72,11 +79,11 @@
           <!-- Front: Human-readable Q&A -->
           <div class="flip-card-front">
             <div class="viewer-header">
-              <h2>{{ selectedResponse.questionnaireName || 'Questionnaire Response' }}</h2>
+              <h2>{{ getFormRecordName(selectedResponse) }}</h2>
               <div class="header-actions">
                 <button mat-raised-button color="primary" (click)="flipCard()">
                   <mat-icon>code</mat-icon>
-                  View FHIR JSON
+                  View {{ isOpenEHRComposition(selectedResponse) ? 'openEHR' : 'FHIR' }} JSON
                 </button>
                 <button mat-icon-button (click)="closeViewer()">
                   <mat-icon>close</mat-icon>
@@ -88,8 +95,11 @@
               <div class="metadata-item">
                 <strong>Date:</strong> {{ formatDate(selectedResponse.authored) }}
               </div>
-              <div class="metadata-item">
+              <div class="metadata-item" *ngIf="isQuestionnaireResponse(selectedResponse)">
                 <strong>Status:</strong> {{ selectedResponse.status }}
+              </div>
+              <div class="metadata-item" *ngIf="isOpenEHRComposition(selectedResponse)">
+                <strong>Type:</strong> openEHR Composition
               </div>
               <div class="metadata-item">
                 <strong>ID:</strong> {{ selectedResponse.id }}
@@ -160,10 +170,10 @@
             </div>
           </div>
 
-          <!-- Back: FHIR JSON -->
+          <!-- Back: JSON -->
           <div class="flip-card-back">
             <div class="viewer-header">
-              <h2>FHIR QuestionnaireResponse (JSON)</h2>
+              <h2>{{ isOpenEHRComposition(selectedResponse) ? 'openEHR Composition' : 'FHIR QuestionnaireResponse' }} (JSON)</h2>
               <div class="header-actions">
                 <button mat-raised-button color="primary" (click)="flipCard()">
                   <mat-icon>article</mat-icon>
@@ -177,10 +187,10 @@
             
             <div class="viewer-metadata">
               <div class="metadata-item">
-                <strong>Resource Type:</strong> QuestionnaireResponse
+                <strong>Resource Type:</strong> {{ selectedResponse.resourceType }}
               </div>
               <div class="metadata-item">
-                <strong>Format:</strong> FHIR R4
+                <strong>Format:</strong> {{ isOpenEHRComposition(selectedResponse) ? 'openEHR FLAT' : 'FHIR R4' }}
               </div>
               <div class="metadata-item">
                 <strong>ID:</strong> {{ selectedResponse.id }}
@@ -188,7 +198,7 @@
             </div>
 
             <div class="viewer-content">
-              <h3>Response Data (FHIR Format)</h3>
+              <h3>Response Data ({{ isOpenEHRComposition(selectedResponse) ? 'openEHR FLAT' : 'FHIR' }} Format)</h3>
               <pre class="json-viewer">{{ formatJSON(selectedResponse) }}</pre>
             </div>
 
