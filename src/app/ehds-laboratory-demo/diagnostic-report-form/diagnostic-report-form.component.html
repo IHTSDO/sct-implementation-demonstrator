@@ -1171,32 +1171,6 @@
       </div>
     </div>
 
-    <!-- Presented Form (PDF) -->
-    <div class="form-section">
-      <h3 class="section-title">
-        <mat-icon>picture_as_pdf</mat-icon>
-        Presented Form (PDF Document)
-      </h3>
-      <div class="reference-section">
-        <div *ngIf="!diagnosticReportForm.get('presentedForm')?.value" class="reference-placeholder">
-          <mat-icon>upload_file</mat-icon>
-          <p>No PDF document uploaded</p>
-          <button type="button" mat-raised-button color="primary" (click)="onUploadPresentedForm()" [disabled]="true">
-            <mat-icon>upload</mat-icon>
-            Upload PDF Document
-          </button>
-        </div>
-        <div *ngIf="diagnosticReportForm.get('presentedForm')?.value" class="reference-display">
-          <div class="reference-info">
-            <mat-icon>picture_as_pdf</mat-icon>
-            <span>PDF document uploaded</span>
-            <button type="button" mat-icon-button (click)="diagnosticReportForm.patchValue({ presentedForm: null })">
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Form Actions -->
     <div class="form-actions">
