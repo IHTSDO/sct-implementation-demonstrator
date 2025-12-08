@@ -7,10 +7,36 @@
         developers, implementers, and healthcare professionals.</p>
     <p class="intro">These implementation demos have been created through the collaboration and expertise of the 
         <a href="https://confluence.ihtsdotools.org/display/CP/Clinical+Engagement" target="_blank">global SNOMED CT community of clinical experts</a>, 
-        reflecting best practices and innovative use cases. Whether you’re just getting started with SNOMED CT or looking to deepen 
-        your understanding, you’ll find valuable insights here. Explore, learn, and join us in advancing healthcare interoperability.</p>
+        reflecting best practices and innovative use cases. Whether you're just getting started with SNOMED CT or looking to deepen 
+        your understanding, you'll find valuable insights here. Explore, learn, and join us in advancing healthcare interoperability.</p>
+    
+    <!-- Filter Row -->
+    <div class="filter-panel">
+        <span class="demo-count">{{ getFilteredCount() }} {{ getFilteredCount() === 1 ? 'demo' : 'demos' }} shown</span>
+        <div class="badge-container">
+            <span 
+                *ngFor="let subtype of uniqueSubtypes" 
+                class="subtype-badge"
+                [class.active]="selectedSubtype === subtype"
+                (click)="onSubtypeClick(subtype)">
+                {{ subtype }} <span class="badge-count">({{ getSubtypeCount(subtype) }})</span>
+            </span>
+        </div>
+        <button 
+            *ngIf="hasActiveFilters()" 
+            mat-button 
+            class="clear-filters-btn"
+            (click)="clearFilters()">
+            Remove filters
+        </button>
+        <mat-form-field class="search-field" appearance="fill">
+            <input matInput [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Type to filter...">
+            <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+    </div>
+
     <div class="demos-panel">
-        <div *ngFor="let demo of demos" class="demo-card-wrapper">
+        <div *ngFor="let demo of filteredDemos" class="demo-card-wrapper">
             <mat-card class="demo-card">
                 <mat-card-header>
                   <mat-card-subtitle>{{ demo.subtitle }}</mat-card-subtitle>

@@ -120,7 +120,7 @@ export class MenuService {
     },
     {
       name: "Descriptive analytics demo",
-      subtitle: "Clinical demo",
+      subtitle: "Analytics demo",
       type: "internal",
       url: "/descriptive-analytics",
       description: "A demo of descriptive analytics for SNOMED CT, including a treemap visualization with nested boxes for hierarchical data exploration."

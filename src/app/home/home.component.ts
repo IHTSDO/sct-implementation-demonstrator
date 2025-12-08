@@ -9,14 +9,21 @@ import { MenuService } from '../services/menu.service';
     standalone: false
 })
 export class HomeComponent implements OnInit{
-  demos: any[] = [];
+  allDemos: any[] = [];
+  filteredDemos: any[] = [];
   demoTypes: Record<string, number> = {};
+  uniqueSubtypes: string[] = [];
+  subtypeCounts: Record<string, number> = {};
+  selectedSubtype: string | null = null;
+  searchText: string = '';
   embeddedMode: boolean = false;
 
   constructor(public router: Router, public route: ActivatedRoute, private menuService: MenuService) { }
 
   ngOnInit(): void {
-    this.demos = this.menuService.getDemos();
+    this.allDemos = this.menuService.getDemos();
+    this.filteredDemos = [...this.allDemos];
+    
     this.route.queryParams.subscribe(params => {
       if (params['embedded'] === 'true') {
         this.embeddedMode = true;
@@ -24,14 +31,83 @@ export class HomeComponent implements OnInit{
         this.embeddedMode = false;
       }
     });
-    // generate a list of all demo.type in demos with counts
-    this.demoTypes = this.demos.reduce((acc: any, demo: any) => {
+    
+    // Generate a list of all demo.type in demos with counts
+    this.demoTypes = this.allDemos.reduce((acc: any, demo: any) => {
       if (!acc[demo.type]) {
         acc[demo.type] = 0;
       }
       acc[demo.type]++;
       return acc;
     }, {});
+    
+    // Extract unique subtypes from subtitles and count them
+    const subtypesSet = new Set<string>();
+    this.subtypeCounts = {};
+    this.allDemos.forEach(demo => {
+      if (demo.subtitle) {
+        subtypesSet.add(demo.subtitle);
+        if (!this.subtypeCounts[demo.subtitle]) {
+          this.subtypeCounts[demo.subtitle] = 0;
+        }
+        this.subtypeCounts[demo.subtitle]++;
+      }
+    });
+    this.uniqueSubtypes = Array.from(subtypesSet).sort();
+  }
+
+  onSubtypeClick(subtype: string): void {
+    if (this.selectedSubtype === subtype) {
+      // Deselect if clicking the same badge
+      this.selectedSubtype = null;
+    } else {
+      this.selectedSubtype = subtype;
+    }
+    this.applyFilters();
+  }
+
+  onSearchChange(): void {
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    this.filteredDemos = this.allDemos.filter(demo => {
+      // Filter by subtype badge
+      if (this.selectedSubtype && demo.subtitle !== this.selectedSubtype) {
+        return false;
+      }
+      
+      // Filter by search text
+      if (this.searchText.trim()) {
+        const searchLower = this.searchText.toLowerCase();
+        const matchesName = demo.name.toLowerCase().includes(searchLower);
+        const matchesDescription = demo.description.toLowerCase().includes(searchLower);
+        const matchesSubtitle = demo.subtitle?.toLowerCase().includes(searchLower);
+        if (!matchesName && !matchesDescription && !matchesSubtitle) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  }
+
+  getFilteredCount(): number {
+    return this.filteredDemos.length;
+  }
+
+  getSubtypeCount(subtype: string): number {
+    return this.subtypeCounts[subtype] || 0;
+  }
+
+  hasActiveFilters(): boolean {
+    return this.selectedSubtype !== null || this.searchText.trim().length > 0;
+  }
+
+  clearFilters(): void {
+    this.selectedSubtype = null;
+    this.searchText = '';
+    this.applyFilters();
   }
 
   navigate(demo: any) {
