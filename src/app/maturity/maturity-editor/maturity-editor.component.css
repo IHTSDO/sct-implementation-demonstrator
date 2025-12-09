@@ -1,0 +1,383 @@
+.editor-container {
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.header h1 {
+  color: #1976d2;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.file-operations {
+  margin-bottom: 20px;
+}
+
+.file-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: 550px 1fr;
+  gap: 20px;
+  min-height: 600px;
+}
+
+.left-panel {
+  overflow-y: auto;
+  max-height: calc(100vh - 250px);
+}
+
+.right-panel {
+  overflow-y: auto;
+  max-height: calc(100vh - 250px);
+}
+
+.panel-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.list-item-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.nested-accordion {
+  margin-top: 12px;
+}
+
+/* Tree styles */
+.maturity-tree {
+  background: transparent;
+}
+
+.maturity-tree-invisible {
+  display: none;
+}
+
+.maturity-tree ul,
+.maturity-tree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+
+.tree-node-label {
+  flex: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.tree-node-label:hover {
+  background-color: #f5f5f5;
+}
+
+.tree-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #666;
+}
+
+.stakeholder-icon {
+  color: #1976d2;
+}
+
+.kpa-icon {
+  color: #ff9800;
+}
+
+.question-icon {
+  color: #4caf50;
+}
+
+.option-icon {
+  color: #9c27b0;
+}
+
+
+mat-nested-tree-node {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+}
+
+/* Reduce indentation for question level nodes (3rd level) */
+mat-nested-tree-node.question-node {
+  padding-left: 40px !important;
+}
+
+/* Reduce indentation for option level nodes (4th level) - much less indentation */
+mat-nested-tree-node.option-node {
+  padding-left: 16px !important;
+}
+
+mat-nested-tree-node[style*="padding-left: 96px"] {
+  padding-left: 16px !important;
+}
+
+mat-nested-tree-node[style*="padding-left: 72px"] {
+  padding-left: 40px !important;
+}
+
+mat-nested-tree-node[style*="padding-left: 48px"] {
+  padding-left: 32px !important;
+}
+
+.tree-node-content {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  width: 100%;
+}
+
+mat-nested-tree-node button[mat-icon-button] {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+mat-nested-tree-node button[mat-icon-button] mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+mat-nested-tree-node button[mat-icon-button][disabled] {
+  opacity: 0.3;
+  cursor: default;
+  visibility: visible;
+}
+
+/* Ensure chevron icon is properly centered */
+mat-nested-tree-node button[mat-icon-button] mat-icon.mat-icon-rtl-mirror {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.tree-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.add-button-container {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.questions-list,
+.options-list {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.questions-list h3,
+.options-list h3 {
+  margin-bottom: 16px;
+  color: #1976d2;
+  font-size: 18px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  margin: 0 0 12px 0;
+  font-weight: 500;
+  color: #333;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+mat-list-item {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+mat-list-item:hover {
+  background-color: #f5f5f5;
+}
+
+mat-expansion-panel {
+  margin-bottom: 8px;
+}
+
+mat-expansion-panel-header {
+  padding: 12px 16px;
+}
+
+mat-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+mat-panel-title mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+mat-card {
+  margin-bottom: 20px;
+}
+
+mat-card-header {
+  margin-bottom: 16px;
+}
+
+mat-card-title {
+  color: #1976d2;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+mat-card-subtitle {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .editor-layout {
+    grid-template-columns: 500px 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .editor-container {
+    padding: 16px;
+  }
+
+  .editor-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .left-panel,
+  .right-panel {
+    max-height: none;
+  }
+
+  .file-controls {
+    flex-direction: column;
+  }
+
+  .file-controls button {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* Material theme overrides */
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #1976d2;
+}
+
+.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: #1976d2;
+}
+
+.mat-raised-button.mat-primary {
+  background-color: #1976d2;
+}
+
+.mat-raised-button.mat-accent {
+  background-color: #ff9800;
+}
+
+.mat-raised-button.mat-warn {
+  background-color: #f44336;
+}
+
+/* Scrollbar styling */
+.left-panel::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.left-panel::-webkit-scrollbar-track,
+.right-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.left-panel::-webkit-scrollbar-thumb,
+.right-panel::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.left-panel::-webkit-scrollbar-thumb:hover,
+.right-panel::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

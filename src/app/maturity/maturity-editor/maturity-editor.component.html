@@ -1,0 +1,355 @@
+<div class="editor-container">
+  <div class="header">
+    <h1>Maturity Specification Editor</h1>
+    <p class="subtitle">Edit stakeholders, KPAs, questions, and options</p>
+  </div>
+
+  <!-- File Operations -->
+  <div class="file-operations">
+    <mat-card>
+      <mat-card-content>
+        <div class="file-controls">
+          <input hidden (change)="uploadSpecification($event)" #fileInput type="file" accept=".json" />
+          <button mat-raised-button color="primary" (click)="fileInput.click()">
+            <mat-icon>upload</mat-icon>
+            Upload Spec
+          </button>
+          <button mat-raised-button color="primary" (click)="loadSpecification()">
+            <mat-icon>refresh</mat-icon>
+            Load Default
+          </button>
+          <button mat-raised-button color="primary" (click)="createBlankSpec()">
+            <mat-icon>add_circle_outline</mat-icon>
+            New Blank Spec
+          </button>
+          <button mat-raised-button color="accent" (click)="downloadSpecification()">
+            <mat-icon>download</mat-icon>
+            Download Spec
+          </button>
+          <button mat-raised-button color="primary" (click)="previewSpecification()">
+            <mat-icon>preview</mat-icon>
+            Preview Assessment
+          </button>
+          <button mat-raised-button color="warn" (click)="resetToOriginal()" *ngIf="originalSpec">
+            <mat-icon>restore</mat-icon>
+            Reset Changes
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="editor-layout">
+    <!-- Left Panel: Hierarchy Tree -->
+    <div class="left-panel">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Structure</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="maturity-tree">
+            <mat-nested-tree-node *matTreeNodeDef="let node" matTreeNodePadding 
+                                  [class.question-node]="node.type === 'question'"
+                                  [class.option-node]="node.type === 'option'">
+              <div class="tree-node-content" (click)="selectNode(node)" [style.cursor]="'pointer'">
+                <button mat-icon-button matTreeNodeToggle
+                        [attr.aria-label]="'toggle ' + node.name"
+                        (click)="$event.stopPropagation()"
+                        *ngIf="hasChild(0, node)">
+                  <mat-icon class="mat-icon-rtl-mirror">
+                    {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                  </mat-icon>
+                </button>
+                <button mat-icon-button disabled *ngIf="!hasChild(0, node)"></button>
+                <mat-icon class="tree-icon" [class.stakeholder-icon]="node.type === 'stakeholder'"
+                          [class.kpa-icon]="node.type === 'kpa'"
+                          [class.question-icon]="node.type === 'question'"
+                          [class.option-icon]="node.type === 'option'">
+                  {{ node.type === 'stakeholder' ? 'people' : node.type === 'kpa' ? 'category' : node.type === 'question' ? 'help_outline' : 'radio_button_checked' }}
+                </mat-icon>
+                <span class="tree-node-label">{{ node.name }}</span>
+              </div>
+              <div [class.maturity-tree-invisible]="!treeControl.isExpanded(node)">
+                <ng-container matTreeNodeOutlet></ng-container>
+              </div>
+            </mat-nested-tree-node>
+          </mat-tree>
+
+          <!-- Add Stakeholder Button -->
+          <div class="add-button-container">
+            <button mat-raised-button color="primary" (click)="addStakeholder()">
+              <mat-icon>add</mat-icon>
+              Add Stakeholder
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Right Panel: Edit Forms -->
+    <div class="right-panel">
+      <!-- Stakeholder Form -->
+      <mat-card *ngIf="selectedStakeholderIndex !== null && selectedKpaIndex === null">
+        <mat-card-header>
+          <mat-card-title>Edit Stakeholder</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="stakeholderForm">
+            <mat-form-field class="full-width">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" required>
+              <mat-error *ngIf="stakeholderForm.get('name')?.hasError('required')">
+                Name is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>ID</mat-label>
+              <input matInput formControlName="id" required>
+              <mat-error *ngIf="stakeholderForm.get('id')?.hasError('required')">
+                ID is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description" rows="3" required></textarea>
+              <mat-error *ngIf="stakeholderForm.get('description')?.hasError('required')">
+                Description is required
+              </mat-error>
+            </mat-form-field>
+
+            <div class="form-actions" style="margin-bottom: 20px;">
+              <button type="button" mat-raised-button color="primary" (click)="saveStakeholder()">
+                Save Stakeholder
+              </button>
+              <button type="button" mat-raised-button color="accent" (click)="addKpa()">
+                <mat-icon>add</mat-icon>
+                Add KPA
+              </button>
+              <button type="button" mat-raised-button color="warn" (click)="deleteStakeholder(selectedStakeholderIndex!)">
+                <mat-icon>delete</mat-icon>
+                Delete Stakeholder
+              </button>
+              <button type="button" mat-button (click)="clearSelection()">Cancel</button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- KPA Form -->
+      <mat-card *ngIf="selectedStakeholderIndex !== null && selectedKpaIndex !== null && selectedQuestionIndex === null">
+        <mat-card-header>
+          <mat-card-title>Edit KPA</mat-card-title>
+          <mat-card-subtitle>{{ getSelectedStakeholder()?.name }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="kpaForm">
+            <mat-form-field class="full-width">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" required>
+              <mat-error *ngIf="kpaForm.get('name')?.hasError('required')">
+                Name is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>ID</mat-label>
+              <input matInput formControlName="id" required>
+              <mat-error *ngIf="kpaForm.get('id')?.hasError('required')">
+                ID is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description" rows="3" required></textarea>
+              <mat-error *ngIf="kpaForm.get('description')?.hasError('required')">
+                Description is required
+              </mat-error>
+            </mat-form-field>
+
+            <div class="form-actions" style="margin-bottom: 20px;">
+              <button type="button" mat-raised-button color="primary" (click)="saveKpa()">
+                Save KPA
+              </button>
+              <button type="button" mat-raised-button color="accent" (click)="addQuestion()">
+                <mat-icon>add</mat-icon>
+                Add Question
+              </button>
+              <button type="button" mat-raised-button color="warn" (click)="deleteKpa(selectedKpaIndex!)">
+                <mat-icon>delete</mat-icon>
+                Delete KPA
+              </button>
+              <button type="button" mat-button (click)="selectedKpaIndex = null">Back</button>
+            </div>
+          </form>
+
+          <!-- Questions List -->
+          <div class="questions-list" *ngIf="getSelectedKpa()?.questions?.length">
+            <h3>Questions ({{ getSelectedKpa()?.questions?.length }})</h3>
+            <mat-list>
+              <mat-list-item *ngFor="let question of getSelectedKpa()?.questions; let k = index">
+                <mat-icon matListItemIcon>help_outline</mat-icon>
+                <div matListItemTitle>{{ question.name }}</div>
+                <div matListItemLine>{{ question.question }}</div>
+                <div class="list-item-actions">
+                  <button type="button" mat-icon-button color="primary" (click)="editQuestion(k)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button type="button" mat-icon-button color="warn" (click)="deleteQuestion(k)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </mat-list-item>
+            </mat-list>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Question Form -->
+      <mat-card *ngIf="selectedStakeholderIndex !== null && selectedKpaIndex !== null && selectedQuestionIndex !== null && selectedOptionIndex === null">
+        <mat-card-header>
+          <mat-card-title>Edit Question</mat-card-title>
+          <mat-card-subtitle>{{ getSelectedKpa()?.name }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="questionForm">
+            <mat-form-field class="full-width">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" required>
+              <mat-error *ngIf="questionForm.get('name')?.hasError('required')">
+                Name is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>ID</mat-label>
+              <input matInput formControlName="id" required>
+              <mat-error *ngIf="questionForm.get('id')?.hasError('required')">
+                ID is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>Question Text</mat-label>
+              <textarea matInput formControlName="question" rows="3" required></textarea>
+              <mat-error *ngIf="questionForm.get('question')?.hasError('required')">
+                Question text is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>Context</mat-label>
+              <textarea matInput formControlName="context" rows="2"></textarea>
+            </mat-form-field>
+
+            <div class="form-actions" style="margin-bottom: 20px;">
+              <button type="button" mat-raised-button color="primary" (click)="saveQuestion()">
+                Save Question
+              </button>
+              <button type="button" mat-raised-button color="accent" (click)="addOption()">
+                <mat-icon>add</mat-icon>
+                Add Option
+              </button>
+              <button type="button" mat-raised-button color="warn" (click)="deleteQuestion(selectedQuestionIndex!)">
+                <mat-icon>delete</mat-icon>
+                Delete Question
+              </button>
+              <button type="button" mat-button (click)="selectedQuestionIndex = null">Back</button>
+            </div>
+          </form>
+
+          <!-- Options List -->
+          <div class="options-list" *ngIf="getSelectedQuestion()?.options?.length && selectedOptionIndex === null">
+            <h3>Options ({{ getSelectedQuestion()?.options?.length }})</h3>
+            <mat-list>
+              <mat-list-item *ngFor="let option of getSelectedQuestion()?.options; let k = index" 
+                            (click)="editOption(k)" 
+                            style="cursor: pointer;">
+                <mat-icon matListItemIcon>radio_button_checked</mat-icon>
+                <div matListItemTitle>
+                  <strong>{{ option.id }}.</strong> {{ option.text }}
+                </div>
+                <div matListItemLine>
+                  Score: {{ option.score }} | Example: {{ option.example || 'N/A' }}
+                </div>
+                <div class="list-item-actions">
+                  <button mat-icon-button color="primary" (click)="editOption(k); $event.stopPropagation()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteOption(k); $event.stopPropagation()">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </mat-list-item>
+            </mat-list>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Option Form -->
+      <mat-card *ngIf="selectedStakeholderIndex !== null && selectedKpaIndex !== null && selectedQuestionIndex !== null && selectedOptionIndex !== null">
+        <mat-card-header>
+          <mat-card-title>Edit Option</mat-card-title>
+          <mat-card-subtitle>{{ getSelectedQuestion()?.name }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="optionForm">
+            <mat-form-field class="full-width">
+              <mat-label>ID</mat-label>
+              <input matInput type="number" formControlName="id" required>
+              <mat-error *ngIf="optionForm.get('id')?.hasError('required')">
+                ID is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>Text</mat-label>
+              <textarea matInput formControlName="text" rows="2" required></textarea>
+              <mat-error *ngIf="optionForm.get('text')?.hasError('required')">
+                Text is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>Score</mat-label>
+              <input matInput type="number" formControlName="score" required>
+              <mat-hint>Score value (0-100)</mat-hint>
+              <mat-error *ngIf="optionForm.get('score')?.hasError('required')">
+                Score is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>Example</mat-label>
+              <textarea matInput formControlName="example" rows="2"></textarea>
+            </mat-form-field>
+
+            <div class="form-actions" style="margin-bottom: 20px;">
+              <button type="button" mat-raised-button color="primary" (click)="saveOption()">
+                Save Option
+              </button>
+              <button type="button" mat-raised-button color="warn" (click)="deleteOption(selectedOptionIndex!)">
+                <mat-icon>delete</mat-icon>
+                Delete Option
+              </button>
+              <button type="button" mat-button (click)="selectedOptionIndex = null">Back</button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Empty State -->
+      <mat-card *ngIf="selectedStakeholderIndex === null">
+        <mat-card-content>
+          <div class="empty-state">
+            <mat-icon>edit_note</mat-icon>
+            <h3>Select an item to edit</h3>
+            <p>Choose a stakeholder, KPA, question, or option from the left panel to start editing.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

@@ -10,6 +10,7 @@ import { ContextMainComponent } from './context/context-main/context-main.compon
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
 import { MaturityAdminComponent } from './maturity/maturity-admin/maturity-admin.component';
+import { MaturityEditorComponent } from './maturity/maturity-editor/maturity-editor.component';
 import { HomeComponent } from './home/home.component';
 import { NcptComponent } from './ncpt/ncpt.component';
 import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
@@ -49,6 +50,7 @@ const routes: Routes = [
   { path: 'maturity', component: MaturityMainComponent},
   { path: 'maturity/dashboard', component: MaturityDashboardComponent},
   { path: 'maturity/admin', component: MaturityAdminComponent},
+  { path: 'maturity/editor', component: MaturityEditorComponent},
   { path: 'ncpt', component: NcptComponent },
   { path: 'phaser', component: PhaserGameComponent },
   { path: 'triage', component: TriageGameComponent },

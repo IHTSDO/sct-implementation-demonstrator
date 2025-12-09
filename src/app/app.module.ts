@@ -27,6 +27,7 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatListModule} from '@angular/material/list';
+import {MatTreeModule} from '@angular/material/tree';
 import {MatSortModule} from '@angular/material/sort';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatSliderModule} from '@angular/material/slider';
@@ -94,6 +95,7 @@ import { FlipCardComponent } from './util/flip-card/flip-card.component';
 import { RefsetViewerComponent } from './util/refset-viewer/refset-viewer.component';
 import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
 import { MaturityAdminComponent } from './maturity/maturity-admin/maturity-admin.component';
+import { MaturityEditorComponent } from './maturity/maturity-editor/maturity-editor.component';
 import { NgxGaugeModule } from 'ngx-gauge';
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
@@ -184,6 +186,7 @@ const app = initializeApp(firebaseConfig);
         RefsetViewerComponent,
         MaturityDashboardComponent,
         MaturityAdminComponent,
+        MaturityEditorComponent,
         SvDemoComponent,
         SnomedHubComponent,
         ValuesetTranslatorComponent,
@@ -244,6 +247,7 @@ const app = initializeApp(firebaseConfig);
         MatDialogModule,
         MatCheckboxModule,
         MatListModule,
+        MatTreeModule,
         MatSortModule,
         FormsModule,
         MatSidenavModule,

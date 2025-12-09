@@ -1,0 +1,567 @@
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { lastValueFrom } from 'rxjs';
+import cloneDeep from 'lodash/cloneDeep';
+import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
+
+interface TreeNode {
+  name: string;
+  type: 'stakeholder' | 'kpa' | 'question' | 'option';
+  stakeholderIndex?: number;
+  kpaIndex?: number;
+  questionIndex?: number;
+  optionIndex?: number;
+  children?: TreeNode[];
+}
+
+@Component({
+  selector: 'app-maturity-editor',
+  templateUrl: './maturity-editor.component.html',
+  styleUrl: './maturity-editor.component.css',
+  standalone: false
+})
+export class MaturityEditorComponent implements OnInit {
+  maturitySpec: any = { stakeHolders: [] };
+  originalSpec: any = null;
+  selectedStakeholderIndex: number | null = null;
+  selectedKpaIndex: number | null = null;
+  selectedQuestionIndex: number | null = null;
+  selectedOptionIndex: number | null = null;
+  
+  treeControl = new NestedTreeControl<TreeNode>(node => node.children);
+  dataSource = new MatTreeNestedDataSource<TreeNode>();
+  expandedNodes = new Set<string>();
+  
+  stakeholderForm: FormGroup;
+  kpaForm: FormGroup;
+  questionForm: FormGroup;
+  optionForm: FormGroup;
+
+  constructor(
+    private http: HttpClient,
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar,
+    private router: Router
+  ) {
+    this.stakeholderForm = this.fb.group({
+      name: ['', Validators.required],
+      id: ['', Validators.required],
+      description: ['', Validators.required]
+    });
+
+    this.kpaForm = this.fb.group({
+      name: ['', Validators.required],
+      id: ['', Validators.required],
+      description: ['', Validators.required]
+    });
+
+    this.questionForm = this.fb.group({
+      name: ['', Validators.required],
+      id: ['', Validators.required],
+      question: ['', Validators.required],
+      context: ['']
+    });
+
+    this.optionForm = this.fb.group({
+      id: [1, Validators.required],
+      text: ['', Validators.required],
+      score: [0, Validators.required],
+      example: ['']
+    });
+  }
+
+  async ngOnInit() {
+    await this.loadSpecification();
+    this.buildTree();
+  }
+
+  hasChild = (_: number, node: TreeNode) => !!node.children && node.children.length > 0;
+
+  buildTree() {
+    // Save current expansion state
+    this.saveExpansionState();
+    
+    const treeData: TreeNode[] = this.maturitySpec.stakeHolders.map((stakeholder: any, i: number) => {
+      const stakeholderNode: TreeNode = {
+        name: stakeholder.name || 'Unnamed Stakeholder',
+        type: 'stakeholder',
+        stakeholderIndex: i,
+        children: stakeholder.kpas?.map((kpa: any, j: number) => {
+          const kpaNode: TreeNode = {
+            name: kpa.name || 'Unnamed KPA',
+            type: 'kpa',
+            stakeholderIndex: i,
+            kpaIndex: j,
+            children: kpa.questions?.map((question: any, k: number) => ({
+              name: question.name || 'Unnamed Question',
+              type: 'question',
+              stakeholderIndex: i,
+              kpaIndex: j,
+              questionIndex: k,
+              children: question.options?.map((option: any, l: number) => ({
+                name: `${option.id}. ${option.text || 'Unnamed Option'}`,
+                type: 'option',
+                stakeholderIndex: i,
+                kpaIndex: j,
+                questionIndex: k,
+                optionIndex: l
+              })) || []
+            })) || []
+          };
+          return kpaNode;
+        }) || []
+      };
+      return stakeholderNode;
+    });
+    this.dataSource.data = treeData;
+    
+    // Restore expansion state
+    this.restoreExpansionState();
+  }
+
+  saveExpansionState() {
+    this.expandedNodes.clear();
+    const saveNodeExpansion = (node: TreeNode) => {
+      if (this.treeControl.isExpanded(node)) {
+        const key = this.getNodeKey(node);
+        this.expandedNodes.add(key);
+        node.children?.forEach(child => saveNodeExpansion(child));
+      }
+    };
+    this.dataSource.data?.forEach(node => saveNodeExpansion(node));
+  }
+
+  restoreExpansionState() {
+    const restoreNodeExpansion = (node: TreeNode) => {
+      const key = this.getNodeKey(node);
+      if (this.expandedNodes.has(key)) {
+        this.treeControl.expand(node);
+      }
+      node.children?.forEach(child => restoreNodeExpansion(child));
+    };
+    this.dataSource.data?.forEach(node => restoreNodeExpansion(node));
+  }
+
+  getNodeKey(node: TreeNode): string {
+    if (node.type === 'stakeholder' && node.stakeholderIndex !== undefined) {
+      return `stakeholder_${node.stakeholderIndex}`;
+    } else if (node.type === 'kpa' && node.stakeholderIndex !== undefined && node.kpaIndex !== undefined) {
+      return `stakeholder_${node.stakeholderIndex}_kpa_${node.kpaIndex}`;
+    } else if (node.type === 'question' && node.stakeholderIndex !== undefined && 
+               node.kpaIndex !== undefined && node.questionIndex !== undefined) {
+      return `stakeholder_${node.stakeholderIndex}_kpa_${node.kpaIndex}_question_${node.questionIndex}`;
+    } else if (node.type === 'option' && node.stakeholderIndex !== undefined && 
+               node.kpaIndex !== undefined && node.questionIndex !== undefined && node.optionIndex !== undefined) {
+      return `stakeholder_${node.stakeholderIndex}_kpa_${node.kpaIndex}_question_${node.questionIndex}_option_${node.optionIndex}`;
+    }
+    return '';
+  }
+
+  async loadSpecification() {
+    try {
+      this.maturitySpec = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
+      this.originalSpec = cloneDeep(this.maturitySpec);
+      this.buildTree();
+      this.showMessage('Specification loaded successfully', 'success');
+    } catch (error) {
+      this.showMessage('Error loading specification', 'error');
+      console.error(error);
+    }
+  }
+
+  uploadSpecification(event: any) {
+    if (event.target.files.length !== 1) {
+      this.showMessage('No file selected', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = (e) => {
+      if (reader.result) {
+        try {
+          this.maturitySpec = JSON.parse(reader.result.toString());
+          this.originalSpec = cloneDeep(this.maturitySpec);
+          this.buildTree();
+          this.clearSelection();
+          this.showMessage('Specification uploaded successfully', 'success');
+        } catch (error) {
+          this.showMessage('Error parsing JSON file', 'error');
+          console.error(error);
+        }
+      }
+    };
+    reader.readAsText(event.target.files[0]);
+  }
+
+  downloadSpecification(): void {
+    const dataStr = JSON.stringify(this.maturitySpec, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+    const exportFileDefaultName = 'maturity_specification.json';
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    this.showMessage('Specification downloaded successfully', 'success');
+  }
+
+  // Stakeholder operations
+  addStakeholder() {
+    const newStakeholder = {
+      name: '',
+      id: '',
+      description: '',
+      kpas: []
+    };
+    this.maturitySpec.stakeHolders.push(newStakeholder);
+    this.buildTree();
+    this.selectedStakeholderIndex = this.maturitySpec.stakeHolders.length - 1;
+    this.editStakeholder(this.selectedStakeholderIndex);
+  }
+
+  editStakeholder(index: number) {
+    this.selectedStakeholderIndex = index;
+    this.selectedKpaIndex = null;
+    this.selectedQuestionIndex = null;
+    this.selectedOptionIndex = null;
+    const stakeholder = this.maturitySpec.stakeHolders[index];
+    this.stakeholderForm.patchValue({
+      name: stakeholder.name,
+      id: stakeholder.id,
+      description: stakeholder.description
+    });
+  }
+
+  saveStakeholder() {
+    if (this.stakeholderForm.invalid || this.selectedStakeholderIndex === null) {
+      this.showMessage('Please fill all required fields', 'error');
+      return;
+    }
+
+    const formValue = this.stakeholderForm.value;
+    this.maturitySpec.stakeHolders[this.selectedStakeholderIndex] = {
+      ...this.maturitySpec.stakeHolders[this.selectedStakeholderIndex],
+      ...formValue
+    };
+    this.buildTree();
+    this.showMessage('Stakeholder saved successfully. Click "Download Spec" to save the file.', 'success');
+    // Update form with saved values to keep editor open
+    this.stakeholderForm.patchValue(formValue);
+  }
+
+  deleteStakeholder(index: number) {
+    if (confirm('Are you sure you want to delete this stakeholder? This will also delete all associated KPAs and questions.')) {
+      this.maturitySpec.stakeHolders.splice(index, 1);
+      this.buildTree();
+      this.clearSelection();
+      this.showMessage('Stakeholder deleted successfully', 'success');
+    }
+  }
+
+  // KPA operations
+  addKpa() {
+    if (this.selectedStakeholderIndex === null) {
+      this.showMessage('Please select a stakeholder first', 'error');
+      return;
+    }
+
+    const newKpa = {
+      name: '',
+      id: '',
+      description: '',
+      questions: []
+    };
+    this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas.push(newKpa);
+    this.buildTree();
+    this.selectedKpaIndex = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas.length - 1;
+    this.editKpa(this.selectedKpaIndex);
+  }
+
+  editKpa(index: number) {
+    if (this.selectedStakeholderIndex === null) return;
+    
+    this.selectedKpaIndex = index;
+    this.selectedQuestionIndex = null;
+    this.selectedOptionIndex = null;
+    const kpa = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas[index];
+    this.kpaForm.patchValue({
+      name: kpa.name,
+      id: kpa.id,
+      description: kpa.description
+    });
+  }
+
+  saveKpa() {
+    if (this.kpaForm.invalid || this.selectedStakeholderIndex === null || this.selectedKpaIndex === null) {
+      this.showMessage('Please fill all required fields', 'error');
+      return;
+    }
+
+    const formValue = this.kpaForm.value;
+    this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas[this.selectedKpaIndex] = {
+      ...this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas[this.selectedKpaIndex],
+      ...formValue
+    };
+    this.buildTree();
+    this.showMessage('KPA saved successfully. Click "Download Spec" to save the file.', 'success');
+    this.selectedQuestionIndex = null;
+    this.selectedOptionIndex = null;
+  }
+
+  deleteKpa(index: number) {
+    if (this.selectedStakeholderIndex === null) return;
+    
+    if (confirm('Are you sure you want to delete this KPA? This will also delete all associated questions.')) {
+      this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas.splice(index, 1);
+      this.buildTree();
+      this.selectedKpaIndex = null;
+      this.selectedQuestionIndex = null;
+      this.selectedOptionIndex = null;
+      this.showMessage('KPA deleted successfully', 'success');
+    }
+  }
+
+  // Question operations
+  addQuestion() {
+    if (this.selectedStakeholderIndex === null || this.selectedKpaIndex === null) {
+      this.showMessage('Please select a stakeholder and KPA first', 'error');
+      return;
+    }
+
+    const newQuestion = {
+      name: '',
+      id: '',
+      question: '',
+      context: '',
+      options: []
+    };
+    const kpa = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas[this.selectedKpaIndex];
+    kpa.questions.push(newQuestion);
+    this.buildTree();
+    this.selectedQuestionIndex = kpa.questions.length - 1;
+    this.editQuestion(this.selectedQuestionIndex);
+  }
+
+  editQuestion(index: number) {
+    if (this.selectedStakeholderIndex === null || this.selectedKpaIndex === null) return;
+    
+    this.selectedQuestionIndex = index;
+    this.selectedOptionIndex = null;
+    const question = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
+      .kpas[this.selectedKpaIndex].questions[index];
+    this.questionForm.patchValue({
+      name: question.name,
+      id: question.id,
+      question: question.question,
+      context: question.context || ''
+    });
+  }
+
+  saveQuestion() {
+    if (this.questionForm.invalid || this.selectedStakeholderIndex === null || 
+        this.selectedKpaIndex === null || this.selectedQuestionIndex === null) {
+      this.showMessage('Please fill all required fields', 'error');
+      return;
+    }
+
+    const formValue = this.questionForm.value;
+    const question = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
+      .kpas[this.selectedKpaIndex].questions[this.selectedQuestionIndex];
+    
+    this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
+      .kpas[this.selectedKpaIndex].questions[this.selectedQuestionIndex] = {
+      ...question,
+      ...formValue
+    };
+    this.buildTree();
+    this.showMessage('Question saved successfully. Click "Download Spec" to save the file.', 'success');
+    this.selectedOptionIndex = null;
+  }
+
+  deleteQuestion(index: number) {
+    if (this.selectedStakeholderIndex === null || this.selectedKpaIndex === null) return;
+    
+    if (confirm('Are you sure you want to delete this question? This will also delete all associated options.')) {
+      this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
+        .kpas[this.selectedKpaIndex].questions.splice(index, 1);
+      this.buildTree();
+      this.selectedQuestionIndex = null;
+      this.selectedOptionIndex = null;
+      this.showMessage('Question deleted successfully', 'success');
+    }
+  }
+
+  // Option operations
+  addOption() {
+    if (this.selectedStakeholderIndex === null || this.selectedKpaIndex === null || 
+        this.selectedQuestionIndex === null) {
+      this.showMessage('Please select a stakeholder, KPA, and question first', 'error');
+      return;
+    }
+
+    const question = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
+      .kpas[this.selectedKpaIndex].questions[this.selectedQuestionIndex];
+    
+    const maxId = question.options.length > 0 
+      ? Math.max(...question.options.map((opt: any) => opt.id || 0))
+      : 0;
+    
+    const newOption = {
+      id: maxId + 1,
+      text: '',
+      score: 0,
+      example: ''
+    };
+    question.options.push(newOption);
+    this.selectedOptionIndex = question.options.length - 1;
+    this.editOption(this.selectedOptionIndex);
+  }
+
+  editOption(index: number) {
+    if (this.selectedStakeholderIndex === null || this.selectedKpaIndex === null || 
+        this.selectedQuestionIndex === null) return;
+    
+    this.selectedOptionIndex = index;
+    const option = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
+      .kpas[this.selectedKpaIndex].questions[this.selectedQuestionIndex].options[index];
+    this.optionForm.patchValue({
+      id: option.id,
+      text: option.text,
+      score: option.score,
+      example: option.example || ''
+    });
+  }
+
+  saveOption() {
+    if (this.optionForm.invalid || this.selectedStakeholderIndex === null || 
+        this.selectedKpaIndex === null || this.selectedQuestionIndex === null || 
+        this.selectedOptionIndex === null) {
+      this.showMessage('Please fill all required fields', 'error');
+      return;
+    }
+
+    const formValue = this.optionForm.value;
+    this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
+      .kpas[this.selectedKpaIndex].questions[this.selectedQuestionIndex]
+      .options[this.selectedOptionIndex] = formValue;
+    this.buildTree();
+    this.showMessage('Option saved successfully. Click "Download Spec" to save the file.', 'success');
+    // Update form with saved values to keep editor open
+    this.optionForm.patchValue(formValue);
+  }
+
+  deleteOption(index: number) {
+    if (this.selectedStakeholderIndex === null || this.selectedKpaIndex === null || 
+        this.selectedQuestionIndex === null) return;
+    
+    if (confirm('Are you sure you want to delete this option?')) {
+      this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
+        .kpas[this.selectedKpaIndex].questions[this.selectedQuestionIndex]
+        .options.splice(index, 1);
+      this.selectedOptionIndex = null;
+      this.showMessage('Option deleted successfully', 'success');
+    }
+  }
+
+  // Helper methods
+  clearSelection() {
+    this.selectedStakeholderIndex = null;
+    this.selectedKpaIndex = null;
+    this.selectedQuestionIndex = null;
+    this.selectedOptionIndex = null;
+    this.stakeholderForm.reset();
+    this.kpaForm.reset();
+    this.questionForm.reset();
+    this.optionForm.reset();
+  }
+
+  getSelectedStakeholder() {
+    if (this.selectedStakeholderIndex === null) return null;
+    return this.maturitySpec.stakeHolders[this.selectedStakeholderIndex];
+  }
+
+  getSelectedKpa() {
+    const stakeholder = this.getSelectedStakeholder();
+    if (!stakeholder || this.selectedKpaIndex === null) return null;
+    return stakeholder.kpas[this.selectedKpaIndex];
+  }
+
+  getSelectedQuestion() {
+    const kpa = this.getSelectedKpa();
+    if (!kpa || this.selectedQuestionIndex === null) return null;
+    return kpa.questions[this.selectedQuestionIndex];
+  }
+
+  showMessage(message: string, type: 'success' | 'error' = 'success') {
+    this.snackBar.openFromComponent(SnackAlertComponent, {
+      duration: 3000,
+      data: message,
+      panelClass: type === 'success' ? ['green-snackbar'] : ['red-snackbar']
+    });
+  }
+
+  resetToOriginal() {
+    if (confirm('Are you sure you want to reset all changes? This cannot be undone.')) {
+      this.maturitySpec = cloneDeep(this.originalSpec);
+      this.buildTree();
+      this.clearSelection();
+      this.showMessage('Specification reset to original', 'success');
+    }
+  }
+
+  createBlankSpec(): void {
+    if (confirm('Are you sure you want to create a blank specification? All current changes will be lost.')) {
+      this.maturitySpec = {
+        stakeHolders: []
+      };
+      this.originalSpec = cloneDeep(this.maturitySpec);
+      this.buildTree();
+      this.clearSelection();
+      this.showMessage('Blank specification created. Start by adding a stakeholder.', 'success');
+    }
+  }
+
+  previewSpecification(): void {
+    // Save the current spec to localStorage for preview
+    try {
+      const specJson = JSON.stringify(this.maturitySpec);
+      localStorage.setItem('maturitySpecPreview', specJson);
+      // Open maturity-main in a new tab/window with preview mode
+      // Use hash routing format
+      const baseUrl = window.location.origin;
+      window.open(`${baseUrl}/#/maturity?preview=true`, '_blank');
+      this.showMessage('Opening preview in new tab...', 'success');
+    } catch (error) {
+      this.showMessage('Error preparing preview', 'error');
+      console.error(error);
+    }
+  }
+
+  selectNode(node: TreeNode) {
+    if (node.type === 'stakeholder' && node.stakeholderIndex !== undefined) {
+      this.selectedStakeholderIndex = node.stakeholderIndex;
+      this.editStakeholder(node.stakeholderIndex);
+    } else if (node.type === 'kpa' && node.stakeholderIndex !== undefined && node.kpaIndex !== undefined) {
+      this.selectedStakeholderIndex = node.stakeholderIndex;
+      this.selectedKpaIndex = node.kpaIndex;
+      this.editKpa(node.kpaIndex);
+    } else if (node.type === 'question' && node.stakeholderIndex !== undefined && 
+               node.kpaIndex !== undefined && node.questionIndex !== undefined) {
+      this.selectedStakeholderIndex = node.stakeholderIndex;
+      this.selectedKpaIndex = node.kpaIndex;
+      this.selectedQuestionIndex = node.questionIndex;
+      this.editQuestion(node.questionIndex);
+    } else if (node.type === 'option' && node.stakeholderIndex !== undefined && 
+               node.kpaIndex !== undefined && node.questionIndex !== undefined && node.optionIndex !== undefined) {
+      this.selectedStakeholderIndex = node.stakeholderIndex;
+      this.selectedKpaIndex = node.kpaIndex;
+      this.selectedQuestionIndex = node.questionIndex;
+      this.selectedOptionIndex = node.optionIndex;
+      this.editOption(node.optionIndex);
+    }
+  }
+}

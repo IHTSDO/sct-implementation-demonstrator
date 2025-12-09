@@ -73,6 +73,22 @@ export class MaturityMainComponent implements OnInit {
   }
 
   async ngOnInit() {
+    // Check if preview mode is enabled (from editor)
+    const params = this.route.snapshot.queryParams;
+    if (params['preview']) {
+      const previewSpec = localStorage.getItem('maturitySpecPreview');
+      if (previewSpec) {
+        try {
+          this.baseMaturityQuestions = JSON.parse(previewSpec);
+          this.initializeForm();
+          return;
+        } catch (error) {
+          console.error('Error loading preview spec:', error);
+        }
+      }
+    }
+    
+    // Load default spec if not in preview mode or preview failed
     this.baseMaturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
     this.initializeForm();
     // Flatten all questions into one array for one-at-a-time display
