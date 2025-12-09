@@ -2,6 +2,18 @@
   <div class="header">
     <h1>Maturity Specification Editor</h1>
     <p class="subtitle">Edit stakeholders, KPAs, questions, and options</p>
+    <p class="spec-status saved-spec-indicator" *ngIf="specSource === 'saved'">
+      <mat-icon>save</mat-icon>
+      Viewing saved specification (auto-saved to local storage)
+    </p>
+    <p class="spec-status loaded-spec-indicator" *ngIf="specSource === 'loaded'">
+      <mat-icon>upload</mat-icon>
+      Viewing loaded specification
+    </p>
+    <p class="spec-status default-spec-indicator" *ngIf="specSource === 'default'">
+      <mat-icon>description</mat-icon>
+      Viewing default specification
+    </p>
   </div>
 
   <!-- File Operations -->

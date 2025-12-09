@@ -33,6 +33,9 @@ export class MaturityEditorComponent implements OnInit {
   selectedQuestionIndex: number | null = null;
   selectedOptionIndex: number | null = null;
   
+  specSource: 'default' | 'loaded' | 'saved' = 'default';
+  private readonly STORAGE_KEY = 'maturitySpecEditor';
+  
   treeControl = new NestedTreeControl<TreeNode>(node => node.children);
   dataSource = new MatTreeNestedDataSource<TreeNode>();
   expandedNodes = new Set<string>();
@@ -76,6 +79,23 @@ export class MaturityEditorComponent implements OnInit {
   }
 
   async ngOnInit() {
+    // Try to load from localStorage first
+    const savedSpec = localStorage.getItem(this.STORAGE_KEY);
+    if (savedSpec) {
+      try {
+        this.maturitySpec = JSON.parse(savedSpec);
+        this.originalSpec = cloneDeep(this.maturitySpec);
+        this.specSource = 'saved';
+        this.buildTree();
+        this.showMessage('Loaded saved specification from local storage', 'success');
+        return;
+      } catch (error) {
+        console.error('Error loading saved spec:', error);
+        // Fall through to load default
+      }
+    }
+    
+    // Load default if no saved spec or error loading
     await this.loadSpecification();
     this.buildTree();
   }
@@ -163,14 +183,37 @@ export class MaturityEditorComponent implements OnInit {
   }
 
   async loadSpecification() {
+    // Check if there's saved data in localStorage
+    const savedSpec = localStorage.getItem(this.STORAGE_KEY);
+    if (savedSpec) {
+      const confirmed = confirm('There is a saved specification in local storage. Loading the default will discard all saved changes. Do you want to continue?');
+      if (!confirmed) {
+        return;
+      }
+      localStorage.removeItem(this.STORAGE_KEY);
+    }
+
     try {
       this.maturitySpec = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
       this.originalSpec = cloneDeep(this.maturitySpec);
+      this.specSource = 'default';
       this.buildTree();
       this.showMessage('Specification loaded successfully', 'success');
     } catch (error) {
       this.showMessage('Error loading specification', 'error');
       console.error(error);
+    }
+  }
+
+  saveToLocalStorage(): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.maturitySpec));
+      // Mark as saved after first save
+      if (this.specSource !== 'saved') {
+        this.specSource = 'saved';
+      }
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
     }
   }
 
@@ -180,12 +223,26 @@ export class MaturityEditorComponent implements OnInit {
       return;
     }
 
+    // Check if there's saved data in localStorage
+    const savedSpec = localStorage.getItem(this.STORAGE_KEY);
+    if (savedSpec) {
+      const confirmed = confirm('There is a saved specification in local storage. Uploading a new file will discard all saved changes. Do you want to continue?');
+      if (!confirmed) {
+        // Reset the file input
+        event.target.value = '';
+        return;
+      }
+      localStorage.removeItem(this.STORAGE_KEY);
+    }
+
     const reader = new FileReader();
     reader.onloadend = (e) => {
       if (reader.result) {
         try {
           this.maturitySpec = JSON.parse(reader.result.toString());
           this.originalSpec = cloneDeep(this.maturitySpec);
+          this.specSource = 'loaded';
+          this.saveToLocalStorage();
           this.buildTree();
           this.clearSelection();
           this.showMessage('Specification uploaded successfully', 'success');
@@ -218,6 +275,7 @@ export class MaturityEditorComponent implements OnInit {
       kpas: []
     };
     this.maturitySpec.stakeHolders.push(newStakeholder);
+    this.saveToLocalStorage();
     this.buildTree();
     this.selectedStakeholderIndex = this.maturitySpec.stakeHolders.length - 1;
     this.editStakeholder(this.selectedStakeholderIndex);
@@ -247,6 +305,7 @@ export class MaturityEditorComponent implements OnInit {
       ...this.maturitySpec.stakeHolders[this.selectedStakeholderIndex],
       ...formValue
     };
+    this.saveToLocalStorage();
     this.buildTree();
     this.showMessage('Stakeholder saved successfully. Click "Download Spec" to save the file.', 'success');
     // Update form with saved values to keep editor open
@@ -256,6 +315,7 @@ export class MaturityEditorComponent implements OnInit {
   deleteStakeholder(index: number) {
     if (confirm('Are you sure you want to delete this stakeholder? This will also delete all associated KPAs and questions.')) {
       this.maturitySpec.stakeHolders.splice(index, 1);
+      this.saveToLocalStorage();
       this.buildTree();
       this.clearSelection();
       this.showMessage('Stakeholder deleted successfully', 'success');
@@ -276,6 +336,7 @@ export class MaturityEditorComponent implements OnInit {
       questions: []
     };
     this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas.push(newKpa);
+    this.saveToLocalStorage();
     this.buildTree();
     this.selectedKpaIndex = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas.length - 1;
     this.editKpa(this.selectedKpaIndex);
@@ -306,6 +367,7 @@ export class MaturityEditorComponent implements OnInit {
       ...this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas[this.selectedKpaIndex],
       ...formValue
     };
+    this.saveToLocalStorage();
     this.buildTree();
     this.showMessage('KPA saved successfully. Click "Download Spec" to save the file.', 'success');
     this.selectedQuestionIndex = null;
@@ -317,6 +379,7 @@ export class MaturityEditorComponent implements OnInit {
     
     if (confirm('Are you sure you want to delete this KPA? This will also delete all associated questions.')) {
       this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas.splice(index, 1);
+      this.saveToLocalStorage();
       this.buildTree();
       this.selectedKpaIndex = null;
       this.selectedQuestionIndex = null;
@@ -341,6 +404,7 @@ export class MaturityEditorComponent implements OnInit {
     };
     const kpa = this.maturitySpec.stakeHolders[this.selectedStakeholderIndex].kpas[this.selectedKpaIndex];
     kpa.questions.push(newQuestion);
+    this.saveToLocalStorage();
     this.buildTree();
     this.selectedQuestionIndex = kpa.questions.length - 1;
     this.editQuestion(this.selectedQuestionIndex);
@@ -377,6 +441,7 @@ export class MaturityEditorComponent implements OnInit {
       ...question,
       ...formValue
     };
+    this.saveToLocalStorage();
     this.buildTree();
     this.showMessage('Question saved successfully. Click "Download Spec" to save the file.', 'success');
     this.selectedOptionIndex = null;
@@ -388,6 +453,7 @@ export class MaturityEditorComponent implements OnInit {
     if (confirm('Are you sure you want to delete this question? This will also delete all associated options.')) {
       this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
         .kpas[this.selectedKpaIndex].questions.splice(index, 1);
+      this.saveToLocalStorage();
       this.buildTree();
       this.selectedQuestionIndex = null;
       this.selectedOptionIndex = null;
@@ -417,6 +483,7 @@ export class MaturityEditorComponent implements OnInit {
       example: ''
     };
     question.options.push(newOption);
+    this.saveToLocalStorage();
     this.selectedOptionIndex = question.options.length - 1;
     this.editOption(this.selectedOptionIndex);
   }
@@ -448,6 +515,7 @@ export class MaturityEditorComponent implements OnInit {
     this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
       .kpas[this.selectedKpaIndex].questions[this.selectedQuestionIndex]
       .options[this.selectedOptionIndex] = formValue;
+    this.saveToLocalStorage();
     this.buildTree();
     this.showMessage('Option saved successfully. Click "Download Spec" to save the file.', 'success');
     // Update form with saved values to keep editor open
@@ -462,6 +530,7 @@ export class MaturityEditorComponent implements OnInit {
       this.maturitySpec.stakeHolders[this.selectedStakeholderIndex]
         .kpas[this.selectedKpaIndex].questions[this.selectedQuestionIndex]
         .options.splice(index, 1);
+      this.saveToLocalStorage();
       this.selectedOptionIndex = null;
       this.showMessage('Option deleted successfully', 'success');
     }
@@ -507,6 +576,12 @@ export class MaturityEditorComponent implements OnInit {
   resetToOriginal() {
     if (confirm('Are you sure you want to reset all changes? This cannot be undone.')) {
       this.maturitySpec = cloneDeep(this.originalSpec);
+      // Reset to the original source type
+      if (this.originalSpec && Object.keys(this.originalSpec).length > 0 && this.originalSpec.stakeHolders?.length > 0) {
+        // If original was from default asset, keep as default
+        this.specSource = 'default';
+      }
+      this.saveToLocalStorage();
       this.buildTree();
       this.clearSelection();
       this.showMessage('Specification reset to original', 'success');
@@ -519,6 +594,8 @@ export class MaturityEditorComponent implements OnInit {
         stakeHolders: []
       };
       this.originalSpec = cloneDeep(this.maturitySpec);
+      this.specSource = 'default';
+      this.saveToLocalStorage();
       this.buildTree();
       this.clearSelection();
       this.showMessage('Blank specification created. Start by adding a stakeholder.', 'success');
