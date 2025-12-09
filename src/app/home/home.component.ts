@@ -53,7 +53,15 @@ export class HomeComponent implements OnInit{
         this.subtypeCounts[demo.subtitle]++;
       }
     });
-    this.uniqueSubtypes = Array.from(subtypesSet).sort();
+    // Sort by count (descending), then alphabetically if counts are equal
+    this.uniqueSubtypes = Array.from(subtypesSet).sort((a, b) => {
+      const countA = this.subtypeCounts[a] || 0;
+      const countB = this.subtypeCounts[b] || 0;
+      if (countB !== countA) {
+        return countB - countA; // Descending order by count
+      }
+      return a.localeCompare(b); // Alphabetical if counts are equal
+    });
   }
 
   onSubtypeClick(subtype: string): void {
