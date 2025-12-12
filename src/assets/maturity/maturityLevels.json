@@ -1,4 +1,82 @@
 {
+  "title": "Welcome to SNOMED International's Implementation Maturity Assessment Tool",
+  "subtitle": "The SNOMED International <b>Implementation Maturity Assessment Tool</b> is designed to help <b>Vendors</b>, <b>Members</b> (National Release Centers), and <b>User Organizations</b> evaluate their progress in adopting and integrating SNOMED CT. This tool provides structured insights into implementation maturity, highlighting strengths and areas for improvement.",
+  "flipCards": [
+    {
+      "title": "Why use this tool?",
+      "front": {
+        "text": "Identify gaps, gain insights, align with best practices, and advance SNOMED CT adoption—tailored for vendors, members, and user organizations."
+      },
+      "back": {
+        "items": [
+          {
+            "title": "Identify Gaps",
+            "text": "Assess implementation challenges and pinpoint areas needing further development."
+          },
+          {
+            "title": "Obtain actionable",
+            "text": "Insights – Supports continuous improvement and governance."
+          },
+          {
+            "title": "Align with Best Practices",
+            "text": "Benchmark your progress against internationally recognized standards."
+          },
+          {
+            "title": "Tailored for Different Stakeholders",
+            "text": "Designed to support key stakeholders in their SNOMED CT journey."
+          }
+        ]
+      }
+    },
+    {
+      "title": "How does it work?",
+      "front": {
+        "text": "Assess key areas, receive a maturity score, gain improvement insights, and generate a report to enhance SNOMED CT implementation and collaboration."
+      },
+      "back": {
+        "items": [
+          {
+            "title": "Select Key Process Areas",
+            "text": "Choose the areas most relevant to your role and implementation needs."
+          },
+          {
+            "title": "Complete the Assessment",
+            "text": "Answer structured questions across selected key process areas."
+          },
+          {
+            "title": "Receive a Maturity Score",
+            "text": "Get a clear view of your current implementation maturity level."
+          },
+          {
+            "title": "Download and Share Your Report",
+            "text": "Generate a detailed report which can be stored for internal use or shared."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Who should use it?",
+      "front": {
+        "text": "Tailored assessments for vendors, members, and user organizations to evaluate SNOMED CT integration, adoption, and clinical use."
+      },
+      "back": {
+        "items": [
+          {
+            "title": "Vendors",
+            "text": "Assess SNOMED CT integration within healthcare software and applications."
+          },
+          {
+            "title": "Members",
+            "text": "(National Release Centers) – Evaluate national or regional SNOMED CT adoption and management strategies."
+          },
+          {
+            "title": "User Organizations",
+            "text": "Analyze SNOMED CT use within healthcare systems, EHRs, and clinical workflows."
+          }
+        ]
+      }
+    }
+  ],
   "stakeHolders": [
     {
       "name": "Vendor",

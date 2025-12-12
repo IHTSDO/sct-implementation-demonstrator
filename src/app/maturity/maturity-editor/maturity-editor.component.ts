@@ -26,7 +26,7 @@ interface TreeNode {
   standalone: false
 })
 export class MaturityEditorComponent implements OnInit {
-  maturitySpec: any = { stakeHolders: [] };
+  maturitySpec: any = { stakeHolders: [], flipCards: [] };
   originalSpec: any = null;
   selectedStakeholderIndex: number | null = null;
   selectedKpaIndex: number | null = null;
@@ -44,6 +44,13 @@ export class MaturityEditorComponent implements OnInit {
   kpaForm: FormGroup;
   questionForm: FormGroup;
   optionForm: FormGroup;
+  titleForm: FormGroup;
+  subtitleForm: FormGroup;
+  flipCardForm: FormGroup;
+  flipCardItemForm: FormGroup;
+  
+  selectedFlipCardIndex: number | null = null;
+  selectedFlipCardItemIndex: number | null = null;
 
   constructor(
     private http: HttpClient,
@@ -76,6 +83,24 @@ export class MaturityEditorComponent implements OnInit {
       score: [0, Validators.required],
       example: ['']
     });
+
+    this.titleForm = this.fb.group({
+      title: ['', Validators.required]
+    });
+
+    this.subtitleForm = this.fb.group({
+      subtitle: ['', Validators.required]
+    });
+
+    this.flipCardForm = this.fb.group({
+      title: ['', Validators.required],
+      frontText: ['', Validators.required]
+    });
+
+    this.flipCardItemForm = this.fb.group({
+      title: ['', Validators.required],
+      text: ['', Validators.required]
+    });
   }
 
   async ngOnInit() {
@@ -84,9 +109,14 @@ export class MaturityEditorComponent implements OnInit {
     if (savedSpec) {
       try {
         this.maturitySpec = JSON.parse(savedSpec);
+        // Ensure flipCards array exists
+        if (!this.maturitySpec.flipCards) {
+          this.maturitySpec.flipCards = [];
+        }
         this.originalSpec = cloneDeep(this.maturitySpec);
         this.specSource = 'saved';
         this.buildTree();
+        this.initializeWelcomeForms();
         this.showMessage('Loaded saved specification from local storage', 'success');
         return;
       } catch (error) {
@@ -98,6 +128,17 @@ export class MaturityEditorComponent implements OnInit {
     // Load default if no saved spec or error loading
     await this.loadSpecification();
     this.buildTree();
+    // Initialize title and subtitle forms
+    this.initializeWelcomeForms();
+  }
+
+  initializeWelcomeForms() {
+    this.titleForm.patchValue({
+      title: this.maturitySpec.title || ''
+    });
+    this.subtitleForm.patchValue({
+      subtitle: this.maturitySpec.subtitle || ''
+    });
   }
 
   hasChild = (_: number, node: TreeNode) => !!node.children && node.children.length > 0;
@@ -195,9 +236,14 @@ export class MaturityEditorComponent implements OnInit {
 
     try {
       this.maturitySpec = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
+      // Ensure flipCards array exists
+      if (!this.maturitySpec.flipCards) {
+        this.maturitySpec.flipCards = [];
+      }
       this.originalSpec = cloneDeep(this.maturitySpec);
       this.specSource = 'default';
       this.buildTree();
+      this.initializeWelcomeForms();
       this.showMessage('Specification loaded successfully', 'success');
     } catch (error) {
       this.showMessage('Error loading specification', 'error');
@@ -240,10 +286,15 @@ export class MaturityEditorComponent implements OnInit {
       if (reader.result) {
         try {
           this.maturitySpec = JSON.parse(reader.result.toString());
+          // Ensure flipCards array exists
+          if (!this.maturitySpec.flipCards) {
+            this.maturitySpec.flipCards = [];
+          }
           this.originalSpec = cloneDeep(this.maturitySpec);
           this.specSource = 'loaded';
           this.saveToLocalStorage();
           this.buildTree();
+          this.initializeWelcomeForms();
           this.clearSelection();
           this.showMessage('Specification uploaded successfully', 'success');
         } catch (error) {
@@ -536,16 +587,173 @@ export class MaturityEditorComponent implements OnInit {
     }
   }
 
+  // Title and Subtitle operations
+  editTitle() {
+    this.titleForm.patchValue({
+      title: this.maturitySpec.title || ''
+    });
+  }
+
+  saveTitle() {
+    if (this.titleForm.invalid) {
+      this.showMessage('Title is required', 'error');
+      return;
+    }
+    this.maturitySpec.title = this.titleForm.value.title;
+    this.saveToLocalStorage();
+    this.showMessage('Title saved successfully. Click "Download Spec" to save the file.', 'success');
+  }
+
+  editSubtitle() {
+    this.subtitleForm.patchValue({
+      subtitle: this.maturitySpec.subtitle || ''
+    });
+  }
+
+  saveSubtitle() {
+    if (this.subtitleForm.invalid) {
+      this.showMessage('Subtitle is required', 'error');
+      return;
+    }
+    this.maturitySpec.subtitle = this.subtitleForm.value.subtitle;
+    this.saveToLocalStorage();
+    this.showMessage('Subtitle saved successfully. Click "Download Spec" to save the file.', 'success');
+  }
+
+  // Flip Card operations
+  addFlipCard() {
+    if (!this.maturitySpec.flipCards) {
+      this.maturitySpec.flipCards = [];
+    }
+    const newFlipCard = {
+      title: '',
+      front: { text: '' },
+      back: { items: [] }
+    };
+    this.maturitySpec.flipCards.push(newFlipCard);
+    this.saveToLocalStorage();
+    this.selectedFlipCardIndex = this.maturitySpec.flipCards.length - 1;
+    this.editFlipCard(this.selectedFlipCardIndex);
+  }
+
+  editFlipCard(index: number) {
+    this.selectedFlipCardIndex = index;
+    this.selectedFlipCardItemIndex = null;
+    const flipCard = this.maturitySpec.flipCards[index];
+    this.flipCardForm.patchValue({
+      title: flipCard.title || '',
+      frontText: flipCard.front?.text || ''
+    });
+  }
+
+  saveFlipCard() {
+    if (this.flipCardForm.invalid || this.selectedFlipCardIndex === null) {
+      this.showMessage('Please fill all required fields', 'error');
+      return;
+    }
+
+    const formValue = this.flipCardForm.value;
+    const flipCard = this.maturitySpec.flipCards[this.selectedFlipCardIndex];
+    this.maturitySpec.flipCards[this.selectedFlipCardIndex] = {
+      ...flipCard,
+      title: formValue.title,
+      front: { text: formValue.frontText },
+      back: flipCard.back || { items: [] }
+    };
+    this.saveToLocalStorage();
+    this.showMessage('Flip card saved successfully. Click "Download Spec" to save the file.', 'success');
+  }
+
+  deleteFlipCard(index: number) {
+    if (confirm('Are you sure you want to delete this flip card? This will also delete all associated items.')) {
+      this.maturitySpec.flipCards.splice(index, 1);
+      this.saveToLocalStorage();
+      this.selectedFlipCardIndex = null;
+      this.selectedFlipCardItemIndex = null;
+      this.showMessage('Flip card deleted successfully', 'success');
+    }
+  }
+
+  // Flip Card Item operations
+  addFlipCardItem() {
+    if (this.selectedFlipCardIndex === null) {
+      this.showMessage('Please select a flip card first', 'error');
+      return;
+    }
+
+    if (!this.maturitySpec.flipCards[this.selectedFlipCardIndex].back) {
+      this.maturitySpec.flipCards[this.selectedFlipCardIndex].back = { items: [] };
+    }
+    if (!this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items) {
+      this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items = [];
+    }
+
+    const newItem = {
+      title: '',
+      text: ''
+    };
+    this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items.push(newItem);
+    this.saveToLocalStorage();
+    this.selectedFlipCardItemIndex = this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items.length - 1;
+    this.editFlipCardItem(this.selectedFlipCardItemIndex);
+  }
+
+  editFlipCardItem(index: number) {
+    if (this.selectedFlipCardIndex === null) return;
+    
+    this.selectedFlipCardItemIndex = index;
+    const item = this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items[index];
+    this.flipCardItemForm.patchValue({
+      title: item.title || '',
+      text: item.text || ''
+    });
+  }
+
+  saveFlipCardItem() {
+    if (this.flipCardItemForm.invalid || this.selectedFlipCardIndex === null || this.selectedFlipCardItemIndex === null) {
+      this.showMessage('Please fill all required fields', 'error');
+      return;
+    }
+
+    const formValue = this.flipCardItemForm.value;
+    this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items[this.selectedFlipCardItemIndex] = formValue;
+    this.saveToLocalStorage();
+    this.showMessage('Flip card item saved successfully. Click "Download Spec" to save the file.', 'success');
+    this.flipCardItemForm.patchValue(formValue);
+  }
+
+  deleteFlipCardItem(index: number) {
+    if (this.selectedFlipCardIndex === null) return;
+    
+    if (confirm('Are you sure you want to delete this flip card item?')) {
+      this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items.splice(index, 1);
+      this.saveToLocalStorage();
+      this.selectedFlipCardItemIndex = null;
+      this.showMessage('Flip card item deleted successfully', 'success');
+    }
+  }
+
+  getSelectedFlipCard() {
+    if (this.selectedFlipCardIndex === null) return null;
+    return this.maturitySpec.flipCards[this.selectedFlipCardIndex];
+  }
+
   // Helper methods
   clearSelection() {
     this.selectedStakeholderIndex = null;
     this.selectedKpaIndex = null;
     this.selectedQuestionIndex = null;
     this.selectedOptionIndex = null;
+    this.selectedFlipCardIndex = null;
+    this.selectedFlipCardItemIndex = null;
     this.stakeholderForm.reset();
     this.kpaForm.reset();
     this.questionForm.reset();
     this.optionForm.reset();
+    this.titleForm.reset();
+    this.subtitleForm.reset();
+    this.flipCardForm.reset();
+    this.flipCardItemForm.reset();
   }
 
   getSelectedStakeholder() {
@@ -591,6 +799,9 @@ export class MaturityEditorComponent implements OnInit {
   createBlankSpec(): void {
     if (confirm('Are you sure you want to create a blank specification? All current changes will be lost.')) {
       this.maturitySpec = {
+        title: '',
+        subtitle: '',
+        flipCards: [],
         stakeHolders: []
       };
       this.originalSpec = cloneDeep(this.maturitySpec);

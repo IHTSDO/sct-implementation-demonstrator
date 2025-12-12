@@ -7,15 +7,11 @@
 <div class="question-flow-container" *ngIf="currentQuestionIndex === -3">
     <div class="question-container">
         <div>
-            <h1 class="text-center" *ngIf="!expoMode">Welcome to SNOMED International's Implementation Maturity Assessment Tool</h1>
+            <h1 class="text-center" *ngIf="!expoMode">{{ welcomeTitle }}</h1>
             <h1 class="text-center" *ngIf="expoMode">Welcome to SNOMED International's Expo 2025 Quick Assessment</h1>
             
             <div *ngIf="!expoMode">
-                <p class="mb-4">
-                    The SNOMED International <b>Implementation Maturity Assessment Tool</b> is designed to help <b>Vendors</b>, <b>Members</b> (National Release Centers), 
-                    and <b>User Organizations</b> evaluate their progress in adopting and integrating SNOMED CT. This tool provides structured insights 
-                    into implementation maturity, highlighting strengths and areas for improvement.
-                </p>
+                <p class="mb-4" [innerHTML]="welcomeSubtitle"></p>
             </div>
             
             <div *ngIf="expoMode">
@@ -27,95 +23,27 @@
             </div>
             <hr>
             <div class="flip-card-container">
-                <app-flip-card #myFlipCard>
+                <app-flip-card *ngFor="let flipCard of flipCards; let i = index" #flipCardRef>
                     <!-- FRONT CONTENT -->
                     <div flipFront>
-                        <div class="text-2xl mb-4 font-bold">Why use this tool?</div>
-                        <p>Identify gaps, gain insights, align with best practices, and advance SNOMED CT adoption—tailored for vendors, members, and user organizations.</p>
-                        <button mat-raised-button color="accent" (click)="myFlipCard.toggleFlip()" class="min-h-[44px]">
+                        <div class="text-2xl mb-4 font-bold">{{ flipCard.title }}</div>
+                        <p>{{ flipCard.front.text }}</p>
+                        <button mat-raised-button color="accent" (click)="flipCardRef.toggleFlip()" class="min-h-[44px]">
                             More...
                         </button>
                     </div>
                     <!-- BACK CONTENT -->
                     <div flipBack>
-                        <div class="text-2xl mb-2 font-bold">Why use this tool?</div>
+                        <div class="text-2xl mb-2 font-bold">{{ flipCard.title }}</div>
                         <div class="home-list">
-                            <div class="home-list-item">
-                                <div><b>Identify Gaps</b> – Assess implementation challenges and pinpoint areas needing further development.</div>
-                            </div>
-                            <div class="home-list-item">
-                                <div><b>Obtain actionable</b> Insights – Supports continuous improvement and governance.</div>
-                            </div>
-                            <div class="home-list-item">
-                                <div><b>Align with Best Practices</b> – Benchmark your progress against internationally recognized standards.</div>
-                            </div>
-                            <div class="home-list-item">
-                                <div><b>Tailored for Different Stakeholders</b> – Designed to support key stakeholders in their SNOMED CT journey.</div>
+                            <div class="home-list-item" *ngFor="let item of flipCard.back.items">
+                                <div><b>{{ item.title }}</b>{{ item.text ? ' – ' + item.text : '' }}</div>
                             </div>
                         </div>
-                        <button mat-raised-button color="accent" (click)="myFlipCard.toggleFlip()" class="min-h-[44px]">
+                        <button mat-raised-button color="accent" (click)="flipCardRef.toggleFlip()" class="min-h-[44px]">
                             Back
                         </button>
                     </div>
-                </app-flip-card>
-                <app-flip-card #myFlipCard2>
-                    <!-- FRONT CONTENT -->
-                    <div flipFront>
-                        <div class="text-2xl mb-4 font-bold">How does it work?</div>
-                        <p>Assess key areas, receive a maturity score, gain improvement insights, and generate a report to enhance SNOMED CT implementation and collaboration.</p>
-                        <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()" class="min-h-[44px]">
-                            More...
-                        </button>
-                        </div>
-                        <!-- BACK CONTENT -->
-                        <div flipBack>
-                            <div class="text-2xl mb-2 font-bold">How does it work?</div>
-                            <div class="home-list">
-                                <div class="home-list-item">
-                                    <div><b>Select Key Process Areas</b> – Choose the areas most relevant to your role and implementation needs.</div>
-                                </div>
-                                <div class="home-list-item">
-                                    <div><b>Complete the Assessment</b> – Answer structured questions across selected key process areas.</div>
-                                </div>
-                                <div class="home-list-item">
-                                    <div><b>Receive a Maturity Score</b> – Get a clear view of your current implementation maturity level.</div>
-                                </div>
-                                <div class="home-list-item">
-                                    <div><b>Download and Share Your Report</b> – Generate a detailed report which can be stored for internal use or shared.</div>
-                                </div>
-                            </div>
-                        <button mat-raised-button color="accent" (click)="myFlipCard2.toggleFlip()" class="min-h-[44px]">
-                            Back
-                        </button>
-                    </div>
-                </app-flip-card>
-                <app-flip-card #myFlipCard3>
-                    <!-- FRONT CONTENT -->
-                    <div flipFront>
-                        <div class="text-2xl mb-4 font-bold">Who should use it?</div>
-                            <p>Tailored assessments for vendors, members, and user organizations to evaluate SNOMED CT integration, adoption, and clinical use.</p>
-                            <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()" class="min-h-[44px]">
-                                More...
-                            </button>
-                        </div>
-                        <!-- BACK CONTENT -->
-                        <div flipBack>
-                            <div class="text-2xl mb-2 font-bold">Who should use it?</div>
-                            <div class="home-list">
-                                <div class="home-list-item">
-                                    <div><b>Vendors</b> – Assess SNOMED CT integration within healthcare software and applications.</div>
-                                </div>
-                                <div class="home-list-item">
-                                    <div><b>Members</b> (National Release Centers) – Evaluate national or regional SNOMED CT adoption and management strategies.</div>
-                                </div>
-                                <div class="home-list-item">
-                                    <div><b>User Organizations</b> – Analyze SNOMED CT use within healthcare systems, EHRs, and clinical workflows.</div>
-                                </div>
-                            </div>
-                            <button mat-raised-button color="accent" (click)="myFlipCard3.toggleFlip()" class="min-h-[44px]">
-                                Back
-                            </button>
-                        </div>
                 </app-flip-card>
             </div>
             <div class="button-container-space-between">

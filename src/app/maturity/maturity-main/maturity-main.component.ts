@@ -52,6 +52,9 @@ export class MaturityMainComponent implements OnInit {
   currentKpas: any[] = [];
   authorMode: boolean = false;
   expoMode: boolean = false;
+  flipCards: any[] = [];
+  welcomeTitle: string = '';
+  welcomeSubtitle: string = '';
 
   @ViewChild('results') results!: MaturityResultsComponent;
 
@@ -101,6 +104,12 @@ export class MaturityMainComponent implements OnInit {
     } else {
       this.maturityQuestions = cloneDeep(this.baseMaturityQuestions);
     }
+    
+    // Load flipcards from spec
+    this.flipCards = this.maturityQuestions.flipCards || [];
+    // Load welcome title and subtitle from spec
+    this.welcomeTitle = this.maturityQuestions.title || '';
+    this.welcomeSubtitle = this.maturityQuestions.subtitle || '';
     
     // In Expo mode, make stakeholder description fields mandatory
     const nameValidators = this.expoMode ? [Validators.required] : [];
