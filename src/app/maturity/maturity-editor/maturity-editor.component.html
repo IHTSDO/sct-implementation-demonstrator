@@ -51,83 +51,6 @@
     </mat-card>
   </div>
 
-  <!-- Title and Subtitle Editor -->
-  <div class="title-subtitle-section">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Welcome Section</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="welcome-editor">
-          <form [formGroup]="titleForm" class="welcome-form">
-            <mat-form-field class="full-width">
-              <mat-label>Welcome Title</mat-label>
-              <input matInput formControlName="title" required>
-              <mat-error *ngIf="titleForm.get('title')?.hasError('required')">
-                Title is required
-              </mat-error>
-            </mat-form-field>
-            <button type="button" mat-raised-button color="primary" (click)="saveTitle()" style="margin-bottom: 20px;">
-              <mat-icon>save</mat-icon>
-              Save Title
-            </button>
-          </form>
-
-          <form [formGroup]="subtitleForm" class="welcome-form">
-            <mat-form-field class="full-width">
-              <mat-label>Welcome Subtitle</mat-label>
-              <textarea matInput formControlName="subtitle" rows="3" required></textarea>
-              <mat-hint>You can use HTML tags like &lt;b&gt; for bold text</mat-hint>
-              <mat-error *ngIf="subtitleForm.get('subtitle')?.hasError('required')">
-                Subtitle is required
-              </mat-error>
-            </mat-form-field>
-            <button type="button" mat-raised-button color="primary" (click)="saveSubtitle()" style="margin-bottom: 20px;">
-              <mat-icon>save</mat-icon>
-              Save Subtitle
-            </button>
-          </form>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <!-- Flip Cards Editor -->
-  <div class="flipcards-section">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Flip Cards</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="flipcards-list" *ngIf="maturitySpec.flipCards?.length">
-          <mat-list>
-            <mat-list-item *ngFor="let flipCard of maturitySpec.flipCards; let i = index" 
-                          (click)="editFlipCard(i)" 
-                          style="cursor: pointer; margin-bottom: 10px;">
-              <mat-icon matListItemIcon>style</mat-icon>
-              <div matListItemTitle>{{ flipCard.title || 'Unnamed Flip Card' }}</div>
-              <div matListItemLine>{{ flipCard.front?.text || 'No front text' }}</div>
-              <div class="list-item-actions">
-                <button mat-icon-button color="primary" (click)="editFlipCard(i); $event.stopPropagation()">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" (click)="deleteFlipCard(i); $event.stopPropagation()">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </mat-list-item>
-          </mat-list>
-        </div>
-        <div class="add-button-container">
-          <button mat-raised-button color="accent" (click)="addFlipCard()">
-            <mat-icon>add</mat-icon>
-            Add Flip Card
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
   <div class="editor-layout">
     <!-- Left Panel: Hierarchy Tree -->
     <div class="left-panel">
@@ -139,7 +62,9 @@
           <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="maturity-tree">
             <mat-nested-tree-node *matTreeNodeDef="let node" matTreeNodePadding 
                                   [class.question-node]="node.type === 'question'"
-                                  [class.option-node]="node.type === 'option'">
+                                  [class.option-node]="node.type === 'option'"
+                                  [class.flipcard-node]="node.type === 'flipcard'"
+                                  [class.flipcard-item-node]="node.type === 'flipcard-item'">
               <div class="tree-node-content" (click)="selectNode(node)" [style.cursor]="'pointer'">
                 <button mat-icon-button matTreeNodeToggle
                         [attr.aria-label]="'toggle ' + node.name"
@@ -150,11 +75,27 @@
                   </mat-icon>
                 </button>
                 <button mat-icon-button disabled *ngIf="!hasChild(0, node)"></button>
-                <mat-icon class="tree-icon" [class.stakeholder-icon]="node.type === 'stakeholder'"
+                <mat-icon class="tree-icon" 
+                          [class.stakeholder-icon]="node.type === 'stakeholder'"
                           [class.kpa-icon]="node.type === 'kpa'"
                           [class.question-icon]="node.type === 'question'"
-                          [class.option-icon]="node.type === 'option'">
-                  {{ node.type === 'stakeholder' ? 'people' : node.type === 'kpa' ? 'category' : node.type === 'question' ? 'help_outline' : 'radio_button_checked' }}
+                          [class.option-icon]="node.type === 'option'"
+                          [class.home-icon]="node.type === 'home'"
+                          [class.title-icon]="node.type === 'title'"
+                          [class.subtitle-icon]="node.type === 'subtitle'"
+                          [class.flipcards-icon]="node.type === 'flipcards'"
+                          [class.flipcard-icon]="node.type === 'flipcard'"
+                          [class.flipcard-item-icon]="node.type === 'flipcard-item'">
+                  {{ node.type === 'home' ? 'home' : 
+                     node.type === 'title' ? 'title' : 
+                     node.type === 'subtitle' ? 'subtitles' : 
+                     node.type === 'flipcards' ? 'style' : 
+                     node.type === 'flipcard' ? 'style' : 
+                     node.type === 'flipcard-item' ? 'list' : 
+                     node.type === 'stakeholder' ? 'people' : 
+                     node.type === 'kpa' ? 'category' : 
+                     node.type === 'question' ? 'help_outline' : 
+                     'radio_button_checked' }}
                 </mat-icon>
                 <span class="tree-node-label">{{ node.name }}</span>
               </div>
@@ -164,8 +105,12 @@
             </mat-nested-tree-node>
           </mat-tree>
 
-          <!-- Add Stakeholder Button -->
+          <!-- Add Buttons -->
           <div class="add-button-container">
+            <button mat-raised-button color="accent" (click)="addFlipCard()" style="margin-right: 10px;">
+              <mat-icon>add</mat-icon>
+              Add Flip Card
+            </button>
             <button mat-raised-button color="primary" (click)="addStakeholder()">
               <mat-icon>add</mat-icon>
               Add Stakeholder
@@ -177,6 +122,57 @@
 
     <!-- Right Panel: Edit Forms -->
     <div class="right-panel">
+      <!-- Title Form -->
+      <mat-card *ngIf="selectedHomeItem === 'title'">
+        <mat-card-header>
+          <mat-card-title>Edit Title</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="titleForm">
+            <mat-form-field class="full-width">
+              <mat-label>Welcome Title</mat-label>
+              <input matInput formControlName="title" required>
+              <mat-error *ngIf="titleForm.get('title')?.hasError('required')">
+                Title is required
+              </mat-error>
+            </mat-form-field>
+            <div class="form-actions" style="margin-bottom: 20px;">
+              <button type="button" mat-raised-button color="primary" (click)="saveTitle()">
+                <mat-icon>save</mat-icon>
+                Save Title
+              </button>
+              <button type="button" mat-button (click)="selectedHomeItem = null">Back</button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Subtitle Form -->
+      <mat-card *ngIf="selectedHomeItem === 'subtitle'">
+        <mat-card-header>
+          <mat-card-title>Edit Subtitle</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="subtitleForm">
+            <mat-form-field class="full-width">
+              <mat-label>Welcome Subtitle</mat-label>
+              <textarea matInput formControlName="subtitle" rows="3" required></textarea>
+              <mat-hint>You can use HTML tags like &lt;b&gt; for bold text</mat-hint>
+              <mat-error *ngIf="subtitleForm.get('subtitle')?.hasError('required')">
+                Subtitle is required
+              </mat-error>
+            </mat-form-field>
+            <div class="form-actions" style="margin-bottom: 20px;">
+              <button type="button" mat-raised-button color="primary" (click)="saveSubtitle()">
+                <mat-icon>save</mat-icon>
+                Save Subtitle
+              </button>
+              <button type="button" mat-button (click)="selectedHomeItem = null">Back</button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
       <!-- Stakeholder Form -->
       <mat-card *ngIf="selectedStakeholderIndex !== null && selectedKpaIndex === null">
         <mat-card-header>
@@ -531,12 +527,12 @@
       </mat-card>
 
       <!-- Empty State -->
-      <mat-card *ngIf="selectedStakeholderIndex === null && selectedFlipCardIndex === null">
+      <mat-card *ngIf="selectedStakeholderIndex === null && selectedFlipCardIndex === null && selectedHomeItem === null">
         <mat-card-content>
           <div class="empty-state">
             <mat-icon>edit_note</mat-icon>
             <h3>Select an item to edit</h3>
-            <p>Choose a stakeholder, KPA, question, option, or flip card to start editing.</p>
+            <p>Choose a home item (title, subtitle, flip card), stakeholder, KPA, question, or option to start editing.</p>
           </div>
         </mat-card-content>
       </mat-card>

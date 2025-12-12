@@ -176,6 +176,16 @@ mat-nested-tree-node.option-node {
   padding-left: 16px !important;
 }
 
+/* Reduce indentation for flipcard nodes */
+mat-nested-tree-node.flipcard-node {
+  padding-left: 16px !important;
+}
+
+/* Reduce indentation for flipcard item nodes */
+mat-nested-tree-node.flipcard-item-node {
+  padding-left: 8px !important;
+}
+
 mat-nested-tree-node[style*="padding-left: 96px"] {
   padding-left: 16px !important;
 }
@@ -186,6 +196,18 @@ mat-nested-tree-node[style*="padding-left: 72px"] {
 
 mat-nested-tree-node[style*="padding-left: 48px"] {
   padding-left: 32px !important;
+}
+
+/* Override inline styles for flipcard nodes */
+mat-nested-tree-node.flipcard-node[style*="padding-left: 48px"],
+mat-nested-tree-node.flipcard-node[style*="padding-left: 72px"] {
+  padding-left: 16px !important;
+}
+
+/* Override inline styles for flipcard item nodes */
+mat-nested-tree-node.flipcard-item-node[style*="padding-left: 72px"],
+mat-nested-tree-node.flipcard-item-node[style*="padding-left: 96px"] {
+  padding-left: 8px !important;
 }
 
 .tree-node-content {

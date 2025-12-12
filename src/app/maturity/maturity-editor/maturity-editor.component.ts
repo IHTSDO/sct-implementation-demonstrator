@@ -11,11 +11,13 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 
 interface TreeNode {
   name: string;
-  type: 'stakeholder' | 'kpa' | 'question' | 'option';
+  type: 'home' | 'title' | 'subtitle' | 'flipcards' | 'flipcard' | 'flipcard-item' | 'stakeholder' | 'kpa' | 'question' | 'option';
   stakeholderIndex?: number;
   kpaIndex?: number;
   questionIndex?: number;
   optionIndex?: number;
+  flipCardIndex?: number;
+  flipCardItemIndex?: number;
   children?: TreeNode[];
 }
 
@@ -51,6 +53,7 @@ export class MaturityEditorComponent implements OnInit {
   
   selectedFlipCardIndex: number | null = null;
   selectedFlipCardItemIndex: number | null = null;
+  selectedHomeItem: 'title' | 'subtitle' | null = null;
 
   constructor(
     private http: HttpClient,
@@ -147,7 +150,46 @@ export class MaturityEditorComponent implements OnInit {
     // Save current expansion state
     this.saveExpansionState();
     
-    const treeData: TreeNode[] = this.maturitySpec.stakeHolders.map((stakeholder: any, i: number) => {
+    // Build Home node with title, subtitle, and flipcards
+    const homeChildren: TreeNode[] = [
+      {
+        name: 'Title',
+        type: 'title'
+      },
+      {
+        name: 'Subtitle',
+        type: 'subtitle'
+      }
+    ];
+
+    // Add flipcards section (always show, even if empty)
+    const flipcardsNode: TreeNode = {
+      name: 'Flip Cards',
+      type: 'flipcards',
+      children: (this.maturitySpec.flipCards || []).map((flipCard: any, i: number) => {
+        return {
+          name: flipCard.title || 'Unnamed Flip Card',
+          type: 'flipcard',
+          flipCardIndex: i,
+          children: flipCard.back?.items?.map((item: any, j: number) => ({
+            name: item.title || 'Unnamed Item',
+            type: 'flipcard-item',
+            flipCardIndex: i,
+            flipCardItemIndex: j
+          })) || []
+        };
+      })
+    };
+    homeChildren.push(flipcardsNode);
+
+    const homeNode: TreeNode = {
+      name: 'Home',
+      type: 'home',
+      children: homeChildren
+    };
+
+    // Build stakeholders
+    const stakeholderNodes: TreeNode[] = this.maturitySpec.stakeHolders.map((stakeholder: any, i: number) => {
       const stakeholderNode: TreeNode = {
         name: stakeholder.name || 'Unnamed Stakeholder',
         type: 'stakeholder',
@@ -179,7 +221,9 @@ export class MaturityEditorComponent implements OnInit {
       };
       return stakeholderNode;
     });
-    this.dataSource.data = treeData;
+
+    // Combine home node with stakeholders
+    this.dataSource.data = [homeNode, ...stakeholderNodes];
     
     // Restore expansion state
     this.restoreExpansionState();
@@ -209,7 +253,19 @@ export class MaturityEditorComponent implements OnInit {
   }
 
   getNodeKey(node: TreeNode): string {
-    if (node.type === 'stakeholder' && node.stakeholderIndex !== undefined) {
+    if (node.type === 'home') {
+      return 'home';
+    } else if (node.type === 'title') {
+      return 'home_title';
+    } else if (node.type === 'subtitle') {
+      return 'home_subtitle';
+    } else if (node.type === 'flipcards') {
+      return 'home_flipcards';
+    } else if (node.type === 'flipcard' && node.flipCardIndex !== undefined) {
+      return `flipcard_${node.flipCardIndex}`;
+    } else if (node.type === 'flipcard-item' && node.flipCardIndex !== undefined && node.flipCardItemIndex !== undefined) {
+      return `flipcard_${node.flipCardIndex}_item_${node.flipCardItemIndex}`;
+    } else if (node.type === 'stakeholder' && node.stakeholderIndex !== undefined) {
       return `stakeholder_${node.stakeholderIndex}`;
     } else if (node.type === 'kpa' && node.stakeholderIndex !== undefined && node.kpaIndex !== undefined) {
       return `stakeholder_${node.stakeholderIndex}_kpa_${node.kpaIndex}`;
@@ -632,6 +688,7 @@ export class MaturityEditorComponent implements OnInit {
     };
     this.maturitySpec.flipCards.push(newFlipCard);
     this.saveToLocalStorage();
+    this.buildTree();
     this.selectedFlipCardIndex = this.maturitySpec.flipCards.length - 1;
     this.editFlipCard(this.selectedFlipCardIndex);
   }
@@ -661,6 +718,7 @@ export class MaturityEditorComponent implements OnInit {
       back: flipCard.back || { items: [] }
     };
     this.saveToLocalStorage();
+    this.buildTree();
     this.showMessage('Flip card saved successfully. Click "Download Spec" to save the file.', 'success');
   }
 
@@ -668,6 +726,7 @@ export class MaturityEditorComponent implements OnInit {
     if (confirm('Are you sure you want to delete this flip card? This will also delete all associated items.')) {
       this.maturitySpec.flipCards.splice(index, 1);
       this.saveToLocalStorage();
+      this.buildTree();
       this.selectedFlipCardIndex = null;
       this.selectedFlipCardItemIndex = null;
       this.showMessage('Flip card deleted successfully', 'success');
@@ -694,6 +753,7 @@ export class MaturityEditorComponent implements OnInit {
     };
     this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items.push(newItem);
     this.saveToLocalStorage();
+    this.buildTree();
     this.selectedFlipCardItemIndex = this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items.length - 1;
     this.editFlipCardItem(this.selectedFlipCardItemIndex);
   }
@@ -718,6 +778,7 @@ export class MaturityEditorComponent implements OnInit {
     const formValue = this.flipCardItemForm.value;
     this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items[this.selectedFlipCardItemIndex] = formValue;
     this.saveToLocalStorage();
+    this.buildTree();
     this.showMessage('Flip card item saved successfully. Click "Download Spec" to save the file.', 'success');
     this.flipCardItemForm.patchValue(formValue);
   }
@@ -728,6 +789,7 @@ export class MaturityEditorComponent implements OnInit {
     if (confirm('Are you sure you want to delete this flip card item?')) {
       this.maturitySpec.flipCards[this.selectedFlipCardIndex].back.items.splice(index, 1);
       this.saveToLocalStorage();
+      this.buildTree();
       this.selectedFlipCardItemIndex = null;
       this.showMessage('Flip card item deleted successfully', 'success');
     }
@@ -746,6 +808,7 @@ export class MaturityEditorComponent implements OnInit {
     this.selectedOptionIndex = null;
     this.selectedFlipCardIndex = null;
     this.selectedFlipCardItemIndex = null;
+    this.selectedHomeItem = null;
     this.stakeholderForm.reset();
     this.kpaForm.reset();
     this.questionForm.reset();
@@ -831,7 +894,24 @@ export class MaturityEditorComponent implements OnInit {
   }
 
   selectNode(node: TreeNode) {
-    if (node.type === 'stakeholder' && node.stakeholderIndex !== undefined) {
+    // Clear all selections first
+    this.clearSelection();
+    
+    if (node.type === 'title') {
+      this.selectedHomeItem = 'title';
+      this.editTitle();
+    } else if (node.type === 'subtitle') {
+      this.selectedHomeItem = 'subtitle';
+      this.editSubtitle();
+    } else if (node.type === 'flipcard' && node.flipCardIndex !== undefined) {
+      this.selectedFlipCardIndex = node.flipCardIndex;
+      this.selectedFlipCardItemIndex = null;
+      this.editFlipCard(node.flipCardIndex);
+    } else if (node.type === 'flipcard-item' && node.flipCardIndex !== undefined && node.flipCardItemIndex !== undefined) {
+      this.selectedFlipCardIndex = node.flipCardIndex;
+      this.selectedFlipCardItemIndex = node.flipCardItemIndex;
+      this.editFlipCardItem(node.flipCardItemIndex);
+    } else if (node.type === 'stakeholder' && node.stakeholderIndex !== undefined) {
       this.selectedStakeholderIndex = node.stakeholderIndex;
       this.editStakeholder(node.stakeholderIndex);
     } else if (node.type === 'kpa' && node.stakeholderIndex !== undefined && node.kpaIndex !== undefined) {
