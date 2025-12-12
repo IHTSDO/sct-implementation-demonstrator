@@ -820,7 +820,8 @@ export class MaturityEditorComponent implements OnInit {
       localStorage.setItem('maturitySpecPreview', specJson);
       // Open maturity-main in a new tab/window with preview mode
       // Use hash routing format
-      const baseUrl = window.location.origin;
+      // Get base URL including pathname to handle GitHub Pages subdirectory
+      const baseUrl = window.location.href.split('#')[0].replace(/\/$/, '');
       window.open(`${baseUrl}/#/maturity?preview=true`, '_blank');
       this.showMessage('Opening preview in new tab...', 'success');
     } catch (error) {
