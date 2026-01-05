@@ -1,46 +1,52 @@
-<div class="reaction" *ngFor="let reaction of reactions; let i = index">
+@for (reaction of reactions; track reaction; let i = $index) {
+  <div class="reaction">
     <div class="button-container">
-        <button mat-icon-button color="primary" (click)="removeReaction(i)" *ngIf="i > 0" class="remove" matTooltip="Remove reaction">
-            <mat-icon>close</mat-icon>
+      @if (i > 0) {
+        <button mat-icon-button color="primary" (click)="removeReaction(i)" class="remove" matTooltip="Remove reaction">
+          <mat-icon>close</mat-icon>
         </button>
+      }
     </div>
     <div class="row-centered">
-        <div class="small-form-field">
-            <app-autocomplete-binding [binding]="reactionManifestationBinding" (selectionChange)="reactionManifestationSelected(reaction, $event)"></app-autocomplete-binding>
-        </div>
-        <button mat-icon-button color="primary" [matMenuTriggerFor]="reactionPopoverMenu">
-            <mat-icon>info</mat-icon>
-        </button>
-        <mat-menu #reactionPopoverMenu="matMenu" >
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
-                <p>Terminology binding:</p>
-                <pre>{{ reactionManifestationBinding.ecl }}</pre>
-            </span>
-        </mat-menu>
+      <div class="small-form-field">
+        <app-autocomplete-binding [binding]="reactionManifestationBinding" (selectionChange)="reactionManifestationSelected(reaction, $event)"></app-autocomplete-binding>
+      </div>
+      <button mat-icon-button color="primary" [matMenuTriggerFor]="reactionPopoverMenu">
+        <mat-icon>info</mat-icon>
+      </button>
+      <mat-menu #reactionPopoverMenu="matMenu" >
+        <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+          <p>Terminology binding:</p>
+          <pre>{{ reactionManifestationBinding.ecl }}</pre>
+        </span>
+      </mat-menu>
     </div>
     <mat-form-field class="form-field">
-        <mat-label>Reaction Severity</mat-label>
-        <mat-select>
-            <mat-option *ngFor="let option of severityOptions" [value]="option" (click)="reactionSeveritySelected(reaction, option)">{{option.display}}</mat-option>
-        </mat-select>
+      <mat-label>Reaction Severity</mat-label>
+      <mat-select>
+        @for (option of severityOptions; track option) {
+          <mat-option [value]="option" (click)="reactionSeveritySelected(reaction, option)">{{option.display}}</mat-option>
+        }
+      </mat-select>
     </mat-form-field>
     <div class="row-centered">
-        <div class="small-form-field">
-            <app-autocomplete-binding [binding]="routeBinding" (selectionChange)="reactionRouteSelected(reaction, $event)"></app-autocomplete-binding>
-        </div>
-        <button mat-icon-button color="primary" [matMenuTriggerFor]="routePopoverMenu">
-            <mat-icon>info</mat-icon>
-        </button>
-        <mat-menu #routePopoverMenu="matMenu" >
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
-                <p>Terminology binding:</p>
-                <pre>{{ routeBinding.ecl }}</pre>
-            </span>
-        </mat-menu>
+      <div class="small-form-field">
+        <app-autocomplete-binding [binding]="routeBinding" (selectionChange)="reactionRouteSelected(reaction, $event)"></app-autocomplete-binding>
+      </div>
+      <button mat-icon-button color="primary" [matMenuTriggerFor]="routePopoverMenu">
+        <mat-icon>info</mat-icon>
+      </button>
+      <mat-menu #routePopoverMenu="matMenu" >
+        <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+          <p>Terminology binding:</p>
+          <pre>{{ routeBinding.ecl }}</pre>
+        </span>
+      </mat-menu>
     </div>
-</div>
+  </div>
+}
 <div>
-    <button mat-icon-button color="primary" (click)="addNewReaction()" matTooltip="Add reaction">
-        <mat-icon>add</mat-icon>
-    </button>
+  <button mat-icon-button color="primary" (click)="addNewReaction()" matTooltip="Add reaction">
+    <mat-icon>add</mat-icon>
+  </button>
 </div>

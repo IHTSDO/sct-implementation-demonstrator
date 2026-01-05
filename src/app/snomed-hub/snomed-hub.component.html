@@ -1,174 +1,212 @@
-<div *ngIf="isLoading" class="loading-panel">
-  <div class="loading-content">
-    <div class="loading-spinner"></div>
-    <h2>Loading SNOMED integrations information</h2>
-    <p>Please wait while we prepare the diagram...</p>
+@if (isLoading) {
+  <div class="loading-panel">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h2>Loading SNOMED integrations information</h2>
+      <p>Please wait while we prepare the diagram...</p>
+    </div>
   </div>
-</div>
+}
 
 <div class="main-row">
-    <div class="side-col">
+  <div class="side-col">
+  </div>
+  <div class="diagram" #diagram>
+    <svg class="diagram-lines" #lines></svg>
+    <div class="row gap min-h-10">
     </div>
-    <div class="diagram" #diagram>
-        <svg class="diagram-lines" #lines></svg>
-        <div class="row gap min-h-10">
-        </div>
-        <div class="row gap">
-            <div *ngFor="let box of topRow" class="card label" #cardLabel [ngClass]="[
+    <div class="row gap">
+      @for (box of topRow; track box) {
+<div class="card label" #cardLabel [ngClass]="[
                 box.type,
                 (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
                 (searchCompleted && !box.results?.length) ? 'no-results' : '',
                 !isBoxClickable(box) ? 'disabled' : ''
                 ]">
-                <div class="ripple-host" 
-                     matRipple
-                     [matRippleDisabled]="!isBoxClickable(box)"
-                     [matRippleColor]="rippleColor(box.type)" 
-                     [class.clickable]="isBoxClickable(box)"
-                     (click)="isBoxClickable(box) && boxClicked(box)">
-                    {{ box.label }}
-                </div>
-                <div *ngIf="box.results?.length" class="callout-box top" [ngClass]="[box.type]">
-                    {{ getCalloutMessage(box) }}
-                </div>
+          <div class="ripple-host"
+            matRipple
+            [matRippleDisabled]="!isBoxClickable(box)"
+            [matRippleColor]="rippleColor(box.type)"
+            [class.clickable]="isBoxClickable(box)"
+            (click)="isBoxClickable(box) && boxClicked(box)">
+            {{ box.label }}
+          </div>
+          @if (box.results?.length) {
+            <div class="callout-box top" [ngClass]="[box.type]">
+              {{ getCalloutMessage(box) }}
             </div>
+          }
+        </div>
+      }
+    </div>
+    <div class="row">
+      <div class="col gap left">
+        @for (box of leftCol; track box) {
+<div class="card label" #cardLabel [ngClass]="[
+                    box.type,
+                    (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
+                    (searchCompleted && !box.results?.length) ? 'no-results' : '',
+                    !isBoxClickable(box) ? 'disabled' : ''
+                    ]">
+            <div class="ripple-host"
+              matRipple
+              [matRippleDisabled]="!isBoxClickable(box)"
+              [matRippleColor]="rippleColor(box.type)"
+              [class.clickable]="isBoxClickable(box)"
+              (click)="isBoxClickable(box) && boxClicked(box)">
+              {{ box.label }}
+            </div>
+            @if (box.results?.length) {
+              <div class="callout-box left" [ngClass]="[box.type]">
+                {{ getCalloutMessage(box) }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <div class="center-panel">
+        <div class="row">
+          @for (box of topRow.slice(1, topRow.length -1 ); track box; let i = $index) {
+            <div class="card square color"
+              [ngClass]="box.type">
+              @if (shouldShowTitle(box, i+1, topRow)) {
+                {{ box.type | titlecase }}
+              }
+            </div>
+          }
+        </div>
+        <div class="row grow">
+          <div class="col narrow">
+            @for (box of leftCol.slice(1, leftCol.length -1); track box; let i = $index) {
+              <div class="card square color"
+                [ngClass]="box.type">
+                @if (shouldShowTitle(box, i+1, leftCol)) {
+                  {{ box.type | titlecase }}
+                }
+              </div>
+            }
+          </div>
+          <div class="center-column" #centerColumn>
+            <img src="assets/img/S-Logo-2.png" alt="SNOMED International" class="logo" />
+            <div class="link-container">
+              <div class="autocomplete-wrapper">
+                <app-autocomplete-binding
+                  [binding]="searchBinding"
+                  (selectionChange)="codeSelected($event)"
+                  (cleared)="reset()"
+                  [term]="selectedCodeTerm"
+                ></app-autocomplete-binding>
+              </div>
+              <a
+                [attr.href]="selectedCode ? 'https://browser.ihtsdotools.org/?perspective=full&conceptId1=' + selectedCode.code + '&edition=MAIN/SNOMEDCT-DERIVATIVES&release=&languages=en' : null"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="linkout"
+                [class.disabled]="!selectedCode">
+                <mat-icon class="bigger-icon">open_in_new</mat-icon>
+              </a>
+            </div>
+            @if (searching) {
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            }
+            @if (!examplesSource && !resultsNarrative) {
+              <div class="center-message">
+                SNOMED International acts as a central hub for semantic interoperability across international health information standards
+              </div>
+            }
+            @if (resultsNarrative && !searching) {
+              <div class="center-message">
+                {{ resultsNarrative }}
+              </div>
+            }
+            <div class="examples">
+              @if (examplesSource) {
+                <div class="text-lg text-center">{{ examplesSource.description }}</div>
+              }
+              @if (examples.length) {
+                <div class="">{{ examplesSource?.label }} {{ examplesSource?.type }} examples:</div>
+              }
+              <mat-chip-set aria-label="Fish selection">
+                @for (example of examples; track example) {
+                  <mat-chip (click)="codeSelected(example)">{{ example.display }}</mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          </div>
+          <div class="col narrow">
+            @for (box of rightCol.slice(1, rightCol.length -1); track box; let i = $index) {
+              <div class="card square color"
+                [ngClass]="box.type">
+                @if (shouldShowTitle(box, i+1, rightCol)) {
+                  {{ box.type | titlecase }}
+                }
+              </div>
+            }
+          </div>
         </div>
         <div class="row">
-            <div class="col gap left">
-                <div *ngFor="let box of leftCol" class="card label" #cardLabel [ngClass]="[
-                    box.type,
-                    (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
-                    (searchCompleted && !box.results?.length) ? 'no-results' : '',
-                    !isBoxClickable(box) ? 'disabled' : ''
-                    ]">
-                    <div class="ripple-host" 
-                         matRipple
-                         [matRippleDisabled]="!isBoxClickable(box)"
-                         [matRippleColor]="rippleColor(box.type)" 
-                         [class.clickable]="isBoxClickable(box)"
-                         (click)="isBoxClickable(box) && boxClicked(box)">
-                        {{ box.label }}
-                    </div>
-                    <div *ngIf="box.results?.length" class="callout-box left" [ngClass]="[box.type]">
-                        {{ getCalloutMessage(box) }}
-                    </div>
-                </div>
+          @for (box of bottomRow.slice(1, bottomRow.length -1); track box; let i = $index) {
+            <div class="card square color"
+              [ngClass]="box.type">
+              @if (shouldShowTitle(box, i+1, bottomRow)) {
+                {{ box.type | titlecase }}
+              }
             </div>
-            <div class="center-panel">
-                <div class="row">
-                    <div *ngFor="let box of topRow.slice(1, topRow.length -1 ); let i = index" class="card square color"
-                        [ngClass]="box.type">
-                        <ng-container *ngIf="shouldShowTitle(box, i+1, topRow)">
-                            {{ box.type | titlecase }}
-                        </ng-container>
-                    </div>
-                </div>
-                <div class="row grow">
-                    <div class="col narrow">
-                        <div *ngFor="let box of leftCol.slice(1, leftCol.length -1); let i = index" class="card square color"
-                            [ngClass]="box.type">
-                            <ng-container *ngIf="shouldShowTitle(box, i+1, leftCol)">
-                                {{ box.type | titlecase }}
-                            </ng-container>
-                        </div>
-                    </div>
-                    <div class="center-column" #centerColumn>
-                        <img src="assets/img/S-Logo-2.png" alt="SNOMED International" class="logo" />
-                        <div class="link-container">
-                            <div class="autocomplete-wrapper">
-                                <app-autocomplete-binding
-                                [binding]="searchBinding"
-                                (selectionChange)="codeSelected($event)"
-                                (cleared)="reset()"
-                                [term]="selectedCodeTerm"
-                                ></app-autocomplete-binding>
-                            </div>
-                            <a 
-                                [attr.href]="selectedCode ? 'https://browser.ihtsdotools.org/?perspective=full&conceptId1=' + selectedCode.code + '&edition=MAIN/SNOMEDCT-DERIVATIVES&release=&languages=en' : null"
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                class="linkout" 
-                                [class.disabled]="!selectedCode">
-                                <mat-icon class="bigger-icon">open_in_new</mat-icon>
-                            </a>
-                        </div>
-                        <mat-progress-bar mode="indeterminate" *ngIf="searching"></mat-progress-bar>
-                        <div class="center-message" *ngIf="!examplesSource && !resultsNarrative">
-                            SNOMED International acts as a central hub for semantic interoperability across international health information standards
-                        </div>
-                        <div class="center-message" *ngIf="resultsNarrative && !searching">
-                            {{ resultsNarrative }}
-                        </div>
-                        <div class="examples">
-                            <div class="text-lg text-center" *ngIf="examplesSource">{{ examplesSource.description }}</div>
-                            <div class="" *ngIf="examples?.length">{{ examplesSource?.label }} {{ examplesSource?.type }} examples:</div>
-                            <mat-chip-set aria-label="Fish selection">
-                                <mat-chip *ngFor="let example of examples" (click)="codeSelected(example)">{{ example.display }}</mat-chip>
-                            </mat-chip-set>
-                        </div>
-                    </div>
-                    <div class="col narrow">
-                        <div *ngFor="let box of rightCol.slice(1, rightCol.length -1); let i = index" class="card square color"
-                            [ngClass]="box.type">
-                            <ng-container *ngIf="shouldShowTitle(box, i+1, rightCol)">
-                                {{ box.type | titlecase }}
-                            </ng-container>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div *ngFor="let box of bottomRow.slice(1, bottomRow.length -1); let i = index" class="card square color"
-                        [ngClass]="box.type">
-                        <ng-container *ngIf="shouldShowTitle(box, i+1, bottomRow)">
-                            {{ box.type | titlecase }}
-                        </ng-container>
-                    </div>
-                </div>
-            </div>
-            <div class="col gap right">
-                <div *ngFor="let box of rightCol" class="card label" #cardLabel [ngClass]="[
-                    box.type,
-                    (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
-                    (searchCompleted && !box.results?.length) ? 'no-results' : '',
-                    !isBoxClickable(box) ? 'disabled' : ''
-                    ]">
-                    <div class="ripple-host" 
-                         matRipple
-                         [matRippleDisabled]="!isBoxClickable(box)"
-                         [matRippleColor]="rippleColor(box.type)" 
-                         [class.clickable]="isBoxClickable(box)"
-                         (click)="isBoxClickable(box) && boxClicked(box)">
-                        {{ box.label }}
-                    </div>
-                    <div *ngIf="box.results?.length" class="callout-box right" [ngClass]="[box.type]">
-                        {{ getCalloutMessage(box) }}
-                    </div>
-                </div>
-            </div>
+          }
         </div>
-        <div class="row gap">
-            <div *ngFor="let box of bottomRow" class="card label" #cardLabel [ngClass]="[
+      </div>
+      <div class="col gap right">
+        @for (box of rightCol; track box) {
+<div class="card label" #cardLabel [ngClass]="[
+                    box.type,
+                    (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
+                    (searchCompleted && !box.results?.length) ? 'no-results' : '',
+                    !isBoxClickable(box) ? 'disabled' : ''
+                    ]">
+            <div class="ripple-host"
+              matRipple
+              [matRippleDisabled]="!isBoxClickable(box)"
+              [matRippleColor]="rippleColor(box.type)"
+              [class.clickable]="isBoxClickable(box)"
+              (click)="isBoxClickable(box) && boxClicked(box)">
+              {{ box.label }}
+            </div>
+            @if (box.results?.length) {
+              <div class="callout-box right" [ngClass]="[box.type]">
+                {{ getCalloutMessage(box) }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="row gap">
+      @for (box of bottomRow; track box) {
+<div class="card label" #cardLabel [ngClass]="[
                 box.type,
                 (box.results?.length || examplesSource?.label == box.label) ? 'pulse' : '',
                 (searchCompleted && !box.results?.length) ? 'no-results' : '',
                 !isBoxClickable(box) ? 'disabled' : ''
                 ]">
-                <div class="ripple-host" 
-                     matRipple
-                     [matRippleDisabled]="!isBoxClickable(box)"
-                     [matRippleColor]="rippleColor(box.type)" 
-                     [class.clickable]="isBoxClickable(box)"
-                     (click)="isBoxClickable(box) && boxClicked(box)">
-                    {{ box.label }}
-                </div>
-                <div *ngIf="box.results?.length" class="callout-box bottom" [ngClass]="[box.type]">
-                    {{ getCalloutMessage(box) }}
-                </div>
+          <div class="ripple-host"
+            matRipple
+            [matRippleDisabled]="!isBoxClickable(box)"
+            [matRippleColor]="rippleColor(box.type)"
+            [class.clickable]="isBoxClickable(box)"
+            (click)="isBoxClickable(box) && boxClicked(box)">
+            {{ box.label }}
+          </div>
+          @if (box.results?.length) {
+            <div class="callout-box bottom" [ngClass]="[box.type]">
+              {{ getCalloutMessage(box) }}
             </div>
+          }
         </div>
-        <div class="row gap min-h-10">
-        </div>
+      }
     </div>
-    <div class="side-col">
+    <div class="row gap min-h-10">
     </div>
+  </div>
+  <div class="side-col">
+  </div>
 </div>

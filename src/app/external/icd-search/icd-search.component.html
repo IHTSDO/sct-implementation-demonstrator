@@ -1,36 +1,37 @@
 <mat-card id="main-card">
-    <div class="row">
-        <div class="column">
-        <h4>ICD Search Test</h4>
-        </div>
+  <div class="row">
+    <div class="column">
+      <h4>ICD Search Test</h4>
     </div>
-    <div class="row">
-        <form class="client-credentials-form" [formGroup]="credentialsForm" (ngSubmit)="submitCredentials()">
-        <mat-form-field class="form-field">
-            <mat-label>Client ID</mat-label>
-            <input matInput formControlName="clientId" placeholder="Enter Client ID" type="text" />
-        </mat-form-field>
-        <mat-form-field class="form-field">
-            <mat-label>Client Secret</mat-label>
-            <input matInput formControlName="clientSecret" placeholder="Enter Client Secret" type="password" />
-        </mat-form-field>
-        </form>
-    </div>
-    <div class="row">
-        <button mat-flat-button color="primary" [disabled]="credentialsForm.invalid" (click)="submitCredentials()">
-        Save in your local browser
-        </button>
-    </div>
-    <div class="row">
-        <mat-form-field class="form-field">
-          <mat-label>Search ICD</mat-label>
-          <input matInput [matAutocomplete]="auto" [formControl]="searchControl" placeholder="Search ICD" />
-          <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of filteredOptions" [value]="option.title">
-              {{ option.title }}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-    </div>
+  </div>
+  <div class="row">
+    <form class="client-credentials-form" [formGroup]="credentialsForm" (ngSubmit)="submitCredentials()">
+      <mat-form-field class="form-field">
+        <mat-label>Client ID</mat-label>
+        <input matInput formControlName="clientId" placeholder="Enter Client ID" type="text" />
+      </mat-form-field>
+      <mat-form-field class="form-field">
+        <mat-label>Client Secret</mat-label>
+        <input matInput formControlName="clientSecret" placeholder="Enter Client Secret" type="password" />
+      </mat-form-field>
+    </form>
+  </div>
+  <div class="row">
+    <button mat-flat-button color="primary" [disabled]="credentialsForm.invalid" (click)="submitCredentials()">
+      Save in your local browser
+    </button>
+  </div>
+  <div class="row">
+    <mat-form-field class="form-field">
+      <mat-label>Search ICD</mat-label>
+      <input matInput [matAutocomplete]="auto" [formControl]="searchControl" placeholder="Search ICD" />
+      <mat-autocomplete #auto="matAutocomplete">
+        @for (option of filteredOptions; track option) {
+          <mat-option [value]="option.title">
+            {{ option.title }}
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
 </mat-card>
-  

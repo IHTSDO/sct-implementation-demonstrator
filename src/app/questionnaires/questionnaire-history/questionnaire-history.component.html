@@ -1,64 +1,73 @@
 <div class="table-container">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
 
-        <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
-            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
-          </ng-container>
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
+      <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+    </ng-container>
 
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-          <td mat-cell *matCellDef="let element"> <span [ngClass]="['status-pill', element.status]">{{ element.status | uppercase }}</span> </td>
-        </ng-container>
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+      <td mat-cell *matCellDef="let element"> <span [ngClass]="['status-pill', element.status]">{{ element.status | uppercase }}</span> </td>
+    </ng-container>
 
-        <ng-container matColumnDef="version">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Version </th>
-            <td mat-cell *matCellDef="let element"> {{element.meta.versionId}} </td>
-        </ng-container>
+    <ng-container matColumnDef="version">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Version </th>
+      <td mat-cell *matCellDef="let element"> {{element.meta.versionId}} </td>
+    </ng-container>
 
-        <ng-container matColumnDef="lastUpdated">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
-          <td mat-cell *matCellDef="let element"> <i>{{element.meta.lastUpdated | date:'MMMM d, y, h:mm:ss a'}}</i></td>
-        </ng-container>
+    <ng-container matColumnDef="lastUpdated">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+      <td mat-cell *matCellDef="let element"> <i>{{element.meta.lastUpdated | date:'MMMM d, y, h:mm:ss a'}}</i></td>
+    </ng-container>
 
-        <ng-container matColumnDef="type">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-          <td mat-cell *matCellDef="let element">
-            <span *ngIf="!isRootQuestionnaire(element)" [ngClass]="['status-pill', 'active']">QUESTIONNAIRE</span>
-            <span *ngIf="isRootQuestionnaire(element)" [ngClass]="['status-pill', 'draft']">MODULAR ROOT</span>
-          </td>
-        </ng-container>
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+      <td mat-cell *matCellDef="let element">
+        @if (!isRootQuestionnaire(element)) {
+          <span [ngClass]="['status-pill', 'active']">QUESTIONNAIRE</span>
+        }
+        @if (isRootQuestionnaire(element)) {
+          <span [ngClass]="['status-pill', 'draft']">MODULAR ROOT</span>
+        }
+      </td>
+    </ng-container>
 
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef> Actions </th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-icon-button color="accent" (click)="preview(element)" class="action-button"
-            matTooltip="Preview Questionnaire">
-                <mat-icon>visibility</mat-icon>
-            </button>
-            <button mat-icon-button color="accent" (click)="openInNewTab(element)" class="action-button"
-            matTooltip="Open resource in new tab">
-                <mat-icon>open_in_new</mat-icon>
-            </button>
-            <button mat-icon-button color="accent" (click)="saveQuestionnaire(element)" class="action-button"
-            matTooltip="Download Questionnaire">
-                <mat-icon>cloud_download</mat-icon>
-            </button>
-            <button mat-icon-button color="accent" (click)="restore(element)" class="action-button"
-            *ngIf="element?.meta?.versionId != versions[0]?.meta?.versionId"
-             matTooltip="Restore Version">
-                <mat-icon>restore_page</mat-icon>
-            </button>
-        </td>
-        </ng-container>
-      
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-    <p *ngIf="!questionnaire" class="not-found">
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button color="accent" (click)="preview(element)" class="action-button"
+          matTooltip="Preview Questionnaire">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button color="accent" (click)="openInNewTab(element)" class="action-button"
+          matTooltip="Open resource in new tab">
+          <mat-icon>open_in_new</mat-icon>
+        </button>
+        <button mat-icon-button color="accent" (click)="saveQuestionnaire(element)" class="action-button"
+          matTooltip="Download Questionnaire">
+          <mat-icon>cloud_download</mat-icon>
+        </button>
+        @if (element?.meta?.versionId != versions[0]?.meta?.versionId) {
+          <button mat-icon-button color="accent" (click)="restore(element)" class="action-button"
+            matTooltip="Restore Version">
+            <mat-icon>restore_page</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  @if (!questionnaire) {
+    <p class="not-found">
       <i>
         No questionnaire selected.
       </i>
     </p>
-    <mat-spinner diameter="35" *ngIf="loading" class="loading-spinner"></mat-spinner>
+  }
+  @if (loading) {
+    <mat-spinner diameter="35" class="loading-spinner"></mat-spinner>
+  }
 </div>

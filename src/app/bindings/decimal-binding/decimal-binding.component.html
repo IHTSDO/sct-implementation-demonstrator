@@ -1,19 +1,20 @@
 <!-- <mat-form-field class="example-full-width">
-     <mat-label>{{ binding.title }} <span *ngIf="binding.unit?.display">(in {{ binding.unit?.display }}</span>)</mat-label>
-     <input matInput
-            type="number"
-            placeholder="Enter decimal value..."
-            [(ngModel)]="value"
-            (ngModelChange)="onValueChange($event)"
-            pattern="^-?[0-9]*\.?[0-9]+$"
-            title="Only decimal values are allowed"
-            step=".1"
-            class="no-spinner">
-     <mat-hint>{{ binding.note }}</mat-hint>
+<mat-label>{{ binding.title }} <span *ngIf="binding.unit?.display">(in {{ binding.unit?.display }}</span>)</mat-label>
+<input matInput
+  type="number"
+  placeholder="Enter decimal value..."
+  [(ngModel)]="value"
+  (ngModelChange)="onValueChange($event)"
+  pattern="^-?[0-9]*\.?[0-9]+$"
+  title="Only decimal values are allowed"
+  step=".1"
+  class="no-spinner">
+<mat-hint>{{ binding.note }}</mat-hint>
 </mat-form-field> -->
 <div class="row-container">
-     <div>{{ binding.title }}</div>
-     <input type="number" step="any" [(ngModel)]="value" (ngModelChange)="onValueChange($event)" class="no-spinner decimal-input">
-     <div *ngIf="binding.unit?.display">{{ binding.unit?.display }}</div>
+  <div>{{ binding.title }}</div>
+  <input type="number" step="any" [(ngModel)]="value" (ngModelChange)="onValueChange($event)" class="no-spinner decimal-input">
+  @if (binding.unit?.display) {
+    <div>{{ binding.unit?.display }}</div>
+  }
 </div>
-   

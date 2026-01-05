@@ -3,9 +3,9 @@
     <div class="header-content">
       <div class="header-text">
         <h1>SNOMED EHR Lab</h1>
-        <p>A hands-on demo suite showing how to design clinical workflows that produce clean, connected, 
-          computable data—ready for safety checks, analytics, and exchange. Powered by FHIR and SNOMED CT, 
-          but framed around end-to-end information quality.</p>
+        <p>A hands-on demo suite showing how to design clinical workflows that produce clean, connected,
+          computable data—ready for safety checks, analytics, and exchange. Powered by FHIR and SNOMED CT,
+        but framed around end-to-end information quality.</p>
       </div>
       <div class="header-actions">
         <button mat-button [matMenuTriggerFor]="dataMenu">
@@ -14,7 +14,7 @@
             <span>Data</span>
             <mat-icon>arrow_drop_down</mat-icon>
           </span>
-          
+
         </button>
         <mat-menu #dataMenu="matMenu">
           <button mat-menu-item (click)="downloadPatientsAsZip()">
@@ -31,45 +31,45 @@
             <span>Clear all patient data</span>
           </button>
         </mat-menu>
-        
+
         <!-- Hidden file input -->
         <input #fileInput type="file" accept=".zip" (change)="onFileSelected($event)" style="display: none;">
       </div>
     </div>
   </div>
-  
-  <div class="ehr-layout" *ngIf="!showAnalytics">
-    <!-- Patient List Section -->
-    <div class="patient-list-section">
-      <div class="section-header">
-        <h2>Patients <span class="patient-count">{{ searchTerm ? filteredPatients.length + ' of ' + patients.length : patients.length }} patients</span></h2>
-      </div>
 
-      <div class="section-actions">
-        <div class="patient-header-actions">
-          <button 
-            mat-flat-button
-            color="accent"
-            (click)="openAnalytics()"
-            [disabled]="!hasAnalyticsData()"
-          >
-            <mat-icon>analytics</mat-icon>
-            Analytics
-          </button>
-          <button 
-            mat-flat-button
-            color="primary"
-            (click)="openInteroperability()"
-          >
-            <mat-icon>integration_instructions</mat-icon>
-            Interoperability
-          </button>
-          <!-- <button 
+  @if (!showAnalytics) {
+    <div class="ehr-layout">
+      <!-- Patient List Section -->
+      <div class="patient-list-section">
+        <div class="section-header">
+          <h2>Patients <span class="patient-count">{{ searchTerm ? filteredPatients.length + ' of ' + patients.length : patients.length }} patients</span></h2>
+        </div>
+        <div class="section-actions">
+          <div class="patient-header-actions">
+            <button
+              mat-flat-button
+              color="accent"
+              (click)="openAnalytics()"
+              [disabled]="!hasAnalyticsData()"
+              >
+              <mat-icon>analytics</mat-icon>
+              Analytics
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="openInteroperability()"
+              >
+              <mat-icon>integration_instructions</mat-icon>
+              Interoperability
+            </button>
+            <!-- <button
             mat-flat-button
             color="warn"
             (click)="openIcd10Analytics()"
             [disabled]="!hasIcd10AnalyticsData()"
-          >
+            >
             <mat-icon>medical_services</mat-icon>
             ICD-10 Analytics
           </button> -->
@@ -99,178 +99,205 @@
           </mat-menu>
         </div>
       </div>
-      
       <div class="search-section">
         <mat-form-field class="search-field">
           <mat-label>Search patients</mat-label>
-          <input 
-            matInput 
-            [(ngModel)]="searchTerm" 
+          <input
+            matInput
+            [(ngModel)]="searchTerm"
             (input)="onSearchChange()"
             placeholder="Search by first or last name"
-          >
+            >
           <mat-icon matPrefix>search</mat-icon>
-          <button 
-            mat-icon-button 
-            matSuffix 
-            *ngIf="searchTerm" 
-            (click)="clearSearch()"
-            aria-label="Clear search"
-          >
-            <mat-icon>clear</mat-icon>
-          </button>
+          @if (searchTerm) {
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="clearSearch()"
+              aria-label="Clear search"
+              >
+              <mat-icon>clear</mat-icon>
+            </button>
+          }
         </mat-form-field>
       </div>
-      
       <div class="patient-list">
-        <div 
-          *ngFor="let patient of filteredPatients" 
-          class="patient-card"
-          [class.selected]="selectedPatient?.id === patient.id"
-          (click)="selectPatient(patient)"
-        >
-          <div class="patient-info">
-            <div class="patient-name">{{ getPatientDisplayName(patient) }}</div>
-            <div class="patient-details">
-              <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
-              <span class="patient-age" *ngIf="patient.birthDate">{{ getPatientAge(patient.birthDate) }}</span>
-              <span class="patient-gender" *ngIf="patient.gender">{{ patient.gender }}</span>
+        @for (patient of filteredPatients; track patient.id) {
+          <div
+            class="patient-card"
+            [class.selected]="selectedPatient?.id === patient.id"
+            (click)="selectPatient(patient)"
+            >
+            <div class="patient-info">
+              <div class="patient-name">{{ getPatientDisplayName(patient) }}</div>
+              <div class="patient-details">
+                <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
+                @if (patient.birthDate) {
+                  <span class="patient-age">{{ getPatientAge(patient.birthDate) }}</span>
+                }
+                @if (patient.gender) {
+                  <span class="patient-gender">{{ patient.gender }}</span>
+                }
+              </div>
+              @if (patient.telecom && patient.telecom.length > 0) {
+                <div class="patient-contact">
+                  @for (contact of patient.telecom; track contact) {
+                    <span>
+                      {{ contact.system }}: {{ contact.value }}
+                    </span>
+                  }
+                </div>
+              }
             </div>
-            <div class="patient-contact" *ngIf="patient.telecom && patient.telecom.length > 0">
-              <span *ngFor="let contact of patient.telecom">
-                {{ contact.system }}: {{ contact.value }}
-              </span>
+            <div class="patient-status">
+              <span class="status-indicator" [class.active]="patient.active">●</span>
             </div>
           </div>
-          <div class="patient-status">
-            <span class="status-indicator" [class.active]="patient.active">●</span>
-          </div>
-        </div>
-        
-        <div *ngIf="filteredPatients.length === 0 && patients.length > 0" class="no-results">
-          <mat-icon class="empty-icon">search_off</mat-icon>
-          <h3>No Patients Found</h3>
-          <p>No patients match your search criteria.</p>
-          <button mat-flat-button color="primary" (click)="clearSearch()">
-            <mat-icon>clear</mat-icon>
-            Clear Search
-          </button>
-        </div>
-        
-        <div *ngIf="patients.length === 0" class="no-patients">
-          <mat-icon class="empty-icon">people_outline</mat-icon>
-          <h3>No Patients Yet</h3>
-          <p>Get started by creating patient records for your EHR system.</p>
-          <div class="empty-state-actions">
-            <button mat-flat-button color="primary" (click)="createRandomPatientWithDiagnoses()">
-              <mat-icon>medical_services</mat-icon>
-              Create Single Patient
-            </button>
-            <button mat-flat-button color="primary" (click)="createBatchPatients()">
-              <mat-icon>group_add</mat-icon>
-              Generate Multiple Patients
+        }
+        @if (filteredPatients.length === 0 && patients.length > 0) {
+          <div class="no-results">
+            <mat-icon class="empty-icon">search_off</mat-icon>
+            <h3>No Patients Found</h3>
+            <p>No patients match your search criteria.</p>
+            <button mat-flat-button color="primary" (click)="clearSearch()">
+              <mat-icon>clear</mat-icon>
+              Clear Search
             </button>
           </div>
-          <p class="hint-text">Or upload existing patient data using the Data menu above</p>
-        </div>
+        }
+        @if (patients.length === 0) {
+          <div class="no-patients">
+            <mat-icon class="empty-icon">people_outline</mat-icon>
+            <h3>No Patients Yet</h3>
+            <p>Get started by creating patient records for your EHR system.</p>
+            <div class="empty-state-actions">
+              <button mat-flat-button color="primary" (click)="createRandomPatientWithDiagnoses()">
+                <mat-icon>medical_services</mat-icon>
+                Create Single Patient
+              </button>
+              <button mat-flat-button color="primary" (click)="createBatchPatients()">
+                <mat-icon>group_add</mat-icon>
+                Generate Multiple Patients
+              </button>
+            </div>
+            <p class="hint-text">Or upload existing patient data using the Data menu above</p>
+          </div>
+        }
       </div>
     </div>
-
     <!-- Selected Patient Details Section -->
     <div class="patient-details-section">
       <div class="section-header">
         <h2>Selected Patient</h2>
       </div>
-      
-      <div *ngIf="selectedPatient" class="selected-patient-details">
-        <div class="patient-header">
-          <div class="patient-name-section">
-            <h3>{{ getPatientDisplayName(selectedPatient) }}</h3>
-            <div class="patient-meta">
-              <span class="patient-id">ID: {{ getPatientIdentifier(selectedPatient) }}</span>
-              <span class="patient-age" *ngIf="selectedPatient.birthDate">{{ getPatientAge(selectedPatient.birthDate) }}</span>
-              <span class="patient-gender" *ngIf="selectedPatient.gender">{{ selectedPatient.gender }}</span>
+      @if (selectedPatient) {
+        <div class="selected-patient-details">
+          <div class="patient-header">
+            <div class="patient-name-section">
+              <h3>{{ getPatientDisplayName(selectedPatient) }}</h3>
+              <div class="patient-meta">
+                <span class="patient-id">ID: {{ getPatientIdentifier(selectedPatient) }}</span>
+                @if (selectedPatient.birthDate) {
+                  <span class="patient-age">{{ getPatientAge(selectedPatient.birthDate) }}</span>
+                }
+                @if (selectedPatient.gender) {
+                  <span class="patient-gender">{{ selectedPatient.gender }}</span>
+                }
+              </div>
+            </div>
+            <div class="patient-header-actions">
+              <button
+                mat-flat-button
+                color="accent"
+                (click)="openClinicalRecord()"
+                >
+                Open Clinical Record
+              </button>
             </div>
           </div>
-          <div class="patient-header-actions">
-            <button 
-              mat-flat-button
-              color="accent"
-              (click)="openClinicalRecord()"
-            >
-              Open Clinical Record
-            </button>
+          <div class="patient-details-grid">
+            @if (selectedPatient.telecom && selectedPatient.telecom.length > 0) {
+              <div class="detail-group">
+                <h4>Contact Information</h4>
+                <div class="contact-list">
+                  @for (contact of selectedPatient.telecom; track contact) {
+                    <div class="contact-item">
+                      <span class="contact-type">{{ contact.system }}:</span>
+                      <span class="contact-value">{{ contact.value }}</span>
+                      @if (contact.use) {
+                        <span class="contact-use">({{ contact.use }})</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            @if (selectedPatient.address && selectedPatient.address.length > 0) {
+              <div class="detail-group">
+                <h4>Address</h4>
+                <div class="address-list">
+                  @for (address of selectedPatient.address; track address) {
+                    <div class="address-item">
+                      @for (line of address.line; track line) {
+                        <div>{{ line }}</div>
+                      }
+                      <div>{{ address.city }}, {{ address.state }} {{ address.postalCode }}</div>
+                      <div>{{ address.country }}</div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            @if (selectedPatient.birthDate) {
+              <div class="detail-group">
+                <h4>Demographics</h4>
+                <div class="demographics">
+                  <div class="demographic-item">
+                    <span class="label">Birth Date:</span>
+                    <span class="value">{{ selectedPatient.birthDate | date:'longDate' }}</span>
+                  </div>
+                  <div class="demographic-item">
+                    <span class="label">Age:</span>
+                    <span class="value">{{ getPatientAge(selectedPatient.birthDate) }}</span>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
+          <!-- Delete Patient Button -->
+          @if (selectedPatient) {
+            <div class="patient-actions">
+              <button
+                mat-flat-button
+                color="warn"
+                (click)="deleteSelectedPatient()"
+                class="delete-button"
+                >
+                <mat-icon>delete</mat-icon>
+                Delete Patient
+              </button>
+            </div>
+          }
         </div>
-        
-        <div class="patient-details-grid">
-          <div class="detail-group" *ngIf="selectedPatient.telecom && selectedPatient.telecom.length > 0">
-            <h4>Contact Information</h4>
-            <div class="contact-list">
-              <div *ngFor="let contact of selectedPatient.telecom" class="contact-item">
-                <span class="contact-type">{{ contact.system }}:</span>
-                <span class="contact-value">{{ contact.value }}</span>
-                <span class="contact-use" *ngIf="contact.use">({{ contact.use }})</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="detail-group" *ngIf="selectedPatient.address && selectedPatient.address.length > 0">
-            <h4>Address</h4>
-            <div class="address-list">
-              <div *ngFor="let address of selectedPatient.address" class="address-item">
-                <div *ngFor="let line of address.line">{{ line }}</div>
-                <div>{{ address.city }}, {{ address.state }} {{ address.postalCode }}</div>
-                <div>{{ address.country }}</div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="detail-group" *ngIf="selectedPatient.birthDate">
-            <h4>Demographics</h4>
-            <div class="demographics">
-              <div class="demographic-item">
-                <span class="label">Birth Date:</span>
-                <span class="value">{{ selectedPatient.birthDate | date:'longDate' }}</span>
-              </div>
-              <div class="demographic-item">
-                <span class="label">Age:</span>
-                <span class="value">{{ getPatientAge(selectedPatient.birthDate) }}</span>
-              </div>
-            </div>
-          </div>
+      }
+      @if (!selectedPatient) {
+        <div class="no-selection">
+          <p>Select a patient from the list to view details.</p>
         </div>
-        
-        <!-- Delete Patient Button -->
-        <div class="patient-actions" *ngIf="selectedPatient">
-          <button 
-            mat-flat-button
-            color="warn"
-            (click)="deleteSelectedPatient()"
-            class="delete-button"
-          >
-            <mat-icon>delete</mat-icon>
-            Delete Patient
-          </button>
-        </div>
-      </div>
-      
-      <div *ngIf="!selectedPatient" class="no-selection">
-        <p>Select a patient from the list to view details.</p>
-      </div>
+      }
     </div>
-
-
   </div>
+}
 
-  <!-- Analytics Section - Full Width -->
-  <div class="analytics-full-width" *ngIf="showAnalytics">
+<!-- Analytics Section - Full Width -->
+@if (showAnalytics) {
+  <div class="analytics-full-width">
     <div class="analytics-section">
       <div class="section-header">
         <h2>{{ analyticsMode === 'icd10' ? 'ICD-10 Analytics' : 'Clinical Data Analytics' }}</h2>
         <div class="header-actions">
-          <button 
-            mat-flat-button 
+          <button
+            mat-flat-button
             color="primary"
             (click)="closeAnalytics()">
             <mat-icon>arrow_back</mat-icon>
@@ -279,11 +306,12 @@
         </div>
       </div>
       <div class="analytics-container">
-        <app-plotly-treemap-chart 
-          [useBrowserStorage]="true" 
+        <app-plotly-treemap-chart
+          [useBrowserStorage]="true"
           [useIcd10Filtering]="analyticsMode === 'icd10'">
         </app-plotly-treemap-chart>
       </div>
     </div>
   </div>
+}
 </div>

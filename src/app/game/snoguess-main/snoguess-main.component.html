@@ -1,323 +1,363 @@
-<div class="snoguess-game" *ngIf="(game | async) as gameState">
-  <div *ngIf="loadingAssets" class="assets-loading-container">
-    <div class="mt-48 mb-48">
-      <div class="progress-bar-message text-center">
-        Loading...
-      </div>
-      <mat-progress-bar class="game-progress-bar" mode="determinate" [value]="loadingAssetsProgress"></mat-progress-bar>
-    </div>
-  </div>
-
-
-  <div *ngIf=" (gameState.state == 'playing' || gameState.state == 'choosingTerm') && !loadingAssets">
-
-    <div class="flex justify-center mt-8 mb-8">
-      <div class="relative w-1/4"> <!-- Set a width and position relative -->
-        <img src="assets/img/snoguess-logo.png" alt="Game Logo" [@popIn]>
-        <div class="diff-label absolute -bottom-3 right-5 italic text-gray-500"> <!-- Absolutely position the difficulty level -->
-          {{ gameState.difficultyLevel }} - {{ getLanguageName(selectedLanguage) }}
+@if ((game | async); as gameState) {
+  <div class="snoguess-game">
+    @if (loadingAssets) {
+      <div class="assets-loading-container">
+        <div class="mt-48 mb-48">
+          <div class="progress-bar-message text-center">
+            Loading...
+          </div>
+          <mat-progress-bar class="game-progress-bar" mode="determinate" [value]="loadingAssetsProgress"></mat-progress-bar>
         </div>
       </div>
-    </div>
-
-    <div class="hit-points">
-      <span class="score">
-        Round: {{ gameState.round }} &nbsp;&nbsp;&nbsp;&nbsp; Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
-      </span>
-      <span *ngFor="let hp of [].constructor(gameState.hitPoints); let i = index">
-          <mat-icon>favorite</mat-icon>
-      </span>
-      <span *ngFor="let hp of [].constructor(gameState.rules.maxHitPoints - gameState.hitPoints); let i = index">
-          <mat-icon>favorite_border</mat-icon>
-      </span>
-      <!-- <span class="score"> &nbsp;&nbsp;&nbsp;&nbsp; Time: {{ (elapsedTime * 1000) | elapsedTime }}</span> -->
-      <span class="score"> &nbsp;&nbsp;&nbsp;&nbsp; Time to guess: {{ gameState.remainingTime }}</span>
-    </div>
-
-    <div class="term-display flex flex-row flex-wrap justify-center gap-8" *ngIf="gameState.state == 'playing'">
-      <span *ngFor="let segment of gameState.displayTerm.join('').split(' ')" class="whitespace-nowrap">
-        <span *ngFor="let char of segment.split('')">{{ char }}</span>
-      </span>
-    </div>
-    
-    <div *ngIf="gameState.state === 'choosingTerm'" class="loading-container">
-      <div class="progress-bar-message">
-        Choosing a random SNOMED CT concept using the FHIR API
-      </div>
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    </div>
-    
-    <p class="guess-message">Click the keys to guess the letters of the term!</p>
-    <div [@shake]="shakeState">
-      <app-keyboard #keyboard (letterGuessed)="guessLetter($event)"></app-keyboard>
-    </div>  
-
-    <div class="game-buttons mt-4">
-      <div (click)="revealHint()" *ngIf="gameState.state == 'playing' && gameState.hintsAvailable && gameState.hitPoints > 1"
+    }
+    @if ( (gameState.state == 'playing' || gameState.state == 'choosingTerm') && !loadingAssets) {
+      <div>
+        <div class="flex justify-center mt-8 mb-8">
+          <div class="relative w-1/4"> <!-- Set a width and position relative -->
+            <img src="assets/img/snoguess-logo.png" alt="Game Logo" [@popIn]>
+            <div class="diff-label absolute -bottom-3 right-5 italic text-gray-500"> <!-- Absolutely position the difficulty level -->
+              {{ gameState.difficultyLevel }} - {{ getLanguageName(selectedLanguage) }}
+            </div>
+          </div>
+        </div>
+        <div class="hit-points">
+          <span class="score">
+            Round: {{ gameState.round }} &nbsp;&nbsp;&nbsp;&nbsp; Score: {{ gameState.score }} &nbsp;&nbsp;&nbsp;&nbsp; Life:
+          </span>
+          @for (hp of [].constructor(gameState.hitPoints); track hp; let i = $index) {
+            <span>
+              <mat-icon>favorite</mat-icon>
+            </span>
+          }
+          @for (hp of [].constructor(gameState.rules.maxHitPoints - gameState.hitPoints); track hp; let i = $index) {
+            <span>
+              <mat-icon>favorite_border</mat-icon>
+            </span>
+          }
+          <!-- <span class="score"> &nbsp;&nbsp;&nbsp;&nbsp; Time: {{ (elapsedTime * 1000) | elapsedTime }}</span> -->
+          <span class="score"> &nbsp;&nbsp;&nbsp;&nbsp; Time to guess: {{ gameState.remainingTime }}</span>
+        </div>
+        @if (gameState.state == 'playing') {
+          <div class="term-display flex flex-row flex-wrap justify-center gap-8">
+            @for (segment of gameState.displayTerm.join('').split(' '); track segment) {
+              <span class="whitespace-nowrap">
+                @for (char of segment.split(''); track char) {
+                  <span>{{ char }}</span>
+                }
+              </span>
+            }
+          </div>
+        }
+        @if (gameState.state === 'choosingTerm') {
+          <div class="loading-container">
+            <div class="progress-bar-message">
+              Choosing a random SNOMED CT concept using the FHIR API
+            </div>
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          </div>
+        }
+        <p class="guess-message">Click the keys to guess the letters of the term!</p>
+        <div [@shake]="shakeState">
+          <app-keyboard #keyboard (letterGuessed)="guessLetter($event)"></app-keyboard>
+        </div>
+        <div class="game-buttons mt-4">
+          @if (gameState.state == 'playing' && gameState.hintsAvailable && gameState.hitPoints > 1) {
+            <div (click)="revealHint()"
       class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black 
       rounded-3xl pt-1 pb-1 pl-6 pr-6 w-fit text-center cursor-pointer font-bold text-white">
-        Reveal Hint
-      </div>
-      <div (click)="loadMenu()" *ngIf="gameState.state == 'playing'"
+              Reveal Hint
+            </div>
+          }
+          @if (gameState.state == 'playing') {
+            <div (click)="loadMenu()"
         class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black 
         rounded-3xl pt-1 pb-1 pl-6 pr-6 w-fit text-center cursor-pointer font-bold text-white">
-         Abandon game
+              Abandon game
+            </div>
+          }
+        </div>
+        @if (gameState.hints.length > 0 && gameState.state == 'playing') {
+          <div class="hints-container">
+            <div class="hints-callout text-center">
+              <h2>Hints:</h2>
+              <ul>
+                @for (hint of gameState.hints; track hint) {
+                  <li class="hint-item" [innerHTML]="hint"></li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+        <div class="note">
+          * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as an SCG grammar expression
+        </div>
+        <div class="score-progression-panel">
+          <h3>Score Progression</h3>
+          <div class="progress-bar-container">
+            <mat-progress-bar mode="determinate" [value]="calculateProgress(gameState.score)"></mat-progress-bar>
+            <!-- Goal Indicators and Trophy icons generated dynamically -->
+            @for (goal of goals; track goal) {
+              <div class="goal-indicator" [class]="goal.name.toLowerCase()" [style.left.%]="calculateGoalPosition(goal.score)"></div>
+              @if (gameState.score >= goal.score) {
+                <mat-icon class="star-icon left-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-5)">grade</mat-icon>
+              }
+              <mat-icon class="trophy-icon" [ngClass]="[goal.name.toLowerCase(), (gameState.score >= goal.score) ? 'trophy-large' : '']" [style.left.%]="calculateGoalPosition(goal.score-3)">emoji_events</mat-icon>
+              @if (gameState.score >= goal.score) {
+                <mat-icon class="star-icon right-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-1)">grade</mat-icon>
+              }
+              @if (gameState.score >= goal.score) {
+                <div class="goal-name" [style.left.%]="calculateGoalPosition(goal.score)" [ngClass]="[goal.name.toLowerCase()]">{{ goal.name }} trophy!</div>
+              }
+            }
+          </div>
+        </div>
       </div>
-    </div>
-    <div *ngIf="gameState.hints.length > 0 && gameState.state == 'playing'" class="hints-container">
-      <div class="hints-callout text-center">
-        <h2>Hints:</h2>
-        <ul>
-          <li *ngFor="let hint of gameState.hints" class="hint-item" [innerHTML]="hint"></li>
-        </ul>
-      </div>
-    </div>
-    <div class="note">
-      * Hints are generated from the definition of the SNOMED CT concept, retrieved from the FHIR API as an SCG grammar expression
-    </div>
-
-    <div class="score-progression-panel">
-      <h3>Score Progression</h3>
-      <div class="progress-bar-container">
-        <mat-progress-bar mode="determinate" [value]="calculateProgress(gameState.score)"></mat-progress-bar>
-        <!-- Goal Indicators and Trophy icons generated dynamically -->
-        <ng-container *ngFor="let goal of goals">
-          <div class="goal-indicator" [class]="goal.name.toLowerCase()" [style.left.%]="calculateGoalPosition(goal.score)"></div>
-          <mat-icon *ngIf="gameState.score >= goal.score" class="star-icon left-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-5)">grade</mat-icon>
-          <mat-icon class="trophy-icon" [ngClass]="[goal.name.toLowerCase(), (gameState.score >= goal.score) ? 'trophy-large' : '']" [style.left.%]="calculateGoalPosition(goal.score-3)">emoji_events</mat-icon>
-          <mat-icon *ngIf="gameState.score >= goal.score" class="star-icon right-star" [ngClass]="[goal.name.toLowerCase()]" [style.left.%]="calculateGoalPosition(goal.score-1)">grade</mat-icon>
-          <div *ngIf="gameState.score >= goal.score" class="goal-name" [style.left.%]="calculateGoalPosition(goal.score)" [ngClass]="[goal.name.toLowerCase()]">{{ goal.name }} trophy!</div>
-        </ng-container>
-      </div>
-    </div>
-  </div>
-  
-
-  <div *ngIf="gameState.state === 'menu' && !chooseDifficulty && !showInstructions && !loadingAssets" class="flex flex-col items-center gap-4">
-    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
-    <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/3 mt-8" [@popIn]>
-    <p class="text-center font-light text-lg">
-      <b>Welcome to SnoGuess!</b>
-    </p>
-    <p class="text-center font-light text-lg">
-      A fun way to learn about SNOMED CT concepts and their definitions.
-    </p>
-    <div (click)="chooseDifficultyLevel()" [@scrollUp]
+    }
+    @if (gameState.state === 'menu' && !chooseDifficulty && !showInstructions && !loadingAssets) {
+      <div class="flex flex-col items-center gap-4">
+        <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+        <img src="assets/img/snoguess-logo.png" alt="Game Logo" class="w-1/3 mt-8" [@popIn]>
+        <p class="text-center font-light text-lg">
+          <b>Welcome to SnoGuess!</b>
+        </p>
+        <p class="text-center font-light text-lg">
+          A fun way to learn about SNOMED CT concepts and their definitions.
+        </p>
+        <div (click)="chooseDifficultyLevel()" [@scrollUp]
     class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 text-3xl">
-      New game
-    </div>
-    <div (click)="showInstructionsPanel()" [@scrollUp]
+          New game
+        </div>
+        <div (click)="showInstructionsPanel()" [@scrollUp]
     class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 text-3xl">
-      Instructions
-    </div>
-    <div (click)="openScoreboard()" [@scrollUp]
+          Instructions
+        </div>
+        <div (click)="openScoreboard()" [@scrollUp]
     class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-12 text-3xl">
-      High Scores
-    </div>
-
-    <p class="text-center font-light italic text-lg">
-      Playing with terms in the IPS Reference Set in <b>{{ getLanguageName(selectedLanguage) }}</b>, change language:
-    </p>
-    <div class="text-center font-light italic text-sm">
-      <button mat-button (click)="setLanguage('da')">DA</button>
-      <button mat-button (click)="setLanguage('de')">DE</button>
-      <button mat-button (click)="setLanguage('en')">EN</button>
-      <button mat-button (click)="setLanguage('es')">ES</button>
-      <button mat-button (click)="setLanguage('et')">ET</button>
-      <button mat-button (click)="setLanguage('fi')">FI</button>
-      <button mat-button (click)="setLanguage('fr')">FR</button>
-      <button mat-button (click)="setLanguage('nl')">NL</button>
-      <button mat-button (click)="setLanguage('no')">NO</button>
-      <button mat-button (click)="setLanguage('sv')">SV</button>
-    </div>
-  </div>
-
-  <div *ngIf="gameState.state === 'menu' && chooseDifficulty && !showInstructions && !loadingAssets" class="flex flex-col items-center gap-4">
-    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
-    <img src="assets/img/difficulty.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
-    <p class="text-center font-light text-lg">
-      <b>Choose the game difficulty</b>
-    </p>
-
-    <div *ngFor="let level of difficultyLevels" class="level-container w-full flex flex-col justify-center items-center">
-      <div (click)="startGame(level.name)" [@scrollUp]
+          High Scores
+        </div>
+        <p class="text-center font-light italic text-lg">
+          Playing with terms in the IPS Reference Set in <b>{{ getLanguageName(selectedLanguage) }}</b>, change language:
+        </p>
+        <div class="text-center font-light italic text-sm">
+          <button mat-button (click)="setLanguage('da')">DA</button>
+          <button mat-button (click)="setLanguage('de')">DE</button>
+          <button mat-button (click)="setLanguage('en')">EN</button>
+          <button mat-button (click)="setLanguage('es')">ES</button>
+          <button mat-button (click)="setLanguage('et')">ET</button>
+          <button mat-button (click)="setLanguage('fi')">FI</button>
+          <button mat-button (click)="setLanguage('fr')">FR</button>
+          <button mat-button (click)="setLanguage('nl')">NL</button>
+          <button mat-button (click)="setLanguage('no')">NO</button>
+          <button mat-button (click)="setLanguage('sv')">SV</button>
+        </div>
+      </div>
+    }
+    @if (gameState.state === 'menu' && chooseDifficulty && !showInstructions && !loadingAssets) {
+      <div class="flex flex-col items-center gap-4">
+        <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+        <img src="assets/img/difficulty.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
+        <p class="text-center font-light text-lg">
+          <b>Choose the game difficulty</b>
+        </p>
+        @for (level of difficultyLevels; track level) {
+          <div class="level-container w-full flex flex-col justify-center items-center">
+            <div (click)="startGame(level.name)" [@scrollUp]
         class="menu-buttons bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
         rounded-3xl pl-4 pr-4 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-2 text-3xl">
-        {{ level.name }}
-      </div>
-      <p class="level-details text-center mt-3 flex flex-row items-center" [@fadeInDelayed]>
-        Life: {{ level.rules.maxHitPoints }} <mat-icon class="text-red-500 text-sm">favorite</mat-icon>, 
-        Free hints: {{ level.rules.freeHints }} <mat-icon class="text-yellow-500 text-sm">contact_support</mat-icon>, 
-        Points per letter: {{ level.rules.pointsPerGuessedLetter }},
-        Time to guess: {{ level.rules.maxRoundTime }} <mat-icon class="text-green-500 text-sm">timer</mat-icon>
-        <span *ngIf="level.rules.endless">, Endless</span>
-      </p>
-    </div>
-    <div (click)="backToMenu()" [@scrollUp]
+              {{ level.name }}
+            </div>
+            <p class="level-details text-center mt-3 flex flex-row items-center" [@fadeInDelayed]>
+              Life: {{ level.rules.maxHitPoints }} <mat-icon class="text-red-500 text-sm">favorite</mat-icon>,
+              Free hints: {{ level.rules.freeHints }} <mat-icon class="text-yellow-500 text-sm">contact_support</mat-icon>,
+              Points per letter: {{ level.rules.pointsPerGuessedLetter }},
+              Time to guess: {{ level.rules.maxRoundTime }} <mat-icon class="text-green-500 text-sm">timer</mat-icon>
+              @if (level.rules.endless) {
+                <span>, Endless</span>
+              }
+            </p>
+          </div>
+        }
+        <div (click)="backToMenu()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-2 mb-8 text-3xl">
-      Back
-    </div>
-  </div>
-
-  <div *ngIf="showInstructions" class="flex flex-col items-center gap-4">
-    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
-    <img src="assets/img/instructions.png" alt="Game Logo" class="w-1/4 mt-8 mb-12" [@popIn]>
-    <ul class="text-left instructions-text">
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>Click the keys on the screen to guess the letters of the term <mat-icon class="text-blue-900">keyboard</mat-icon>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>You have three to five lives, depending on your difficulty level
-        <span class="text-red-500"><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon></span>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>There is also a maxmimum time to guess each term
-        <mat-icon class="text-green-500">timer</mat-icon>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>You will loose one life with each wrong guess <mat-icon class="text-red-500">favorite_border</mat-icon>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>The game ends when you run out of lives or time<mat-icon class="text-red-500">close</mat-icon>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>You earn points for each correct guess <mat-icon class="text-blue-900">plus_one</mat-icon>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>In Easy mode you get 2 hints for free, and in Medium mode you get one 💡
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>You can reveal more hints, but each hint it will cost one life <mat-icon class="text-red-500">favorite_border</mat-icon>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>If you guess the whole term you can recover one life<mat-icon class="text-red-500">favorite</mat-icon>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>Keep guessing terms to increase your score and earn trophies <mat-icon class="text-yellow-500">emoji_events</mat-icon>
-      </li>
-      <li class="flex flex-row items-center gap-2">
-        <mat-icon>check</mat-icon>Endless mode will not finish when you reach the Diamond Trophy <mat-icon class="text-blue-500">emoji_events</mat-icon>
-      </li>
-    </ul>
-    <div (click)="hideInstructionsPanel()" [@scrollUp]
+          Back
+        </div>
+      </div>
+    }
+    @if (showInstructions) {
+      <div class="flex flex-col items-center gap-4">
+        <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+        <img src="assets/img/instructions.png" alt="Game Logo" class="w-1/4 mt-8 mb-12" [@popIn]>
+        <ul class="text-left instructions-text">
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>Click the keys on the screen to guess the letters of the term <mat-icon class="text-blue-900">keyboard</mat-icon>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>You have three to five lives, depending on your difficulty level
+            <span class="text-red-500"><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon><mat-icon>favorite</mat-icon></span>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>There is also a maxmimum time to guess each term
+            <mat-icon class="text-green-500">timer</mat-icon>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>You will loose one life with each wrong guess <mat-icon class="text-red-500">favorite_border</mat-icon>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>The game ends when you run out of lives or time<mat-icon class="text-red-500">close</mat-icon>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>You earn points for each correct guess <mat-icon class="text-blue-900">plus_one</mat-icon>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>In Easy mode you get 2 hints for free, and in Medium mode you get one 💡
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>You can reveal more hints, but each hint it will cost one life <mat-icon class="text-red-500">favorite_border</mat-icon>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>If you guess the whole term you can recover one life<mat-icon class="text-red-500">favorite</mat-icon>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>Keep guessing terms to increase your score and earn trophies <mat-icon class="text-yellow-500">emoji_events</mat-icon>
+          </li>
+          <li class="flex flex-row items-center gap-2">
+            <mat-icon>check</mat-icon>Endless mode will not finish when you reach the Diamond Trophy <mat-icon class="text-blue-500">emoji_events</mat-icon>
+          </li>
+        </ul>
+        <div (click)="hideInstructionsPanel()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pl-12 pr-12 pt-4 pb-4 w-1/5 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-3xl">
-      Back
-    </div>
-  </div>
-
-  <div *ngIf="termGuessed" class="overlay overlay-transparent">
-    <img src="assets/img/correct.png" alt="Correct" class="w-1/5 mt-8" [@popIn]>
-    <!-- <div class="text-xl shadow-local">{{ termGuessed }}</div> -->
-  </div>
-
-  <div *ngIf="gameState.state === 'gameOver'" class="flex flex-col items-center gap-4">
-    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
-    <img src="assets/img/game-over.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
-    
-    <div class="text-xl text-pretty text-center">
-      <div> The term was: </div>
-      <div class="font-bold"> {{ gameState.term }}</div>
-      <div class="mt-12">{{ gameState.round }} {{ (gameState.round == 1) ? 'round' : 'rounds' }}</div>
-      <div class="mt-4">
-        Final Score: {{ gameState.score }} points - Difficulty: {{ gameState.difficultyLevel }} - Total time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}
+          Back
+        </div>
       </div>
-      <div *ngIf="getMaxTrophyObtained(gameState.score)">
-        Trophy: {{ getMaxTrophyObtained(gameState.score) }}
+    }
+    @if (termGuessed) {
+      <div class="overlay overlay-transparent">
+        <img src="assets/img/correct.png" alt="Correct" class="w-1/5 mt-8" [@popIn]>
+        <!-- <div class="text-xl shadow-local">{{ termGuessed }}</div> -->
       </div>
-    </div>
-    <div *ngIf="getMaxTrophyObtained(gameState.score)">
-      <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
-      &nbsp;&nbsp;
-      <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'trophy-large', 'shadow-local']">emoji_events</mat-icon>
-      &nbsp;
-      <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
-    </div>
-
-    <p class="text-center italic text-gray-500" *ngIf="highScoresLoading">Checking high scores...</p>
-    <div *ngIf="highScore" class="flex flex-col items-center gap-4 w-full">
-      <p class="font-bold text-lg md:text-xl text-blue-900">
-          This is a High Score! Save a message to the public leaderboard!
-      </p>
-      <!-- Responsive input width -->
-      <input type="text" class="w-full md:w-1/2 text-base md:text-2xl text-center bg-blue-50 border-solid border-2" [(ngModel)]="messageForLeaderboard" placeholder="Type your message here">
-      <div (click)="saveScore(gameState)" 
-      class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black rounded-3xl pl-4 pr-4 pt-1 pb-1 w-fit text-center cursor-pointer font-bold text-white ml-4 md:text-2xl">
-          Save
-      </div>
-      <p class="text-sm text-gray-400">No personal information is recorded</p>
-    </div>
-
-    <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
+    }
+    @if (gameState.state === 'gameOver') {
+      <div class="flex flex-col items-center gap-4">
+        <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+        <img src="assets/img/game-over.png" alt="Game Logo" class="w-1/4 mt-8" [@popIn]>
+        <div class="text-xl text-pretty text-center">
+          <div> The term was: </div>
+          <div class="font-bold"> {{ gameState.term }}</div>
+          <div class="mt-12">{{ gameState.round }} {{ (gameState.round == 1) ? 'round' : 'rounds' }}</div>
+          <div class="mt-4">
+            Final Score: {{ gameState.score }} points - Difficulty: {{ gameState.difficultyLevel }} - Total time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}
+          </div>
+          @if (getMaxTrophyObtained(gameState.score)) {
+            <div>
+              Trophy: {{ getMaxTrophyObtained(gameState.score) }}
+            </div>
+          }
+        </div>
+        @if (getMaxTrophyObtained(gameState.score)) {
+          <div>
+            <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
+            &nbsp;&nbsp;
+            <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'trophy-large', 'shadow-local']">emoji_events</mat-icon>
+            &nbsp;
+            <mat-icon [ngClass]="[getMaxTrophyObtained(gameState.score).toLocaleLowerCase(), 'shadow-local']">grade</mat-icon>
+          </div>
+        }
+        @if (highScoresLoading) {
+          <p class="text-center italic text-gray-500">Checking high scores...</p>
+        }
+        @if (highScore) {
+          <div class="flex flex-col items-center gap-4 w-full">
+            <p class="font-bold text-lg md:text-xl text-blue-900">
+              This is a High Score! Save a message to the public leaderboard!
+            </p>
+            <!-- Responsive input width -->
+            <input type="text" class="w-full md:w-1/2 text-base md:text-2xl text-center bg-blue-50 border-solid border-2" [(ngModel)]="messageForLeaderboard" placeholder="Type your message here">
+            <div (click)="saveScore(gameState)"
+              class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black rounded-3xl pl-4 pr-4 pt-1 pb-1 w-fit text-center cursor-pointer font-bold text-white ml-4 md:text-2xl">
+              Save
+            </div>
+            <p class="text-sm text-gray-400">No personal information is recorded</p>
+          </div>
+        }
+        <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
-      New game
-    </div>
-    <div (click)="openScoreboard()" [@scrollUp]
+          New game
+        </div>
+        <div (click)="openScoreboard()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
-      High Scores
-    </div>
-    <div (click)="loadMenu()" [@scrollUp]
+          High Scores
+        </div>
+        <div (click)="loadMenu()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-2xl">
-      Main menu
-    </div>
-  </div>
-
-  <div *ngIf="gameState.state == 'won'" class="flex flex-col items-center gap-4">
-    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
-    <img src="assets/img/congratulations.png" alt="Game Logo" class="w-1/3 mt-8" [@popIn]>
-    <div class="">
-      <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
-      <mat-icon class="large-icon diamond shadow-local">emoji_events</mat-icon>
-      <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
-    </div>
-    <div class="text-lg">Lives left: {{ gameState.hitPoints }} 
-      <span *ngIf="gameState.livesBonus > 0">→ Bonus: {{ gameState.livesBonus }}</span>
-    </div>
-    <div class="text-lg">Difficulty: {{ gameState.difficultyLevel }} 
-      <span *ngIf="gameState.difficultyBonus > 0">→ Bonus: {{ gameState.difficultyBonus }}</span>
-    </div>
-    <div class="text-lg">Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }} 
-      <span *ngIf="gameState.timeBonus > 0">→ Bonus: {{ gameState.timeBonus }}</span>
-    </div>
-    <div class="reveal won">Final score: {{ gameState.score }}</div>
-
-    <div *ngIf="highScore" class="flex flex-col items-center gap-4 w-full">
-      <p class="font-bold text-lg md:text-xl text-blue-900">
-          This is a High Score! Save a message to the public leaderboard!
-      </p>
-      <!-- Responsive input width -->
-      <input type="text" class="w-full md:w-1/2 text-base md:text-lg" [(ngModel)]="messageForLeaderboard" placeholder="Your message here">
-      <div (click)="saveScore(gameState)" class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black rounded-3xl pl-4 pr-4 pt-1 pb-1 w-fit text-center cursor-pointer font-bold text-white ml-4">
-          Save
+          Main menu
+        </div>
       </div>
-      <p class="text-sm text-gray-400">No personal information is recorded</p>
-    </div>
-
-    <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
+    }
+    @if (gameState.state == 'won') {
+      <div class="flex flex-col items-center gap-4">
+        <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+        <img src="assets/img/congratulations.png" alt="Game Logo" class="w-1/3 mt-8" [@popIn]>
+        <div class="">
+          <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
+          <mat-icon class="large-icon diamond shadow-local">emoji_events</mat-icon>
+          <mat-icon class="large-icon diamond shadow-local">grade</mat-icon>
+        </div>
+        <div class="text-lg">Lives left: {{ gameState.hitPoints }}
+          @if (gameState.livesBonus > 0) {
+            <span>→ Bonus: {{ gameState.livesBonus }}</span>
+          }
+        </div>
+        <div class="text-lg">Difficulty: {{ gameState.difficultyLevel }}
+          @if (gameState.difficultyBonus > 0) {
+            <span>→ Bonus: {{ gameState.difficultyBonus }}</span>
+          }
+        </div>
+        <div class="text-lg">Time: {{ (gameState.endTimestamp - gameState.startTimestamp) | elapsedTime }}
+          @if (gameState.timeBonus > 0) {
+            <span>→ Bonus: {{ gameState.timeBonus }}</span>
+          }
+        </div>
+        <div class="reveal won">Final score: {{ gameState.score }}</div>
+        @if (highScore) {
+          <div class="flex flex-col items-center gap-4 w-full">
+            <p class="font-bold text-lg md:text-xl text-blue-900">
+              This is a High Score! Save a message to the public leaderboard!
+            </p>
+            <!-- Responsive input width -->
+            <input type="text" class="w-full md:w-1/2 text-base md:text-lg" [(ngModel)]="messageForLeaderboard" placeholder="Your message here">
+            <div (click)="saveScore(gameState)" class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-2 border-black rounded-3xl pl-4 pr-4 pt-1 pb-1 w-fit text-center cursor-pointer font-bold text-white ml-4">
+              Save
+            </div>
+            <p class="text-sm text-gray-400">No personal information is recorded</p>
+          </div>
+        }
+        <div (click)="loadMenu(); chooseDifficultyLevel();" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
-      New game
-    </div>
-    <div (click)="openScoreboard()" [@scrollUp]
+          New game
+        </div>
+        <div (click)="openScoreboard()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 text-2xl">
-      High Scores
-    </div>
-    <div (click)="loadMenu()" [@scrollUp]
+          High Scores
+        </div>
+        <div (click)="loadMenu()" [@scrollUp]
     class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
     rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-2xl">
-      Main menu
-    </div>
+          Main menu
+        </div>
+      </div>
+    }
   </div>
-
-</div>
+}
 <div class="text-center mt-8 mb-4">
   Copyright © {{ currentYear | date:'yyyy' }} SNOMED International
 </div>

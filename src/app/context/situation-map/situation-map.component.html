@@ -1,69 +1,73 @@
 <div class="p-8">
-    <h2>Context Representation Transformations for Situations with Explicit Context
-        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
-            <mat-icon>info</mat-icon>
-        </button>
-        <mat-menu #substancePopoverMenu="matMenu" >
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
-                <p class="font-bold">Context representation Demo</p>
-                <p>This is a demonstration of context transformations between the terminiology model and the FHIR Information Model.</p>
-                <p>For more information check the <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG" target="_blank">SNOMED Implementation Guide for Context Representation</a>.</p>
-                <p>Transformations are produced following <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG/6.3.2+Transformations+between+SWEC+and+FHIR" target="_blank">this example decision table</a>.
-            </span>
-        </mat-menu>
-    </h2>
-    <br>
+  <h2>Context Representation Transformations for Situations with Explicit Context
+    <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+      <mat-icon>info</mat-icon>
+    </button>
+    <mat-menu #substancePopoverMenu="matMenu" >
+      <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
+        <p class="font-bold">Context representation Demo</p>
+        <p>This is a demonstration of context transformations between the terminiology model and the FHIR Information Model.</p>
+        <p>For more information check the <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG" target="_blank">SNOMED Implementation Guide for Context Representation</a>.</p>
+        <p>Transformations are produced following <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG/6.3.2+Transformations+between+SWEC+and+FHIR" target="_blank">this example decision table</a>.
+      </span>
+    </mat-menu>
+  </h2>
+  <br>
     <div class="flex flex-wrap gap-4"> <!-- Flex container with gap -->
-        <div class="w-1/3"> <!-- First column: tight to its content, removed p-4 -->
-            <h3>Concepts with explicit context in the terminology</h3>
-            <app-autocomplete-binding [binding]="situationsBinding" class="w-auto" (selectionChange)="findingWithExplicitContextSelected($event)"></app-autocomplete-binding> <!-- Width auto to fit content -->
-            <h4 class="mt-8">Examples</h4>
-            <ul>
-                <li *ngFor="let example of examples"><a href="javascript:void(0);" (click)="findingWithExplicitContextSelected(example)">{{example.display}}</a></li>
-            </ul>
-            <div class="mt-8" *ngIf="selectedSituation?.display">
-                <h3>Relevant attributes ({{ selectedSituation.display }})</h3>
-                <table mat-table [dataSource]="dataSource">
-
-                    <ng-container matColumnDef="type">
-                      <th mat-header-cell *matHeaderCellDef> Type </th>
-                      <td mat-cell *matCellDef="let element"> {{element.type.display}} </td>
-                    </ng-container>
-                  
-                    <ng-container matColumnDef="targetCode">
-                      <th mat-header-cell *matHeaderCellDef> Target </th>
-                      <td mat-cell *matCellDef="let element"> {{element.target.code}} </td>
-                    </ng-container>
-    
-                    <ng-container matColumnDef="targetDisplay">
-                        <th mat-header-cell *matHeaderCellDef> Target </th>
-                        <td mat-cell *matCellDef="let element"> {{element.target.display}} </td>
-                    </ng-container>
-                  
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                  </table>
+      <div class="w-1/3"> <!-- First column: tight to its content, removed p-4 -->
+        <h3>Concepts with explicit context in the terminology</h3>
+        <app-autocomplete-binding [binding]="situationsBinding" class="w-auto" (selectionChange)="findingWithExplicitContextSelected($event)"></app-autocomplete-binding> <!-- Width auto to fit content -->
+        <h4 class="mt-8">Examples</h4>
+        <ul>
+          @for (example of examples; track example) {
+            <li><a href="javascript:void(0);" (click)="findingWithExplicitContextSelected(example)">{{example.display}}</a></li>
+          }
+        </ul>
+        @if (selectedSituation?.display) {
+          <div class="mt-8">
+            <h3>Relevant attributes ({{ selectedSituation.display }})</h3>
+            <table mat-table [dataSource]="dataSource">
+              <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef> Type </th>
+                <td mat-cell *matCellDef="let element"> {{element.type.display}} </td>
+              </ng-container>
+              <ng-container matColumnDef="targetCode">
+                <th mat-header-cell *matHeaderCellDef> Target </th>
+                <td mat-cell *matCellDef="let element"> {{element.target.code}} </td>
+              </ng-container>
+              <ng-container matColumnDef="targetDisplay">
+                <th mat-header-cell *matHeaderCellDef> Target </th>
+                <td mat-cell *matCellDef="let element"> {{element.target.display}} </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        }
+        @if (resourceType) {
+          <div class="mt-8">
+            <h3>Resource Type</h3>
+            <a [href]="'https://hl7.org/fhir/R4/' + resourceType + '.html'" target="_blank" class="flex flex-row items-center gap-2">
+              <span>FHIR R4 {{resourceType}}</span>
+              <mat-icon>open_in_new</mat-icon>
+            </a>
+          </div>
+        }
+      </div>
+      <div class="flex-grow"> <!-- Second column: grows with min 50% width, removed p-4 -->
+        <h3>Context representation in the FHIR Information Model
+          <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG/6.3.2+Transformations+between+SWEC+and+FHIR" target="_blank" class="text-xs italic ml-4">See transformation table</a>
+        </h3>
+        <div class="output">
+          @if (fhirRepresentationString.length > 15) {
+            <div id="save">
+              <button mat-icon-button (click)="saveOutput(fhirRepresentationString)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+              <button mat-icon-button (click)="copyOutputToClipboard(fhirRepresentationString)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
             </div>
-            <div class="mt-8" *ngIf="resourceType">
-                <h3>Resource Type</h3>
-                <a [href]="'https://hl7.org/fhir/R4/' + resourceType + '.html'" target="_blank" class="flex flex-row items-center gap-2">
-                    <span>FHIR R4 {{resourceType}}</span>
-                    <mat-icon>open_in_new</mat-icon>
-                </a>
-            </div>
+          }
+          <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirRepresentationString" wrap="soft">
+          </textarea>
         </div>
-        <div class="flex-grow"> <!-- Second column: grows with min 50% width, removed p-4 -->
-            <h3>Context representation in the FHIR Information Model
-                <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG/6.3.2+Transformations+between+SWEC+and+FHIR" target="_blank" class="text-xs italic ml-4">See transformation table</a>
-            </h3>
-            <div class="output">
-                <div id="save" *ngIf="fhirRepresentationString.length > 15">
-                    <button mat-icon-button (click)="saveOutput(fhirRepresentationString)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
-                    <button mat-icon-button (click)="copyOutputToClipboard(fhirRepresentationString)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
-                </div>
-                <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirRepresentationString" wrap="soft">
-                </textarea>
-            </div>
-        </div>
+      </div>
     </div>
-</div>
+  </div>

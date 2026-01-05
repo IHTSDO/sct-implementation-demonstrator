@@ -5,24 +5,30 @@
   </a>
 </h2>
 <div class="iframe-container">
-  <div class="loading-overlay" *ngIf="isLoading && !hasError">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p class="loading-text">Loading...</p>
-  </div>
-  <div class="error-overlay" *ngIf="hasError">
-    <mat-icon class="error-icon" [class.success-icon]="openedInNewTab">check_circle</mat-icon>
-    <h3 class="error-title">{{ openedInNewTab ? 'Content Opened in New Tab' : 'Content Cannot Be Loaded' }}</h3>
-    <p class="error-message">{{ errorMessage }}</p>
-    <p class="error-detail" *ngIf="!openedInNewTab">
-      This may be due to the external site redirecting to HTTP, which is blocked for security reasons when viewing over HTTPS.
-    </p>
-    <button mat-raised-button color="primary" (click)="openInNewTab()">
-      <mat-icon>open_in_new</mat-icon>
-      {{ openedInNewTab ? 'Open Again in New Tab' : 'Open in New Tab' }}
-    </button>
-  </div>
-  <iframe 
-    [src]="safeUrl" 
+  @if (isLoading && !hasError) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">Loading...</p>
+    </div>
+  }
+  @if (hasError) {
+    <div class="error-overlay">
+      <mat-icon class="error-icon" [class.success-icon]="openedInNewTab">check_circle</mat-icon>
+      <h3 class="error-title">{{ openedInNewTab ? 'Content Opened in New Tab' : 'Content Cannot Be Loaded' }}</h3>
+      <p class="error-message">{{ errorMessage }}</p>
+      @if (!openedInNewTab) {
+        <p class="error-detail">
+          This may be due to the external site redirecting to HTTP, which is blocked for security reasons when viewing over HTTPS.
+        </p>
+      }
+      <button mat-raised-button color="primary" (click)="openInNewTab()">
+        <mat-icon>open_in_new</mat-icon>
+        {{ openedInNewTab ? 'Open Again in New Tab' : 'Open in New Tab' }}
+      </button>
+    </div>
+  }
+  <iframe
+    [src]="safeUrl"
     class="valueset-iframe"
     frameborder="0"
     allowfullscreen

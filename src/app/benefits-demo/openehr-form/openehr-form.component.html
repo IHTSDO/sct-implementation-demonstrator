@@ -1,42 +1,56 @@
 <div class="openehr-form-container">
-  <div class="openehr-header" *ngIf="webTemplate">
-    <h3>{{ webTemplate.tree?.name || 'openEHR Form' }}</h3>
-    <p class="openehr-description" *ngIf="webTemplate.tree?.description">
-      {{ webTemplate.tree?.description }}
-    </p>
-    <div class="openehr-meta">
-      <span class="template-id" *ngIf="templateId">{{ templateId }}</span>
-      <span class="version-info" *ngIf="webTemplate.tree?.version">v{{ webTemplate.tree?.version }}</span>
+  @if (webTemplate) {
+    <div class="openehr-header">
+      <h3>{{ webTemplate.tree?.name || 'openEHR Form' }}</h3>
+      @if (webTemplate.tree?.description) {
+        <p class="openehr-description">
+          {{ webTemplate.tree?.description }}
+        </p>
+      }
+      <div class="openehr-meta">
+        @if (templateId) {
+          <span class="template-id">{{ templateId }}</span>
+        }
+        @if (webTemplate.tree?.version) {
+          <span class="version-info">v{{ webTemplate.tree?.version }}</span>
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Loading indicator -->
-  <div class="loading-form" *ngIf="webTemplate && !formRendered">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading openEHR form...</p>
-  </div>
+  @if (webTemplate && !formRendered) {
+    <div class="loading-form">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading openEHR form...</p>
+    </div>
+  }
 
   <!-- Medblocks form container -->
   <div #formContainer class="medblocks-container" [class.hidden]="!formRendered"></div>
 
   <!-- No template message -->
-  <div class="no-template" *ngIf="!webTemplate">
-    <mat-icon>description</mat-icon>
-    <p>No openEHR template loaded</p>
-    <p class="hint">Select a template from the dropdown above</p>
-  </div>
+  @if (!webTemplate) {
+    <div class="no-template">
+      <mat-icon>description</mat-icon>
+      <p>No openEHR template loaded</p>
+      <p class="hint">Select a template from the dropdown above</p>
+    </div>
+  }
 
   <!-- Action buttons -->
-  <div class="form-actions" *ngIf="webTemplate && formRendered">
-    <button mat-flat-button color="primary" (click)="submitForm()">
-      <mat-icon>save</mat-icon>
-      Submit Composition
-    </button>
-    <button mat-stroked-button (click)="cancel()">
-      <mat-icon>close</mat-icon>
-      Cancel
-    </button>
-  </div>
+  @if (webTemplate && formRendered) {
+    <div class="form-actions">
+      <button mat-flat-button color="primary" (click)="submitForm()">
+        <mat-icon>save</mat-icon>
+        Submit Composition
+      </button>
+      <button mat-stroked-button (click)="cancel()">
+        <mat-icon>close</mat-icon>
+        Cancel
+      </button>
+    </div>
+  }
 </div>
 
 

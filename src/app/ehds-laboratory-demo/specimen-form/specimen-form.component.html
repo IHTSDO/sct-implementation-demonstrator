@@ -9,644 +9,672 @@
     </p>
 
     <form [formGroup]="specimenForm" (ngSubmit)="onSubmit()" class="specimen-form">
-    <!-- Row 1: Status, Type, Received time -->
-    <div class="form-section">
-      <h3 class="section-title">
-        <mat-icon>info</mat-icon>
-        Basic Information
-      </h3>
-      <div class="form-grid">
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="statusMenu">
-              FHIR
-            </button>
-            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://hl7.org/fhir/valueset-specimen-status.html', 'Status')">
-              BINDING
-            </button>
-          </div>
-          <mat-menu #statusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.status</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.status" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">The availability of the specimen.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">available | unavailable | unsatisfactory | entered-in-error</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Comments:</span>
-                  <span class="fhir-value">This element is labeled as a modifier because the status contains codes that mark the resource as not currently valid.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..1</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHALL be taken from SpecimenStatus (required to <a href="https://hl7.org/fhir/ValueSet/specimen-status" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/ValueSet/specimen-status|4.0.1</a>). Codes providing the status/availability of a specimen.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">code</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">true because This element is labelled as a modifier because it is a status element that contains status entered-in-error which means that the resource should not be treated as valid</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">true</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
+      <!-- Row 1: Status, Type, Received time -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>info</mat-icon>
+          Basic Information
+        </h3>
+        <div class="form-grid">
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="statusMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://hl7.org/fhir/valueset-specimen-status.html', 'Status')">
+                BINDING
+              </button>
             </div>
-          </mat-menu>
-          <mat-form-field>
-            <mat-label>Status</mat-label>
-            <mat-select formControlName="status" required>
-              <mat-option [value]="null">Select status</mat-option>
-              <mat-option *ngFor="let status of statusOptions" [value]="status.code">
-                {{ status.display }}
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="specimenForm.get('status')?.value">
-              {{ getStatusDefinition(specimenForm.get('status')?.value) }}
-            </mat-hint>
-          </mat-form-field>
-        </div>
+            <mat-menu #statusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.status</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.status" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">The availability of the specimen.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">available | unavailable | unsatisfactory | entered-in-error</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Comments:</span>
+                    <span class="fhir-value">This element is labeled as a modifier because the status contains codes that mark the resource as not currently valid.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from SpecimenStatus (required to <a href="https://hl7.org/fhir/ValueSet/specimen-status" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/ValueSet/specimen-status|4.0.1</a>). Codes providing the status/availability of a specimen.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">code</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">true because This element is labelled as a modifier because it is a status element that contains status entered-in-error which means that the resource should not be treated as valid</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">true</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status" required>
+                <mat-option [value]="null">Select status</mat-option>
+                @for (status of statusOptions; track status) {
+                  <mat-option [value]="status.code">
+                    {{ status.display }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (specimenForm.get('status')?.value) {
+                <mat-hint>
+                  {{ getStatusDefinition(specimenForm.get('status')?.value) }}
+                </mat-hint>
+              }
+            </mat-form-field>
+          </div>
 
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="typeMenu">
-              FHIR
-            </button>
-            <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabSpecimenTypeWithExceptions.html', 'Type')">
-              BINDING (SCT)
-            </button>
-          </div>
-          <mat-menu #typeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.type</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.type" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">The kind of material that forms the specimen.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">Kind of material that forms the specimen</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Comments:</span>
-                  <span class="fhir-value">If the specimen.type conveys information about the site the specimen has been collected from, then, if the bodySite is present, it shall be coherent with the type</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..1</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHALL be taken from eHDSI Laboratory Specimen Type With Exceptions (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabSpecimenTypeWithExceptions.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabSpecimenTypeWithExceptions.html</a>).</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">CodeableConcept</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">true</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="typeMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabSpecimenTypeWithExceptions.html', 'Type')">
+                BINDING (SCT)
+              </button>
             </div>
-          </mat-menu>
-          <mat-form-field>
-            <mat-label>Type</mat-label>
-            <mat-select formControlName="type" required>
-              <mat-option [value]="null">Select specimen type</mat-option>
-              <mat-option *ngFor="let type of typeOptions" [value]="type">
-                {{ type.display }}
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="specimenForm.get('type')?.value">
-              SNOMED CT: {{ specimenForm.get('type')?.value?.code || '' }}
-            </mat-hint>
-          </mat-form-field>
-        </div>
+            <mat-menu #typeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.type</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.type" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">The kind of material that forms the specimen.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">Kind of material that forms the specimen</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Comments:</span>
+                    <span class="fhir-value">If the specimen.type conveys information about the site the specimen has been collected from, then, if the bodySite is present, it shall be coherent with the type</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from eHDSI Laboratory Specimen Type With Exceptions (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabSpecimenTypeWithExceptions.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabSpecimenTypeWithExceptions.html</a>).</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">CodeableConcept</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">true</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="type" required>
+                <mat-option [value]="null">Select specimen type</mat-option>
+                @for (type of typeOptions; track type) {
+                  <mat-option [value]="type">
+                    {{ type.display }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (specimenForm.get('type')?.value) {
+                <mat-hint>
+                  SNOMED CT: {{ specimenForm.get('type')?.value?.code || '' }}
+                </mat-hint>
+              }
+            </mat-form-field>
+          </div>
 
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="receivedTimeMenu">
-              FHIR
-            </button>
-          </div>
-          <mat-menu #receivedTimeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.receivedTime</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.receivedTime" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">Time when specimen was received for processing or testing.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">The time when specimen was received for processing</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..1</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">dateTime</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">true</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="receivedTimeMenu">
+                FHIR
+              </button>
             </div>
-          </mat-menu>
-          <mat-form-field>
-            <mat-label>Received Time</mat-label>
-            <input matInput [matDatepicker]="receivedTimePicker" formControlName="receivedTime" placeholder="Select received time">
-            <mat-datepicker-toggle matSuffix [for]="receivedTimePicker"></mat-datepicker-toggle>
-            <mat-datepicker #receivedTimePicker></mat-datepicker>
-          </mat-form-field>
+            <mat-menu #receivedTimeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.receivedTime</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.receivedTime" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Time when specimen was received for processing or testing.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">The time when specimen was received for processing</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">dateTime</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">true</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Received Time</mat-label>
+              <input matInput [matDatepicker]="receivedTimePicker" formControlName="receivedTime" placeholder="Select received time">
+              <mat-datepicker-toggle matSuffix [for]="receivedTimePicker"></mat-datepicker-toggle>
+              <mat-datepicker #receivedTimePicker></mat-datepicker>
+            </mat-form-field>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Row 2: Collection.BodySite, Collection.Method, Collection.fastingStatus -->
-    <div class="form-section">
-      <h3 class="section-title">
-        <mat-icon>science</mat-icon>
-        Collection Information
-      </h3>
-      <div class="form-grid">
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionBodySiteMenu">
-              FHIR
-            </button>
-            <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/R5/valueset-body-site.html', 'Collection Body Site')">
-              BINDING (SCT)
-            </button>
-          </div>
-          <mat-menu #collectionBodySiteMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.collection.bodySite</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.collection.bodySite" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">Anatomical location from which the specimen was collected (if subject is a patient). This is the target site. This element is not used for environmental specimens.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">Anatomical collection site</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Comments:</span>
-                  <span class="fhir-value">If the specimen.type conveys information about the site the specimen has been collected from, then, if the bodySite if present it shall be coherent with the type</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..1</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHALL be taken from eHDSI Body Site With Exceptions (required to <a href="https://hl7.org/fhir/R5/valueset-body-site.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/R5/valueset-body-site.html</a>).</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">CodeableConcept</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
+      <!-- Row 2: Collection.BodySite, Collection.Method, Collection.fastingStatus -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>science</mat-icon>
+          Collection Information
+        </h3>
+        <div class="form-grid">
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionBodySiteMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/R5/valueset-body-site.html', 'Collection Body Site')">
+                BINDING (SCT)
+              </button>
             </div>
-          </mat-menu>
-          <app-autocomplete-binding 
-            [binding]="collectionBodySiteBinding" 
-            formControlName="collectionBodySite"
-            [readonly]="isViewOnly"
-            (selectionChange)="onCollectionBodySiteSelected($event)">
-          </app-autocomplete-binding>
-        </div>
+            <mat-menu #collectionBodySiteMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.collection.bodySite</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.collection.bodySite" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Anatomical location from which the specimen was collected (if subject is a patient). This is the target site. This element is not used for environmental specimens.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">Anatomical collection site</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Comments:</span>
+                    <span class="fhir-value">If the specimen.type conveys information about the site the specimen has been collected from, then, if the bodySite if present it shall be coherent with the type</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from eHDSI Body Site With Exceptions (required to <a href="https://hl7.org/fhir/R5/valueset-body-site.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/R5/valueset-body-site.html</a>).</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">CodeableConcept</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <app-autocomplete-binding
+              [binding]="collectionBodySiteBinding"
+              formControlName="collectionBodySite"
+              [readonly]="isViewOnly"
+              (selectionChange)="onCollectionBodySiteSelected($event)">
+            </app-autocomplete-binding>
+          </div>
 
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionMethodMenu">
-              FHIR
-            </button>
-            <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/valueset-specimen-collection-method.html', 'Collection Method')">
-              BINDING (SCT)
-            </button>
-          </div>
-          <mat-menu #collectionMethodMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.collection.method</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.collection.method" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">A coded value specifying the technique that is used to perform the procedure.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">Technique used to perform collection</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..1</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHOULD be taken from SpecimenCollectionMethod (example to <a href="https://hl7.org/fhir/ValueSet/specimen-collection-method" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/ValueSet/specimen-collection-method</a>). The technique that is used to perform the procedure.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">CodeableConcept</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionMethodMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/valueset-specimen-collection-method.html', 'Collection Method')">
+                BINDING (SCT)
+              </button>
             </div>
-          </mat-menu>
-          <mat-form-field>
-            <mat-label>Collection Method</mat-label>
-            <mat-select formControlName="collectionMethod">
-              <mat-option [value]="null">Select collection method</mat-option>
-              <mat-option *ngFor="let method of collectionMethodOptions" [value]="method">
-                {{ method.display }}
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="specimenForm.get('collectionMethod')?.value">
-              SNOMED CT: {{ specimenForm.get('collectionMethod')?.value?.code || '' }}
-            </mat-hint>
-          </mat-form-field>
-        </div>
+            <mat-menu #collectionMethodMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.collection.method</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.collection.method" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">A coded value specifying the technique that is used to perform the procedure.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">Technique used to perform collection</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHOULD be taken from SpecimenCollectionMethod (example to <a href="https://hl7.org/fhir/ValueSet/specimen-collection-method" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/ValueSet/specimen-collection-method</a>). The technique that is used to perform the procedure.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">CodeableConcept</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Collection Method</mat-label>
+              <mat-select formControlName="collectionMethod">
+                <mat-option [value]="null">Select collection method</mat-option>
+                @for (method of collectionMethodOptions; track method) {
+                  <mat-option [value]="method">
+                    {{ method.display }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (specimenForm.get('collectionMethod')?.value) {
+                <mat-hint>
+                  SNOMED CT: {{ specimenForm.get('collectionMethod')?.value?.code || '' }}
+                </mat-hint>
+              }
+            </mat-form-field>
+          </div>
 
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionFastingStatusMenu">
-              FHIR
-            </button>
-            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://terminology.hl7.org/7.0.0/ValueSet-v2-0916.html', 'Collection Fasting Status')">
-              BINDING
-            </button>
-          </div>
-          <mat-menu #collectionFastingStatusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.collection.fastingStatus[x]</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.collection.fastingStatus_x_" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">Abstinence or reduction from some or all food, drink, or both, for a period of time prior to sample collection.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">Whether or how long patient abstained from food and/or drink</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Comments:</span>
-                  <span class="fhir-value">Representing fasting status using this element is preferred to representing it with an observation using a 'pre-coordinated code' such as LOINC 2005-7 (Calcium [Moles/time] in 2 hour Urine --12 hours fasting), or using a component observation such as Observation.component code = LOINC 49541-6 (Fasting status - Reported).</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Requirements:</span>
-                  <span class="fhir-value">Many diagnostic tests require fasting to facilitate accurate interpretation.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..1</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHALL be taken from FastingStatus (extensible to <a href="https://terminology.hl7.org/ValueSet/v2-0916" target="_blank" rel="noopener noreferrer" class="valueset-link">https://terminology.hl7.org/ValueSet/v2-0916</a>). Codes describing the fasting status of the patient.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">CodeableConcept | Duration</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">true</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="collectionFastingStatusMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://terminology.hl7.org/7.0.0/ValueSet-v2-0916.html', 'Collection Fasting Status')">
+                BINDING
+              </button>
             </div>
-          </mat-menu>
-          <mat-form-field>
-            <mat-label>Collection Fasting Status</mat-label>
-            <mat-select formControlName="collectionFastingStatus">
-              <mat-option [value]="null">Select fasting status</mat-option>
-              <mat-option *ngFor="let status of collectionFastingStatusOptions" [value]="status">
-                {{ status.display }}
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="specimenForm.get('collectionFastingStatus')?.value">
-              Code: {{ specimenForm.get('collectionFastingStatus')?.value?.code || '' }}
-            </mat-hint>
-          </mat-form-field>
-        </div>
-      </div>
-    </div>
-
-    <!-- Row 3: Processing.procedure, Container.type, Condition -->
-    <div class="form-section">
-      <h3 class="section-title">
-        <mat-icon>settings</mat-icon>
-        Processing & Container
-      </h3>
-      <div class="form-grid">
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="processingProcedureMenu">
-              FHIR
-            </button>
-            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://hl7.org/fhir/R4/valueset-specimen-processing-procedure.html', 'Processing Procedure')">
-              BINDING
-            </button>
+            <mat-menu #collectionFastingStatusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.collection.fastingStatus[x]</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.collection.fastingStatus_x_" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Abstinence or reduction from some or all food, drink, or both, for a period of time prior to sample collection.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">Whether or how long patient abstained from food and/or drink</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Comments:</span>
+                    <span class="fhir-value">Representing fasting status using this element is preferred to representing it with an observation using a 'pre-coordinated code' such as LOINC 2005-7 (Calcium [Moles/time] in 2 hour Urine --12 hours fasting), or using a component observation such as Observation.component code = LOINC 49541-6 (Fasting status - Reported).</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Requirements:</span>
+                    <span class="fhir-value">Many diagnostic tests require fasting to facilitate accurate interpretation.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from FastingStatus (extensible to <a href="https://terminology.hl7.org/ValueSet/v2-0916" target="_blank" rel="noopener noreferrer" class="valueset-link">https://terminology.hl7.org/ValueSet/v2-0916</a>). Codes describing the fasting status of the patient.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">CodeableConcept | Duration</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">true</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Collection Fasting Status</mat-label>
+              <mat-select formControlName="collectionFastingStatus">
+                <mat-option [value]="null">Select fasting status</mat-option>
+                @for (status of collectionFastingStatusOptions; track status) {
+                  <mat-option [value]="status">
+                    {{ status.display }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (specimenForm.get('collectionFastingStatus')?.value) {
+                <mat-hint>
+                  Code: {{ specimenForm.get('collectionFastingStatus')?.value?.code || '' }}
+                </mat-hint>
+              }
+            </mat-form-field>
           </div>
-          <mat-menu #processingProcedureMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.processing.procedure</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.processing.procedure" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">A coded value specifying the procedure used to process the specimen.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">Indicates the treatment step applied to the specimen</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..1</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHOULD be taken from SpecimenProcessingProcedure (example to <a href="https://hl7.org/fhir/R4/valueset-specimen-processing-procedure.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/R4/valueset-specimen-processing-procedure.html</a>). Type indicating the technique used to process the specimen.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">CodeableConcept</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
-            </div>
-          </mat-menu>
-          <mat-form-field>
-            <mat-label>Processing Procedure</mat-label>
-            <mat-select formControlName="processingProcedure">
-              <mat-option [value]="null">Select processing procedure</mat-option>
-              <mat-option *ngFor="let procedure of processingProcedureOptions" [value]="procedure">
-                {{ procedure.display }}
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="specimenForm.get('processingProcedure')?.value">
-              Code: {{ specimenForm.get('processingProcedure')?.value?.code || '' }}
-            </mat-hint>
-          </mat-form-field>
-        </div>
-
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="containerTypeMenu">
-              FHIR
-            </button>
-            <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.eu/fhir/laboratory/0.1.1/ValueSet-lab-specimenContainer-eu-lab.html', 'Container Type')">
-              BINDING (SCT)
-            </button>
-          </div>
-          <mat-menu #containerTypeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.container.type</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.container.type" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">The type of container associated with the specimen (e.g. slide, aliquot, etc.).</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">Kind of container directly associated with specimen</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..1</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHOULD be taken from Laboratory Specimen Container (preferred to <a href="https://hl7.eu/fhir/laboratory/ValueSet/lab-specimenContainer-eu-lab" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.eu/fhir/laboratory/ValueSet/lab-specimenContainer-eu-lab</a>).</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">CodeableConcept</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
-            </div>
-          </mat-menu>
-          <mat-form-field>
-            <mat-label>Container Type</mat-label>
-            <mat-select formControlName="containerType">
-              <mat-option [value]="null">Select container type</mat-option>
-              <mat-option *ngFor="let container of containerTypeOptions" [value]="container">
-                {{ container.display }}
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="specimenForm.get('containerType')?.value">
-              SNOMED CT: {{ specimenForm.get('containerType')?.value?.code || '' }}
-            </mat-hint>
-          </mat-form-field>
-        </div>
-
-        <div class="fhir-field-wrapper">
-          <div class="fhir-badges-container">
-            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="conditionMenu">
-              FHIR
-            </button>
-            <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://terminology.hl7.org/7.0.0/ValueSet-v2-0493.html', 'Condition')">
-              BINDING
-            </button>
-          </div>
-          <mat-menu #conditionMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-            <div class="fhir-menu-content">
-              <div class="fhir-menu-header">
-                <h4>Specimen.condition</h4>
-                <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.condition" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                  <mat-icon>link</mat-icon>
-                </a>
-              </div>
-              <div class="fhir-menu-body">
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Definition:</span>
-                  <span class="fhir-value">A mode or state of being that describes the nature of the specimen.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Short:</span>
-                  <span class="fhir-value">State of the specimen</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Comments:</span>
-                  <span class="fhir-value">Specimen condition is an observation made about the specimen. It's a point-in-time assessment. It can be used to assess its quality or appropriateness for a specific test.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Requirements:</span>
-                  <span class="fhir-value">The specimen condition can be used to assess its quality or appropriateness for a specific test.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Control:</span>
-                  <span class="fhir-value">0..*</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Binding:</span>
-                  <span class="fhir-value">The codes SHALL be taken from SpecimenCondition (extensible to <a href="https://terminology.hl7.org/ValueSet/v2-0493" target="_blank" rel="noopener noreferrer" class="valueset-link">https://terminology.hl7.org/ValueSet/v2-0493</a>). Codes describing the state of the specimen.</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Type:</span>
-                  <span class="fhir-value">CodeableConcept</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Is Modifier:</span>
-                  <span class="fhir-value">false</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Summary:</span>
-                  <span class="fhir-value">true</span>
-                </div>
-                <div class="fhir-menu-item">
-                  <span class="fhir-label">Invariants:</span>
-                  <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                </div>
-              </div>
-            </div>
-          </mat-menu>
-          <mat-form-field>
-            <mat-label>Condition</mat-label>
-            <mat-select formControlName="condition">
-              <mat-option [value]="null">Select specimen condition</mat-option>
-              <mat-option *ngFor="let condition of conditionOptions" [value]="condition">
-                {{ condition.display }}
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="specimenForm.get('condition')?.value">
-              Code: {{ specimenForm.get('condition')?.value?.code || '' }}
-            </mat-hint>
-          </mat-form-field>
         </div>
       </div>
-    </div>
+
+      <!-- Row 3: Processing.procedure, Container.type, Condition -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>settings</mat-icon>
+          Processing & Container
+        </h3>
+        <div class="form-grid">
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="processingProcedureMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://hl7.org/fhir/R4/valueset-specimen-processing-procedure.html', 'Processing Procedure')">
+                BINDING
+              </button>
+            </div>
+            <mat-menu #processingProcedureMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.processing.procedure</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.processing.procedure" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">A coded value specifying the procedure used to process the specimen.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">Indicates the treatment step applied to the specimen</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHOULD be taken from SpecimenProcessingProcedure (example to <a href="https://hl7.org/fhir/R4/valueset-specimen-processing-procedure.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/R4/valueset-specimen-processing-procedure.html</a>). Type indicating the technique used to process the specimen.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">CodeableConcept</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Processing Procedure</mat-label>
+              <mat-select formControlName="processingProcedure">
+                <mat-option [value]="null">Select processing procedure</mat-option>
+                @for (procedure of processingProcedureOptions; track procedure) {
+                  <mat-option [value]="procedure">
+                    {{ procedure.display }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (specimenForm.get('processingProcedure')?.value) {
+                <mat-hint>
+                  Code: {{ specimenForm.get('processingProcedure')?.value?.code || '' }}
+                </mat-hint>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="containerTypeMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.eu/fhir/laboratory/0.1.1/ValueSet-lab-specimenContainer-eu-lab.html', 'Container Type')">
+                BINDING (SCT)
+              </button>
+            </div>
+            <mat-menu #containerTypeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.container.type</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.container.type" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">The type of container associated with the specimen (e.g. slide, aliquot, etc.).</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">Kind of container directly associated with specimen</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHOULD be taken from Laboratory Specimen Container (preferred to <a href="https://hl7.eu/fhir/laboratory/ValueSet/lab-specimenContainer-eu-lab" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.eu/fhir/laboratory/ValueSet/lab-specimenContainer-eu-lab</a>).</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">CodeableConcept</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Container Type</mat-label>
+              <mat-select formControlName="containerType">
+                <mat-option [value]="null">Select container type</mat-option>
+                @for (container of containerTypeOptions; track container) {
+                  <mat-option [value]="container">
+                    {{ container.display }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (specimenForm.get('containerType')?.value) {
+                <mat-hint>
+                  SNOMED CT: {{ specimenForm.get('containerType')?.value?.code || '' }}
+                </mat-hint>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="conditionMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://terminology.hl7.org/7.0.0/ValueSet-v2-0493.html', 'Condition')">
+                BINDING
+              </button>
+            </div>
+            <mat-menu #conditionMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.condition</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Specimen-lab-myhealtheu-definitions.html#Specimen.condition" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">A mode or state of being that describes the nature of the specimen.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">State of the specimen</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Comments:</span>
+                    <span class="fhir-value">Specimen condition is an observation made about the specimen. It's a point-in-time assessment. It can be used to assess its quality or appropriateness for a specific test.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Requirements:</span>
+                    <span class="fhir-value">The specimen condition can be used to assess its quality or appropriateness for a specific test.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..*</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from SpecimenCondition (extensible to <a href="https://terminology.hl7.org/ValueSet/v2-0493" target="_blank" rel="noopener noreferrer" class="valueset-link">https://terminology.hl7.org/ValueSet/v2-0493</a>). Codes describing the state of the specimen.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">CodeableConcept</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">true</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Condition</mat-label>
+              <mat-select formControlName="condition">
+                <mat-option [value]="null">Select specimen condition</mat-option>
+                @for (condition of conditionOptions; track condition) {
+                  <mat-option [value]="condition">
+                    {{ condition.display }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (specimenForm.get('condition')?.value) {
+                <mat-hint>
+                  Code: {{ specimenForm.get('condition')?.value?.code || '' }}
+                </mat-hint>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
 
     </form>
   </div>
@@ -655,9 +683,11 @@
       <mat-icon>{{ isViewOnly ? 'close' : 'cancel' }}</mat-icon>
       {{ isViewOnly ? 'Close' : 'Cancel' }}
     </button>
-    <button *ngIf="!isViewOnly" type="button" mat-raised-button color="primary" (click)="onSubmit()" class="submit-button">
-      <mat-icon>save</mat-icon>
-      Save Specimen
-    </button>
+    @if (!isViewOnly) {
+      <button type="button" mat-raised-button color="primary" (click)="onSubmit()" class="submit-button">
+        <mat-icon>save</mat-icon>
+        Save Specimen
+      </button>
+    }
   </div>
 </div>

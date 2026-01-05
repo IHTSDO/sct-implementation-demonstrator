@@ -6,102 +6,124 @@
   <div class="breadcrumb">
     <span>
       <a href="javascript:void(0)" (click)="mode = 'step1'">Home</a>
-      <span *ngIf="mode == 'Validator'"> / Validator</span>
-      <span *ngIf="mode == 'Manager'"> / Questionnaires repository</span>
+      @if (mode == 'Validator') {
+        <span> / Validator</span>
+      }
+      @if (mode == 'Manager') {
+        <span> / Questionnaires repository</span>
+      }
     </span>
   </div>
 </div>
-<div *ngIf="mode == 'step1' || mode == 'utility'" id="step1">
-  <div class="flex justify-between pr-4">
-    <div class="w-full border-2 border-blue-200 bg-transparent rounded-lg p-4 m-2 min-h-[500px]" *ngIf="mode == 'step1'">
-        <h3 class="text-center">Work with the Questionnaire Manager</h3>
-        <p class="text-center">Connect to a FHIR server to store and version your questionnaire resources. Use the integrated questionnaire manager, editor and validator.</p>
-        <div class="flex justify-center flex-col gap-1 mt-10">
-          <button mat-flat-button color="accent" (click)="step1Response = 'repository'; advanceFromStep1()" class="mx-auto w-auto flex-none">Connect to a FHIR Server and Open Repository Manager</button>
-          <span *ngIf="selectedFhirServer && selectedUserTag" class="mx-auto w-auto flex-none">
-            <a href="javascript:void(0)" (click)="mode = 'Manager'" id="reconnect-link">
-              <mat-icon>play_arrow</mat-icon><span>Reconnect to last FHIR Server</span></a>
-          </span>
-          <span *ngIf="selectedFhirServer && selectedUserTag" class="mx-auto w-auto flex-none">
+@if (mode == 'step1' || mode == 'utility') {
+  <div id="step1">
+    <div class="flex justify-between pr-4">
+      @if (mode == 'step1') {
+        <div class="w-full border-2 border-blue-200 bg-transparent rounded-lg p-4 m-2 min-h-[500px]">
+          <h3 class="text-center">Work with the Questionnaire Manager</h3>
+          <p class="text-center">Connect to a FHIR server to store and version your questionnaire resources. Use the integrated questionnaire manager, editor and validator.</p>
+          <div class="flex justify-center flex-col gap-1 mt-10">
+            <button mat-flat-button color="accent" (click)="step1Response = 'repository'; advanceFromStep1()" class="mx-auto w-auto flex-none">Connect to a FHIR Server and Open Repository Manager</button>
+            @if (selectedFhirServer && selectedUserTag) {
+              <span class="mx-auto w-auto flex-none">
+                <a href="javascript:void(0)" (click)="mode = 'Manager'" id="reconnect-link">
+                  <mat-icon>play_arrow</mat-icon><span>Reconnect to last FHIR Server</span></a>
+                </span>
+              }
+              @if (selectedFhirServer && selectedUserTag) {
+                <span class="mx-auto w-auto flex-none">
+                  <span class="muted">  ( {{ selectedFhirServer }} as "<i>{{ selectedUserTag }}</i>" )</span>
+                </span>
+              }
+            </div>
+          </div>
+        }
+        @if (mode == 'utility') {
+          <div class="w-full border-2 border-blue-200 bg-transparent rounded-lg p-4 m-2 min-h-[500px] justify-center">
+            <h3 class="text-center">Work with a single questionnaire</h3>
+            <p class="text-center">Create, preview or validate a questionnaire you upload from your computer.</p>
+            <div class="flex justify-center flex-col gap-5 mt-10">
+              <button mat-flat-button color="accent" (click)="step1Response = 'edit'; advanceFromStep1()" class="mx-auto w-auto flex-none">Open NLM Form Builder</button>
+              <button mat-flat-button color="accent" (click)="step1Response = 'example'; advanceFromStep1()" class="mx-auto w-auto flex-none">Load an example questionnaire</button>
+              <button mat-flat-button color="accent" (click)="step1Response = 'validate'; advanceFromStep1()" class="mx-auto w-auto flex-none">Upload and validate a questionnaire</button>
+            </div>
+          </div>
+        }
+      </div>
+      <!-- <p>What do you want to do today?</p>
+      <mat-radio-group aria-label="Select an option" [(ngModel)]="step1Response">
+        <mat-radio-button value="edit">Edit a questionnaire in the NLM Form Builder</mat-radio-button>
+        <mat-radio-button value="example">Load an example questionnaire</mat-radio-button>
+        <mat-radio-button value="validate">Upload and validate a questionnaire</mat-radio-button>
+        <mat-radio-button value="repository">Work with your questionnaires from a FHIR server</mat-radio-button>
+        <span *ngIf="selectedFhirServer && selectedUserTag" id="reconnect">
+          <a href="javascript:void(0)" (click)="mode = 'Manager'" id="reconnect-link">
+            <mat-icon>play_arrow</mat-icon><span>Reconnect to last FHIR Server</span></a>
             <span class="muted">  ( {{ selectedFhirServer }} as "<i>{{ selectedUserTag }}</i>" )</span>
           </span>
+        </mat-radio-group>
+        <div class="step-button-container">
+          <button mat-flat-button color="accent" (click)="advanceFromStep1()" [disabled]="!step1Response">Next</button>
+        </div> -->
+      </div>
+    }
+
+    @if (mode == 'Manager' || mode == 'Validator') {
+      <div>
+        <div class="button-container bottom-spacer">
+          @if (mode == 'Manager') {
+            <span>
+              Connected to <a [href]="selectedFhirServer" target="_blank">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"
+            </span>
+          }
+          <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
+          <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">
+            Upload
+          </button>
+          <button mat-flat-button color="accent" (click)="saveQuestionnaireToDisk()" [disabled]="validating || !questionnaire">Download</button>
+          @if (mode == 'Manager') {
+            <button mat-flat-button color="accent" (click)="createQuestionnaire()" [disabled]="validating">
+              Create Questionnaire
+            </button>
+          }
+          @if (mode == 'Manager') {
+            <button mat-flat-button color="accent" (click)="openModularQuestionnaireModal()" [disabled]="validating">
+              Create Modular Questionnaire
+            </button>
+          }
         </div>
-    </div>
-    <div class="w-full border-2 border-blue-200 bg-transparent rounded-lg p-4 m-2 min-h-[500px] justify-center" *ngIf="mode == 'utility'">
-      <h3 class="text-center">Work with a single questionnaire</h3>
-      <p class="text-center">Create, preview or validate a questionnaire you upload from your computer.</p>
-      <div class="flex justify-center flex-col gap-5 mt-10">
-        <button mat-flat-button color="accent" (click)="step1Response = 'edit'; advanceFromStep1()" class="mx-auto w-auto flex-none">Open NLM Form Builder</button>
-        <button mat-flat-button color="accent" (click)="step1Response = 'example'; advanceFromStep1()" class="mx-auto w-auto flex-none">Load an example questionnaire</button>
-        <button mat-flat-button color="accent" (click)="step1Response = 'validate'; advanceFromStep1()" class="mx-auto w-auto flex-none">Upload and validate a questionnaire</button>
+        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedIndexChange)="onTabChange($event)">
+          @if (mode === 'Manager') {
+            <mat-tab label="My Questionnaires">
+              <div class="tab-container">
+                <app-list-questionnaires #questionnairesList [config]="listConfig"
+                  (validateQuestionnaire)="switchToValidateTab($event)"
+                  (previewQuestionnaire)="switchToPreviewTab($event)"
+                  (viewQuestionaireHistory)="switchToHistoryTab($event)">
+                </app-list-questionnaires>
+              </div>
+            </mat-tab>
+          }
+          <mat-tab label="Preview">
+            <div class="tab-container">
+              @if (questionnaire) {
+                <h4>{{ questionnaire.title }} - Version: {{ questionnaire.meta.versionId }} ({{ questionnaire.meta.lastUpdated | date:'fullDate' }})</h4>
+              }
+              <div id="myFormContainer" [class.hidden]="!questionnaire"></div>
+              <!-- <button mat-flat-button color="accent" (click)="getFormData()">Data</button> -->
+            </div>
+          </mat-tab>
+          <mat-tab label="Validate SNOMED Bindings">
+            <app-validate-questionnaire #validateQuestionnaire [questionnaire]="questionnaire"
+              (questionnaireUpdated)="saveQuestionnaire($event)"
+            (validatingQuestionnaire)="validating = $event"></app-validate-questionnaire>
+          </mat-tab>
+          <mat-tab label="History">
+            <app-questionnaire-history #questionnaireHistory [questionnaire]="questionnaire"
+              (previewQuestionnaire)="switchToPreviewTab($event)"
+              (restoreQuestionnaireVersion)="saveQuestionnaire($event)">
+            </app-questionnaire-history>
+          </mat-tab>
+        </mat-tab-group>
       </div>
-  </div>
-</div>
-
-
-  <!-- <p>What do you want to do today?</p>
-  <mat-radio-group aria-label="Select an option" [(ngModel)]="step1Response">
-    <mat-radio-button value="edit">Edit a questionnaire in the NLM Form Builder</mat-radio-button>
-    <mat-radio-button value="example">Load an example questionnaire</mat-radio-button>
-    <mat-radio-button value="validate">Upload and validate a questionnaire</mat-radio-button>
-    <mat-radio-button value="repository">Work with your questionnaires from a FHIR server</mat-radio-button>
-    <span *ngIf="selectedFhirServer && selectedUserTag" id="reconnect">
-      <a href="javascript:void(0)" (click)="mode = 'Manager'" id="reconnect-link">
-        <mat-icon>play_arrow</mat-icon><span>Reconnect to last FHIR Server</span></a>
-      <span class="muted">  ( {{ selectedFhirServer }} as "<i>{{ selectedUserTag }}</i>" )</span>
-    </span>
-
-  </mat-radio-group>
-  <div class="step-button-container">
-    <button mat-flat-button color="accent" (click)="advanceFromStep1()" [disabled]="!step1Response">Next</button>
-  </div> -->
-</div>
-
-<div *ngIf="mode == 'Manager' || mode == 'Validator'">
-  <div class="button-container bottom-spacer">
-    <span *ngIf="mode == 'Manager'">
-      Connected to <a [href]="selectedFhirServer" target="_blank">{{ selectedFhirServer }}</a> as "<i>{{ selectedUserTag }}</i>"
-    </span>
-    <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
-    <button mat-flat-button color="accent" (click)="fileInput.click()" [disabled]="validating">
-      Upload
-    </button>
-    <button mat-flat-button color="accent" (click)="saveQuestionnaireToDisk()" [disabled]="validating || !questionnaire">Download</button>
-    <button mat-flat-button color="accent" (click)="createQuestionnaire()" [disabled]="validating" *ngIf="mode == 'Manager'">
-      Create Questionnaire
-    </button>
-    <button mat-flat-button color="accent" (click)="openModularQuestionnaireModal()" [disabled]="validating" *ngIf="mode == 'Manager'">
-      Create Modular Questionnaire
-    </button>
-  </div>
-
-  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedIndexChange)="onTabChange($event)">
-    <mat-tab label="My Questionnaires" *ngIf="mode === 'Manager'">
-      <div class="tab-container">
-        <app-list-questionnaires #questionnairesList [config]="listConfig"
-          (validateQuestionnaire)="switchToValidateTab($event)"
-          (previewQuestionnaire)="switchToPreviewTab($event)"
-          (viewQuestionaireHistory)="switchToHistoryTab($event)">
-        </app-list-questionnaires>
-      </div>
-    </mat-tab>
-    <mat-tab label="Preview">
-      <div class="tab-container">
-        <h4 *ngIf="questionnaire">{{ questionnaire.title }} - Version: {{ questionnaire.meta.versionId }} ({{ questionnaire.meta.lastUpdated | date:'fullDate' }})</h4>
-        <div id="myFormContainer" [class.hidden]="!questionnaire"></div>
-        <!-- <button mat-flat-button color="accent" (click)="getFormData()">Data</button> -->
-      </div>
-    </mat-tab>
-    <mat-tab label="Validate SNOMED Bindings">
-      <app-validate-questionnaire #validateQuestionnaire [questionnaire]="questionnaire" 
-      (questionnaireUpdated)="saveQuestionnaire($event)" 
-      (validatingQuestionnaire)="validating = $event"></app-validate-questionnaire>
-    </mat-tab>
-    <mat-tab label="History">
-      <app-questionnaire-history #questionnaireHistory [questionnaire]="questionnaire"
-        (previewQuestionnaire)="switchToPreviewTab($event)"
-        (restoreQuestionnaireVersion)="saveQuestionnaire($event)">
-      </app-questionnaire-history>
-    </mat-tab>
-  </mat-tab-group>
-</div>
+    }

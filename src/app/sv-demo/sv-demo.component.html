@@ -1,40 +1,46 @@
 <div class="outer-container">
-    <h3>SNOMED CT - Swedish NRC Demonstrator
-        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
-            <mat-icon>info</mat-icon>
-        </button>
-        <mat-menu #substancePopoverMenu="matMenu" >
-            <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
-                <h4>SNOMED CT - Swedish NRC Demonstrator</h4>
-                <!-- <p>This is a demonstration of the use of SNOMED CT for coding clinical information related to the Nutrition Care Process and using the NCPT Reference Set.</p>
-                <p>For more information check the <a href="https://confluence.ihtsdotools.org/display/WIPnutsig/SNOMED+CT+Implementation+Guide+for+the+Nutrition+Care+Process+Terminology" target="_blank">
-                    Implementation Guide</a>.</p> -->
-            </span>
-        </mat-menu>
-    </h3>
-    <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" *ngIf="initReady">
-        <mat-tab label="NURSING">
-            <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" class="mt-4">
-                <mat-tab *ngFor="let spec of nursingSpecs" label="{{ spec.spec.title}}">
-                    <div class="container">
-                        <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
-                    </div>
-                </mat-tab>
-            </mat-tab-group>
-        </mat-tab>
-        <mat-tab label="NUTRITION">
-            <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" class="mt-4" (selectedTabChange)="onNutritionTabChange($event)">
-                <mat-tab *ngFor="let spec of nutritionSpecs" label="{{ spec.spec.title}}">
-                    <div class="container">
-                        <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
-                    </div>
-                </mat-tab>
-                <mat-tab label="Antropometriskamätningar">
-                    <div class="container">
-                        <div id="myFormContainer" [class.hidden]="!antropometriskQuestionnaire"></div>
-                    </div>
-                </mat-tab>
-            </mat-tab-group>
-        </mat-tab>
+  <h3>SNOMED CT - Swedish NRC Demonstrator
+    <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+      <mat-icon>info</mat-icon>
+    </button>
+    <mat-menu #substancePopoverMenu="matMenu" >
+      <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
+        <h4>SNOMED CT - Swedish NRC Demonstrator</h4>
+        <!-- <p>This is a demonstration of the use of SNOMED CT for coding clinical information related to the Nutrition Care Process and using the NCPT Reference Set.</p>
+        <p>For more information check the <a href="https://confluence.ihtsdotools.org/display/WIPnutsig/SNOMED+CT+Implementation+Guide+for+the+Nutrition+Care+Process+Terminology" target="_blank">
+        Implementation Guide</a>.</p> -->
+      </span>
+    </mat-menu>
+  </h3>
+  @if (initReady) {
+    <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center">
+      <mat-tab label="NURSING">
+        <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" class="mt-4">
+          @for (spec of nursingSpecs; track spec) {
+            <mat-tab label="{{ spec.spec.title}}">
+              <div class="container">
+                <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
+              </div>
+            </mat-tab>
+          }
+        </mat-tab-group>
+      </mat-tab>
+      <mat-tab label="NUTRITION">
+        <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="center" class="mt-4" (selectedTabChange)="onNutritionTabChange($event)">
+          @for (spec of nutritionSpecs; track spec) {
+            <mat-tab label="{{ spec.spec.title}}">
+              <div class="container">
+                <app-bindings-viewer [spec]="spec.spec"></app-bindings-viewer>
+              </div>
+            </mat-tab>
+          }
+          <mat-tab label="Antropometriskamätningar">
+            <div class="container">
+              <div id="myFormContainer" [class.hidden]="!antropometriskQuestionnaire"></div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-tab>
     </mat-tab-group>
+  }
 </div>

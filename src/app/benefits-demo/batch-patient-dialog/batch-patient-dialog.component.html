@@ -1,136 +1,140 @@
 <h2 mat-dialog-title>Generate Multiple Patients</h2>
 
 <mat-dialog-content>
-  <div claate multipss="dialog-content" *ngIf="!isGenerating">
-    <p>Generate synthetic patient data based on real-world health statistics from the <a href="https://www.healthdata.org/research-analysis/gbd" target="_blank" rel="noopener noreferrer">Global Burden of Disease (GBD) Study</a>. These artificial patients reflect disease prevalence patterns by age and gender, allowing you to populate your EHR system with realistic test data.</p>
-
-    <div class="two-column-layout">
-      <div class="column-left">
-        <mat-form-field class="full-width">
-          <mat-label>Number of Patients</mat-label>
-          <input 
-            matInput 
-            type="number" 
-            [(ngModel)]="numberOfPatients"
-            min="1"
-            max="500"
-            [disabled]="isGenerating"
-          >
-          <mat-hint>Enter a number between 1 and 500</mat-hint>
-        </mat-form-field>
-
-        <div class="gender-distribution-container">
-          <p class="section-label">Gender Distribution</p>
-          <div class="slider-container">
-            <span class="slider-label">Female</span>
-            <mat-slider 
-              class="gender-slider"
-              [min]="0"
-              [max]="1"
-              [step]="0.05"
+  @if (!isGenerating) {
+    <div claate multipss="dialog-content">
+      <p>Generate synthetic patient data based on real-world health statistics from the <a href="https://www.healthdata.org/research-analysis/gbd" target="_blank" rel="noopener noreferrer">Global Burden of Disease (GBD) Study</a>. These artificial patients reflect disease prevalence patterns by age and gender, allowing you to populate your EHR system with realistic test data.</p>
+      <div class="two-column-layout">
+        <div class="column-left">
+          <mat-form-field class="full-width">
+            <mat-label>Number of Patients</mat-label>
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="numberOfPatients"
+              min="1"
+              max="500"
               [disabled]="isGenerating"
-              [displayWith]="formatGenderLabel"
-            >
-              <input matSliderThumb [(ngModel)]="genderDistribution" name="genderDistribution">
-            </mat-slider>
-            <span class="slider-label">Male</span>
+              >
+            <mat-hint>Enter a number between 1 and 500</mat-hint>
+          </mat-form-field>
+          <div class="gender-distribution-container">
+            <p class="section-label">Gender Distribution</p>
+            <div class="slider-container">
+              <span class="slider-label">Female</span>
+              <mat-slider
+                class="gender-slider"
+                [min]="0"
+                [max]="1"
+                [step]="0.05"
+                [disabled]="isGenerating"
+                [displayWith]="formatGenderLabel"
+                >
+                <input matSliderThumb [(ngModel)]="genderDistribution" name="genderDistribution">
+              </mat-slider>
+              <span class="slider-label">Male</span>
+            </div>
+            <div class="slider-value">
+              <span>{{ genderDistributionLabel }}</span>
+            </div>
+            <mat-hint class="range-hint">Adjust the probability of generating male vs female patients</mat-hint>
           </div>
-          <div class="slider-value">
-            <span>{{ genderDistributionLabel }}</span>
-          </div>
-          <mat-hint class="range-hint">Adjust the probability of generating male vs female patients</mat-hint>
         </div>
-      </div>
-
-      <div class="column-right">
-        <div class="age-distribution-container">
-          <p class="section-label">Age Distribution</p>
-          <div class="age-inputs">
-            <mat-form-field class="age-input">
-              <mat-label>Children (0-18)</mat-label>
-              <mat-select 
-                [(ngModel)]="ageDistribution.children"
-                [disabled]="isGenerating"
-                name="ageChildren"
-              >
-                <mat-option *ngFor="let option of ageDistributionOptions" [value]="option">
-                  {{ option }}%
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            
-            <mat-form-field class="age-input">
-              <mat-label>Adults (18-65)</mat-label>
-              <mat-select 
-                [(ngModel)]="ageDistribution.adults"
-                [disabled]="isGenerating"
-                name="ageAdults"
-              >
-                <mat-option *ngFor="let option of ageDistributionOptions" [value]="option">
-                  {{ option }}%
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            
-            <mat-form-field class="age-input">
-              <mat-label>Elderly (65+)</mat-label>
-              <mat-select 
-                [(ngModel)]="ageDistribution.elderly"
-                [disabled]="isGenerating"
-                name="ageElderly"
-              >
-                <mat-option *ngFor="let option of ageDistributionOptions" [value]="option">
-                  {{ option }}%
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+        <div class="column-right">
+          <div class="age-distribution-container">
+            <p class="section-label">Age Distribution</p>
+            <div class="age-inputs">
+              <mat-form-field class="age-input">
+                <mat-label>Children (0-18)</mat-label>
+                <mat-select
+                  [(ngModel)]="ageDistribution.children"
+                  [disabled]="isGenerating"
+                  name="ageChildren"
+                  >
+                  @for (option of ageDistributionOptions; track option) {
+                    <mat-option [value]="option">
+                      {{ option }}%
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="age-input">
+                <mat-label>Adults (18-65)</mat-label>
+                <mat-select
+                  [(ngModel)]="ageDistribution.adults"
+                  [disabled]="isGenerating"
+                  name="ageAdults"
+                  >
+                  @for (option of ageDistributionOptions; track option) {
+                    <mat-option [value]="option">
+                      {{ option }}%
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="age-input">
+                <mat-label>Elderly (65+)</mat-label>
+                <mat-select
+                  [(ngModel)]="ageDistribution.elderly"
+                  [disabled]="isGenerating"
+                  name="ageElderly"
+                  >
+                  @for (option of ageDistributionOptions; track option) {
+                    <mat-option [value]="option">
+                      {{ option }}%
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="age-total" [class.invalid]="!ageDistributionValid">
+              <span>Total: {{ ageDistributionTotal }}%</span>
+              @if (!ageDistributionValid) {
+                <span class="error-text"> (Must equal 100%)</span>
+              }
+            </div>
+            <mat-hint class="range-hint">Select percentages in 10% increments. Total must equal 100%.</mat-hint>
           </div>
-          <div class="age-total" [class.invalid]="!ageDistributionValid">
-            <span>Total: {{ ageDistributionTotal }}%</span>
-            <span *ngIf="!ageDistributionValid" class="error-text"> (Must equal 100%)</span>
+          <div class="diagnoses-range-container">
+            <p class="section-label">Number of Diagnoses per Patient</p>
+            <div class="range-inputs">
+              <mat-form-field class="range-input">
+                <mat-label>Minimum</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [(ngModel)]="minDiagnoses"
+                  min="0"
+                  max="10"
+                  [disabled]="isGenerating"
+                  >
+              </mat-form-field>
+              <span class="range-separator">to</span>
+              <mat-form-field class="range-input">
+                <mat-label>Maximum</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [(ngModel)]="maxDiagnoses"
+                  min="0"
+                  max="10"
+                  [disabled]="isGenerating"
+                  >
+              </mat-form-field>
+            </div>
+            <mat-hint class="range-hint">Set both to 0 to generate patients without diagnoses. Each patient will have a random number of diagnoses between these values.</mat-hint>
           </div>
-          <mat-hint class="range-hint">Select percentages in 10% increments. Total must equal 100%.</mat-hint>
-        </div>
-
-        <div class="diagnoses-range-container">
-          <p class="section-label">Number of Diagnoses per Patient</p>
-          <div class="range-inputs">
-            <mat-form-field class="range-input">
-              <mat-label>Minimum</mat-label>
-              <input 
-                matInput 
-                type="number" 
-                [(ngModel)]="minDiagnoses"
-                min="0"
-                max="10"
-                [disabled]="isGenerating"
-              >
-            </mat-form-field>
-            
-            <span class="range-separator">to</span>
-            
-            <mat-form-field class="range-input">
-              <mat-label>Maximum</mat-label>
-              <input 
-                matInput 
-                type="number" 
-                [(ngModel)]="maxDiagnoses"
-                min="0"
-                max="10"
-                [disabled]="isGenerating"
-              >
-            </mat-form-field>
-          </div>
-          <mat-hint class="range-hint">Set both to 0 to generate patients without diagnoses. Each patient will have a random number of diagnoses between these values.</mat-hint>
         </div>
       </div>
     </div>
-  </div>
+  }
 
-  <div class="progress-container" *ngIf="isGenerating">
-    <p>Generating patients... {{ currentPatient }} / {{ numberOfPatients }}</p>
-    <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
-  </div>
+  @if (isGenerating) {
+    <div class="progress-container">
+      <p>Generating patients... {{ currentPatient }} / {{ numberOfPatients }}</p>
+      <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+    </div>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

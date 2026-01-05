@@ -1,84 +1,93 @@
 <div class="flex flex-col items-center gap-4 pt-6 snoguess-game">
-    <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
-    <img src="assets/img/scoreboard.png" alt="High Scores" class="w-1/4 mt-8" [@popIn]>
-    <div class="mb-2 flex flex-row items-center gap-1">
-        <span>Messages posted by players!&nbsp;</span>
-        <mat-icon class="diamond">emoji_events</mat-icon>
-    </div>
-    <div class="mb-3 flex flex-row items-center gap-3">
-      <span *ngFor="let level of difficultyLevels">
-        <a href="javascript:void(0)" class="text-blue-500 underline" *ngIf="selectedLevel != level.name" (click)="setLevel(level.name)">
-          {{level.name}}
-        </a>
-        <span class="selected-level" *ngIf="selectedLevel == level.name">{{level.name}}</span>
+  <img src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT Logo" class="w-1/6">
+  <img src="assets/img/scoreboard.png" alt="High Scores" class="w-1/4 mt-8" [@popIn]>
+  <div class="mb-2 flex flex-row items-center gap-1">
+    <span>Messages posted by players!&nbsp;</span>
+    <mat-icon class="diamond">emoji_events</mat-icon>
+  </div>
+  <div class="mb-3 flex flex-row items-center gap-3">
+    @for (level of difficultyLevels; track level) {
+      <span>
+        @if (selectedLevel != level.name) {
+          <a href="javascript:void(0)" class="text-blue-500 underline" (click)="setLevel(level.name)">
+            {{level.name}}
+          </a>
+        }
+        @if (selectedLevel == level.name) {
+          <span class="selected-level">{{level.name}}</span>
+        }
       </span>
-      <a href="javascript:void(0)" class="text-blue-500 underline" *ngIf="selectedLevel != 'scoreboard'" (click)="setLevel('scoreboard')">
+    }
+    @if (selectedLevel != 'scoreboard') {
+      <a href="javascript:void(0)" class="text-blue-500 underline" (click)="setLevel('scoreboard')">
         Legacy
       </a>
-      <span class="selected-level" *ngIf="selectedLevel == 'scoreboard'">Legacy</span>
-    </div>
-    <div class="flex flex-row items-center gap-3">
-      <h3>Top 20 {{ selectedLevel }} level scores</h3>
-    </div>
-    <mat-spinner *ngIf="loadingScores" diameter="50"></mat-spinner>
+    }
+    @if (selectedLevel == 'scoreboard') {
+      <span class="selected-level">Legacy</span>
+    }
+  </div>
+  <div class="flex flex-row items-center gap-3">
+    <h3>Top 20 {{ selectedLevel }} level scores</h3>
+  </div>
+  @if (loadingScores) {
+    <mat-spinner diameter="50"></mat-spinner>
+  }
 
-    <!-- Table (hidden while loading) -->
-    <div *ngIf="!loadingScores">
-        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-
+  <!-- Table (hidden while loading) -->
+  @if (!loadingScores) {
+    <div>
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
         <!-- Position Column -->
         <ng-container matColumnDef="position">
           <th mat-header-cell *matHeaderCellDef> Position </th>
           <td mat-cell *matCellDef="let element; let i = index"> {{i + 1}} </td>
         </ng-container>
-      
         <!-- Message Column -->
-          <ng-container matColumnDef="message">
-            <th mat-header-cell *matHeaderCellDef> Message </th>
-            <td mat-cell *matCellDef="let element"> 
-              <span *ngIf="element.message">{{element.message | safeText}}</span>
-              <span *ngIf="!element.message" class="text-gray-400"><i>No information available (qualifier value)</i></span>
-            </td>
-          </ng-container>
-
-          <!-- Score Column -->
-          <ng-container matColumnDef="score">
-            <th mat-header-cell *matHeaderCellDef> Score </th>
-            <td mat-cell *matCellDef="let element"> {{element.score}} </td>
-          </ng-container>
-      
-          <!-- Number of Rounds Column -->
-          <ng-container matColumnDef="numberOfRounds">
-            <th mat-header-cell *matHeaderCellDef> Rounds </th>
-            <td mat-cell *matCellDef="let element"> {{element.numberOfRounds}} </td>
-          </ng-container>
-      
-          <!-- Difficulty Column -->
-          <ng-container matColumnDef="difficulty">
-            <th mat-header-cell *matHeaderCellDef> Difficulty </th>
-            <td mat-cell *matCellDef="let element"> {{element.difficulty}} </td>
-          </ng-container>
-      
-          <!-- Seconds Played Column -->
-          <ng-container matColumnDef="secondsPlayed">
-            <th mat-header-cell *matHeaderCellDef> Time Played </th>
-            <td mat-cell *matCellDef="let element"> {{element.elapsed | elapsedTime}} </td>
-          </ng-container>
-      
-          <!-- Date Column -->
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef> Date </th>
-            <td mat-cell *matCellDef="let element"> {{element.date | date:'short'}} </td>
-          </ng-container>
-      
-      
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-      </div>
-      <div (click)="backToGame()" [@scrollUp]
+        <ng-container matColumnDef="message">
+          <th mat-header-cell *matHeaderCellDef> Message </th>
+          <td mat-cell *matCellDef="let element">
+            @if (element.message) {
+              <span>{{element.message | safeText}}</span>
+            }
+            @if (!element.message) {
+              <span class="text-gray-400"><i>No information available (qualifier value)</i></span>
+            }
+          </td>
+        </ng-container>
+        <!-- Score Column -->
+        <ng-container matColumnDef="score">
+          <th mat-header-cell *matHeaderCellDef> Score </th>
+          <td mat-cell *matCellDef="let element"> {{element.score}} </td>
+        </ng-container>
+        <!-- Number of Rounds Column -->
+        <ng-container matColumnDef="numberOfRounds">
+          <th mat-header-cell *matHeaderCellDef> Rounds </th>
+          <td mat-cell *matCellDef="let element"> {{element.numberOfRounds}} </td>
+        </ng-container>
+        <!-- Difficulty Column -->
+        <ng-container matColumnDef="difficulty">
+          <th mat-header-cell *matHeaderCellDef> Difficulty </th>
+          <td mat-cell *matCellDef="let element"> {{element.difficulty}} </td>
+        </ng-container>
+        <!-- Seconds Played Column -->
+        <ng-container matColumnDef="secondsPlayed">
+          <th mat-header-cell *matHeaderCellDef> Time Played </th>
+          <td mat-cell *matCellDef="let element"> {{element.elapsed | elapsedTime}} </td>
+        </ng-container>
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <td mat-cell *matCellDef="let element"> {{element.date | date:'short'}} </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  }
+  <div (click)="backToGame()" [@scrollUp]
         class="bg-gradient-to-b from-blue-500 to-gray-500 hover:from-black hover:to-blue-500 border-solid border-4 border-black 
         rounded-3xl pt-4 pb-4 w-1/6 text-center cursor-pointer font-bold text-white mt-12 mb-24 text-2xl">
-        Back to game
-    </div>
+    Back to game
+  </div>
 </div>

@@ -1,17 +1,25 @@
 <div class="compact-list">
-    <mat-card appearance="outlined">
-        <mat-card-header>
-          <mat-card-title><h2>{{title}}</h2></mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <ul>
-                <li *ngFor="let member of refsetMembers" class="member-row">{{ member.display }}</li>
-                <li *ngIf="searching" class="mt-4"><mat-spinner [diameter]="20"></mat-spinner></li>
-                <li *ngIf="!refsetMembers?.length && !searching">No results...</li>
-                <li *ngIf="!searching && total > refsetMembers.length" (click)="getRefsetMembers()" class="action-row">
-                    Showing {{refsetMembers.length}} of {{total}} members. Load more...
-                </li>
-            </ul>
-        </mat-card-content>
-    </mat-card>
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title><h2>{{title}}</h2></mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <ul>
+        @for (member of refsetMembers; track member.code) {
+          <li class="member-row">{{ member.display }}</li>
+        }
+        @if (searching) {
+          <li class="mt-4"><mat-spinner [diameter]="20"></mat-spinner></li>
+        }
+        @if (!refsetMembers.length && !searching) {
+          <li>No results...</li>
+        }
+        @if (!searching && total > refsetMembers.length) {
+          <li (click)="getRefsetMembers()" class="action-row">
+            Showing {{refsetMembers.length}} of {{total}} members. Load more...
+          </li>
+        }
+      </ul>
+    </mat-card-content>
+  </mat-card>
 </div>

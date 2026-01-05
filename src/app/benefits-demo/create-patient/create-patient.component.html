@@ -12,23 +12,31 @@
         <mat-form-field appearance="fill" class="form-field">
           <mat-label>First Name</mat-label>
           <input matInput formControlName="firstName" placeholder="Enter first name">
-          <mat-error *ngIf="patientForm.get('firstName')?.hasError('required')">
-            First name is required
-          </mat-error>
-          <mat-error *ngIf="patientForm.get('firstName')?.hasError('minlength')">
-            First name must be at least 2 characters
-          </mat-error>
+          @if (patientForm.get('firstName')?.hasError('required')) {
+            <mat-error>
+              First name is required
+            </mat-error>
+          }
+          @if (patientForm.get('firstName')?.hasError('minlength')) {
+            <mat-error>
+              First name must be at least 2 characters
+            </mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="form-field">
           <mat-label>Last Name</mat-label>
           <input matInput formControlName="lastName" placeholder="Enter last name">
-          <mat-error *ngIf="patientForm.get('lastName')?.hasError('required')">
-            Last name is required
-          </mat-error>
-          <mat-error *ngIf="patientForm.get('lastName')?.hasError('minlength')">
-            Last name must be at least 2 characters
-          </mat-error>
+          @if (patientForm.get('lastName')?.hasError('required')) {
+            <mat-error>
+              Last name is required
+            </mat-error>
+          }
+          @if (patientForm.get('lastName')?.hasError('minlength')) {
+            <mat-error>
+              Last name must be at least 2 characters
+            </mat-error>
+          }
         </mat-form-field>
       </div>
 
@@ -36,9 +44,11 @@
         <mat-form-field appearance="fill" class="form-field">
           <mat-label>Date of Birth</mat-label>
           <input matInput formControlName="birthDate" placeholder="YYYY-MM-DD" type="date">
-          <mat-error *ngIf="patientForm.get('birthDate')?.hasError('required')">
-            Date of birth is required
-          </mat-error>
+          @if (patientForm.get('birthDate')?.hasError('required')) {
+            <mat-error>
+              Date of birth is required
+            </mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="form-field">
@@ -49,9 +59,11 @@
             <mat-option value="other">Other</mat-option>
             <mat-option value="unknown">Unknown</mat-option>
           </mat-select>
-          <mat-error *ngIf="patientForm.get('gender')?.hasError('required')">
-            Gender is required
-          </mat-error>
+          @if (patientForm.get('gender')?.hasError('required')) {
+            <mat-error>
+              Gender is required
+            </mat-error>
+          }
         </mat-form-field>
       </div>
     </div>
@@ -63,17 +75,21 @@
         <mat-form-field appearance="fill" class="form-field">
           <mat-label>Phone Number</mat-label>
           <input matInput formControlName="phone" placeholder="+1 (555) 123-4567">
-          <mat-error *ngIf="patientForm.get('phone')?.hasError('pattern')">
-            Please enter a valid phone number
-          </mat-error>
+          @if (patientForm.get('phone')?.hasError('pattern')) {
+            <mat-error>
+              Please enter a valid phone number
+            </mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="form-field">
           <mat-label>Email Address</mat-label>
           <input matInput formControlName="email" placeholder="patient@email.com" type="email">
-          <mat-error *ngIf="patientForm.get('email')?.hasError('email')">
-            Please enter a valid email address
-          </mat-error>
+          @if (patientForm.get('email')?.hasError('email')) {
+            <mat-error>
+              Please enter a valid email address
+            </mat-error>
+          }
         </mat-form-field>
       </div>
     </div>
@@ -115,24 +131,30 @@
 
     <!-- Form Actions -->
     <div class="form-actions">
-      <button 
-        mat-flat-button 
-        color="primary" 
-        type="button" 
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
         (click)="cancel()"
         [disabled]="isSubmitting"
-      >
+        >
         Cancel
       </button>
-      <button 
-        mat-flat-button 
-        color="accent" 
+      <button
+        mat-flat-button
+        color="accent"
         type="submit"
         [disabled]="patientForm.invalid || isSubmitting"
-      >
-        <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
-        <span *ngIf="!isSubmitting">Create Patient</span>
-        <span *ngIf="isSubmitting">Creating...</span>
+        >
+        @if (isSubmitting) {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+        @if (!isSubmitting) {
+          <span>Create Patient</span>
+        }
+        @if (isSubmitting) {
+          <span>Creating...</span>
+        }
       </button>
     </div>
   </form>

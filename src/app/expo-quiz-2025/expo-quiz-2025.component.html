@@ -1,325 +1,366 @@
 <div class="container">
-    <header>
-        <h1>🎯 Expo 2025 Terminology Quiz</h1>
-        <p>Navigate the challenges of meaning: how context shapes terminology!</p>
-    </header>
+  <header>
+    <h1>🎯 Expo 2025 Terminology Quiz</h1>
+    <p>Navigate the challenges of meaning: how context shapes terminology!</p>
+  </header>
 
-    <!-- Quiz Selector - Videogame Style Menu -->
-    <div class="quiz-selector videogame-menu" *ngIf="showQuizSelector">
-        <div class="menu-background" [style.background-image]="'url(' + backgroundImage + ')'"></div>
-        <div class="menu-content">
-            <div class="menu-buttons">
-                <button class="menu-btn" (click)="startQuiz('food')">
-                    <span class="btn-icon">🍽️</span>
-                    <span class="btn-text">Global Food Quiz</span>
-                    <span class="btn-subtitle">Same term, different taste</span>
+  <!-- Quiz Selector - Videogame Style Menu -->
+  @if (showQuizSelector) {
+    <div class="quiz-selector videogame-menu">
+      <div class="menu-background" [style.background-image]="'url(' + backgroundImage + ')'"></div>
+      <div class="menu-content">
+        <div class="menu-buttons">
+          <button class="menu-btn" (click)="startQuiz('food')">
+            <span class="btn-icon">🍽️</span>
+            <span class="btn-text">Global Food Quiz</span>
+            <span class="btn-subtitle">Same term, different taste</span>
+          </button>
+          <button class="menu-btn" (click)="startQuiz('snomed')">
+            <span class="btn-icon">🏥</span>
+            <span class="btn-text">Speaking Clinically: The Global Challenge of Terminology</span>
+            <span class="btn-subtitle">Exploring how clinical terms vary across countries and contexts in SNOMED CT.</span>
+          </button>
+          <button class="menu-btn" (click)="viewLeaderboardFromHome()">
+            <span class="btn-icon">🏆</span>
+            <span class="btn-text">View Leaderboards</span>
+            <span class="btn-subtitle">See top performers</span>
+          </button>
+        </div>
+        <div class="expo-logo-overlay">
+          <img src="assets/img/Expo2025-Logo.png" alt="Expo 2025 Logo" class="expo-logo">
+        </div>
+        <div class="menu-decoration">
+          <div class="decoration-line"></div>
+          <div class="decoration-text">EXPO 2025</div>
+          <div class="decoration-line"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Global Food Quiz -->
+  @if (showFoodQuiz) {
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <h2>🍽️ Global Food Quiz</h2>
+        <div class="score-display">Score: <span>{{ score }}</span>/5</div>
+      </div>
+      @if (currentQuiz === 'food') {
+        <div class="question-container">
+          <div class="question">
+            <h3>Question {{ currentQuestion + 1 }} of 5</h3>
+            <p [innerHTML]="getCurrentQuestion().question"></p>
+            <div class="options">
+              @for (option of getCurrentQuestion().options; track option; let i = $index) {
+                <button
+                  class="option"
+                  [class.selected]="selectedAnswer === i"
+                  [class.correct]="showFeedback && (selectedAnswer === i && isAnswerCorrect || !isAnswerCorrect && i === currentCorrectAnswer)"
+                  [class.incorrect]="showFeedback && selectedAnswer === i && !isAnswerCorrect"
+                  [class.disabled]="showFeedback"
+                  (click)="selectAnswer(i)">
+                  {{ getOptionLetter(i) }}) {{ option }}
+                  @if (showFeedback && !isAnswerCorrect && i === currentCorrectAnswer) {
+                    <span class="correct-indicator">✓ Correct Answer</span>
+                  }
                 </button>
-                <button class="menu-btn" (click)="startQuiz('snomed')">
-                    <span class="btn-icon">🏥</span>
-                    <span class="btn-text">Speaking Clinically: The Global Challenge of Terminology</span>
-                    <span class="btn-subtitle">Exploring how clinical terms vary across countries and contexts in SNOMED CT.</span>
+              }
+            </div>
+            <!-- Feedback Message -->
+            @if (showFeedback) {
+              <div class="feedback-message"
+                [class.correct-feedback]="isAnswerCorrect"
+                [class.incorrect-feedback]="!isAnswerCorrect">
+                {{ feedbackMessage }}
+              </div>
+            }
+            <!-- Explanation -->
+            @if (showFeedback) {
+              <div class="explanation-box">
+                <div class="explanation-header">💡 Explanation</div>
+                <div class="explanation-text">{{ getCurrentQuestion().explanation }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      <div class="quiz-controls">
+        @if (!isLastQuestion()) {
+          <button
+            class="next-btn"
+            [class.hidden]="!canProceed()"
+            (click)="nextQuestion()">
+            Next Question
+          </button>
+        }
+        @if (isLastQuestion()) {
+          <button
+            class="finish-btn"
+            [class.hidden]="!canProceed()"
+            (click)="finishQuiz()">
+            Finish Quiz
+          </button>
+        }
+      </div>
+      <!-- Abandon Quiz Button -->
+      <button class="abandon-quiz-btn" (click)="cancelQuiz()" title="Return to main menu">
+        🚪 Leave Quiz
+      </button>
+    </div>
+  }
+
+  <!-- SNOMED CT Quiz -->
+  @if (showSnomedQuiz) {
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <h2>🏥 Speaking Clinically: The Global Challenge of Terminology</h2>
+        <div class="score-display">Score: <span>{{ score }}</span>/5</div>
+      </div>
+      @if (currentQuiz === 'snomed') {
+        <div class="question-container">
+          <div class="question">
+            <h3>Question {{ currentQuestion + 1 }} of 5</h3>
+            <p [innerHTML]="getCurrentQuestion().question"></p>
+            <div class="options">
+              @for (option of getCurrentQuestion().options; track option; let i = $index) {
+                <button
+                  class="option"
+                  [class.selected]="selectedAnswer === i"
+                  [class.correct]="showFeedback && (selectedAnswer === i && isAnswerCorrect || !isAnswerCorrect && i === currentCorrectAnswer)"
+                  [class.incorrect]="showFeedback && selectedAnswer === i && !isAnswerCorrect"
+                  [class.disabled]="showFeedback"
+                  (click)="selectAnswer(i)">
+                  {{ getOptionLetter(i) }}) {{ option }}
+                  @if (showFeedback && !isAnswerCorrect && i === currentCorrectAnswer) {
+                    <span class="correct-indicator">✓ Correct Answer</span>
+                  }
                 </button>
-                <button class="menu-btn" (click)="viewLeaderboardFromHome()">
-                    <span class="btn-icon">🏆</span>
-                    <span class="btn-text">View Leaderboards</span>
-                    <span class="btn-subtitle">See top performers</span>
-                </button>
+              }
             </div>
-            <div class="expo-logo-overlay">
-                <img src="assets/img/Expo2025-Logo.png" alt="Expo 2025 Logo" class="expo-logo">
-            </div>
-            <div class="menu-decoration">
-                <div class="decoration-line"></div>
-                <div class="decoration-text">EXPO 2025</div>
-                <div class="decoration-line"></div>
-            </div>
+            <!-- Feedback Message -->
+            @if (showFeedback) {
+              <div class="feedback-message"
+                [class.correct-feedback]="isAnswerCorrect"
+                [class.incorrect-feedback]="!isAnswerCorrect">
+                {{ feedbackMessage }}
+              </div>
+            }
+            <!-- Explanation -->
+            @if (showFeedback) {
+              <div class="explanation-box">
+                <div class="explanation-header">💡 Explanation</div>
+                <div class="explanation-text">{{ getCurrentQuestion().explanation }}</div>
+              </div>
+            }
+          </div>
         </div>
+      }
+      <div class="quiz-controls">
+        @if (!isLastQuestion()) {
+          <button
+            class="next-btn"
+            [class.hidden]="!canProceed()"
+            (click)="nextQuestion()">
+            Next Question
+          </button>
+        }
+        @if (isLastQuestion()) {
+          <button
+            class="finish-btn"
+            [class.hidden]="!canProceed()"
+            (click)="finishQuiz()">
+            Finish Quiz
+          </button>
+        }
+      </div>
+      <!-- Abandon Quiz Button -->
+      <button class="abandon-quiz-btn" (click)="cancelQuiz()" title="Return to main menu">
+        🚪 Leave Quiz
+      </button>
     </div>
+  }
 
-    <!-- Global Food Quiz -->
-    <div class="quiz-container" *ngIf="showFoodQuiz">
-        <div class="quiz-header">
-            <h2>🍽️ Global Food Quiz</h2>
-            <div class="score-display">Score: <span>{{ score }}</span>/5</div>
-        </div>
-        <div class="question-container" *ngIf="currentQuiz === 'food'">
-            <div class="question">
-                <h3>Question {{ currentQuestion + 1 }} of 5</h3>
-                <p [innerHTML]="getCurrentQuestion().question"></p>
-                <div class="options">
-                    <button 
-                        *ngFor="let option of getCurrentQuestion().options; let i = index"
-                        class="option"
-                        [class.selected]="selectedAnswer === i"
-                        [class.correct]="showFeedback && (selectedAnswer === i && isAnswerCorrect || !isAnswerCorrect && i === currentCorrectAnswer)"
-                        [class.incorrect]="showFeedback && selectedAnswer === i && !isAnswerCorrect"
-                        [class.disabled]="showFeedback"
-                        (click)="selectAnswer(i)">
-                        {{ getOptionLetter(i) }}) {{ option }}
-                        <span *ngIf="showFeedback && !isAnswerCorrect && i === currentCorrectAnswer" class="correct-indicator">✓ Correct Answer</span>
-                    </button>
-                </div>
-                
-                <!-- Feedback Message -->
-                <div class="feedback-message" *ngIf="showFeedback" 
-                     [class.correct-feedback]="isAnswerCorrect"
-                     [class.incorrect-feedback]="!isAnswerCorrect">
-                    {{ feedbackMessage }}
-                </div>
-                
-                <!-- Explanation -->
-                <div class="explanation-box" *ngIf="showFeedback">
-                    <div class="explanation-header">💡 Explanation</div>
-                    <div class="explanation-text">{{ getCurrentQuestion().explanation }}</div>
-                </div>
+  <!-- Answers Modal -->
+  @if (showAnswersModal) {
+    <div class="modal">
+      <div class="modal-content answers-content">
+        <h2>📋 Quiz Answers & Explanations</h2>
+        <div class="answers-list">
+          @for (item of incorrectAnswers; track item) {
+            <div
+              class="answer-item incorrect">
+              <div class="answer-question">Question {{ item.index + 1 }}: {{ item.question.question }}</div>
+              <div class="answer-options">
+                @for (option of item.question.options; track option; let optionIndex = $index) {
+                  <div
+                    class="answer-option"
+                    [class.user-answer]="optionIndex === item.userAnswer"
+                    [class.incorrect]="optionIndex === item.userAnswer && optionIndex !== item.correctAnswer"
+                    [class.correct-answer]="optionIndex === item.correctAnswer">
+                    {{ getOptionLetter(optionIndex) }}) {{ option }}
+                  </div>
+                }
+              </div>
+              <div class="answer-explanation">{{ item.question.explanation }}</div>
             </div>
+          }
         </div>
-        <div class="quiz-controls">
-            <button 
-                *ngIf="!isLastQuestion()"
-                class="next-btn"
-                [class.hidden]="!canProceed()"
-                (click)="nextQuestion()">
-                Next Question
-            </button>
-            <button 
-                *ngIf="isLastQuestion()"
-                class="finish-btn"
-                [class.hidden]="!canProceed()"
-                (click)="finishQuiz()">
-                Finish Quiz
-            </button>
+        <div class="modal-buttons">
+          <button (click)="viewResults()">View Results</button>
         </div>
-        
-        <!-- Abandon Quiz Button -->
-        <button class="abandon-quiz-btn" (click)="cancelQuiz()" title="Return to main menu">
-            🚪 Leave Quiz
-        </button>
+      </div>
     </div>
+  }
 
-    <!-- SNOMED CT Quiz -->
-    <div class="quiz-container" *ngIf="showSnomedQuiz">
-        <div class="quiz-header">
-            <h2>🏥 Speaking Clinically: The Global Challenge of Terminology</h2>
-            <div class="score-display">Score: <span>{{ score }}</span>/5</div>
+  <!-- Results Modal -->
+  @if (showResultsModal) {
+    <div class="modal">
+      <div class="modal-content">
+        <h2>🎉 Quiz Complete!</h2>
+        <div class="final-score">
+          <p>Your Score: <span>{{ score }}</span>/5</p>
+          <p>{{ getScoreMessage() }}</p>
         </div>
-        <div class="question-container" *ngIf="currentQuiz === 'snomed'">
-            <div class="question">
-                <h3>Question {{ currentQuestion + 1 }} of 5</h3>
-                <p [innerHTML]="getCurrentQuestion().question"></p>
-                <div class="options">
-                    <button 
-                        *ngFor="let option of getCurrentQuestion().options; let i = index"
-                        class="option"
-                        [class.selected]="selectedAnswer === i"
-                        [class.correct]="showFeedback && (selectedAnswer === i && isAnswerCorrect || !isAnswerCorrect && i === currentCorrectAnswer)"
-                        [class.incorrect]="showFeedback && selectedAnswer === i && !isAnswerCorrect"
-                        [class.disabled]="showFeedback"
-                        (click)="selectAnswer(i)">
-                        {{ getOptionLetter(i) }}) {{ option }}
-                        <span *ngIf="showFeedback && !isAnswerCorrect && i === currentCorrectAnswer" class="correct-indicator">✓ Correct Answer</span>
-                    </button>
-                </div>
-                
-                <!-- Feedback Message -->
-                <div class="feedback-message" *ngIf="showFeedback" 
-                     [class.correct-feedback]="isAnswerCorrect"
-                     [class.incorrect-feedback]="!isAnswerCorrect">
-                    {{ feedbackMessage }}
-                </div>
-                
-                <!-- Explanation -->
-                <div class="explanation-box" *ngIf="showFeedback">
-                    <div class="explanation-header">💡 Explanation</div>
-                    <div class="explanation-text">{{ getCurrentQuestion().explanation }}</div>
-                </div>
+        @if (!nameSubmitted) {
+          <div class="leaderboard-section">
+            <h3>🏆 Add to Leaderboard</h3>
+            <input
+              type="text"
+              [(ngModel)]="playerName"
+              placeholder="Enter your name"
+              maxlength="20">
+            <button class="add-score-btn" (click)="addToLeaderboard()">🏆 Add Score</button>
+          </div>
+        }
+        @if (nameSubmitted) {
+          <div class="score-submitted-section">
+            <h3>✅ Score Added Successfully!</h3>
+            <p>Your score has been added to the leaderboard. Check out the rankings below!</p>
+          </div>
+        }
+        <!-- Play Again Button -->
+        <div class="play-again-section">
+          <button class="play-again-btn" (click)="resetQuiz()">🔄 Play Again</button>
+        </div>
+        <!-- Dual Leaderboards Display -->
+        <div class="dual-leaderboards">
+          <h3>📊 Current Leaderboards</h3>
+          <!-- Loading Indicator -->
+          @if (isLoadingLeaderboards) {
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <p class="loading-text">Loading leaderboards...</p>
             </div>
+          }
+          <!-- Leaderboards Content -->
+          @if (!isLoadingLeaderboards) {
+            <div class="leaderboards-container">
+              <!-- Food Quiz Leaderboard -->
+              <div class="leaderboard-panel">
+                <h4>🍽️ Global Food Quiz</h4>
+                <div class="leaderboard-list scrollable">
+                  @if (foodLeaderboard.length === 0) {
+                    <div
+                      class="no-scores">
+                      No scores yet
+                    </div>
+                  }
+                  @for (entry of foodLeaderboard; track entry; let i = $index) {
+                    <div
+                      class="leaderboard-item">
+                      <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
+                      <div class="leaderboard-name">{{ entry.name }}</div>
+                      <div class="leaderboard-score">{{ entry.score }}/5</div>
+                    </div>
+                  }
+                </div>
+              </div>
+              <!-- SNOMED Quiz Leaderboard -->
+              <div class="leaderboard-panel">
+                <h4>🏥 Speaking Clinically: The Global Challenge of Terminology</h4>
+                <div class="leaderboard-list scrollable">
+                  @if (snomedLeaderboard.length === 0) {
+                    <div
+                      class="no-scores">
+                      No scores yet
+                    </div>
+                  }
+                  @for (entry of snomedLeaderboard; track entry; let i = $index) {
+                    <div
+                      class="leaderboard-item">
+                      <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
+                      <div class="leaderboard-name">{{ entry.name }}</div>
+                      <div class="leaderboard-score">{{ entry.score }}/5</div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
         </div>
-        <div class="quiz-controls">
-            <button 
-                *ngIf="!isLastQuestion()"
-                class="next-btn"
-                [class.hidden]="!canProceed()"
-                (click)="nextQuestion()">
-                Next Question
-            </button>
-            <button 
-                *ngIf="isLastQuestion()"
-                class="finish-btn"
-                [class.hidden]="!canProceed()"
-                (click)="finishQuiz()">
-                Finish Quiz
-            </button>
-        </div>
-        
-        <!-- Abandon Quiz Button -->
-        <button class="abandon-quiz-btn" (click)="cancelQuiz()" title="Return to main menu">
-            🚪 Leave Quiz
-        </button>
+      </div>
     </div>
+  }
 
-    <!-- Answers Modal -->
-    <div class="modal" *ngIf="showAnswersModal">
-        <div class="modal-content answers-content">
-            <h2>📋 Quiz Answers & Explanations</h2>
-            <div class="answers-list">
-                <div 
-                    *ngFor="let item of incorrectAnswers"
-                    class="answer-item incorrect">
-                    <div class="answer-question">Question {{ item.index + 1 }}: {{ item.question.question }}</div>
-                    <div class="answer-options">
-                        <div 
-                            *ngFor="let option of item.question.options; let optionIndex = index"
-                            class="answer-option"
-                            [class.user-answer]="optionIndex === item.userAnswer"
-                            [class.incorrect]="optionIndex === item.userAnswer && optionIndex !== item.correctAnswer"
-                            [class.correct-answer]="optionIndex === item.correctAnswer">
-                            {{ getOptionLetter(optionIndex) }}) {{ option }}
-                        </div>
-                    </div>
-                    <div class="answer-explanation">{{ item.question.explanation }}</div>
-                </div>
+  <!-- Leaderboard Modal -->
+  @if (showLeaderboardModal) {
+    <div class="modal">
+      <div class="modal-content leaderboard-modal-content">
+        <h2>🏆 All Quiz Leaderboards</h2>
+        <!-- Loading Indicator -->
+        @if (isLoadingLeaderboards) {
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading leaderboards...</p>
+          </div>
+        }
+        <!-- Leaderboards Content -->
+        @if (!isLoadingLeaderboards) {
+          <div class="leaderboards-container">
+            <!-- Food Quiz Leaderboard -->
+            <div class="leaderboard-panel">
+              <h4>🍽️ Global Food Quiz</h4>
+              <div class="leaderboard-list scrollable">
+                @if (foodLeaderboard.length === 0) {
+                  <div
+                    class="no-scores">
+                    No scores yet. Be the first to add your score!
+                  </div>
+                }
+                @for (entry of foodLeaderboard; track entry; let i = $index) {
+                  <div
+                    class="leaderboard-item">
+                    <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
+                    <div class="leaderboard-name">{{ entry.name }}</div>
+                    <div class="leaderboard-score">{{ entry.score }}/5</div>
+                  </div>
+                }
+              </div>
             </div>
-            <div class="modal-buttons">
-                <button (click)="viewResults()">View Results</button>
+            <!-- SNOMED Quiz Leaderboard -->
+            <div class="leaderboard-panel">
+              <h4>🏥 Speaking Clinically: The Global Challenge of Terminology</h4>
+              <div class="leaderboard-list scrollable">
+                @if (snomedLeaderboard.length === 0) {
+                  <div
+                    class="no-scores">
+                    No scores yet. Be the first to add your score!
+                  </div>
+                }
+                @for (entry of snomedLeaderboard; track entry; let i = $index) {
+                  <div
+                    class="leaderboard-item">
+                    <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
+                    <div class="leaderboard-name">{{ entry.name }}</div>
+                    <div class="leaderboard-score">{{ entry.score }}/5</div>
+                  </div>
+                }
+              </div>
             </div>
-        </div>
+          </div>
+        }
+        <button (click)="hideLeaderboard()">Close</button>
+      </div>
     </div>
-
-    <!-- Results Modal -->
-    <div class="modal" *ngIf="showResultsModal">
-        <div class="modal-content">
-            <h2>🎉 Quiz Complete!</h2>
-            <div class="final-score">
-                <p>Your Score: <span>{{ score }}</span>/5</p>
-                <p>{{ getScoreMessage() }}</p>
-            </div>
-            <div class="leaderboard-section" *ngIf="!nameSubmitted">
-                <h3>🏆 Add to Leaderboard</h3>
-                <input 
-                    type="text" 
-                    [(ngModel)]="playerName"
-                    placeholder="Enter your name" 
-                    maxlength="20">
-                <button class="add-score-btn" (click)="addToLeaderboard()">🏆 Add Score</button>
-            </div>
-            
-            <div class="score-submitted-section" *ngIf="nameSubmitted">
-                <h3>✅ Score Added Successfully!</h3>
-                <p>Your score has been added to the leaderboard. Check out the rankings below!</p>
-            </div>
-            
-            <!-- Play Again Button -->
-            <div class="play-again-section">
-                <button class="play-again-btn" (click)="resetQuiz()">🔄 Play Again</button>
-            </div>
-            
-            <!-- Dual Leaderboards Display -->
-            <div class="dual-leaderboards">
-                <h3>📊 Current Leaderboards</h3>
-                
-                <!-- Loading Indicator -->
-                <div class="loading-container" *ngIf="isLoadingLeaderboards">
-                    <div class="loading-spinner"></div>
-                    <p class="loading-text">Loading leaderboards...</p>
-                </div>
-                
-                <!-- Leaderboards Content -->
-                <div class="leaderboards-container" *ngIf="!isLoadingLeaderboards">
-                    <!-- Food Quiz Leaderboard -->
-                    <div class="leaderboard-panel">
-                        <h4>🍽️ Global Food Quiz</h4>
-                        <div class="leaderboard-list scrollable">
-                            <div 
-                                *ngIf="foodLeaderboard.length === 0"
-                                class="no-scores">
-                                No scores yet
-                            </div>
-                            <div 
-                                *ngFor="let entry of foodLeaderboard; let i = index"
-                                class="leaderboard-item">
-                                <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
-                                <div class="leaderboard-name">{{ entry.name }}</div>
-                                <div class="leaderboard-score">{{ entry.score }}/5</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- SNOMED Quiz Leaderboard -->
-                    <div class="leaderboard-panel">
-                        <h4>🏥 Speaking Clinically: The Global Challenge of Terminology</h4>
-                        <div class="leaderboard-list scrollable">
-                            <div 
-                                *ngIf="snomedLeaderboard.length === 0"
-                                class="no-scores">
-                                No scores yet
-                            </div>
-                            <div 
-                                *ngFor="let entry of snomedLeaderboard; let i = index"
-                                class="leaderboard-item">
-                                <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
-                                <div class="leaderboard-name">{{ entry.name }}</div>
-                                <div class="leaderboard-score">{{ entry.score }}/5</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Leaderboard Modal -->
-    <div class="modal" *ngIf="showLeaderboardModal">
-        <div class="modal-content leaderboard-modal-content">
-            <h2>🏆 All Quiz Leaderboards</h2>
-            
-            <!-- Loading Indicator -->
-            <div class="loading-container" *ngIf="isLoadingLeaderboards">
-                <div class="loading-spinner"></div>
-                <p class="loading-text">Loading leaderboards...</p>
-            </div>
-            
-            <!-- Leaderboards Content -->
-            <div class="leaderboards-container" *ngIf="!isLoadingLeaderboards">
-                <!-- Food Quiz Leaderboard -->
-                    <div class="leaderboard-panel">
-                        <h4>🍽️ Global Food Quiz</h4>
-                        <div class="leaderboard-list scrollable">
-                            <div 
-                                *ngIf="foodLeaderboard.length === 0"
-                                class="no-scores">
-                                No scores yet. Be the first to add your score!
-                            </div>
-                            <div 
-                                *ngFor="let entry of foodLeaderboard; let i = index"
-                                class="leaderboard-item">
-                                <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
-                                <div class="leaderboard-name">{{ entry.name }}</div>
-                                <div class="leaderboard-score">{{ entry.score }}/5</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- SNOMED Quiz Leaderboard -->
-                    <div class="leaderboard-panel">
-                        <h4>🏥 Speaking Clinically: The Global Challenge of Terminology</h4>
-                        <div class="leaderboard-list scrollable">
-                            <div 
-                                *ngIf="snomedLeaderboard.length === 0"
-                                class="no-scores">
-                                No scores yet. Be the first to add your score!
-                            </div>
-                            <div 
-                                *ngFor="let entry of snomedLeaderboard; let i = index"
-                                class="leaderboard-item">
-                                <div class="leaderboard-rank">{{ getRankDisplay(i) }}</div>
-                                <div class="leaderboard-name">{{ entry.name }}</div>
-                                <div class="leaderboard-score">{{ entry.score }}/5</div>
-                            </div>
-                        </div>
-                    </div>
-            </div>
-            <button (click)="hideLeaderboard()">Close</button>
-        </div>
-    </div>
+  }
 </div>

@@ -1,7 +1,9 @@
 <div>{{ binding.title }}</div>
 <mat-radio-group aria-label="Select an option" class="radio-group">
-  <mat-radio-button *ngFor="let item of options" [value]="item.code" class="radio-button" (click)="optionSelected(item)">
-    {{item.display}}
-  </mat-radio-button>
+  @for (item of options; track item) {
+    <mat-radio-button [value]="item.code" class="radio-button" (click)="optionSelected(item)">
+      {{item.display}}
+    </mat-radio-button>
+  }
 </mat-radio-group>
 <div id="hint">{{ binding.note }}</div>

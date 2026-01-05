@@ -5,7 +5,7 @@
 
   <!-- Tab Group for Data Entry, Form Records, and Manage Questionnaires -->
   <mat-tab-group class="forms-tabs" [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
-    
+
     <!-- Data Entry Tab -->
     <mat-tab label="Data Entry">
       <div class="tab-content">
@@ -15,97 +15,114 @@
               <mat-label>Select Clinical Form</mat-label>
               <mat-select [(value)]="selectedForm" (selectionChange)="onFormSelected($event.value)">
                 <mat-optgroup label="Built-in Forms">
-                  <mat-option *ngFor="let form of availableForms" [value]="form.id">
-                    <div class="form-option-content">
-                      <span class="form-name">{{ form.name }}</span>
-                      <span class="form-badge" 
-                            [class.badge-fhir]="getFormType(form.id) === 'fhir'"
-                            [class.badge-openehr]="getFormType(form.id) === 'openehr'">
-                        {{ getFormType(form.id) === 'openehr' ? 'openEHR' : 'FHIR' }}
-                      </span>
-                    </div>
-                  </mat-option>
+                  @for (form of availableForms; track form) {
+                    <mat-option [value]="form.id">
+                      <div class="form-option-content">
+                        <span class="form-name">{{ form.name }}</span>
+                        <span class="form-badge"
+                          [class.badge-fhir]="getFormType(form.id) === 'fhir'"
+                          [class.badge-openehr]="getFormType(form.id) === 'openehr'">
+                          {{ getFormType(form.id) === 'openehr' ? 'openEHR' : 'FHIR' }}
+                        </span>
+                      </div>
+                    </mat-option>
+                  }
                 </mat-optgroup>
-                <mat-optgroup label="Custom Questionnaires" *ngIf="customQuestionnaires.length > 0">
-                  <mat-option *ngFor="let form of customQuestionnaires" [value]="form.id">
-                    <div class="form-option-content">
-                      <span class="form-name">{{ form.name }}</span>
-                      <span class="form-badge badge-fhir">FHIR</span>
-                    </div>
-                  </mat-option>
-                </mat-optgroup>
+                @if (customQuestionnaires.length > 0) {
+                  <mat-optgroup label="Custom Questionnaires">
+                    @for (form of customQuestionnaires; track form) {
+                      <mat-option [value]="form.id">
+                        <div class="form-option-content">
+                          <span class="form-name">{{ form.name }}</span>
+                          <span class="form-badge badge-fhir">FHIR</span>
+                        </div>
+                      </mat-option>
+                    }
+                  </mat-optgroup>
+                }
               </mat-select>
             </mat-form-field>
           </div>
 
-          <div class="form-container" *ngIf="selectedForm">
-            <!-- Adverse Reaction Form -->
-            <div *ngIf="selectedForm === 'adverse-reaction'" class="form-wrapper">
-              <div *ngIf="isSubmitting" class="submission-overlay">
-                <div class="submission-content">
-                  <mat-spinner diameter="50"></mat-spinner>
-                  <h3>Submitting ICSR Report...</h3>
-                  <p>Please wait while we submit your report to the regulatory authority.</p>
-                  <p class="submission-details">This may take a few moments.</p>
+          @if (selectedForm) {
+            <div class="form-container">
+              <!-- Adverse Reaction Form -->
+              @if (selectedForm === 'adverse-reaction') {
+                <div class="form-wrapper">
+                  @if (isSubmitting) {
+                    <div class="submission-overlay">
+                      <div class="submission-content">
+                        <mat-spinner diameter="50"></mat-spinner>
+                        <h3>Submitting ICSR Report...</h3>
+                        <p>Please wait while we submit your report to the regulatory authority.</p>
+                        <p class="submission-details">This may take a few moments.</p>
+                      </div>
+                    </div>
+                  }
+                  <app-adverse-reaction-form
+                    [patient]="patient"
+                    [conditions]="conditions"
+                    [medications]="medications"
+                    (formSubmitted)="onFormSubmitted($event)"
+                    (formCancelled)="onFormCancelled()">
+                  </app-adverse-reaction-form>
                 </div>
-              </div>
-              
-              <app-adverse-reaction-form 
-                [patient]="patient"
-                [conditions]="conditions"
-                [medications]="medications"
-                (formSubmitted)="onFormSubmitted($event)"
-                (formCancelled)="onFormCancelled()">
-              </app-adverse-reaction-form>
+              }
+              <!-- Allergies Form -->
+              @if (selectedForm === 'allergies') {
+                <div class="form-wrapper">
+                  <app-allergies-allergy-list
+                    [embeddedMode]="true"
+                    (newProblem)="onAllergyAdded($event)"
+                    (allergySaved)="onAllergySaved($event)">
+                  </app-allergies-allergy-list>
+                </div>
+              }
+              <!-- Questionnaire Forms -->
+              @if (isQuestionnaireForm(selectedForm)) {
+                <div class="form-wrapper">
+                  <app-questionnaire-form
+                    [questionnaire]="getQuestionnaire(selectedForm)"
+                    [questionnaireId]="selectedForm"
+                    (formSubmitted)="onQuestionnaireSubmitted($event)"
+                    (formCancelled)="onFormCancelled()">
+                  </app-questionnaire-form>
+                </div>
+              }
+              <!-- openEHR Forms -->
+              @if (isOpenehrForm(selectedForm)) {
+                <div class="form-wrapper">
+                  <app-openehr-form
+                    [webTemplate]="getOpenehrTemplate(selectedForm)"
+                    [templateId]="selectedForm"
+                    (formSubmitted)="onOpenehrFormSubmitted($event)"
+                    (formCancelled)="onFormCancelled()">
+                  </app-openehr-form>
+                </div>
+              }
+              <!-- Placeholder for other forms -->
+              @if (selectedForm && !isQuestionnaireForm(selectedForm) && !isOpenehrForm(selectedForm) && selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies') {
+                <div class="form-placeholder">
+                  <div class="placeholder-content">
+                    <mat-icon class="placeholder-icon">description</mat-icon>
+                    <h3>{{ getSelectedFormName() }} Form</h3>
+                    <p>This form is currently under development.</p>
+                    <p>Coming soon...</p>
+                  </div>
+                </div>
+              }
             </div>
+          }
 
-            <!-- Allergies Form -->
-            <div *ngIf="selectedForm === 'allergies'" class="form-wrapper">
-              <app-allergies-allergy-list 
-                [embeddedMode]="true"
-                (newProblem)="onAllergyAdded($event)"
-                (allergySaved)="onAllergySaved($event)">
-              </app-allergies-allergy-list>
-            </div>
-
-            <!-- Questionnaire Forms -->
-            <div *ngIf="isQuestionnaireForm(selectedForm)" class="form-wrapper">
-              <app-questionnaire-form
-                [questionnaire]="getQuestionnaire(selectedForm)"
-                [questionnaireId]="selectedForm"
-                (formSubmitted)="onQuestionnaireSubmitted($event)"
-                (formCancelled)="onFormCancelled()">
-              </app-questionnaire-form>
-            </div>
-
-            <!-- openEHR Forms -->
-            <div *ngIf="isOpenehrForm(selectedForm)" class="form-wrapper">
-              <app-openehr-form
-                [webTemplate]="getOpenehrTemplate(selectedForm)"
-                [templateId]="selectedForm"
-                (formSubmitted)="onOpenehrFormSubmitted($event)"
-                (formCancelled)="onFormCancelled()">
-              </app-openehr-form>
-            </div>
-
-            <!-- Placeholder for other forms -->
-            <div *ngIf="selectedForm && !isQuestionnaireForm(selectedForm) && !isOpenehrForm(selectedForm) && selectedForm !== 'adverse-reaction' && selectedForm !== 'allergies'" class="form-placeholder">
+          @if (!selectedForm) {
+            <div class="no-form-selected">
               <div class="placeholder-content">
                 <mat-icon class="placeholder-icon">description</mat-icon>
-                <h3>{{ getSelectedFormName() }} Form</h3>
-                <p>This form is currently under development.</p>
-                <p>Coming soon...</p>
+                <h3>Select a Clinical Form</h3>
+                <p>Choose a form from the dropdown above to begin documenting clinical information.</p>
               </div>
             </div>
-          </div>
-
-          <div class="no-form-selected" *ngIf="!selectedForm">
-            <div class="placeholder-content">
-              <mat-icon class="placeholder-icon">description</mat-icon>
-              <h3>Select a Clinical Form</h3>
-              <p>Choose a form from the dropdown above to begin documenting clinical information.</p>
-            </div>
-          </div>
+          }
         </div>
       </div>
     </mat-tab>
@@ -134,17 +151,17 @@
           <p class="upload-description">
             Upload a FHIR Questionnaire resource in JSON format. The questionnaire will be available for all patients.
           </p>
-          
+
           <div class="upload-controls">
-            <input 
-              type="file" 
-              #fileInput 
-              accept=".json" 
+            <input
+              type="file"
+              #fileInput
+              accept=".json"
               (change)="onQuestionnaireFileSelected($event)"
               style="display: none">
-            
-            <button 
-              mat-raised-button 
+
+            <button
+              mat-raised-button
               color="primary"
               (click)="fileInput.click()"
               [disabled]="isUploadingQuestionnaire">
@@ -152,15 +169,19 @@
               Choose File
             </button>
 
-            <div *ngIf="isUploadingQuestionnaire" class="upload-progress">
-              <mat-spinner diameter="24"></mat-spinner>
-              <span>Uploading...</span>
-            </div>
+            @if (isUploadingQuestionnaire) {
+              <div class="upload-progress">
+                <mat-spinner diameter="24"></mat-spinner>
+                <span>Uploading...</span>
+              </div>
+            }
 
-            <div *ngIf="uploadError" class="upload-error">
-              <mat-icon>error</mat-icon>
-              {{ uploadError }}
-            </div>
+            @if (uploadError) {
+              <div class="upload-error">
+                <mat-icon>error</mat-icon>
+                {{ uploadError }}
+              </div>
+            }
           </div>
 
           <div class="upload-info">
@@ -183,60 +204,70 @@
               <mat-icon>list</mat-icon>
               Uploaded Questionnaires ({{ customQuestionnaires.length }})
             </h5>
-            <button 
-              mat-stroked-button 
-              color="warn"
-              (click)="deleteAllCustomQuestionnaires()"
-              *ngIf="customQuestionnaires.length > 0">
-              <mat-icon>delete_sweep</mat-icon>
-              Delete All
-            </button>
+            @if (customQuestionnaires.length > 0) {
+              <button
+                mat-stroked-button
+                color="warn"
+                (click)="deleteAllCustomQuestionnaires()"
+                >
+                <mat-icon>delete_sweep</mat-icon>
+                Delete All
+              </button>
+            }
           </div>
 
-          <div *ngIf="customQuestionnaires.length === 0" class="no-questionnaires">
-            <mat-icon>folder_open</mat-icon>
-            <p>No custom questionnaires uploaded yet</p>
-            <p class="hint">Upload a FHIR Questionnaire JSON file to get started</p>
-          </div>
+          @if (customQuestionnaires.length === 0) {
+            <div class="no-questionnaires">
+              <mat-icon>folder_open</mat-icon>
+              <p>No custom questionnaires uploaded yet</p>
+              <p class="hint">Upload a FHIR Questionnaire JSON file to get started</p>
+            </div>
+          }
 
-          <div *ngIf="customQuestionnaires.length > 0" class="questionnaires-list">
-            <mat-card *ngFor="let q of customQuestionnaires" class="questionnaire-card">
-              <mat-card-header>
-                <mat-icon mat-card-avatar>description</mat-icon>
-                <mat-card-title>{{ q.name }}</mat-card-title>
-                <mat-card-subtitle>{{ q.category }}</mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <p class="description">{{ q.description }}</p>
-                <div class="metadata">
-                  <span class="metadata-item">
-                    <mat-icon>event</mat-icon>
-                    Uploaded: {{ getFormattedDate(q.uploadedDate) }}
-                  </span>
-                  <span class="metadata-item" *ngIf="q.data.id">
-                    <mat-icon>fingerprint</mat-icon>
-                    ID: {{ q.data.id }}
-                  </span>
-                </div>
-              </mat-card-content>
-              <mat-card-actions>
-                <button 
-                  mat-button 
-                  color="accent"
-                  (click)="selectedTabIndex = 0; onFormSelected(q.id)">
-                  <mat-icon>edit_note</mat-icon>
-                  Use Form
-                </button>
-                <button 
-                  mat-button 
-                  color="warn"
-                  (click)="deleteCustomQuestionnaire(q.id, q.name)">
-                  <mat-icon>delete</mat-icon>
-                  Delete
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          </div>
+          @if (customQuestionnaires.length > 0) {
+            <div class="questionnaires-list">
+              @for (q of customQuestionnaires; track q) {
+                <mat-card class="questionnaire-card">
+                  <mat-card-header>
+                    <mat-icon mat-card-avatar>description</mat-icon>
+                    <mat-card-title>{{ q.name }}</mat-card-title>
+                    <mat-card-subtitle>{{ q.category }}</mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <p class="description">{{ q.description }}</p>
+                    <div class="metadata">
+                      <span class="metadata-item">
+                        <mat-icon>event</mat-icon>
+                        Uploaded: {{ getFormattedDate(q.uploadedDate) }}
+                      </span>
+                      @if (q.data.id) {
+                        <span class="metadata-item">
+                          <mat-icon>fingerprint</mat-icon>
+                          ID: {{ q.data.id }}
+                        </span>
+                      }
+                    </div>
+                  </mat-card-content>
+                  <mat-card-actions>
+                    <button
+                      mat-button
+                      color="accent"
+                      (click)="selectedTabIndex = 0; onFormSelected(q.id)">
+                      <mat-icon>edit_note</mat-icon>
+                      Use Form
+                    </button>
+                    <button
+                      mat-button
+                      color="warn"
+                      (click)="deleteCustomQuestionnaire(q.id, q.name)">
+                      <mat-icon>delete</mat-icon>
+                      Delete
+                    </button>
+                  </mat-card-actions>
+                </mat-card>
+              }
+            </div>
+          }
         </div>
       </div>
     </mat-tab>

@@ -1,18 +1,30 @@
 <mat-form-field>
-  <mat-label *ngIf="binding.title">{{ binding.title }}</mat-label>
+  @if (binding.title) {
+    <mat-label>{{ binding.title }}</mat-label>
+  }
   <input #inputElement type="text" placeholder="{{ formControl.value?.display || binding.title || 'Search...' }}" matInput [formControl]="formControl" [matAutocomplete]="auto" [readonly]="readonly">
   <!-- [value]="(formControl.value?.display) ? formControl.value.display : ''"> -->
-  <mat-hint *ngIf="selectedConcept?.code">SNOMED CT: {{ selectedConcept.code }}</mat-hint>
-  <mat-hint *ngIf="!selectedConcept?.code">{{ binding.note }}</mat-hint>
-  <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()" *ngIf="formControl.value && !readonly">
-    <mat-icon>close</mat-icon>
-  </button>
+  @if (selectedConcept?.code) {
+    <mat-hint>SNOMED CT: {{ selectedConcept.code }}</mat-hint>
+  }
+  @if (!selectedConcept?.code) {
+    <mat-hint>{{ binding.note }}</mat-hint>
+  }
+  @if (formControl.value && !readonly) {
+    <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
   <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="change($event)">
-    <mat-option disabled class="loading" *ngIf="loading">
-      <mat-spinner diameter="35"></mat-spinner>
-    </mat-option>
-    <mat-option *ngFor="let concept of autoFilter | async" [value]="concept">
-      {{ concept.display }}
-    </mat-option>
+    @if (loading) {
+      <mat-option disabled class="loading">
+        <mat-spinner diameter="35"></mat-spinner>
+      </mat-option>
+    }
+    @for (concept of autoFilter | async; track concept.code) {
+      <mat-option [value]="concept">
+        {{ concept.display }}
+      </mat-option>
+    }
   </mat-autocomplete>
 </mat-form-field>

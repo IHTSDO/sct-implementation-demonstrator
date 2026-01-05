@@ -321,7 +321,7 @@
                   <h4><mat-icon>medical_services</mat-icon> Conditions</h4>
                   <span class="item-count">{{ conditions.length }}</span>
                 </div>
-                <div class="clinical-list compact" *ngIf="conditions.length > 0; else noConditions">
+                <div class="clinical-list compact" *ngIf="conditions.length > 0; else noConditionsList">
                   <div class="clinical-item compact" 
                        *ngFor="let condition of getSortedConditions()">
                     <div class="item-header compact">
@@ -353,7 +353,7 @@
                     </div>
                   </div>
                 </div>
-                <ng-template #noConditions>
+                <ng-template #noConditionsList>
                   <div class="no-clinical-data compact">No conditions recorded</div>
                 </ng-template>
 

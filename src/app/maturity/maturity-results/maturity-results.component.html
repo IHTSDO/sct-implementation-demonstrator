@@ -1,89 +1,101 @@
 <h3 class="centered-box">
   <div class="score-display">
-    <div class="score-indicator" 
-         [ngStyle]="{'background-color': getScoreColor(getDisplayOverallAverage())}">
+    <div class="score-indicator"
+      [ngStyle]="{'background-color': getScoreColor(getDisplayOverallAverage())}">
     </div>
-    {{ getDisplayOverallAverage() | number:'1.2-2' }} 
-    - 
+    {{ getDisplayOverallAverage() | number:'1.2-2' }}
+    -
     {{ getScaleLabel(getDisplayOverallAverage()) }}
   </div>
 </h3>
 <br>
-<!-- BEGIN Scale Display -->
-<div class="score-scale-container">
-  <div class="score-scale">
-    <!-- MAIN MARKER: for the dynamic overall average -->
-    <div class="score-marker" [ngStyle]="{'left': 'calc(' + getMarkerPosition(getDisplayOverallAverage()) + '% - 3px)'}"></div>
+  <!-- BEGIN Scale Display -->
+  <div class="score-scale-container">
+    <div class="score-scale">
+      <!-- MAIN MARKER: for the dynamic overall average -->
+      <div class="score-marker" [ngStyle]="{'left': 'calc(' + getMarkerPosition(getDisplayOverallAverage()) + '% - 3px)'}"></div>
 
-    <!-- HARD-CODED TICK for 0 -->
-    <div class="score-tick" [ngStyle]="{ 'left': getMarkerPosition(0) + '%' }">
-      <div class="score-tick-label">0</div>
+      <!-- HARD-CODED TICK for 0 -->
+      <div class="score-tick" [ngStyle]="{ 'left': getMarkerPosition(0) + '%' }">
+        <div class="score-tick-label">0</div>
+      </div>
+
+      <!-- FIXED TICKS: for exact integer scores (1,2,3,4,5) -->
+      @for (level of resultsScale; track level) {
+        <div
+          class="score-tick"
+          [ngStyle]="{ 'left': getMarkerPosition(level.value) + '%' }"
+          >
+          <div class="score-tick-label">{{ level.value }}</div>
+        </div>
+      }
     </div>
-
-    <!-- FIXED TICKS: for exact integer scores (1,2,3,4,5) -->
-    <div
-      *ngFor="let level of resultsScale"
-      class="score-tick"
-      [ngStyle]="{ 'left': getMarkerPosition(level.value) + '%' }"
-    >
-      <div class="score-tick-label">{{ level.value }}</div>
+    <div class="score-scale-labels">
+      @for (level of resultsScale; track level) {
+        <span class="level-label">{{ level.label }}</span>
+      }
     </div>
   </div>
-  <div class="score-scale-labels">
-    <span *ngFor="let level of resultsScale" class="level-label">{{ level.label }}</span>
-  </div>
-</div>
-<!-- END Scale Display -->
-<table class="bordered-table">
-  <thead>
-    <tr>  
-      <th>KPA Description <span *ngIf="commentList.length > 0">(responses with comments are listed)</span></th>
-      <th>KPA Average Score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <ng-container *ngFor="let stakeholder of getStakeholders(maturityResponse)">
-      <ng-container *ngIf="stakeholder == maturityResponse.selectedStakeholder">
-        <ng-container *ngFor="let kpa of getKpas(maturityResponse, stakeholder)">
-          <ng-container *ngFor="let question of getQuestions(maturityResponse, stakeholder, kpa) | keyvalue; let i = index">
-            <tr>
-              <!-- KPA Column -->
-              <td *ngIf="isFirstRowInKpa(i)" 
-                  [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)">
-                {{ getKpaName(kpa) | titlecase }}
-              </td>
-  
-              <!-- Result Column -->
-              <td *ngIf="isFirstRowInKpa(i)" 
-                  [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)" class="text-center">
-                <div class="score-display">
-                  <div class="score-indicator" 
-                       [ngStyle]="{'background-color': getScoreColor(getDisplayKpaAverage(kpa))}">
-                  </div>
-                  {{ getDisplayKpaAverage(kpa) | number: '1.2-2' }} - {{ getScaleLabel(getDisplayKpaAverage(kpa)) }}
-                </div>
-              </td>
-            </tr>
-          </ng-container>
-          <ng-container *ngFor="let comment of commentList">
-            <tr *ngIf="comment.kpa == kpa">
-              <td colspan="2">
-                <div  class="comment">
-                  <mat-icon>comment</mat-icon>
-                  <p>
-                    {{ comment.questionText }}<br>
-                    Result: {{ convertToFiveScale(comment.selectedScore) | number:'1.2-2' }} - {{ comment.selectedOptionText }} Comment: <i>{{ comment.text }}</i>
-                  </p>
-                </div>
-              </td>
-            </tr>
-          </ng-container>
-        </ng-container>
-      </ng-container>
-    </ng-container>
-  </tbody>
-</table>
-<div class="chart-container" *ngIf="!expoMode">
-  <canvas #radarCanvas></canvas>
-</div>
-<br>
+  <!-- END Scale Display -->
+  <table class="bordered-table">
+    <thead>
+      <tr>
+        <th>KPA Description @if (commentList.length > 0) {
+          <span>(responses with comments are listed)</span>
+        }</th>
+        <th>KPA Average Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (stakeholder of getStakeholders(maturityResponse); track stakeholder) {
+        @if (stakeholder == maturityResponse.selectedStakeholder) {
+          @for (kpa of getKpas(maturityResponse, stakeholder); track kpa) {
+            @for (question of getQuestions(maturityResponse, stakeholder, kpa) | keyvalue; track question; let i = $index) {
+              <tr>
+                <!-- KPA Column -->
+                @if (isFirstRowInKpa(i)) {
+                  <td
+                    [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)">
+                    {{ getKpaName(kpa) | titlecase }}
+                  </td>
+                }
+                <!-- Result Column -->
+                @if (isFirstRowInKpa(i)) {
+                  <td
+                    [attr.rowspan]="getKpaRowSpan(maturityResponse, stakeholder, kpa)" class="text-center">
+                    <div class="score-display">
+                      <div class="score-indicator"
+                        [ngStyle]="{'background-color': getScoreColor(getDisplayKpaAverage(kpa))}">
+                      </div>
+                      {{ getDisplayKpaAverage(kpa) | number: '1.2-2' }} - {{ getScaleLabel(getDisplayKpaAverage(kpa)) }}
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+            @for (comment of commentList; track comment) {
+              @if (comment.kpa == kpa) {
+                <tr>
+                  <td colspan="2">
+                    <div  class="comment">
+                      <mat-icon>comment</mat-icon>
+                      <p>
+                        {{ comment.questionText }}<br>
+                        Result: {{ convertToFiveScale(comment.selectedScore) | number:'1.2-2' }} - {{ comment.selectedOptionText }} Comment: <i>{{ comment.text }}</i>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          }
+        }
+      }
+    </tbody>
+  </table>
+  @if (!expoMode) {
+    <div class="chart-container">
+      <canvas #radarCanvas></canvas>
+    </div>
+  }
+  <br>

@@ -1,87 +1,89 @@
 <div class="main-container">
-    <div class="flip-card" [class.flipped]="isFlipped">
-        <div class="flip-card-inner">
-        <div class="flip-card-front">
-            <div class="header-row mb-8">
-                <h2>Laboratory Results using the LOINC Ontology</h2>
-                <button mat-raised-button color="primary" (click)="flipCard()" class="rbutton">
-                    See FHIR Resources
-                </button>
-            </div>
-            <div class="result">
-                <div class="w-full flex flex-row justify-between">
-                    <img src="assets/img/lab-logo.png" alt="SNOMEDians Logo" class="logo">
-                    <p class="font-bold text-3xl">LABORATORY REPORT</p>
-                    <p class="text-right ">{{ getCurrentDate()}}</p>
-                </div>
-                <!-- <p class="text-left w-full font-bold">=========================</p> -->
-                <br>
-                <p class="text-left w-full">
-                    <b>Patient:</b> Jane Doe
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <b>Address</b>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <b>Contact information</b>
-                </p>
-                <p class="text-left w-full">
-                    <b>DOB:</b> 01/01/1970
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    123 Main St
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    Phone: 123-456-7890
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    Date performed: {{ getCurrentDate() }}
-                </p>
-                <p class="text-left w-full">
-                    <b>MRN:</b> 1234567890
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    Anytown, USA
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    Email: {{ 'jane@email.com' }}
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    Date collected: {{ getCurrentDate() }}
-                </p>
-                <br><br>
-                <p class="result-line font-bold">RESULTS</p>
-                <table class="result-table">
-                    <tr>
-                        <th>Test</th>
-                        <th>Result</th>
-                        <th>Units</th>
-                        <th>Reference Range</th>
-                    </tr>
-                    <tr *ngFor="let result of results">
-                        <td class="pl-2" [matTooltip]="'LOINC: ' + result.labConcept.coding[1].code + ' SNOMED: ' + result.labConcept.coding[0].code">
-                            {{result.labConcept.text}}
-                        </td>
-                        <td class="text-right pr-4">{{result.result}}</td>
-                        <td class="text-right pr-4" [matTooltip]="'SNOMED: ' + result.units.code">
-                            {{result.units.display}}
-                        </td>
-                        <td class="text-right pr-4">{{result.referenceRange}}</td>
-                    </tr>
-                </table>
-                <br><br><br><br>
-                <p>Laboratory Signature: ___________________________</p>
-                <br><br>
-            </div>
+  <div class="flip-card" [class.flipped]="isFlipped">
+    <div class="flip-card-inner">
+      <div class="flip-card-front">
+        <div class="header-row mb-8">
+          <h2>Laboratory Results using the LOINC Ontology</h2>
+          <button mat-raised-button color="primary" (click)="flipCard()" class="rbutton">
+            See FHIR Resources
+          </button>
+        </div>
+        <div class="result">
+          <div class="w-full flex flex-row justify-between">
+            <img src="assets/img/lab-logo.png" alt="SNOMEDians Logo" class="logo">
+            <p class="font-bold text-3xl">LABORATORY REPORT</p>
+            <p class="text-right ">{{ getCurrentDate()}}</p>
+          </div>
+          <!-- <p class="text-left w-full font-bold">=========================</p> -->
+          <br>
+            <p class="text-left w-full">
+              <b>Patient:</b> Jane Doe
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <b>Address</b>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <b>Contact information</b>
+            </p>
+            <p class="text-left w-full">
+              <b>DOB:</b> 01/01/1970
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              123 Main St
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              Phone: 123-456-7890
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              Date performed: {{ getCurrentDate() }}
+            </p>
+            <p class="text-left w-full">
+              <b>MRN:</b> 1234567890
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              Anytown, USA
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              Email: {{ 'jane@email.com' }}
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              Date collected: {{ getCurrentDate() }}
+            </p>
+            <br><br>
+            <p class="result-line font-bold">RESULTS</p>
+            <table class="result-table">
+              <tr>
+                <th>Test</th>
+                <th>Result</th>
+                <th>Units</th>
+                <th>Reference Range</th>
+              </tr>
+              @for (result of results; track result) {
+                <tr>
+                  <td class="pl-2" [matTooltip]="'LOINC: ' + result.labConcept.coding[1].code + ' SNOMED: ' + result.labConcept.coding[0].code">
+                    {{result.labConcept.text}}
+                  </td>
+                  <td class="text-right pr-4">{{result.result}}</td>
+                  <td class="text-right pr-4" [matTooltip]="'SNOMED: ' + result.units.code">
+                    {{result.units.display}}
+                  </td>
+                  <td class="text-right pr-4">{{result.referenceRange}}</td>
+                </tr>
+              }
+            </table>
+            <br><br><br><br>
+            <p>Laboratory Signature: ___________________________</p>
+            <br><br>
+          </div>
         </div>
 
         <div class="flip-card-back">
-            <div class="header-row mb-8">
-                <h2>FHIR Resources</h2>
-                <button mat-raised-button color="primary" (click)="flipCard()" class="lbutton">
-                See clinical report
-                </button>
+          <div class="header-row mb-8">
+            <h2>FHIR Resources</h2>
+            <button mat-raised-button color="primary" (click)="flipCard()" class="lbutton">
+              See clinical report
+            </button>
+          </div>
+          <div id="output">
+            <div id="save">
+              <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+              <button mat-icon-button (click)="copyToClipboard(fhirBundleStr)" matTooltip="Copy FHIR Resource"><mat-icon fontIcon="content_copy"></mat-icon></button>
             </div>
-            <div id="output">
-                <div id="save">
-                    <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource"><mat-icon fontIcon="cloud_download"></mat-icon></button>
-                    <button mat-icon-button (click)="copyToClipboard(fhirBundleStr)" matTooltip="Copy FHIR Resource"><mat-icon fontIcon="content_copy"></mat-icon></button>
-                </div>
-                <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirBundleStr" wrap="soft">
-                </textarea>
-            </div>
+            <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirBundleStr" wrap="soft">
+            </textarea>
+          </div>
         </div>
+      </div>
     </div>
-</div>

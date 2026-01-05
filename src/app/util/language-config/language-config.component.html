@@ -1,10 +1,11 @@
 <div class="language-config-container">
-    <h2 class="text-center">Language Context Editor</h2>
-  
-    <!-- Drag-and-drop list of contexts -->
-    <div cdkDropList (cdkDropListDropped)="drop($event)">
-      <mat-list>
-        <mat-list-item *ngFor="let ctx of context; let i = index" cdkDrag>
+  <h2 class="text-center">Language Context Editor</h2>
+
+  <!-- Drag-and-drop list of contexts -->
+  <div cdkDropList (cdkDropListDropped)="drop($event)">
+    <mat-list>
+      @for (ctx of context; track ctx; let i = $index) {
+        <mat-list-item cdkDrag>
           <div class="context-item">
             <mat-icon class="drag-handle">drag_handle</mat-icon>
             <span class="row-num">{{ i + 1 }}</span>
@@ -12,39 +13,42 @@
             <mat-form-field class="flex-form-field">
               <mat-label>Language Code</mat-label>
               <mat-select [(ngModel)]="ctx.languageCode">
-                <mat-option *ngFor="let code of languageCodes" [value]="code">
-                  {{ code }}
-                </mat-option>
+                @for (code of languageCodes; track code) {
+                  <mat-option [value]="code">
+                    {{ code }}
+                  </mat-option>
+                }
               </mat-select>
             </mat-form-field>
-  
             <!-- Language Refset Field -->
             <mat-form-field class="flex-form-field">
               <mat-label>Language Refset</mat-label>
               <mat-select [(ngModel)]="ctx.languageRefset">
-                <mat-option *ngFor="let refset of languageRefsets" [value]="refset">
-                  {{ refset.display }}
-                </mat-option>
+                @for (refset of languageRefsets; track refset) {
+                  <mat-option [value]="refset">
+                    {{ refset.display }}
+                  </mat-option>
+                }
               </mat-select>
             </mat-form-field>
-  
             <!-- Delete Button -->
             <button mat-icon-button color="primary" (click)="removeContext(i)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
         </mat-list-item>
-      </mat-list>
-    </div>
-  
-    <!-- Button to add a new context -->
-    <div class="add-context-container">
-      <button mat-raised-button color="primary" (click)="addContext()">Add rule</button>
-    </div>
-  
-    <!-- Action buttons -->
-    <div class="action-buttons">
-      <button mat-raised-button class="cancel-button" (click)="close()">Cancel</button>
-      <button mat-raised-button color="accent" (click)="save()">Save</button>
-    </div>
+      }
+    </mat-list>
   </div>
+
+  <!-- Button to add a new context -->
+  <div class="add-context-container">
+    <button mat-raised-button color="primary" (click)="addContext()">Add rule</button>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="action-buttons">
+    <button mat-raised-button class="cancel-button" (click)="close()">Cancel</button>
+    <button mat-raised-button color="accent" (click)="save()">Save</button>
+  </div>
+</div>

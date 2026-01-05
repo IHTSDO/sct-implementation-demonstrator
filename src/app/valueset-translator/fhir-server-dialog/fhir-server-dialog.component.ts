@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-fhir-server-dialog',
@@ -16,12 +16,16 @@ import { CommonModule } from '@angular/common';
         <mat-form-field appearance="fill" class="full-width">
           <mat-label>FHIR Server URL</mat-label>
           <input matInput formControlName="serverUrl" placeholder="https://your-fhir-server.com/fhir">
-          <mat-error *ngIf="form.get('serverUrl')?.hasError('required')">
-            FHIR Server URL is required
-          </mat-error>
-          <mat-error *ngIf="form.get('serverUrl')?.hasError('pattern')">
-            Please enter a valid URL
-          </mat-error>
+          @if (form.get('serverUrl')?.hasError('required')) {
+            <mat-error>
+              FHIR Server URL is required
+            </mat-error>
+          }
+          @if (form.get('serverUrl')?.hasError('pattern')) {
+            <mat-error>
+              Please enter a valid URL
+            </mat-error>
+          }
         </mat-form-field>
       </form>
     </mat-dialog-content>
@@ -29,7 +33,7 @@ import { CommonModule } from '@angular/common';
       <button mat-button mat-dialog-close>Cancel</button>
       <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">Submit</button>
     </mat-dialog-actions>
-  `,
+    `,
   styles: [`
     .full-width {
       width: 100%;
@@ -41,13 +45,12 @@ import { CommonModule } from '@angular/common';
   `],
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatDialogModule
-  ]
+]
 })
 export class FhirServerDialogComponent {
   form: FormGroup;

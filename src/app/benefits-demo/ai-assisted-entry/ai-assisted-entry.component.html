@@ -11,97 +11,106 @@
           <!-- Single editable field with real-time highlights -->
           <div class="ai-editor-container">
             <div class="ai-editor-field"
-                 contenteditable="false"
-                 (input)="onContentEdit($event)"
-                 (keyup)="onContentEdit($event)"
-                 (paste)="onPaste($event)"
-                 #editableDiv>
+              contenteditable="false"
+              (input)="onContentEdit($event)"
+              (keyup)="onContentEdit($event)"
+              (paste)="onPaste($event)"
+              #editableDiv>
             </div>
-            <div class="ai-placeholder" *ngIf="!clinicalText">
-              This is a user experience demo, there is no real AI model and only a few simulated detections are shown.
-              <br><br>
-              Insert sample text using the button below to see a simulation of AI-assisted clincal entities detection.
-            </div>
+            @if (!clinicalText) {
+              <div class="ai-placeholder">
+                This is a user experience demo, there is no real AI model and only a few simulated detections are shown.
+                <br><br>
+                Insert sample text using the button below to see a simulation of AI-assisted clincal entities detection.
+              </div>
+            }
           </div>
-          
+
           <!-- Encounter Form -->
-          <div class="encounter-form-section" *ngIf="hasDetectedEntities()">
-            <h4>Encounter Details</h4>
-            <p class="encounter-description">Configure the encounter details for this clinical session</p>
-            
-            <div class="encounter-form">
-              <!-- Reason for Encounter -->
-              <div class="form-field">
-                <label for="reasonForEncounter">Reason for Encounter</label>
-                <mat-select 
-                  id="reasonForEncounter"
-                  [(value)]="selectedReasonForEncounter"
-                  (selectionChange)="onReasonForEncounterChange($event.value)"
-                  placeholder="Select reason for encounter">
-                  <mat-option [value]="null">None</mat-option>
-                  <mat-option *ngFor="let condition of detectedConditions" 
-                              [value]="condition">
-                    {{ condition.name }}
-                  </mat-option>
-                </mat-select>
-              </div>
-
-              <!-- Diagnosis -->
-              <div class="form-field">
-                <label for="diagnosis">Diagnosis</label>
-                <mat-select 
-                  id="diagnosis"
-                  [(value)]="selectedDiagnosis"
-                  (selectionChange)="onDiagnosisChange($event.value)"
-                  placeholder="Select diagnosis">
-                  <mat-option [value]="null">None</mat-option>
-                  <mat-option *ngFor="let condition of detectedConditions" 
-                              [value]="condition">
-                    {{ condition.name }}
-                  </mat-option>
-                </mat-select>
-              </div>
-
-              <!-- Procedure -->
-              <div class="form-field">
-                <label for="procedure">Procedure</label>
-                <mat-select 
-                  id="procedure"
-                  [(value)]="selectedProcedure"
-                  (selectionChange)="onProcedureChange($event.value)"
-                  placeholder="Select procedure">
-                  <mat-option [value]="null">None</mat-option>
-                  <mat-option *ngFor="let procedure of detectedProcedures" 
-                              [value]="procedure">
-                    {{ procedure.name }}
-                  </mat-option>
-                </mat-select>
+          @if (hasDetectedEntities()) {
+            <div class="encounter-form-section">
+              <h4>Encounter Details</h4>
+              <p class="encounter-description">Configure the encounter details for this clinical session</p>
+              <div class="encounter-form">
+                <!-- Reason for Encounter -->
+                <div class="form-field">
+                  <label for="reasonForEncounter">Reason for Encounter</label>
+                  <mat-select
+                    id="reasonForEncounter"
+                    [(value)]="selectedReasonForEncounter"
+                    (selectionChange)="onReasonForEncounterChange($event.value)"
+                    placeholder="Select reason for encounter">
+                    <mat-option [value]="null">None</mat-option>
+                    @for (condition of detectedConditions; track condition) {
+                      <mat-option
+                        [value]="condition">
+                        {{ condition.name }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </div>
+                <!-- Diagnosis -->
+                <div class="form-field">
+                  <label for="diagnosis">Diagnosis</label>
+                  <mat-select
+                    id="diagnosis"
+                    [(value)]="selectedDiagnosis"
+                    (selectionChange)="onDiagnosisChange($event.value)"
+                    placeholder="Select diagnosis">
+                    <mat-option [value]="null">None</mat-option>
+                    @for (condition of detectedConditions; track condition) {
+                      <mat-option
+                        [value]="condition">
+                        {{ condition.name }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </div>
+                <!-- Procedure -->
+                <div class="form-field">
+                  <label for="procedure">Procedure</label>
+                  <mat-select
+                    id="procedure"
+                    [(value)]="selectedProcedure"
+                    (selectionChange)="onProcedureChange($event.value)"
+                    placeholder="Select procedure">
+                    <mat-option [value]="null">None</mat-option>
+                    @for (procedure of detectedProcedures; track procedure.id) {
+                      <mat-option
+                        [value]="procedure">
+                        {{ procedure.name }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </div>
               </div>
             </div>
-          </div>
+          }
 
           <div class="sample-text-section">
-            <button mat-raised-button 
-                    class="sample-text-button"
-                    (click)="addSampleText()"
-                    [disabled]="isProcessing">
+            <button mat-raised-button
+              class="sample-text-button"
+              (click)="addSampleText()"
+              [disabled]="isProcessing">
               <mat-icon>auto_awesome</mat-icon>
               Add Sample Text
             </button>
-            <button mat-raised-button 
-                    color="primary"
-                    class="save-all-button"
-                    (click)="saveAllDetected()"
-                    [disabled]="isProcessing || !hasDetectedEntities()">
+            <button mat-raised-button
+              color="primary"
+              class="save-all-button"
+              (click)="saveAllDetected()"
+              [disabled]="isProcessing || !hasDetectedEntities()">
               <mat-icon>save</mat-icon>
               Save All to Patient
             </button>
           </div>
-          
-          <div class="ai-status" *ngIf="isProcessing">
-            <mat-spinner diameter="20"></mat-spinner>
-            <span>AI analyzing text...</span>
-          </div>
+
+          @if (isProcessing) {
+            <div class="ai-status">
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>AI analyzing text...</span>
+            </div>
+          }
         </div>
       </div>
 
@@ -110,112 +119,129 @@
         <div class="detection-section">
           <h4>Detected Clinical Entities</h4>
           <p class="detection-description">AI-detected conditions, procedures, and medications</p>
-          
+
           <!-- Detected Conditions -->
-          <div class="detected-category" *ngIf="detectedConditions.length > 0">
-            <div class="category-header conditions-header">
-              <h5><mat-icon>medical_services</mat-icon> Conditions</h5>
-              <span class="item-count conditions-count">{{ detectedConditions.length }}</span>
-            </div>
-            <div class="detected-list">
-              <div class="detected-item" 
-                   *ngFor="let condition of detectedConditions" 
-                   [title]="getTooltipText(condition.detectedText)"
-                   [class.existing-entity]="condition.isExisting">
-                <div class="item-header">
-                  <span class="item-title condition-title">{{ condition.name }}</span>
-                  <div class="item-actions">
-                    <button mat-icon-button 
-                            class="remove-button" 
-                            (click)="removeDetected(condition)"
-                            [title]="condition.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
-                      <mat-icon>close</mat-icon>
-                    </button>
+          @if (detectedConditions.length > 0) {
+            <div class="detected-category">
+              <div class="category-header conditions-header">
+                <h5><mat-icon>medical_services</mat-icon> Conditions</h5>
+                <span class="item-count conditions-count">{{ detectedConditions.length }}</span>
+              </div>
+              <div class="detected-list">
+                @for (condition of detectedConditions; track condition) {
+                  <div class="detected-item"
+                    [title]="getTooltipText(condition.detectedText)"
+                    [class.existing-entity]="condition.isExisting">
+                    <div class="item-header">
+                      <span class="item-title condition-title">{{ condition.name }}</span>
+                      <div class="item-actions">
+                        <button mat-icon-button
+                          class="remove-button"
+                          (click)="removeDetected(condition)"
+                          [title]="condition.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="item-details">
+                      <span class="confidence-score">Confidence: {{ condition.confidence }}%</span>
+                      @if (condition.isExisting) {
+                        <span class="existing-status">
+                          <mat-icon>info</mat-icon>
+                          {{ getExistingStatusText(condition) }}
+                        </span>
+                      }
+                    </div>
                   </div>
-                </div>
-                <div class="item-details">
-                  <span class="confidence-score">Confidence: {{ condition.confidence }}%</span>
-                  <span class="existing-status" *ngIf="condition.isExisting">
-                    <mat-icon>info</mat-icon>
-                    {{ getExistingStatusText(condition) }}
-                  </span>
-                </div>
+                }
               </div>
             </div>
-          </div>
+          }
 
           <!-- Detected Procedures -->
-          <div class="detected-category" *ngIf="detectedProcedures.length > 0">
-            <div class="category-header procedures-header">
-              <h5><mat-icon>healing</mat-icon> Procedures</h5>
-              <span class="item-count procedures-count">{{ detectedProcedures.length }}</span>
-            </div>
-            <div class="detected-list">
-              <div class="detected-item" 
-                   *ngFor="let procedure of detectedProcedures" 
-                   [title]="getTooltipText(procedure.detectedText)"
-                   [class.existing-entity]="procedure.isExisting">
-                <div class="item-header">
-                  <span class="item-title procedure-title">{{ procedure.name }}</span>
-                  <div class="item-actions">
-                    <button mat-icon-button 
-                            class="remove-button" 
-                            (click)="removeDetected(procedure)"
-                            [title]="procedure.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
-                      <mat-icon>close</mat-icon>
-                    </button>
+          @if (detectedProcedures.length > 0) {
+            <div class="detected-category">
+              <div class="category-header procedures-header">
+                <h5><mat-icon>healing</mat-icon> Procedures</h5>
+                <span class="item-count procedures-count">{{ detectedProcedures.length }}</span>
+              </div>
+              <div class="detected-list">
+                @for (procedure of detectedProcedures; track procedure) {
+                  <div class="detected-item"
+                    [title]="getTooltipText(procedure.detectedText)"
+                    [class.existing-entity]="procedure.isExisting">
+                    <div class="item-header">
+                      <span class="item-title procedure-title">{{ procedure.name }}</span>
+                      <div class="item-actions">
+                        <button mat-icon-button
+                          class="remove-button"
+                          (click)="removeDetected(procedure)"
+                          [title]="procedure.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="item-details">
+                      <span class="confidence-score">Confidence: {{ procedure.confidence }}%</span>
+                      @if (procedure.isExisting) {
+                        <span class="existing-status">
+                          <mat-icon>info</mat-icon>
+                          {{ getExistingStatusText(procedure) }}
+                        </span>
+                      }
+                    </div>
                   </div>
-                </div>
-                <div class="item-details">
-                  <span class="confidence-score">Confidence: {{ procedure.confidence }}%</span>
-                  <span class="existing-status" *ngIf="procedure.isExisting">
-                    <mat-icon>info</mat-icon>
-                    {{ getExistingStatusText(procedure) }}
-                  </span>
-                </div>
+                }
               </div>
             </div>
-          </div>
+          }
 
           <!-- Detected Medications -->
-          <div class="detected-category" *ngIf="detectedMedications.length > 0">
-            <div class="category-header medications-header">
-              <h5><mat-icon>medication</mat-icon> Medications</h5>
-              <span class="item-count medications-count">{{ detectedMedications.length }}</span>
-            </div>
-            <div class="detected-list">
-              <div class="detected-item" 
-                   *ngFor="let medication of detectedMedications" 
-                   [title]="getTooltipText(medication.detectedText)"
-                   [class.existing-entity]="medication.isExisting">
-                <div class="item-header">
-                  <span class="item-title medication-title">{{ medication.name }}</span>
-                  <div class="item-actions">
-                    <button mat-icon-button 
-                            class="remove-button" 
-                            (click)="removeDetected(medication)"
-                            [title]="medication.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
-                      <mat-icon>close</mat-icon>
-                    </button>
+          @if (detectedMedications.length > 0) {
+            <div class="detected-category">
+              <div class="category-header medications-header">
+                <h5><mat-icon>medication</mat-icon> Medications</h5>
+                <span class="item-count medications-count">{{ detectedMedications.length }}</span>
+              </div>
+              <div class="detected-list">
+                @for (medication of detectedMedications; track medication) {
+                  <div class="detected-item"
+                    [title]="getTooltipText(medication.detectedText)"
+                    [class.existing-entity]="medication.isExisting">
+                    <div class="item-header">
+                      <span class="item-title medication-title">{{ medication.name }}</span>
+                      <div class="item-actions">
+                        <button mat-icon-button
+                          class="remove-button"
+                          (click)="removeDetected(medication)"
+                          [title]="medication.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="item-details">
+                      <span class="confidence-score">Confidence: {{ medication.confidence }}%</span>
+                      @if (medication.isExisting) {
+                        <span class="existing-status">
+                          <mat-icon>info</mat-icon>
+                          {{ getExistingStatusText(medication) }}
+                        </span>
+                      }
+                    </div>
                   </div>
-                </div>
-                <div class="item-details">
-                  <span class="confidence-score">Confidence: {{ medication.confidence }}%</span>
-                  <span class="existing-status" *ngIf="medication.isExisting">
-                    <mat-icon>info</mat-icon>
-                    {{ getExistingStatusText(medication) }}
-                  </span>
-                </div>
+                }
               </div>
             </div>
-          </div>
+          }
 
           <!-- Empty State -->
-          <div class="empty-detection" *ngIf="detectedConditions.length === 0 && detectedProcedures.length === 0 && detectedMedications.length === 0">
-            <mat-icon class="empty-icon">search</mat-icon>
-            <p>Start typing clinical notes to detect entities</p>
-            <p class="hint">Try: "Patient has asthma, needs surgery, takes aspirin"</p>
-          </div>
+          @if (detectedConditions.length === 0 && detectedProcedures.length === 0 && detectedMedications.length === 0) {
+            <div class="empty-detection">
+              <mat-icon class="empty-icon">search</mat-icon>
+              <p>Start typing clinical notes to detect entities</p>
+              <p class="hint">Try: "Patient has asthma, needs surgery, takes aspirin"</p>
+            </div>
+          }
         </div>
       </div>
     </div>

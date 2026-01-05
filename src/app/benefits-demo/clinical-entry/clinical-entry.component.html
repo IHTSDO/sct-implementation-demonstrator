@@ -1,62 +1,78 @@
 <div class="clinical-entry-container">
-  <button mat-flat-button color="primary" (click)="toggleAddForm()" class="add-button" *ngIf="!hideButton">
-    <mat-icon>add</mat-icon>
-    {{ sectionTitle }}
-  </button>
+  @if (!hideButton) {
+    <button mat-flat-button color="primary" (click)="toggleAddForm()" class="add-button">
+      <mat-icon>add</mat-icon>
+      {{ sectionTitle }}
+    </button>
+  }
 
-  <div class="add-form" *ngIf="showAddForm">
-    <div class="form-content">
-      <div class="input-row">
-        <div class="search-section">
-          <div class="field-with-info">
-            <app-autocomplete-binding 
-              #autocompleteBinding
-              [binding]="currentBinding" 
-              [term]="term" 
-              (selectionChange)="updateConcept($event)">
-            </app-autocomplete-binding>
-            <button mat-icon-button 
-                    class="info-button"
-                    [matMenuTriggerFor]="entryInfoMenu"
-                    matTooltip="Click for more information about this field"
-                    matTooltipPosition="above">
-              <mat-icon>info_outline</mat-icon>
-            </button>
+  @if (showAddForm) {
+    <div class="add-form">
+      <div class="form-content">
+        <div class="input-row">
+          <div class="search-section">
+            <div class="field-with-info">
+              <app-autocomplete-binding
+                #autocompleteBinding
+                [binding]="currentBinding"
+                [term]="term"
+                (selectionChange)="updateConcept($event)">
+              </app-autocomplete-binding>
+              <button mat-icon-button
+                class="info-button"
+                [matMenuTriggerFor]="entryInfoMenu"
+                matTooltip="Click for more information about this field"
+                matTooltipPosition="above">
+                <mat-icon>info_outline</mat-icon>
+              </button>
+            </div>
           </div>
+          <!-- Association dropdown for medications -->
+          @if (entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)) {
+            <div class="association-section">
+              <mat-form-field>
+                <mat-label>Select the reason for the indication</mat-label>
+                <mat-select [(value)]="selectedAssociation" [compareWith]="compareAssociations">
+                  <mat-option [value]="null">None - General medication</mat-option>
+                  @if (availableConditions.length > 0) {
+                    <mat-optgroup label="Conditions">
+                      @for (condition of availableConditions; track condition.id) {
+                        <mat-option [value]="{type: 'condition', resource: condition}">
+                          {{ condition.code.text }}
+                        </mat-option>
+                      }
+                    </mat-optgroup>
+                  }
+                  @if (availableProcedures.length > 0) {
+                    <mat-optgroup label="Procedures">
+                      @for (procedure of availableProcedures; track procedure.id) {
+                        <mat-option [value]="{type: 'procedure', resource: procedure}">
+                          {{ procedure.code.text }}
+                        </mat-option>
+                      }
+                    </mat-optgroup>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
         </div>
-        
-        <!-- Association dropdown for medications -->
-        <div class="association-section" *ngIf="entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)">
-          <mat-form-field>
-            <mat-label>Select the reason for the indication</mat-label>
-            <mat-select [(value)]="selectedAssociation" [compareWith]="compareAssociations">
-              <mat-option [value]="null">None - General medication</mat-option>
-              <mat-optgroup label="Conditions" *ngIf="availableConditions.length > 0">
-                <mat-option *ngFor="let condition of availableConditions" [value]="{type: 'condition', resource: condition}">
-                  {{ condition.code.text }}
-                </mat-option>
-              </mat-optgroup>
-              <mat-optgroup label="Procedures" *ngIf="availableProcedures.length > 0">
-                <mat-option *ngFor="let procedure of availableProcedures" [value]="{type: 'procedure', resource: procedure}">
-                  {{ procedure.code.text }}
-                </mat-option>
-              </mat-optgroup>
-            </mat-select>
-          </mat-form-field>
+        <div class="action-section">
+          <button mat-flat-button color="accent" (click)="addItem()" [disabled]="!selectedConcept || loading">
+            @if (loading) {
+              <mat-spinner diameter="20"></mat-spinner>
+            }
+            @if (!loading) {
+              <span>Add {{ entryType === 'medication' && selectedAssociation ? 'Associated ' : '' }}{{ sectionTitle.replace('Add ', '') }}</span>
+            }
+          </button>
+          <button mat-flat-button color="warn" (click)="toggleAddForm()" [disabled]="loading">
+            Cancel
+          </button>
         </div>
-      </div>
-      
-      <div class="action-section">
-        <button mat-flat-button color="accent" (click)="addItem()" [disabled]="!selectedConcept || loading">
-          <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-          <span *ngIf="!loading">Add {{ entryType === 'medication' && selectedAssociation ? 'Associated ' : '' }}{{ sectionTitle.replace('Add ', '') }}</span>
-        </button>
-        <button mat-flat-button color="warn" (click)="toggleAddForm()" [disabled]="loading">
-          Cancel
-        </button>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Info Menu for Clinical Entry -->
   <mat-menu #entryInfoMenu="matMenu" class="info-menu">
@@ -77,9 +93,11 @@
       <p>
         If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
       </p>
-      <p *ngIf="entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)">
-        <em>Note: You can associate this medication with an existing condition or procedure by selecting the reason for indication from the dropdown.</em>
-      </p>
+      @if (entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)) {
+        <p>
+          <em>Note: You can associate this medication with an existing condition or procedure by selecting the reason for indication from the dropdown.</em>
+        </p>
+      }
     </div>
   </mat-menu>
 </div>

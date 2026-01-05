@@ -1,40 +1,52 @@
 <div class="questionnaire-form-container">
-  <div class="questionnaire-header" *ngIf="questionnaire">
-    <h3>{{ questionnaire.title }}</h3>
-    <p class="questionnaire-description" *ngIf="questionnaire.description">
-      {{ questionnaire.description }}
-    </p>
-    <div class="questionnaire-meta">
-      <span class="status-badge" [class]="questionnaire.status">{{ questionnaire.status }}</span>
-      <span class="version-info" *ngIf="questionnaire.version">v{{ questionnaire.version }}</span>
+  @if (questionnaire) {
+    <div class="questionnaire-header">
+      <h3>{{ questionnaire.title }}</h3>
+      @if (questionnaire.description) {
+        <p class="questionnaire-description">
+          {{ questionnaire.description }}
+        </p>
+      }
+      <div class="questionnaire-meta">
+        <span class="status-badge" [class]="questionnaire.status">{{ questionnaire.status }}</span>
+        @if (questionnaire.version) {
+          <span class="version-info">v{{ questionnaire.version }}</span>
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Loading indicator -->
-  <div class="loading-questionnaire" *ngIf="questionnaire && !formRendered">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading questionnaire...</p>
-  </div>
+  @if (questionnaire && !formRendered) {
+    <div class="loading-questionnaire">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading questionnaire...</p>
+    </div>
+  }
 
   <!-- LForms container -->
   <div [id]="formContainerId" class="lforms-container" [class.hidden]="!formRendered"></div>
 
   <!-- No questionnaire message -->
-  <div class="no-questionnaire" *ngIf="!questionnaire">
-    <mat-icon>description</mat-icon>
-    <p>No questionnaire loaded</p>
-    <p class="hint">Select a questionnaire from the dropdown above</p>
-  </div>
+  @if (!questionnaire) {
+    <div class="no-questionnaire">
+      <mat-icon>description</mat-icon>
+      <p>No questionnaire loaded</p>
+      <p class="hint">Select a questionnaire from the dropdown above</p>
+    </div>
+  }
 
   <!-- Action buttons -->
-  <div class="form-actions" *ngIf="questionnaire && formRendered">
-    <button mat-flat-button color="primary" (click)="submitForm()">
-      <mat-icon>save</mat-icon>
-      Submit Response
-    </button>
-    <button mat-stroked-button (click)="cancel()">
-      <mat-icon>close</mat-icon>
-      Cancel
-    </button>
-  </div>
+  @if (questionnaire && formRendered) {
+    <div class="form-actions">
+      <button mat-flat-button color="primary" (click)="submitForm()">
+        <mat-icon>save</mat-icon>
+        Submit Response
+      </button>
+      <button mat-stroked-button (click)="cancel()">
+        <mat-icon>close</mat-icon>
+        Cancel
+      </button>
+    </div>
+  }
 </div>

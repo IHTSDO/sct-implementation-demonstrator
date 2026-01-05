@@ -1,77 +1,83 @@
-<div class="timeline-header" *ngIf="sortedEvents.length > 0">
-  <h3>Timeline</h3>
-  <div class="timeline-legend">
-    <div class="legend-item">
-      <div class="legend-color" [style.background-color]="eventColors.condition"></div>
-      <span>Conditions</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-color" [style.background-color]="eventColors.procedure"></div>
-      <span>Procedures</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-color" [style.background-color]="eventColors.medication"></div>
-      <span>Medications</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-color" [style.background-color]="eventColors.encounter"></div>
-      <span>Encounters</span>
-    </div>
-  </div>
-</div>
-
-<div class="vertical-timeline" *ngIf="sortedEvents.length > 0">
-  <div class="timeline-line"></div>
-  
-  <div class="timeline-item" 
-       *ngFor="let event of sortedEvents; let i = index"
-       [class.left]="i % 2 === 0"
-       [class.right]="i % 2 === 1"
-       [attr.data-event-type]="event.type">
-    
-    <!-- Event content -->
-    <div class="timeline-content">
-      <div class="event-card">
-        <div class="card-header">
-          <div class="event-marker">
-            <mat-icon class="event-icon">{{ getEventIcon(event.type) }}</mat-icon>
-          </div>
-          <div class="event-type-badge" [style.background-color]="event.color">
-            {{ getEventTypeLabel(event.type) }}
-          </div>
-          <div class="event-date">{{ event.date | date:'shortDate' }}</div>
-        </div>
-        
-        <div class="card-body">
-          <h4 class="event-title">{{ event.title }}</h4>
-          <p class="event-details" *ngIf="event.details">{{ event.details }}</p>
-          
-          <div class="event-meta">
-            <div class="status-info">
-              <span class="status-label">Status:</span>
-              <span class="status-value" [class]="event.status.toLowerCase()">{{ event.status }}</span>
-            </div>
-            <div class="concept-info" *ngIf="event.conceptId">
-              <span class="concept-label">SNOMED CT:</span>
-              <span class="concept-id">{{ event.conceptId }}</span>
-            </div>
-          </div>
-        </div>
+@if (sortedEvents.length > 0) {
+  <div class="timeline-header">
+    <h3>Timeline</h3>
+    <div class="timeline-legend">
+      <div class="legend-item">
+        <div class="legend-color" [style.background-color]="eventColors.condition"></div>
+        <span>Conditions</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" [style.background-color]="eventColors.procedure"></div>
+        <span>Procedures</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" [style.background-color]="eventColors.medication"></div>
+        <span>Medications</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" [style.background-color]="eventColors.encounter"></div>
+        <span>Encounters</span>
       </div>
     </div>
+  </div>
+}
 
-    <!-- Timeline connector -->
-    <div class="timeline-connector">
-      <div class="connector-line"></div>
-      <div class="connector-dot" [style.background-color]="event.color"></div>
+@if (sortedEvents.length > 0) {
+  <div class="vertical-timeline">
+    <div class="timeline-line"></div>
+    @for (event of sortedEvents; track event; let i = $index) {
+      <div class="timeline-item"
+        [class.left]="i % 2 === 0"
+        [class.right]="i % 2 === 1"
+        [attr.data-event-type]="event.type">
+        <!-- Event content -->
+        <div class="timeline-content">
+          <div class="event-card">
+            <div class="card-header">
+              <div class="event-marker">
+                <mat-icon class="event-icon">{{ getEventIcon(event.type) }}</mat-icon>
+              </div>
+              <div class="event-type-badge" [style.background-color]="event.color">
+                {{ getEventTypeLabel(event.type) }}
+              </div>
+              <div class="event-date">{{ event.date | date:'shortDate' }}</div>
+            </div>
+            <div class="card-body">
+              <h4 class="event-title">{{ event.title }}</h4>
+              @if (event.details) {
+                <p class="event-details">{{ event.details }}</p>
+              }
+              <div class="event-meta">
+                <div class="status-info">
+                  <span class="status-label">Status:</span>
+                  <span class="status-value" [class]="event.status.toLowerCase()">{{ event.status }}</span>
+                </div>
+                @if (event.conceptId) {
+                  <div class="concept-info">
+                    <span class="concept-label">SNOMED CT:</span>
+                    <span class="concept-id">{{ event.conceptId }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Timeline connector -->
+        <div class="timeline-connector">
+          <div class="connector-line"></div>
+          <div class="connector-dot" [style.background-color]="event.color"></div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@if (sortedEvents.length === 0) {
+  <div class="timeline-empty">
+    <div class="empty-content">
+      <mat-icon class="empty-icon">timeline</mat-icon>
+      <h3>No Timeline Events</h3>
+      <p>Clinical events will appear here when conditions, procedures, or medications are added with dates.</p>
     </div>
   </div>
-</div>
-
-<div class="timeline-empty" *ngIf="sortedEvents.length === 0">
-  <div class="empty-content">
-    <mat-icon class="empty-icon">timeline</mat-icon>
-    <h3>No Timeline Events</h3>
-    <p>Clinical events will appear here when conditions, procedures, or medications are added with dates.</p>
-  </div>
-</div>
+}

@@ -8,9 +8,11 @@
     <mat-form-field class="event-selector">
       <mat-label>Event</mat-label>
       <mat-select [(value)]="selectedEventName" (selectionChange)="onEventChange()">
-        <mat-option *ngFor="let event of availableEvents" [value]="event">
-          {{ event }}
-        </mat-option>
+        @for (event of availableEvents; track event) {
+          <mat-option [value]="event">
+            {{ event }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
 
@@ -20,116 +22,116 @@
     </button>
   </div>
 
-  <div class="stats-card" *ngIf="!loading">
-    <mat-card>
-      <mat-card-content>
-        <div class="stats-row">
-          <div class="stat-item">
-            <span class="stat-number">{{ assessments.length }}</span>
-            <span class="stat-label">Total Assessments</span>
+  @if (!loading) {
+    <div class="stats-card">
+      <mat-card>
+        <mat-card-content>
+          <div class="stats-row">
+            <div class="stat-item">
+              <span class="stat-number">{{ assessments.length }}</span>
+              <span class="stat-label">Total Assessments</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ selectedEventName }}</span>
+              <span class="stat-label">Current Event</span>
+            </div>
           </div>
-          <div class="stat-item">
-            <span class="stat-number">{{ selectedEventName }}</span>
-            <span class="stat-label">Current Event</span>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
 
   <div class="table-container">
-    <div *ngIf="loading" class="loading-container">
-      <mat-spinner></mat-spinner>
-      <p>Loading assessments...</p>
-    </div>
+    @if (loading) {
+      <div class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Loading assessments...</p>
+      </div>
+    }
 
-    <div *ngIf="!loading && assessments.length === 0" class="no-data">
-      <mat-icon>assessment</mat-icon>
-      <h3>No assessments found</h3>
-      <p>No assessments found for the selected event "{{ selectedEventName }}"</p>
-    </div>
+    @if (!loading && assessments.length === 0) {
+      <div class="no-data">
+        <mat-icon>assessment</mat-icon>
+        <h3>No assessments found</h3>
+        <p>No assessments found for the selected event "{{ selectedEventName }}"</p>
+      </div>
+    }
 
-    <table mat-table *ngIf="!loading && assessments.length > 0" [dataSource]="dataSource" class="assessment-table">
-      <!-- Name Column -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let assessment">
-          <div class="name-cell">
-            <strong>{{ assessment.name || 'N/A' }}</strong>
-            <small>{{ getStakeholderDisplay(assessment.selectedStakeholder) }}</small>
-          </div>
-        </td>
-      </ng-container>
-
-      <!-- Author Column -->
-      <ng-container matColumnDef="author">
-        <th mat-header-cell *matHeaderCellDef>Author</th>
-        <td mat-cell *matCellDef="let assessment">{{ assessment.author || 'N/A' }}</td>
-      </ng-container>
-
-      <!-- System Name Column -->
-      <ng-container matColumnDef="systemName">
-        <th mat-header-cell *matHeaderCellDef>System</th>
-        <td mat-cell *matCellDef="let assessment">{{ assessment.systemName || 'N/A' }}</td>
-      </ng-container>
-
-      <!-- Timestamp Column -->
-      <ng-container matColumnDef="timestamp">
-        <th mat-header-cell *matHeaderCellDef>Date</th>
-        <td mat-cell *matCellDef="let assessment">
-          <div class="timestamp-cell">
-            {{ formatTimestamp(assessment.timestamp) }}
-          </div>
-        </td>
-      </ng-container>
-
-      <!-- Level Column -->
-      <ng-container matColumnDef="level">
-        <th mat-header-cell *matHeaderCellDef>Level</th>
-        <td mat-cell *matCellDef="let assessment">
-          <mat-chip class="level-chip" [style.background-color]="getScoreColor(assessment.overallScoreNormalized || 0)">
-            {{ assessment.level || 'N/A' }}
-          </mat-chip>
-        </td>
-      </ng-container>
-
-      <!-- Overall Score Column -->
-      <ng-container matColumnDef="overallScore">
-        <th mat-header-cell *matHeaderCellDef>Score</th>
-        <td mat-cell *matCellDef="let assessment">
-          <div class="score-cell">
-            <strong [style.color]="getScoreColor(assessment.overallScoreNormalized || 0)">
-              {{ (assessment.overallScoreNormalized || 0).toFixed(1) }}
-            </strong>
-            <small>/5</small>
-          </div>
-        </td>
-      </ng-container>
-
-      <!-- Location Column -->
-      <ng-container matColumnDef="location">
-        <th mat-header-cell *matHeaderCellDef>Location</th>
-        <td mat-cell *matCellDef="let assessment">
-          <div class="location-cell">
-            <mat-icon class="location-icon">location_on</mat-icon>
-            {{ getLocationDisplay(assessment.location) }}
-          </div>
-        </td>
-      </ng-container>
-
-      <!-- Actions Column -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let assessment">
-          <button mat-icon-button color="warn" (click)="deleteAssessment(assessment)" 
-                  matTooltip="Delete this assessment" class="delete-button">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="assessment-row"></tr>
-    </table>
+    @if (!loading && assessments.length > 0) {
+      <table mat-table [dataSource]="dataSource" class="assessment-table">
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let assessment">
+            <div class="name-cell">
+              <strong>{{ assessment.name || 'N/A' }}</strong>
+              <small>{{ getStakeholderDisplay(assessment.selectedStakeholder) }}</small>
+            </div>
+          </td>
+        </ng-container>
+        <!-- Author Column -->
+        <ng-container matColumnDef="author">
+          <th mat-header-cell *matHeaderCellDef>Author</th>
+          <td mat-cell *matCellDef="let assessment">{{ assessment.author || 'N/A' }}</td>
+        </ng-container>
+        <!-- System Name Column -->
+        <ng-container matColumnDef="systemName">
+          <th mat-header-cell *matHeaderCellDef>System</th>
+          <td mat-cell *matCellDef="let assessment">{{ assessment.systemName || 'N/A' }}</td>
+        </ng-container>
+        <!-- Timestamp Column -->
+        <ng-container matColumnDef="timestamp">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let assessment">
+            <div class="timestamp-cell">
+              {{ formatTimestamp(assessment.timestamp) }}
+            </div>
+          </td>
+        </ng-container>
+        <!-- Level Column -->
+        <ng-container matColumnDef="level">
+          <th mat-header-cell *matHeaderCellDef>Level</th>
+          <td mat-cell *matCellDef="let assessment">
+            <mat-chip class="level-chip" [style.background-color]="getScoreColor(assessment.overallScoreNormalized || 0)">
+              {{ assessment.level || 'N/A' }}
+            </mat-chip>
+          </td>
+        </ng-container>
+        <!-- Overall Score Column -->
+        <ng-container matColumnDef="overallScore">
+          <th mat-header-cell *matHeaderCellDef>Score</th>
+          <td mat-cell *matCellDef="let assessment">
+            <div class="score-cell">
+              <strong [style.color]="getScoreColor(assessment.overallScoreNormalized || 0)">
+                {{ (assessment.overallScoreNormalized || 0).toFixed(1) }}
+              </strong>
+              <small>/5</small>
+            </div>
+          </td>
+        </ng-container>
+        <!-- Location Column -->
+        <ng-container matColumnDef="location">
+          <th mat-header-cell *matHeaderCellDef>Location</th>
+          <td mat-cell *matCellDef="let assessment">
+            <div class="location-cell">
+              <mat-icon class="location-icon">location_on</mat-icon>
+              {{ getLocationDisplay(assessment.location) }}
+            </div>
+          </td>
+        </ng-container>
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let assessment">
+            <button mat-icon-button color="warn" (click)="deleteAssessment(assessment)"
+              matTooltip="Delete this assessment" class="delete-button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="assessment-row"></tr>
+      </table>
+    }
   </div>
 </div>

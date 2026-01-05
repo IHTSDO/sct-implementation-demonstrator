@@ -3,12 +3,16 @@
     <div class="flex flex-col justify-center">
       <button mat-button [matMenuTriggerFor]="demosMenuN">Select Demonstrator</button>
       <mat-menu #demosMenuN="matMenu" class="wide-menu">
-        <button mat-menu-item *ngFor="let demo of demos" (click)="navigate(demo)">{{demo.name}}</button>
+        @for (demo of demos; track demo) {
+          <button mat-menu-item (click)="navigate(demo)">{{demo.name}}</button>
+        }
       </mat-menu>
 
       <button mat-button [matMenuTriggerFor]="serverMenuN">FHIR Server: {{selectedServer.name}}</button>
       <mat-menu #serverMenuN="matMenu">
-        <button mat-menu-item *ngFor="let server of fhirServers" (click)="setFhirServer(server)">{{server.name}}</button>
+        @for (server of fhirServers; track server) {
+          <button mat-menu-item (click)="setFhirServer(server)">{{server.name}}</button>
+        }
       </mat-menu>
 
       <button mat-button [matMenuTriggerFor]="editionsMenuN">Edition: {{selectedEdition}}</button>
@@ -18,89 +22,109 @@
           <div style="font-weight: 500; color: #212529 !important;">{{ selectedEdition || 'No Edition Selected' }} <span style="font-weight: 300; color: #6c757d !important;">({{ getCurrentVersionNumber() }})</span></div>
         </div>
         <span class="ml-4">Editions</span>
-        <ng-container *ngFor="let mainItem of editionsDetails">
+        @for (mainItem of editionsDetails; track mainItem) {
           <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>
           <mat-menu #sub_menu="matMenu">
             <span class="ml-4">Versions / Releases</span>
-            <button *ngFor="let subItem of mainItem.editions" mat-menu-item (click)="setEdition(subItem)">{{ subItem.resource.version }}</button>
+            @for (subItem of mainItem.editions; track subItem) {
+              <button mat-menu-item (click)="setEdition(subItem)">{{ subItem.resource.version }}</button>
+            }
           </mat-menu>
-        </ng-container>
+        }
       </mat-menu>
-      
+
       <button mat-button [matMenuTriggerFor]="menuN">Language: {{selectedLanguage}}</button>
       <mat-menu #menuN="matMenu">
-        <button mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">{{language}}</button>
+        @for (language of languages; track language) {
+          <button mat-menu-item (click)="setLanguage(language)">{{language}}</button>
+        }
       </mat-menu>
 
     </div>
   </mat-drawer>
 
-  <mat-toolbar *ngIf="!embeddedMode">
-    <button mat-icon-button (click)="drawer.toggle()" id="menu-button">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <a href="javascript:void(0)" (click)="navigate({url: 'home', type: 'internal'})"><img src="assets/img/small_logo.png" id="logo"></a>
-    <span id="title">SNOMED CT Implementation Demos</span>
-    <span id="short-title">Implementation Demos</span>
-    <span class="example-spacer"></span>
-
-    <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu" class="bar-button">Select Demonstrator</button>
-    <mat-menu #demosMenu="matMenu" class="wide-menu">
-      <button mat-menu-item *ngFor="let demo of demos" (click)="navigate(demo)">{{demo.name}}</button>
-    </mat-menu>
-    
-    <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu" class="bar-button">FHIR Server: {{selectedServer.name}}</button>
-    <mat-menu #serverMenu="matMenu">
-      <button mat-menu-item *ngFor="let server of fhirServers" (click)="setFhirServer(server)">{{server.name}}</button>
-    </mat-menu>
-
-    <button mat-flat-button color="primary" [matMenuTriggerFor]="editionsMenu" class="bar-button">{{selectedEdition}}</button>
-    <mat-menu #editionsMenu="matMenu" class="wide-menu">
-      <div mat-menu-item style="padding: 12px 16px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; margin-bottom: 8px; cursor: default; pointer-events: none;">
-        <div style="font-size: 11px; color: #6c757d !important; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Currently Selected</div>
-        <div style="font-weight: 500; color: #212529 !important;">{{ selectedEdition || 'No Edition Selected' }} <span style="font-weight: 300; color: #6c757d !important;">({{ getCurrentVersionNumber() }})</span></div>
-      </div>
-      <span class="ml-4">Editions</span>
-      <ng-container *ngFor="let mainItem of editionsDetails">
-        <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>
-        <mat-menu #sub_menu="matMenu">
-          <span class="ml-4">Versions / Releases</span>
-          <button *ngFor="let subItem of mainItem.editions" mat-menu-item (click)="setEdition(subItem)">{{ subItem.resource.version }}</button>
-        </mat-menu>
-      </ng-container>
-    </mat-menu>
-    
-    <button mat-flat-button color="primary" [matMenuTriggerFor]="menu" class="bar-button">
-      {{selectedLanguageDisplayLabel}}
-      <!-- <span *ngIf="selectedLanRefsetConcept">*</span> -->
-    </button>
-    <mat-menu #menu="matMenu">
-      <p *ngIf="selectedLanRefsetConcept && !selectedLanguageContext" class="menu-text">Selected Language Refset</p>
-      <p *ngIf="selectedLanRefsetConcept && !selectedLanguageContext" class="menu-text">{{ selectedLanRefsetConcept.display }}</p>
-      <p *ngIf="selectedLanRefsetConcept && !selectedLanguageContext" class="menu-text">{{ selectedLanRefsetConcept.code }}</p>
-      <p *ngIf="selectedLanguageContext" class="menu-text">Selected Language Context</p>
-      <p *ngIf="selectedLanguageContext" class="menu-text">{{ selectedLanguageContext.name }}</p>
-      <button mat-menu-item [matMenuTriggerFor]="langCodes">Language Codes</button>
-      <button mat-menu-item [matMenuTriggerFor]="langRefsets">Language Refsets</button>
-      <button mat-menu-item [matMenuTriggerFor]="langContexts">Language Contexts</button>
-      <button mat-menu-item (click)="openLanguageDialog()">Advanced config</button>
-    </mat-menu>
-
-    <mat-menu #langCodes="matMenu">
-      <button mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">{{language}}</button>
-    </mat-menu>
-
-    <mat-menu #langRefsets="matMenu">
-      <button mat-menu-item *ngFor="let langRefset of languageRefsets" (click)="setLanguageRefset(langRefset)">{{langRefset.display}}</button>
-    </mat-menu>
-
-    <mat-menu #langContexts="matMenu">
-      <button mat-menu-item *ngFor="let context of filteredLanguageMetadata.contexts" (click)="setContext(context)">{{context.name}}</button>
-    </mat-menu>
-
-    <a mat-flat-button href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" color="primary" id="info-button">
-      <mat-icon>info</mat-icon>
-    </a>
-  </mat-toolbar>
+  @if (!embeddedMode) {
+    <mat-toolbar>
+      <button mat-icon-button (click)="drawer.toggle()" id="menu-button">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <a href="javascript:void(0)" (click)="navigate({url: 'home', type: 'internal'})"><img src="assets/img/small_logo.png" id="logo"></a>
+      <span id="title">SNOMED CT Implementation Demos</span>
+      <span id="short-title">Implementation Demos</span>
+      <span class="example-spacer"></span>
+      <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu" class="bar-button">Select Demonstrator</button>
+      <mat-menu #demosMenu="matMenu" class="wide-menu">
+        @for (demo of demos; track demo) {
+          <button mat-menu-item (click)="navigate(demo)">{{demo.name}}</button>
+        }
+      </mat-menu>
+      <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu" class="bar-button">FHIR Server: {{selectedServer.name}}</button>
+      <mat-menu #serverMenu="matMenu">
+        @for (server of fhirServers; track server) {
+          <button mat-menu-item (click)="setFhirServer(server)">{{server.name}}</button>
+        }
+      </mat-menu>
+      <button mat-flat-button color="primary" [matMenuTriggerFor]="editionsMenu" class="bar-button">{{selectedEdition}}</button>
+      <mat-menu #editionsMenu="matMenu" class="wide-menu">
+        <div mat-menu-item style="padding: 12px 16px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; margin-bottom: 8px; cursor: default; pointer-events: none;">
+          <div style="font-size: 11px; color: #6c757d !important; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Currently Selected</div>
+          <div style="font-weight: 500; color: #212529 !important;">{{ selectedEdition || 'No Edition Selected' }} <span style="font-weight: 300; color: #6c757d !important;">({{ getCurrentVersionNumber() }})</span></div>
+        </div>
+        <span class="ml-4">Editions</span>
+        @for (mainItem of editionsDetails; track mainItem) {
+          <button mat-menu-item [matMenuTriggerFor]="sub_menu">{{ mainItem.editionName }}</button>
+          <mat-menu #sub_menu="matMenu">
+            <span class="ml-4">Versions / Releases</span>
+            @for (subItem of mainItem.editions; track subItem) {
+              <button mat-menu-item (click)="setEdition(subItem)">{{ subItem.resource.version }}</button>
+            }
+          </mat-menu>
+        }
+      </mat-menu>
+      <button mat-flat-button color="primary" [matMenuTriggerFor]="menu" class="bar-button">
+        {{selectedLanguageDisplayLabel}}
+        <!-- <span *ngIf="selectedLanRefsetConcept">*</span> -->
+      </button>
+      <mat-menu #menu="matMenu">
+        @if (selectedLanRefsetConcept && !selectedLanguageContext) {
+          <p class="menu-text">Selected Language Refset</p>
+        }
+        @if (selectedLanRefsetConcept && !selectedLanguageContext) {
+          <p class="menu-text">{{ selectedLanRefsetConcept.display }}</p>
+        }
+        @if (selectedLanRefsetConcept && !selectedLanguageContext) {
+          <p class="menu-text">{{ selectedLanRefsetConcept.code }}</p>
+        }
+        @if (selectedLanguageContext) {
+          <p class="menu-text">Selected Language Context</p>
+        }
+        @if (selectedLanguageContext) {
+          <p class="menu-text">{{ selectedLanguageContext.name }}</p>
+        }
+        <button mat-menu-item [matMenuTriggerFor]="langCodes">Language Codes</button>
+        <button mat-menu-item [matMenuTriggerFor]="langRefsets">Language Refsets</button>
+        <button mat-menu-item [matMenuTriggerFor]="langContexts">Language Contexts</button>
+        <button mat-menu-item (click)="openLanguageDialog()">Advanced config</button>
+      </mat-menu>
+      <mat-menu #langCodes="matMenu">
+        @for (language of languages; track language) {
+          <button mat-menu-item (click)="setLanguage(language)">{{language}}</button>
+        }
+      </mat-menu>
+      <mat-menu #langRefsets="matMenu">
+        @for (langRefset of languageRefsets; track langRefset) {
+          <button mat-menu-item (click)="setLanguageRefset(langRefset)">{{langRefset.display}}</button>
+        }
+      </mat-menu>
+      <mat-menu #langContexts="matMenu">
+        @for (context of filteredLanguageMetadata.contexts; track context.name) {
+          <button mat-menu-item (click)="setContext(context)">{{context.name}}</button>
+        }
+      </mat-menu>
+      <a mat-flat-button href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" color="primary" id="info-button">
+        <mat-icon>info</mat-icon>
+      </a>
+    </mat-toolbar>
+  }
   <router-outlet></router-outlet>
 </mat-drawer-container>

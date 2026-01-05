@@ -9,11 +9,11 @@
         <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="info-content">
           <h4>Module Dependency Reference Set Viewer</h4>
           <p>This viewer displays the Module Dependency Reference Set (MDRS) for SNOMED CT modules.</p>
-          <p>The Module Dependency Reference Set represents dependencies between different SNOMED CT release modules, 
-            indicating which targetEffectiveTime of each particular module a given sourceEffectiveTime of the dependent module requires.</p>
+          <p>The Module Dependency Reference Set represents dependencies between different SNOMED CT release modules,
+          indicating which targetEffectiveTime of each particular module a given sourceEffectiveTime of the dependent module requires.</p>
           <p><strong>Reference Set ID:</strong> 900000000000534007</p>
-          <p>For more information, see the <a href="https://docs.snomed.org/snomed-ct-specifications/snomed-ct-release-file-specification/reference-set-release-file-specification/5.2-reference-set-types/5.2.4-metadata-reference-sets/5.2.4.2-module-dependency-reference-set" 
-             target="_blank">SNOMED CT Specification</a>.</p>
+          <p>For more information, see the <a href="https://docs.snomed.org/snomed-ct-specifications/snomed-ct-release-file-specification/reference-set-release-file-specification/5.2-reference-set-types/5.2.4-metadata-reference-sets/5.2.4.2-module-dependency-reference-set"
+          target="_blank">SNOMED CT Specification</a>.</p>
         </span>
       </mat-menu>
     </h2>
@@ -29,160 +29,185 @@
     </div>
 
     <!-- File Upload Section (shown when upload mode is selected) -->
-    <div class="upload-section" *ngIf="dataSourceMode === 'upload'">
-      <div class="upload-controls">
-        <label class="upload-label">MDRS Snapshot File</label>
-        <div class="upload-buttons">
-          <input 
-            type="file" 
-            #fileInput 
-            (change)="onFileSelected($event)"
-            accept=".txt"
-            style="display: none">
-          <button 
-            mat-raised-button 
-            type="button" 
-            color="primary"
-            (click)="fileInput.click()"
-            [disabled]="uploadingFile">
-            <mat-icon>upload_file</mat-icon>
-            Choose File
-          </button>
-          <span *ngIf="uploadedFile" class="file-name">
-            {{ uploadedFile.name }}
-          </span>
-          <mat-spinner *ngIf="uploadingFile" diameter="20" style="margin-left: 16px;"></mat-spinner>
+    @if (dataSourceMode === 'upload') {
+      <div class="upload-section">
+        <div class="upload-controls">
+          <label class="upload-label">MDRS Snapshot File</label>
+          <div class="upload-buttons">
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              accept=".txt"
+              style="display: none">
+            <button
+              mat-raised-button
+              type="button"
+              color="primary"
+              (click)="fileInput.click()"
+              [disabled]="uploadingFile">
+              <mat-icon>upload_file</mat-icon>
+              Choose File
+            </button>
+            @if (uploadedFile) {
+              <span class="file-name">
+                {{ uploadedFile.name }}
+              </span>
+            }
+            @if (uploadingFile) {
+              <mat-spinner diameter="20" style="margin-left: 16px;"></mat-spinner>
+            }
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- Module Selection -->
     <div class="selection-section">
       <mat-form-field class="full-width">
         <mat-label>Select Module</mat-label>
         <mat-select [formControl]="moduleControl" (selectionChange)="onModuleSelectionChange($event)">
-          <mat-option [value]="null" *ngIf="!loadingModules">-- Select a module --</mat-option>
-          <mat-option *ngIf="loadingModules" [value]="null" disabled>
-            <span style="display: flex; align-items: center; gap: 8px;">
-              <mat-spinner diameter="20"></mat-spinner>
-              <span>Loading modules...</span>
-            </span>
-          </mat-option>
-          <mat-option *ngFor="let module of availableModules" [value]="module.code">
-            <span class="module-option">
-              <strong>{{ module.display }}</strong>
-              <span class="module-code">({{ module.code }})</span>
-            </span>
-          </mat-option>
+          @if (!loadingModules) {
+            <mat-option [value]="null">-- Select a module --</mat-option>
+          }
+          @if (loadingModules) {
+            <mat-option [value]="null" disabled>
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <mat-spinner diameter="20"></mat-spinner>
+                <span>Loading modules...</span>
+              </span>
+            </mat-option>
+          }
+          @for (module of availableModules; track module) {
+            <mat-option [value]="module.code">
+              <span class="module-option">
+                <strong>{{ module.display }}</strong>
+                <span class="module-code">({{ module.code }})</span>
+              </span>
+            </mat-option>
+          }
         </mat-select>
         <mat-icon matPrefix>folder</mat-icon>
-        <mat-spinner *ngIf="loadingModules" matSuffix diameter="20" style="margin-right: 8px;"></mat-spinner>
-        <button mat-icon-button matSuffix *ngIf="selectedModule && !loadingModules" (click)="clearSelection()" matTooltip="Clear selection">
-          <mat-icon>clear</mat-icon>
-        </button>
+        @if (loadingModules) {
+          <mat-spinner matSuffix diameter="20" style="margin-right: 8px;"></mat-spinner>
+        }
+        @if (selectedModule && !loadingModules) {
+          <button mat-icon-button matSuffix (click)="clearSelection()" matTooltip="Clear selection">
+            <mat-icon>clear</mat-icon>
+          </button>
+        }
       </mat-form-field>
-      <div class="loading-indicator-container" *ngIf="loadingModules || (availableModules.length === 0 && (dataSourceMode === 'server' || uploadedFile))">
-        <mat-spinner diameter="20"></mat-spinner>
-        <span class="loading-message">
-          <span *ngIf="dataSourceMode === 'server'">Loading MDRS from terminology server...</span>
-          <span *ngIf="dataSourceMode === 'upload'">Loading MDRS from file...</span>
-        </span>
-      </div>
+      @if (loadingModules || (availableModules.length === 0 && (dataSourceMode === 'server' || uploadedFile))) {
+        <div class="loading-indicator-container">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span class="loading-message">
+            @if (dataSourceMode === 'server') {
+              <span>Loading MDRS from terminology server...</span>
+            }
+            @if (dataSourceMode === 'upload') {
+              <span>Loading MDRS from file...</span>
+            }
+          </span>
+        </div>
+      }
     </div>
 
     <!-- Loading Indicator -->
-    <div *ngIf="loading" class="loading-section">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading module dependencies...</p>
-    </div>
+    @if (loading) {
+      <div class="loading-section">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading module dependencies...</p>
+      </div>
+    }
 
     <!-- Error Message -->
-    <div *ngIf="error && !loading" class="error-section">
-      <mat-icon color="warn">error</mat-icon>
-      <p>{{ error }}</p>
-    </div>
+    @if (error && !loading) {
+      <div class="error-section">
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ error }}</p>
+      </div>
+    }
 
     <!-- Dependencies Display -->
-    <div *ngIf="!loading && !error && dependencyRows.length > 0" class="dependencies-section">
-      <h3>Dependencies for {{ selectedModule?.display }} ({{ selectedModule?.code }})</h3>
-      
-      <!-- Dependency Graph -->
-      <div class="graph-section" *ngIf="dependencyRows.length > 0">
-        <h4>Dependency Graph</h4>
-        <div class="graph-container">
-          <div #dependencyGraph class="dependency-graph"></div>
+    @if (!loading && !error && dependencyRows.length > 0) {
+      <div class="dependencies-section">
+        <h3>Dependencies for {{ selectedModule?.display }} ({{ selectedModule?.code }})</h3>
+        <!-- Dependency Graph -->
+        @if (dependencyRows.length > 0) {
+          <div class="graph-section">
+            <h4>Dependency Graph</h4>
+            <div class="graph-container">
+              <div #dependencyGraph class="dependency-graph"></div>
+            </div>
+          </div>
+        }
+        <!-- Table View -->
+        <div class="table-container">
+          <table mat-table [dataSource]="dependencyRows" class="dependencies-table">
+            <!-- Source Code Column -->
+            <ng-container matColumnDef="sourceCode">
+              <th mat-header-cell *matHeaderCellDef>Source Code<br/><span class="column-original-name">(moduleId)</span></th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.sourceCode }}
+              </td>
+            </ng-container>
+            <!-- Source Display Column -->
+            <ng-container matColumnDef="sourceDisplay">
+              <th mat-header-cell *matHeaderCellDef>Source Display</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.sourceDisplay }}
+              </td>
+            </ng-container>
+            <!-- Source Effective Time Column -->
+            <ng-container matColumnDef="sourceEffectiveTime">
+              <th mat-header-cell *matHeaderCellDef>Source Effective Time<br/><span class="column-original-name">(sourceEffectiveTime)</span></th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.sourceEffectiveTime }}
+              </td>
+            </ng-container>
+            <!-- Target Code Column -->
+            <ng-container matColumnDef="targetCode">
+              <th mat-header-cell *matHeaderCellDef>Target Code<br/><span class="column-original-name">(referencedComponentId)</span></th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.targetCode }}
+              </td>
+            </ng-container>
+            <!-- Target Display Column -->
+            <ng-container matColumnDef="targetDisplay">
+              <th mat-header-cell *matHeaderCellDef>Target Display</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.targetDisplay }}
+              </td>
+            </ng-container>
+            <!-- Target Effective Time Column -->
+            <ng-container matColumnDef="targetEffectiveTime">
+              <th mat-header-cell *matHeaderCellDef>Target Effective Time<br/><span class="column-original-name">(targetEffectiveTime)</span></th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.targetEffectiveTime }}
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['sourceCode', 'sourceDisplay', 'sourceEffectiveTime', 'targetCode', 'targetDisplay', 'targetEffectiveTime']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['sourceCode', 'sourceDisplay', 'sourceEffectiveTime', 'targetCode', 'targetDisplay', 'targetEffectiveTime']"></tr>
+          </table>
         </div>
       </div>
-
-      <!-- Table View -->
-      <div class="table-container">
-        <table mat-table [dataSource]="dependencyRows" class="dependencies-table">
-          
-          <!-- Source Code Column -->
-          <ng-container matColumnDef="sourceCode">
-            <th mat-header-cell *matHeaderCellDef>Source Code<br/><span class="column-original-name">(moduleId)</span></th>
-            <td mat-cell *matCellDef="let row">
-              {{ row.sourceCode }}
-            </td>
-          </ng-container>
-
-          <!-- Source Display Column -->
-          <ng-container matColumnDef="sourceDisplay">
-            <th mat-header-cell *matHeaderCellDef>Source Display</th>
-            <td mat-cell *matCellDef="let row">
-              {{ row.sourceDisplay }}
-            </td>
-          </ng-container>
-
-          <!-- Source Effective Time Column -->
-          <ng-container matColumnDef="sourceEffectiveTime">
-            <th mat-header-cell *matHeaderCellDef>Source Effective Time<br/><span class="column-original-name">(sourceEffectiveTime)</span></th>
-            <td mat-cell *matCellDef="let row">
-              {{ row.sourceEffectiveTime }}
-            </td>
-          </ng-container>
-
-          <!-- Target Code Column -->
-          <ng-container matColumnDef="targetCode">
-            <th mat-header-cell *matHeaderCellDef>Target Code<br/><span class="column-original-name">(referencedComponentId)</span></th>
-            <td mat-cell *matCellDef="let row">
-              {{ row.targetCode }}
-            </td>
-          </ng-container>
-
-          <!-- Target Display Column -->
-          <ng-container matColumnDef="targetDisplay">
-            <th mat-header-cell *matHeaderCellDef>Target Display</th>
-            <td mat-cell *matCellDef="let row">
-              {{ row.targetDisplay }}
-            </td>
-          </ng-container>
-
-          <!-- Target Effective Time Column -->
-          <ng-container matColumnDef="targetEffectiveTime">
-            <th mat-header-cell *matHeaderCellDef>Target Effective Time<br/><span class="column-original-name">(targetEffectiveTime)</span></th>
-            <td mat-cell *matCellDef="let row">
-              {{ row.targetEffectiveTime }}
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="['sourceCode', 'sourceDisplay', 'sourceEffectiveTime', 'targetCode', 'targetDisplay', 'targetEffectiveTime']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['sourceCode', 'sourceDisplay', 'sourceEffectiveTime', 'targetCode', 'targetDisplay', 'targetEffectiveTime']"></tr>
-        </table>
-      </div>
-    </div>
+    }
 
     <!-- Empty State -->
-    <div *ngIf="!loading && !error && selectedModule && dependencyRows.length === 0" class="empty-state">
-      <mat-icon>info</mat-icon>
-      <p>No dependencies found for this module.</p>
-    </div>
+    @if (!loading && !error && selectedModule && dependencyRows.length === 0) {
+      <div class="empty-state">
+        <mat-icon>info</mat-icon>
+        <p>No dependencies found for this module.</p>
+      </div>
+    }
 
     <!-- Initial State -->
-    <div *ngIf="!selectedModule && !loading" class="initial-state">
-      <mat-icon>select_all</mat-icon>
-      <p>Select a module above to view its dependencies</p>
-    </div>
+    @if (!selectedModule && !loading) {
+      <div class="initial-state">
+        <mat-icon>select_all</mat-icon>
+        <p>Select a module above to view its dependencies</p>
+      </div>
+    }
   </div>
 </div>
 

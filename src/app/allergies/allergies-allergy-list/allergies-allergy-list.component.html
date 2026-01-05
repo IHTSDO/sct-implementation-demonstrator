@@ -1,127 +1,147 @@
 <mat-card id="main-card" [class.single-column]="embeddedMode">
-    <div class="row">
-        <div class="column">
-            <h4>Allergy Intolerance Form
-                <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
-                    <mat-icon>info</mat-icon>
-                </button>
-                <mat-menu #substancePopoverMenu="matMenu" >
-                    <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
-                        <h4>Allergy list</h4>
-                        <p>Allergy or intolerance can be recorded in a specific section (e.g., “Drug Allergy and Intolerance”) of the 
-                        EHR, which records the causative agent together with other details, including type (allergy, non-allergic 
-                        hypersensitivity, intolerance), certainty, manifestation, and severity. This corresponds to the FHIR substance 
-                        based AllergyIntolerance resource data model.</p>
-                        <p>In terms of documenting  sensitivity type in the allergy list there is the option to map to 609433001 |Hypersensitivity 
-                        disposition which in SNOMED CT represents both immune-mediated and non-immune mediated hypersensitivity or to map to 
-                        609328004 |Allergic disposition (finding)|which is common clinical parlance for what many clinicians would mean by 
-                        allergic or non-allergic hypersensitivity. In addition, as recommended in the FHIR documentation if one is unclear 
-                        as to whether a condition represents hypersensitivity or intolerance, one can just omit the type element from the resource.</p>
-                        <p>If SNOMED CT concepts are used to document the causative agent, it is preferable to use concepts from the Substance rather 
-                        than Pharmaceutical/biologic product hierarchy since this will facilitate the downstream use of data, e.g., clinical 
-                        decision support, data exchange.</p>
-                        <p>Almost all allergy and intolerance finding concepts are modeled using substance concepts in SNOMED CT. The SNOMED CT 
-                        substance hierarchy has grouper concepts that are based on structure (e.g., Macrolide) or disposition (e.g., substance 
-                        with histamine receptor antagonist mechanism of action). Clinical decision support systems can utilize these grouper concepts to 
-                        access information at the desired level of granularity. Clinicians can also record a class of substance instead of a specific 
-                        drug or substance (e.g., angiotensin II receptor antagonist).  Note that substance grouper concepts based on therapeutic role 
-                        (e.g., anticonvulsant) is not recommended for use because they are currently under review and may be retired in future.</p>
-                        <p>There are situations in which it is difficult to determine the specific substance as a true cause or most likely cause of a 
-                        condition. This is the case for allergy/intolerance to a product containing multiple substances.</p>
-                        <p>Records of allergy to multiple substances or to multi-ingredient products should be recorded at the product level and updated 
-                        when more specific information becomes available (e.g., positive sensitivity test to one specific ingredient of the mix).</p>
-                        <p>For more information check the <a href="https://confluence.ihtsdotools.org/x/PaDICg" target="_blank">Implementation Guide</a>
-                        developed by the SNOMED International Allergy Clinical Reference Group.</p>
-                    </span>
-                </mat-menu>
-            </h4>
-            <button mat-flat-button color="accent" (click)="clear()" id="clear">Clear</button>
-            <div class="row-centered">
-                <div class="smallest-form-field">
-                    <app-autocomplete-binding [binding]="codeBinding" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm"></app-autocomplete-binding>
-                </div>
-                <button mat-icon-button color="primary" [matMenuTriggerFor]="codePopoverMenu">
-                    <mat-icon>info</mat-icon>
-                </button>
-                <mat-menu #codePopoverMenu="matMenu" >
-                    <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
-                        <p>Terminology binding:</p>
-                        <pre>{{ codeBinding.ecl }}</pre>
-                    </span>
-                </mat-menu>
-                <mat-slide-toggle [(ngModel)]="recordPropensity" (click)="propensityRecordChanged()" matTooltip="Defines wether to use a propensity based model or a substance based model. Defines which one is recorded in the code element of the AllergyIntolerance resource.">
-                    Propensity based model
-                </mat-slide-toggle>
-            </div>
-            <div class="row-centered">
-                <mat-form-field class="column">
-                    <mat-label>Allergy Intolerance Type</mat-label>
-                    <mat-select [(ngModel)]="selectedIntoleranceType">
-                        <mat-option *ngFor="let option of intoleranceTypeOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <div class="row-centered">
-                <mat-form-field class="column">
-                    <mat-label>Clinical Status</mat-label>
-                    <mat-select [(ngModel)]="selectedClinicalStatus">
-                        <mat-option *ngFor="let option of clinicalStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field class="column">
-                    <mat-label>Verification Status</mat-label>
-                    <mat-select [(ngModel)]="selectedVerificationStatus">
-                        <mat-option *ngFor="let option of verificationStatusOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <div class="row-centered">
-                <div class="small-form-field">
-                    <app-autocomplete-binding [binding]="substanceBinding" (selectionChange)="substanceSelected($event, true)" 
-                    [term]="selectedSubstanceTerm" *ngIf="!recordPropensity"></app-autocomplete-binding>
-                    <app-autocomplete-binding [binding]="refinedSubstanceBinding" (selectionChange)="substanceSelected($event)" 
-                    [term]="selectedSubstanceTerm" *ngIf="recordPropensity"></app-autocomplete-binding>
-                </div>
-                <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
-                    <mat-icon>info</mat-icon>
-                </button>
-                <mat-menu #substancePopoverMenu="matMenu" >
-                    <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
-                        <p>Terminology binding:</p>
-                        <pre *ngIf="!recordPropensity">{{ substanceBinding.ecl }}</pre>
-                        <pre *ngIf="recordPropensity">{{ refinedSubstanceBinding.ecl }}</pre>
-                    </span>
-                </mat-menu>
-            </div>
-            <div class="row-centered">
-                <mat-form-field class="column">
-                    <mat-label>Substance Category</mat-label>
-                    <mat-select [formControl]="selectedIntoleranceCategoriesControl" [multiple]="true">
-                        <mat-option *ngFor="let option of intoleranceCategoryOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field class="column">
-                    <mat-label>Allergy Criticality</mat-label>
-                    <mat-select [(ngModel)]="selectedCriticality">
-                        <mat-option *ngFor="let option of criticalityOptions" [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <app-allergies-allergy-list-reaction [(ngModel)]="selectedReactions" (ngModelChange)="onReactionsChange($event)" (newManifestation)="newProblem.emit($event)"></app-allergies-allergy-list-reaction> 
-            <button mat-flat-button color="accent" (click)="embeddedMode ? saveAllergy() : addToProblemsList()">
-                {{ embeddedMode ? 'Save Allergy' : 'Save' }}
-            </button>
-        </div>
-        <div class="column" *ngIf="!embeddedMode">
-            <h4>AllergyIntolerance HL7 FHIR Resource (<a href="https://hl7.org/FHIR/allergyintolerance.html" target="_blank">link</a>)</h4>
-            <div id="output">
-                <div id="save">
-                    <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource"><mat-icon fontIcon="cloud_download"></mat-icon></button>
-                    <button mat-icon-button (click)="copyToClipboard(outputAllergyStr)" matTooltip="Copy FHIR Resource"><mat-icon fontIcon="content_copy"></mat-icon></button>
-                </div>
-                <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="outputAllergyStr" wrap="soft">
-                </textarea>
-            </div>
-        </div>
+  <div class="row">
+    <div class="column">
+      <h4>Allergy Intolerance Form
+        <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+          <mat-icon>info</mat-icon>
+        </button>
+        <mat-menu #substancePopoverMenu="matMenu" >
+          <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
+            <h4>Allergy list</h4>
+            <p>Allergy or intolerance can be recorded in a specific section (e.g., “Drug Allergy and Intolerance”) of the
+              EHR, which records the causative agent together with other details, including type (allergy, non-allergic
+              hypersensitivity, intolerance), certainty, manifestation, and severity. This corresponds to the FHIR substance
+            based AllergyIntolerance resource data model.</p>
+            <p>In terms of documenting  sensitivity type in the allergy list there is the option to map to 609433001 |Hypersensitivity
+              disposition which in SNOMED CT represents both immune-mediated and non-immune mediated hypersensitivity or to map to
+              609328004 |Allergic disposition (finding)|which is common clinical parlance for what many clinicians would mean by
+              allergic or non-allergic hypersensitivity. In addition, as recommended in the FHIR documentation if one is unclear
+            as to whether a condition represents hypersensitivity or intolerance, one can just omit the type element from the resource.</p>
+            <p>If SNOMED CT concepts are used to document the causative agent, it is preferable to use concepts from the Substance rather
+              than Pharmaceutical/biologic product hierarchy since this will facilitate the downstream use of data, e.g., clinical
+            decision support, data exchange.</p>
+            <p>Almost all allergy and intolerance finding concepts are modeled using substance concepts in SNOMED CT. The SNOMED CT
+              substance hierarchy has grouper concepts that are based on structure (e.g., Macrolide) or disposition (e.g., substance
+              with histamine receptor antagonist mechanism of action). Clinical decision support systems can utilize these grouper concepts to
+              access information at the desired level of granularity. Clinicians can also record a class of substance instead of a specific
+              drug or substance (e.g., angiotensin II receptor antagonist).  Note that substance grouper concepts based on therapeutic role
+            (e.g., anticonvulsant) is not recommended for use because they are currently under review and may be retired in future.</p>
+            <p>There are situations in which it is difficult to determine the specific substance as a true cause or most likely cause of a
+            condition. This is the case for allergy/intolerance to a product containing multiple substances.</p>
+            <p>Records of allergy to multiple substances or to multi-ingredient products should be recorded at the product level and updated
+            when more specific information becomes available (e.g., positive sensitivity test to one specific ingredient of the mix).</p>
+            <p>For more information check the <a href="https://confluence.ihtsdotools.org/x/PaDICg" target="_blank">Implementation Guide</a>
+          developed by the SNOMED International Allergy Clinical Reference Group.</p>
+        </span>
+      </mat-menu>
+    </h4>
+    <button mat-flat-button color="accent" (click)="clear()" id="clear">Clear</button>
+    <div class="row-centered">
+      <div class="smallest-form-field">
+        <app-autocomplete-binding [binding]="codeBinding" (selectionChange)="codeSelected($event)" [term]="selectedCodeTerm"></app-autocomplete-binding>
       </div>
+      <button mat-icon-button color="primary" [matMenuTriggerFor]="codePopoverMenu">
+        <mat-icon>info</mat-icon>
+      </button>
+      <mat-menu #codePopoverMenu="matMenu" >
+        <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+          <p>Terminology binding:</p>
+          <pre>{{ codeBinding.ecl }}</pre>
+        </span>
+      </mat-menu>
+      <mat-slide-toggle [(ngModel)]="recordPropensity" (click)="propensityRecordChanged()" matTooltip="Defines wether to use a propensity based model or a substance based model. Defines which one is recorded in the code element of the AllergyIntolerance resource.">
+        Propensity based model
+      </mat-slide-toggle>
+    </div>
+    <div class="row-centered">
+      <mat-form-field class="column">
+        <mat-label>Allergy Intolerance Type</mat-label>
+        <mat-select [(ngModel)]="selectedIntoleranceType">
+          @for (option of intoleranceTypeOptions; track option) {
+            <mat-option [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="row-centered">
+      <mat-form-field class="column">
+        <mat-label>Clinical Status</mat-label>
+        <mat-select [(ngModel)]="selectedClinicalStatus">
+          @for (option of clinicalStatusOptions; track option) {
+            <mat-option [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="column">
+        <mat-label>Verification Status</mat-label>
+        <mat-select [(ngModel)]="selectedVerificationStatus">
+          @for (option of verificationStatusOptions; track option) {
+            <mat-option [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="row-centered">
+      <div class="small-form-field">
+        @if (!recordPropensity) {
+          <app-autocomplete-binding [binding]="substanceBinding" (selectionChange)="substanceSelected($event, true)"
+          [term]="selectedSubstanceTerm"></app-autocomplete-binding>
+        }
+        @if (recordPropensity) {
+          <app-autocomplete-binding [binding]="refinedSubstanceBinding" (selectionChange)="substanceSelected($event)"
+          [term]="selectedSubstanceTerm"></app-autocomplete-binding>
+        }
+      </div>
+      <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
+        <mat-icon>info</mat-icon>
+      </button>
+      <mat-menu #substancePopoverMenu="matMenu" >
+        <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+          <p>Terminology binding:</p>
+          @if (!recordPropensity) {
+            <pre>{{ substanceBinding.ecl }}</pre>
+          }
+          @if (recordPropensity) {
+            <pre>{{ refinedSubstanceBinding.ecl }}</pre>
+          }
+        </span>
+      </mat-menu>
+    </div>
+    <div class="row-centered">
+      <mat-form-field class="column">
+        <mat-label>Substance Category</mat-label>
+        <mat-select [formControl]="selectedIntoleranceCategoriesControl" [multiple]="true">
+          @for (option of intoleranceCategoryOptions; track option) {
+            <mat-option [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="column">
+        <mat-label>Allergy Criticality</mat-label>
+        <mat-select [(ngModel)]="selectedCriticality">
+          @for (option of criticalityOptions; track option) {
+            <mat-option [value]="option" (click)="updateAllergyStr()">{{option.display}}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <app-allergies-allergy-list-reaction [(ngModel)]="selectedReactions" (ngModelChange)="onReactionsChange($event)" (newManifestation)="newProblem.emit($event)"></app-allergies-allergy-list-reaction>
+    <button mat-flat-button color="accent" (click)="embeddedMode ? saveAllergy() : addToProblemsList()">
+      {{ embeddedMode ? 'Save Allergy' : 'Save' }}
+    </button>
+  </div>
+  @if (!embeddedMode) {
+    <div class="column">
+      <h4>AllergyIntolerance HL7 FHIR Resource (<a href="https://hl7.org/FHIR/allergyintolerance.html" target="_blank">link</a>)</h4>
+      <div id="output">
+        <div id="save">
+          <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource"><mat-icon fontIcon="cloud_download"></mat-icon></button>
+          <button mat-icon-button (click)="copyToClipboard(outputAllergyStr)" matTooltip="Copy FHIR Resource"><mat-icon fontIcon="content_copy"></mat-icon></button>
+        </div>
+        <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="outputAllergyStr" wrap="soft">
+        </textarea>
+      </div>
+    </div>
+  }
+</div>
 </mat-card>

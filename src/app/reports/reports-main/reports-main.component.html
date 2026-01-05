@@ -1,66 +1,70 @@
 <div class="main-panel">
-    <!-- <div class="draft-banner">
-        <strong>Draft Version:</strong> This page is a work in progress and for internal review only.
-    </div> -->
-    <h1 class="mb-1">SNOMED CT as an Evolving Terminology</h1>
-    <h4 class="text-gray-500">Supporting the management of terminology changes in clinical implementations</h4>
-    <div class="text-container">
-        <p class="intro">Maintaining the integrity and usefulness of a clinical terminology like SNOMED CT requires 
-            continuous updates, including concept modifications and inactivations. These updates ensure that the 
-            terminology remains aligned with clinical practice and evolving medical knowledge while supporting 
-            interoperability across health systems. This page provides detailed information about SNOMED CT content 
-            changes, offering transparency for implementers, terminology managers, and system developers who depend 
-            on up-to-date SNOMED CT content for clinical decision support, coding, and analytics.</p>
-        <p class="intro">This aligns with the principle of graceful evolution, which emphasizes that terminologies 
-            should change in a way that minimizes disruption to users. SNOMED CT follows this principle by ensuring that 
-            inactivated concepts have clear historical relationships to their replacements, FSN changes history is fully tracked, 
-            and new concepts integrate seamlessly into existing hierarchies. <span class="text-sm">
-                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3415631/" target="_blank">
-                    Cimino J. J. (1998). Desiderata for controlled medical vocabularies in the twenty-first century. Methods of information in medicine, 37(4-5), 394–403.
-                </a>
-            </span></p>
-        <p class="intro">While this information exists in the RF2 release files, it is spread across multiple tables and 
-            requires complex queries to interpret. These guides, tools, and reports are key in the maintenance of SNOMED extensions, 
-            helping implementers identify the volume of changes over time and track updates efficiently, and update extension 
-            content to ensure that SNOMED CT remains a reliable and evolving global standard while minimizing the impact of 
-            inevitable terminology changes.
-        </p>
+  <!-- <div class="draft-banner">
+  <strong>Draft Version:</strong> This page is a work in progress and for internal review only.
+</div> -->
+<h1 class="mb-1">SNOMED CT as an Evolving Terminology</h1>
+<h4 class="text-gray-500">Supporting the management of terminology changes in clinical implementations</h4>
+<div class="text-container">
+  <p class="intro">Maintaining the integrity and usefulness of a clinical terminology like SNOMED CT requires
+    continuous updates, including concept modifications and inactivations. These updates ensure that the
+    terminology remains aligned with clinical practice and evolving medical knowledge while supporting
+    interoperability across health systems. This page provides detailed information about SNOMED CT content
+    changes, offering transparency for implementers, terminology managers, and system developers who depend
+  on up-to-date SNOMED CT content for clinical decision support, coding, and analytics.</p>
+  <p class="intro">This aligns with the principle of graceful evolution, which emphasizes that terminologies
+    should change in a way that minimizes disruption to users. SNOMED CT follows this principle by ensuring that
+    inactivated concepts have clear historical relationships to their replacements, FSN changes history is fully tracked,
+    and new concepts integrate seamlessly into existing hierarchies. <span class="text-sm">
+    <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3415631/" target="_blank">
+      Cimino J. J. (1998). Desiderata for controlled medical vocabularies in the twenty-first century. Methods of information in medicine, 37(4-5), 394–403.
+    </a>
+  </span></p>
+  <p class="intro">While this information exists in the RF2 release files, it is spread across multiple tables and
+    requires complex queries to interpret. These guides, tools, and reports are key in the maintenance of SNOMED extensions,
+    helping implementers identify the volume of changes over time and track updates efficiently, and update extension
+    content to ensure that SNOMED CT remains a reliable and evolving global standard while minimizing the impact of
+    inevitable terminology changes.
+  </p>
+</div>
+<h3 class="mt-4">Reports describing changes in the terminology</h3>
+<div class="demos-panel">
+  @for (report of reports; track report) {
+    <div class="demo-card-wrapper">
+      <mat-card class="demo-card">
+        <mat-card-header>
+          <mat-card-subtitle>{{ report.subtitle }}</mat-card-subtitle>
+          <mat-card-title>{{ report.name }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ report.description }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="accent" (click)="navigate(report)">OPEN</button>
+        </mat-card-actions>
+      </mat-card>
     </div>
-    <h3 class="mt-4">Reports describing changes in the terminology</h3>
-    <div class="demos-panel">
-        <div *ngFor="let report of reports" class="demo-card-wrapper">
-            <mat-card class="demo-card">
-                <mat-card-header>
-                  <mat-card-subtitle>{{ report.subtitle }}</mat-card-subtitle>
-                  <mat-card-title>{{ report.name }}</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                    <p>{{ report.description }}</p>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button color="accent" (click)="navigate(report)">OPEN</button>
-                </mat-card-actions>
-            </mat-card>
-        </div>
+  }
+</div>
+<h3>Educational materials related to inactivations and changes in SNOMED CT</h3>
+<div class="demos-panel">
+  @for (material of materials; track material) {
+    <div class="demo-card-wrapper">
+      <mat-card class="demo-card">
+        <mat-card-header>
+          <mat-card-subtitle>{{ material.subtitle }}</mat-card-subtitle>
+          <mat-card-title>{{ material.name }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ material.description }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="accent" (click)="navigate(material)">OPEN</button>
+        </mat-card-actions>
+      </mat-card>
     </div>
-    <h3>Educational materials related to inactivations and changes in SNOMED CT</h3>
-    <div class="demos-panel">
-        <div *ngFor="let material of materials" class="demo-card-wrapper">
-            <mat-card class="demo-card">
-                <mat-card-header>
-                  <mat-card-subtitle>{{ material.subtitle }}</mat-card-subtitle>
-                  <mat-card-title>{{ material.name }}</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                    <p>{{ material.description }}</p>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button color="accent" (click)="navigate(material)">OPEN</button>
-                </mat-card-actions>
-            </mat-card>
-        </div>
-    </div>
-    <div class="center-image">
-        <img src="assets/img/SI_CT_Logo_Delivered_By.png" alt="SNOMED Logo" class="transparent-image">
-    </div>
+  }
+</div>
+<div class="center-image">
+  <img src="assets/img/SI_CT_Logo_Delivered_By.png" alt="SNOMED Logo" class="transparent-image">
+</div>
 </div>

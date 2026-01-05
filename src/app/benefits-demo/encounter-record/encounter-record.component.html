@@ -1,429 +1,456 @@
 <div class="encounter-record-container">
   <!-- Main encounter form - Horizontal Layout -->
-  <div class="encounter-content" *ngIf="patient">
-    <div class="encounter-form-container">
-      <div class="form-card">
-        <div class="form-header">
-          <h3>Current Encounter</h3>
-          <div class="encounter-datetime">
-            <span class="datetime-label">Date/Time</span>
-            <div class="datetime-inputs">
-              <input type="date" [(ngModel)]="encounterDate" class="date-input" required>
-              <input type="time" [(ngModel)]="encounterTime" class="time-input" required>
-            </div>
-            <div class="datetime-display">
-              {{ getFormattedDateTime() }}
-            </div>
-          </div>
-        </div>
-
-        <div class="form-content-vertical">
-          <!-- Row 1: Reason for Encounter -->
-          <div class="form-row">
-            <div class="field-label">
-              <span class="field-title">Reason for Encounter</span>
-            </div>
-            <div class="field-content">
-              <div class="field-with-info-and-add">
-                <div class="field-with-info">
-                  <app-autocomplete-binding 
-                    [binding]="bindings.reasonForEncounter"
-                    [term]="currentReasonForEncounter?.display || ''"
-                    (selectionChange)="onReasonForEncounterSelected($event)">
-                  </app-autocomplete-binding>
-                  <button mat-icon-button 
-                          class="info-button"
-                          [matMenuTriggerFor]="reasonForEncounterMenu"
-                          matTooltip="Click for more information"
-                          matTooltipPosition="above">
-                    <mat-icon>info_outline</mat-icon>
-                  </button>
-                </div>
-                <button mat-raised-button 
-                        color="accent" 
-                        (click)="addReasonForEncounter()" 
-                        [disabled]="!currentReasonForEncounter"
-                        class="add-item-button">
-                  <mat-icon>add</mat-icon>
-                  Add
-                </button>
+  @if (patient) {
+    <div class="encounter-content">
+      <div class="encounter-form-container">
+        <div class="form-card">
+          <div class="form-header">
+            <h3>Current Encounter</h3>
+            <div class="encounter-datetime">
+              <span class="datetime-label">Date/Time</span>
+              <div class="datetime-inputs">
+                <input type="date" [(ngModel)]="encounterDate" class="date-input" required>
+                <input type="time" [(ngModel)]="encounterTime" class="time-input" required>
               </div>
-              
-              <!-- List of added reasons -->
-              <div class="added-items-list" *ngIf="reasonsForEncounter.length > 0">
-                <div class="added-item" *ngFor="let reason of reasonsForEncounter; let i = index">
-                  <div class="item-main">
-                    <span class="item-display">{{ reason.display }}</span>
-                    <span class="item-code">{{ reason.code }}</span>
-                  </div>
-                  <button mat-icon-button 
-                          (click)="removeReasonForEncounter(i)" 
-                          class="remove-item-button"
-                          matTooltip="Remove">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
+              <div class="datetime-display">
+                {{ getFormattedDateTime() }}
               </div>
             </div>
           </div>
-
-          <!-- Reason for Encounter Info Menu -->
-          <mat-menu #reasonForEncounterMenu="matMenu" class="info-menu">
-            <div class="info-popover" (click)="$event.stopPropagation()">
-              <h3>Reason for Encounter</h3>
-              <p>
-                The Reason for Encounter field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
-              </p>
-              <p>
-                Reason for Encounter options are retrieved here using <strong>&lt; 404684003 | Clinical finding | OR &lt; 71388002 | Procedure | OR &lt; 243796009 | Situation with explicit context | OR &lt; 272379006 | Event |</strong>
-              </p>
-              <p>
-                Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
-              </p>
-              <p>
-                If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
-              </p>
-            </div>
-          </mat-menu>
-
-          <!-- Row 2: Diagnosis | Diagnosis Note -->
-          <div class="form-row">
-            <div class="field-label">
-              <span class="field-title">Diagnosis</span>
-            </div>
-            <div class="field-content">
-              <div class="diagnosis-row">
-                <div class="diagnosis-field">
+          <div class="form-content-vertical">
+            <!-- Row 1: Reason for Encounter -->
+            <div class="form-row">
+              <div class="field-label">
+                <span class="field-title">Reason for Encounter</span>
+              </div>
+              <div class="field-content">
+                <div class="field-with-info-and-add">
                   <div class="field-with-info">
-                    <app-autocomplete-binding 
-                      [binding]="bindings.diagnosis"
-                      [term]="currentDiagnosis?.display || ''"
-                      (selectionChange)="onDiagnosisSelected($event)">
+                    <app-autocomplete-binding
+                      [binding]="bindings.reasonForEncounter"
+                      [term]="currentReasonForEncounter?.display || ''"
+                      (selectionChange)="onReasonForEncounterSelected($event)">
                     </app-autocomplete-binding>
-                    <button mat-icon-button 
-                            class="info-button"
-                            [matMenuTriggerFor]="diagnosisMenu"
-                            matTooltip="Click for more information"
-                            matTooltipPosition="above">
+                    <button mat-icon-button
+                      class="info-button"
+                      [matMenuTriggerFor]="reasonForEncounterMenu"
+                      matTooltip="Click for more information"
+                      matTooltipPosition="above">
                       <mat-icon>info_outline</mat-icon>
                     </button>
                   </div>
-                </div>
-                <div class="diagnosis-note-field">
-                  <div class="field-with-info">
-                    <mat-form-field class="note-field">
-                      <mat-label>Diagnosis Note</mat-label>
-                      <textarea matInput 
-                                [(ngModel)]="currentDiagnosisNote" 
-                                rows="1" 
-                                placeholder="Optional note"></textarea>
-                    </mat-form-field>
-                    <button mat-icon-button 
-                            class="info-button"
-                            [matMenuTriggerFor]="diagnosisNoteMenu"
-                            matTooltip="Click for more information"
-                            matTooltipPosition="above">
-                      <mat-icon>info_outline</mat-icon>
-                    </button>
-                  </div>
-                </div>
-                <button mat-raised-button 
-                        color="accent" 
-                        (click)="addDiagnosis()" 
-                        [disabled]="!currentDiagnosis"
-                        class="add-item-button">
-                  <mat-icon>add</mat-icon>
-                  Add
-                </button>
-              </div>
-              
-              <!-- List of added diagnoses -->
-              <div class="added-items-list" *ngIf="diagnoses.length > 0">
-                <div class="added-item" *ngFor="let diag of diagnoses; let i = index">
-                  <div class="item-main">
-                    <span class="item-display">{{ diag.concept.display }}</span>
-                    <span class="item-code">{{ diag.concept.code }}</span>
-                  </div>
-                  <div class="item-note" *ngIf="diag.note">
-                    <mat-icon class="note-icon">note</mat-icon>
-                    <span>{{ diag.note }}</span>
-                  </div>
-                  <button mat-icon-button 
-                          (click)="removeDiagnosis(i)" 
-                          class="remove-item-button"
-                          matTooltip="Remove">
-                    <mat-icon>close</mat-icon>
+                  <button mat-raised-button
+                    color="accent"
+                    (click)="addReasonForEncounter()"
+                    [disabled]="!currentReasonForEncounter"
+                    class="add-item-button">
+                    <mat-icon>add</mat-icon>
+                    Add
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Diagnosis Info Menu -->
-          <mat-menu #diagnosisMenu="matMenu" class="info-menu">
-            <div class="info-popover" (click)="$event.stopPropagation()">
-              <h3>Diagnosis</h3>
-              <p>
-                The Diagnosis field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
-              </p>
-              <p>
-                Diagnosis options are retrieved here using <strong>&lt; 404684003 | Clinical finding |</strong>
-              </p>
-              <p>
-                Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
-              </p>
-              <p>
-                If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
-              </p>
-            </div>
-          </mat-menu>
-
-          <!-- Diagnosis Note Info Menu -->
-          <mat-menu #diagnosisNoteMenu="matMenu" class="info-menu">
-            <div class="info-popover" (click)="$event.stopPropagation()">
-              <h3>Diagnosis Note</h3>
-              <p>
-                The Diagnosis Note field allows a user to qualify the SNOMED CT concept in the Diagnosis field. In other words, to add more detail to the SNOMED CT concept if necessary.
-              </p>
-              <p>
-                This field is one example of how to deal with a SNOMED CT concept that might not be specific enough. This approach allows the user to choose the closest available SNOMED CT concept and then provide the extra details that are necessary.
-              </p>
-            </div>
-          </mat-menu>
-
-          <!-- Row 3: Procedure | Laterality -->
-          <div class="form-row">
-            <div class="field-label">
-              <span class="field-title">Procedure</span>
-            </div>
-            <div class="field-content">
-              <div class="procedure-row">
-                <div class="procedure-field">
-                  <div class="field-with-info">
-                    <app-autocomplete-binding 
-                      [binding]="bindings.procedure"
-                      [term]="currentProcedure?.display || ''"
-                      (selectionChange)="onProcedureSelected($event)">
-                    </app-autocomplete-binding>
-                    <button mat-icon-button 
-                            class="info-button"
-                            [matMenuTriggerFor]="procedureMenu"
-                            matTooltip="Click for more information"
-                            matTooltipPosition="above">
-                      <mat-icon>info_outline</mat-icon>
-                    </button>
-                  </div>
-                </div>
-                <div class="laterality-field">
-                  <div class="field-with-info">
-                    <mat-form-field class="laterality-select">
-                      <mat-label>Laterality</mat-label>
-                      <mat-select [(value)]="currentProcedureLaterality" 
-                                 placeholder="Select laterality"
-                                 [disabled]="!isLateralityEnabled">
-                        <mat-option *ngFor="let option of lateralityOptions" [value]="option.value">
-                          {{ option.display }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <button mat-icon-button 
-                            class="info-button"
-                            [matMenuTriggerFor]="lateralityMenu"
-                            matTooltip="Click for more information"
-                            matTooltipPosition="above">
-                      <mat-icon>info_outline</mat-icon>
-                    </button>
-                  </div>
-                  <div class="laterality-hint" *ngIf="!isLateralityEnabled && currentProcedure">
-                    <small>Laterality not applicable for this procedure</small>
-                  </div>
-                </div>
-                <button mat-raised-button 
-                        color="accent" 
-                        (click)="addProcedure()" 
-                        [disabled]="!currentProcedure"
-                        class="add-item-button">
-                  <mat-icon>add</mat-icon>
-                  Add
-                </button>
-              </div>
-              
-              <!-- List of added procedures -->
-              <div class="added-items-list" *ngIf="procedures.length > 0">
-                <div class="added-item" *ngFor="let proc of procedures; let i = index">
-                  <div class="item-main">
-                    <span class="item-display">{{ proc.concept.display }}</span>
-                    <span class="item-code">{{ proc.concept.code }}</span>
-                    <span class="item-laterality" *ngIf="proc.laterality">{{ getLateralityDisplay(proc.laterality) }}</span>
-                  </div>
-                  <button mat-icon-button 
-                          (click)="removeProcedure(i)" 
+                <!-- List of added reasons -->
+                @if (reasonsForEncounter.length > 0) {
+                  <div class="added-items-list">
+                    @for (reason of reasonsForEncounter; track reason; let i = $index) {
+                      <div class="added-item">
+                        <div class="item-main">
+                          <span class="item-display">{{ reason.display }}</span>
+                          <span class="item-code">{{ reason.code }}</span>
+                        </div>
+                        <button mat-icon-button
+                          (click)="removeReasonForEncounter(i)"
                           class="remove-item-button"
                           matTooltip="Remove">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
               </div>
             </div>
-          </div>
-
-          <!-- Procedure Info Menu -->
-          <mat-menu #procedureMenu="matMenu" class="info-menu">
-            <div class="info-popover" (click)="$event.stopPropagation()">
-              <h3>Procedure</h3>
-              <p>
-                The Procedure field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
-              </p>
-              <p>
-                Procedure options are retrieved here using <strong>&lt; 71388002 | Procedure |</strong>
-              </p>
-              <p>
-                Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
-              </p>
-              <p>
-                If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
-              </p>
-              <p>
-                This field is an example of where you might use the <strong>modelling</strong> in a SNOMED CT concept to pre-populate or enable other fields. The Laterality field will pre-populate if you select a concept whose procedure site has been modelled with a laterality (e.g. 735085002 | Excision of left breast lump |).
-              </p>
-              <p>
-                The laterality will also become enabled for user input when a concept has a procedure site, but no laterality has been specified (e.g. 392021009 | Lumpectomy of breast |). This will be further refined to restrict enablement to procedure sites in the SNOMED CT lateralisable concept reference set.
-              </p>
+            <!-- Reason for Encounter Info Menu -->
+            <mat-menu #reasonForEncounterMenu="matMenu" class="info-menu">
+              <div class="info-popover" (click)="$event.stopPropagation()">
+                <h3>Reason for Encounter</h3>
+                <p>
+                  The Reason for Encounter field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
+                </p>
+                <p>
+                  Reason for Encounter options are retrieved here using <strong>&lt; 404684003 | Clinical finding | OR &lt; 71388002 | Procedure | OR &lt; 243796009 | Situation with explicit context | OR &lt; 272379006 | Event |</strong>
+                </p>
+                <p>
+                  Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
+                </p>
+                <p>
+                  If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
+                </p>
+              </div>
+            </mat-menu>
+            <!-- Row 2: Diagnosis | Diagnosis Note -->
+            <div class="form-row">
+              <div class="field-label">
+                <span class="field-title">Diagnosis</span>
+              </div>
+              <div class="field-content">
+                <div class="diagnosis-row">
+                  <div class="diagnosis-field">
+                    <div class="field-with-info">
+                      <app-autocomplete-binding
+                        [binding]="bindings.diagnosis"
+                        [term]="currentDiagnosis?.display || ''"
+                        (selectionChange)="onDiagnosisSelected($event)">
+                      </app-autocomplete-binding>
+                      <button mat-icon-button
+                        class="info-button"
+                        [matMenuTriggerFor]="diagnosisMenu"
+                        matTooltip="Click for more information"
+                        matTooltipPosition="above">
+                        <mat-icon>info_outline</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="diagnosis-note-field">
+                    <div class="field-with-info">
+                      <mat-form-field class="note-field">
+                        <mat-label>Diagnosis Note</mat-label>
+                        <textarea matInput
+                          [(ngModel)]="currentDiagnosisNote"
+                          rows="1"
+                        placeholder="Optional note"></textarea>
+                      </mat-form-field>
+                      <button mat-icon-button
+                        class="info-button"
+                        [matMenuTriggerFor]="diagnosisNoteMenu"
+                        matTooltip="Click for more information"
+                        matTooltipPosition="above">
+                        <mat-icon>info_outline</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                  <button mat-raised-button
+                    color="accent"
+                    (click)="addDiagnosis()"
+                    [disabled]="!currentDiagnosis"
+                    class="add-item-button">
+                    <mat-icon>add</mat-icon>
+                    Add
+                  </button>
+                </div>
+                <!-- List of added diagnoses -->
+                @if (diagnoses.length > 0) {
+                  <div class="added-items-list">
+                    @for (diag of diagnoses; track diag; let i = $index) {
+                      <div class="added-item">
+                        <div class="item-main">
+                          <span class="item-display">{{ diag.concept.display }}</span>
+                          <span class="item-code">{{ diag.concept.code }}</span>
+                        </div>
+                        @if (diag.note) {
+                          <div class="item-note">
+                            <mat-icon class="note-icon">note</mat-icon>
+                            <span>{{ diag.note }}</span>
+                          </div>
+                        }
+                        <button mat-icon-button
+                          (click)="removeDiagnosis(i)"
+                          class="remove-item-button"
+                          matTooltip="Remove">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
             </div>
-          </mat-menu>
-
-          <!-- Laterality Info Menu -->
-          <mat-menu #lateralityMenu="matMenu" class="info-menu">
-            <div class="info-popover" (click)="$event.stopPropagation()">
-              <h3>Laterality</h3>
-              <p>
-                The Laterality field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
-              </p>
-              <p>
-                Laterality options are retrieved here using <strong>&lt; 182353008 | Side |</strong>
-              </p>
-              <p>
-                This field is an example of a field that is populated based on the <strong>modelling</strong> of a concept in another field. The Procedure field controls the enablement and available choices of this Laterality field.
-              </p>
-              <p>
-                The Laterality field will pre-populate if you select a procedure concept whose procedure site has been modelled with a laterality (e.g. 735085002 | Excision of left breast lump |).
-              </p>
-              <p>
-                The laterality will also become enabled for user input when a procedure concept has a procedure site, but no laterality has been specified (e.g. 392021009 | Lumpectomy of breast |). This will be further refined to restrict enablement to procedure sites in the SNOMED CT lateralisable concept reference set.
-              </p>
+            <!-- Diagnosis Info Menu -->
+            <mat-menu #diagnosisMenu="matMenu" class="info-menu">
+              <div class="info-popover" (click)="$event.stopPropagation()">
+                <h3>Diagnosis</h3>
+                <p>
+                  The Diagnosis field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
+                </p>
+                <p>
+                  Diagnosis options are retrieved here using <strong>&lt; 404684003 | Clinical finding |</strong>
+                </p>
+                <p>
+                  Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
+                </p>
+                <p>
+                  If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
+                </p>
+              </div>
+            </mat-menu>
+            <!-- Diagnosis Note Info Menu -->
+            <mat-menu #diagnosisNoteMenu="matMenu" class="info-menu">
+              <div class="info-popover" (click)="$event.stopPropagation()">
+                <h3>Diagnosis Note</h3>
+                <p>
+                  The Diagnosis Note field allows a user to qualify the SNOMED CT concept in the Diagnosis field. In other words, to add more detail to the SNOMED CT concept if necessary.
+                </p>
+                <p>
+                  This field is one example of how to deal with a SNOMED CT concept that might not be specific enough. This approach allows the user to choose the closest available SNOMED CT concept and then provide the extra details that are necessary.
+                </p>
+              </div>
+            </mat-menu>
+            <!-- Row 3: Procedure | Laterality -->
+            <div class="form-row">
+              <div class="field-label">
+                <span class="field-title">Procedure</span>
+              </div>
+              <div class="field-content">
+                <div class="procedure-row">
+                  <div class="procedure-field">
+                    <div class="field-with-info">
+                      <app-autocomplete-binding
+                        [binding]="bindings.procedure"
+                        [term]="currentProcedure?.display || ''"
+                        (selectionChange)="onProcedureSelected($event)">
+                      </app-autocomplete-binding>
+                      <button mat-icon-button
+                        class="info-button"
+                        [matMenuTriggerFor]="procedureMenu"
+                        matTooltip="Click for more information"
+                        matTooltipPosition="above">
+                        <mat-icon>info_outline</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="laterality-field">
+                    <div class="field-with-info">
+                      <mat-form-field class="laterality-select">
+                        <mat-label>Laterality</mat-label>
+                        <mat-select [(value)]="currentProcedureLaterality"
+                          placeholder="Select laterality"
+                          [disabled]="!isLateralityEnabled">
+                          @for (option of lateralityOptions; track option) {
+                            <mat-option [value]="option.value">
+                              {{ option.display }}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <button mat-icon-button
+                        class="info-button"
+                        [matMenuTriggerFor]="lateralityMenu"
+                        matTooltip="Click for more information"
+                        matTooltipPosition="above">
+                        <mat-icon>info_outline</mat-icon>
+                      </button>
+                    </div>
+                    @if (!isLateralityEnabled && currentProcedure) {
+                      <div class="laterality-hint">
+                        <small>Laterality not applicable for this procedure</small>
+                      </div>
+                    }
+                  </div>
+                  <button mat-raised-button
+                    color="accent"
+                    (click)="addProcedure()"
+                    [disabled]="!currentProcedure"
+                    class="add-item-button">
+                    <mat-icon>add</mat-icon>
+                    Add
+                  </button>
+                </div>
+                <!-- List of added procedures -->
+                @if (procedures.length > 0) {
+                  <div class="added-items-list">
+                    @for (proc of procedures; track proc; let i = $index) {
+                      <div class="added-item">
+                        <div class="item-main">
+                          <span class="item-display">{{ proc.concept.display }}</span>
+                          <span class="item-code">{{ proc.concept.code }}</span>
+                          @if (proc.laterality) {
+                            <span class="item-laterality">{{ getLateralityDisplay(proc.laterality) }}</span>
+                          }
+                        </div>
+                        <button mat-icon-button
+                          (click)="removeProcedure(i)"
+                          class="remove-item-button"
+                          matTooltip="Remove">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
             </div>
-          </mat-menu>
-
-        <!-- Bottom Section - Encounter Notes -->
-        <div class="form-bottom">
-          <div class="encounter-notes-section">
-            <h3>Notes</h3>
-            <mat-form-field class="encounter-notes-field">
-              <mat-label>Notes</mat-label>
-              <textarea matInput 
-                        [(ngModel)]="encounterNotes" 
-                        rows="3" 
-                        placeholder="General notes about this encounter..."></textarea>
-            </mat-form-field>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="form-actions">
-            <button mat-flat-button 
-                    color="primary" 
-                    (click)="saveEncounter()" 
-                    [disabled]="!isFormValid() || isSaving"
-                    class="save-button">
-              <mat-spinner diameter="20" *ngIf="isSaving"></mat-spinner>
-              <mat-icon *ngIf="!isSaving">save</mat-icon>
-              {{ isSaving ? 'Saving...' : 'Save encounter' }}
-            </button>
-            
-            <button mat-stroked-button 
-                    color="warn" 
-                    (click)="resetForm()" 
-                    [disabled]="isSaving"
-                    class="reset-button">
-              <mat-icon>refresh</mat-icon>
-              Reset
-            </button>
+            <!-- Procedure Info Menu -->
+            <mat-menu #procedureMenu="matMenu" class="info-menu">
+              <div class="info-popover" (click)="$event.stopPropagation()">
+                <h3>Procedure</h3>
+                <p>
+                  The Procedure field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
+                </p>
+                <p>
+                  Procedure options are retrieved here using <strong>&lt; 71388002 | Procedure |</strong>
+                </p>
+                <p>
+                  Options are filtered based on the user input and the field is implemented with an auto-complete component to limit user typing.
+                </p>
+                <p>
+                  If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
+                </p>
+                <p>
+                  This field is an example of where you might use the <strong>modelling</strong> in a SNOMED CT concept to pre-populate or enable other fields. The Laterality field will pre-populate if you select a concept whose procedure site has been modelled with a laterality (e.g. 735085002 | Excision of left breast lump |).
+                </p>
+                <p>
+                  The laterality will also become enabled for user input when a concept has a procedure site, but no laterality has been specified (e.g. 392021009 | Lumpectomy of breast |). This will be further refined to restrict enablement to procedure sites in the SNOMED CT lateralisable concept reference set.
+                </p>
+              </div>
+            </mat-menu>
+            <!-- Laterality Info Menu -->
+            <mat-menu #lateralityMenu="matMenu" class="info-menu">
+              <div class="info-popover" (click)="$event.stopPropagation()">
+                <h3>Laterality</h3>
+                <p>
+                  The Laterality field uses SNOMED CT Expression Constraint Language (ECL) to retrieve all options from a FHIR-Based, SNOMED-CT terminology server.
+                </p>
+                <p>
+                  Laterality options are retrieved here using <strong>&lt; 182353008 | Side |</strong>
+                </p>
+                <p>
+                  This field is an example of a field that is populated based on the <strong>modelling</strong> of a concept in another field. The Procedure field controls the enablement and available choices of this Laterality field.
+                </p>
+                <p>
+                  The Laterality field will pre-populate if you select a procedure concept whose procedure site has been modelled with a laterality (e.g. 735085002 | Excision of left breast lump |).
+                </p>
+                <p>
+                  The laterality will also become enabled for user input when a procedure concept has a procedure site, but no laterality has been specified (e.g. 392021009 | Lumpectomy of breast |). This will be further refined to restrict enablement to procedure sites in the SNOMED CT lateralisable concept reference set.
+                </p>
+              </div>
+            </mat-menu>
+            <!-- Bottom Section - Encounter Notes -->
+            <div class="form-bottom">
+              <div class="encounter-notes-section">
+                <h3>Notes</h3>
+                <mat-form-field class="encounter-notes-field">
+                  <mat-label>Notes</mat-label>
+                  <textarea matInput
+                    [(ngModel)]="encounterNotes"
+                    rows="3"
+                  placeholder="General notes about this encounter..."></textarea>
+                </mat-form-field>
+              </div>
+              <!-- Action Buttons -->
+              <div class="form-actions">
+                <button mat-flat-button
+                  color="primary"
+                  (click)="saveEncounter()"
+                  [disabled]="!isFormValid() || isSaving"
+                  class="save-button">
+                  @if (isSaving) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                  }
+                  @if (!isSaving) {
+                    <mat-icon>save</mat-icon>
+                  }
+                  {{ isSaving ? 'Saving...' : 'Save encounter' }}
+                </button>
+                <button mat-stroked-button
+                  color="warn"
+                  (click)="resetForm()"
+                  [disabled]="isSaving"
+                  class="reset-button">
+                  <mat-icon>refresh</mat-icon>
+                  Reset
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Previous Encounters Section -->
-  <div class="previous-encounters-section" *ngIf="patient && previousEncounters.length > 0">
-    <div class="section-header">
-      <h3>Previous Encounters</h3>
-    </div>
-    
-    <div class="encounters-list">
-      <div class="encounter-item" *ngFor="let encounter of previousEncounters; trackBy: trackByEncounterId">
-        <div class="encounter-header">
-          <span class="encounter-title">{{ formatEncounterDate(encounter.period.start) }}</span>
-          <div class="encounter-header-actions">
-            <span class="encounter-status-badge" [class]="encounter.status">
-              {{ encounter.status }}
-            </span>
-            <button mat-icon-button 
-                    class="delete-button" 
-                    (click)="deleteEncounter(encounter.id)"
-                    title="Delete encounter">
-              <mat-icon>delete_outline</mat-icon>
-            </button>
+      <!-- Previous Encounters Section -->
+      @if (patient && previousEncounters.length > 0) {
+        <div class="previous-encounters-section">
+          <div class="section-header">
+            <h3>Previous Encounters</h3>
+          </div>
+          <div class="encounters-list">
+            @for (encounter of previousEncounters; track trackByEncounterId($index, encounter)) {
+              <div class="encounter-item">
+                <div class="encounter-header">
+                  <span class="encounter-title">{{ formatEncounterDate(encounter.period.start) }}</span>
+                  <div class="encounter-header-actions">
+                    <span class="encounter-status-badge" [class]="encounter.status">
+                      {{ encounter.status }}
+                    </span>
+                    <button mat-icon-button
+                      class="delete-button"
+                      (click)="deleteEncounter(encounter.id)"
+                      title="Delete encounter">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="encounter-details">
+                  <!-- Reasons for Encounter -->
+                  @if (encounter.reasonCode && encounter.reasonCode.length > 0) {
+                    <div class="encounter-detail-item">
+                      <strong>Reason(s):</strong>
+                      <div class="encounter-detail-list">
+                        @for (reason of encounter.reasonCode; track reason) {
+                          <span class="encounter-detail-badge">
+                            {{ reason.text }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+                  <!-- Diagnoses -->
+                  @if (encounter.diagnosis && encounter.diagnosis.length > 0) {
+                    <div class="encounter-detail-item">
+                      <strong>Diagnosis:</strong>
+                      <div class="encounter-detail-list">
+                        @for (diag of encounter.diagnosis; track diag) {
+                          <span class="encounter-detail-badge">
+                            {{ getDiagnosisDisplay(diag) }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+                  <!-- Procedures -->
+                  @if (encounter.linkedProcedures && encounter.linkedProcedures.length > 0) {
+                    <div class="encounter-detail-item">
+                      <strong>Procedure(s):</strong>
+                      <div class="encounter-detail-list">
+                        @for (proc of encounter.linkedProcedures; track proc) {
+                          <span class="encounter-detail-badge">
+                            {{ getProcedureDisplay(proc) }}
+                            @if (getProcedureLaterality(proc)) {
+                              <span class="procedure-laterality-badge">
+                                {{ getProcedureLaterality(proc) }}
+                              </span>
+                            }
+                            <span class="procedure-status-badge mini" [class]="proc.status">
+                              {{ proc.status }}
+                            </span>
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+                  <!-- No Procedures Message -->
+                  @if (!encounter.linkedProcedures || encounter.linkedProcedures.length === 0) {
+                    <div class="encounter-detail-item">
+                      <strong>Procedure(s):</strong> <em>No procedures recorded</em>
+                    </div>
+                  }
+                  <!-- Notes -->
+                  @if (encounter.note && encounter.note.length > 0) {
+                    <div class="encounter-detail-item">
+                      <strong>Notes:</strong> {{ encounter.note[0].text }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
           </div>
         </div>
-        
-        <div class="encounter-details">
-          <!-- Reasons for Encounter -->
-          <div class="encounter-detail-item" *ngIf="encounter.reasonCode && encounter.reasonCode.length > 0">
-            <strong>Reason(s):</strong>
-            <div class="encounter-detail-list">
-              <span class="encounter-detail-badge" *ngFor="let reason of encounter.reasonCode">
-                {{ reason.text }}
-              </span>
-            </div>
-          </div>
-          
-          <!-- Diagnoses -->
-          <div class="encounter-detail-item" *ngIf="encounter.diagnosis && encounter.diagnosis.length > 0">
-            <strong>Diagnosis:</strong>
-            <div class="encounter-detail-list">
-              <span class="encounter-detail-badge" *ngFor="let diag of encounter.diagnosis">
-                {{ getDiagnosisDisplay(diag) }}
-              </span>
-            </div>
-          </div>
-          
-          <!-- Procedures -->
-          <div class="encounter-detail-item" *ngIf="encounter.linkedProcedures && encounter.linkedProcedures.length > 0">
-            <strong>Procedure(s):</strong>
-            <div class="encounter-detail-list">
-              <span class="encounter-detail-badge" *ngFor="let proc of encounter.linkedProcedures">
-                {{ getProcedureDisplay(proc) }}
-                <span class="procedure-laterality-badge" *ngIf="getProcedureLaterality(proc)">
-                  {{ getProcedureLaterality(proc) }}
-                </span>
-                <span class="procedure-status-badge mini" [class]="proc.status">
-                  {{ proc.status }}
-                </span>
-              </span>
-            </div>
-          </div>
-          
-          <!-- No Procedures Message -->
-          <div class="encounter-detail-item" *ngIf="!encounter.linkedProcedures || encounter.linkedProcedures.length === 0">
-            <strong>Procedure(s):</strong> <em>No procedures recorded</em>
-          </div>
-          
-          <!-- Notes -->
-          <div class="encounter-detail-item" *ngIf="encounter.note && encounter.note.length > 0">
-            <strong>Notes:</strong> {{ encounter.note[0].text }}
-          </div>
-        </div>
-      </div>
+      }
     </div>
-  </div>
-</div>
+  }

@@ -1,329 +1,442 @@
-<div class="flex flex-row gap-4 justify-end flex-wrap p-2" *ngIf="authorMode">
+@if (authorMode) {
+  <div class="flex flex-row gap-4 justify-end flex-wrap p-2">
     <button mat-flat-button color="primary" (click)="downloadSpecification()" class="min-h-[44px]">Download Maturity Spec</button>
     <!-- Load Maturity Spec Button -->
     <input hidden (change)="uploadSpecification($event)" #fileInput type="file" id="file" />
     <button mat-flat-button color="primary" (click)="fileInput.click()" class="min-h-[44px]">Upload Maturity Spec</button>
-</div>
-<div class="question-flow-container" *ngIf="currentQuestionIndex === -3">
+  </div>
+}
+@if (currentQuestionIndex === -3) {
+  <div class="question-flow-container">
     <div class="question-container">
-        <div>
-            <h1 class="text-center" *ngIf="!expoMode">{{ welcomeTitle }}</h1>
-            <h1 class="text-center" *ngIf="expoMode">Welcome to SNOMED International's Expo 2025 Quick Assessment</h1>
-            
-            <div *ngIf="!expoMode">
-                <p class="mb-4" [innerHTML]="welcomeSubtitle"></p>
-            </div>
-            
-            <div *ngIf="expoMode">
-                <p class="mb-4">
-                    This is a <b>quick assessment version</b> designed for Expo 2025. You'll complete a streamlined evaluation focusing on the most critical 
-                    Key Process Area for your stakeholder type. This brief assessment provides immediate insights into your SNOMED CT implementation maturity 
-                    and will be automatically saved to our Expo 2025 database for collective analysis.
-                </p>
-            </div>
-            <hr>
-            <div class="flip-card-container">
-                <app-flip-card *ngFor="let flipCard of flipCards; let i = index" #flipCardRef>
-                    <!-- FRONT CONTENT -->
-                    <div flipFront>
-                        <div class="text-2xl mb-4 font-bold">{{ flipCard.title }}</div>
-                        <p>{{ flipCard.front.text }}</p>
-                        <button mat-raised-button color="accent" (click)="flipCardRef.toggleFlip()" class="min-h-[44px]">
-                            More...
-                        </button>
-                    </div>
-                    <!-- BACK CONTENT -->
-                    <div flipBack>
-                        <div class="text-2xl mb-2 font-bold">{{ flipCard.title }}</div>
-                        <div class="home-list">
-                            <div class="home-list-item" *ngFor="let item of flipCard.back.items">
-                                <div><b>{{ item.title }}</b>{{ item.text ? ' – ' + item.text : '' }}</div>
-                            </div>
-                        </div>
-                        <button mat-raised-button color="accent" (click)="flipCardRef.toggleFlip()" class="min-h-[44px]">
-                            Back
-                        </button>
-                    </div>
-                </app-flip-card>
-            </div>
-            <div class="button-container-space-between">
-                <button mat-flat-button color="primary" (click)="openDashboard()" class="mb-2 md:mb-0 min-h-[44px]">
-                    <span *ngIf="!expoMode">MATURITY ANALYTICS DASHBOARD</span>
-                    <span *ngIf="expoMode">EXPO 2025 ANALYTICS DASHBOARD</span>
-                </button>
-                <button class="start-button" mat-flat-button color="accent" (click)="startAssessment()" class="min-h-[44px] text-base md:text-lg font-semibold">
-                    START ASSESSMENT
-                </button>
-                <input hidden (change)="loadState($event)" #fileInputState1 type="file" id="fileState" />
-                <button mat-flat-button color="primary" (click)="fileInputState1.click()" class="mt-2 md:mt-0 min-h-[44px]" *ngIf="!expoMode">
-                    LOAD PREVIOUS ASSESSMENT
-                </button>
-            </div>
-            <div class="button-container-space-between italic text-xs px-4 pt-1 text-center md:text-left">
-                <div *ngIf="!expoMode" class="mb-1 md:mb-0">Analyze a collection of assessment results</div>
-                <div *ngIf="!expoMode">Upload an assessment to edit or view results</div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="question-flow-container" *ngIf="currentQuestionIndex === -2">
-    <div class="question-container" [formGroup]="responseForm">
-    <h2>SNOMED Implementation Maturity assessment</h2>
-    <h3>Select Stakeholder Type</h3>
-    <div class="flex flex-col md:flex-row gap-4 md:justify-end flex-wrap p-2">
-        <div class="flex-1 min-w-0">
-            <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
-            <mat-radio-button *ngFor="let stakeholder of maturityQuestions.stakeHolders" [value]="stakeholder.id" class="mb-5">
-                {{ stakeholder.name }}
-                <p class="stakeholder-description"> {{ stakeholder.description }}</p>
-            </mat-radio-button>
-            </mat-radio-group>
-            <div class="error-message" *ngIf="responseForm.controls['selectedStakeholder']?.invalid && responseForm.controls['selectedStakeholder']?.touched">
-            Please select a stakeholder.
-            </div>
-        </div>
-        <div class="flex-1 mb-10 min-w-0">
-            <div *ngIf="!responseForm.controls['selectedStakeholder'].invalid">
-                <h2>Stakeholder Description</h2>
-                <div *ngIf="expoMode" class="expo-required-fields-info mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p class="text-blue-800 text-sm">
-                        <strong>Expo Mode:</strong> Stakeholder name, user name, and location are required fields for Expo 2025 assessments.
-                        This information will be stored and showed on a map in the expo floor.
-                        Do not enter any information that you would not be comfortable to share with the public.
-                    </p>
+      <div>
+        @if (!expoMode) {
+          <h1 class="text-center">{{ welcomeTitle }}</h1>
+        }
+        @if (expoMode) {
+          <h1 class="text-center">Welcome to SNOMED International's Expo 2025 Quick Assessment</h1>
+        }
+        @if (!expoMode) {
+          <div>
+            <p class="mb-4" [innerHTML]="welcomeSubtitle"></p>
+          </div>
+        }
+        @if (expoMode) {
+          <div>
+            <p class="mb-4">
+              This is a <b>quick assessment version</b> designed for Expo 2025. You'll complete a streamlined evaluation focusing on the most critical
+              Key Process Area for your stakeholder type. This brief assessment provides immediate insights into your SNOMED CT implementation maturity
+              and will be automatically saved to our Expo 2025 database for collective analysis.
+            </p>
+          </div>
+        }
+        <hr>
+          <div class="flip-card-container">
+            @for (flipCard of flipCards; track flipCard; let i = $index) {
+              <app-flip-card #flipCardRef>
+                <!-- FRONT CONTENT -->
+                <div flipFront>
+                  <div class="text-2xl mb-4 font-bold">{{ flipCard.title }}</div>
+                  <p>{{ flipCard.front.text }}</p>
+                  <button mat-raised-button color="accent" (click)="flipCardRef.toggleFlip()" class="min-h-[44px]">
+                    More...
+                  </button>
                 </div>
+                <!-- BACK CONTENT -->
+                <div flipBack>
+                  <div class="text-2xl mb-2 font-bold">{{ flipCard.title }}</div>
+                  <div class="home-list">
+                    @for (item of flipCard.back.items; track item) {
+                      <div class="home-list-item">
+                        <div><b>{{ item.title }}</b>{{ item.text ? ' – ' + item.text : '' }}</div>
+                      </div>
+                    }
+                  </div>
+                  <button mat-raised-button color="accent" (click)="flipCardRef.toggleFlip()" class="min-h-[44px]">
+                    Back
+                  </button>
+                </div>
+              </app-flip-card>
+            }
+          </div>
+          <div class="button-container-space-between">
+            <button mat-flat-button color="primary" (click)="openDashboard()" class="mb-2 md:mb-0 min-h-[44px]">
+              @if (!expoMode) {
+                <span>MATURITY ANALYTICS DASHBOARD</span>
+              }
+              @if (expoMode) {
+                <span>EXPO 2025 ANALYTICS DASHBOARD</span>
+              }
+            </button>
+            <button class="start-button" mat-flat-button color="accent" (click)="startAssessment()" class="min-h-[44px] text-base md:text-lg font-semibold">
+              START ASSESSMENT
+            </button>
+            <input hidden (change)="loadState($event)" #fileInputState1 type="file" id="fileState" />
+            @if (!expoMode) {
+              <button mat-flat-button color="primary" (click)="fileInputState1.click()" class="mt-2 md:mt-0 min-h-[44px]">
+                LOAD PREVIOUS ASSESSMENT
+              </button>
+            }
+          </div>
+          <div class="button-container-space-between italic text-xs px-4 pt-1 text-center md:text-left">
+            @if (!expoMode) {
+              <div class="mb-1 md:mb-0">Analyze a collection of assessment results</div>
+            }
+            @if (!expoMode) {
+              <div>Upload an assessment to edit or view results</div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  @if (currentQuestionIndex === -2) {
+    <div class="question-flow-container">
+      <div class="question-container" [formGroup]="responseForm">
+        <h2>SNOMED Implementation Maturity assessment</h2>
+        <h3>Select Stakeholder Type</h3>
+        <div class="flex flex-col md:flex-row gap-4 md:justify-end flex-wrap p-2">
+          <div class="flex-1 min-w-0">
+            <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
+              @for (stakeholder of maturityQuestions.stakeHolders; track stakeholder) {
+                <mat-radio-button [value]="stakeholder.id" class="mb-5">
+                  {{ stakeholder.name }}
+                  <p class="stakeholder-description"> {{ stakeholder.description }}</p>
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+            @if (responseForm.controls['selectedStakeholder']?.invalid && responseForm.controls['selectedStakeholder']?.touched) {
+              <div class="error-message">
+                Please select a stakeholder.
+              </div>
+            }
+          </div>
+          <div class="flex-1 mb-10 min-w-0">
+            @if (!responseForm.controls['selectedStakeholder'].invalid) {
+              <div>
+                <h2>Stakeholder Description</h2>
+                @if (expoMode) {
+                  <div class="expo-required-fields-info mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-blue-800 text-sm">
+                      <strong>Expo Mode:</strong> Stakeholder name, user name, and location are required fields for Expo 2025 assessments.
+                      This information will be stored and showed on a map in the expo floor.
+                      Do not enter any information that you would not be comfortable to share with the public.
+                    </p>
+                  </div>
+                }
                 <mat-form-field class="w-full mb-6">
-                    <mat-label>{{ getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name | titlecase}} name </mat-label>
-                    <input matInput placeholder="Enter stakeholder name..." [formControl]="nameControl">
-                    <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                    <mat-hint *ngIf="!expoMode">Stakeholder name to be included in the final assessment report. This information is not stored.</mat-hint>
-                    <mat-hint *ngIf="expoMode">Stakeholder name to be included in the final assessment report and stored in Expo 2025 database.</mat-hint>
-                    <mat-error *ngIf="expoMode && nameControl.invalid && nameControl.touched">
-                        Stakeholder name is required in Expo mode.
+                  <mat-label>{{ getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name | titlecase}} name </mat-label>
+                  <input matInput placeholder="Enter stakeholder name..." [formControl]="nameControl">
+                  <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                  @if (!expoMode) {
+                    <mat-hint>Stakeholder name to be included in the final assessment report. This information is not stored.</mat-hint>
+                  }
+                  @if (expoMode) {
+                    <mat-hint>Stakeholder name to be included in the final assessment report and stored in Expo 2025 database.</mat-hint>
+                  }
+                  @if (expoMode && nameControl.invalid && nameControl.touched) {
+                    <mat-error>
+                      Stakeholder name is required in Expo mode.
                     </mat-error>
+                  }
                 </mat-form-field>
-                <mat-form-field class="w-full mb-6" *ngIf="getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name === 'Vendor'">
+                @if (getStakeHolder(responseForm.controls['selectedStakeholder'].value)?.name === 'Vendor') {
+                  <mat-form-field class="w-full mb-6">
                     <mat-label>System name </mat-label>
                     <input matInput placeholder="Enter the name of the software system being evaluated..." [formControl]="systemNameControl">
                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                    <mat-hint *ngIf="!expoMode">Name of the software system being evaluated. This information is not stored.</mat-hint>
-                    <mat-hint *ngIf="expoMode">Name of the software system being evaluated. This information is stored in Expo 2025 database.</mat-hint>
+                    @if (!expoMode) {
+                      <mat-hint>Name of the software system being evaluated. This information is not stored.</mat-hint>
+                    }
+                    @if (expoMode) {
+                      <mat-hint>Name of the software system being evaluated. This information is stored in Expo 2025 database.</mat-hint>
+                    }
+                  </mat-form-field>
+                }
+                <mat-form-field class="w-full mb-6">
+                  <mat-label>User name </mat-label>
+                  <input matInput placeholder="Enter the name of the user conducting the assessment..." [formControl]="authorControl">
+                  <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                  @if (!expoMode) {
+                    <mat-hint>User name to be included in the final assessment report. This information is not stored.</mat-hint>
+                  }
+                  @if (expoMode) {
+                    <mat-hint>User name to be included in the final assessment report and stored in Expo 2025 database.</mat-hint>
+                  }
+                  @if (expoMode && authorControl.invalid && authorControl.touched) {
+                    <mat-error>
+                      User name is required in Expo mode.
+                    </mat-error>
+                  }
                 </mat-form-field>
                 <mat-form-field class="w-full mb-6">
-                    <mat-label>User name </mat-label>
-                    <input matInput placeholder="Enter the name of the user conducting the assessment..." [formControl]="authorControl">
-                    <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                    <mat-hint *ngIf="!expoMode">User name to be included in the final assessment report. This information is not stored.</mat-hint>
-                    <mat-hint *ngIf="expoMode">User name to be included in the final assessment report and stored in Expo 2025 database.</mat-hint>
-                    <mat-error *ngIf="expoMode && authorControl.invalid && authorControl.touched">
-                        User name is required in Expo mode.
+                  <mat-label>Location</mat-label>
+                  <input matInput type="text" placeholder="Enter a Country, City or address..." [formControl]="locationControl" [matAutocomplete]="auto">
+                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onLocationSelected($event.option.value)" [displayWith]="displayLocation">
+                    @for (loc of locationResults; track loc) {
+                      <mat-option [value]="loc">{{ loc.label }}</mat-option>
+                    }
+                  </mat-autocomplete>
+                  @if (loadingLocationResults) {
+                    <mat-progress-spinner matSuffix mode="indeterminate" diameter="20"></mat-progress-spinner>
+                  }
+                  @if (!loadingLocationResults && !expoMode) {
+                    <mat-hint>Country, city or address. This information is not stored and is useful for collating results in dashboards.</mat-hint>
+                  }
+                  @if (!loadingLocationResults && expoMode) {
+                    <mat-hint>Country, city or address. This information is stored in Expo 2025 database used for the map in the expo floor.</mat-hint>
+                  }
+                  @if (expoMode && locationControl.invalid && locationControl.touched) {
+                    <mat-error>
+                      Location is required in Expo mode.
                     </mat-error>
+                  }
                 </mat-form-field>
-                <mat-form-field class="w-full mb-6">
-                    <mat-label>Location</mat-label>
-                    <input matInput type="text" placeholder="Enter a Country, City or address..." [formControl]="locationControl" [matAutocomplete]="auto">
-                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onLocationSelected($event.option.value)" [displayWith]="displayLocation">
-                      <mat-option *ngFor="let loc of locationResults" [value]="loc">{{ loc.label }}</mat-option>
-                    </mat-autocomplete>
-                    <mat-progress-spinner *ngIf="loadingLocationResults" matSuffix mode="indeterminate" diameter="20"></mat-progress-spinner>
-                    <mat-hint *ngIf="!loadingLocationResults && !expoMode">Country, city or address. This information is not stored and is useful for collating results in dashboards.</mat-hint>
-                    <mat-hint *ngIf="!loadingLocationResults && expoMode">Country, city or address. This information is stored in Expo 2025 database used for the map in the expo floor.</mat-hint>
-                    <mat-error *ngIf="expoMode && locationControl.invalid && locationControl.touched">
-                        Location is required in Expo mode.
-                    </mat-error>
-                </mat-form-field>
-            </div>
+              </div>
+            }
+          </div>
         </div>
-    </div>
-    <div class="button-container-first">
-        <div class="button-container">
+        <div class="button-container-first">
+          <div class="button-container">
             <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
-                Back
+              Back
             </button>
             <button mat-flat-button color="primary" (click)="onStakeholderSelected()"
-                [disabled]="responseForm.controls['selectedStakeholder'].invalid || (expoMode && (nameControl.invalid || authorControl.invalid || locationControl.invalid))" 
-                class="min-h-[44px]">
-                Select KPAs
+              [disabled]="responseForm.controls['selectedStakeholder'].invalid || (expoMode && (nameControl.invalid || authorControl.invalid || locationControl.invalid))"
+              class="min-h-[44px]">
+              Select KPAs
             </button>
-        </div>
-    
-        <!-- File input for loading saved state -->
-        <input hidden (change)="loadState($event)" #fileInputState type="file" id="fileState" />
-    
-        <button class="secondary-button" mat-flat-button (click)="fileInputState.click()" class="min-h-[44px]">
+          </div>
+          <!-- File input for loading saved state -->
+          <input hidden (change)="loadState($event)" #fileInputState type="file" id="fileState" />
+          <button class="secondary-button" mat-flat-button (click)="fileInputState.click()" class="min-h-[44px]">
             Upload previous results
-        </button>
+          </button>
+        </div>
+      </div>
     </div>
-    
-</div>
-</div>
+  }
 
-<div class="question-flow-container" *ngIf="currentQuestionIndex === -1">
-    <div class="question-container" [formGroup]="responseForm" *ngIf="currentQuestionIndex < allQuestions.length">
-        <h2>SNOMED Implementation Maturity assessment</h2>
-        <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex + 1].stakeholderName }})</h3>
-        <section class="example-section mt-10">
-            <h4 *ngIf="!expoMode">Select Relevant Key Process Areas:</h4>
-            <h4 *ngIf="expoMode">Key Process Areas (Expo 2025 Quick Assessment):</h4>
-            
-            <div *ngIf="expoMode" class="expo-kpa-info mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+  @if (currentQuestionIndex === -1) {
+    <div class="question-flow-container">
+      @if (currentQuestionIndex < allQuestions.length) {
+        <div class="question-container" [formGroup]="responseForm">
+          <h2>SNOMED Implementation Maturity assessment</h2>
+          <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex + 1].stakeholderName }})</h3>
+          <section class="example-section mt-10">
+            @if (!expoMode) {
+              <h4>Select Relevant Key Process Areas:</h4>
+            }
+            @if (expoMode) {
+              <h4>Key Process Areas (Expo 2025 Quick Assessment):</h4>
+            }
+            @if (expoMode) {
+              <div class="expo-kpa-info mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p class="text-yellow-800 text-sm">
-                    <strong>Note:</strong> In Expo mode, only the primary KPA is enabled for assessment. 
-                    Other KPAs are shown for reference but are disabled to keep the assessment brief.
+                  <strong>Note:</strong> In Expo mode, only the primary KPA is enabled for assessment.
+                  Other KPAs are shown for reference but are disabled to keep the assessment brief.
                 </p>
-            </div>
-            
-            <div *ngFor="let kpa of currentKpas; let i = index" class="kpa-checkbox">
-                <mat-checkbox 
-                    *ngIf="getKpaControl(kpa.id)" 
+              </div>
+            }
+            @for (kpa of currentKpas; track kpa; let i = $index) {
+              <div class="kpa-checkbox">
+                @if (getKpaControl(kpa.id)) {
+                  <mat-checkbox
                     [formControl]="getKpaControl(kpa.id)">
                     {{ kpa.name }}
-                    <span *ngIf="expoMode && i === 0" class="expo-primary-kpa-label"> (Primary - Enabled)</span>
-                    <span *ngIf="expoMode && i !== 0" class="expo-disabled-kpa-label"> (Disabled in Expo Mode)</span>
+                    @if (expoMode && i === 0) {
+                      <span class="expo-primary-kpa-label"> (Primary - Enabled)</span>
+                    }
+                    @if (expoMode && i !== 0) {
+                      <span class="expo-disabled-kpa-label"> (Disabled in Expo Mode)</span>
+                    }
                     <br><span class="kpa-description">{{ kpa.description }}</span>
-                </mat-checkbox>
-            </div>
-        </section>
-
-        <div class="button-container">
+                  </mat-checkbox>
+                }
+              </div>
+            }
+          </section>
+          <div class="button-container">
             <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
-                Back
+              Back
             </button>
-            <button mat-flat-button color="primary" (click)="filterKpasAndGoNext()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1" class="min-h-[44px]">
+            @if (currentQuestionIndex < allQuestions.length - 1) {
+              <button mat-flat-button color="primary" (click)="filterKpasAndGoNext()" [disabled]="currentControl.invalid" class="min-h-[44px]">
                 Start assessment
-            </button>
+              </button>
+            }
+          </div>
         </div>
+      }
     </div>
-</div>
+  }
 
-<div class="question-flow-container" *ngIf="currentQuestionIndex >= 0 && currentQuestionIndex < allQuestions.length">
-    <div class="question-container" [formGroup]="responseForm" *ngIf="currentQuestionIndex < allQuestions.length">
-        <h2>SNOMED Implementation Maturity assessment</h2>
-        <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex].stakeholderName }})</h3>
-        <mat-progress-bar mode="determinate" [value]="((currentQuestionIndex + 1) / (allQuestions.length + 1)) * 100" class="progress-bar"></mat-progress-bar>
-        <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
-        <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
-        <p class="question-text" [@questionAnimation]="animationState" [innerHTML]="allQuestions[currentQuestionIndex].question.question"></p>
-        <div class="flex flex-col lg:flex-row gap-4 lg:justify-end flex-wrap p-2">
+  @if (currentQuestionIndex >= 0 && currentQuestionIndex < allQuestions.length) {
+    <div class="question-flow-container">
+      @if (currentQuestionIndex < allQuestions.length) {
+        <div class="question-container" [formGroup]="responseForm">
+          <h2>SNOMED Implementation Maturity assessment</h2>
+          <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex].stakeholderName }})</h3>
+          <mat-progress-bar mode="determinate" [value]="((currentQuestionIndex + 1) / (allQuestions.length + 1)) * 100" class="progress-bar"></mat-progress-bar>
+          <div class="progress-message">Question {{ currentQuestionIndex + 1 }} of  {{ allQuestions.length }}</div>
+          <h3>Key Process Area: {{ allQuestions[currentQuestionIndex].kpaName }}</h3>
+          <p class="question-text" [@questionAnimation]="animationState" [innerHTML]="allQuestions[currentQuestionIndex].question.question"></p>
+          <div class="flex flex-col lg:flex-row gap-4 lg:justify-end flex-wrap p-2">
             <div class="flex-1 min-w-0">
-                <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
-                    <div class="radio-option" *ngFor="let option of allQuestions[currentQuestionIndex].question.options">
-                        <mat-radio-button [value]="option.score">
-                            <div class="option-text">
-                                <b>{{ option.id }} - {{ option.text }}</b>
-                            </div>
-                        </mat-radio-button>
-                        <div class="example-text" *ngIf="option.example">
-                            {{ option.example }}
-                        </div>
-                    </div>
-                </mat-radio-group>
+              <mat-radio-group [formControl]="currentControl" class="options-container" [@questionAnimation]="animationState">
+                @for (option of allQuestions[currentQuestionIndex].question.options; track option) {
+                  <div class="radio-option">
+                    <mat-radio-button [value]="option.score">
+                      <div class="option-text">
+                        <b>{{ option.id }} - {{ option.text }}</b>
+                      </div>
+                    </mat-radio-button>
+                    @if (option.example) {
+                      <div class="example-text">
+                        {{ option.example }}
+                      </div>
+                    }
+                  </div>
+                }
+              </mat-radio-group>
             </div>
             <div class="flex-1 w-full min-w-0">
-                <div *ngIf="allQuestions[currentQuestionIndex].question.context">
+              @if (allQuestions[currentQuestionIndex].question.context) {
+                <div>
                   <div class="question-context-heading">How to answer this question</div>
                   <div class="question-context" [innerHTML]="allQuestions[currentQuestionIndex].question.context"></div>
                 </div>
-                <hr class="context-separator" *ngIf="allQuestions[currentQuestionIndex].question.context">
-                <div class="context-comment-spacing">
+              }
+              @if (allQuestions[currentQuestionIndex].question.context) {
+                <hr class="context-separator">
+              }
+              <div class="context-comment-spacing">
                 <mat-form-field class="w-full mb-6">
-                <mat-label><i>Optional comment</i></mat-label>
-                <textarea matInput [formControl]="currentCommentControl" placeholder="Enter your comment" rows="5"></textarea>
+                  <mat-label><i>Optional comment</i></mat-label>
+                  <textarea matInput [formControl]="currentCommentControl" placeholder="Enter your comment" rows="5"></textarea>
                 </mat-form-field>
-                </div>
+              </div>
             </div>
-        </div>
-        <div class="error-message" *ngIf="currentControl?.invalid && currentControl?.touched">
-        Please select an option for this question.
-        </div>
-        <div class="button-container">
+          </div>
+          @if (currentControl.invalid && currentControl.touched) {
+            <div class="error-message">
+              Please select an option for this question.
+            </div>
+          }
+          <div class="button-container">
             <!-- <button mat-flat-button color="primary" (click)="startOver()" *ngIf="currentQuestionIndex == 0">
-                Restart
-            </button> -->
-            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" *ngIf="currentQuestionIndex > 0" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
-                Back
+            Restart
+          </button> -->
+          @if (currentQuestionIndex > 0) {
+            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
+              Back
             </button>
-            <button mat-flat-button color="primary" (click)="goToNextQuestion()" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex < allQuestions.length - 1" class="min-h-[44px]">
-                Next
+          }
+          @if (currentQuestionIndex < allQuestions.length - 1) {
+            <button mat-flat-button color="primary" (click)="goToNextQuestion()" [disabled]="currentControl.invalid" class="min-h-[44px]">
+              Next
             </button>
-            <button mat-flat-button color="accent" [disabled]="currentControl.invalid" *ngIf="currentQuestionIndex === allQuestions.length -1" (click)="submitStakeholderResponses()" class="min-h-[44px]">
-                See results
+          }
+          @if (currentQuestionIndex === allQuestions.length -1) {
+            <button mat-flat-button color="accent" [disabled]="currentControl.invalid" (click)="submitStakeholderResponses()" class="min-h-[44px]">
+              See results
             </button>
+          }
         </div>
         <div class="button-container-first">
-            <button class="secondary-button" mat-flat-button (click)="startOver()" class="min-h-[44px]">
-                Restart assessment
-            </button>
+          <button class="secondary-button" mat-flat-button (click)="startOver()" class="min-h-[44px]">
+            Restart assessment
+          </button>
         </div>
-    </div>
-</div>
+      </div>
+    }
+  </div>
+}
 
-<div class="question-flow-container" *ngIf="currentQuestionIndex == allQuestions.length">
+@if (currentQuestionIndex == allQuestions.length) {
+  <div class="question-flow-container">
     <div class="question-container" [@questionAnimation]="animationState">
-        <div id="pdfReport">
-            <h2 *ngIf="!expoMode">SNOMED Implementation Maturity assessment results</h2>
-            <h2 *ngIf="expoMode">SNOMED Implementation Maturity assessment results - Expo 2025 Quick Assessment</h2>
-            
-            <div *ngIf="expoMode" class="expo-results-banner mb-4 p-4 bg-green-100 border border-green-300 rounded-lg">
-                <h3 class="text-green-800 font-bold mb-2">🎉 Expo 2025 Quick Assessment Complete!</h3>
-                <p class="text-green-700 text-sm">
-                    Your assessment is ready! Click "Save to Expo 2025" to contribute your results to our collective analysis. 
-                    This quick assessment focused on the primary KPA for your stakeholder type.
-                </p>
-            </div>
-            
-            <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex - 1].stakeholderName }}) 
-                <span *ngIf="systemNameControl.value"> - System: {{ systemNameControl.value }}</span>
-                <span *ngIf="expoMode"> - Expo 2025 Mode</span>
-            </h3>
-            <p class="text-center" *ngIf="locationControl.value">
-                Location: {{ locationControl.value.label }}
+      <div id="pdfReport">
+        @if (!expoMode) {
+          <h2>SNOMED Implementation Maturity assessment results</h2>
+        }
+        @if (expoMode) {
+          <h2>SNOMED Implementation Maturity assessment results - Expo 2025 Quick Assessment</h2>
+        }
+        @if (expoMode) {
+          <div class="expo-results-banner mb-4 p-4 bg-green-100 border border-green-300 rounded-lg">
+            <h3 class="text-green-800 font-bold mb-2">🎉 Expo 2025 Quick Assessment Complete!</h3>
+            <p class="text-green-700 text-sm">
+              Your assessment is ready! Click "Save to Expo 2025" to contribute your results to our collective analysis.
+              This quick assessment focused on the primary KPA for your stakeholder type.
             </p>
-            <p class="text-center">Assessment conducted 
-                <span *ngIf="authorControl.value">by {{ authorControl.value }}, </span>
-                on {{ timestampControl.value | date: 'medium' }}
-                <span *ngIf="expoMode"> (Expo 2025 Quick Assessment)</span>
-            </p>
-            <p class="text-center mt-10 text-lg">Based on your responses, the maturity level of the stakeholder is:</p>
-
-            <app-maturity-results #results [maturityResponse]="responseForm.value" [allQuestions]="allQuestions" [expoMode]="expoMode"></app-maturity-results>
+          </div>
+        }
+        <h3>Stakeholder: {{ nameControl.value }} ({{ allQuestions[currentQuestionIndex - 1].stakeholderName }})
+          @if (systemNameControl.value) {
+            <span> - System: {{ systemNameControl.value }}</span>
+          }
+          @if (expoMode) {
+            <span> - Expo 2025 Mode</span>
+          }
+        </h3>
+        @if (locationControl.value) {
+          <p class="text-center">
+            Location: {{ locationControl.value.label }}
+          </p>
+        }
+        <p class="text-center">Assessment conducted
+          @if (authorControl.value) {
+            <span>by {{ authorControl.value }}, </span>
+          }
+          on {{ timestampControl.value | date: 'medium' }}
+          @if (expoMode) {
+            <span> (Expo 2025 Quick Assessment)</span>
+          }
+        </p>
+        <p class="text-center mt-10 text-lg">Based on your responses, the maturity level of the stakeholder is:</p>
+        <app-maturity-results #results [maturityResponse]="responseForm.value" [allQuestions]="allQuestions" [expoMode]="expoMode"></app-maturity-results>
+      </div>
+      <!-- Expo Mode: Simplified buttons -->
+      @if (expoMode) {
+        <div class="button-container">
+          <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
+            Back
+          </button>
+          <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
+            Start over
+          </button>
         </div>
-
-        <!-- Expo Mode: Simplified buttons -->
-        <div class="button-container" *ngIf="expoMode">
-            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
-                Back
-            </button>
-            <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
-                Start over
-            </button>
+      }
+      <!-- Expo Mode: Send button on its own row -->
+      @if (expoMode) {
+        <div class="button-container">
+          <button mat-flat-button color="accent" (click)="saveToFirebase()" class="expo-send-button min-h-[44px]">
+            Send to Expo 2025 Floor Map!
+          </button>
         </div>
-        
-        <!-- Expo Mode: Send button on its own row -->
-        <div class="button-container" *ngIf="expoMode">
-            <button mat-flat-button color="accent" (click)="saveToFirebase()" class="expo-send-button min-h-[44px]">
-                Send to Expo 2025 Floor Map!
-            </button>
+      }
+      <!-- Regular Mode: Full button set -->
+      @if (!expoMode) {
+        <div class="button-container">
+          <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
+            Back
+          </button>
+          <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
+            Start over
+          </button>
         </div>
-
-        <!-- Regular Mode: Full button set -->
-        <div class="button-container" *ngIf="!expoMode">
-            <button mat-flat-button color="primary" (click)="goToPreviousQuestion()" [disabled]="currentQuestionIndex < 1" class="min-h-[44px]">
-                Back
-            </button>
-            <button mat-flat-button color="primary" (click)="startOver()" class="min-h-[44px]">
-                Start over
-            </button>
+      }
+      @if (!expoMode) {
+        <div class="button-container">
+          <!-- Download Button -->
+          <button mat-flat-button color="primary" (click)="saveState()" class="min-h-[44px]">
+            📥 Download results
+          </button>
+          <!-- PDF Download Button -->
+          <button mat-flat-button color="primary" (click)="downloadPdf()" class="min-h-[44px]">📄 Download PDF</button>
         </div>
-        <div class="button-container" *ngIf="!expoMode">
-            <!-- Download Button -->
-            <button mat-flat-button color="primary" (click)="saveState()" class="min-h-[44px]">
-                📥 Download results
-            </button>
-            
-            <!-- PDF Download Button -->
-            <button mat-flat-button color="primary" (click)="downloadPdf()" class="min-h-[44px]">📄 Download PDF</button>
-        </div>
+      }
     </div>
-</div>
-  
+  </div>
+}
