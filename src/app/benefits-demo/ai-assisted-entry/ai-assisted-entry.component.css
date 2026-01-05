@@ -669,12 +669,12 @@
 
 /* Angular Material v19 theming approach */
 .form-field mat-select {
-  --mdc-outlined-text-field-container-shape: 6px;
-  --mdc-outlined-text-field-outline-color: #6c757d;
-  --mdc-outlined-text-field-outline-width: 2px;
-  --mdc-outlined-text-field-container-color: #ffffff;
-  --mdc-outlined-text-field-hover-outline-color: #007bff;
-  --mdc-outlined-text-field-focus-outline-color: #007bff;
+  --mat-form-field-outlined-container-shape: 6px;
+  --mat-form-field-outlined-outline-color: #6c757d;
+  --mat-form-field-outlined-outline-width: 2px;
+  --mat-form-field-outlined-container-color: #ffffff;
+  --mat-form-field-outlined-hover-outline-color: #007bff;
+  --mat-form-field-outlined-focus-outline-color: #007bff;
 }
 
 /* Override Material Design styles with higher specificity */
