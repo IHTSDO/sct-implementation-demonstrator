@@ -473,7 +473,9 @@ export class CrsBatchGeneratorComponent implements OnInit {
 
     // For second row, set FSN (column F, index 5) and Preferred Term (column H, index 7) after name replacement
     if (isSecondRow) {
-      const productContainingText = `Product containing ${substanceName}`;
+      // Convert first letter of substance name to lowercase
+      const substanceNameLowercase = substanceName.charAt(0).toLowerCase() + substanceName.slice(1);
+      const productContainingText = `Product containing ${substanceNameLowercase}`;
       // Column F is index 5 (0-indexed) - FSN (Fully Specified Name)
       if (row.length > 5) {
         row[5] = productContainingText;
