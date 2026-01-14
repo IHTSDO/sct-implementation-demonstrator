@@ -188,25 +188,15 @@ export class CrsBatchGeneratorComponent implements OnInit {
       const startDateParsed = this.parseDate(colK);
       const restartDateParsed = this.parseDate(colL);
 
-      // Determine latest date
-      let latestDate: Date | null = null;
-      if (startDateParsed && restartDateParsed) {
-        latestDate = startDateParsed > restartDateParsed ? startDateParsed : restartDateParsed;
-      } else if (startDateParsed) {
-        latestDate = startDateParsed;
-      } else if (restartDateParsed) {
-        latestDate = restartDateParsed;
-      }
-
-      // Check if start date OR restart date falls within range
-      const startInRange = startDateParsed && this.isDateInRange(startDateParsed, startDate, endDate);
-      const restartInRange = restartDateParsed && this.isDateInRange(restartDateParsed, startDate, endDate);
-
-      if (startDateParsed || restartDateParsed) {
+      // Only check column K (start date) for filtering
+      if (startDateParsed) {
         rowsWithValidDates++;
       }
 
-      if (startInRange || restartInRange) {
+      // Check if column K (start date) falls within range
+      const startInRange = startDateParsed && this.isDateInRange(startDateParsed, startDate, endDate);
+
+      if (startInRange) {
         filtered.push({
           substanceName: colA,
           indication: colB,
@@ -214,8 +204,8 @@ export class CrsBatchGeneratorComponent implements OnInit {
           includeFlag: colH,
           startDate: startDateParsed,
           restartDate: restartDateParsed,
-          latestDate: latestDate,
-          latestDateDisplay: latestDate ? this.formatDate(latestDate) : '',
+          latestDate: startDateParsed, // Keep for compatibility, but now only column K
+          latestDateDisplay: startDateParsed ? this.formatDate(startDateParsed) : '',
           selected: true, // Default to selected
           originalRowIndex: i
         });
@@ -449,6 +439,7 @@ export class CrsBatchGeneratorComponent implements OnInit {
     if (isSecondRow) {
       excludedIndices.add(5); // Column F - will be set separately
       excludedIndices.add(7); // Column H - will be set separately
+      excludedIndices.add(9); // Column J - will be set separately
       excludedIndices.add(18); // Column S - will be set separately
     }
 
@@ -486,7 +477,7 @@ export class CrsBatchGeneratorComponent implements OnInit {
       }
       // Column S is index 18 (0-indexed) - Synonym
       if (row.length > 18) {
-        row[18] = substanceName;
+        row[18] = `${substanceName}-containing product`;
       }
     }
   }
