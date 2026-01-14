@@ -63,6 +63,15 @@
     padding: 4px;
 }
 
+.bordered-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.bordered-table tbody tr:hover {
+    background-color: #e3f2fd !important;
+    cursor: pointer;
+}
+
 .fixed-chart-height {
     height: 600px !important;
     width: 600px !important;

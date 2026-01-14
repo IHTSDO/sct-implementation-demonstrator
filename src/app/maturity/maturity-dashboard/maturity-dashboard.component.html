@@ -125,7 +125,7 @@
                   </thead>
                   <tbody>
                     @for (stakeholder of uploadedData; track stakeholder) {
-                      <tr>
+                      <tr (click)="openMaturityResultsDialog(stakeholder)" style="cursor: pointer;">
                         <td>{{ stakeholder.stakeHolderName }}</td>
                         <td>{{ stakeholder.name }}</td>
                         <td>{{ stakeholder.overallScore }} - {{ stakeholder.level }}</td>

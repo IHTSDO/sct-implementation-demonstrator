@@ -9,6 +9,8 @@ import { get } from 'lodash';
 import { FirebaseService, MaturityAssessmentResult } from 'src/app/services/firebase.service';
 import { ActivatedRoute } from '@angular/router';
 import { Unsubscribe } from 'firebase/firestore';
+import { MatDialog } from '@angular/material/dialog';
+import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
 
 @Component({
   selector: 'app-maturity-dashboard',
@@ -81,7 +83,8 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     private _snackBar: MatSnackBar,
     private firebaseService: FirebaseService,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -1875,6 +1878,111 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
 
   setScaleLabel(value: number): void {
     this.level = this.getScaleLabel(value);
+  }
+
+  openMaturityResultsDialog(stakeholder: any): void {
+    // The maturity-results component expects a flat structure with keys like "stakeholder_kpa_question"
+    // JSON files store this in the "responses" object (which contains responseForm.value)
+    // Firebase data might have it in responses or at the top level
+    
+    let maturityResponse: any = {};
+    
+    // Priority 1: Check if responses object exists and has question keys (JSON files)
+    if (stakeholder.responses && typeof stakeholder.responses === 'object') {
+      // Check if responses has question keys (format: stakeholder_kpa_question)
+      const hasQuestionKeys = Object.keys(stakeholder.responses).some(key => {
+        const parts = key.split('_');
+        return parts.length >= 3 && 
+               !['selectedStakeholder', 'selectedKpas', 'name', 'author', 'timestamp', 
+                 'systemName', 'location'].includes(key);
+      });
+      
+      if (hasQuestionKeys) {
+        // responses object has the question keys - use it as base
+        maturityResponse = { ...stakeholder.responses };
+      }
+    }
+    
+    // Priority 2: Check if stakeholder object itself has question keys at top level
+    if (Object.keys(maturityResponse).length === 0) {
+      const hasQuestionKeys = Object.keys(stakeholder).some(key => {
+        const parts = key.split('_');
+        return parts.length >= 3 && 
+               !['selectedStakeholder', 'selectedKpas', 'name', 'author', 'timestamp', 
+                 'systemName', 'location', 'overallScore', 'kpasScores', 'level', 
+                 'allQuestions', 'responses', 'stakeHolderName', 'color', 'docId',
+                 'overallScoreNormalized', 'kpasScoresNormalized'].includes(key);
+      });
+      
+      if (hasQuestionKeys) {
+        maturityResponse = { ...stakeholder };
+        // Remove non-question keys
+        delete maturityResponse.allQuestions;
+        delete maturityResponse.responses;
+        delete maturityResponse.stakeHolderName;
+        delete maturityResponse.color;
+        delete maturityResponse.docId;
+        delete maturityResponse.overallScore;
+        delete maturityResponse.kpasScores;
+        delete maturityResponse.overallScoreNormalized;
+        delete maturityResponse.kpasScoresNormalized;
+        delete maturityResponse.level;
+      }
+    }
+    
+    // Priority 3: Reconstruct from allQuestions if available
+    if (Object.keys(maturityResponse).length === 0 && stakeholder.allQuestions && Array.isArray(stakeholder.allQuestions)) {
+      stakeholder.allQuestions.forEach((question: any) => {
+        if (question.questionFullPath) {
+          const responseValue = stakeholder[question.questionFullPath] || 
+                               stakeholder.responses?.[question.questionFullPath];
+          if (responseValue !== undefined) {
+            maturityResponse[question.questionFullPath] = responseValue;
+          }
+          
+          const commentKey = `${question.questionFullPath}_comment`;
+          const commentValue = stakeholder[commentKey] || 
+                             stakeholder.responses?.[commentKey];
+          if (commentValue !== undefined) {
+            maturityResponse[commentKey] = commentValue;
+          }
+        }
+      });
+    }
+    
+    // Ensure we have the required metadata fields
+    if (!maturityResponse.selectedStakeholder) {
+      maturityResponse.selectedStakeholder = stakeholder.selectedStakeholder || stakeholder.responses?.selectedStakeholder;
+    }
+    if (!maturityResponse.selectedKpas) {
+      maturityResponse.selectedKpas = stakeholder.selectedKpas || stakeholder.responses?.selectedKpas;
+    }
+    if (!maturityResponse.name) {
+      maturityResponse.name = stakeholder.name || stakeholder.responses?.name;
+    }
+    if (!maturityResponse.author) {
+      maturityResponse.author = stakeholder.author || stakeholder.responses?.author;
+    }
+    if (!maturityResponse.timestamp) {
+      maturityResponse.timestamp = stakeholder.timestamp || stakeholder.responses?.timestamp;
+    }
+    if (!maturityResponse.systemName) {
+      maturityResponse.systemName = stakeholder.systemName || stakeholder.responses?.systemName;
+    }
+    if (!maturityResponse.location) {
+      maturityResponse.location = stakeholder.location || stakeholder.responses?.location;
+    }
+    
+    this.dialog.open(MaturityResultsDialogComponent, {
+      width: '90%',
+      maxWidth: '1600px',
+      height: '90vh',
+      data: { 
+        maturityResponse: maturityResponse,
+        allQuestions: stakeholder.allQuestions || [],
+        stakeholderName: stakeholder.name || stakeholder.responses?.name || 'Unknown Stakeholder'
+      }
+    });
   }
   
 }

@@ -8,13 +8,16 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 @Component({
     selector: 'app-maturity-results-dialog',
     template: `
-      <h2 mat-dialog-title>Maturity Results</h2>
+      <h2 mat-dialog-title>Maturity Results: {{ stakeholderName }}</h2>
       <div mat-dialog-content>
         <!-- 
           We embed MaturityResultsComponent here. 
-          We assume MaturityResultsComponent has an @Input() named 'maturityResponse'.
+          We assume MaturityResultsComponent has an @Input() named 'maturityResponse' and 'allQuestions'.
         -->
-        <app-maturity-results [maturityResponse]="maturityResponse"></app-maturity-results>
+        <app-maturity-results 
+          [maturityResponse]="maturityResponse"
+          [allQuestions]="allQuestions">
+        </app-maturity-results>
       </div>
       <div mat-dialog-actions align="end">
         <button mat-button mat-dialog-close>Close</button>
@@ -24,12 +27,20 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 })
   export class MaturityResultsDialogComponent {
     public maturityResponse: any;
+    public allQuestions: any[] = [];
+    public stakeholderName: string = '';
   
     constructor(
       @Inject(MAT_DIALOG_DATA) public data: any,
       private dialogRef: MatDialogRef<MaturityResultsDialogComponent>
     ) {
       this.maturityResponse = data.maturityResponse;
+      this.allQuestions = data.allQuestions || [];
+      // Get stakeholder name from maturityResponse or data
+      this.stakeholderName = data.maturityResponse?.name || 
+                            data.stakeholderName || 
+                            data.maturityResponse?.stakeHolderName || 
+                            'Unknown Stakeholder';
     }
   
     closeDialog(): void {
