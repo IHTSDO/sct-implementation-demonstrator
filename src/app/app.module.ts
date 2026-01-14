@@ -129,6 +129,7 @@ import { SpecimenFormComponent } from './ehds-laboratory-demo/specimen-form/spec
 import { ServiceRequestFormComponent } from './ehds-laboratory-demo/service-request-form/service-request-form.component';
 import { ObservationResultFormComponent } from './ehds-laboratory-demo/observation-result-form/observation-result-form.component';
 import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
+import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-generator.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -216,7 +217,8 @@ const app = initializeApp(firebaseConfig);
         SpecimenFormComponent,
         ServiceRequestFormComponent,
         ObservationResultFormComponent,
-        MdrsViewerComponent
+        MdrsViewerComponent,
+        CrsBatchGeneratorComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

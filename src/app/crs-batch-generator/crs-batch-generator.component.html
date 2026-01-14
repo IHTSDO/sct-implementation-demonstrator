@@ -1,0 +1,154 @@
+<div class="crs-batch-generator-container">
+  <h2>CRS Batch Generator</h2>
+  <p class="description">
+    Upload an EMA substances spreadsheet, filter by date range, and generate a SNOMED CRS request spreadsheet.
+  </p>
+
+  <!-- Error Display -->
+  @if (error) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+  }
+
+  <!-- File Upload Section -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>Upload Input File</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="upload-section">
+        <input
+          type="file"
+          #fileInput
+          (change)="onFileSelected($event)"
+          accept=".xlsx,.xls"
+          style="display: none">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="fileInput.click()"
+          [disabled]="isLoading">
+          <mat-icon>upload_file</mat-icon>
+          Choose File
+        </button>
+        @if (uploadedFile) {
+          <span class="file-name">{{ uploadedFile.name }}</span>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Date Range Selection -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>Date Range</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="dateRangeForm" class="date-range-form">
+        <mat-form-field appearance="fill">
+          <mat-label>Start Date</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate" placeholder="MM/DD/YYYY">
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>End Date</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="endDate" placeholder="MM/DD/YYYY">
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="filterRows()"
+          [disabled]="isLoading || !uploadedFile || dateRangeForm.invalid">
+          <mat-icon>filter_list</mat-icon>
+          Filter Rows
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading Indicator -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Processing...</p>
+    </div>
+  }
+
+  <!-- Results Preview -->
+  @if (filteredRows.length > 0) {
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Preview Results</mat-card-title>
+        <mat-card-subtitle>
+          {{ getSelectedCount() }} of {{ filteredRows.length }} row(s) selected
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-container">
+          <table mat-table [dataSource]="filteredRows" class="results-table">
+            <!-- Select Column -->
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox
+                  (change)="$event ? toggleAllSelection() : null"
+                  [checked]="allSelected"
+                  [indeterminate]="someSelected">
+                </mat-checkbox>
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox
+                  (change)="toggleRowSelection(row)"
+                  [checked]="row.selected">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+
+            <!-- Substance Name Column -->
+            <ng-container matColumnDef="substanceName">
+              <th mat-header-cell *matHeaderCellDef>Substance Name</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="substance-name-cell">
+                  <div class="substance-name">{{ row.substanceName }}</div>
+                  <div class="indication-text">{{ row.indication }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Substance Type Column -->
+            <ng-container matColumnDef="substanceType">
+              <th mat-header-cell *matHeaderCellDef>Substance Type</th>
+              <td mat-cell *matCellDef="let row">{{ row.substanceType }}</td>
+            </ng-container>
+
+            <!-- Date Column -->
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let row">{{ row.latestDateDisplay }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+
+        <div class="action-buttons">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="generateOutput()"
+            [disabled]="isLoading || getSelectedCount() === 0">
+            <mat-icon>download</mat-icon>
+            Generate CRS Request File
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

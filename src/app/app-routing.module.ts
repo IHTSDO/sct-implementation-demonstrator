@@ -35,6 +35,7 @@ import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component
 import { PhaserGameComponent } from './phaser-game/phaser-v1/phaser-game.component';
 import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
 import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
+import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-generator.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -76,6 +77,7 @@ const routes: Routes = [
   { path: 'expo-quiz-2025', component: ExpoQuiz2025Component },
   { path: 'ehds-laboratory-demo', component: EhdsLaboratoryDemoComponent },
   { path: 'mdrs-viewer', component: MdrsViewerComponent },
+  { path: 'crs-batch-generator', component: CrsBatchGeneratorComponent },
   { path: '**', redirectTo: '' }
 ];
 
