@@ -2,18 +2,27 @@
   @if (binding.title) {
     <mat-label>{{ binding.title }}</mat-label>
   }
-  <input #inputElement type="text" placeholder="{{ formControl.value?.display || binding.title || 'Search...' }}" matInput [formControl]="formControl" [matAutocomplete]="auto" [readonly]="readonly">
+  <input #inputElement type="text" placeholder="{{ formControl.value?.display || binding.title || 'Search...' }}" matInput [formControl]="formControl" [matAutocomplete]="auto" [readonly]="readonly" (blur)="onBlur()" (focus)="onFocus()">
   <!-- [value]="(formControl.value?.display) ? formControl.value.display : ''"> -->
   @if (selectedConcept?.code) {
     <mat-hint>SNOMED CT: {{ selectedConcept.code }}</mat-hint>
   }
-  @if (!selectedConcept?.code) {
+  @if (!selectedConcept?.code && !errorState) {
     <mat-hint>{{ binding.note }}</mat-hint>
   }
   @if (formControl.value && !readonly) {
     <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()">
       <mat-icon>close</mat-icon>
     </button>
+  }
+  @if (errorState) {
+    <mat-error>
+      @if (hasRequiredError()) {
+        {{ binding.title || 'This field' }} is required
+      } @else {
+        Please select a valid value
+      }
+    </mat-error>
   }
   <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="change($event)">
     @if (loading) {

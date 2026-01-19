@@ -255,8 +255,7 @@ export class DiagnosticReportFormComponent implements OnInit {
           } : null,
           authoredOn: new Date(),
           requester: null,
-          reasonCode: null,
-          bodySite: null
+          reasonCode: null
         };
         
         this.diagnosticReportForm.patchValue({ basedOn: { ...selectedServiceRequest, data: serviceRequestData } });
@@ -343,8 +342,7 @@ export class DiagnosticReportFormComponent implements OnInit {
       } : null,
       authoredOn: new Date(),
       requester: null,
-      reasonCode: null,
-      bodySite: null
+      reasonCode: null
     };
   }
 

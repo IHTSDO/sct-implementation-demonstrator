@@ -1,6 +1,7 @@
-import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Inject, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 
 export interface ServiceRequestData {
@@ -27,10 +28,6 @@ export interface ServiceRequestData {
     system: string;
     display: string;
   } | null;
-  bodySite: {
-    code: string;
-    display: string;
-  } | null;
 }
 
 @Component({
@@ -43,11 +40,11 @@ export class ServiceRequestFormComponent implements OnInit, AfterViewInit {
   serviceRequestForm: FormGroup;
   isViewOnly: boolean = false;
 
-  // Binding for Body Site autocomplete
-  bodySiteBinding = {
-    ecl: '<< 442083009 |Anatomical or acquired body structure (body structure)|',
-    title: 'Body Site',
-    note: 'Search for anatomical body structures'
+  // Binding for Reason Code autocomplete
+  reasonCodeBinding = {
+    ecl: '<< 404684003 |Clinical finding (finding)|',
+    title: 'Reason Code',
+    note: 'Search for clinical findings'
   };
 
   // Status options from FHIR RequestStatus ValueSet
@@ -97,20 +94,14 @@ export class ServiceRequestFormComponent implements OnInit, AfterViewInit {
     { code: '24358-4', system: 'http://loinc.org', display: 'Complete blood count (CBC) with automated differential panel' }
   ];
 
-  // Reason Code options - Common reasons for laboratory orders
-  reasonCodeOptions = [
-    { code: '182836005', system: 'http://snomed.info/sct', display: 'Review of medication' },
-    { code: '390906007', system: 'http://snomed.info/sct', display: 'Follow-up examination' },
-    { code: '183061000', system: 'http://snomed.info/sct', display: 'Routine health check' },
-    { code: '185349003', system: 'http://snomed.info/sct', display: 'Consultation for symptom' },
-    { code: '271428004', system: 'http://snomed.info/sct', display: 'Monitoring of treatment' }
-  ];
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ServiceRequestFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private viewContainerRef: ViewContainerRef
   ) {
     this.serviceRequestForm = this.createForm();
     // Check if data contains viewOnly flag
@@ -142,7 +133,6 @@ export class ServiceRequestFormComponent implements OnInit, AfterViewInit {
   private loadFormData(data: ServiceRequestData): void {
     setTimeout(() => {
       const matchedCode = data.code && data.code.code ? this.codeOptions.find(opt => opt.code === data.code!.code) : null;
-      const matchedReasonCode = data.reasonCode && data.reasonCode.code ? this.reasonCodeOptions.find(opt => opt.code === data.reasonCode!.code) : null;
 
       this.serviceRequestForm.patchValue({
         identifier: data.identifier || '',
@@ -153,9 +143,17 @@ export class ServiceRequestFormComponent implements OnInit, AfterViewInit {
         subject: data.subject || null,
         authoredOn: data.authoredOn ? new Date(data.authoredOn) : null,
         requester: data.requester || null,
-        reasonCode: matchedReasonCode || null,
-        bodySite: data.bodySite || null
+        reasonCode: data.reasonCode || null
       }, { emitEvent: false });
+
+      // Explicitly set values for autocomplete-binding components
+      // The autocomplete-binding component needs the full object with code and display
+      if (data.reasonCode) {
+        const reasonCodeControl = this.serviceRequestForm.get('reasonCode');
+        if (reasonCodeControl) {
+          reasonCodeControl.setValue(data.reasonCode, { emitEvent: false });
+        }
+      }
     }, 100);
   }
 
@@ -169,18 +167,41 @@ export class ServiceRequestFormComponent implements OnInit, AfterViewInit {
       subject: [null],
       authoredOn: [null],
       requester: [null],
-      reasonCode: [null, Validators.required],
-      bodySite: [null]
+      reasonCode: [null, Validators.required]
     });
   }
 
   onSubmit(): void {
     if (this.serviceRequestForm.valid) {
       const formData = this.serviceRequestForm.value as ServiceRequestData;
+      
+      // Ensure reasonCode has system if it's missing (autocomplete-binding only returns code and display)
+      if (formData.reasonCode && !formData.reasonCode.system) {
+        formData.reasonCode.system = 'http://snomed.info/sct';
+      }
+      
       this.dialogRef.close(formData);
     } else {
       Object.keys(this.serviceRequestForm.controls).forEach(key => {
         this.serviceRequestForm.get(key)?.markAsTouched();
+      });
+      
+      // Show validation error snackbar inside the modal
+      const invalidFields = Object.keys(this.serviceRequestForm.controls)
+        .filter(key => this.serviceRequestForm.get(key)?.invalid)
+        .length;
+      
+      const message = invalidFields === 1 
+        ? 'Please fill in all required fields' 
+        : `Please fill in all required fields (${invalidFields} fields are invalid)`;
+      
+      // Use the component's viewContainerRef to show snackbar inside the dialog
+      this.snackBar.open(message, 'Close', {
+        duration: 5000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+        panelClass: ['error-snackbar', 'dialog-snackbar'],
+        viewContainerRef: this.viewContainerRef
       });
     }
   }

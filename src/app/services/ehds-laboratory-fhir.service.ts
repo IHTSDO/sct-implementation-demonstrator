@@ -798,18 +798,6 @@ export class EhdsLaboratoryFhirService {
       }];
     }
 
-    // Body Site
-    if (serviceRequestData.bodySite) {
-      serviceRequest.bodySite = [{
-        coding: [{
-          system: 'http://snomed.info/sct',
-          code: serviceRequestData.bodySite.code,
-          display: serviceRequestData.bodySite.display
-        }],
-        text: serviceRequestData.bodySite.display
-      }];
-    }
-
     return serviceRequest;
   }
 

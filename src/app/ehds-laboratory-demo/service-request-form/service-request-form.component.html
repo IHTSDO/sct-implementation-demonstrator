@@ -386,11 +386,11 @@
         </div>
       </div>
 
-      <!-- Reason & Body Site -->
+      <!-- Reason Code -->
       <div class="form-section">
         <h3 class="section-title">
           <mat-icon>description</mat-icon>
-          Reason & Body Site
+          Reason Code
         </h3>
         <div class="form-grid">
           <div class="fhir-field-wrapper">
@@ -398,8 +398,8 @@
               <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="reasonCodeMenu">
                 FHIR
               </button>
-              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIOrderReason.html', 'Reason Code')">
-                BINDING
+              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/valueset-condition-code.html', 'Reason Code')">
+                BINDING (SCT)
               </button>
             </div>
             <mat-menu #reasonCodeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
@@ -426,60 +426,9 @@
                 </div>
               </div>
             </mat-menu>
-            <mat-form-field>
-              <mat-label>Reason Code *</mat-label>
-              <mat-select formControlName="reasonCode" required>
-                <mat-option [value]="null">Select reason code</mat-option>
-                @for (reason of reasonCodeOptions; track reason) {
-                  <mat-option [value]="reason">
-                    {{ reason.display }}
-                  </mat-option>
-                }
-              </mat-select>
-              @if (serviceRequestForm.get('reasonCode')?.value) {
-                <mat-hint>
-                  Code: {{ serviceRequestForm.get('reasonCode')?.value?.code || '' }}
-                </mat-hint>
-              }
-            </mat-form-field>
-          </div>
-
-          <div class="fhir-field-wrapper">
-            <div class="fhir-badges-container">
-              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="bodySiteMenu">
-                FHIR
-              </button>
-              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/valueset-body-site.html', 'Body Site')">
-                BINDING (SCT)
-              </button>
-            </div>
-            <mat-menu #bodySiteMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-              <div class="fhir-menu-content">
-                <div class="fhir-menu-header">
-                  <h4>ServiceRequest.bodySite</h4>
-                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-ServiceRequest-lab-myhealtheu-definitions.html#ServiceRequest.bodySite" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                    <mat-icon>link</mat-icon>
-                  </a>
-                </div>
-                <div class="fhir-menu-body">
-                  <div class="fhir-menu-item">
-                    <span class="fhir-label">Definition:</span>
-                    <span class="fhir-value">Anatomic location where the procedure should be performed.</span>
-                  </div>
-                  <div class="fhir-menu-item">
-                    <span class="fhir-label">Control:</span>
-                    <span class="fhir-value">0..*</span>
-                  </div>
-                  <div class="fhir-menu-item">
-                    <span class="fhir-label">Binding:</span>
-                    <span class="fhir-value">The codes SHALL be taken from SNOMED CT Body Structures (example to <a href="https://hl7.org/fhir/ValueSet/body-site" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/ValueSet/body-site</a>).</span>
-                  </div>
-                </div>
-              </div>
-            </mat-menu>
             <app-autocomplete-binding
-              [binding]="bodySiteBinding"
-              formControlName="bodySite"
+              [binding]="reasonCodeBinding"
+              formControlName="reasonCode"
               [readonly]="isViewOnly">
             </app-autocomplete-binding>
           </div>

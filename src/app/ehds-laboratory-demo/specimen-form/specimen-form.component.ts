@@ -1,6 +1,7 @@
-import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Inject, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 
 export interface SpecimenData {
@@ -260,7 +261,9 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<SpecimenFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private viewContainerRef: ViewContainerRef
   ) {
     this.specimenForm = this.createForm();
     // Check if data contains viewOnly flag
@@ -351,6 +354,24 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
     } else {
       Object.keys(this.specimenForm.controls).forEach(key => {
         this.specimenForm.get(key)?.markAsTouched();
+      });
+      
+      // Show validation error snackbar inside the modal
+      const invalidFields = Object.keys(this.specimenForm.controls)
+        .filter(key => this.specimenForm.get(key)?.invalid)
+        .length;
+      
+      const message = invalidFields === 1 
+        ? 'Please fill in all required fields' 
+        : `Please fill in all required fields (${invalidFields} fields are invalid)`;
+      
+      // Use the component's viewContainerRef to show snackbar inside the dialog
+      this.snackBar.open(message, 'Close', {
+        duration: 5000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+        panelClass: ['error-snackbar', 'dialog-snackbar'],
+        viewContainerRef: this.viewContainerRef
       });
     }
   }

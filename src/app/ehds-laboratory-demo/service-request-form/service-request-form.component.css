@@ -1,6 +1,10 @@
 .service-request-form-container {
   padding: 0;
   background-color: #ffffff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .form-header-title {
@@ -14,6 +18,8 @@
   padding: 20px 24px;
   max-height: 70vh;
   overflow-y: auto;
+  position: relative;
+  flex: 1;
 }
 
 .form-subtitle {
@@ -316,6 +322,22 @@
   color: #1565c0;
   text-decoration: underline;
 }
+
+/* Snackbar styles for dialog - positioned at bottom of modal */
+/* The snackbar will be rendered in the dialog's viewContainerRef, so it appears inside the modal */
+::ng-deep .dialog-snackbar {
+  margin-bottom: 0 !important;
+}
+
+/* Ensure snackbar container has proper styling and positioning */
+::ng-deep .dialog-snackbar .mat-mdc-snack-bar-container {
+  min-width: 300px !important;
+  max-width: calc(100% - 40px) !important;
+  margin: 0 auto 20px auto !important;
+  position: relative !important;
+  bottom: 0 !important;
+}
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

@@ -1,6 +1,7 @@
-import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Inject, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 import { TerminologyService } from '../../services/terminology.service';
 
@@ -191,7 +192,9 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
     public dialogRef: MatDialogRef<ObservationResultFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialog: MatDialog,
-    private terminologyService: TerminologyService
+    private terminologyService: TerminologyService,
+    private snackBar: MatSnackBar,
+    private viewContainerRef: ViewContainerRef
   ) {
     this.observationForm = this.createForm();
     // Check if data contains viewOnly flag
@@ -343,6 +346,24 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
     } else {
       Object.keys(this.observationForm.controls).forEach(key => {
         this.observationForm.get(key)?.markAsTouched();
+      });
+      
+      // Show validation error snackbar inside the modal
+      const invalidFields = Object.keys(this.observationForm.controls)
+        .filter(key => this.observationForm.get(key)?.invalid)
+        .length;
+      
+      const message = invalidFields === 1 
+        ? 'Please fill in all required fields' 
+        : `Please fill in all required fields (${invalidFields} fields are invalid)`;
+      
+      // Use the component's viewContainerRef to show snackbar inside the dialog
+      this.snackBar.open(message, 'Close', {
+        duration: 5000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+        panelClass: ['error-snackbar', 'dialog-snackbar'],
+        viewContainerRef: this.viewContainerRef
       });
     }
   }
