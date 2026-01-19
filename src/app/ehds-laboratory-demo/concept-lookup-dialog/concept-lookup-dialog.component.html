@@ -1,0 +1,69 @@
+<h2 mat-dialog-title class="concept-dialog-title">
+  Test Code Details
+</h2>
+
+<div mat-dialog-content class="concept-dialog-content">
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading concept information...</p>
+    </div>
+  }
+
+  @if (hasError && !isLoading) {
+    <div class="error-container">
+      <mat-icon class="error-icon">error</mat-icon>
+      <h3>Error Loading Concept</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+  }
+
+  @if (!isLoading && !hasError && conceptData) {
+    <div class="concept-info">
+      <div class="concept-header">
+        <h3>{{ getDisplayName() }}</h3>
+        <div class="concept-meta">
+          <span class="code-badge">SNOMED CT: {{ data.code }}</span>
+          @if (data.loincCode) {
+            <span class="loinc-badge">LOINC: {{ data.loincCode }}</span>
+          }
+        </div>
+      </div>
+
+      @if (attributes.length > 0) {
+        <div class="properties-section">
+          <table class="properties-table">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (attribute of attributes; track attribute.type.code + '-' + attribute.target.code) {
+                <tr>
+                  <td class="property-name">
+                    <div>{{ attribute.type.display }}</div>
+                    <div class="concept-code">{{ attribute.type.code }}</div>
+                  </td>
+                  <td class="property-value">
+                    <div>{{ attribute.target.display }}</div>
+                    <div class="concept-code">{{ attribute.target.code }}</div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="no-properties">
+          <p>No attributes available for this concept.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

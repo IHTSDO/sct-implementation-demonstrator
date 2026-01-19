@@ -76,7 +76,7 @@
                 BINDING
               </button>
               @if (loincCode) {
-                <button type="button" mat-button class="fhir-badge loinc-badge" tabindex="-1">
+                <button type="button" mat-button class="fhir-badge loinc-badge" (click)="openSnomedLookup()" [title]="'View SNOMED CT concept details (LOINC: ' + loincCode + ')'">
                   LOINC: {{ loincCode }}
                 </button>
               }

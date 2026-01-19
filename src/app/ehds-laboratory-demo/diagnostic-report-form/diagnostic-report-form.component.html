@@ -22,6 +22,274 @@
 
       <form [formGroup]="diagnosticReportForm" (ngSubmit)="onSubmit()" class="diagnostic-report-form">
 
+        <!-- Subject & Personnel -->
+        <div class="form-section">
+          <div class="combined-section">
+            <!-- Subject (1/3) -->
+            <div class="subject-box">
+              <h3 class="section-title">
+                <mat-icon>person</mat-icon>
+                Subject (Patient)
+              </h3>
+              <div class="reference-section">
+                <div class="fhir-field-wrapper">
+                  <div class="fhir-badges-container">
+                    <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="subjectMenu">
+                      FHIR
+                    </button>
+                  </div>
+                  <mat-menu #subjectMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                    <div class="fhir-menu-content">
+                      <div class="fhir-menu-header">
+                        <h4>DiagnosticReport.subject</h4>
+                        <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu-definitions.html#DiagnosticReport.subject" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                          <mat-icon>link</mat-icon>
+                        </a>
+                      </div>
+                      <div class="fhir-menu-body">
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Definition:</span>
+                          <span class="fhir-value">Who or what this report is about. The report can be about a human patient, a living subject, a device (e.g. a machine), a location or even a group of subjects (such as a document about a herd of livestock, or a set of patients that share a common exposure).</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Short:</span>
+                          <span class="fhir-value">Who and/or what this report is about. The subject of the report - usually, but not always, the patient</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Comments:</span>
+                          <span class="fhir-value">The subject of the report. Usually, but not always, this is a patient. However, diagnostic services also perform analyses on specimens collected from a variety of other sources. DiagnosticReport and Composition SHALL have the same subject</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Control:</span>
+                          <span class="fhir-value">1..1</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Type:</span>
+                          <span class="fhir-value">Reference(Patient: Laboratory, Patient, Group, Device, Location)</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Is Modifier:</span>
+                          <span class="fhir-value">false</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Obligations:</span>
+                          <span class="fhir-value">SHALL:handle - LabReportHandler</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Summary:</span>
+                          <span class="fhir-value">true</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Requirements:</span>
+                          <span class="fhir-value">SHALL know the subject context.</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Alternate Names:</span>
+                          <span class="fhir-value">Patient</span>
+                        </div>
+                        <div class="fhir-menu-item">
+                          <span class="fhir-label">Invariants:</span>
+                          <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-menu>
+                </div>
+                <mat-form-field class="full-width">
+                  <mat-label>Select Patient</mat-label>
+                  <mat-select [value]="selectedSubjectReference" (selectionChange)="onSubjectSelected($event.value)">
+                    <mat-option [value]="null">No patient selected</mat-option>
+                    @for (patient of patientExamples; track patient) {
+                      <mat-option [value]="patient.reference">
+                        {{ patient.display }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                @if (hasSubject) {
+                  <div class="reference-display">
+                    <div class="reference-info">
+                      <mat-icon>person</mat-icon>
+                      <span>{{ diagnosticReportForm.get('subject')?.value?.display }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Personnel (2/3) -->
+            <div class="personnel-box">
+              <h3 class="section-title">
+                <mat-icon>people</mat-icon>
+                Personnel & Organization
+              </h3>
+              <div class="personnel-grid">
+                <div class="reference-item">
+                  <div class="fhir-field-wrapper">
+                    <div class="fhir-badges-container">
+                      <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="performerMenu">
+                        FHIR
+                      </button>
+                    </div>
+                    <mat-menu #performerMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                      <div class="fhir-menu-content">
+                        <div class="fhir-menu-header">
+                          <h4>DiagnosticReport.performer</h4>
+                          <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu-definitions.html#DiagnosticReport.performer" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                            <mat-icon>link</mat-icon>
+                          </a>
+                        </div>
+                        <div class="fhir-menu-body">
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Definition:</span>
+                            <span class="fhir-value">The diagnostic service that is responsible for issuing the report.</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Short:</span>
+                            <span class="fhir-value">Responsible Diagnostic Service.</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Comments:</span>
+                            <span class="fhir-value">If a DiagnosticReport.resultsInterpreter exists this is expected to be a Composition.author; otherwise a DiagnosticReport.performer should be an author. This is not necessarily the source of the atomic data items or the entity that interpreted the results. It is the entity that takes responsibility for the clinical report.</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Control:</span>
+                            <span class="fhir-value">0..*</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Type:</span>
+                            <span class="fhir-value">Reference(Practitioner: Laboratory, PractitionerRole: Laboratory, Organization, Practitioner, PractitionerRole, CareTeam)</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Is Modifier:</span>
+                            <span class="fhir-value">false</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Summary:</span>
+                            <span class="fhir-value">true</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Requirements:</span>
+                            <span class="fhir-value">Need to know whom to contact if there are queries about the results. Also may need to track the source of reports for secondary data analysis.</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Alternate Names:</span>
+                            <span class="fhir-value">Laboratory, Service, Practitioner, Department, Company, Authorized by, Director</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Invariants:</span>
+                            <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                          </div>
+                        </div>
+                      </div>
+                    </mat-menu>
+                  </div>
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Performer</mat-label>
+                    <mat-select [value]="selectedPerformerReference" (selectionChange)="onPerformerSelected($event.value)">
+                      <mat-option [value]="null">No performer selected</mat-option>
+                      @for (performer of performerExamples; track performer) {
+                        <mat-option [value]="performer.reference">
+                          {{ performer.display }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  @if (hasPerformer) {
+                    <div class="reference-display">
+                      <div class="reference-info">
+                        <mat-icon>person</mat-icon>
+                        <span>{{ diagnosticReportForm.get('performer')?.value?.display }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="reference-item">
+                  <div class="fhir-field-wrapper">
+                    <div class="fhir-badges-container">
+                      <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="resultsInterpreterMenu">
+                        FHIR
+                      </button>
+                    </div>
+                    <mat-menu #resultsInterpreterMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                      <div class="fhir-menu-content">
+                        <div class="fhir-menu-header">
+                          <h4>DiagnosticReport.resultsInterpreter</h4>
+                          <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu-definitions.html#DiagnosticReport.resultsInterpreter" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                            <mat-icon>link</mat-icon>
+                          </a>
+                        </div>
+                        <div class="fhir-menu-body">
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Definition:</span>
+                            <span class="fhir-value">The practitioner or organization that is responsible for the report's conclusions and interpretations.</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Short:</span>
+                            <span class="fhir-value">Primary result interpreter</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Comments:</span>
+                            <span class="fhir-value">If a DiagnosticReport.resultsInterpreter exists this is expected to be a Composition.author; otherwise a DiagnosticReport.performer should be an author. Might not be the same entity that takes responsibility for the clinical report.</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Control:</span>
+                            <span class="fhir-value">0..*</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Type:</span>
+                            <span class="fhir-value">Reference(Practitioner: Laboratory, PractitionerRole: Laboratory, Organization, Practitioner, PractitionerRole, CareTeam)</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Is Modifier:</span>
+                            <span class="fhir-value">false</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Summary:</span>
+                            <span class="fhir-value">true</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Requirements:</span>
+                            <span class="fhir-value">Need to know whom to contact if there are queries about the results. Also may need to track the source of reports for secondary data analysis.</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Alternate Names:</span>
+                            <span class="fhir-value">Analyzed by, Reported by</span>
+                          </div>
+                          <div class="fhir-menu-item">
+                            <span class="fhir-label">Invariants:</span>
+                            <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                          </div>
+                        </div>
+                      </div>
+                    </mat-menu>
+                  </div>
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Results Interpreter</mat-label>
+                    <mat-select [value]="selectedResultsInterpreterReference" (selectionChange)="onResultsInterpreterSelected($event.value)">
+                      <mat-option [value]="null">No results interpreter selected</mat-option>
+                      @for (interpreter of resultsInterpreterExamples; track interpreter) {
+                        <mat-option [value]="interpreter.reference">
+                          {{ interpreter.display }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  @if (hasResultsInterpreter) {
+                    <div class="reference-display">
+                      <div class="reference-info">
+                        <mat-icon>person</mat-icon>
+                        <span>{{ diagnosticReportForm.get('resultsInterpreter')?.value?.display }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Identification & Status -->
         <div class="form-section">
           <h3 class="section-title">
@@ -640,274 +908,6 @@
                   </div>
                 </div>
               }
-            </div>
-          </div>
-        </div>
-
-        <!-- Subject & Personnel -->
-        <div class="form-section">
-          <div class="combined-section">
-            <!-- Subject (1/3) -->
-            <div class="subject-box">
-              <h3 class="section-title">
-                <mat-icon>person</mat-icon>
-                Subject (Patient)
-              </h3>
-              <div class="reference-section">
-                <div class="fhir-field-wrapper">
-                  <div class="fhir-badges-container">
-                    <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="subjectMenu">
-                      FHIR
-                    </button>
-                  </div>
-                  <mat-menu #subjectMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-                    <div class="fhir-menu-content">
-                      <div class="fhir-menu-header">
-                        <h4>DiagnosticReport.subject</h4>
-                        <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu-definitions.html#DiagnosticReport.subject" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                          <mat-icon>link</mat-icon>
-                        </a>
-                      </div>
-                      <div class="fhir-menu-body">
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Definition:</span>
-                          <span class="fhir-value">Who or what this report is about. The report can be about a human patient, a living subject, a device (e.g. a machine), a location or even a group of subjects (such as a document about a herd of livestock, or a set of patients that share a common exposure).</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Short:</span>
-                          <span class="fhir-value">Who and/or what this report is about. The subject of the report - usually, but not always, the patient</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Comments:</span>
-                          <span class="fhir-value">The subject of the report. Usually, but not always, this is a patient. However, diagnostic services also perform analyses on specimens collected from a variety of other sources. DiagnosticReport and Composition SHALL have the same subject</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Control:</span>
-                          <span class="fhir-value">1..1</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Type:</span>
-                          <span class="fhir-value">Reference(Patient: Laboratory, Patient, Group, Device, Location)</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Is Modifier:</span>
-                          <span class="fhir-value">false</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Obligations:</span>
-                          <span class="fhir-value">SHALL:handle - LabReportHandler</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Summary:</span>
-                          <span class="fhir-value">true</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Requirements:</span>
-                          <span class="fhir-value">SHALL know the subject context.</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Alternate Names:</span>
-                          <span class="fhir-value">Patient</span>
-                        </div>
-                        <div class="fhir-menu-item">
-                          <span class="fhir-label">Invariants:</span>
-                          <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                        </div>
-                      </div>
-                    </div>
-                  </mat-menu>
-                </div>
-                <mat-form-field class="full-width">
-                  <mat-label>Select Patient</mat-label>
-                  <mat-select [value]="selectedSubjectReference" (selectionChange)="onSubjectSelected($event.value)">
-                    <mat-option [value]="null">No patient selected</mat-option>
-                    @for (patient of patientExamples; track patient) {
-                      <mat-option [value]="patient.reference">
-                        {{ patient.display }}
-                      </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-                @if (hasSubject) {
-                  <div class="reference-display">
-                    <div class="reference-info">
-                      <mat-icon>person</mat-icon>
-                      <span>{{ diagnosticReportForm.get('subject')?.value?.display }}</span>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Personnel (2/3) -->
-            <div class="personnel-box">
-              <h3 class="section-title">
-                <mat-icon>people</mat-icon>
-                Personnel & Organization
-              </h3>
-              <div class="personnel-grid">
-                <div class="reference-item">
-                  <div class="fhir-field-wrapper">
-                    <div class="fhir-badges-container">
-                      <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="performerMenu">
-                        FHIR
-                      </button>
-                    </div>
-                    <mat-menu #performerMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-                      <div class="fhir-menu-content">
-                        <div class="fhir-menu-header">
-                          <h4>DiagnosticReport.performer</h4>
-                          <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu-definitions.html#DiagnosticReport.performer" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                            <mat-icon>link</mat-icon>
-                          </a>
-                        </div>
-                        <div class="fhir-menu-body">
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Definition:</span>
-                            <span class="fhir-value">The diagnostic service that is responsible for issuing the report.</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Short:</span>
-                            <span class="fhir-value">Responsible Diagnostic Service.</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Comments:</span>
-                            <span class="fhir-value">If a DiagnosticReport.resultsInterpreter exists this is expected to be a Composition.author; otherwise a DiagnosticReport.performer should be an author. This is not necessarily the source of the atomic data items or the entity that interpreted the results. It is the entity that takes responsibility for the clinical report.</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Control:</span>
-                            <span class="fhir-value">0..*</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Type:</span>
-                            <span class="fhir-value">Reference(Practitioner: Laboratory, PractitionerRole: Laboratory, Organization, Practitioner, PractitionerRole, CareTeam)</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Is Modifier:</span>
-                            <span class="fhir-value">false</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Summary:</span>
-                            <span class="fhir-value">true</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Requirements:</span>
-                            <span class="fhir-value">Need to know whom to contact if there are queries about the results. Also may need to track the source of reports for secondary data analysis.</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Alternate Names:</span>
-                            <span class="fhir-value">Laboratory, Service, Practitioner, Department, Company, Authorized by, Director</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Invariants:</span>
-                            <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                          </div>
-                        </div>
-                      </div>
-                    </mat-menu>
-                  </div>
-                  <mat-form-field class="full-width">
-                    <mat-label>Select Performer</mat-label>
-                    <mat-select [value]="selectedPerformerReference" (selectionChange)="onPerformerSelected($event.value)">
-                      <mat-option [value]="null">No performer selected</mat-option>
-                      @for (performer of performerExamples; track performer) {
-                        <mat-option [value]="performer.reference">
-                          {{ performer.display }}
-                        </mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                  @if (hasPerformer) {
-                    <div class="reference-display">
-                      <div class="reference-info">
-                        <mat-icon>person</mat-icon>
-                        <span>{{ diagnosticReportForm.get('performer')?.value?.display }}</span>
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <div class="reference-item">
-                  <div class="fhir-field-wrapper">
-                    <div class="fhir-badges-container">
-                      <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="resultsInterpreterMenu">
-                        FHIR
-                      </button>
-                    </div>
-                    <mat-menu #resultsInterpreterMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-                      <div class="fhir-menu-content">
-                        <div class="fhir-menu-header">
-                          <h4>DiagnosticReport.resultsInterpreter</h4>
-                          <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-DiagnosticReport-lab-myhealtheu-definitions.html#DiagnosticReport.resultsInterpreter" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                            <mat-icon>link</mat-icon>
-                          </a>
-                        </div>
-                        <div class="fhir-menu-body">
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Definition:</span>
-                            <span class="fhir-value">The practitioner or organization that is responsible for the report's conclusions and interpretations.</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Short:</span>
-                            <span class="fhir-value">Primary result interpreter</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Comments:</span>
-                            <span class="fhir-value">If a DiagnosticReport.resultsInterpreter exists this is expected to be a Composition.author; otherwise a DiagnosticReport.performer should be an author. Might not be the same entity that takes responsibility for the clinical report.</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Control:</span>
-                            <span class="fhir-value">0..*</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Type:</span>
-                            <span class="fhir-value">Reference(Practitioner: Laboratory, PractitionerRole: Laboratory, Organization, Practitioner, PractitionerRole, CareTeam)</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Is Modifier:</span>
-                            <span class="fhir-value">false</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Summary:</span>
-                            <span class="fhir-value">true</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Requirements:</span>
-                            <span class="fhir-value">Need to know whom to contact if there are queries about the results. Also may need to track the source of reports for secondary data analysis.</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Alternate Names:</span>
-                            <span class="fhir-value">Analyzed by, Reported by</span>
-                          </div>
-                          <div class="fhir-menu-item">
-                            <span class="fhir-label">Invariants:</span>
-                            <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
-                          </div>
-                        </div>
-                      </div>
-                    </mat-menu>
-                  </div>
-                  <mat-form-field class="full-width">
-                    <mat-label>Select Results Interpreter</mat-label>
-                    <mat-select [value]="selectedResultsInterpreterReference" (selectionChange)="onResultsInterpreterSelected($event.value)">
-                      <mat-option [value]="null">No results interpreter selected</mat-option>
-                      @for (interpreter of resultsInterpreterExamples; track interpreter) {
-                        <mat-option [value]="interpreter.reference">
-                          {{ interpreter.display }}
-                        </mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                  @if (hasResultsInterpreter) {
-                    <div class="reference-display">
-                      <div class="reference-info">
-                        <mat-icon>person</mat-icon>
-                        <span>{{ diagnosticReportForm.get('resultsInterpreter')?.value?.display }}</span>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
             </div>
           </div>
         </div>

@@ -526,6 +526,43 @@ export class TerminologyService {
       );
   }
 
+  lookupConceptFromServer(fhirBase: string, system: string, code: string, version?: string, properties?: string[]): Observable<any> {
+    if (!fhirBase) fhirBase = this.snowstormFhirBase;
+    if (!system) system = 'http://snomed.info/sct';
+    
+    let requestUrl = `${fhirBase}/CodeSystem/$lookup?system=${encodeURIComponent(system)}&code=${encodeURIComponent(code)}`;
+    
+    if (version && version !== 'http://snomed.info/sct') {
+      requestUrl += `&version=${encodeURIComponent(version)}`;
+    }
+    
+    // For SNOMED CT, always add normalForm property
+    if (system === 'http://snomed.info/sct') {
+      requestUrl += `&property=normalForm`;
+    }
+    
+    // Add additional properties if specified
+    if (properties && properties.length > 0) {
+      properties.forEach(property => {
+        requestUrl += `&property=${encodeURIComponent(property)}`;
+      });
+    }
+    
+    // For LOINC SNOMED server, use simpler language parameter (just 'en' instead of language refset)
+    const isLoincSnomedServer = fhirBase.includes('loincsnomed');
+    const languageParam = isLoincSnomedServer ? 'en' : this.getComputedLanguageContext();
+    
+    const headers = new HttpHeaders({
+      'Accept-Language': languageParam,
+      'Accept': 'application/fhir+json'
+    });
+    
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(
+        catchError(this.handleError<any>('lookupConceptFromServer', {}))
+      );
+  }
+
   getNormalForm(concept: any): string {
     if (concept.parameter) {
       for (let param of concept.parameter) {

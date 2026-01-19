@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
+import { ConceptLookupDialogComponent } from '../concept-lookup-dialog/concept-lookup-dialog.component';
 import { TerminologyService } from '../../services/terminology.service';
 
 export interface ObservationResultData {
@@ -442,6 +443,32 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
     
     // Return the alternateIdentifier value if found, otherwise return null
     return matchingIdentifier ? matchingIdentifier.alternateIdentifier : null;
+  }
+
+  openSnomedLookup(): void {
+    const codeValue = this.observationForm.get('code')?.value;
+    if (!codeValue || !codeValue.code) {
+      return;
+    }
+    
+    const display = codeValue.display || '';
+    const snomedCode = codeValue.code; // Use SNOMED CT concept ID
+    const loincCode = codeValue.loincCode || null;
+    
+    this.dialog.open(ConceptLookupDialogComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      autoFocus: false,
+      restoreFocus: true,
+      data: {
+        system: 'http://snomed.info/sct',
+        code: snomedCode,
+        display: display,
+        loincCode: loincCode,
+        fhirBase: 'https://browser.loincsnomed.org/fhir'
+      },
+      panelClass: 'concept-lookup-dialog'
+    });
   }
 }
 

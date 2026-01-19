@@ -255,17 +255,16 @@
 .loinc-badge {
   background-color: #fbc02d !important;
   color: #000000 !important;
-  cursor: default;
-  pointer-events: none;
+  cursor: pointer;
 }
 
 .loinc-badge:hover {
-  background-color: #fbc02d !important;
+  background-color: #f9a825 !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .loinc-badge:focus {
-  background-color: #fbc02d !important;
+  background-color: #f9a825 !important;
   color: #000000 !important;
   outline: none;
 }
