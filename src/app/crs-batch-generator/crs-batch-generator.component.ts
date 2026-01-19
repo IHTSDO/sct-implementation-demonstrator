@@ -373,21 +373,13 @@ export class CrsBatchGeneratorComponent implements OnInit {
 
       // For each selected row, add two rows based on template rows 2 and 3
       for (const selectedRow of selectedRows) {
-        // Create row based on template row 2
-        const newRow2 = [...templateRow2];
-        // Replace INN/substance name (find the column that contains "INN" or similar in header)
-        this.replaceSubstanceName(newRow2, templateData[0] || [], selectedRow.substanceName);
-        // For first row, set column H (Preferred Term) equal to column F (FSN)
-        if (newRow2.length > 7 && newRow2.length > 5) {
-          newRow2[7] = newRow2[5];
-        }
-        newSheetData.push(newRow2);
+        // Create first row (substance row) based on template row 2
+        const substanceRow = this.createSubstanceRow(templateRow2, templateData[0] || [], selectedRow.substanceName);
+        newSheetData.push(substanceRow);
 
-        // Create row based on template row 3
-        const newRow3 = [...templateRow3];
-        // For the second row, replace FSN in column F with "Product containing X"
-        this.replaceSubstanceName(newRow3, templateData[0] || [], selectedRow.substanceName, true);
-        newSheetData.push(newRow3);
+        // Create second row (product row) based on template row 3
+        const productRow = this.createProductRow(templateRow3, templateData[0] || [], selectedRow.substanceName);
+        newSheetData.push(productRow);
       }
 
       // Create worksheet from data for the target sheet
@@ -422,11 +414,57 @@ export class CrsBatchGeneratorComponent implements OnInit {
     }
   }
 
-  replaceSubstanceName(row: any[], headers: any[], substanceName: string, isSecondRow: boolean = false): void {
-    // Find the column index that likely contains the substance name/INN
-    // Look for headers containing "INN", "name", "substance", etc.
+  createSubstanceRow(templateRow: any[], headers: any[], substanceName: string): any[] {
+    // Create a copy of the template row
+    const row = [...templateRow];
+    
+    // Find columns that should contain the substance name/INN
     const nameColumnIndices: number[] = [];
-    const excludedIndices = new Set<number>();
+    headers.forEach((header, index) => {
+      const headerStr = String(header || '').toLowerCase();
+      if (headerStr.includes('inn') || headerStr.includes('name') || headerStr.includes('substance')) {
+        nameColumnIndices.push(index);
+      }
+    });
+
+    // Replace substance name in appropriate columns
+    if (nameColumnIndices.length > 0) {
+      nameColumnIndices.forEach(index => {
+        if (index < row.length) {
+          row[index] = substanceName;
+        }
+      });
+    } else {
+      // Fallback: try column A (index 0) or first few columns
+      for (let i = 0; i < Math.min(5, row.length); i++) {
+        const cellValue = String(row[i] || '').toLowerCase();
+        if (cellValue.includes('example') || cellValue.includes('inn') || cellValue === '') {
+          row[i] = substanceName;
+          break;
+        }
+      }
+    }
+
+    // For first row, set column H (Preferred Term, index 7) equal to column F (FSN, index 5)
+    if (row.length > 7 && row.length > 5) {
+      row[7] = row[5];
+    }
+
+    // Column J (index 9) - ParentId (105590001 for substances)
+    if (row.length > 9) {
+      row[9] = '105590001';
+    }
+
+    return row;
+  }
+
+  createProductRow(templateRow: any[], headers: any[], substanceName: string): any[] {
+    // Create a copy of the template row
+    const row = [...templateRow];
+    
+    // Find columns that should contain the substance name/INN (excluding special columns)
+    const nameColumnIndices: number[] = [];
+    const excludedIndices = new Set<number>([5, 7, 9, 18]); // F, H, J, S
     
     headers.forEach((header, index) => {
       const headerStr = String(header || '').toLowerCase();
@@ -435,15 +473,7 @@ export class CrsBatchGeneratorComponent implements OnInit {
       }
     });
 
-    // For second row, exclude column F (index 5) from name replacement and set special values
-    if (isSecondRow) {
-      excludedIndices.add(5); // Column F - will be set separately
-      excludedIndices.add(7); // Column H - will be set separately
-      excludedIndices.add(9); // Column J - will be set separately
-      excludedIndices.add(18); // Column S - will be set separately
-    }
-
-    // If we found likely columns, replace them (but exclude special columns for second row)
+    // Replace substance name in appropriate columns (excluding special columns)
     if (nameColumnIndices.length > 0) {
       nameColumnIndices.forEach(index => {
         if (index < row.length && !excludedIndices.has(index)) {
@@ -462,24 +492,32 @@ export class CrsBatchGeneratorComponent implements OnInit {
       }
     }
 
-    // For second row, set FSN (column F, index 5) and Preferred Term (column H, index 7) after name replacement
-    if (isSecondRow) {
-      // Convert first letter of substance name to lowercase
-      const substanceNameLowercase = substanceName.charAt(0).toLowerCase() + substanceName.slice(1);
-      const productContainingText = `Product containing ${substanceNameLowercase}`;
-      // Column F is index 5 (0-indexed) - FSN (Fully Specified Name)
-      if (row.length > 5) {
-        row[5] = productContainingText;
-      }
-      // Column H is index 7 (0-indexed) - Preferred Term
-      if (row.length > 7) {
-        row[7] = productContainingText;
-      }
-      // Column S is index 18 (0-indexed) - Synonym
-      if (row.length > 18) {
-        row[18] = `${substanceName}-containing product`;
-      }
+    // Set all product row values correctly from the start
+    const substanceNameLowercase = substanceName.charAt(0).toLowerCase() + substanceName.slice(1);
+    const productContainingText = `Product containing ${substanceNameLowercase}`;
+    const containingProductText = `${substanceName}-containing product`;
+    
+    // Column F (index 5) - FSN (Fully Specified Name)
+    if (row.length > 5) {
+      row[5] = productContainingText;
     }
+    
+    // Column H (index 7) - Preferred Term (format: "XXX-containing product")
+    if (row.length > 7) {
+      row[7] = containingProductText;
+    }
+    
+    // Column J (index 9) - ParentId (763158003 for products)
+    if (row.length > 9) {
+      row[9] = '763158003';
+    }
+    
+    // Column S (index 18) - Synonym (should be cleared)
+    if (row.length > 18) {
+      row[18] = '';
+    }
+
+    return row;
   }
 
   showConfirmationDialog(selectedCount: number): Promise<boolean> {
