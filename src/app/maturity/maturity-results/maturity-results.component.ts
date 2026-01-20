@@ -55,6 +55,40 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     }
   }
 
+  /**
+   * Helper function to extract KPA ID from a question path
+   * Handles KPA IDs with spaces by using allQuestions array
+   */
+  private getKpaIdFromPath(questionPath: string): string | null {
+    // First, try to find in allQuestions (most reliable)
+    const questionItem = this.allQuestions.find(q => q.questionFullPath === questionPath);
+    if (questionItem) {
+      return questionItem.kpaId;
+    }
+    
+    // Fallback: try to extract from path using selectedKpas keys
+    // This handles cases where allQuestions might not be available
+    const stakeholder = this.maturityResponse['selectedStakeholder'];
+    if (!stakeholder || !questionPath.startsWith(stakeholder + '_')) {
+      return null;
+    }
+    
+    const pathAfterStakeholder = questionPath.substring(stakeholder.length + 1);
+    const selectedKpas = this.maturityResponse['selectedKpas'] || {};
+    const selectedKpaIds = Object.keys(selectedKpas)
+      .filter(kpaId => selectedKpas[kpaId]);
+    
+    // Find the KPA ID that matches the beginning of the path
+    for (const kpaId of selectedKpaIds) {
+      const kpaPrefix = kpaId + '_';
+      if (pathAfterStakeholder.startsWith(kpaPrefix)) {
+        return kpaId;
+      }
+    }
+    
+    return null;
+  }
+
   private generateChart(): void {
     if (this.chart) {
       this.chart.destroy(); // Destroy existing chart to avoid duplication
@@ -69,33 +103,27 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
         return; // Skip non-numeric fields (including comments)
       }
   
-      // 2) Decompose the key. Format = stakeholder_kpa_question
-      const [stakeholder, kpa, question] = key.split('_');
-  
-      // 3) Only accumulate data for the selected stakeholder
-      if (
-        stakeholder &&
-        kpa &&
-        question &&
-        stakeholder === this.maturityResponse.selectedStakeholder
-      ) {
-        groupedData[kpa] = groupedData[kpa] || { sum: 0, count: 0 };
-        groupedData[kpa].sum += value;
-        groupedData[kpa].count += 1;
+      // 2) Check if this key belongs to the selected stakeholder
+      const stakeholder = this.maturityResponse['selectedStakeholder'];
+      if (!stakeholder || !key.startsWith(stakeholder + '_')) {
+        return;
       }
+  
+      // 3) Extract KPA ID using helper function (handles spaces in KPA IDs)
+      const kpaId = this.getKpaIdFromPath(key);
+      if (!kpaId || !this.maturityResponse.selectedKpas?.[kpaId]) {
+        return; // Skip if KPA not selected
+      }
+  
+      // 4) Accumulate data for this KPA
+      groupedData[kpaId] = groupedData[kpaId] || { sum: 0, count: 0 };
+      groupedData[kpaId].sum += value;
+      groupedData[kpaId].count += 1;
     });
   
-    // Extract unique KPA IDs for the selected stakeholder
-    const allKpaIds = Array.from(
-      new Set(
-        Object.keys(this.maturityResponse)
-          .filter(key => key.startsWith(this.maturityResponse.selectedStakeholder))
-          .map(key => key.split('_')[1])
-      )
-    );
-  
-    // Filter KPA IDs based on whether they are marked `true` in `selectedKpas`
-    const kpaIds = allKpaIds.filter(kpaId => this.maturityResponse.selectedKpas?.[kpaId]);
+    // Extract unique KPA IDs from selectedKpas (most reliable source)
+    const kpaIds = Object.keys(this.maturityResponse.selectedKpas || {})
+      .filter(kpaId => this.maturityResponse.selectedKpas[kpaId]);
   
     // Prepare labels (KPAs) and dataset (stakeholder)
     const kpaLabels = kpaIds.map(kpaId => this.getKpaName(kpaId) || kpaId);
@@ -162,11 +190,33 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   }
   
   getKpas(response: any, stakeholder: string): string[] {
+    // Use selectedKpas as the source of truth (handles KPA IDs with spaces)
+    if (response.selectedKpas) {
+      return Object.keys(response.selectedKpas)
+        .filter(kpaId => response.selectedKpas[kpaId]);
+    }
+    
+    // Fallback: try to extract from allQuestions
+    if (this.allQuestions && this.allQuestions.length > 0) {
+      const uniqueKpaIds = Array.from(new Set(
+        this.allQuestions
+          .filter(q => q.stakeholderName && 
+            this.getStakeholderName() === q.stakeholderName)
+          .map(q => q.kpaId)
+      ));
+      return uniqueKpaIds.filter(kpaId => response.selectedKpas?.[kpaId]);
+    }
+    
+    // Last resort: try to parse from keys (may fail with spaces in KPA IDs)
     const allKpas = Array.from(
       new Set(
         Object.keys(response)
           .filter((key) => key.startsWith(stakeholder + '_'))
-          .map((key) => key.split('_')[1])
+          .map((key) => {
+            // Try to find matching KPA ID from allQuestions
+            const questionItem = this.allQuestions?.find(q => q.questionFullPath === key);
+            return questionItem ? questionItem.kpaId : key.split('_')[1];
+          })
       )
     );
   
@@ -186,10 +236,22 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   
   
   getQuestions(response: any, stakeholder: string, kpa: string): Record<string, number | null> {
+    // Build the prefix for this KPA (handles spaces in KPA ID)
+    const kpaPrefix = `${stakeholder}_${kpa}_`;
+    
     return Object.keys(response)
-      .filter((key) => key.startsWith(`${stakeholder}_${kpa}`))
+      .filter((key) => {
+        // Check if key starts with the KPA prefix
+        if (!key.startsWith(kpaPrefix)) {
+          return false;
+        }
+        // Also verify it's a numeric value (not a comment or other field)
+        const value = response[key];
+        return typeof value === 'number' && isFinite(value);
+      })
       .reduce((acc, key) => {
-        const questionKey = key.split('_').slice(2).join('_');
+        // Extract question ID by removing the prefix
+        const questionKey = key.substring(kpaPrefix.length);
         acc[questionKey] = response[key];
         return acc;
       }, {} as Record<string, number | null>);
@@ -201,7 +263,18 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   }
   
   getKpaRowSpan(response: any, stakeholder: string, kpa: string): number {
-    return Object.keys(response).filter((key) => key.startsWith(`${stakeholder}_${kpa}`)).length;
+    // Build the prefix for this KPA (handles spaces in KPA ID)
+    const kpaPrefix = `${stakeholder}_${kpa}_`;
+    return Object.keys(response)
+      .filter((key) => {
+        // Check if key starts with the KPA prefix and is a numeric value
+        if (!key.startsWith(kpaPrefix)) {
+          return false;
+        }
+        const value = response[key];
+        return typeof value === 'number' && isFinite(value);
+      })
+      .length;
   }
   
   isFirstRowInStakeholder(index: number, stakeholder: string, kpa: string): boolean {
@@ -230,15 +303,17 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     this.kpaAverages = {}; // reset
     
     // Only compute for the currently selected stakeholder
-    const stakeholder = this.maturityResponse.selectedStakeholder;
-    // Get all selected KPA IDs
-    const selectedKpas = this.getKpas(this.maturityResponse, stakeholder);
+    const stakeholder = this.maturityResponse['selectedStakeholder'];
+    // Get all selected KPA IDs (using selectedKpas directly for reliability)
+    const selectedKpasObj = this.maturityResponse['selectedKpas'] || {};
+    const selectedKpas = Object.keys(selectedKpasObj)
+      .filter(kpaId => selectedKpasObj[kpaId]);
 
-    selectedKpas.forEach(kpa => {
+    selectedKpas.forEach(kpaId => {
       // 1) Gather the KPA's questions
-      const questions = this.getQuestions(this.maturityResponse, stakeholder, kpa);
+      const questions = this.getQuestions(this.maturityResponse, stakeholder, kpaId);
       // 2) Compute the average
-      this.kpaAverages[kpa] = this.calculateAverage(questions);
+      this.kpaAverages[kpaId] = this.calculateAverage(questions);
     });
   }
   
@@ -248,6 +323,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
     const kpas: { [key: string]: number[] } = {};
     // You might want to exclude any meta keys or other fields you don't want to process
     const excludedKeys = ['selectedStakeholder', 'name', 'author', 'timestamp', 'selectedKpas', 'comment'];
+    const stakeholder = data['selectedStakeholder'] || (this.maturityResponse ? this.maturityResponse['selectedStakeholder'] : undefined);
   
     // Process the data to group scores by KPA
     for (const key in data) {
@@ -267,16 +343,20 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
         continue;
       }
 
-      // key format: stakeholder_kpa_question
-      const [stakeholder, kpa, question] = key.split('_');
+      // Check if this key belongs to the selected stakeholder
+      if (!stakeholder || !key.startsWith(stakeholder + '_')) {
+        continue;
+      }
+
+      // Extract KPA ID using helper function (handles spaces in KPA IDs)
+      const kpaId = this.getKpaIdFromPath(key);
   
       // Make sure the KPA is in the selectedKpas and is set to true
-      // (Change data.selectedKpas to this.maturityResponse.selectedKpas if needed)
-      if (kpa && data['selectedKpas'] && data['selectedKpas'][kpa]) {
-        if (!kpas[kpa]) {
-          kpas[kpa] = [];
+      if (kpaId && data['selectedKpas'] && data['selectedKpas'][kpaId]) {
+        if (!kpas[kpaId]) {
+          kpas[kpaId] = [];
         }
-        kpas[kpa].push(data[key]);
+        kpas[kpaId].push(data[key]);
       }
     }
   

@@ -135,7 +135,8 @@ export class MaturityMainComponent implements OnInit {
     this.maturityQuestions.stakeHolders.forEach((stakeholder: any) => {
       stakeholder.kpas.forEach((kpa: any) => {
         kpa.questions.forEach((question: any) => {
-          const questionPath = [stakeholder.id, kpa.id, question.id].join('_');
+          // Build question path (handles KPA IDs with spaces correctly)
+          const questionPath = this.buildQuestionPath(stakeholder.id, kpa.id, question.id);
           // Flatten controls using the full path as the key
           this.responseForm.addControl(questionPath, new FormControl(null, Validators.required));
         });
@@ -222,6 +223,20 @@ export class MaturityMainComponent implements OnInit {
     );
     return stakeholder;
   }
+
+  /**
+   * Builds a question path from stakeholder, KPA, and question IDs.
+   * Note: KPA IDs may contain spaces (e.g., "human capital"), which is handled correctly
+   * by joining with underscores. The resulting path format is: "stakeholder_kpa_question"
+   * 
+   * @param stakeholderId - The stakeholder ID
+   * @param kpaId - The KPA ID (may contain spaces)
+   * @param questionId - The question ID
+   * @returns The question path string
+   */
+  private buildQuestionPath(stakeholderId: string, kpaId: string, questionId: string): string {
+    return [stakeholderId, kpaId, questionId].join('_');
+  }
   
   flattenQuestions(): void {
     this.allQuestions = [];
@@ -230,7 +245,8 @@ export class MaturityMainComponent implements OnInit {
         kpa.questions.forEach((question: any) => {
           // Ensure each question has a comment property
           question.comment = question.comment || '';
-          const questionPath = [this.selectedStakeholder.id, kpa.id, question.id].join('_');
+          // Build question path (handles KPA IDs with spaces correctly)
+          const questionPath = this.buildQuestionPath(this.selectedStakeholder.id, kpa.id, question.id);
           // Add the question answer control (if not already added)
           if (!this.responseForm.contains(questionPath)) {
             this.responseForm.addControl(questionPath, new FormControl(null, Validators.required));
@@ -263,9 +279,15 @@ export class MaturityMainComponent implements OnInit {
     this.selectedStakeholder.kpas.forEach((kpa: any) => {
       if (!selectedKpaIds.includes(kpa.id)) {
         kpa.questions.forEach((question: any) => {
-          const questionPath = [this.selectedStakeholder.id, kpa.id, question.id].join('_');
+          // Build question path (handles KPA IDs with spaces correctly)
+          const questionPath = this.buildQuestionPath(this.selectedStakeholder.id, kpa.id, question.id);
           if (this.responseForm.contains(questionPath)) {
             this.responseForm.removeControl(questionPath); // Remove unselected question controls
+          }
+          // Also remove the comment control if it exists
+          const commentControlKey = questionPath + '_comment';
+          if (this.responseForm.contains(commentControlKey)) {
+            this.responseForm.removeControl(commentControlKey);
           }
         });
       }
@@ -579,17 +601,23 @@ export class MaturityMainComponent implements OnInit {
         if (this.selectedStakeholder?.kpas) {
           this.selectedStakeholder.kpas.forEach((kpa: any) => {
             kpa.questions.forEach((question: any) => {
-              const questionPath = [
+              // Build question path (handles KPA IDs with spaces correctly)
+              const questionPath = this.buildQuestionPath(
                 this.selectedStakeholder.id,
                 kpa.id,
                 question.id
-              ].join('_');
+              );
               // Only add if it doesn't exist
               if (!this.responseForm.contains(questionPath)) {
                 this.responseForm.addControl(
                   questionPath,
                   new FormControl(null, Validators.required)
                 );
+              }
+              // Also add comment control if it doesn't exist
+              const commentControlKey = questionPath + '_comment';
+              if (!this.responseForm.contains(commentControlKey)) {
+                this.responseForm.addControl(commentControlKey, new FormControl(''));
               }
             });
           });
@@ -601,13 +629,19 @@ export class MaturityMainComponent implements OnInit {
           this.selectedStakeholder.kpas.forEach((kpa: any) => {
             if (!selectedKpaIds.includes(kpa.id)) {
               kpa.questions.forEach((question: any) => {
-                const questionPath = [
+                // Build question path (handles KPA IDs with spaces correctly)
+                const questionPath = this.buildQuestionPath(
                   this.selectedStakeholder.id,
                   kpa.id,
                   question.id
-                ].join('_');
+                );
                 if (this.responseForm.contains(questionPath)) {
                   this.responseForm.removeControl(questionPath);
+                }
+                // Also remove the comment control if it exists
+                const commentControlKey = questionPath + '_comment';
+                if (this.responseForm.contains(commentControlKey)) {
+                  this.responseForm.removeControl(commentControlKey);
                 }
               });
             }

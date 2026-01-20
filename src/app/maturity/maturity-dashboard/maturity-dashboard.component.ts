@@ -221,6 +221,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
 
   /**
    * Create mock allQuestions array for compatibility with existing dashboard logic
+   * Note: questionFullPath construction handles KPA IDs with spaces correctly
    */
   private createMockAllQuestions(assessment: MaturityAssessmentResult): any[] {
     const questions: any[] = [];
@@ -229,6 +230,9 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     const selectedKpas = Object.keys(assessment.selectedKpas).filter(kpaId => assessment.selectedKpas[kpaId]);
     
     selectedKpas.forEach(kpaId => {
+      // Build question path (handles KPA IDs with spaces correctly)
+      const questionFullPath = [assessment.selectedStakeholder, kpaId, 'question'].join('_');
+      
       questions.push({
         stakeholderName: this.getStakeholderDisplayName(assessment.selectedStakeholder),
         kpaName: this.getKpaDisplayName(kpaId),
@@ -239,7 +243,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
           question: `Assessment for ${kpaId}`,
           options: []
         },
-        questionFullPath: `${assessment.selectedStakeholder}_${kpaId}_question`
+        questionFullPath: questionFullPath
       });
     });
     
@@ -260,16 +264,35 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
 
   /**
    * Get display name for KPA
+   * Handles KPA IDs with spaces (e.g., "human capital") by using allQuestions if available,
+   * otherwise falls back to a mapping or returns the ID itself
    */
-  private getKpaDisplayName(kpaId: string): string {
+  private getKpaDisplayName(kpaId: string, allQuestions?: any[]): string {
+    // First, try to find in allQuestions if available (most reliable)
+    if (allQuestions && allQuestions.length > 0) {
+      const questionItem = allQuestions.find(q => q.kpaId === kpaId);
+      if (questionItem && questionItem.kpaName) {
+        return questionItem.kpaName;
+      }
+    }
+    
+    // Fallback to hardcoded mapping for common KPAs
     const kpaNames: Record<string, string> = {
       'scope': 'Scope of SNOMED CT Implementation',
+      'provisioning': 'Terminology Provisioning and Maintenance',
+      'usability': 'Usability and Tool Support',
       'governance': 'Governance and Strategy',
       'training': 'User Proficiency and Training',
       'interoperability': 'Interoperability',
       'analytics': 'Analytics and Decision Support',
-      'adoption': 'Adoption and Engagement',
-      'extension': 'Extension and Customization'
+      'adoption': 'Growth and Adoption',
+      'engagement': 'Stakeholder Engagement',
+      'extension': 'National Extension Management',
+      'complex': 'Secondary Use',
+      'political': 'Political and Legal',
+      'financial': 'Financial and administrative',
+      'technical': 'Technical',
+      'human capital': 'Human capital'
     };
     return kpaNames[kpaId] || kpaId;
   }
@@ -1887,15 +1910,39 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     
     let maturityResponse: any = {};
     
+    // Helper function to check if a key looks like a question path
+    // Note: This handles KPA IDs with spaces by checking if key starts with stakeholder_ and contains at least one more underscore
+    const isQuestionKey = (key: string, stakeholderId?: string): boolean => {
+      const excludedKeys = ['selectedStakeholder', 'selectedKpas', 'name', 'author', 'timestamp', 
+                            'systemName', 'location', 'overallScore', 'kpasScores', 'level', 
+                            'allQuestions', 'responses', 'stakeHolderName', 'color', 'docId',
+                            'overallScoreNormalized', 'kpasScoresNormalized'];
+      
+      if (excludedKeys.includes(key)) {
+        return false;
+      }
+      
+      // If we have stakeholder ID, check if key starts with it
+      if (stakeholderId && key.startsWith(stakeholderId + '_')) {
+        // Must have at least one more underscore after stakeholder (for kpa_question)
+        const afterStakeholder = key.substring(stakeholderId.length + 1);
+        return afterStakeholder.includes('_');
+      }
+      
+      // Fallback: check if it has at least 2 underscores (stakeholder_kpa_question minimum)
+      // This is less reliable but works as a fallback
+      const underscoreCount = (key.match(/_/g) || []).length;
+      return underscoreCount >= 2;
+    };
+    
+    const stakeholderId = stakeholder.selectedStakeholder || stakeholder.responses?.selectedStakeholder;
+    
     // Priority 1: Check if responses object exists and has question keys (JSON files)
     if (stakeholder.responses && typeof stakeholder.responses === 'object') {
       // Check if responses has question keys (format: stakeholder_kpa_question)
-      const hasQuestionKeys = Object.keys(stakeholder.responses).some(key => {
-        const parts = key.split('_');
-        return parts.length >= 3 && 
-               !['selectedStakeholder', 'selectedKpas', 'name', 'author', 'timestamp', 
-                 'systemName', 'location'].includes(key);
-      });
+      const hasQuestionKeys = Object.keys(stakeholder.responses).some(key => 
+        isQuestionKey(key, stakeholderId)
+      );
       
       if (hasQuestionKeys) {
         // responses object has the question keys - use it as base
@@ -1905,14 +1952,9 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     
     // Priority 2: Check if stakeholder object itself has question keys at top level
     if (Object.keys(maturityResponse).length === 0) {
-      const hasQuestionKeys = Object.keys(stakeholder).some(key => {
-        const parts = key.split('_');
-        return parts.length >= 3 && 
-               !['selectedStakeholder', 'selectedKpas', 'name', 'author', 'timestamp', 
-                 'systemName', 'location', 'overallScore', 'kpasScores', 'level', 
-                 'allQuestions', 'responses', 'stakeHolderName', 'color', 'docId',
-                 'overallScoreNormalized', 'kpasScoresNormalized'].includes(key);
-      });
+      const hasQuestionKeys = Object.keys(stakeholder).some(key => 
+        isQuestionKey(key, stakeholderId)
+      );
       
       if (hasQuestionKeys) {
         maturityResponse = { ...stakeholder };
