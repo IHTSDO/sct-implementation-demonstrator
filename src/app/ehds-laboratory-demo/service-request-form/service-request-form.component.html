@@ -398,7 +398,7 @@
               <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="reasonCodeMenu">
                 FHIR
               </button>
-              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/valueset-condition-code.html', 'Reason Code')">
+              <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://hl7.org/fhir/ValueSet/clinical-findings', 'Reason Code')">
                 BINDING (SCT)
               </button>
             </div>
@@ -421,7 +421,7 @@
                   </div>
                   <div class="fhir-menu-item">
                     <span class="fhir-label">Binding:</span>
-                    <span class="fhir-value">The codes SHALL be taken from eHDSI Order Reason (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIOrderReason.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIOrderReason.html</a>).</span>
+                    <span class="fhir-value">The codes SHALL be taken from SNOMED CT Clinical Findings (example to <a href="https://hl7.org/fhir/ValueSet/clinical-findings" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/ValueSet/clinical-findings</a>).</span>
                   </div>
                 </div>
               </div>
