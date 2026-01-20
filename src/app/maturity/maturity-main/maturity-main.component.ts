@@ -91,7 +91,23 @@ export class MaturityMainComponent implements OnInit {
       }
     }
     
-    // Load default spec if not in preview mode or preview failed
+    // Check if a specific spec is requested via query parameter (e.g., ?spec=readiness-1)
+    if (params['spec']) {
+      const specName = params['spec'];
+      try {
+        // Load spec from assets/maturity/{specName}.json
+        this.baseMaturityQuestions = await lastValueFrom(
+          this.http.get(`assets/maturity/${specName}.json`)
+        );
+        this.initializeForm();
+        return;
+      } catch (error) {
+        console.error(`Error loading spec "${specName}" from assets:`, error);
+        // Fall through to load default spec if specified spec fails
+      }
+    }
+    
+    // Load default spec if not in preview mode, no spec specified, or spec loading failed
     this.baseMaturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
     this.initializeForm();
     // Flatten all questions into one array for one-at-a-time display
