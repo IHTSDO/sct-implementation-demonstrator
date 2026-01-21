@@ -26,10 +26,9 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    // Track a page view to '/home'
-    if (window.location.hostname !== 'localhost') {
-      gtag('config', 'G-7SK998GPMX', { 'page_path': '/home' });
-    }
+    // Google Analytics tracking is now handled by GoogleAnalyticsService
+    // which automatically tracks route changes in Angular
+    // Initial page view will be tracked when the service initializes
   </script>
 </head>
 <body class="mat-typography">

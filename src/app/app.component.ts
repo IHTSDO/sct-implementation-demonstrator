@@ -2,17 +2,16 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { CodingSpecService } from './services/coding-spec.service';
 import { ExcelService } from './services/excel.service';
 import { TerminologyService } from './services/terminology.service';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MenuService } from './services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
 import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 import { CookieService } from './services/cookie.service';
+import { GoogleAnalyticsService } from './services/google-analytics.service';
 import { catchError, of, skip, Subject, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-
-declare let gtag: Function;
 
 @Component({
     selector: 'app-root',
@@ -50,7 +49,8 @@ export class AppComponent {
 
   private updateCodeSystemOptionsTrigger$ = new Subject<string | undefined>();
 
-  constructor( private codingSpecService: CodingSpecService, 
+  constructor( 
+    private codingSpecService: CodingSpecService, 
     public excelService: ExcelService, 
     public terminologyService: TerminologyService, 
     public router: Router,
@@ -59,15 +59,10 @@ export class AppComponent {
     private cdRef: ChangeDetectorRef,
     private http: HttpClient,
     private activatedRoute: ActivatedRoute,
-    private cookieService: CookieService) { 
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        // Send pageview event to Google Analytics on each route change.
-        gtag('config', 'G-7SK998GPMX', {
-          'page_path': event.urlAfterRedirects
-        });
-      }
-    });
+    private cookieService: CookieService,
+    private googleAnalyticsService: GoogleAnalyticsService) { 
+    // Google Analytics tracking is now handled automatically by GoogleAnalyticsService
+    // which intercepts router events in its constructor
   }
 
   ngOnInit(): void {
