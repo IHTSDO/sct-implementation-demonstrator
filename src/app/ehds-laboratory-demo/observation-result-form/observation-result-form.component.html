@@ -286,33 +286,31 @@
                 @if (unitOptionsLoading) {
                   <mat-spinner matSuffix diameter="20"></mat-spinner>
                 }
-                <mat-select 
-                  [formControl]="valueQuantityUnitControl">
-                  <!-- Search filter -->
-                  <mat-option>
-                    <ngx-mat-select-search
-                      [formControl]="unitSearchControl"
-                      placeholderLabel="Search UCUM units..."
-                      noEntriesFoundLabel="No units found"
-                    ></ngx-mat-select-search>
-                  </mat-option>
-                  
-                  <!-- Unit options -->
+                <input
+                  matInput
+                  [formControl]="unitInputControl"
+                  [matAutocomplete]="unitAuto"
+                  [readonly]="isViewOnly"
+                  placeholder="Search UCUM units...">
+                <mat-autocomplete
+                  #unitAuto="matAutocomplete"
+                  [displayWith]="displayUnitFn"
+                  (optionSelected)="onUnitSelected($event)">
                   @if (unitOptionsLoading) {
                     <mat-option disabled>
                       <mat-spinner diameter="35"></mat-spinner>
                       Loading UCUM units...
                     </mat-option>
                   } @else {
-                    @for (unit of unitFilteredOptions; track unit.code) {
-                      <mat-option [value]="unit.code">
+                    @for (unit of unitFilteredOptions | async; track unit.code) {
+                      <mat-option [value]="unit">
                         {{ unit.display }}@if (unit.display !== unit.code) {
                           <span class="unit-code-hint"> ({{ unit.code }})</span>
                         }
                       </mat-option>
                     }
                   }
-                </mat-select>
+                </mat-autocomplete>
               </mat-form-field>
             </div>
           }
@@ -361,8 +359,8 @@
                 <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="valueCodeableConceptMenu">
                   FHIR
                 </button>
-                <button type="button" mat-button class="fhir-badge sct-badge" (click)="openValuesetDialog('https://snomed.info/sct', 'SNOMED CT')">
-                  BINDING (SCT)
+                <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIResultsCodedValueLaboratory.html', 'Value (Codeable Concept)', 'eHDSI Results Coded Value Laboratory')">
+                  BINDING
                 </button>
               </div>
               <mat-menu #valueCodeableConceptMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
@@ -386,14 +384,44 @@
                       <span class="fhir-label">Type:</span>
                       <span class="fhir-value">CodeableConcept</span>
                     </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Binding:</span>
+                      <span class="fhir-value">The codes SHALL be taken from eHDSI Results Coded Value Laboratory with exceptions (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIResultsCodedValueLaboratory.html" target="_blank" rel="noopener noreferrer" class="valueset-link">https://fhir.ehdsi.eu/laboratory/ValueSet/eHDSIResultsCodedValueLaboratory</a>).</span>
+                    </div>
                   </div>
                 </div>
               </mat-menu>
-              <app-autocomplete-binding
-                [binding]="valueCodeableConceptBinding"
-                formControlName="valueCodeableConcept"
-                [readonly]="isViewOnly">
-              </app-autocomplete-binding>
+              <mat-form-field>
+                <mat-label>Value (Codeable Concept)</mat-label>
+                @if (valueCodeableConceptOptionsLoading) {
+                  <mat-spinner matSuffix diameter="20"></mat-spinner>
+                }
+                <input
+                  matInput
+                  [formControl]="valueCodeableConceptInputControl"
+                  [matAutocomplete]="valueCodeableConceptAuto"
+                  [readonly]="isViewOnly"
+                  placeholder="Search eHDSI Results Coded Value...">
+                <mat-autocomplete
+                  #valueCodeableConceptAuto="matAutocomplete"
+                  [displayWith]="displayValueCodeableConceptFn"
+                  (optionSelected)="onValueCodeableConceptSelected($event)">
+                  @if (valueCodeableConceptOptionsLoading) {
+                    <mat-option disabled>
+                      <mat-spinner diameter="35"></mat-spinner>
+                      Loading codes...
+                    </mat-option>
+                  } @else {
+                    @for (option of valueCodeableConceptFilteredOptions | async; track option.code) {
+                      <mat-option [value]="option">
+                        {{ option.display }}@if (option.display !== option.code) {
+                          <span class="unit-code-hint"> ({{ option.code }})</span>
+                        }
+                      </mat-option>
+                    }
+                  }
+                </mat-autocomplete>
+              </mat-form-field>
             </div>
           }
         </div>

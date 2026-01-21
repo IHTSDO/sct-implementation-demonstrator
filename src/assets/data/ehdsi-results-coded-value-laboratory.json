@@ -1,0 +1,4985 @@
+{
+  "resourceType": "ValueSet",
+  "url": "http://fhir.ehdsi.eu/laboratory/ValueSet/eHDSIResultsCodedValueLaboratory",
+  "name": "EHDSIResultsCodedValueLaboratory",
+  "title": "eHDSI Results Coded Value Laboratory with exceptions",
+  "status": "draft",
+  "experimental": true,
+  "date": "2026-01-21T15:15:13.524Z",
+  "description": "The Value Set is used to code the value of laboratory observation result. It is defined as the union of: (a) eHDSIBloodGroup (b) eHDSIPresenceAbsence (c) eHDSIMicroorganism (d) eHDSIExceptionalValue",
+  "expansion": {
+    "timestamp": "2026-01-21T15:15:13.525Z",
+    "contains": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+        "code": "UNK",
+        "display": "Unknown"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+        "code": "OTH",
+        "display": "Other" 
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260347006",
+        "display": "+"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260348001",
+        "display": "++"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260349009",
+        "display": "+++"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260350009",
+        "display": "++++"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "818983003",
+        "display": "Abdomen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "818984009",
+        "display": "Abdomen proper"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "818985005",
+        "display": "Abdomen proper segment of trunk"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84421000",
+        "display": "Abdominal vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "818987002",
+        "display": "Abdominopelvic cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80622005",
+        "display": "Abducens nerve"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "2667000",
+        "display": "Absent"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85383006",
+        "display": "Accessory renal artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "410726006",
+        "display": "Acoustic radiations structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85856004",
+        "display": "Acromioclavicular joint"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89187006",
+        "display": "Airway"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91837002",
+        "display": "Anatomical orifice"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "711101009",
+        "display": "Anatomical point"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91723000",
+        "display": "Anatomical structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128553008",
+        "display": "Antecubital vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "182329002",
+        "display": "Anterior triangle of neck"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397418009",
+        "display": "Anterior-middle cerebral artery bifurcation"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397419001",
+        "display": "Anterior-posterior cerebral artery bifurcation"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90318009",
+        "display": "Anulus fibrosus of pulmonary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113259005",
+        "display": "Anulus fibrosus of tricuspid orifice"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "123956007",
+        "display": "Anus part"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110612005",
+        "display": "Anus, rectum and sigmoid colon, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88593004",
+        "display": "Aortic isthmus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128564006",
+        "display": "Apex of left ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86598002",
+        "display": "Apex of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128565007",
+        "display": "Apex of right ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "441850003",
+        "display": "Appendiceal stump"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80447000",
+        "display": "Aqueduct of Sylvius"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "361078006",
+        "display": "Area of internal auditory canal"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "118634008",
+        "display": "Artery of abdomen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "119568004",
+        "display": "Artery of neck"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "195164009",
+        "display": "Atrial veins"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91470000",
+        "display": "Axillary region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716891004",
+        "display": "Basal anterior fibromuscular stroma of prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "112144000",
+        "display": "Blood group A"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278149003",
+        "display": "Blood group A Rh(D) positive"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278151004",
+        "display": "Blood group AB Rh(D) positive"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "112149005",
+        "display": "Blood group B"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278153001",
+        "display": "Blood group B Rh(D) negative"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "58460004",
+        "display": "Blood group O"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278147001",
+        "display": "Blood group O Rh(D) positive"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91806002",
+        "display": "Body cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91830000",
+        "display": "Body conduit"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86197001",
+        "display": "Body of fourth thoracic vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88298007",
+        "display": "Body of sixth cervical vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1186895000",
+        "display": "Body of T13"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91116008",
+        "display": "Body of third cervical vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113343008",
+        "display": "Body organ"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "183973000",
+        "display": "Body surface point"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85756007",
+        "display": "Body tissue"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "118645006",
+        "display": "Bone of pelvis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "119186007",
+        "display": "Bone part"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "272673000",
+        "display": "Bone structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "310652005",
+        "display": "Bone structure of distal femur"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91397008",
+        "display": "Bone structure of face"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "312779009",
+        "display": "Bone structure of head and neck"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "421793000",
+        "display": "Bone structure of incus (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "310651003",
+        "display": "Bone structure of proximal femur"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "272710004",
+        "display": "Bone structure of thorax"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "371195002",
+        "display": "Bone structure of upper limb (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362508001",
+        "display": "Both eyes, entire"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81083006",
+        "display": "Both lips"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128548003",
+        "display": "Boyd's perforating vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280371009",
+        "display": "Brain cerebrospinal fluid pathway"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "119238007",
+        "display": "Brain stem part"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "425444002",
+        "display": "Branch of brachiocephalic artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279816002",
+        "display": "Bronchopulmonary lymph node group"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "261063000",
+        "display": "Buccal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "82474009",
+        "display": "Calcaneal tubercle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80144004",
+        "display": "Calcaneus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699510004",
+        "display": "Canine region of oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "305437000",
+        "display": "Cardiac valve annulus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85439003",
+        "display": "Cardiac vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "272657006",
+        "display": "Cardiac wall structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "371013005",
+        "display": "Cardiophrenic angle lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113257007",
+        "display": "Cardiovascular system"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80272002",
+        "display": "Carotid bifurcation"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "309312004",
+        "display": "Cartilage tissue"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "317766009",
+        "display": "Caudal articular process of vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699453001",
+        "display": "Central incisor region of oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "263972004",
+        "display": "Cerebellar subarachnoid space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113305005",
+        "display": "Cerebellum"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88556005",
+        "display": "Cerebral artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "372073000",
+        "display": "Cerebral hemisphere structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "83678007",
+        "display": "Cerebrum"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122494005",
+        "display": "Cervical spine"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "416775004",
+        "display": "Chest and/or abdomen and/or pelvis structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "416550000",
+        "display": "Chest and/or abdomen structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "78904004",
+        "display": "Chest wall"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "102298001",
+        "display": "Chordae tendineae cordis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80621003",
+        "display": "Choroid plexus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244314003",
+        "display": "Circumflex humeral artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244327004",
+        "display": "Circumflex iliac artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80169004",
+        "display": "Cochlea"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128549006",
+        "display": "Cockett's perforating vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "312522004",
+        "display": "Common (non-mitral, non-tricuspid) atrioventricular valve structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79741001",
+        "display": "Common bile duct"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181347005",
+        "display": "Common femoral artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397363009",
+        "display": "Common femoral vein structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "413896006",
+        "display": "Common iliac artery bifurcation"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245295006",
+        "display": "Common iliac lymph node group"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264293000",
+        "display": "Coronary artery graft"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90219004",
+        "display": "Coronary sinus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88442005",
+        "display": "Corpus callosum"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "360568007",
+        "display": "Corticospinal tract in brainstem"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277956007",
+        "display": "Couinaud hepatic segment II"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277957003",
+        "display": "Couinaud hepatic segment III"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277958008",
+        "display": "Couinaud hepatic segment IV"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "871688003",
+        "display": "Couinaud hepatic segment IVa"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277959000",
+        "display": "Couinaud hepatic segment V"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277960005",
+        "display": "Couinaud hepatic segment VI"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277961009",
+        "display": "Couinaud hepatic segment VII"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277962002",
+        "display": "Couinaud hepatic segment VIII"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "818981001",
+        "display": "Cross-sectional abdomen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "78076003",
+        "display": "Crystalline lens"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89552004",
+        "display": "Deciduous mandibular left central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88824007",
+        "display": "Deciduous maxillary right central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279145002",
+        "display": "Deep cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "368481004",
+        "display": "Deep palmar venous arch"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279142004",
+        "display": "Deep parotid lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "167664004",
+        "display": "Delphian lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281130003",
+        "display": "Descending aorta structure"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+        "code": "UNC",
+        "display": "Description: The actual value has not yet been encoded within the approved value domain.\nExample: Original text or a local code has been specified but translation or encoding to the approved value set has not yet occurred due to limitations of the sending system. Original text has been captured for a PQ, but not attempt has been made to split the value and unit or to encode the unit in UCUM.\nUsage Notes: If it is known that it is not possible to encode the concept, OTH should be used instead. However, use of UNC does not necessarily guarantee the concept will be encodable, only that encoding has not been attempted.\nData type properties such as original text and translations may be present when this null flavor is included."
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260373001",
+        "display": "Detected"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "408734008",
+        "display": "Diabetic Retinopathy Study field 1"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "410434001",
+        "display": "Diabetic Retinopathy Study field 2"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "410435000",
+        "display": "Diabetic Retinopathy Study field 3"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "410436004",
+        "display": "Diabetic Retinopathy Study field 4"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "410437008",
+        "display": "Diabetic Retinopathy Study field 5"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "410438003",
+        "display": "Diabetic Retinopathy Study field 6"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "410439006",
+        "display": "Diabetic Retinopathy Study field 7"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87563008",
+        "display": "Diencephalon"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "82680008",
+        "display": "Digit"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "118495001",
+        "display": "Distal humerus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245717003",
+        "display": "Distal surface of root"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90933009",
+        "display": "Distal surface of tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91238003",
+        "display": "Distal ulna"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "289912008",
+        "display": "Distobuccal surface of tooth root"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "289914009",
+        "display": "Distopalatal surface of tooth root"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128554002",
+        "display": "Dodd's perforating vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91732003",
+        "display": "Dorsal scapular artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86547008",
+        "display": "Dorsalis pedis artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "367624001",
+        "display": "Ductus venosus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117590005",
+        "display": "Ear-related structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117140004",
+        "display": "Eighth intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127949000",
+        "display": "Elbow region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117143002",
+        "display": "Eleventh intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244231007",
+        "display": "Entire abdominal aorta"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "263940002",
+        "display": "Entire angle of mouth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279170002",
+        "display": "Entire annulus fibrosus of tricuspid orifice"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279174006",
+        "display": "Entire anulus fibrosus of mitral orifice"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181300001",
+        "display": "Entire aortic arch"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "361832004",
+        "display": "Entire atlantoaxial joint"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "361097006",
+        "display": "Entire blood vessel"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127865000",
+        "display": "Entire blood vessel of head"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280849005",
+        "display": "Entire body of twelfth thoracic vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181322008",
+        "display": "Entire brachial artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181131000",
+        "display": "Entire breast"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181293005",
+        "display": "Entire cardiac wall"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362040006",
+        "display": "Entire carotid artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "361593004",
+        "display": "Entire cerebellar cortex"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "180924008",
+        "display": "Entire cerebellum"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362047009",
+        "display": "Entire circle of Willis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "361774004",
+        "display": "Entire coccygeal vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181162001",
+        "display": "Entire cornea"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264452006",
+        "display": "Entire cranial cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245639007",
+        "display": "Entire deciduous mandibular left canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245638004",
+        "display": "Entire deciduous mandibular left first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245641008",
+        "display": "Entire deciduous mandibular left lateral incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245637009",
+        "display": "Entire deciduous mandibular left second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245632003",
+        "display": "Entire deciduous mandibular right canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245635001",
+        "display": "Entire deciduous mandibular right central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245631005",
+        "display": "Entire deciduous mandibular right first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245634002",
+        "display": "Entire deciduous mandibular right lateral incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245630006",
+        "display": "Entire deciduous mandibular right second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245624006",
+        "display": "Entire deciduous maxillary left canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245627004",
+        "display": "Entire deciduous maxillary left central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245623000",
+        "display": "Entire deciduous maxillary left first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245626008",
+        "display": "Entire deciduous maxillary left lateral incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245622005",
+        "display": "Entire deciduous maxillary left second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245617005",
+        "display": "Entire deciduous maxillary right canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245620002",
+        "display": "Entire deciduous maxillary right central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245616001",
+        "display": "Entire deciduous maxillary right first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245619008",
+        "display": "Entire deciduous maxillary right lateral incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245615002",
+        "display": "Entire deciduous maxillary right second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "299711006",
+        "display": "Entire distal phalanx"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181362007",
+        "display": "Entire dorsalis pedis artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "304829005",
+        "display": "Entire ductus venosus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244878003",
+        "display": "Entire external intercostal muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244332003",
+        "display": "Entire femoral artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264481007",
+        "display": "Entire gastrocnemius vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278861008",
+        "display": "Entire genitourinary system"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "302509004",
+        "display": "Entire heart"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362315005",
+        "display": "Entire inferior horn of lateral ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244890001",
+        "display": "Entire internal intercostal muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "421997006",
+        "display": "Entire internal mammary lymph node (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244391007",
+        "display": "Entire intracranial vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "182189009",
+        "display": "Entire joint of finger"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181414000",
+        "display": "Entire kidney"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181361000",
+        "display": "Entire lateral plantar artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "304374005",
+        "display": "Entire left main branch of portal vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181268008",
+        "display": "Entire liver"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245604007",
+        "display": "Entire mandibular left first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245606009",
+        "display": "Entire mandibular left second premolar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245602006",
+        "display": "Entire mandibular left third molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245592005",
+        "display": "Entire mandibular right first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245599001",
+        "display": "Entire mandibular right lateral incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245595007",
+        "display": "Entire mandibular right second premolar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245579007",
+        "display": "Entire maxillary left first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245586004",
+        "display": "Entire maxillary left lateral incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245582002",
+        "display": "Entire maxillary left second premolar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245577009",
+        "display": "Entire maxillary left third molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245568002",
+        "display": "Entire maxillary right first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245574002",
+        "display": "Entire maxillary right lateral incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245570006",
+        "display": "Entire maxillary right second premolar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245566003",
+        "display": "Entire maxillary right third molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181360004",
+        "display": "Entire medial plantar artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181977005",
+        "display": "Entire metacarpal bone"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "182100005",
+        "display": "Entire navicular"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181220002",
+        "display": "Entire oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181143004",
+        "display": "Entire orbital region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181277001",
+        "display": "Entire pancreas"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245608005",
+        "display": "Entire permanent mandibular left canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245611006",
+        "display": "Entire permanent mandibular left central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245607000",
+        "display": "Entire permanent mandibular left first premolar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245610007",
+        "display": "Entire permanent mandibular left lateral incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245603001",
+        "display": "Entire permanent mandibular left second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245597004",
+        "display": "Entire permanent mandibular right canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245600003",
+        "display": "Entire permanent mandibular right central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245591003",
+        "display": "Entire permanent mandibular right second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245590002",
+        "display": "Entire permanent mandibular right third molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245584001",
+        "display": "Entire permanent maxillary left canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245587008",
+        "display": "Entire permanent maxillary left central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245583007",
+        "display": "Entire permanent maxillary left first premolar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245578004",
+        "display": "Entire permanent maxillary left second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245572003",
+        "display": "Entire permanent maxillary right canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245575001",
+        "display": "Entire permanent maxillary right central incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245571005",
+        "display": "Entire permanent maxillary right first premolar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245567007",
+        "display": "Entire permanent maxillary right second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181211006",
+        "display": "Entire pharynx"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264873000",
+        "display": "Entire posterior sinus of Valsalva"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181422007",
+        "display": "Entire prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181332001",
+        "display": "Entire radial artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362037006",
+        "display": "Entire right coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "304375006",
+        "display": "Entire right main branch of portal vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "368713006",
+        "display": "Entire rima oris"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181469002",
+        "display": "Entire skin"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181279003",
+        "display": "Entire spleen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264204003",
+        "display": "Entire subarachnoid space of brain"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362635002",
+        "display": "Entire submental triangle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "182323001",
+        "display": "Entire surface of eye region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362529005",
+        "display": "Entire tarsal plate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181431007",
+        "display": "Entire testis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "302510009",
+        "display": "Entire thoracic aorta"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "118507000",
+        "display": "Entire thymus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181226008",
+        "display": "Entire tongue"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244933000",
+        "display": "Entire transversus thoracis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181452004",
+        "display": "Entire uterus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181367001",
+        "display": "Entire vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "361289009",
+        "display": "Entire wrist region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87644002",
+        "display": "Epididymis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "42425007",
+        "display": "Equivocal"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280062008",
+        "display": "Esophageal aperture of diaphragm"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110861005",
+        "display": "Esophagus, stomach and duodenum, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91207004",
+        "display": "Eustachian tube"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84301002",
+        "display": "External auditory canal"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "414165007",
+        "display": "External elastic membrane of artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113269004",
+        "display": "External iliac artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81745001",
+        "display": "Eye"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "371398005",
+        "display": "Eye region structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80243003",
+        "display": "Eyelid"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89545001",
+        "display": "Face"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "120576005",
+        "display": "Fascial layer"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279479008",
+        "display": "Female external urethral orifice"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "314736006",
+        "display": "Female genital lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "83419000",
+        "display": "Femoral vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87342007",
+        "display": "Fibula"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117137004",
+        "display": "Fifth intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91750005",
+        "display": "First diagonal branch of anterior descending branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117133000",
+        "display": "First intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91757008",
+        "display": "First left posterolateral branch of circumflex branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699507006",
+        "display": "First molar region of oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91754001",
+        "display": "First obtuse marginal branch of circumflex branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699509009",
+        "display": "First premolar region of oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91761002",
+        "display": "First right posterolateral branch of the posterior descending branch of right coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278983006",
+        "display": "Fissure of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79361005",
+        "display": "Fontanel of skull"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80049006",
+        "display": "Forceps major"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87463005",
+        "display": "Fornix"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117136008",
+        "display": "Fourth intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279867004",
+        "display": "Frenulum of labia minora"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "83251001",
+        "display": "Frontal lobe"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110568007",
+        "display": "Gastric vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "83380007",
+        "display": "Gastro-omental lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122865005",
+        "display": "Gastrointestinal tract"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128559007",
+        "display": "Genicular artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80867000",
+        "display": "Gluteal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "389081007",
+        "display": "Gray matter structure of central nervous system (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "414368000",
+        "display": "Great saphenous vein of calf"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "414369008",
+        "display": "Great saphenous vein of thigh"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280387007",
+        "display": "Groin skin crease"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278152006",
+        "display": "Group A neg"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "165743006",
+        "display": "Group AB"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278154007",
+        "display": "Group AB neg"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278150003",
+        "display": "Group B pos"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278148006",
+        "display": "Group O neg"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "386045008",
+        "display": "Hair structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85562004",
+        "display": "Hand"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90228003",
+        "display": "Hard palate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80891009",
+        "display": "Heart"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "75540009",
+        "display": "High"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128591008",
+        "display": "High right atrium"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127926002",
+        "display": "Highest mediastinal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397405001",
+        "display": "Hilar renal artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85537004",
+        "display": "Humeroscapular joint"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85050009",
+        "display": "Humerus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128560002",
+        "display": "Hunterian perforating vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81502006",
+        "display": "Hypopharynx"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397439002",
+        "display": "Ileal vein structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "299716001",
+        "display": "Iliac and femoral artery structures"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84219008",
+        "display": "Iliac lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244411005",
+        "display": "Iliac vein structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "419984006",
+        "display": "Inconclusive (qualifier value)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "82334004",
+        "display": "Indeterminate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280416009",
+        "display": "Indeterminate result"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181901007",
+        "display": "Inferior articular facet of axis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88176008",
+        "display": "Inferior dental arch"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85380009",
+        "display": "Inferior inguinal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113336002",
+        "display": "Inferior mesenteric lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397425002",
+        "display": "Inferior right hepatic vein structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113273001",
+        "display": "Inferior right pulmonary vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279894000",
+        "display": "Inferior surface of vaginal cervix"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279763008",
+        "display": "Inguinofemoral lymph node group"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "111017005",
+        "display": "Injection site scar"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "708584005",
+        "display": "Inner half of enamel"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "708579004",
+        "display": "Inner third of dentin"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281134007",
+        "display": "Intercostal artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279271008",
+        "display": "Interiliac lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "274143007",
+        "display": "Interlobar artery of kidney"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244252004",
+        "display": "Intermediate artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85637007",
+        "display": "Internal capsule of brain"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86117002",
+        "display": "Internal carotid artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90024005",
+        "display": "Internal iliac artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245299000",
+        "display": "Internal iliac lymph node group"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245357003",
+        "display": "Internal iliac node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280677004",
+        "display": "Internal limiting membrane of retina"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245282001",
+        "display": "Internal mammary lymph node group"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79652003",
+        "display": "Internal structure of eyeball"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85293002",
+        "display": "Interstitial tissue"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80064006",
+        "display": "Intervertebral disc of first lumbar vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84020006",
+        "display": "Intervertebral disc of fourth lumbar vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "82965004",
+        "display": "Intervertebral disc of fourth thoracic vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113209001",
+        "display": "Intervertebral disc of ninth thoracic vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1078209008",
+        "display": "Intervertebral disc structure of second cervical vertebra (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113276009",
+        "display": "Intestinal tract"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128319008",
+        "display": "Intracranial structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128320002",
+        "display": "Intracranial vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "455371000124106",
+        "display": "Invalid result (qualifier value)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85710004",
+        "display": "Ischium"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "46651001",
+        "display": "Isolated"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "125682004",
+        "display": "Joint of finger"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1187337007",
+        "display": "Jugular fossa"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "360993001",
+        "display": "Lacunar lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89340005",
+        "display": "Lamina of vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128592001",
+        "display": "Lateral high right atrium"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699511000",
+        "display": "Lateral incisor region of oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "168159002",
+        "display": "Lateral jugular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86136007",
+        "display": "Lateral lemniscus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "399086000",
+        "display": "Lateral mitral annulus structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88938001",
+        "display": "Lateral pterygoid muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1017212007",
+        "display": "Left abdominal lumbar region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84654008",
+        "display": "Left anterior division of left branch of atrioventricular bundle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "82471001",
+        "display": "Left atrium"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80248007",
+        "display": "Left breast"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113263003",
+        "display": "Left common carotid artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89644007",
+        "display": "Left ear"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113270003",
+        "display": "Left femoral artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "133945003",
+        "display": "Left hypochondriac region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85119005",
+        "display": "Left inguinal region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "261402001",
+        "display": "Left internal mammary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79163004",
+        "display": "Left lobe of thyroid gland"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1017210004",
+        "display": "Left lumbar back region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91760001",
+        "display": "Left posterior descending circumflex coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91085002",
+        "display": "Left posterior division of left branch of atrioventricular bundle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "836427009",
+        "display": "Left posteromedial basal peripheral zone of prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85235006",
+        "display": "Left subclavian artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86367003",
+        "display": "Left upper quadrant of abdomen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87878005",
+        "display": "Left ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264844003",
+        "display": "Left ventricle apical anterior segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264849008",
+        "display": "Left ventricle apical inferior segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264853005",
+        "display": "Left ventricle apical lateral segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264845002",
+        "display": "Left ventricle apical septal segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264850008",
+        "display": "Left ventricle basal anterior segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264846001",
+        "display": "Left ventricle basal inferior segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264848000",
+        "display": "Left ventricle mid anterior segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264847005",
+        "display": "Left ventricle mid inferior segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264856002",
+        "display": "Left ventricular segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243902007",
+        "display": "Level of C2/C3 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243903002",
+        "display": "Level of C3/C4 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243904008",
+        "display": "Level of C4/C5 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243905009",
+        "display": "Level of C5/C6 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243906005",
+        "display": "Level of C6/C7 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243920003",
+        "display": "Level of L1/L2 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243921004",
+        "display": "Level of L2/L3 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243922006",
+        "display": "Level of L3/L4 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243923001",
+        "display": "Level of L4/L5 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243908006",
+        "display": "Level of T1/T2 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243917006",
+        "display": "Level of T10/T11 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243918001",
+        "display": "Level of T11/T12 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243926009",
+        "display": "Level of T12/L1 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243909003",
+        "display": "Level of T2/T3 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243910008",
+        "display": "Level of T3/T4 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243911007",
+        "display": "Level of T4/T5 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243912000",
+        "display": "Level of T5/T6 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243913005",
+        "display": "Level of T6/T7 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243914004",
+        "display": "Level of T7/T8 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243915003",
+        "display": "Level of T8/T9 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243916002",
+        "display": "Level of T9/T10 intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279215006",
+        "display": "Limbic lobe"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84712000",
+        "display": "Limbus of fossa ovalis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113264009",
+        "display": "Lingual artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "303270005",
+        "display": "Liver and biliary structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "274060004",
+        "display": "Lobar artery of kidney"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127920008",
+        "display": "Lobar lymph node of the lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "119281005",
+        "display": "Lobe of thyroid gland"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88340001",
+        "display": "Longissimus muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "62482003",
+        "display": "Low"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128594000",
+        "display": "Low right atrium"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "285429007",
+        "display": "Lower deep cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245323006",
+        "display": "Lower jugular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90572001",
+        "display": "Lower lobe of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127932007",
+        "display": "Lower paratracheal (including azygous) lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281394001",
+        "display": "Lower zone of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1193560003",
+        "display": "Lumbar rib"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122496007",
+        "display": "Lumbar spine"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91747007",
+        "display": "Lumen of blood vessel"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113342003",
+        "display": "Lumen of body system"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "310787001",
+        "display": "Lung and mediastinal structures"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110550009",
+        "display": "Lung and tracheobronchial lymph nodes, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127937001",
+        "display": "Lymph node of aortic arch"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127938006",
+        "display": "Lymph node of aortopulmonary window"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279795009",
+        "display": "Lymph node of mesentery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81105003",
+        "display": "Lymph node of neck"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "314730000",
+        "display": "Lymph node of stomach"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127941002",
+        "display": "Lymph node of the pulmonary ligament"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279866008",
+        "display": "Lymph node ring of cardia of stomach"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "312501005",
+        "display": "Lymph node structure of head and neck"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "312503008",
+        "display": "Lymph node structure of limb"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "312502003",
+        "display": "Lymph node structure of trunk"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89890002",
+        "display": "Lymphatic system"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181768009",
+        "display": "Lymphatic tissue"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "83555006",
+        "display": "Lymphatic vessel"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "102297006",
+        "display": "Main bronchus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90418005",
+        "display": "Male external genitalia"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279478000",
+        "display": "Male external urethral orifice"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "314796009",
+        "display": "Malleolar structure of tibia"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91609006",
+        "display": "Mandible"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80140008",
+        "display": "Mandibular right first premolar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79368004",
+        "display": "Masseter muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91716001",
+        "display": "Mastoid cells and antra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279143009",
+        "display": "Mastoid lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87704003",
+        "display": "Maxillary left third molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "399093001",
+        "display": "Medial mitral annulus structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85002005",
+        "display": "Medial pterygoid muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "167364008",
+        "display": "Median retropharyngeal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86570000",
+        "display": "Mesenteric artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128583004",
+        "display": "Mesenteric vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245716007",
+        "display": "Mesial surface of root"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "289911001",
+        "display": "Mesiobuccal surface of tooth root"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "289913003",
+        "display": "Mesiopalatal surface of tooth root"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91748002",
+        "display": "Mid portion of anterior descending branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91753007",
+        "display": "Mid portion of circumflex branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128593006",
+        "display": "Mid right atrium"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "414722000",
+        "display": "Middle cerebral artery M1 segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "414723005",
+        "display": "Middle cerebral artery M2 segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "285427009",
+        "display": "Middle deep cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245322001",
+        "display": "Middle jugular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "708580001",
+        "display": "Middle third of dentin"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281393007",
+        "display": "Middle zone of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91134007",
+        "display": "Mitral valve"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "123851003",
+        "display": "Mouth region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245823002",
+        "display": "Mucosa of mandibular gingiva"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245814000",
+        "display": "Mucosa of maxillary gingiva"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245831007",
+        "display": "Mucosa of tip of tongue"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "102292000",
+        "display": "Muscle of lower extremity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81727001",
+        "display": "Muscle of neck"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122448007",
+        "display": "Myocardial tissue"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770820003",
+        "display": "Nail unit of fifth toe"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279549004",
+        "display": "Nasal cavity structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "416152001",
+        "display": "Neck and/or chest and/or abdomen structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "417437006",
+        "display": "Neck and/or chest structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "416319003",
+        "display": "Neck, chest, abdomen, and pelvis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260385009",
+        "display": "Negative"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443726001",
+        "display": "Neoaortic root (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443283007",
+        "display": "Neoaortic valve (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "119410002",
+        "display": "Nerve part"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117141000",
+        "display": "Ninth intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "373067005",
+        "display": "No (qualifier value)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264868006",
+        "display": "No growth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260389003",
+        "display": "No reaction"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260392004",
+        "display": "Non-patent"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "131194007",
+        "display": "Non-Reactive"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260413007",
+        "display": "None"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "17621005",
+        "display": "Normal"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260415000",
+        "display": "Not detected"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "895231008",
+        "display": "Not detected in pooled specimen (qualifier value)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "264887000",
+        "display": "Not isolated"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "262008008",
+        "display": "Not performed"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84640000",
+        "display": "Nucleus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "427667007",
+        "display": "Nucleus accumbens"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "83473006",
+        "display": "Occlusal surface of tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "206034008",
+        "display": "Oesophageal artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113346000",
+        "display": "Omental bursa"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244453006",
+        "display": "Optic chiasma"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81016008",
+        "display": "Optic disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113277000",
+        "display": "Oral mucous membrane structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91772007",
+        "display": "Organ parenchyma"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "708585006",
+        "display": "Outer half of enamel"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "708581002",
+        "display": "Outer third of dentin"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110822002",
+        "display": "Pancreas and jejunum, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110621006",
+        "display": "Pancreatic duct and bile duct systems, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127940001",
+        "display": "Paraesophageal lymph node below carina"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "368550005",
+        "display": "Paramammary lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "82365008",
+        "display": "Parasternal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91691001",
+        "display": "Parasternal region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "78972004",
+        "display": "Pedicle of vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "816092008",
+        "display": "Pelvic cross-sectional segment of trunk"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245294005",
+        "display": "Pelvic lymph node group"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281496003",
+        "display": "Pelvic vascular structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "282044005",
+        "display": "Penile artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245344006",
+        "display": "Perigastric lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245346008",
+        "display": "Peripancreatic lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279706003",
+        "display": "Peripheral glandular zone of prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84782009",
+        "display": "Peripheral nerve"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "83670000",
+        "display": "Peritoneal cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "118762006",
+        "display": "Peritoneal sac"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "863899008",
+        "display": "Permanent lower right 7 tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "860785004",
+        "display": "Permanent lower right canine tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "312535008",
+        "display": "Pharynx and larynx structures"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "711190000",
+        "display": "Physis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362893008",
+        "display": "Pituitary part"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "78067005",
+        "display": "Placenta"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243925008",
+        "display": "Plane of cervicothoracic intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243927000",
+        "display": "Plane of lumbosacral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "83018002",
+        "display": "Plantar arterial arch"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245288002",
+        "display": "Portahepatis lymph node group"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "10828004",
+        "display": "Positive"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245328002",
+        "display": "Postauricular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397435008",
+        "display": "Posterior arch vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "415144009",
+        "display": "Posterior cerebral artery P1 segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "415145005",
+        "display": "Posterior cerebral artery P2 segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279336005",
+        "display": "Posterior cerebral commissure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128569001",
+        "display": "Posterior medial tributary"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "303623000",
+        "display": "Posterior tibial lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245324000",
+        "display": "Posterior triangle cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1193554003",
+        "display": "Poststyloid space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281765006",
+        "display": "Precaecal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "196516004",
+        "display": "Prepericardial lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1187336003",
+        "display": "Presacral lymph node group (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "52101004",
+        "display": "Present"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "441614007",
+        "display": "Present + out of +++"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "441517005",
+        "display": "Present ++ out of +++"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "441521003",
+        "display": "Present three plus out of three plus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "720735008",
+        "display": "Presumed positive"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127930004",
+        "display": "Prevascular/retrotracheal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91707000",
+        "display": "Primitive pulmonary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277025001",
+        "display": "Proven"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "119524001",
+        "display": "Proximal end of humerus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91083009",
+        "display": "Proximal portion of right coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81040000",
+        "display": "Pulmonary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90315007",
+        "display": "Pulmonary valve sinuses"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89278009",
+        "display": "Putamen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "133855003",
+        "display": "Radial scar"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110535000",
+        "display": "Radius and ulna (combined site)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89292003",
+        "display": "Rare"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "11214006",
+        "display": "Reactive"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "511000202101",
+        "display": "Rectal wall"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243898001",
+        "display": "Reference plane"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280711000",
+        "display": "Region of metatarsal"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "360955006",
+        "display": "Region of nasopharynx"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "312500006",
+        "display": "Regional lymph node structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281847004",
+        "display": "Retrocaecal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85816001",
+        "display": "Retromolar area of mouth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91394001",
+        "display": "Retroperitoneal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "82849001",
+        "display": "Retroperitoneum"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127931000",
+        "display": "Retrotracheal lymph node (mediastinal)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113197003",
+        "display": "Rib"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1017213002",
+        "display": "Right abdominal lumbar region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716913001",
+        "display": "Right anterior middle transition zone of prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90561006",
+        "display": "Right atrioventricular ostium"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716902004",
+        "display": "Right basal peripheral zone of prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "194996006",
+        "display": "Right cardiac veins"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79718009",
+        "display": "Right carotid sinus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "133946002",
+        "display": "Right hypochondriac region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128979005",
+        "display": "Right lacrimal artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1017211000",
+        "display": "Right lumbar back region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716909008",
+        "display": "Right middle anterior fibromuscular stroma of prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "78480002",
+        "display": "Right pulmonary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91539005",
+        "display": "Right pulmonary vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89093001",
+        "display": "Right sinus of Valsalva"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277635008",
+        "display": "Right ventricle basal segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "277634007",
+        "display": "Right ventricle midventricular segment"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "243977002",
+        "display": "Rutherford Morison pouch"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79926007",
+        "display": "Sacral lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87141009",
+        "display": "Sacral vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "385294005",
+        "display": "Salivary gland structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128587003",
+        "display": "Saphenofemoral junction"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244415001",
+        "display": "Saphenopopliteal junction"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362072009",
+        "display": "Saphenous vein structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81132008",
+        "display": "Scalene lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79601000",
+        "display": "Scapula"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91751009",
+        "display": "Second diagonal branch of anterior descending branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117134006",
+        "display": "Second intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91758003",
+        "display": "Second left posterolateral branch of circumflex branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699505003",
+        "display": "Second molar region of oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91755000",
+        "display": "Second obtuse marginal branch of circumflex branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699508001",
+        "display": "Second premolar region of oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "78247007",
+        "display": "Second rib"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91762009",
+        "display": "Second right posterolateral branch of the posterior descending branch of right coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "120234003",
+        "display": "Segmental branch of renal artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127921007",
+        "display": "Segmental lymph node of the lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117139001",
+        "display": "Seventh intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88210001",
+        "display": "Sinoatrial node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81128002",
+        "display": "Sinus of Valsalva"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117138009",
+        "display": "Sixth intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127954009",
+        "display": "Skeletal muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "372074006",
+        "display": "Skeletal muscle structure of chest wall (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181553006",
+        "display": "Skin of anterior surface of knee"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244106003",
+        "display": "Skin of anterior surface of thorax"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181491009",
+        "display": "Skin of anterior trunk"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86409001",
+        "display": "Skin of external auditory canal"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362916000",
+        "display": "Skin of eye region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244169007",
+        "display": "Skin of fingers and thumb"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84607009",
+        "display": "Skin of heel"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79313003",
+        "display": "Skin of helix"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89784008",
+        "display": "Skin of hypothenar region of palm"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244097004",
+        "display": "Skin of jawline"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128252004",
+        "display": "Skin of labium majus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128253009",
+        "display": "Skin of labium minus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181564009",
+        "display": "Skin of lateral aspect of ankle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "314395006",
+        "display": "Skin of lateral nose structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88089004",
+        "display": "Skin of lip"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113182001",
+        "display": "Skin of lower back"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181563003",
+        "display": "Skin of medial aspect of ankle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113179006",
+        "display": "Skin of nose"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79951008",
+        "display": "Skin of occipital region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281642007",
+        "display": "Skin of part of dorsal surface of hand"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110488009",
+        "display": "Skin of perioral region of face"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84365009",
+        "display": "Skin of philtrum"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "84507004",
+        "display": "Skin of popliteal fossa"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181536004",
+        "display": "Skin of posterior surface of elbow"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244111001",
+        "display": "Skin of posterior surface of thorax"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86719006",
+        "display": "Skin of preauricular region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244117002",
+        "display": "Skin of root of penis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "81992007",
+        "display": "Skin of scrotum"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244118007",
+        "display": "Skin of shaft of penis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79283007",
+        "display": "Skin of tip of nose"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79502000",
+        "display": "Skin of tragus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699893008",
+        "display": "Skin structure of back of upper thoracic region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "367577003",
+        "display": "Skin structure of eyebrow"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "367578008",
+        "display": "Skin structure of hypogastric region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699909001",
+        "display": "Skin structure of lateral part of heel (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699914002",
+        "display": "Skin structure of lower abdomen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699915001",
+        "display": "Skin structure of lower chest wall (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "371304004",
+        "display": "Skin structure of lower limb"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699919007",
+        "display": "Skin structure of medial part of heel (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699935000",
+        "display": "Skin structure of upper abdomen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "371311000",
+        "display": "Skin structure of upper limb"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89546000",
+        "display": "Skull"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87784001",
+        "display": "Soft tissue"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397427005",
+        "display": "Soleal vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280401006",
+        "display": "Spinal cerebrospinal fluid pathway"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "78961009",
+        "display": "Spleen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280824006",
+        "display": "Splenic hilar lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "244107007",
+        "display": "Sternal skin"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "818991007",
+        "display": "Structure of abdominal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "818982008",
+        "display": "Structure of abdominopelvic cross-sectional segment of trunk"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716937001",
+        "display": "Structure of anterior apical part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716936005",
+        "display": "Structure of anterior apical part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716931000",
+        "display": "Structure of anterior apical part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716930004",
+        "display": "Structure of anterior apical part of transition zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716905002",
+        "display": "Structure of anterior basal part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716904003",
+        "display": "Structure of anterior basal part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716897000",
+        "display": "Structure of anterior basal part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716896009",
+        "display": "Structure of anterior basal part of transition zone of right half prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "717025007",
+        "display": "Structure of anterior fibromuscular stroma of prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716920008",
+        "display": "Structure of anterior middle regional part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716919002",
+        "display": "Structure of anterior middle regional part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716914007",
+        "display": "Structure of anterior middle regional part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "424161004",
+        "display": "Structure of anterior muscle of abdomen (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "303713004",
+        "display": "Structure of anterior tibial lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443167003",
+        "display": "Structure of aortic sinotubular junction (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1193840001",
+        "display": "Structure of apical anterolateral segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1193847003",
+        "display": "Structure of apical anteroseptal segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1193844005",
+        "display": "Structure of apical inferolateral segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1193846007",
+        "display": "Structure of apical inferoseptal segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716927006",
+        "display": "Structure of apical part of anterior fibromuscular stroma of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716925003",
+        "display": "Structure of apical part of anterior fibromuscular stroma of prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716926002",
+        "display": "Structure of apical part of anterior fibromuscular stroma of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716935009",
+        "display": "Structure of apical part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716934008",
+        "display": "Structure of apical part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716929009",
+        "display": "Structure of apical part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716928001",
+        "display": "Structure of apical part of transition zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "274231001",
+        "display": "Structure of arcuate artery of kidney"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "195496005",
+        "display": "Structure of atrioventricular vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "368536000",
+        "display": "Structure of axillary fascia"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "421624008",
+        "display": "Structure of axillary vein lymph node (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "396654005",
+        "display": "Structure of basal anterolateral segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "396482007",
+        "display": "Structure of basal anteroseptal segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "396652009",
+        "display": "Structure of basal inferolateral segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "396646008",
+        "display": "Structure of basal inferoseptal segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716893001",
+        "display": "Structure of basal part of anterior fibromuscular stroma of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716892006",
+        "display": "Structure of basal part of anterior fibromuscular stroma of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716903009",
+        "display": "Structure of basal part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716895008",
+        "display": "Structure of basal part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716894007",
+        "display": "Structure of basal part of transition zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "846654004",
+        "display": "Structure of blood vessel of abdominopelvic cross-sectional segment of trunk (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "143925009",
+        "display": "Structure of buccinator lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "816989007",
+        "display": "Structure of cavity of false and/or true pelvis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "816990003",
+        "display": "Structure of cavity of false pelvis (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "816991004",
+        "display": "Structure of cavity of true pelvis (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716901006",
+        "display": "Structure of central zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716900007",
+        "display": "Structure of central zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1217257000",
+        "display": "Structure of cervical and/or thoracic vertebral column region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "369387006",
+        "display": "Structure of cisterna pontis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "415637004",
+        "display": "Structure of clinoid portion of internal carotid artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280639005",
+        "display": "Structure of common duct lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443705001",
+        "display": "Structure of common left pulmonary vein (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443591004",
+        "display": "Structure of common right pulmonary vein (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "871689006",
+        "display": "Structure of Couinaud hepatic segment IVb (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280556009",
+        "display": "Structure of cystic lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "168360002",
+        "display": "Structure of deep anterior cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "167864002",
+        "display": "Structure of deep lateral cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "196751009",
+        "display": "Structure of diaphragmatic lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "421988007",
+        "display": "Structure of external mammary lymph node (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "363537007",
+        "display": "Structure of extrapulmonary lymph node of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85803001",
+        "display": "Structure of eyelash"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699886009",
+        "display": "Structure of female internal genital organ (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397411003",
+        "display": "Structure of fifth lumbar artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397407009",
+        "display": "Structure of first lumbar artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397410002",
+        "display": "Structure of fourth lumbar artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397437000",
+        "display": "Structure of Giacomini vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281676003",
+        "display": "Structure of ileocolic lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "155237005",
+        "display": "Structure of inferior auricular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280915003",
+        "display": "Structure of inferior pancreatic lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281227003",
+        "display": "Structure of inferior pancreaticoduodenal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "196821008",
+        "display": "Structure of innominate lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1145011002",
+        "display": "Structure of inter-regional junction of cervicothoracic vertebral column"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1145012009",
+        "display": "Structure of inter-regional junction of lumbosacral vertebral column"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1145013004",
+        "display": "Structure of inter-regional junction of sacrococcygeal vertebral column"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1145014005",
+        "display": "Structure of inter-regional junction of thoracolumbar vertebral column"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127919002",
+        "display": "Structure of interlobar lymph node of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "274329007",
+        "display": "Structure of interlobular artery of kidney"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "420800007",
+        "display": "Structure of interpectoral lymph node (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "143824007",
+        "display": "Structure of intraglandular parotid lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443808008",
+        "display": "Structure of intramammary lymph node (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "196662004",
+        "display": "Structure of intrapulmonary lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279609001",
+        "display": "Structure of juxtaintestinal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "714754004",
+        "display": "Structure of lateral calf perforator (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716918005",
+        "display": "Structure of lateral middle regional part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716917000",
+        "display": "Structure of lateral middle regional part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "196587000",
+        "display": "Structure of lateral pericardial lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "167464007",
+        "display": "Structure of lateral retropharyngeal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278672000",
+        "display": "Structure of lateral vesicular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "773561008",
+        "display": "Structure of left half of lower jaw region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "773564000",
+        "display": "Structure of left half of upper jaw region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "273202007",
+        "display": "Structure of left hepatic vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1217253001",
+        "display": "Structure of lumbar and/or sacral vertebral column region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "715056000",
+        "display": "Structure of lumbosacral intervertebral disc"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279784003",
+        "display": "Structure of lymph node of lesser curvature of stomach"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "717027004",
+        "display": "Structure of male external urethral sphincter (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "442274007",
+        "display": "Structure of mandibular incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "155338003",
+        "display": "Structure of mandibular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "442100006",
+        "display": "Structure of maxillary incisor tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "299993000",
+        "display": "Structure of mesenteric artery lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "396656007",
+        "display": "Structure of mid anterolateral segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "396647004",
+        "display": "Structure of mid anteroseptal segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "396655006",
+        "display": "Structure of mid inferolateral segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "396649001",
+        "display": "Structure of mid inferoseptal segment of left cardiac ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "450960006",
+        "display": "Structure of mid portion of right coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "282031000",
+        "display": "Structure of midcolic lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "273099000",
+        "display": "Structure of middle hepatic vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716910003",
+        "display": "Structure of middle regional part of anterior fibromuscular stroma of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716908000",
+        "display": "Structure of middle regional part of anterior fibromuscular stroma of prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716912006",
+        "display": "Structure of middle regional part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716911004",
+        "display": "Structure of middle regional part of transition zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1142228004",
+        "display": "Structure of muscle of wall of abdominal proper segment of trunk (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770809003",
+        "display": "Structure of nail unit of finger (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770821004",
+        "display": "Structure of nail unit of fourth toe"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770822006",
+        "display": "Structure of nail unit of great toe (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770815003",
+        "display": "Structure of nail unit of index finger"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770818001",
+        "display": "Structure of nail unit of little finger"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770816002",
+        "display": "Structure of nail unit of middle finger"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770817006",
+        "display": "Structure of nail unit of ring finger (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770823001",
+        "display": "Structure of nail unit of second toe (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770825008",
+        "display": "Structure of nail unit of third toe (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770810008",
+        "display": "Structure of nail unit of thumb (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "770805009",
+        "display": "Structure of nail unit of toe"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "144026003",
+        "display": "Structure of nasolabial lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "700032006",
+        "display": "Structure of occipital region of scalp"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "698348000",
+        "display": "Structure of ophthalmic segment of internal carotid artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "363654007",
+        "display": "Structure of orbit proper"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "714483002",
+        "display": "Structure of orbital region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127939003",
+        "display": "Structure of para-aortic lymph node of anterior mediastinum"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1231522001",
+        "display": "Structure of pelvic cross-sectional segment of trunk and/or lower limb"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "860782001",
+        "display": "Structure of permanent mandibular left canine tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "425106001",
+        "display": "Structure of permanent mandibular left central incisor tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "866006002",
+        "display": "Structure of permanent mandibular left first molar tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "423331005",
+        "display": "Structure of permanent mandibular left lateral incisor tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "863898000",
+        "display": "Structure of permanent mandibular left second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "424575004",
+        "display": "Structure of permanent mandibular right central incisor tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "866005003",
+        "display": "Structure of permanent mandibular right first molar tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "423937004",
+        "display": "Structure of permanent mandibular right lateral incisor tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "860780009",
+        "display": "Structure of permanent maxillary left canine tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "424399000",
+        "display": "Structure of permanent maxillary left central incisor tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "865988009",
+        "display": "Structure of permanent maxillary left first molar tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "423185002",
+        "display": "Structure of permanent maxillary left lateral incisor tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "863901004",
+        "display": "Structure of permanent maxillary left second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "860767006",
+        "display": "Structure of permanent maxillary right canine tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "422653006",
+        "display": "Structure of permanent maxillary right central incisor tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "865995000",
+        "display": "Structure of permanent maxillary right first molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "424877001",
+        "display": "Structure of permanent maxillary right lateral incisor tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "863902006",
+        "display": "Structure of permanent maxillary right second molar tooth"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716933002",
+        "display": "Structure of posterior apical part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716932007",
+        "display": "Structure of posterior apical part of transition zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716899002",
+        "display": "Structure of posterior basal part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716898005",
+        "display": "Structure of posterior basal part of transition zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443113009",
+        "display": "Structure of posterior descending coronary artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716916009",
+        "display": "Structure of posterior middle regional part of transition zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716915008",
+        "display": "Structure of posterior middle regional part of transition zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "195416006",
+        "display": "Structure of posterior vein of left ventricle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716939003",
+        "display": "Structure of posterolateral apical part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716938006",
+        "display": "Structure of posterolateral apical part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716907005",
+        "display": "Structure of posterolateral basal part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716906001",
+        "display": "Structure of posterolateral basal part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716922000",
+        "display": "Structure of posterolateral middle regional part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716921007",
+        "display": "Structure of posterolateral middle regional part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716941002",
+        "display": "Structure of posteromedial apical part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716940001",
+        "display": "Structure of posteromedial apical part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "836428004",
+        "display": "Structure of posteromedial basal part of peripheral zone of right half of prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716924004",
+        "display": "Structure of posteromedial middle regional part of peripheral zone of left half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "716923005",
+        "display": "Structure of posteromedial middle regional part of peripheral zone of right half prostate (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "278571002",
+        "display": "Structure of postvesicular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "168460001",
+        "display": "Structure of pretracheal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "196446004",
+        "display": "Structure of prevertebral lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279189002",
+        "display": "Structure of promontory common iliac lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "430757002",
+        "display": "Structure of pulmonary vein great vessel (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "249708006",
+        "display": "Structure of renal hilar lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "890324005",
+        "display": "Structure of retrocrural lymph node (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280402004",
+        "display": "Structure of retropyloric lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "773563006",
+        "display": "Structure of right half of lower jaw region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "773565004",
+        "display": "Structure of right half of upper jaw region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "272998002",
+        "display": "Structure of right hepatic vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1217254007",
+        "display": "Structure of sacral and/or coccygeal vertebral column region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397408004",
+        "display": "Structure of second lumbar artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "846583005",
+        "display": "Structure of septal branch of anterior descending branch of left coronary artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "895083008",
+        "display": "Structure of septal perforating artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397412005",
+        "display": "Structure of sixth lumbar artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "195073003",
+        "display": "Structure of smallest cardiac vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "421861001",
+        "display": "Structure of subclavian lymph node (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280314006",
+        "display": "Structure of subpyloric lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "168557005",
+        "display": "Structure of superficial anterior cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "167965000",
+        "display": "Structure of superficial lateral cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "368479001",
+        "display": "Structure of superficial palmar venous arch"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "317665004",
+        "display": "Structure of superior articular process of vertebra"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280999005",
+        "display": "Structure of superior pancreatic lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281320004",
+        "display": "Structure of superior pancreaticoduodenal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "425647002",
+        "display": "Structure of surface of bone (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "415646005",
+        "display": "Structure of terminal portion of internal carotid artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "714759009",
+        "display": "Structure of thigh perforator (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397409007",
+        "display": "Structure of third lumbar artery (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1217256009",
+        "display": "Structure of thoracic and/or lumbar vertebral column region (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443281009",
+        "display": "Structure of transverse aortic arch (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "284639000",
+        "display": "Structure of umbilical portion of portal vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "431491007",
+        "display": "Structure of upper urinary tract proper (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "431938005",
+        "display": "Structure of urinary tract proper (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "195328002",
+        "display": "Structure of ventricular vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "421060004",
+        "display": "Structure of vertebral column (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "773297003",
+        "display": "Structure of vestibular surface of root of tooth (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "256779006",
+        "display": "Structure of vitelline artery of placenta"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "256875007",
+        "display": "Structure of vitelline vein of placenta"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88481005",
+        "display": "Sublingual gland"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "385296007",
+        "display": "Submandibular salivary gland structure (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "170887008",
+        "display": "Submental triangle structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397364003",
+        "display": "Subsartorial vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90588001",
+        "display": "Subscapularis muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127922000",
+        "display": "Subsegmental lymph node of the lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279144003",
+        "display": "Superficial cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181349008",
+        "display": "Superficial femoral artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113340006",
+        "display": "Superficial inguinal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90606007",
+        "display": "Superficial lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279141006",
+        "display": "Superficial parotid lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181900008",
+        "display": "Superior articular facet of axis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89202009",
+        "display": "Superior longitudinal fasciculus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127925003",
+        "display": "Superior mediastinal lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90771006",
+        "display": "Superior mesenteric vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86483002",
+        "display": "Supraglottic space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "119255006",
+        "display": "Supraglottis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122861001",
+        "display": "Supramylohyoid space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "79142001",
+        "display": "Suprapulmonic valve area"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280216006",
+        "display": "Suprapyloric lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443789005",
+        "display": "Surgically constructed bidirectional pathway from superior vena cava to pulmonary artery (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443096004",
+        "display": "Surgically constructed connection of aorta to pulmonary artery (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443696003",
+        "display": "Surgically constructed connection of left ventricle to pulmonary artery conduit (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443297004",
+        "display": "Surgically constructed connection of pulmonary vein to left atrium (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443328003",
+        "display": "Surgically constructed connection of right ventricle to pulmonary artery conduit (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443625008",
+        "display": "Surgically constructed connection of systemic venous return to pulmonary artery (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443809000",
+        "display": "Surgically constructed convergence of inferior and superior vena cava pathways into common pathway superior to atrioventricular valve (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443724003",
+        "display": "Surgically constructed orifice between systemic venous pathway and left atrium (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443260009",
+        "display": "Surgically constructed outflow tract of left ventricle across ventricular septal defect to aorta (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "444329004",
+        "display": "Surgically constructed pathway from inferior vena cava to mitral valve (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443326004",
+        "display": "Surgically constructed pathway from inferior vena cava to pulmonary artery (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443907004",
+        "display": "Surgically constructed pathway from pulmonary veins to tricuspid valve (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "444177009",
+        "display": "Surgically constructed pathway from superior vena cava to mitral valve (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443327008",
+        "display": "Surgically constructed pathway from superior vena cava to pulmonary artery (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "443298009",
+        "display": "Surgically constructed pathway through heart from inferior vena cava and superior vena cava to pulmonary artery (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "82561000",
+        "display": "Symphysis pubis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281159003",
+        "display": "Systemic arterial structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281157001",
+        "display": "Systemic vascular structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "360592004",
+        "display": "Systemic venous structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "108371006",
+        "display": "Tarsus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "78277001",
+        "display": "Temporal lobe"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "128595004",
+        "display": "Tendon of Todaro"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117142007",
+        "display": "Tenth intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "119406000",
+        "display": "Thalamus part"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91752002",
+        "display": "Third diagonal branch of anterior descending branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "117135007",
+        "display": "Third intercostal space"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91759006",
+        "display": "Third left posterolateral branch of circumflex branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "699503005",
+        "display": "Third molar region of oral cavity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91756004",
+        "display": "Third obtuse marginal branch of circumflex branch of left coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91763004",
+        "display": "Third right posterolateral branch of the posterior descending branch of right coronary artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113262008",
+        "display": "Thoracic aorta"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "816094009",
+        "display": "Thoracic cross-sectional segment of trunk"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122495006",
+        "display": "Thoracic spine"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "362892003",
+        "display": "Thyroid part"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110536004",
+        "display": "Tibia and fibula, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "181351007",
+        "display": "Tibial artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80769008",
+        "display": "Tibial lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "306783000",
+        "display": "Tibial plateau structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "303337002",
+        "display": "Tonsil and adenoid structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "118755002",
+        "display": "Trabeculae carneae cordis"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260405006",
+        "display": "Trace"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110726009",
+        "display": "Trachea and bronchus, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245341003",
+        "display": "Tracheobronchial lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245283006",
+        "display": "Tracheobronchial lymph node group"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89858007",
+        "display": "Tracheobronchial lymph node located near carina"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "399384005",
+        "display": "Transition zone of prostate"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "397423009",
+        "display": "Transjugular intrahepatic portosystemic shunt (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88454005",
+        "display": "Transverse thoracis muscle"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "279317000",
+        "display": "Truncal valve structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "113198008",
+        "display": "Tubercle of rib"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1162492000",
+        "display": "Tumor bed (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87483006",
+        "display": "Tunica intima of vessel"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90290004",
+        "display": "Umbilical region"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "367567000",
+        "display": "Umbilical vein"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80581009",
+        "display": "Upper abdomen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "285425001",
+        "display": "Upper deep cervical lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "77831004",
+        "display": "Upper inner quadrant of breast"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245321008",
+        "display": "Upper jugular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "127927006",
+        "display": "Upper paratracheal lymph node (mediastinal)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281392002",
+        "display": "Upper zone of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87953007",
+        "display": "Ureter"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "89837001",
+        "display": "Urinary bladder"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110837003",
+        "display": "Urinary bladder and urethra, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "245860003",
+        "display": "Urinary conduit site"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122489005",
+        "display": "Urinary system"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91079009",
+        "display": "Uterine artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110639002",
+        "display": "Uterus and fallopian tubes, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "438074005",
+        "display": "Vaginal cuff (morphologic abnormality)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "263355003",
+        "display": "Vaginal wall"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88882009",
+        "display": "Vagus nerve"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "312288001",
+        "display": "Vascular graft"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "281231009",
+        "display": "Vascular structure of head"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "303402001",
+        "display": "Vascular structure of kidney"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122774002",
+        "display": "Vein of lower extremity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122972007",
+        "display": "Vein of lung"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "122775001",
+        "display": "Vein of upper extremity"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "85234005",
+        "display": "Vertebral artery"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "110517009",
+        "display": "Vertebral column and cranium, CS"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "280734009",
+        "display": "Vertebral foramen"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "88986008",
+        "display": "Vertex"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80434005",
+        "display": "Vertical occipital fasciculus"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "360992006",
+        "display": "Vesicular lymph node"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "372242005",
+        "display": "Vitreous body part (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "87166008",
+        "display": "Vomer bone structure"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "260408008",
+        "display": "Weakly positive"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "389080008",
+        "display": "White matter structure of brain and spinal cord (body structure)"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "373066001",
+        "display": "Yes (qualifier value)"
+      }
+    ]
+  }
+}

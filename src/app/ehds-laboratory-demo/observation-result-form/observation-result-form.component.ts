@@ -6,7 +6,7 @@ import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.comp
 import { ConceptLookupDialogComponent } from '../concept-lookup-dialog/concept-lookup-dialog.component';
 import { TerminologyService } from '../../services/terminology.service';
 import { HttpClient } from '@angular/common/http';
-import { Subject, takeUntil, startWith, map } from 'rxjs';
+import { Subject, takeUntil, startWith, map, Observable, of } from 'rxjs';
 
 export interface ObservationResultData {
   status: string;
@@ -165,12 +165,11 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     { code: 'SENS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Sensitive', definition: 'Sensitive interpretation.' }
   ];
 
-  // Binding for CodeableConcept autocomplete
-  valueCodeableConceptBinding = {
-    ecl: '<< 138875005 |SNOMED CT Concept (SNOMED RT+CTV3)|',
-    title: 'Value (Codeable Concept)',
-    note: 'Search for SNOMED CT concepts'
-  };
+  // eHDSI Results Coded Value Laboratory options loaded from FHIR ValueSet
+  valueCodeableConceptOptions: Array<{ code: string; display: string; system: string }> = [];
+  valueCodeableConceptFilteredOptions: Observable<Array<{ code: string; display: string; system: string }>> = of([]);
+  valueCodeableConceptOptionsLoading = false;
+  valueCodeableConceptInputControl = new FormControl('');
 
   // Binding for Observation Code (LOINC via SNOMED CT)
   codeBinding = {
@@ -181,9 +180,9 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
 
   // UCUM units loaded from FHIR ValueSet
   unitOptions: Array<{ code: string; display: string; system: string }> = [];
-  unitFilteredOptions: Array<{ code: string; display: string; system: string }> = [];
+  unitFilteredOptions: Observable<Array<{ code: string; display: string; system: string }>> = of([]);
   unitOptionsLoading = false;
-  unitSearchControl = new FormControl('');
+  unitInputControl = new FormControl('');
 
   constructor(
     private fb: FormBuilder,
@@ -218,6 +217,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     this.loadUCUMUnits();
     this.setupUnitFilter();
     this.updateUnitControlState();
+    this.loadEHDSIResultsCodedValue();
+    this.setupValueCodeableConceptFilter();
   }
 
   ngOnDestroy(): void {
@@ -241,32 +242,33 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
             // Sort by display name for better UX
             this.unitOptions.sort((a, b) => a.display.localeCompare(b.display));
             
-            // Initialize filtered options
-            this.unitFilteredOptions = [...this.unitOptions];
-            
             // If we have a unit code in the form, try to match it now
             const currentUnitCode = this.valueQuantityUnitControl?.value;
             if (currentUnitCode && typeof currentUnitCode === 'string') {
               const matchedUnit = this.unitOptions.find(u => u.code === currentUnitCode);
               if (matchedUnit) {
                 this.valueQuantityUnitControl.setValue(matchedUnit.code, { emitEvent: false });
+                this.unitInputControl.setValue(matchedUnit.display, { emitEvent: false });
               }
             }
+            
+            // Initialize filtered options Observable
+            this.setupUnitFilter();
           } else {
-            // Fallback to common units if expansion fails
-            this.unitOptions = this.getFallbackUnits();
-          }
-          // Initialize filtered options
-          this.unitFilteredOptions = [...this.unitOptions];
-          this.unitOptionsLoading = false;
-          this.updateUnitControlState();
+          // Fallback to common units if expansion fails
+          this.unitOptions = this.getFallbackUnits();
+        }
+        // Initialize filtered options Observable
+        this.setupUnitFilter();
+        this.unitOptionsLoading = false;
+        this.updateUnitControlState();
         },
         error: (err) => {
           console.error('Error loading UCUM units from assets:', err);
           // Fallback to common units on error
           this.unitOptions = this.getFallbackUnits();
-          // Initialize filtered options
-          this.unitFilteredOptions = [...this.unitOptions];
+          // Initialize filtered options Observable
+          this.setupUnitFilter();
           this.unitOptionsLoading = false;
           this.updateUnitControlState();
         }
@@ -279,6 +281,140 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     } else {
       this.valueQuantityUnitControl?.enable({ emitEvent: false });
     }
+  }
+
+  private loadEHDSIResultsCodedValue(): void {
+    this.valueCodeableConceptOptionsLoading = true;
+    
+    // Load from static JSON file in assets
+    this.http.get<any>('assets/data/ehdsi-results-coded-value-laboratory.json')
+      .subscribe({
+        next: (response) => {
+          if (response?.expansion?.contains) {
+            this.valueCodeableConceptOptions = response.expansion.contains.map((item: any) => ({
+              code: item.code || '',
+              display: item.display || item.code || '',
+              system: item.system || 'http://snomed.info/sct'
+            }));
+            // Sort by display name for better UX
+            this.valueCodeableConceptOptions.sort((a, b) => a.display.localeCompare(b.display));
+            
+            // If we have a valueCodeableConcept in the form, try to match it now
+            const currentValueCodeableConcept = this.observationForm.get('valueCodeableConcept')?.value;
+            if (currentValueCodeableConcept) {
+              if (typeof currentValueCodeableConcept === 'object' && currentValueCodeableConcept.code) {
+                const matchedOption = this.valueCodeableConceptOptions.find(
+                  o => o.code === currentValueCodeableConcept.code && o.system === currentValueCodeableConcept.system
+                );
+                if (matchedOption) {
+                  this.observationForm.patchValue({ valueCodeableConcept: matchedOption }, { emitEvent: false });
+                  this.valueCodeableConceptInputControl.setValue(matchedOption.display, { emitEvent: false });
+                }
+              } else if (typeof currentValueCodeableConcept === 'string') {
+                const matchedOption = this.valueCodeableConceptOptions.find(o => o.code === currentValueCodeableConcept);
+                if (matchedOption) {
+                  this.observationForm.patchValue({ valueCodeableConcept: matchedOption }, { emitEvent: false });
+                  this.valueCodeableConceptInputControl.setValue(matchedOption.display, { emitEvent: false });
+                }
+              }
+            }
+          }
+          // Initialize filtered options Observable
+          this.setupValueCodeableConceptFilter();
+          this.valueCodeableConceptOptionsLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading eHDSI Results Coded Value from assets:', err);
+          this.valueCodeableConceptOptions = [];
+          this.valueCodeableConceptFilteredOptions = of([]);
+          this.valueCodeableConceptOptionsLoading = false;
+        }
+      });
+  }
+
+  private setupValueCodeableConceptFilter(): void {
+    this.valueCodeableConceptFilteredOptions = this.valueCodeableConceptInputControl.valueChanges.pipe(
+      startWith(''),
+      map(term => {
+        const searchTerm = (term ?? '').toLowerCase();
+        if (!searchTerm || searchTerm.length === 0) {
+          return [...this.valueCodeableConceptOptions];
+        }
+        
+        // Filter and sort by match length (shorter matches first)
+        return this.valueCodeableConceptOptions
+          .filter(option => {
+            const displayLower = option.display.toLowerCase();
+            const codeLower = option.code.toLowerCase();
+            return displayLower.includes(searchTerm) || codeLower.includes(searchTerm);
+          })
+          .map(option => {
+            const displayLower = option.display.toLowerCase();
+            const codeLower = option.code.toLowerCase();
+            
+            // Calculate match length - prefer exact matches, then display matches, then code matches
+            let matchLength = Infinity;
+            
+            if (displayLower === searchTerm || codeLower === searchTerm) {
+              // Exact match - highest priority
+              matchLength = 0;
+            } else if (displayLower.startsWith(searchTerm) || codeLower.startsWith(searchTerm)) {
+              // Starts with term - high priority
+              matchLength = displayLower.startsWith(searchTerm) ? displayLower.length : codeLower.length;
+            } else if (displayLower.includes(searchTerm)) {
+              // Contains in display
+              matchLength = displayLower.length;
+            } else if (codeLower.includes(searchTerm)) {
+              // Contains in code
+              matchLength = codeLower.length;
+            }
+            
+            return { option, matchLength };
+          })
+          .sort((a, b) => {
+            // Sort by match length (shorter first), then alphabetically
+            if (a.matchLength !== b.matchLength) {
+              return a.matchLength - b.matchLength;
+            }
+            return a.option.display.localeCompare(b.option.display);
+          })
+          .map(item => item.option);
+      }),
+      takeUntil(this.destroy$)
+    );
+  }
+
+  displayValueCodeableConceptFn = (option: { code: string; display: string; system: string }): string => {
+    return option ? option.display : '';
+  }
+
+  onValueCodeableConceptSelected(event: any): void {
+    const option = event.option?.value;
+    if (option && typeof option === 'object' && option.code) {
+      this.observationForm.patchValue({ valueCodeableConcept: option });
+      this.valueCodeableConceptInputControl.setValue(option.display, { emitEvent: false });
+    }
+  }
+
+  getValueCodeableConceptDisplay = (codeableConcept: { code: string; display: string; system: string } | null | string): string => {
+    if (!codeableConcept) {
+      return '';
+    }
+    // If it's a string, try to find the display
+    if (typeof codeableConcept === 'string') {
+      const found = this.valueCodeableConceptOptions.find(o => o.code === codeableConcept);
+      return found ? found.display : codeableConcept;
+    }
+    // If it's an object with display property
+    if (typeof codeableConcept === 'object' && 'display' in codeableConcept && codeableConcept.display) {
+      return codeableConcept.display;
+    }
+    // If it's an object with code but no display, try to find it
+    if (typeof codeableConcept === 'object' && 'code' in codeableConcept) {
+      const found = this.valueCodeableConceptOptions.find(o => o.code === codeableConcept.code);
+      return found ? found.display : (codeableConcept.code || '');
+    }
+    return '';
   }
 
   private getFallbackUnits(): Array<{ code: string; display: string; system: string }> {
@@ -295,56 +431,67 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
   }
 
   private setupUnitFilter(): void {
-    this.unitSearchControl.valueChanges
-      .pipe(
-        startWith(''),
-        map(term => (term ?? '').toLowerCase()),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(term => {
-        if (!term || term.length === 0) {
-          this.unitFilteredOptions = [...this.unitOptions];
-        } else {
-          // Filter and sort by match length (shorter matches first)
-          this.unitFilteredOptions = this.unitOptions
-            .filter(unit => {
-              const displayLower = unit.display.toLowerCase();
-              const codeLower = unit.code.toLowerCase();
-              return displayLower.includes(term) || codeLower.includes(term);
-            })
-            .map(unit => {
-              const displayLower = unit.display.toLowerCase();
-              const codeLower = unit.code.toLowerCase();
-              
-              // Calculate match length - prefer exact matches, then display matches, then code matches
-              let matchLength = Infinity;
-              
-              if (displayLower === term || codeLower === term) {
-                // Exact match - highest priority
-                matchLength = 0;
-              } else if (displayLower.startsWith(term) || codeLower.startsWith(term)) {
-                // Starts with term - high priority
-                matchLength = displayLower.startsWith(term) ? displayLower.length : codeLower.length;
-              } else if (displayLower.includes(term)) {
-                // Contains in display
-                matchLength = displayLower.length;
-              } else if (codeLower.includes(term)) {
-                // Contains in code
-                matchLength = codeLower.length;
-              }
-              
-              return { unit, matchLength };
-            })
-            .sort((a, b) => {
-              // Sort by match length (shorter first), then alphabetically
-              if (a.matchLength !== b.matchLength) {
-                return a.matchLength - b.matchLength;
-              }
-              return a.unit.display.localeCompare(b.unit.display);
-            })
-            .map(item => item.unit);
+    this.unitFilteredOptions = this.unitInputControl.valueChanges.pipe(
+      startWith(''),
+      map(term => {
+        const searchTerm = (term ?? '').toLowerCase();
+        if (!searchTerm || searchTerm.length === 0) {
+          return [...this.unitOptions];
         }
-      });
+        
+        // Filter and sort by match length (shorter matches first)
+        return this.unitOptions
+          .filter(unit => {
+            const displayLower = unit.display.toLowerCase();
+            const codeLower = unit.code.toLowerCase();
+            return displayLower.includes(searchTerm) || codeLower.includes(searchTerm);
+          })
+          .map(unit => {
+            const displayLower = unit.display.toLowerCase();
+            const codeLower = unit.code.toLowerCase();
+            
+            // Calculate match length - prefer exact matches, then display matches, then code matches
+            let matchLength = Infinity;
+            
+            if (displayLower === searchTerm || codeLower === searchTerm) {
+              // Exact match - highest priority
+              matchLength = 0;
+            } else if (displayLower.startsWith(searchTerm) || codeLower.startsWith(searchTerm)) {
+              // Starts with term - high priority
+              matchLength = displayLower.startsWith(searchTerm) ? displayLower.length : codeLower.length;
+            } else if (displayLower.includes(searchTerm)) {
+              // Contains in display
+              matchLength = displayLower.length;
+            } else if (codeLower.includes(searchTerm)) {
+              // Contains in code
+              matchLength = codeLower.length;
+            }
+            
+            return { unit, matchLength };
+          })
+          .sort((a, b) => {
+            // Sort by match length (shorter first), then alphabetically
+            if (a.matchLength !== b.matchLength) {
+              return a.matchLength - b.matchLength;
+            }
+            return a.unit.display.localeCompare(b.unit.display);
+          })
+          .map(item => item.unit);
+      }),
+      takeUntil(this.destroy$)
+    );
+  }
+
+  displayUnitFn = (unit: { code: string; display: string; system: string }): string => {
+    return unit ? unit.display : '';
+  }
+
+  onUnitSelected(event: any): void {
+    const unit = event.option?.value;
+    if (unit && typeof unit === 'object' && unit.code) {
+      this.valueQuantityUnitControl.setValue(unit.code, { emitEvent: false });
+      this.unitInputControl.setValue(unit.display, { emitEvent: false });
+    }
   }
 
   ngAfterViewInit(): void {
@@ -410,6 +557,33 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         const unitCode = data.valueQuantity.unit;
         // Set the unit code directly - it will be matched when units load
         this.valueQuantityUnitControl.setValue(unitCode, { emitEvent: false });
+        // Wait for options to load, then sync input control
+        setTimeout(() => {
+          const matchedUnit = this.unitOptions.find(u => u.code === unitCode);
+          if (matchedUnit) {
+            this.unitInputControl.setValue(matchedUnit.display, { emitEvent: false });
+          } else {
+            this.unitInputControl.setValue(unitCode, { emitEvent: false });
+          }
+        }, 100);
+      }
+
+      // Sync valueCodeableConcept input control with form control
+      if (data.valueCodeableConcept && typeof data.valueCodeableConcept === 'object' && data.valueCodeableConcept.display) {
+        // Wait for options to load, then sync
+        setTimeout(() => {
+          const valueCodeableConcept = data.valueCodeableConcept;
+          if (valueCodeableConcept && typeof valueCodeableConcept === 'object' && valueCodeableConcept.code) {
+            const matchedOption = this.valueCodeableConceptOptions.find(
+              o => o.code === valueCodeableConcept.code && o.system === valueCodeableConcept.system
+            );
+            if (matchedOption) {
+              this.valueCodeableConceptInputControl.setValue(matchedOption.display, { emitEvent: false });
+            } else if (valueCodeableConcept.display) {
+              this.valueCodeableConceptInputControl.setValue(valueCodeableConcept.display, { emitEvent: false });
+            }
+          }
+        }, 100);
       }
 
       this.updateValueType();
@@ -536,20 +710,6 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     return this.observationForm.get('valueQuantity')?.get('unit') as FormControl;
   }
 
-  onUnitSelected(unitCode: string): void {
-    if (unitCode) {
-      this.valueQuantityUnitControl.setValue(unitCode);
-      this.valueQuantityUnitControl.markAsTouched();
-    }
-  }
-
-  getUnitDisplay(unitCode: string | null): string {
-    if (!unitCode) {
-      return '';
-    }
-    const unit = this.unitOptions.find(u => u.code === unitCode);
-    return unit ? unit.display : unitCode;
-  }
 
   get referenceRangeTextControl(): FormControl {
     return this.observationForm.get('referenceRange')?.get('text') as FormControl;
