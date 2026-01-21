@@ -295,7 +295,8 @@
                 <mat-autocomplete
                   #unitAuto="matAutocomplete"
                   [displayWith]="displayUnitFn"
-                  (optionSelected)="onUnitSelected($event)">
+                  (optionSelected)="onUnitSelected($event)"
+                  (closed)="onUnitAutocompleteClosed()">
                   @if (unitOptionsLoading) {
                     <mat-option disabled>
                       <mat-spinner diameter="35"></mat-spinner>
@@ -519,6 +520,83 @@
 
           <div class="fhir-field-wrapper">
             <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="methodMenu">
+                FHIR
+              </button>
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabTechniqueWithExceptions.html', 'Method', 'eHDSI Laboratory Technique with exceptions')">
+                BINDING
+              </button>
+            </div>
+            <mat-menu #methodMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Observation.method</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Observation-resultslab-lab-myhealtheu-definitions.html#Observation.method" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Indicates the mechanism used to perform the observation.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">CodeableConcept</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Binding:</span>
+                    <span class="fhir-value">The codes SHALL be taken from eHDSI Laboratory Technique with exceptions (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSILabTechniqueWithExceptions.html" target="_blank" rel="noopener noreferrer" class="valueset-link">http://fhir.ehdsi.eu/laboratory/ValueSet/eHDSILabTechniqueWithExceptions</a>).</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Comments:</span>
+                    <span class="fhir-value">Laboratory technique (method of measurement) are integral parts of the test specification. Only used if not implicit in code for Observation.code.</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Method</mat-label>
+              @if (methodOptionsLoading) {
+                <mat-spinner matSuffix diameter="20"></mat-spinner>
+              }
+              <input
+                matInput
+                [formControl]="methodInputControl"
+                [matAutocomplete]="methodAuto"
+                #methodAutoTrigger="matAutocompleteTrigger"
+                [readonly]="isViewOnly"
+                (focus)="onMethodInputFocus()"
+                placeholder="Search laboratory technique...">
+              <mat-autocomplete
+                #methodAuto="matAutocomplete"
+                [displayWith]="displayMethodFn"
+                (optionSelected)="onMethodSelected($event)"
+                (closed)="onMethodAutocompleteClosed()">
+                @if (methodOptionsLoading) {
+                  <mat-option disabled>
+                    <mat-spinner diameter="35"></mat-spinner>
+                    Loading techniques...
+                  </mat-option>
+                } @else {
+                  @for (option of methodFilteredOptions | async; track option.code) {
+                    <mat-option [value]="option">
+                      {{ option.display }}@if (option.display !== option.code) {
+                        <span class="unit-code-hint"> ({{ option.code }})</span>
+                      }
+                    </mat-option>
+                  }
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper full-width">
+            <div class="fhir-badges-container">
               <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="noteMenu">
                 FHIR
               </button>
@@ -543,7 +621,7 @@
                 </div>
               </div>
             </mat-menu>
-            <mat-form-field>
+            <mat-form-field class="full-width-field">
               <mat-label>Note</mat-label>
               <input matInput formControlName="note" [readonly]="isViewOnly" placeholder="Additional notes about the observation">
             </mat-form-field>

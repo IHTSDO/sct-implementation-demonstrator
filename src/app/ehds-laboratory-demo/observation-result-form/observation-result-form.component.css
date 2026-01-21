@@ -110,6 +110,10 @@
   grid-column: 1 / -1;
 }
 
+.full-width-field {
+  width: 100%;
+}
+
 /* Alignment for form fields */
 .form-grid {
   align-items: start;

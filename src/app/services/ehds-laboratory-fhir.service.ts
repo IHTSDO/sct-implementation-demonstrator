@@ -684,6 +684,18 @@ export class EhdsLaboratoryFhirService {
       }];
     }
 
+    // Method
+    if (observationData.method) {
+      observation.method = {
+        coding: [{
+          system: observationData.method.system,
+          code: observationData.method.code,
+          display: observationData.method.display
+        }],
+        text: observationData.method.display
+      };
+    }
+
     // Reference Range
     if (observationData.referenceRange) {
       const refRange: any = {};

@@ -932,7 +932,7 @@
 
             @if (specimens.length > 0) {
               <div class="reference-list">
-                @for (specimen of specimens; track specimen; let i = $index) {
+                @for (specimen of specimens; track $index; let i = $index) {
                   <div class="reference-item-display">
                     <div class="reference-info">
                       <mat-icon>science</mat-icon>
@@ -995,7 +995,7 @@
 
             @if (results.length > 0) {
               <div class="reference-list">
-                @for (result of results; track result; let i = $index) {
+                @for (result of results; track $index; let i = $index) {
                   <div class="reference-item-display">
                     <div class="reference-info">
                       <mat-icon>bar_chart</mat-icon>
@@ -1210,7 +1210,7 @@
 
                 @if (conclusionCodes.length > 0) {
                   <div class="reference-list">
-                    @for (code of conclusionCodes; track code; let i = $index) {
+                    @for (code of conclusionCodes; track $index; let i = $index) {
                       <div class="reference-item-display">
                         <div class="reference-info">
                           <mat-icon>medical_services</mat-icon>

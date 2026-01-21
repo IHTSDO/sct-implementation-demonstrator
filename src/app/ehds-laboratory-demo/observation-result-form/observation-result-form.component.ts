@@ -1,4 +1,5 @@
-import { Component, OnInit, AfterViewInit, Inject, ViewContainerRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Inject, ViewContainerRef, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -51,6 +52,11 @@ export interface ObservationResultData {
   } | null;
   performer: {
     reference: string;
+    display: string;
+  } | null;
+  method: {
+    code: string;
+    system: string;
     display: string;
   } | null;
   note: string | null;
@@ -171,6 +177,12 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
   valueCodeableConceptOptionsLoading = false;
   valueCodeableConceptInputControl = new FormControl('');
 
+  // eHDSI Laboratory Technique with exceptions options loaded from FHIR ValueSet
+  methodOptions: Array<{ code: string; display: string; system: string }> = [];
+  methodFilteredOptions: Observable<Array<{ code: string; display: string; system: string }>> = of([]);
+  methodOptionsLoading = false;
+  methodInputControl = new FormControl('');
+
   // Binding for Observation Code (LOINC via SNOMED CT)
   codeBinding = {
     ecl: '^ 635121010000106 |Logical Observation Identifiers Names and Codes Observation Reference Set (foundation metadata concept)|',
@@ -219,6 +231,9 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     this.updateUnitControlState();
     this.loadEHDSIResultsCodedValue();
     this.setupValueCodeableConceptFilter();
+    // Initialize method filter first, then load data
+    this.setupMethodFilter();
+    this.loadEHDSILabTechnique();
   }
 
   ngOnDestroy(): void {
@@ -417,6 +432,174 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     return '';
   }
 
+  private loadEHDSILabTechnique(): void {
+    this.methodOptionsLoading = true;
+    
+    // Load from static JSON file in assets
+    this.http.get<any>('assets/data/ehdsi-lab-technique-with-exceptions.json')
+      .subscribe({
+        next: (response) => {
+          if (response?.expansion?.contains) {
+            this.methodOptions = response.expansion.contains.map((item: any) => ({
+              code: item.code || '',
+              display: item.display || item.code || '',
+              system: item.system || 'http://snomed.info/sct'
+            }));
+            // Sort by display name for better UX
+            this.methodOptions.sort((a, b) => a.display.localeCompare(b.display));
+            
+            // If we have a method in the form, try to match it now
+            const currentMethod = this.observationForm.get('method')?.value;
+            if (currentMethod) {
+              if (typeof currentMethod === 'object' && currentMethod.code) {
+                const matchedOption = this.methodOptions.find(
+                  o => o.code === currentMethod.code && o.system === currentMethod.system
+                );
+                if (matchedOption) {
+                  this.observationForm.patchValue({ method: matchedOption }, { emitEvent: false });
+                  this.methodInputControl.setValue(matchedOption.display, { emitEvent: false });
+                }
+              } else if (typeof currentMethod === 'string') {
+                const matchedOption = this.methodOptions.find(o => o.code === currentMethod);
+                if (matchedOption) {
+                  this.observationForm.patchValue({ method: matchedOption }, { emitEvent: false });
+                  this.methodInputControl.setValue(matchedOption.display, { emitEvent: false });
+                }
+              }
+            }
+          }
+          // Re-setup filter with loaded options
+          this.setupMethodFilter();
+          // Trigger the Observable to emit with current value (empty string) to show all options
+          this.methodInputControl.updateValueAndValidity({ emitEvent: true });
+          this.methodOptionsLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading eHDSI Laboratory Technique from assets:', err);
+          this.methodOptions = [];
+          this.methodFilteredOptions = of([]);
+          this.methodOptionsLoading = false;
+        }
+      });
+  }
+
+  private setupMethodFilter(): void {
+    // Recreate the Observable to pick up the latest methodOptions
+    const currentValue = this.methodInputControl.value || '';
+    this.methodFilteredOptions = this.methodInputControl.valueChanges.pipe(
+      startWith(currentValue),
+      map(term => {
+        // Handle both string and object values
+        let termValue: string = '';
+        if (typeof term === 'string') {
+          termValue = term;
+        } else if (term && typeof term === 'object' && 'display' in term) {
+          termValue = (term as { display: string }).display || '';
+        }
+        const searchTerm = termValue.toLowerCase();
+        // If no options loaded yet, return empty array
+        if (!this.methodOptions || this.methodOptions.length === 0) {
+          return [];
+        }
+        
+        if (!searchTerm || searchTerm.length === 0) {
+          return [...this.methodOptions];
+        }
+        
+        // Filter and sort by match length (shorter matches first)
+        return this.methodOptions
+          .filter(option => {
+            const displayLower = option.display.toLowerCase();
+            const codeLower = option.code.toLowerCase();
+            return displayLower.includes(searchTerm) || codeLower.includes(searchTerm);
+          })
+          .map(option => {
+            const displayLower = option.display.toLowerCase();
+            const codeLower = option.code.toLowerCase();
+            
+            // Calculate match length - prefer exact matches, then display matches, then code matches
+            let matchLength = Infinity;
+            
+            if (displayLower === searchTerm || codeLower === searchTerm) {
+              // Exact match - highest priority
+              matchLength = 0;
+            } else if (displayLower.startsWith(searchTerm) || codeLower.startsWith(searchTerm)) {
+              // Starts with term - high priority
+              matchLength = displayLower.startsWith(searchTerm) ? displayLower.length : codeLower.length;
+            } else if (displayLower.includes(searchTerm)) {
+              // Contains in display
+              matchLength = displayLower.length;
+            } else if (codeLower.includes(searchTerm)) {
+              // Contains in code
+              matchLength = codeLower.length;
+            }
+            
+            return { option, matchLength };
+          })
+          .sort((a, b) => {
+            // Sort by match length (shorter first), then alphabetically
+            if (a.matchLength !== b.matchLength) {
+              return a.matchLength - b.matchLength;
+            }
+            return a.option.display.localeCompare(b.option.display);
+          })
+          .map(item => item.option);
+      }),
+      takeUntil(this.destroy$)
+    );
+  }
+
+  @ViewChild('methodAutoTrigger') methodAutoTrigger!: MatAutocompleteTrigger;
+
+  displayMethodFn = (method: { code: string; display: string; system: string } | string | null): string => {
+    if (!method) {
+      return '';
+    }
+    if (typeof method === 'string') {
+      return method;
+    }
+    return method.display || '';
+  }
+
+  onMethodSelected(event: any): void {
+    const method = event.option?.value;
+    if (method && typeof method === 'object' && method.code) {
+      // Set the form control value (the actual method object)
+      this.observationForm.patchValue({ method: method }, { emitEvent: false });
+      
+      // The autocomplete will set the object in methodInputControl, but we'll fix it in onMethodAutocompleteClosed
+    }
+  }
+
+  onMethodAutocompleteClosed(): void {
+    // After autocomplete closes, ensure the input shows the display string, not the object
+    const currentValue = this.methodInputControl.value;
+    const formMethod = this.observationForm.get('method')?.value;
+    
+    if (formMethod && typeof formMethod === 'object' && 'display' in formMethod) {
+      // If we have a method object in the form, show its display in the input
+      const methodDisplay = (formMethod as { display: string }).display;
+      if (currentValue !== methodDisplay) {
+        this.methodInputControl.setValue(methodDisplay, { emitEvent: false });
+      }
+    } else if (currentValue && typeof currentValue === 'object' && 'display' in currentValue) {
+      // If the input has an object, extract the display
+      const currentDisplay = (currentValue as { display: string }).display;
+      this.methodInputControl.setValue(currentDisplay, { emitEvent: false });
+    }
+  }
+
+  onMethodInputFocus(): void {
+    // Open autocomplete panel automatically when input is focused and empty
+    if (!this.methodInputControl.value && this.methodOptions.length > 0) {
+      setTimeout(() => {
+        if (this.methodAutoTrigger) {
+          this.methodAutoTrigger.openPanel();
+        }
+      }, 100);
+    }
+  }
+
   private getFallbackUnits(): Array<{ code: string; display: string; system: string }> {
     return [
       { code: 'g/L', display: 'g/L', system: 'http://unitsofmeasure.org' },
@@ -434,7 +617,14 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     this.unitFilteredOptions = this.unitInputControl.valueChanges.pipe(
       startWith(''),
       map(term => {
-        const searchTerm = (term ?? '').toLowerCase();
+        // Handle both string and object values
+        let termValue: string = '';
+        if (typeof term === 'string') {
+          termValue = term;
+        } else if (term && typeof term === 'object' && 'display' in term) {
+          termValue = (term as { display: string }).display || '';
+        }
+        const searchTerm = termValue.toLowerCase();
         if (!searchTerm || searchTerm.length === 0) {
           return [...this.unitOptions];
         }
@@ -482,15 +672,43 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     );
   }
 
-  displayUnitFn = (unit: { code: string; display: string; system: string }): string => {
-    return unit ? unit.display : '';
+  displayUnitFn = (unit: { code: string; display: string; system: string } | string | null): string => {
+    if (!unit) {
+      return '';
+    }
+    if (typeof unit === 'string') {
+      return unit;
+    }
+    return unit.display || '';
   }
 
   onUnitSelected(event: any): void {
     const unit = event.option?.value;
     if (unit && typeof unit === 'object' && unit.code) {
+      // Set the form control value (the actual unit code)
       this.valueQuantityUnitControl.setValue(unit.code, { emitEvent: false });
-      this.unitInputControl.setValue(unit.display, { emitEvent: false });
+      // The autocomplete will set the object in unitInputControl, but we'll fix it in onUnitAutocompleteClosed
+    }
+  }
+
+  onUnitAutocompleteClosed(): void {
+    // After autocomplete closes, ensure the input shows the display string, not the object
+    const currentValue = this.unitInputControl.value;
+    const formUnitCode = this.valueQuantityUnitControl?.value;
+    
+    if (formUnitCode && typeof formUnitCode === 'string') {
+      // Find the unit object by code
+      const matchedUnit = this.unitOptions.find(u => u.code === formUnitCode);
+      if (matchedUnit) {
+        // If we have a unit code in the form, show its display in the input
+        if (currentValue !== matchedUnit.display) {
+          this.unitInputControl.setValue(matchedUnit.display, { emitEvent: false });
+        }
+      }
+    } else if (currentValue && typeof currentValue === 'object' && 'display' in currentValue) {
+      // If the input has an object, extract the display
+      const currentDisplay = (currentValue as { display: string }).display;
+      this.unitInputControl.setValue(currentDisplay, { emitEvent: false });
     }
   }
 
@@ -549,6 +767,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
           text: data.referenceRange.text || ''
         } : { text: '' },
         performer: data.performer || null,
+        method: data.method || null,
         note: data.note || ''
       }, { emitEvent: false });
 
@@ -586,6 +805,24 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         }, 100);
       }
 
+      // Sync method input control with form control
+      if (data.method && typeof data.method === 'object' && data.method.display) {
+        // Wait for options to load, then sync
+        setTimeout(() => {
+          const method = data.method;
+          if (method && typeof method === 'object' && method.code) {
+            const matchedOption = this.methodOptions.find(
+              o => o.code === method.code && o.system === method.system
+            );
+            if (matchedOption) {
+              this.methodInputControl.setValue(matchedOption.display, { emitEvent: false });
+            } else if (method.display) {
+              this.methodInputControl.setValue(method.display, { emitEvent: false });
+            }
+          }
+        }, 100);
+      }
+
       this.updateValueType();
     }, 100);
   }
@@ -607,6 +844,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         text: ['']
       }),
       performer: [null],
+      method: [null],
       note: ['']
     });
   }
@@ -652,6 +890,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
           text: formValue.referenceRange.text
         } : null,
         performer: formValue.performer,
+        method: formValue.method || null,
         note: formValue.note || null
       };
       this.dialogRef.close(formData);

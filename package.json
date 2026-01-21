@@ -9,7 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "download-ucum": "node scripts/download-ucum-units.js",
-    "download-ehdsi-results": "node scripts/download-ehdsi-results-coded-value.js"
+    "download-ehdsi-results": "node scripts/download-ehdsi-results-coded-value.js",
+    "download-ehdsi-lab-technique": "node scripts/download-ehdsi-lab-technique.js"
   },
   "private": true,
   "dependencies": {
