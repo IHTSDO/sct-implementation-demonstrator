@@ -26,9 +26,11 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    // Google Analytics tracking is now handled by GoogleAnalyticsService
-    // which automatically tracks route changes in Angular
-    // Initial page view will be tracked when the service initializes
+    // Initialize GA4 ONCE.
+    // We set send_page_view:false because this is an Angular SPA and page views
+    // are sent on route changes via GoogleAnalyticsService using:
+    // gtag('event', 'page_view', ...)
+    gtag('config', 'G-7SK998GPMX', { send_page_view: false });
   </script>
 </head>
 <body class="mat-typography">

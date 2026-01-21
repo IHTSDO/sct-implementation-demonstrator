@@ -19,8 +19,8 @@ export class GoogleAnalyticsService {
   private readonly GA_TRACKING_ID = 'G-7SK998GPMX';
   private hasTrackedInitialRoute = false;
   
-  // Mapeo mínimo solo para casos especiales que no se pueden generar automáticamente
-  // La mayoría de rutas se generan automáticamente desde la ruta misma
+  // Minimal mapping only for special cases that cannot be generated automatically
+  // Most routes are automatically generated from the route itself
   private readonly routeMetadata: { [key: string]: RouteMetadata } = {
     '': { title: 'Home', category: 'Main' },
     'home': { title: 'Home', category: 'Main' }
@@ -32,7 +32,7 @@ export class GoogleAnalyticsService {
     private menuService: MenuService,
     private titleService: Title
   ) {
-    // Interceptar todos los cambios de ruta automáticamente
+    // Automatically intercept all route changes
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
@@ -43,8 +43,8 @@ export class GoogleAnalyticsService {
         this.trackPageView(event.urlAfterRedirects);
       });
     
-    // Trackear la ruta inicial si el NavigationEnd no se ha disparado aún
-    // Esto asegura que la primera página también se trackee
+    // Track the initial route if NavigationEnd hasn't fired yet
+    // This ensures the first page is also tracked
     setTimeout(() => {
       if (!this.hasTrackedInitialRoute) {
         const currentUrl = this.router.url || window.location.hash || window.location.pathname;
@@ -57,56 +57,115 @@ export class GoogleAnalyticsService {
   }
 
   /**
-   * Verifica si el tracking debe estar habilitado
-   * No trackea en modo desarrollo (Angular development mode)
-   * ni en localhost como fallback adicional
+   * Checks if debug override is enabled
+   * Allows tracking in dev/localhost when explicitly activated
+   * Activated with query param ?ga_debug=1 or localStorage.setItem('ga_debug','1')
+   * 
+   * IMPORTANT: With hash routing, query params can be in window.location.hash
+   * (e.g., /#/maturity?ga_debug=1) or in window.location.search (e.g., /?ga_debug=1#/maturity)
+   */
+  private isDebugOverrideEnabled(): boolean {
+    // Check query param in window.location.search (query params before hash)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('ga_debug') === '1') {
+      return true;
+    }
+    
+    // Check query param in window.location.hash (query params after hash)
+    // Example: /#/maturity?ga_debug=1
+    const hash = window.location.hash;
+    if (hash && hash.includes('?')) {
+      const hashParts = hash.split('?');
+      if (hashParts.length > 1) {
+        const hashParams = new URLSearchParams(hashParts[1]);
+        if (hashParams.get('ga_debug') === '1') {
+          return true;
+        }
+      }
+    }
+    
+    // Check localStorage (persistent across navigations)
+    if (localStorage.getItem('ga_debug') === '1') {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Checks if tracking should be enabled
+   * Does not track in development mode (Angular development mode)
+   * nor on localhost as an additional fallback
+   * EXCEPT when debug override is active
    */
   private shouldTrack(): boolean {
-    // No trackear en modo desarrollo de Angular
-    // Esto detecta cuando Angular muestra "Angular is running in development mode"
-    // En producción (GitHub Pages), isDevMode() retorna false
+    const debugOverride = this.isDebugOverrideEnabled();
+    
+    // If override is active, allow tracking even in dev/localhost
+    if (debugOverride) {
+      // Determine the override source for logging
+      let overrideSource = 'localStorage (ga_debug=1)';
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('ga_debug') === '1') {
+        overrideSource = 'query parameter ?ga_debug=1 (in URL search)';
+      } else {
+        const hash = window.location.hash;
+        if (hash && hash.includes('?')) {
+          const hashParts = hash.split('?');
+          if (hashParts.length > 1) {
+            const hashParams = new URLSearchParams(hashParts[1]);
+            if (hashParams.get('ga_debug') === '1') {
+              overrideSource = 'query parameter ?ga_debug=1 (in hash)';
+            }
+          }
+        }
+      }
+      return true;
+    }
+    
+    // Default behavior: Do not track in Angular development mode
+    // This detects when Angular shows "Angular is running in development mode"
+    // In production (GitHub Pages), isDevMode() returns false
     if (isDevMode()) {
       return false;
     }
     
-    // Fallback adicional: No trackear en localhost
-    // Esto cubre casos donde isDevMode() podría no funcionar como esperado
+    // Additional fallback: Do not track on localhost
+    // This covers cases where isDevMode() might not work as expected
     if (window.location.hostname === 'localhost' || 
         window.location.hostname === '127.0.0.1' ||
         window.location.hostname === '') {
       return false;
     }
     
-    // Opcional: No trackear en modo embedded
-    // Puedes descomentar esto si quieres excluir el modo embedded
-    // const urlParams = new URLSearchParams(window.location.search);
-    // if (urlParams.get('embedded') === 'true') {
-    //   return false;
-    // }
-    
     return true;
   }
 
   /**
-   * Verifica si gtag está disponible
+   * Checks if gtag is available
    */
   private isGtagAvailable(): boolean {
     return typeof gtag !== 'undefined' && typeof gtag === 'function';
   }
 
   /**
-   * Obtiene metadata de una ruta
-   * Primero consulta MenuService, luego genera automáticamente desde la ruta
+   * Gets metadata for a route
+   * First queries MenuService, then automatically generates from the route
    */
   private getRouteMetadata(path: string): RouteMetadata {
-    // Remover hash si existe (Angular usa useHash: true)
-    const cleanPath = path.replace(/^#/, '').replace(/^\//, '');
+    // Remove hash and query parameters if exists (Angular uses useHash: true)
+    let cleanPath = path.replace(/^#/, '').replace(/^\//, '');
+    // Remove query parameters (everything after ?)
+    const queryIndex = cleanPath.indexOf('?');
+    if (queryIndex !== -1) {
+      cleanPath = cleanPath.substring(0, queryIndex);
+    }
     
-    // Primero: Buscar en MenuService (fuente de verdad principal)
+    // First: Search in MenuService (primary source of truth)
     const demos = this.menuService.getDemos();
     const menuDemo = demos.find(demo => {
       if (demo.type === 'internal' && demo.url) {
-        // Comparar URLs sin el slash inicial
+        // Compare URLs without the leading slash
         const demoPath = demo.url.replace(/^\//, '');
         return demoPath === cleanPath;
       }
@@ -114,7 +173,7 @@ export class GoogleAnalyticsService {
     });
     
     if (menuDemo) {
-      // Mapear subtitle a category/section
+      // Map subtitle to category/section
       const category = this.mapSubtitleToCategory(menuDemo.subtitle);
       return {
         title: menuDemo.name,
@@ -123,12 +182,12 @@ export class GoogleAnalyticsService {
       };
     }
     
-    // Segundo: Buscar en mapeo local (solo casos especiales como Home)
+    // Second: Search in local mapping (only special cases like Home)
     if (this.routeMetadata[cleanPath]) {
       return this.routeMetadata[cleanPath];
     }
     
-    // Tercero: Manejar rutas con parámetros dinámicos (ej: /clinical-record/:patientId)
+    // Third: Handle routes with dynamic parameters (e.g., /clinical-record/:patientId)
     if (cleanPath.startsWith('clinical-record/')) {
       const patientId = cleanPath.split('/')[1];
       return {
@@ -138,13 +197,13 @@ export class GoogleAnalyticsService {
       };
     }
     
-    // Cuarto: Generar título automáticamente desde la ruta
+    // Fourth: Automatically generate title from the route
     return this.generateMetadataFromPath(cleanPath);
   }
 
   /**
-   * Genera metadata automáticamente desde la ruta
-   * Ejemplos:
+   * Automatically generates metadata from the route
+   * Examples:
    * - 'maturity/dashboard' → 'Maturity Dashboard'
    * - 'clinical-record' → 'Clinical Record'
    * - 'snoguess/scoreboard' → 'SnoGuess Scoreboard'
@@ -154,16 +213,16 @@ export class GoogleAnalyticsService {
       return { title: 'Home', category: 'Main' };
     }
 
-    // Dividir por '/' o '-' y capitalizar cada palabra
+    // Split by '/' or '-' and capitalize each word
     const parts = path.split(/[\/\-]/).map(part => {
-      // Capitalizar primera letra de cada palabra
+      // Capitalize first letter of each word
       return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
     });
 
-    // Unir con espacios
+    // Join with spaces
     const title = parts.join(' ');
 
-    // Intentar inferir categoría desde la ruta
+    // Try to infer category from the route
     const category = this.inferCategoryFromPath(path);
 
     return {
@@ -173,10 +232,10 @@ export class GoogleAnalyticsService {
   }
 
   /**
-   * Infiere la categoría desde la ruta
+   * Infers the category from the route
    */
   private inferCategoryFromPath(path: string): string {
-    // Patrones para inferir categorías
+    // Patterns to infer categories
     if (path.includes('maturity')) return 'Maturity';
     if (path.includes('report')) return 'Reports';
     if (path.includes('game') || path.includes('quiz') || path.includes('snoguess') || path.includes('phaser') || path.includes('triage')) return 'Games';
@@ -188,7 +247,7 @@ export class GoogleAnalyticsService {
   }
 
   /**
-   * Mapea subtitle de MenuService a category para analytics
+   * Maps subtitle from MenuService to category for analytics
    */
   private mapSubtitleToCategory(subtitle: string): string {
     const categoryMap: { [key: string]: string } = {
@@ -203,7 +262,7 @@ export class GoogleAnalyticsService {
   }
 
   /**
-   * Trackea una vista de página
+   * Tracks a page view
    */
   trackPageView(url: string): void {
     const metadata = this.getRouteMetadata(url);
@@ -211,30 +270,40 @@ export class GoogleAnalyticsService {
     const pageCategory = metadata.category;
     const pageSection = metadata.section;
 
-    // Actualizar título HTML (siempre, incluso en desarrollo)
+    // Update HTML title (always, even in development)
     const fullTitle = pageTitle === 'Home' 
       ? 'Implementation Demos' 
       : `${pageTitle} - Implementation Demos`;
     this.titleService.setTitle(fullTitle);
 
-    // Si no debemos trackear (desarrollo/localhost), solo actualizar título y salir
-    if (!this.shouldTrack()) {
-      console.log('[GA] Tracking disabled - Development mode or localhost');
-      console.log('[GA] Title updated to:', fullTitle);
+    // Check if we should track (includes debug override)
+    const shouldTrack = this.shouldTrack();
+    const debugOverride = this.isDebugOverrideEnabled();
+    
+    // If we should not track (development/localhost without override), only update title and exit
+    if (!shouldTrack) {
       return;
     }
 
     if (!this.isGtagAvailable()) {
-      console.warn('[GA] gtag function not available');
       return;
     }
 
     const fullUrl = window.location.origin + window.location.pathname + (url.startsWith('#') ? url : '#' + url);
     
-    // Remover hash para page_path
-    const pagePath = url.replace(/^#/, '') || '/';
+    // Remove hash and query parameters for page_path (compatible with GitHub Pages hash routing)
+    // Query params like ?ga_debug=1 should not be included in page_path
+    let pagePath = url.replace(/^#/, '') || '/';
+    // Remove query parameters from page_path (everything after ?)
+    const queryIndex = pagePath.indexOf('?');
+    if (queryIndex !== -1) {
+      pagePath = pagePath.substring(0, queryIndex);
+    }
 
-    const trackingData = {
+    const trackingData: any = {
+      // Ensure events are sent to the correct GA4 property.
+      // This is safe even when gtag('config', ...) already ran in index.html.
+      send_to: this.GA_TRACKING_ID,
       page_path: pagePath,
       page_title: pageTitle,
       page_location: fullUrl,
@@ -242,17 +311,22 @@ export class GoogleAnalyticsService {
       ...(pageSection && { page_section: pageSection })
     };
 
+    // Enable GA4 DebugView when override is active
+    // This allows seeing events in real-time in GA4 DebugView even in dev/localhost
+    if (debugOverride) {
+      trackingData.debug_mode = true;
+    }
+
     // IMPORTANT: Use 'event' with 'page_view' instead of 'config' to avoid GA4 deduplication
     // GA4 silently deduplicates page views when using gtag('config', ...) multiple times,
     // which prevents page views from appearing in Realtime reports for SPAs with hash routing.
     // Using gtag('event', 'page_view', ...) ensures each route change is tracked as a distinct page view.
     // The initial gtag('config', ...) in index.html is sufficient for initialization.
     gtag('event', 'page_view', trackingData);
-    console.log('[GA] Page view tracked:', trackingData);
   }
 
   /**
-   * Trackea un evento personalizado
+   * Tracks a custom event
    */
   trackEvent(eventName: string, eventParams?: { [key: string]: any }): void {
     if (!this.shouldTrack() || !this.isGtagAvailable()) {
@@ -263,7 +337,7 @@ export class GoogleAnalyticsService {
   }
 
   /**
-   * Trackea un evento de conversión o acción importante
+   * Tracks a conversion event or important action
    */
   trackConversion(action: string, category: string, label?: string, value?: number): void {
     this.trackEvent(action, {
