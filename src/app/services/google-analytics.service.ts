@@ -242,8 +242,12 @@ export class GoogleAnalyticsService {
       ...(pageSection && { page_section: pageSection })
     };
 
-    // Enviar evento de página a Google Analytics
-    gtag('config', this.GA_TRACKING_ID, trackingData);
+    // IMPORTANT: Use 'event' with 'page_view' instead of 'config' to avoid GA4 deduplication
+    // GA4 silently deduplicates page views when using gtag('config', ...) multiple times,
+    // which prevents page views from appearing in Realtime reports for SPAs with hash routing.
+    // Using gtag('event', 'page_view', ...) ensures each route change is tracked as a distinct page view.
+    // The initial gtag('config', ...) in index.html is sufficient for initialization.
+    gtag('event', 'page_view', trackingData);
     console.log('[GA] Page view tracked:', trackingData);
   }
 
