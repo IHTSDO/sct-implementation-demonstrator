@@ -1,10 +1,12 @@
-import { Component, OnInit, AfterViewInit, Inject, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Inject, ViewContainerRef, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 import { ConceptLookupDialogComponent } from '../concept-lookup-dialog/concept-lookup-dialog.component';
 import { TerminologyService } from '../../services/terminology.service';
+import { HttpClient } from '@angular/common/http';
+import { Subject, takeUntil, startWith, map } from 'rxjs';
 
 export interface ObservationResultData {
   status: string;
@@ -60,7 +62,8 @@ export interface ObservationResultData {
   styleUrls: ['./observation-result-form.component.css'],
   standalone: false
 })
-export class ObservationResultFormComponent implements OnInit, AfterViewInit {
+export class ObservationResultFormComponent implements OnInit, AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   observationForm: FormGroup;
   isViewOnly: boolean = false;
   valueType: 'quantity' | 'string' | 'codeableConcept' = 'quantity';
@@ -176,17 +179,11 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
     note: 'Search for laboratory test codes'
   };
 
-  // Common units for laboratory values
-  unitOptions = [
-    { code: 'g/L', display: 'g/L', system: 'http://unitsofmeasure.org' },
-    { code: 'mg/dL', display: 'mg/dL', system: 'http://unitsofmeasure.org' },
-    { code: 'mmol/L', display: 'mmol/L', system: 'http://unitsofmeasure.org' },
-    { code: '10*3/uL', display: '10³/µL', system: 'http://unitsofmeasure.org' },
-    { code: '10*6/uL', display: '10⁶/µL', system: 'http://unitsofmeasure.org' },
-    { code: '%', display: '%', system: 'http://unitsofmeasure.org' },
-    { code: 'fL', display: 'fL', system: 'http://unitsofmeasure.org' },
-    { code: 'pg', display: 'pg', system: 'http://unitsofmeasure.org' }
-  ];
+  // UCUM units loaded from FHIR ValueSet
+  unitOptions: Array<{ code: string; display: string; system: string }> = [];
+  unitFilteredOptions: Array<{ code: string; display: string; system: string }> = [];
+  unitOptionsLoading = false;
+  unitSearchControl = new FormControl('');
 
   constructor(
     private fb: FormBuilder,
@@ -195,7 +192,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     private terminologyService: TerminologyService,
     private snackBar: MatSnackBar,
-    private viewContainerRef: ViewContainerRef
+    private viewContainerRef: ViewContainerRef,
+    private http: HttpClient
   ) {
     this.observationForm = this.createForm();
     // Check if data contains viewOnly flag
@@ -217,6 +215,136 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.loadUCUMUnits();
+    this.setupUnitFilter();
+    this.updateUnitControlState();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadUCUMUnits(): void {
+    this.unitOptionsLoading = true;
+    
+    // Load from static JSON file in assets
+    this.http.get<any>('assets/data/ucum-units.json')
+      .subscribe({
+        next: (response) => {
+          if (response?.expansion?.contains) {
+            this.unitOptions = response.expansion.contains.map((item: any) => ({
+              code: item.code || '',
+              display: item.display || item.code || '',
+              system: item.system || 'http://unitsofmeasure.org'
+            }));
+            // Sort by display name for better UX
+            this.unitOptions.sort((a, b) => a.display.localeCompare(b.display));
+            
+            // Initialize filtered options
+            this.unitFilteredOptions = [...this.unitOptions];
+            
+            // If we have a unit code in the form, try to match it now
+            const currentUnitCode = this.valueQuantityUnitControl?.value;
+            if (currentUnitCode && typeof currentUnitCode === 'string') {
+              const matchedUnit = this.unitOptions.find(u => u.code === currentUnitCode);
+              if (matchedUnit) {
+                this.valueQuantityUnitControl.setValue(matchedUnit.code, { emitEvent: false });
+              }
+            }
+          } else {
+            // Fallback to common units if expansion fails
+            this.unitOptions = this.getFallbackUnits();
+          }
+          // Initialize filtered options
+          this.unitFilteredOptions = [...this.unitOptions];
+          this.unitOptionsLoading = false;
+          this.updateUnitControlState();
+        },
+        error: (err) => {
+          console.error('Error loading UCUM units from assets:', err);
+          // Fallback to common units on error
+          this.unitOptions = this.getFallbackUnits();
+          // Initialize filtered options
+          this.unitFilteredOptions = [...this.unitOptions];
+          this.unitOptionsLoading = false;
+          this.updateUnitControlState();
+        }
+      });
+  }
+
+  private updateUnitControlState(): void {
+    if (this.isViewOnly || this.unitOptionsLoading) {
+      this.valueQuantityUnitControl?.disable({ emitEvent: false });
+    } else {
+      this.valueQuantityUnitControl?.enable({ emitEvent: false });
+    }
+  }
+
+  private getFallbackUnits(): Array<{ code: string; display: string; system: string }> {
+    return [
+      { code: 'g/L', display: 'g/L', system: 'http://unitsofmeasure.org' },
+      { code: 'mg/dL', display: 'mg/dL', system: 'http://unitsofmeasure.org' },
+      { code: 'mmol/L', display: 'mmol/L', system: 'http://unitsofmeasure.org' },
+      { code: '10*3/uL', display: '10³/µL', system: 'http://unitsofmeasure.org' },
+      { code: '10*6/uL', display: '10⁶/µL', system: 'http://unitsofmeasure.org' },
+      { code: '%', display: '%', system: 'http://unitsofmeasure.org' },
+      { code: 'fL', display: 'fL', system: 'http://unitsofmeasure.org' },
+      { code: 'pg', display: 'pg', system: 'http://unitsofmeasure.org' }
+    ];
+  }
+
+  private setupUnitFilter(): void {
+    this.unitSearchControl.valueChanges
+      .pipe(
+        startWith(''),
+        map(term => (term ?? '').toLowerCase()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(term => {
+        if (!term || term.length === 0) {
+          this.unitFilteredOptions = [...this.unitOptions];
+        } else {
+          // Filter and sort by match length (shorter matches first)
+          this.unitFilteredOptions = this.unitOptions
+            .filter(unit => {
+              const displayLower = unit.display.toLowerCase();
+              const codeLower = unit.code.toLowerCase();
+              return displayLower.includes(term) || codeLower.includes(term);
+            })
+            .map(unit => {
+              const displayLower = unit.display.toLowerCase();
+              const codeLower = unit.code.toLowerCase();
+              
+              // Calculate match length - prefer exact matches, then display matches, then code matches
+              let matchLength = Infinity;
+              
+              if (displayLower === term || codeLower === term) {
+                // Exact match - highest priority
+                matchLength = 0;
+              } else if (displayLower.startsWith(term) || codeLower.startsWith(term)) {
+                // Starts with term - high priority
+                matchLength = displayLower.startsWith(term) ? displayLower.length : codeLower.length;
+              } else if (displayLower.includes(term)) {
+                // Contains in display
+                matchLength = displayLower.length;
+              } else if (codeLower.includes(term)) {
+                // Contains in code
+                matchLength = codeLower.length;
+              }
+              
+              return { unit, matchLength };
+            })
+            .sort((a, b) => {
+              // Sort by match length (shorter first), then alphabetically
+              if (a.matchLength !== b.matchLength) {
+                return a.matchLength - b.matchLength;
+              }
+              return a.unit.display.localeCompare(b.unit.display);
+            })
+            .map(item => item.unit);
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -228,13 +356,15 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
       if (this.isViewOnly) {
         this.observationForm.disable();
         // Also explicitly disable nested form groups and controls
-        this.observationForm.get('valueQuantity')?.disable();
-        this.observationForm.get('referenceRange')?.disable();
+        this.observationForm.get('valueQuantity')?.disable({ emitEvent: false });
+        this.observationForm.get('referenceRange')?.disable({ emitEvent: false });
         // Disable individual nested controls
-        this.valueQuantityUnitControl?.disable();
-        this.valueQuantityValueControl?.disable();
-        this.referenceRangeTextControl?.disable();
+        this.valueQuantityUnitControl?.disable({ emitEvent: false });
+        this.valueQuantityValueControl?.disable({ emitEvent: false });
+        this.referenceRangeTextControl?.disable({ emitEvent: false });
       }
+      // Update unit control state after view init
+      this.updateUnitControlState();
     }
   }
 
@@ -274,6 +404,13 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
         performer: data.performer || null,
         note: data.note || ''
       }, { emitEvent: false });
+
+      // Sync unit control with form control
+      if (data.valueQuantity?.unit) {
+        const unitCode = data.valueQuantity.unit;
+        // Set the unit code directly - it will be matched when units load
+        this.valueQuantityUnitControl.setValue(unitCode, { emitEvent: false });
+      }
 
       this.updateValueType();
     }, 100);
@@ -397,6 +534,21 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit {
 
   get valueQuantityUnitControl(): FormControl {
     return this.observationForm.get('valueQuantity')?.get('unit') as FormControl;
+  }
+
+  onUnitSelected(unitCode: string): void {
+    if (unitCode) {
+      this.valueQuantityUnitControl.setValue(unitCode);
+      this.valueQuantityUnitControl.markAsTouched();
+    }
+  }
+
+  getUnitDisplay(unitCode: string | null): string {
+    if (!unitCode) {
+      return '';
+    }
+    const unit = this.unitOptions.find(u => u.code === unitCode);
+    return unit ? unit.display : unitCode;
   }
 
   get referenceRangeTextControl(): FormControl {

@@ -376,6 +376,37 @@ export class TerminologyService {
       );
   }
 
+  /**
+   * Expands a FHIR ValueSet by URL directly (without ECL)
+   * @param valuesetUrl The canonical URL of the ValueSet (e.g., 'http://hl7.org/fhir/ValueSet/ucum-units')
+   * @param fhirBase Optional FHIR base URL (defaults to 'https://tx.fhir.org/r4')
+   * @param filter Optional filter term to search within the valueset
+   * @param offset Optional offset for pagination
+   * @param count Optional count for pagination
+   * @returns Observable with the expanded ValueSet
+   */
+  expandValueSetByUrl(valuesetUrl: string, fhirBase?: string, filter?: string, offset?: number, count?: number): Observable<any> {
+    if (!offset) offset = 0;
+    if (!count) count = 1000; // Default to large count for UCUM units
+    if (!fhirBase) fhirBase = 'https://tx.fhir.org/r4'; // Default FHIR terminology server
+    if (!filter) filter = '';
+    
+    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${encodeURIComponent(valuesetUrl)}&count=${count}&offset=${offset}`;
+    if (filter) {
+      requestUrl += `&filter=${encodeURIComponent(filter)}`;
+    }
+    
+    const headers = new HttpHeaders({
+      'Accept': 'application/fhir+json',
+      'Accept-Language': 'en'
+    });
+    
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(
+        catchError(this.handleError<any>('expandValueSetByUrl', {}))
+      );
+  }
+
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       this._snackBar.openFromComponent(SnackAlertComponent, {

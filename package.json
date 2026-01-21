@@ -7,7 +7,8 @@
     "build": "ng build",
     "build:test": "ng build --base-href /",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "download-ucum": "node scripts/download-ucum-units.js"
   },
   "private": true,
   "dependencies": {
