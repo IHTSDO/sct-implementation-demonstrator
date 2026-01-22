@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { saveAs } from 'file-saver';
 import { v4 as uuidv4 } from 'uuid';
 import JSZip from 'jszip';
+import * as pako from 'pako';
 import { MatDialog } from '@angular/material/dialog';
 import { FhirServerDialogComponent } from './fhir-server-dialog/fhir-server-dialog.component';
 
@@ -38,6 +39,8 @@ interface FHIRResource {
   };
   sourceUri?: string;
   targetUri?: string;
+  sourceCanonical?: string;
+  targetCanonical?: string;
   group?: Array<{
     source: string;
     target: string;
@@ -57,7 +60,11 @@ interface FHIRPackage {
   manifest: {
     name: string;
     version: string;
+    description?: string;
     fhirVersion: string;
+    dependencies?: Record<string, string>;
+    author?: string;
+    url?: string;
     resources: Array<{type: string, reference: string}>;
   };
   index: {
@@ -66,6 +73,8 @@ interface FHIRPackage {
       filename: string;
       resourceType: string;
       id: string;
+      kind?: string;
+      version?: string;
       url: string;
     }>;
   };
@@ -529,7 +538,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
     // Pre-fill ValueSet metadata fields from the source FHIR ValueSet
     if (json.url) {
-      this.valueSetUri = json.url;
+      this.valueSetUri = this.normalizeBaseUrl(json.url);
     }
     if (json.name) {
       this.valueSetName = json.name;
@@ -1241,10 +1250,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     }
 
     // Use sourceSystemUri for CodeSystem, valueSetUri for ValueSets
+    const baseUri = this.normalizeBaseUrl(this.valueSetUri);
     const codeSystemUrl = this.sourceSystemUri;
-    const valueSetUrl = `${this.valueSetUri}/ValueSet/${this.valueSetName}`;
-    const snomedValueSetUrl = `${this.valueSetUri}/ValueSet/${this.valueSetName}-snomed`;
-    const conceptMapUrl = `${this.valueSetUri}/ConceptMap/${this.valueSetName}-to-snomed`;
+    const valueSetUrl = `${baseUri}/ValueSet/${this.valueSetName}`;
+    const snomedValueSetUrl = `${baseUri}/ValueSet/${this.valueSetName}-snomed`;
+    const conceptMapUrl = `${baseUri}/ConceptMap/${this.valueSetName}-to-snomed`;
 
     const codeSystem: FHIRResource = {
       resourceType: 'CodeSystem',
@@ -1298,8 +1308,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       name: `${this.valueSetName}ToSnomedMap`,
       version: this.valueSetVersion,
       status: 'active',
-      sourceUri: sourceUri,
-      targetUri: targetUri,
+      ...(this.mapBetweenValueSets
+        ? { sourceCanonical: sourceUri, targetCanonical: targetUri }
+        : { sourceUri: sourceUri, targetUri: targetUri }),
       group: [{
         source: sourceUri,
         target: targetUri,
@@ -1325,7 +1336,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       manifest: {
         name: `${this.valueSetName}.codesystem.package`,
         version: this.valueSetVersion,
+        description: `${this.valueSetName} FHIR package`,
         fhirVersion: '4.0.1',
+        dependencies: {},
+        author: 'SCT Implementation Demonstrator',
+        url: baseUri,
         resources: [
           { type: 'CodeSystem', reference: `CodeSystem/${codeSystem.name}` },
           { type: 'ValueSet', reference: `ValueSet/${valueSet.name}` },
@@ -1336,10 +1351,10 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       index: {
         'index-version': 1,
         files: [
-          { filename: `CodeSystem/${codeSystem.name}.json`, resourceType: 'CodeSystem', id: codeSystem.id, url: codeSystem.url },
-          { filename: `ValueSet/${valueSet.name}.json`, resourceType: 'ValueSet', id: valueSet.id, url: valueSet.url },
-          { filename: `ValueSet/${snomedValueSet.name}.json`, resourceType: 'ValueSet', id: snomedValueSet.id, url: snomedValueSet.url },
-          { filename: `ConceptMap/${conceptMap.name}.json`, resourceType: 'ConceptMap', id: conceptMap.id, url: conceptMap.url }
+          { filename: `CodeSystem/${codeSystem.name}.json`, resourceType: 'CodeSystem', id: codeSystem.id, url: codeSystem.url, kind: 'codesystem', version: codeSystem.version },
+          { filename: `ValueSet/${valueSet.name}.json`, resourceType: 'ValueSet', id: valueSet.id, url: valueSet.url, kind: 'valueset', version: valueSet.version },
+          { filename: `ValueSet/${snomedValueSet.name}.json`, resourceType: 'ValueSet', id: snomedValueSet.id, url: snomedValueSet.url, kind: 'valueset', version: snomedValueSet.version },
+          { filename: `ConceptMap/${conceptMap.name}.json`, resourceType: 'ConceptMap', id: conceptMap.id, url: conceptMap.url, kind: 'conceptmap', version: conceptMap.version }
         ]
       },
       resources: { codeSystem, valueSet, snomedValueSet, conceptMap }
@@ -1347,53 +1362,133 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   }
 
   private async createTarGz(packageData: FHIRPackage): Promise<Blob> {
-    const zip = new JSZip();
+    const textEncoder = new TextEncoder();
+
+    const files: Array<{ name: string; data: Uint8Array }> = [
+      {
+        name: 'package/package.json',
+        data: textEncoder.encode(JSON.stringify(packageData.manifest, null, 2))
+      },
+      {
+        name: 'package/.index.json',
+        data: textEncoder.encode(JSON.stringify(packageData.index, null, 2))
+      },
+      {
+        name: `package/CodeSystem/${packageData.resources.codeSystem.name}.json`,
+        data: textEncoder.encode(JSON.stringify(packageData.resources.codeSystem, null, 2))
+      },
+      {
+        name: `package/ValueSet/${packageData.resources.valueSet.name}.json`,
+        data: textEncoder.encode(JSON.stringify(packageData.resources.valueSet, null, 2))
+      },
+      {
+        name: `package/ValueSet/${packageData.resources.snomedValueSet.name}.json`,
+        data: textEncoder.encode(JSON.stringify(packageData.resources.snomedValueSet, null, 2))
+      },
+      {
+        name: `package/ConceptMap/${packageData.resources.conceptMap.name}.json`,
+        data: textEncoder.encode(JSON.stringify(packageData.resources.conceptMap, null, 2))
+      }
+    ];
+
+    const tarData = this.buildTarArchive(files);
     
-    // Create package directory structure
-    const packageFolder = zip.folder('package');
-    if (!packageFolder) throw new Error('Failed to create package folder');
+    // Compress with gzip using pako
+    const gzipped = pako.gzip(tarData, { level: 9 });
     
-    const codeSystemFolder = packageFolder.folder('CodeSystem');
-    const valueSetFolder = packageFolder.folder('ValueSet');
-    const conceptMapFolder = packageFolder.folder('ConceptMap');
-    
-    if (!codeSystemFolder || !valueSetFolder || !conceptMapFolder) {
-      throw new Error('Failed to create resource folders');
+    // Return as Blob with correct MIME type
+    return new Blob([gzipped], { type: 'application/gzip' });
+  }
+
+  private normalizeBaseUrl(rawUrl: string): string {
+    const trimmed = (rawUrl || '').trim();
+    if (!trimmed) return '';
+    const withScheme = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    const withoutTrailingSlash = withScheme.replace(/\/+$/, '');
+    const withoutResourceTail = withoutTrailingSlash.replace(
+      /(\/(ValueSet|CodeSystem|ConceptMap)(\/.*)?)$/i,
+      ''
+    );
+    return withoutResourceTail.replace(/\/+$/, '');
+  }
+
+  private buildTarArchive(files: Array<{ name: string; data: Uint8Array }>): Uint8Array {
+    const blocks: Uint8Array[] = [];
+    let totalLength = 0;
+    const mtime = Math.floor(Date.now() / 1000);
+
+    for (const file of files) {
+      const header = this.createTarHeader(file.name, file.data.length, mtime);
+      blocks.push(header);
+      blocks.push(file.data);
+      totalLength += header.length + file.data.length;
+
+      const padding = (512 - (file.data.length % 512)) % 512;
+      if (padding) {
+        const pad = new Uint8Array(padding);
+        blocks.push(pad);
+        totalLength += padding;
+      }
     }
 
-    // Add resources with proper formatting
-    codeSystemFolder.file(
-      `${packageData.resources.codeSystem.name}.json`,
-      JSON.stringify(packageData.resources.codeSystem, null, 2)
-    );
-    
-    valueSetFolder.file(
-      `${packageData.resources.valueSet.name}.json`,
-      JSON.stringify(packageData.resources.valueSet, null, 2)
-    );
-    
-    valueSetFolder.file(
-      `${packageData.resources.snomedValueSet.name}.json`,
-      JSON.stringify(packageData.resources.snomedValueSet, null, 2)
-    );
+    const end = new Uint8Array(1024);
+    blocks.push(end);
+    totalLength += end.length;
 
-    conceptMapFolder.file(
-      `${packageData.resources.conceptMap.name}.json`,
-      JSON.stringify(packageData.resources.conceptMap, null, 2)
-    );
-    
-    packageFolder.file('package.json', JSON.stringify(packageData.manifest, null, 2));
-    packageFolder.file('.index.json', JSON.stringify(packageData.index, null, 2));
-    
-    // Generate the zip file
-    return await zip.generateAsync({
-      type: 'blob',
-      mimeType: 'application/zip',
-      compression: 'DEFLATE',
-      compressionOptions: {
-        level: 9
-      }
-    });
+    const out = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const block of blocks) {
+      out.set(block, offset);
+      offset += block.length;
+    }
+
+    return out;
+  }
+
+  private createTarHeader(name: string, size: number, mtime: number): Uint8Array {
+    const header = new Uint8Array(512);
+    this.writeString(header, 0, 100, name);
+    this.writeOctal(header, 100, 8, 0o644);
+    this.writeOctal(header, 108, 8, 0);
+    this.writeOctal(header, 116, 8, 0);
+    this.writeOctal(header, 124, 12, size);
+    this.writeOctal(header, 136, 12, mtime);
+
+    for (let i = 148; i < 156; i += 1) {
+      header[i] = 0x20;
+    }
+
+    this.writeString(header, 156, 1, '0');
+    this.writeString(header, 257, 6, 'ustar\0');
+    this.writeString(header, 263, 2, '00');
+
+    let checksum = 0;
+    for (let i = 0; i < header.length; i += 1) {
+      checksum += header[i];
+    }
+
+    this.writeChecksum(header, checksum);
+
+    return header;
+  }
+
+  private writeString(buffer: Uint8Array, offset: number, length: number, value: string): void {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(value);
+    buffer.set(bytes.slice(0, length), offset);
+  }
+
+  private writeOctal(buffer: Uint8Array, offset: number, length: number, value: number): void {
+    const octal = value.toString(8).padStart(length - 1, '0');
+    this.writeString(buffer, offset, length - 1, octal);
+    buffer[offset + length - 1] = 0x00;
+  }
+
+  private writeChecksum(buffer: Uint8Array, checksum: number): void {
+    const checksumString = checksum.toString(8).padStart(6, '0');
+    this.writeString(buffer, 148, 6, checksumString);
+    buffer[154] = 0x00;
+    buffer[155] = 0x20;
   }
 
   private async convertToCSV(): Promise<void> {

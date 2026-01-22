@@ -41,6 +41,7 @@
     "jspdf": "^3.0.0",
     "jszip": "^3.10.1",
     "leaflet": "^1.9.4",
+    "pako": "^2.1.0",
     "leaflet-geosearch": "^4.2.0",
     "lodash": "^4.17.21",
     "ngx-gauge": "^12.0.0",

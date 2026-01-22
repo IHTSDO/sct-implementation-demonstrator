@@ -20,6 +20,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
 
     steps:
     - name: Checkout
@@ -33,6 +35,14 @@ jobs:
         
     - name: Install dependencies
       run: npm ci --legacy-peer-deps
+      
+    - name: Inject GA measurement ID (main repo only)
+      env:
+        GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
+      run: |
+        if [ -n "$GA_MEASUREMENT_ID" ]; then
+          perl -pi -e "s/__GA_MEASUREMENT_ID__/$GA_MEASUREMENT_ID/g" src/index.html
+        fi
       
     - name: Build Angular application
       run: npm run build

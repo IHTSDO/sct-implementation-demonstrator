@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/atom-one-dark.min.css" />
   <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7SK998GPMX"></script>
+  <!-- GA4 is loaded dynamically only when a valid Measurement ID is injected at build time -->
   <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
 
   <meta name="mobile-web-app-capable" content="yes">
@@ -22,15 +22,36 @@
 
   <!-- <script src="https://clinicaltables.nlm.nih.gov/lforms-versions/34.3.1/webcomponent/lhc-forms.js"></script> -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    (function () {
+      // This placeholder is replaced in CI for the main repo's GitHub Pages build.
+      // Forks will not have the repo variable and will keep the placeholder, so GA won't load.
+      const measurementId = '__GA_MEASUREMENT_ID__';
+      const isValid = /^G-[A-Z0-9]+$/.test(measurementId);
+      if (!isValid) {
+        return;
+      }
 
-    // Initialize GA4 ONCE.
-    // We set send_page_view:false because this is an Angular SPA and page views
-    // are sent on route changes via GoogleAnalyticsService using:
-    // gtag('event', 'page_view', ...)
-    gtag('config', 'G-7SK998GPMX', { send_page_view: false });
+      // Expose the measurement id for the Angular app (used as send_to).
+      window.__GA_MEASUREMENT_ID__ = measurementId;
+
+      // Standard gtag bootstrap
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      window.gtag = window.gtag || gtag;
+      gtag('js', new Date());
+
+      // Load gtag.js
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(measurementId);
+      document.head.appendChild(s);
+
+      // Initialize GA4 ONCE.
+      // We set send_page_view:false because this is an Angular SPA and page views
+      // are sent on route changes via GoogleAnalyticsService using:
+      // gtag('event', 'page_view', ...)
+      gtag('config', measurementId, { send_page_view: false });
+    })();
   </script>
 </head>
 <body class="mat-typography">

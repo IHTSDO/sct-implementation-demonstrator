@@ -6,6 +6,12 @@ import { MenuService } from './menu.service';
 
 declare let gtag: Function;
 
+declare global {
+  interface Window {
+    __GA_MEASUREMENT_ID__?: string;
+  }
+}
+
 interface RouteMetadata {
   title: string;
   category: string;
@@ -16,7 +22,6 @@ interface RouteMetadata {
   providedIn: 'root'
 })
 export class GoogleAnalyticsService {
-  private readonly GA_TRACKING_ID = 'G-7SK998GPMX';
   private hasTrackedInitialRoute = false;
   
   // Minimal mapping only for special cases that cannot be generated automatically
@@ -149,6 +154,16 @@ export class GoogleAnalyticsService {
   }
 
   /**
+   * Reads the GA4 Measurement ID injected by index.html (CI replaces the placeholder).
+   * If not present/valid, tracking calls become no-ops.
+   */
+  private getMeasurementId(): string | undefined {
+    const id = window.__GA_MEASUREMENT_ID__;
+    if (!id) return undefined;
+    return /^G-[A-Z0-9]+$/.test(id) ? id : undefined;
+  }
+
+  /**
    * Gets metadata for a route
    * First queries MenuService, then automatically generates from the route
    */
@@ -189,9 +204,9 @@ export class GoogleAnalyticsService {
     
     // Third: Handle routes with dynamic parameters (e.g., /clinical-record/:patientId)
     if (cleanPath.startsWith('clinical-record/')) {
-      const patientId = cleanPath.split('/')[1];
       return {
-        title: `Clinical Record - Patient ${patientId}`,
+        // Avoid tracking patient identifiers in titles/analytics.
+        title: 'Clinical Record',
         category: 'Demos',
         section: 'EHR'
       };
@@ -299,11 +314,18 @@ export class GoogleAnalyticsService {
     if (queryIndex !== -1) {
       pagePath = pagePath.substring(0, queryIndex);
     }
+    // Normalize dynamic routes to avoid tracking identifiers (e.g., patient IDs).
+    // Example: /clinical-record/patient-123 → /clinical-record
+    if (pagePath.startsWith('/clinical-record/')) {
+      pagePath = '/clinical-record';
+    }
+
+    const measurementId = this.getMeasurementId();
 
     const trackingData: any = {
-      // Ensure events are sent to the correct GA4 property.
-      // This is safe even when gtag('config', ...) already ran in index.html.
-      send_to: this.GA_TRACKING_ID,
+      // When present, explicitly send to the correct GA4 property.
+      // If missing (e.g., forks), GA won't load and gtag won't be available anyway.
+      ...(measurementId ? { send_to: measurementId } : {}),
       page_path: pagePath,
       page_title: pageTitle,
       page_location: fullUrl,
