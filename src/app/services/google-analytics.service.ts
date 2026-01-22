@@ -158,7 +158,7 @@ export class GoogleAnalyticsService {
    * If not present/valid, tracking calls become no-ops.
    */
   private getMeasurementId(): string | undefined {
-    const id = window.__GA_MEASUREMENT_ID__;
+    const id = window['__GA_MEASUREMENT_ID__'];
     if (!id) return undefined;
     return /^G-[A-Z0-9]+$/.test(id) ? id : undefined;
   }

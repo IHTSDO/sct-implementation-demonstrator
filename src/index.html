@@ -32,7 +32,7 @@
       }
 
       // Expose the measurement id for the Angular app (used as send_to).
-      window.__GA_MEASUREMENT_ID__ = measurementId;
+      window['__GA_MEASUREMENT_ID__'] = measurementId;
 
       // Standard gtag bootstrap
       window.dataLayer = window.dataLayer || [];
