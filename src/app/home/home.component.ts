@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
+import { GoogleAnalyticsService } from '../services/google-analytics.service';
 
 @Component({
     selector: 'app-home',
@@ -18,7 +19,12 @@ export class HomeComponent implements OnInit{
   searchText: string = '';
   embeddedMode: boolean = false;
 
-  constructor(public router: Router, public route: ActivatedRoute, private menuService: MenuService) { }
+  constructor(
+    public router: Router, 
+    public route: ActivatedRoute, 
+    private menuService: MenuService,
+    private gaService: GoogleAnalyticsService
+  ) { }
 
   ngOnInit(): void {
     this.allDemos = this.menuService.getDemos();
@@ -130,14 +136,38 @@ export class HomeComponent implements OnInit{
         }
         this.router.navigate([demo.url], { queryParams: queryParams });
       } else {
-        this.openInNewTab('https://ihtsdo.github.io/sct-implementation-demonstrator/#' + demo.url);
+        this.openInNewTab('https://ihtsdo.github.io/sct-implementation-demonstrator/#' + demo.url, demo.name || 'External Demo');
       }
     } else {
-      this.openInNewTab(demo.url);
+      this.openInNewTab(demo.url, demo.name || 'External Link');
     }
   }
 
-  openInNewTab(url: string) {
+  openInNewTab(url: string, linkText?: string) {
+    // Track external link click
+    this.gaService.trackEvent('click', {
+      event_category: 'External Link',
+      event_label: linkText || url,
+      link_url: url,
+      link_text: linkText || url
+    });
+    
+    window.open(url, '_blank');
+  }
+
+  trackExternalLinkClick(url: string, linkText: string, event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
+    
+    // Track external link click
+    this.gaService.trackEvent('click', {
+      event_category: 'External Link',
+      event_label: linkText,
+      link_url: url,
+      link_text: linkText
+    });
+    
     window.open(url, '_blank');
   }
 
