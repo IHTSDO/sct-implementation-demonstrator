@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import shutil
 import time
 
 from dotenv import load_dotenv
@@ -11,11 +12,44 @@ from fsn_changes import detect_fsn_changes
 from fsn_changes_graph_details import generate_fsn_changes_report
 from new_concepts import detect_new_concepts
 from new_concepts_graph_details import generate_new_concepts_report
-from file_locator import getFilePath
+from file_locator import getFilePath, parse_snomed_release_date
 from syndication_downloader import download_latest_international
 from ci_utils import is_ci, log
 
+def cleanup_previous_data(data_dir="data"):
+    """
+    Remove all previous SNOMED extracted folders from the data directory.
+    """
+    if not os.path.exists(data_dir):
+        return
+    
+    log("🧹 Cleaning up previous temporary data...")
+    removed_count = 0
+    
+    for item in os.listdir(data_dir):
+        item_path = os.path.join(data_dir, item)
+        # Remove directories that look like SNOMED releases
+        if os.path.isdir(item_path) and "SnomedCT_" in item:
+            try:
+                shutil.rmtree(item_path)
+                removed_count += 1
+                if not is_ci():
+                    log(f"  ✓ Removed: {item}")
+            except Exception as e:
+                log(f"  ⚠ Warning: Could not remove {item}: {e}")
+    
+    if removed_count > 0:
+        log(f"✓ Cleaned up {removed_count} previous release(s)")
+    else:
+        log("✓ No previous data to clean up")
+    log("")
+
 def main():
+    # ------------------------------------------------------------------
+    # 0. Clean up previous temporary data
+    # ------------------------------------------------------------------
+    cleanup_previous_data("data")
+    
     # ------------------------------------------------------------------
     # 1. Descargar y extraer release SNOMED (vía syndication feed)
     # ------------------------------------------------------------------
@@ -25,6 +59,13 @@ def main():
 
     root_folder = download_latest_international("data")
     log(f"Using release folder: {root_folder}")
+    
+    # Log parsed date from folder name
+    try:
+        parsed_date = parse_snomed_release_date(root_folder)
+        log(f"📅 Parsed release date from folder name: {parsed_date}")
+    except Exception as e:
+        log(f"⚠ Warning: Could not parse date from folder name: {e}")
 
     # ------------------------------------------------------------------
     # 2. Localizar archivos RF2

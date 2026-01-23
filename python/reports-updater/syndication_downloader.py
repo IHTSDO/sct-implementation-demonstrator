@@ -95,9 +95,14 @@ def get_latest_international_release(feed_url="https://mlds.ihtsdotools.org/api/
     log(f"  Published: {latest.get('published', 'N/A')}")
     log(f"  Version: {latest['content_version']}")
     log(f"  Package Type: {latest['category']}")
-    log(f"  Download URL: {latest['zip_url'][:80]}...")
     
-    return latest["zip_url"], latest["title"]
+    # Extract filename from URL
+    zip_url = latest['zip_url']
+    url_filename = os.path.basename(zip_url.split('?')[0]) if zip_url else "unknown"
+    log(f"  Download filename: {url_filename}")
+    log(f"  Download URL: {zip_url[:80]}...")
+    
+    return zip_url, latest["title"]
 
 
 def download_latest_international(download_dir="data"):

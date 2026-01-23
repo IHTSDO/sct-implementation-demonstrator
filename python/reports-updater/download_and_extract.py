@@ -2,7 +2,7 @@ import os
 import zipfile
 import requests
 from tqdm import tqdm
-from ci_utils import is_ci
+from ci_utils import is_ci, log
 
 def download_and_extract_snomed(url, output_dir="data"):
     """
@@ -12,6 +12,11 @@ def download_and_extract_snomed(url, output_dir="data"):
     os.makedirs(output_dir, exist_ok=True)
     zip_path = os.path.join(output_dir, "snomed_release.zip")
 
+    # Extract filename from URL for logging
+    url_filename = os.path.basename(url.split('?')[0]) if url else "unknown"
+    log(f"📦 Download URL filename: {url_filename}")
+    log(f"📦 Full URL: {url[:100]}..." if len(url) > 100 else f"📦 Full URL: {url}")
+    
     if not is_ci():
         print(f"Downloading SNOMED release...")
     auth_user = os.getenv("SNOMED_USER")
@@ -60,8 +65,20 @@ def download_and_extract_snomed(url, output_dir="data"):
         print("Extracting ZIP file...")
     
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        # Extract with progress (disabled in CI)
+        # Log top-level folders/files in ZIP before extraction
         members = zip_ref.namelist()
+        top_level_items = set()
+        for member in members:
+            # Get top-level directory/file name
+            top_level = member.split('/')[0] if '/' in member else member
+            if top_level:
+                top_level_items.add(top_level)
+        
+        log(f"📂 Top-level items in ZIP: {', '.join(sorted(top_level_items)[:5])}")
+        if len(top_level_items) > 5:
+            log(f"   ... and {len(top_level_items) - 5} more items")
+        
+        # Extract with progress (disabled in CI)
         with tqdm(total=len(members), desc="Extraction progress", disable=is_ci()) as pbar:
             for member in members:
                 zip_ref.extract(member, output_dir)
@@ -82,6 +99,15 @@ def download_and_extract_snomed(url, output_dir="data"):
         raise FileNotFoundError("No SNOMED folder found after extraction.")
     
     release_root = extracted_dirs[0]
+    folder_name = os.path.basename(release_root)
     if not is_ci():
-        print(f"✓ SNOMED release extracted to: {os.path.basename(release_root)}")
+        print(f"✓ SNOMED release extracted to: {folder_name}")
+    
+    log(f"📁 Extracted folder name: {folder_name}")
+    
+    # If multiple folders found, warn
+    if len(extracted_dirs) > 1:
+        log(f"⚠ Warning: Multiple SNOMED folders found, using: {folder_name}")
+        log(f"   Other folders: {', '.join([os.path.basename(d) for d in extracted_dirs[1:]])}")
+    
     return release_root
