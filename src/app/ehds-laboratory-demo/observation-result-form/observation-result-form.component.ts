@@ -101,75 +101,10 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     { code: '2089-1', system: 'http://loinc.org', display: 'Cholesterol in LDL [Mass/volume] in Serum or Plasma' }
   ];
 
-  // Interpretation options from FHIR Observation Interpretation ValueSet
-  // https://hl7.org/fhir/valueset-observation-interpretation.html
-  // Includes all non-deprecated codes from the valueset (excluding abstract codes)
-  interpretationOptions = [
-    // Normal/Abnormal interpretations
-    { code: 'N', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Normal', definition: 'Interpretation within normal range.' },
-    { code: 'A', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Abnormal', definition: 'Interpretation outside normal range.' },
-    { code: 'AA', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Critical Abnormal', definition: 'Interpretation critically outside normal range.' },
-    
-    // High/Low interpretations
-    { code: 'H', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'High', definition: 'Interpretation above normal range.' },
-    { code: 'HH', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Critical High', definition: 'Interpretation critically above normal range.' },
-    { code: 'L', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Low', definition: 'Interpretation below normal range.' },
-    { code: 'LL', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Critical Low', definition: 'Interpretation critically below normal range.' },
-    
-    // Susceptibility interpretations
-    { code: 'S', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Susceptible', definition: 'Susceptible interpretation.' },
-    { code: 'R', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Resistant', definition: 'Resistant interpretation.' },
-    { code: 'I', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Intermediate', definition: 'Intermediate interpretation.' },
-    { code: 'MS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Moderately Susceptible', definition: 'Moderately susceptible interpretation.' },
-    { code: 'VS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Very Susceptible', definition: 'Very susceptible interpretation.' },
-    { code: 'NCL', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'No CLSI defined breakpoint', definition: 'No CLSI defined breakpoint.' },
-    { code: 'SDD', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Susceptible-dose dependent', definition: 'Susceptible-dose dependent interpretation.' },
-    { code: 'SYN-R', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Synergy - resistant', definition: 'Synergy - resistant interpretation.' },
-    { code: 'SYN-S', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Synergy - susceptible', definition: 'Synergy - susceptible interpretation.' },
-    
-    // Change interpretations
-    { code: 'B', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Better', definition: 'The current result or observation value has improved compared to the previous result or observation value.' },
-    { code: 'W', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Worse', definition: 'The current result or observation value has deteriorated compared to the previous result or observation value.' },
-    { code: 'U', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Significant change up', definition: 'Significant change up.' },
-    { code: 'D', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Significant change down', definition: 'Significant change down.' },
-    
-    // Expectation interpretations
-    { code: 'EXP', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Expected', definition: 'This result has been evaluated in light of known contraindicators. Once those contraindicators have been taken into account the result is determined to be "Expected".' },
-    { code: 'UNE', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Unexpected', definition: 'This result has been evaluated in light of known contraindicators. Once those contraindicators have been taken into account the result is determined to be "Unexpected".' },
-    
-    // Reactivity interpretations
-    { code: 'NR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Non-reactive', definition: 'An absence finding used to indicate that the specified component / analyte did not react measurably with the reagent.' },
-    { code: 'RR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Reactive', definition: 'A presence finding used to indicate that the specified component / analyte reacted with the reagent above the reliably measurable limit of the performed test.' },
-    { code: 'WR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Weakly reactive', definition: 'A weighted presence finding used to indicate that the specified component / analyte reacted with the reagent, but below the reliably measurable limit of the performed test.' },
-    
-    // Genetic interpretations
-    { code: 'CAR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Carrier', definition: 'The patient is considered as carrier based on the testing results. A carrier is an individual who carries an altered form of a gene which can lead to having a child or offspring in future generations with a genetic disorder.' },
-    { code: 'POS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Positive', definition: 'Positive interpretation.' },
-    { code: 'NEG', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Negative', definition: 'Negative interpretation.' },
-    { code: 'IND', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Indeterminate', definition: 'Indeterminate interpretation.' },
-    { code: 'DET', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Detected', definition: 'Detected interpretation.' },
-    { code: 'ND', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Not Detected', definition: 'Not detected interpretation.' },
-    { code: 'HU', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Homozygote', definition: 'Homozygote interpretation.' },
-    
-    // Scale/Instrument interpretations
-    { code: '<', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Below absolute low-off instrument scale', definition: 'Below absolute low-off instrument scale interpretation.' },
-    { code: '>', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Above absolute high-off instrument scale', definition: 'Above absolute high-off instrument scale interpretation.' },
-    { code: '<LLOQ', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Below lower limit of quantitation', definition: 'Below lower limit of quantitation interpretation.' },
-    { code: '>ULOQ', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Above upper limit of quantitation', definition: 'Above upper limit of quantitation interpretation.' },
-    
-    // Other interpretations
-    { code: 'IE', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Insufficient evidence', definition: 'Insufficient evidence interpretation.' },
-    { code: 'QCF', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Quality control failure', definition: 'Quality control failure interpretation.' },
-    { code: 'TOX', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Toxic', definition: 'Toxic interpretation.' },
-    { code: 'ACUTE', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Acute', definition: 'Acute interpretation.' },
-    { code: 'CHRONIC', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Chronic', definition: 'Chronic interpretation.' },
-    { code: 'REACT', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Reactive', definition: 'Reactive interpretation.' },
-    { code: 'NONR', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Non-reactive', definition: 'Non-reactive interpretation.' },
-    { code: 'HIGHRES', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'High Resolution', definition: 'High resolution interpretation.' },
-    { code: 'RES', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Resistant', definition: 'Resistant interpretation.' },
-    { code: 'MOD', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Moderate', definition: 'Moderate interpretation.' },
-    { code: 'SENS', system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', display: 'Sensitive', definition: 'Sensitive interpretation.' }
-  ];
+  // eHDSI Observation Interpretation with exceptions options loaded from FHIR ValueSet
+  // https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIObservationInterpretationWithExceptions.html
+  interpretationOptions: Array<{ code: string; display: string; system: string }> = [];
+  interpretationOptionsLoading = false;
 
   // eHDSI Results Coded Value Laboratory options loaded from FHIR ValueSet
   valueCodeableConceptOptions: Array<{ code: string; display: string; system: string }> = [];
@@ -220,7 +155,10 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         // Disable individual nested controls
         this.valueQuantityUnitControl?.disable();
         this.valueQuantityValueControl?.disable();
-        this.referenceRangeTextControl?.disable();
+        this.referenceRangeLowValueControl?.disable();
+        this.referenceRangeLowUnitControl?.disable();
+        this.referenceRangeHighValueControl?.disable();
+        this.referenceRangeHighUnitControl?.disable();
       }
     }
   }
@@ -234,6 +172,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     // Initialize method filter first, then load data
     this.setupMethodFilter();
     this.loadEHDSILabTechnique();
+    this.loadEHDSIObservationInterpretation();
+    this.setupReferenceRangeUnitSync();
   }
 
   ngOnDestroy(): void {
@@ -277,6 +217,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         this.setupUnitFilter();
         this.unitOptionsLoading = false;
         this.updateUnitControlState();
+        // Sync reference range units after units are loaded
+        this.syncReferenceRangeUnits();
         },
         error: (err) => {
           console.error('Error loading UCUM units from assets:', err);
@@ -286,6 +228,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
           this.setupUnitFilter();
           this.unitOptionsLoading = false;
           this.updateUnitControlState();
+          // Sync reference range units after units are loaded
+          this.syncReferenceRangeUnits();
         }
       });
   }
@@ -295,6 +239,57 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
       this.valueQuantityUnitControl?.disable({ emitEvent: false });
     } else {
       this.valueQuantityUnitControl?.enable({ emitEvent: false });
+    }
+  }
+
+  private setupReferenceRangeUnitSync(): void {
+    // Make unit controls readonly
+    this.referenceRangeLowUnitControl?.disable({ emitEvent: false });
+    this.referenceRangeHighUnitControl?.disable({ emitEvent: false });
+    
+    // Sync reference range units with value quantity unit
+    this.valueQuantityUnitControl?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(unitCode => {
+        this.syncReferenceRangeUnits();
+      });
+  }
+
+  private syncReferenceRangeUnits(): void {
+    const referenceRangeGroup = this.observationForm.get('referenceRange');
+    if (!referenceRangeGroup) {
+      return;
+    }
+    
+    const currentUnitCode = this.valueQuantityUnitControl?.value;
+    if (currentUnitCode && typeof currentUnitCode === 'string') {
+      // Find the unit display name
+      const matchedUnit = this.unitOptions.find(u => u.code === currentUnitCode);
+      const unitDisplay = matchedUnit ? matchedUnit.display : currentUnitCode;
+      
+      // Update both reference range unit fields using patchValue on the group
+      referenceRangeGroup.patchValue({
+        low: {
+          ...referenceRangeGroup.get('low')?.value,
+          unit: unitDisplay
+        },
+        high: {
+          ...referenceRangeGroup.get('high')?.value,
+          unit: unitDisplay
+        }
+      }, { emitEvent: false });
+    } else {
+      // Clear units if no unit is selected
+      referenceRangeGroup.patchValue({
+        low: {
+          ...referenceRangeGroup.get('low')?.value,
+          unit: ''
+        },
+        high: {
+          ...referenceRangeGroup.get('high')?.value,
+          unit: ''
+        }
+      }, { emitEvent: false });
     }
   }
 
@@ -479,6 +474,50 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
           this.methodOptions = [];
           this.methodFilteredOptions = of([]);
           this.methodOptionsLoading = false;
+        }
+      });
+  }
+
+  private loadEHDSIObservationInterpretation(): void {
+    this.interpretationOptionsLoading = true;
+    
+    // Load from static JSON file in assets
+    this.http.get<any>('assets/data/ehdsi-observation-interpretation-with-exceptions.json')
+      .subscribe({
+        next: (response) => {
+          if (response?.expansion?.contains) {
+            this.interpretationOptions = response.expansion.contains.map((item: any) => ({
+              code: item.code || '',
+              display: item.display || item.code || '',
+              system: item.system || 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation'
+            }));
+            // Sort by display name for better UX
+            this.interpretationOptions.sort((a, b) => a.display.localeCompare(b.display));
+            
+            // If we have an interpretation in the form, try to match it now
+            const currentInterpretation = this.observationForm.get('interpretation')?.value;
+            if (currentInterpretation) {
+              if (typeof currentInterpretation === 'object' && currentInterpretation.code) {
+                const matchedOption = this.interpretationOptions.find(
+                  o => o.code === currentInterpretation.code && o.system === currentInterpretation.system
+                );
+                if (matchedOption) {
+                  this.observationForm.patchValue({ interpretation: matchedOption }, { emitEvent: false });
+                }
+              } else if (typeof currentInterpretation === 'string') {
+                const matchedOption = this.interpretationOptions.find(o => o.code === currentInterpretation);
+                if (matchedOption) {
+                  this.observationForm.patchValue({ interpretation: matchedOption }, { emitEvent: false });
+                }
+              }
+            }
+          }
+          this.interpretationOptionsLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading eHDSI Observation Interpretation from assets:', err);
+          this.interpretationOptions = [];
+          this.interpretationOptionsLoading = false;
         }
       });
   }
@@ -687,6 +726,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     if (unit && typeof unit === 'object' && unit.code) {
       // Set the form control value (the actual unit code)
       this.valueQuantityUnitControl.setValue(unit.code, { emitEvent: false });
+      // Sync reference range units immediately
+      this.syncReferenceRangeUnits();
       // The autocomplete will set the object in unitInputControl, but we'll fix it in onUnitAutocompleteClosed
     }
   }
@@ -704,6 +745,8 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         if (currentValue !== matchedUnit.display) {
           this.unitInputControl.setValue(matchedUnit.display, { emitEvent: false });
         }
+        // Ensure reference range units are synced
+        this.syncReferenceRangeUnits();
       }
     } else if (currentValue && typeof currentValue === 'object' && 'display' in currentValue) {
       // If the input has an object, extract the display
@@ -726,7 +769,10 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         // Disable individual nested controls
         this.valueQuantityUnitControl?.disable({ emitEvent: false });
         this.valueQuantityValueControl?.disable({ emitEvent: false });
-        this.referenceRangeTextControl?.disable({ emitEvent: false });
+        this.referenceRangeLowValueControl?.disable({ emitEvent: false });
+        this.referenceRangeLowUnitControl?.disable({ emitEvent: false });
+        this.referenceRangeHighValueControl?.disable({ emitEvent: false });
+        this.referenceRangeHighUnitControl?.disable({ emitEvent: false });
       }
       // Update unit control state after view init
       this.updateUnitControlState();
@@ -764,8 +810,18 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         valueCodeableConcept: data.valueCodeableConcept || null,
         interpretation: matchedInterpretation || null,
         referenceRange: data.referenceRange ? {
-          text: data.referenceRange.text || ''
-        } : { text: '' },
+          low: data.referenceRange.low ? {
+            value: data.referenceRange.low.value || null,
+            unit: data.referenceRange.low.unit || ''
+          } : { value: null, unit: '' },
+          high: data.referenceRange.high ? {
+            value: data.referenceRange.high.value || null,
+            unit: data.referenceRange.high.unit || ''
+          } : { value: null, unit: '' }
+        } : {
+          low: { value: null, unit: '' },
+          high: { value: null, unit: '' }
+        },
         performer: data.performer || null,
         method: data.method || null,
         note: data.note || ''
@@ -776,13 +832,19 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         const unitCode = data.valueQuantity.unit;
         // Set the unit code directly - it will be matched when units load
         this.valueQuantityUnitControl.setValue(unitCode, { emitEvent: false });
-        // Wait for options to load, then sync input control
+        // Wait for options to load, then sync input control and reference range units
         setTimeout(() => {
           const matchedUnit = this.unitOptions.find(u => u.code === unitCode);
           if (matchedUnit) {
             this.unitInputControl.setValue(matchedUnit.display, { emitEvent: false });
+            // Sync reference range units
+            this.referenceRangeLowUnitControl?.setValue(matchedUnit.display, { emitEvent: false });
+            this.referenceRangeHighUnitControl?.setValue(matchedUnit.display, { emitEvent: false });
           } else {
             this.unitInputControl.setValue(unitCode, { emitEvent: false });
+            // Sync reference range units with code if no match found
+            this.referenceRangeLowUnitControl?.setValue(unitCode, { emitEvent: false });
+            this.referenceRangeHighUnitControl?.setValue(unitCode, { emitEvent: false });
           }
         }, 100);
       }
@@ -841,7 +903,14 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
       valueCodeableConcept: [null],
       interpretation: [null],
       referenceRange: this.fb.group({
-        text: ['']
+        low: this.fb.group({
+          value: [null],
+          unit: ['']
+        }),
+        high: this.fb.group({
+          value: [null],
+          unit: ['']
+        })
       }),
       performer: [null],
       method: [null],
@@ -886,9 +955,39 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         valueString: this.valueType === 'string' ? formValue.valueString : null,
         valueCodeableConcept: this.valueType === 'codeableConcept' ? formValue.valueCodeableConcept : null,
         interpretation: formValue.interpretation,
-        referenceRange: formValue.referenceRange?.text ? {
-          text: formValue.referenceRange.text
-        } : null,
+        referenceRange: (() => {
+          const hasLow = formValue.referenceRange?.low?.value !== null && formValue.referenceRange?.low?.value !== undefined;
+          const hasHigh = formValue.referenceRange?.high?.value !== null && formValue.referenceRange?.high?.value !== undefined;
+          
+          if (!hasLow && !hasHigh) {
+            return null;
+          }
+          
+          // Get the unit code from valueQuantity (not from referenceRange unit fields which are readonly displays)
+          const unitCode = formValue.valueQuantity?.unit || '';
+          
+          const range: any = {};
+          
+          if (hasLow) {
+            range.low = {
+              value: formValue.referenceRange.low.value,
+              unit: unitCode,
+              system: 'http://unitsofmeasure.org',
+              code: unitCode
+            };
+          }
+          
+          if (hasHigh) {
+            range.high = {
+              value: formValue.referenceRange.high.value,
+              unit: unitCode,
+              system: 'http://unitsofmeasure.org',
+              code: unitCode
+            };
+          }
+          
+          return range;
+        })(),
         performer: formValue.performer,
         method: formValue.method || null,
         note: formValue.note || null
@@ -950,8 +1049,20 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
   }
 
 
-  get referenceRangeTextControl(): FormControl {
-    return this.observationForm.get('referenceRange')?.get('text') as FormControl;
+  get referenceRangeLowValueControl(): FormControl {
+    return this.observationForm.get('referenceRange')?.get('low')?.get('value') as FormControl;
+  }
+
+  get referenceRangeLowUnitControl(): FormControl {
+    return this.observationForm.get('referenceRange')?.get('low')?.get('unit') as FormControl;
+  }
+
+  get referenceRangeHighValueControl(): FormControl {
+    return this.observationForm.get('referenceRange')?.get('high')?.get('value') as FormControl;
+  }
+
+  get referenceRangeHighUnitControl(): FormControl {
+    return this.observationForm.get('referenceRange')?.get('high')?.get('unit') as FormControl;
   }
 
   get loincCode(): string | null {

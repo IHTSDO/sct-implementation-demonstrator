@@ -440,7 +440,7 @@
               <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="interpretationMenu">
                 FHIR
               </button>
-              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://hl7.org/fhir/valueset-observation-interpretation.html', 'Interpretation')">
+              <button type="button" mat-button class="fhir-badge valueset-badge" (click)="openValuesetDialog('https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIObservationInterpretationWithExceptions.html', 'Interpretation')">
                 BINDING
               </button>
             </div>
@@ -463,7 +463,7 @@
                   </div>
                   <div class="fhir-menu-item">
                     <span class="fhir-label">Binding:</span>
-                    <span class="fhir-value">The codes SHALL be taken from Observation Interpretation Codes (required to <a href="https://hl7.org/fhir/ValueSet/observation-interpretation" target="_blank" rel="noopener noreferrer" class="valueset-link">https://hl7.org/fhir/ValueSet/observation-interpretation|4.0.1</a>).</span>
+                    <span class="fhir-value">The codes SHALL be taken from eHDSI Observation Interpretation with exceptions (required to <a href="https://fhir.ehdsi.eu/laboratory/ValueSet-eHDSIObservationInterpretationWithExceptions.html" target="_blank" rel="noopener noreferrer" class="valueset-link">http://fhir.ehdsi.eu/laboratory/ValueSet/eHDSIObservationInterpretationWithExceptions</a>).</span>
                   </div>
                 </div>
               </div>
@@ -474,7 +474,7 @@
                 <mat-option [value]="null">Select interpretation</mat-option>
                 @for (interpretation of interpretationOptions; track interpretation) {
                   <mat-option [value]="interpretation">
-                    {{ interpretation.display }}
+                    {{ interpretation.display }} ({{ interpretation.code }})
                   </mat-option>
                 }
               </mat-select>
@@ -486,37 +486,53 @@
             </mat-form-field>
           </div>
 
-          <div class="fhir-field-wrapper">
-            <div class="fhir-badges-container">
-              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="referenceRangeMenu">
-                FHIR
-              </button>
-            </div>
-            <mat-menu #referenceRangeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
-              <div class="fhir-menu-content">
-                <div class="fhir-menu-header">
-                  <h4>Observation.referenceRange</h4>
-                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Observation-resultslab-lab-myhealtheu-definitions.html#Observation.referenceRange" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
-                    <mat-icon>link</mat-icon>
-                  </a>
-                </div>
-                <div class="fhir-menu-body">
-                  <div class="fhir-menu-item">
-                    <span class="fhir-label">Definition:</span>
-                    <span class="fhir-value">Guidance on how to interpret the value by comparison to a normal or recommended range.</span>
-                  </div>
-                  <div class="fhir-menu-item">
-                    <span class="fhir-label">Control:</span>
-                    <span class="fhir-value">0..*</span>
-                  </div>
-                </div>
+          @if (valueType === 'quantity') {
+            <div class="fhir-field-wrapper">
+              <div class="fhir-badges-container">
+                <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="referenceRangeMenu">
+                  FHIR
+                </button>
               </div>
-            </mat-menu>
-            <mat-form-field>
-              <mat-label>Reference Range (Text)</mat-label>
-              <input matInput [formControl]="referenceRangeTextControl" [readonly]="isViewOnly" placeholder="e.g., 12.0 - 15.0 g/dL">
-            </mat-form-field>
-          </div>
+              <mat-menu #referenceRangeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                <div class="fhir-menu-content">
+                  <div class="fhir-menu-header">
+                    <h4>Observation.referenceRange</h4>
+                    <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Observation-resultslab-lab-myhealtheu-definitions.html#Observation.referenceRange" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                      <mat-icon>link</mat-icon>
+                    </a>
+                  </div>
+                  <div class="fhir-menu-body">
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Definition:</span>
+                      <span class="fhir-value">Guidance on how to interpret the value by comparison to a normal or recommended range.</span>
+                    </div>
+                    <div class="fhir-menu-item">
+                      <span class="fhir-label">Control:</span>
+                      <span class="fhir-value">0..*</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-menu>
+              <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                <mat-form-field>
+                  <mat-label>Range Low</mat-label>
+                  <input matInput type="number" [formControl]="referenceRangeLowValueControl" [readonly]="isViewOnly" placeholder="e.g., 12.0">
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Range Low Unit</mat-label>
+                  <input matInput [formControl]="referenceRangeLowUnitControl" readonly placeholder="e.g., g/dL">
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Range High</mat-label>
+                  <input matInput type="number" [formControl]="referenceRangeHighValueControl" [readonly]="isViewOnly" placeholder="e.g., 15.0">
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Range High Unit</mat-label>
+                  <input matInput [formControl]="referenceRangeHighUnitControl" readonly placeholder="e.g., g/dL">
+                </mat-form-field>
+              </div>
+            </div>
+          }
 
           <div class="fhir-field-wrapper">
             <div class="fhir-badges-container">
