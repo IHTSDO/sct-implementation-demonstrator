@@ -1,0 +1,124 @@
+<h2 mat-dialog-title>Print Report</h2>
+<div mat-dialog-content class="dialog-content">
+  <div class="order">
+    <div class="w-full flex flex-row justify-between">
+      <p class="text-left font-bold">SNOMEDIANS STATE HOSPITAL</p>
+      <p class="text-right">Date: {{ getCurrentDate() }}</p>
+    </div>
+    <p class="text-left w-full font-bold">=========================</p>
+    <br>
+    <p class="text-center w-full">Laboratory Diagnostic Report</p>
+    <br>
+    
+    <!-- Patient Information -->
+    <p class="text-left w-full">
+      <b>Patient:</b> {{ getPatientName() }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Address</b>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Contact information</b>
+    </p>
+    <p class="text-left w-full">
+      <b>DOB:</b> {{ formatDate(patientData?.birthDate) || 'N/A' }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ getPatientAddress() }}
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ getPatientContact() }}
+    </p>
+    <p class="text-left w-full">
+      <b>MRN:</b> {{ getPatientMRN() }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </p>
+    <br><br>
+    
+    <!-- Report Information -->
+    <p class="order-line font-bold">REPORT INFORMATION</p>
+    <p class="order-line ml-4">
+      <b>Status:</b> {{ getStatusDisplay() }}
+    </p>
+    <p class="order-line ml-4">
+      <b>Report Type:</b> {{ getReportCodeDisplay() }}
+    </p>
+    @if (diagnosticReport.category && diagnosticReport.category.length > 0) {
+      <p class="order-line ml-4">
+        <b>Category:</b> {{ diagnosticReport.category[0].text || diagnosticReport.category[0].coding?.[0]?.display || 'N/A' }}
+      </p>
+    }
+    @if (diagnosticReport.effectiveDateTime) {
+      <p class="order-line ml-4">
+        <b>Report Date:</b> {{ formatDate(diagnosticReport.effectiveDateTime) }}
+      </p>
+    }
+    @if (diagnosticReport.issued) {
+      <p class="order-line ml-4">
+        <b>Issued:</b> {{ formatDate(diagnosticReport.issued) }}
+      </p>
+    }
+    <p class="order-line ml-4">
+      <b>Performer:</b> {{ getPerformerDisplay() }}
+    </p>
+    <p class="order-line ml-4">
+      <b>Results Interpreter:</b> {{ getResultsInterpreterDisplay() }}
+    </p>
+    <br><br>
+    
+    <!-- Specimens -->
+    <p class="order-line font-bold">SPECIMENS</p>
+    @if (getSpecimens().length === 0) {
+      <p class="order-line ml-4">No specimens listed</p>
+    }
+    @for (specimen of getSpecimens(); track $index) {
+      <p class="order-line ml-4">{{ specimen.display }}</p>
+    }
+    <br><br>
+    
+    <!-- Results -->
+    <p class="order-line font-bold">RESULTS</p>
+    @if (getResults().length === 0) {
+      <p class="order-line ml-4">No results available</p>
+    }
+    @for (result of getResults(); track $index) {
+      <div class="order-line ml-4 results-row">
+        <span class="result-name"><b>{{ result.display }}:</b></span>
+        <span class="result-value">{{ result.value }}</span>
+        <span class="result-range">
+          @if (result.referenceRange) {
+            {{ result.referenceRange }}
+          }
+        </span>
+      </div>
+      @if (result.interpretation || result.effectiveDateTime) {
+        <p class="order-line ml-4 text-xs">
+          @if (result.interpretation) {
+            <span class="italic">({{ result.interpretation }})</span>
+          }
+          @if (result.effectiveDateTime) {
+            <span> - {{ formatDate(result.effectiveDateTime) }}</span>
+          }
+        </p>
+      }
+    }
+    <br><br>
+    
+    <!-- Conclusion -->
+    @if (getConclusion() || getConclusionCodes().length > 0) {
+      <p class="order-line font-bold">CONCLUSION</p>
+      @if (getConclusion()) {
+        <p class="order-line ml-4">{{ getConclusion() }}</p>
+      }
+      @for (code of getConclusionCodes(); track $index) {
+        <p class="order-line ml-4">
+          {{ code.text || code.coding?.[0]?.display || 'N/A' }}
+          @if (code.coding?.[0]?.code) {
+            <span class="text-xs italic"> ({{ code.coding[0].code }})</span>
+          }
+        </p>
+      }
+      <br><br>
+    }
+    
+    <br><br><br><br>
+    <p>Physician Signature: ___________________________</p>
+    <br><br>
+  </div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="printReport()">
+    <mat-icon>print</mat-icon>
+    Print
+  </button>
+  <button mat-button (click)="closeDialog()">Close</button>
+</div>

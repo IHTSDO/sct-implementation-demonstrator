@@ -6,6 +6,7 @@ import { SpecimenFormComponent, SpecimenData } from '../specimen-form/specimen-f
 import { ServiceRequestFormComponent, ServiceRequestData } from '../service-request-form/service-request-form.component';
 import { ObservationResultFormComponent, ObservationResultData } from '../observation-result-form/observation-result-form.component';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
+import { DiagnosticReportPrintDialogComponent } from '../diagnostic-report-print-dialog/diagnostic-report-print-dialog.component';
 import { PATIENT_EXAMPLES, PERFORMER_EXAMPLES, RESULTS_INTERPRETER_EXAMPLES, SERVICE_REQUEST_EXAMPLES, SPECIMEN_EXAMPLES, ReferenceExample, ServiceRequestExample } from './diagnostic-report-examples.data';
 
 export interface DiagnosticReportData {
@@ -406,7 +407,7 @@ export class DiagnosticReportFormComponent implements OnInit {
     // Prepare available specimens for the observation form
     const availableSpecimens = this.specimens.map((spec: any, index: number) => ({
       reference: `specimen-${index + 1}`,
-      display: spec.referenceNumber || `Specimen ${index + 1}`,
+      display: spec.referenceNumber || `Specimen${index + 1}`,
       data: spec
     }));
 
@@ -449,7 +450,7 @@ export class DiagnosticReportFormComponent implements OnInit {
     // Prepare available specimens for the observation form
     const availableSpecimens = this.specimens.map((spec: any, index: number) => ({
       reference: `specimen-${index + 1}`,
-      display: spec.referenceNumber || `Specimen ${index + 1}`,
+      display: spec.referenceNumber || `Specimen${index + 1}`,
       data: spec
     }));
 
@@ -468,7 +469,7 @@ export class DiagnosticReportFormComponent implements OnInit {
     // Prepare available specimens for the observation form
     const availableSpecimens = this.specimens.map((spec: any, index: number) => ({
       reference: `specimen-${index + 1}`,
-      display: spec.referenceNumber || `Specimen ${index + 1}`,
+      display: spec.referenceNumber || `Specimen${index + 1}`,
       data: spec
     }));
 
@@ -683,6 +684,32 @@ export class DiagnosticReportFormComponent implements OnInit {
       data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
       panelClass: 'valueset-dialog-container'
     });
+  }
+
+  openPrintReportDialog(): void {
+    // Generate FHIR DiagnosticReport from form data
+    const formData = this.diagnosticReportForm.value as DiagnosticReportData;
+    try {
+      const fhirReport = this.fhirService.generateDiagnosticReport(formData);
+      
+      // Get patient data if available
+      const patientData = this.diagnosticReportForm.get('subject')?.value || null;
+      
+      this.dialog.open(DiagnosticReportPrintDialogComponent, {
+        width: '90%',
+        maxWidth: '700px',
+        height: '90vh',
+        autoFocus: false,
+        restoreFocus: true,
+        data: { 
+          diagnosticReport: fhirReport,
+          patientData: patientData
+        }
+      });
+    } catch (error) {
+      console.error('Error generating report:', error);
+      alert('Error generating report. Please check the form data.');
+    }
   }
 }
 

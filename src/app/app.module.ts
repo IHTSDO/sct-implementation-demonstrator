@@ -125,6 +125,7 @@ import { FormRecordsComponent } from './benefits-demo/form-records/form-records.
 import { CdsPanelComponent } from './benefits-demo/cds-panel/cds-panel.component';
 import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
 import { DiagnosticReportFormComponent } from './ehds-laboratory-demo/diagnostic-report-form/diagnostic-report-form.component';
+import { DiagnosticReportPrintDialogComponent } from './ehds-laboratory-demo/diagnostic-report-print-dialog/diagnostic-report-print-dialog.component';
 import { SpecimenFormComponent } from './ehds-laboratory-demo/specimen-form/specimen-form.component';
 import { ServiceRequestFormComponent } from './ehds-laboratory-demo/service-request-form/service-request-form.component';
 import { ObservationResultFormComponent } from './ehds-laboratory-demo/observation-result-form/observation-result-form.component';
@@ -214,6 +215,7 @@ const app = initializeApp(firebaseConfig);
         CdsPanelComponent,
         EhdsLaboratoryDemoComponent,
         DiagnosticReportFormComponent,
+        DiagnosticReportPrintDialogComponent,
         SpecimenFormComponent,
         ServiceRequestFormComponent,
         ObservationResultFormComponent,

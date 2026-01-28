@@ -159,7 +159,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
       if ('availableSpecimens' in this.data && Array.isArray(this.data.availableSpecimens)) {
         this.availableSpecimens = this.data.availableSpecimens.map((spec: any, index: number) => ({
           reference: `specimen-${index + 1}`,
-          display: spec.referenceNumber || `Specimen ${index + 1}`,
+          display: spec.referenceNumber || spec.data?.referenceNumber || `Specimen${index + 1}`,
           data: spec
         }));
       }
@@ -936,7 +936,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
       }),
       performer: [null],
       method: [null],
-      specimen: [null],
+      specimen: [null, Validators.required],
       note: ['']
     });
   }

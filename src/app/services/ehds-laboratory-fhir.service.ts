@@ -635,8 +635,15 @@ export class EhdsLaboratoryFhirService {
 
     // Code
     if (observationData.code) {
+      // Determine the system - if not provided, default to SNOMED CT
+      let codeSystem = observationData.code.system;
+      if (!codeSystem || codeSystem === '') {
+        // If system is missing, assume SNOMED CT (since LOINC codes would have the system set)
+        codeSystem = 'http://snomed.info/sct';
+      }
+      
       const codings: any[] = [{
-        system: observationData.code.system,
+        system: codeSystem,
         code: observationData.code.code,
         display: observationData.code.display
       }];

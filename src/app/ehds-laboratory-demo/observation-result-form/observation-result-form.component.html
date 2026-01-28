@@ -220,6 +220,9 @@
               @if (availableSpecimens.length === 0) {
                 <mat-hint>No specimens available. Add specimens to the Diagnostic Report first.</mat-hint>
               }
+              @if (observationForm.get('specimen')?.hasError('required') && observationForm.get('specimen')?.touched) {
+                <mat-error>Specimen is required</mat-error>
+              }
             </mat-form-field>
           </div>
         </div>

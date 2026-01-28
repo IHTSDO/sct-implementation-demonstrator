@@ -1,0 +1,142 @@
+.dialog-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.order {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  margin-top: 20px;
+  background-color: white;
+  font-family: monospace;
+  font-size: 0.7rem;
+  padding: 2rem;
+  box-shadow: #ccc 0px 0px 10px;
+  line-height: 1.3;
+}
+
+.order p {
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.order-line {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.ml-4 {
+  margin-left: 1rem;
+}
+
+.text-xs {
+  font-size: 0.65rem;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.results-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.result-name {
+  text-align: left;
+}
+
+.result-value {
+  text-align: left;
+}
+
+.result-range {
+  text-align: left;
+  font-size: 0.65rem;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+::ng-deep .mat-mdc-dialog-container {
+  padding: 0 !important;
+}
+
+/* Print styles */
+@media print {
+  ::ng-deep .mat-mdc-dialog-container {
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  ::ng-deep .mat-mdc-dialog-title {
+    display: none !important;
+  }
+
+  ::ng-deep .mat-mdc-dialog-actions {
+    display: none !important;
+  }
+
+  .dialog-content {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .order {
+    box-shadow: none !important;
+    margin-top: 0 !important;
+    padding: 1rem !important;
+  }
+
+  @page {
+    margin: 1cm;
+  }
+}

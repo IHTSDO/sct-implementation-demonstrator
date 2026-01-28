@@ -13,10 +13,16 @@
               </button>
             </p>
           </div>
-          <button type="button" mat-raised-button color="primary" (click)="flipCard()">
-            <mat-icon>code</mat-icon>
-            See FHIR Resource
-          </button>
+          <div class="header-buttons">
+            <button type="button" mat-raised-button color="primary" (click)="openPrintReportDialog()" class="mr-2">
+              <mat-icon>print</mat-icon>
+              Print report
+            </button>
+            <button type="button" mat-raised-button color="primary" (click)="flipCard()">
+              <mat-icon>code</mat-icon>
+              See FHIR Resource
+            </button>
+          </div>
         </div>
       </div>
 
@@ -938,11 +944,7 @@
                       <mat-icon>science</mat-icon>
                       <div class="specimen-details">
                         <span class="specimen-title">
-                          @if (specimen.referenceNumber) {
-                            {{ specimen.referenceNumber }}
-                          } @else {
-                            Specimen {{ i + 1 }}
-                          }
+                          {{ specimen.referenceNumber || ('Specimen' + (i + 1)) }}
                         </span>
                         @if (specimen.type) {
                           <div class="specimen-info">

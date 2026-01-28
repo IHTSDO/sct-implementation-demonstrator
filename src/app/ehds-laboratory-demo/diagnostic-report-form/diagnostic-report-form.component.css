@@ -12,6 +12,16 @@
   width: 100%;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.mr-2 {
+  margin-right: 8px;
+}
+
 .form-header h2 {
   color: #1976d2;
   font-size: 1.75rem;
