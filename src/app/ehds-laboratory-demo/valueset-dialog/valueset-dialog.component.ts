@@ -31,17 +31,33 @@ export class ValuesetDialogComponent {
     // Convert HTTP URLs to HTTPS to avoid mixed content errors
     this.url = this.convertToHttps(data.url);
     
-    // Check for known problematic domains that redirect to HTTP
-    this.checkForKnownIssues();
+    // Check for domains that block iframe embedding (like Simplifier.net)
+    // These should open directly in a new tab instead of attempting iframe load
+    if (this.url.toLowerCase().includes('simplifier.net')) {
+      // Simplifier.net blocks iframe embedding, open directly in new tab
+      this.hasError = true;
+      this.openedInNewTab = true;
+      this.errorMessage = 'This content cannot be loaded in an iframe due to security restrictions. Opening in a new tab instead.';
+      this.isLoading = false;
+      // Open in new tab immediately
+      setTimeout(() => {
+        window.open(this.url, '_blank');
+      }, 100);
+      // Still set safeUrl for the iframe (even though it won't load)
+      this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
+    } else {
+      // Check for known problematic domains that redirect to HTTP
+      this.checkForKnownIssues();
+      this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
+    }
     
-    this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
     this.fieldName = data.fieldName || 'Field';
     this.dialogTitle = data.dialogTitle || `Terminology binding for ${this.fieldName}`;
   }
 
   private checkForKnownIssues(): void {
-    // Known domains that may redirect to HTTP
-    const problematicDomains = ['hl7.eu', 'terminology.hl7.org'];
+    // Known domains that may redirect to HTTP or block iframe embedding
+    const problematicDomains = ['hl7.eu', 'terminology.hl7.org', 'simplifier.net'];
     const urlLower = this.url.toLowerCase();
     
     for (const domain of problematicDomains) {
@@ -121,7 +137,7 @@ export class ValuesetDialogComponent {
         if (body && body.children.length === 0 && (!body.textContent || body.textContent.trim().length === 0)) {
           // Body exists but is empty - might be blocked
           // Only handle as failure if it's a known problematic domain
-          if (this.url.includes('hl7.eu') || this.url.includes('terminology.hl7.org')) {
+          if (this.url.includes('hl7.eu') || this.url.includes('terminology.hl7.org') || this.url.includes('simplifier.net')) {
             this.handleLoadFailure();
           }
         }
@@ -195,7 +211,7 @@ export class ValuesetDialogComponent {
         } else {
           // Body exists but is empty - might be blocked
           // For problematic domains, this might indicate blocking
-          if (this.url.includes('hl7.eu') || this.url.includes('terminology.hl7.org')) {
+          if (this.url.includes('hl7.eu') || this.url.includes('terminology.hl7.org') || this.url.includes('simplifier.net')) {
             // Wait a bit more and check again
             setTimeout(() => {
               if (!this.hasError && !this.openedInNewTab) {

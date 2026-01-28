@@ -353,3 +353,34 @@
   }
 }
 
+.additive-form-array {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.additive-item-compact {
+  display: flex;
+  align-items: flex-start;
+}
+
+.additive-select-compact {
+  flex: 1;
+  width: 100%;
+}
+
+.additive-select-compact .mat-mdc-form-field-subscript-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  color: #666;
+  font-size: 0.875rem;
+}
+

@@ -1,7 +1,8 @@
 import { Component, OnInit, AfterViewInit, Inject, ViewContainerRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpClient } from '@angular/common/http';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 
 export interface SpecimenData {
@@ -31,6 +32,11 @@ export interface SpecimenData {
     system: string;
     display: string;
   } | null;
+  additive: Array<{
+    code: string;
+    system: string;
+    display: string;
+  }> | null;
   containerType: {
     code: string;
     system: string;
@@ -52,6 +58,8 @@ export interface SpecimenData {
 export class SpecimenFormComponent implements OnInit, AfterViewInit {
   specimenForm: FormGroup;
   isViewOnly: boolean = false;
+  collectionMethodOptionsLoading: boolean = false;
+  additiveOptionsLoading: boolean = false;
 
   // Binding for Collection Body Site autocomplete
   // ECL: << 442083009 |Anatomical or acquired body structure (body structure)|
@@ -70,21 +78,10 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
     { code: 'entered-in-error', display: 'Entered in Error', definition: 'The specimen was entered in error and therefore nullified.' }
   ];
 
-  // Collection Method options from FHIR Specimen Collection Method ValueSet
-  // https://hl7.org/fhir/R4/valueset-specimen-collection-method.html
+  // Collection Method options from KBV MIO LAB Specimen Collection Method SNOMED CT ValueSet
+  // https://simplifier.net/lab1x0x0/kbv-vs-mio-lab-specimen-collection-method-snomed-ct
   // System: http://snomed.info/sct
-  collectionMethodOptions = [
-    { code: '129316008', system: 'http://snomed.info/sct', display: 'Aspiration - action' },
-    { code: '129314006', system: 'http://snomed.info/sct', display: 'Biopsy - action' },
-    { code: '129300006', system: 'http://snomed.info/sct', display: 'Puncture - action' },
-    { code: '129304002', system: 'http://snomed.info/sct', display: 'Excision - action' },
-    { code: '129323009', system: 'http://snomed.info/sct', display: 'Scraping - action' },
-    { code: '73416001', system: 'http://snomed.info/sct', display: 'Urine specimen collection, clean catch' },
-    { code: '225113003', system: 'http://snomed.info/sct', display: 'Timed urine collection' },
-    { code: '70777001', system: 'http://snomed.info/sct', display: 'Urine specimen collection, catheterized' },
-    { code: '386089008', system: 'http://snomed.info/sct', display: 'Collection of coughed sputum' },
-    { code: '278450005', system: 'http://snomed.info/sct', display: 'Finger-prick sampling' }
-  ];
+  collectionMethodOptions: Array<{ code: string; display: string; system: string }> = [];
 
   // Collection Fasting Status options from HL7 v2-0916 ValueSet
   // https://terminology.hl7.org/5.3.0/ValueSet-v2-0916.html
@@ -109,6 +106,11 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
     { code: 'RECA', system: 'http://terminology.hl7.org/CodeSystem/v2-0373', display: 'Recalification' },
     { code: 'UFIL', system: 'http://terminology.hl7.org/CodeSystem/v2-0373', display: 'Ultrafiltration' }
   ];
+
+  // Additive options from HL7 v3 SpecimenAdditiveEntity ValueSet
+  // https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-SpecimenAdditiveEntity.html
+  // System: http://terminology.hl7.org/CodeSystem/v3-EntityCode
+  additiveOptions: Array<{ code: string; display: string; system: string }> = [];
 
   // Container Type options from HL7 Europe Laboratory Specimen Container ValueSet
   // https://hl7.eu/fhir/laboratory/0.1.1/ValueSet-lab-specimenContainer-eu-lab.html
@@ -263,7 +265,8 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private viewContainerRef: ViewContainerRef
+    private viewContainerRef: ViewContainerRef,
+    private http: HttpClient
   ) {
     this.specimenForm = this.createForm();
     // Check if data contains viewOnly flag
@@ -278,6 +281,8 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.loadKBVSpecimenCollectionMethod();
+    this.loadSpecimenAdditiveEntity();
   }
 
   ngAfterViewInit(): void {
@@ -294,13 +299,25 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
 
   private loadFormData(data: SpecimenData): void {
     // Use setTimeout to ensure form controls are fully initialized, especially for autocomplete-binding
-    setTimeout(() => {
+    // Also wait for collectionMethodOptions to load if still loading
+    const loadData = () => {
       // Find matching objects from options arrays for mat-select components
       // mat-select compares objects by reference, so we need to find the exact object from the options array
       const matchedType = data.type && data.type.code ? this.typeOptions.find(opt => opt.code === data.type!.code) : null;
       const matchedCollectionMethod = data.collectionMethod && data.collectionMethod.code ? this.collectionMethodOptions.find(opt => opt.code === data.collectionMethod!.code) : null;
       const matchedFastingStatus = data.collectionFastingStatus && data.collectionFastingStatus.code ? this.collectionFastingStatusOptions.find(opt => opt.code === data.collectionFastingStatus!.code) : null;
       const matchedProcessingProcedure = data.processingProcedure && data.processingProcedure.code ? this.processingProcedureOptions.find(opt => opt.code === data.processingProcedure!.code) : null;
+      // Match additive array - find matching objects for each additive in the array
+      const matchedAdditives = data.additive && Array.isArray(data.additive) 
+        ? data.additive.map(add => this.additiveOptions.find(opt => opt.code === add.code && opt.system === add.system)).filter(opt => opt !== undefined) as Array<{ code: string; display: string; system: string }>
+        : [];
+      
+      // Update additive FormArray
+      const additiveArray = this.additiveFormArray;
+      additiveArray.clear();
+      matchedAdditives.forEach(additive => {
+        additiveArray.push(this.fb.control(additive));
+      });
       const matchedContainerType = data.containerType && data.containerType.code ? this.containerTypeOptions.find(opt => opt.code === data.containerType!.code) : null;
       const matchedCondition = data.condition && data.condition.code ? this.conditionOptions.find(opt => opt.code === data.condition!.code) : null;
 
@@ -324,7 +341,23 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
           bodySiteControl.setValue(data.collectionBodySite, { emitEvent: false });
         }
       }
-    }, 100);
+    };
+    
+    // Wait for collectionMethodOptions and additiveOptions to load if still loading
+    const waitForOptions = () => {
+      if (this.collectionMethodOptionsLoading || this.additiveOptionsLoading) {
+        setTimeout(waitForOptions, 100);
+      } else {
+        setTimeout(loadData, 100);
+      }
+    };
+    
+    // Timeout after 5 seconds
+    setTimeout(() => {
+      setTimeout(loadData, 100);
+    }, 5000);
+    
+    waitForOptions();
   }
 
   private createForm(): FormGroup {
@@ -336,6 +369,7 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
       collectionMethod: [null],
       collectionFastingStatus: [null],
       processingProcedure: [null],
+      additive: this.fb.array([]),
       containerType: [null],
       condition: [null]
     });
@@ -349,8 +383,12 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
 
   onSubmit(): void {
     if (this.specimenForm.valid) {
-      const formData = this.specimenForm.value as SpecimenData;
-      this.dialogRef.close(formData);
+      const formData = this.specimenForm.value as any;
+      // Filter out null values from additive array
+      if (formData.additive && Array.isArray(formData.additive)) {
+        formData.additive = formData.additive.filter((add: any) => add !== null);
+      }
+      this.dialogRef.close(formData as SpecimenData);
     } else {
       Object.keys(this.specimenForm.controls).forEach(key => {
         this.specimenForm.get(key)?.markAsTouched();
@@ -395,5 +433,95 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
       data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
       panelClass: 'valueset-dialog-container'
     });
+  }
+
+  private loadKBVSpecimenCollectionMethod(): void {
+    this.collectionMethodOptionsLoading = true;
+    
+    // Load from static JSON file in assets
+    this.http.get<any>('assets/data/KBV-VS-MIO-LAB-Specimen-Collection-Method-SNOMED-CT.json')
+      .subscribe({
+        next: (response) => {
+          if (response?.expansion?.contains) {
+            this.collectionMethodOptions = response.expansion.contains.map((item: any) => ({
+              code: item.code || '',
+              display: item.display || item.code || '',
+              system: item.system || 'http://snomed.info/sct'
+            }));
+            // Sort by display name for better UX
+            this.collectionMethodOptions.sort((a, b) => a.display.localeCompare(b.display));
+            
+            // If we have a collectionMethod in the form, try to match it now
+            const currentCollectionMethod = this.specimenForm.get('collectionMethod')?.value;
+            if (currentCollectionMethod) {
+              if (typeof currentCollectionMethod === 'object' && currentCollectionMethod.code) {
+                const matchedOption = this.collectionMethodOptions.find(
+                  o => o.code === currentCollectionMethod.code && o.system === currentCollectionMethod.system
+                );
+                if (matchedOption) {
+                  this.specimenForm.patchValue({ collectionMethod: matchedOption }, { emitEvent: false });
+                }
+              } else if (typeof currentCollectionMethod === 'string') {
+                const matchedOption = this.collectionMethodOptions.find(o => o.code === currentCollectionMethod);
+                if (matchedOption) {
+                  this.specimenForm.patchValue({ collectionMethod: matchedOption }, { emitEvent: false });
+                }
+              }
+            }
+          }
+          this.collectionMethodOptionsLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading KBV Specimen Collection Method from assets:', err);
+          this.collectionMethodOptions = [];
+          this.collectionMethodOptionsLoading = false;
+        }
+      });
+  }
+
+  private loadSpecimenAdditiveEntity(): void {
+    this.additiveOptionsLoading = true;
+    
+    // Load from static JSON file in assets
+    this.http.get<any>('assets/data/specimen-additive-entity.json')
+      .subscribe({
+        next: (response) => {
+          if (response?.expansion?.contains) {
+            this.additiveOptions = response.expansion.contains.map((item: any) => ({
+              code: item.code || '',
+              display: item.display || item.code || '',
+              system: item.system || 'http://terminology.hl7.org/CodeSystem/v3-EntityCode'
+            }));
+            // Sort by display name for better UX
+            this.additiveOptions.sort((a, b) => a.display.localeCompare(b.display));
+          }
+          this.additiveOptionsLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading Specimen Additive Entity from assets:', err);
+          this.additiveOptions = [];
+          this.additiveOptionsLoading = false;
+        }
+      });
+  }
+
+  get additiveFormArray(): FormArray {
+    return this.specimenForm.get('additive') as FormArray;
+  }
+
+  getAdditiveControl(index: number): FormControl {
+    return this.additiveFormArray.at(index) as FormControl;
+  }
+
+  addAdditive(): void {
+    const additiveArray = this.additiveFormArray;
+    additiveArray.push(this.fb.control(null));
+  }
+
+  removeAdditive(index: number): void {
+    const additiveArray = this.additiveFormArray;
+    if (additiveArray.length > index) {
+      additiveArray.removeAt(index);
+    }
   }
 }

@@ -178,6 +178,7 @@ export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
     },
     collectionFastingStatus: null,
     processingProcedure: null,
+    additive: null,
     containerType: {
       code: '467989009',
       system: 'http://snomed.info/sct',
@@ -208,6 +209,7 @@ export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
       display: 'Fasting'
     },
     processingProcedure: null,
+    additive: null,
     containerType: {
       code: '467989009',
       system: 'http://snomed.info/sct',
@@ -238,6 +240,7 @@ export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
       display: 'Non-fasting'
     },
     processingProcedure: null,
+    additive: null,
     containerType: {
       code: '467989009',
       system: 'http://snomed.info/sct',
@@ -264,6 +267,7 @@ export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
     },
     collectionFastingStatus: null,
     processingProcedure: null,
+    additive: null,
     containerType: {
       code: '467989009',
       system: 'http://snomed.info/sct',
