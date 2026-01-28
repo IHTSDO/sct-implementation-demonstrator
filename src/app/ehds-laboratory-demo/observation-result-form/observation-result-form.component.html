@@ -152,6 +152,76 @@
               <mat-datepicker #effectivePicker></mat-datepicker>
             </mat-form-field>
           </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="specimenMenu">
+                FHIR
+              </button>
+            </div>
+            <mat-menu #specimenMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Observation.specimen</h4>
+                  <a href="https://fhir.ehdsi.eu/laboratory/StructureDefinition-Observation-resultslab-lab-myhealtheu-definitions.html#Observation.specimen" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">The specimen that was used when this observation was made.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">Specimen used for this observation</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Comments:</span>
+                    <span class="fhir-value">When the specimen is applicable and known it shall be documented. Should only be used if not implicit in code found in Observation.code. Observations are not made on specimens themselves; they are made on a subject, but in many cases by the means of a specimen. Note that although specimens are often involved, they are not always tracked and reported explicitly. Also note that observation resources may be used in contexts that track the specimen explicitly (e.g. Diagnostic Report).</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..1</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">Reference(Specimen: Laboratory, Specimen)</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Is Modifier:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Obligations:</span>
+                    <span class="fhir-value">SHALL:handle - LabReportHandler</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Summary:</span>
+                    <span class="fhir-value">false</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Invariants:</span>
+                    <span class="fhir-value">ele-1: All FHIR elements must have a &#64;value or children (hasValue() or (children().count() > id.count()))</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Specimen</mat-label>
+              <mat-select formControlName="specimen" [disabled]="isViewOnly || availableSpecimens.length === 0">
+                <mat-option [value]="null">No specimen selected</mat-option>
+                @for (specimen of availableSpecimens; track specimen.reference) {
+                  <mat-option [value]="specimen">
+                    {{ specimen.display }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (availableSpecimens.length === 0) {
+                <mat-hint>No specimens available. Add specimens to the Diagnostic Report first.</mat-hint>
+              }
+            </mat-form-field>
+          </div>
         </div>
       </div>
 

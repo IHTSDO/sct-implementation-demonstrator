@@ -716,6 +716,12 @@
   text-transform: capitalize;
 }
 
+.result-specimen {
+  color: #1976d2;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .result-actions {
   display: flex;
   gap: 4px;

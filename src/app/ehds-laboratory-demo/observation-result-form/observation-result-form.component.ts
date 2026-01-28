@@ -59,6 +59,11 @@ export interface ObservationResultData {
     system: string;
     display: string;
   } | null;
+  specimen: {
+    reference: string;
+    display: string;
+    data?: any; // Optional: full SpecimenData object when available
+  } | null;
   note: string | null;
 }
 
@@ -131,6 +136,9 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
   unitOptionsLoading = false;
   unitInputControl = new FormControl('');
 
+  // Available specimens from Diagnostic Report (passed via data)
+  availableSpecimens: Array<{ reference: string; display: string; data: any }> = [];
+
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ObservationResultFormComponent>,
@@ -142,10 +150,18 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
     private http: HttpClient
   ) {
     this.observationForm = this.createForm();
-    // Check if data contains viewOnly flag
+    // Check if data contains viewOnly flag and available specimens
     if (this.data && typeof this.data === 'object') {
       if ('viewOnly' in this.data) {
         this.isViewOnly = this.data.viewOnly === true;
+      }
+      // Get available specimens from data
+      if ('availableSpecimens' in this.data && Array.isArray(this.data.availableSpecimens)) {
+        this.availableSpecimens = this.data.availableSpecimens.map((spec: any, index: number) => ({
+          reference: `specimen-${index + 1}`,
+          display: spec.referenceNumber || `Specimen ${index + 1}`,
+          data: spec
+        }));
       }
       if (this.isViewOnly) {
         this.observationForm.disable();
@@ -797,11 +813,17 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         this.valueType = 'codeableConcept';
       }
 
+      // Find matching specimen from available specimens
+      const matchedSpecimen = data.specimen && data.specimen.reference 
+        ? this.availableSpecimens.find(s => s.reference === data.specimen!.reference || s.data === data.specimen)
+        : null;
+
       this.observationForm.patchValue({
         status: data.status || '',
         code: codeValue,
         subject: data.subject || null,
         effectiveDateTime: data.effectiveDateTime ? new Date(data.effectiveDateTime) : null,
+        specimen: matchedSpecimen || data.specimen || null,
         valueQuantity: data.valueQuantity ? {
           value: data.valueQuantity.value || null,
           unit: data.valueQuantity.unit || ''
@@ -914,6 +936,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
       }),
       performer: [null],
       method: [null],
+      specimen: [null],
       note: ['']
     });
   }
@@ -990,6 +1013,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
         })(),
         performer: formValue.performer,
         method: formValue.method || null,
+        specimen: formValue.specimen || null,
         note: formValue.note || null
       };
       this.dialogRef.close(formData);

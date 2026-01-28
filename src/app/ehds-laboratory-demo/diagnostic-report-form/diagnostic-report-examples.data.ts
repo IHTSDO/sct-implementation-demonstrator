@@ -161,6 +161,7 @@ export const SERVICE_REQUEST_EXAMPLES: ServiceRequestExample[] = [
 export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
   'Specimen/example-specimen-001': {
     status: 'available',
+    referenceNumber: 'Specimen1',
     type: {
       code: '122555007',
       system: 'http://snomed.info/sct',
@@ -188,6 +189,7 @@ export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
   },
   'Specimen/example-specimen-002': {
     status: 'available',
+    referenceNumber: 'Specimen2',
     type: {
       code: '122555007',
       system: 'http://snomed.info/sct',
@@ -219,6 +221,7 @@ export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
   },
   'Specimen/example-specimen-003': {
     status: 'available',
+    referenceNumber: 'Specimen3',
     type: {
       code: '122555007',
       system: 'http://snomed.info/sct',
@@ -250,6 +253,7 @@ export const SPECIMEN_EXAMPLES: { [key: string]: SpecimenData } = {
   },
   'Specimen/example-specimen-004': {
     status: 'available',
+    referenceNumber: 'Specimen4',
     type: {
       code: '122555007',
       system: 'http://snomed.info/sct',

@@ -413,8 +413,15 @@ export class EhdsLaboratoryFhirService {
     }
 
     // Specimen (inline, not as references)
+    // Store specimens with their generated IDs for reference by observations
+    const specimenIdMap = new Map<number, string>();
     if (formData.specimen && formData.specimen.length > 0) {
-      diagnosticReport.specimen = formData.specimen.map((spec, index) => this.generateSpecimen(spec, index));
+      diagnosticReport.specimen = formData.specimen.map((spec, index) => {
+        const generatedSpecimen = this.generateSpecimen(spec, index);
+        const specimenId = generatedSpecimen.id || `specimen-${index + 1}`;
+        specimenIdMap.set(index, specimenId);
+        return generatedSpecimen;
+      });
     }
 
     // Results (Observations)
@@ -422,7 +429,8 @@ export class EhdsLaboratoryFhirService {
       diagnosticReport.result = formData.result.map((res, index) => {
         // Check if res is a full ObservationResultData object
         if (res.status && res.code) {
-          return this.generateObservation(res, index);
+          // Pass the specimenIdMap to generateObservation so it can create proper references
+          return this.generateObservation(res, index, specimenIdMap);
         } else {
           // Otherwise, create a simple reference
           return this.createReference(res);
@@ -490,6 +498,13 @@ export class EhdsLaboratoryFhirService {
         profile: ['http://fhir.ehdsi.eu/laboratory/StructureDefinition/Specimen-lab-myhealtheu']
       }
     };
+
+    // Identifier (Reference number)
+    if (specimenData.referenceNumber) {
+      specimen.identifier = [{
+        value: specimenData.referenceNumber
+      }];
+    }
 
     // Status
     if (specimenData.status) {
@@ -604,7 +619,7 @@ export class EhdsLaboratoryFhirService {
    * Generates a FHIR Observation resource from ObservationResultData
    * Following the EHDS Laboratory Observation profile specification
    */
-  generateObservation(observationData: ObservationResultData, index: number): any {
+  generateObservation(observationData: ObservationResultData, index: number, specimenIdMap?: Map<number, string>): any {
     const observation: any = {
       resourceType: 'Observation',
       id: `observation-${index + 1}`,
@@ -644,6 +659,43 @@ export class EhdsLaboratoryFhirService {
     // Subject
     if (observationData.subject) {
       observation.subject = this.createReference(observationData.subject);
+    }
+
+    // Specimen
+    if (observationData.specimen) {
+      // If specimen has a data property, it's from the availableSpecimens array
+      // We need to find the index of this specimen in the diagnostic report's specimen array
+      if (observationData.specimen.data) {
+        // Extract the specimen index from the reference (format: "specimen-{index+1}")
+        let specimenId = `specimen-${index + 1}`; // Default fallback
+        
+        if (specimenIdMap && specimenIdMap.size > 0) {
+          // Try to find the specimen index by matching the reference string
+          const match = observationData.specimen.reference?.match(/specimen-(\d+)/);
+          if (match) {
+            const specimenIndex = parseInt(match[1]) - 1;
+            const mappedId = specimenIdMap.get(specimenIndex);
+            if (mappedId) {
+              specimenId = mappedId;
+            }
+          }
+        } else {
+          // Fallback: use the reference from the specimen object
+          const match = observationData.specimen.reference?.match(/specimen-(\d+)/);
+          if (match) {
+            specimenId = `specimen-${match[1]}`;
+          }
+        }
+        
+        // Use fragment reference format for inline specimens: #specimen-{id}
+        observation.specimen = [{
+          reference: `#${specimenId}`,
+          display: observationData.specimen.display
+        }];
+      } else {
+        // It's already a reference object
+        observation.specimen = [this.createReference(observationData.specimen)];
+      }
     }
 
     // Effective DateTime

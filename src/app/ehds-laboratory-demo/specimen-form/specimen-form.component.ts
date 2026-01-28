@@ -7,6 +7,7 @@ import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.comp
 
 export interface SpecimenData {
   status: string;
+  referenceNumber?: string | null;
   type: {
     code: string;
     system: string;
@@ -323,6 +324,7 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
 
       this.specimenForm.patchValue({
         status: data.status || '',
+        referenceNumber: data.referenceNumber || '',
         type: matchedType || null,
         receivedTime: data.receivedTime ? new Date(data.receivedTime) : null,
         collectionBodySite: data.collectionBodySite || null,
@@ -363,6 +365,7 @@ export class SpecimenFormComponent implements OnInit, AfterViewInit {
   private createForm(): FormGroup {
     return this.fb.group({
       status: ['', Validators.required],
+      referenceNumber: [''],
       type: [null, Validators.required],
       receivedTime: [null],
       collectionBodySite: [null],

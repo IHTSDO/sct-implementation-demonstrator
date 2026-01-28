@@ -347,13 +347,18 @@ export class DiagnosticReportFormComponent implements OnInit {
   }
 
   onAddSpecimen(): void {
+    const nextNumber = this.specimens.length + 1;
+    const initialData: Partial<SpecimenData> = {
+      referenceNumber: `Specimen${nextNumber}`
+    };
+
     const dialogRef = this.dialog.open(SpecimenFormComponent, {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
       autoFocus: false,
       restoreFocus: true,
-      data: null
+      data: initialData
     });
 
     dialogRef.afterClosed().subscribe((result: SpecimenData | undefined) => {
@@ -398,6 +403,13 @@ export class DiagnosticReportFormComponent implements OnInit {
   }
 
   onAddResult(): void {
+    // Prepare available specimens for the observation form
+    const availableSpecimens = this.specimens.map((spec: any, index: number) => ({
+      reference: `specimen-${index + 1}`,
+      display: spec.referenceNumber || `Specimen ${index + 1}`,
+      data: spec
+    }));
+
     const dialogRef = this.dialog.open(ObservationResultFormComponent, {
       width: '1200px',
       maxWidth: '95vw',
@@ -416,8 +428,10 @@ export class DiagnosticReportFormComponent implements OnInit {
           interpretation: null,
           referenceRange: null,
           performer: this.diagnosticReportForm.get('performer')?.value || null,
+          specimen: null,
           note: null
-        }
+        },
+        availableSpecimens: availableSpecimens
       }
     });
 
@@ -432,25 +446,39 @@ export class DiagnosticReportFormComponent implements OnInit {
 
   viewResult(index: number): void {
     const result = this.results[index];
+    // Prepare available specimens for the observation form
+    const availableSpecimens = this.specimens.map((spec: any, index: number) => ({
+      reference: `specimen-${index + 1}`,
+      display: spec.referenceNumber || `Specimen ${index + 1}`,
+      data: spec
+    }));
+
     const dialogRef = this.dialog.open(ObservationResultFormComponent, {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
       autoFocus: false,
       restoreFocus: true,
-      data: { observation: result, viewOnly: true }
+      data: { observation: result, viewOnly: true, availableSpecimens: availableSpecimens }
     });
   }
 
   editResult(index: number): void {
     const result = this.results[index];
+    // Prepare available specimens for the observation form
+    const availableSpecimens = this.specimens.map((spec: any, index: number) => ({
+      reference: `specimen-${index + 1}`,
+      display: spec.referenceNumber || `Specimen ${index + 1}`,
+      data: spec
+    }));
+
     const dialogRef = this.dialog.open(ObservationResultFormComponent, {
       width: '1200px',
       maxWidth: '95vw',
       disableClose: false,
       autoFocus: false,
       restoreFocus: true,
-      data: result
+      data: { observation: result, availableSpecimens: availableSpecimens }
     });
 
     dialogRef.afterClosed().subscribe((updatedResult: ObservationResultData | undefined) => {

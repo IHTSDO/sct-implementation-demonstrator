@@ -937,7 +937,13 @@
                     <div class="reference-info">
                       <mat-icon>science</mat-icon>
                       <div class="specimen-details">
-                        <span class="specimen-title">Specimen {{ i + 1 }}</span>
+                        <span class="specimen-title">
+                          @if (specimen.referenceNumber) {
+                            {{ specimen.referenceNumber }}
+                          } @else {
+                            Specimen {{ i + 1 }}
+                          }
+                        </span>
                         @if (specimen.type) {
                           <div class="specimen-info">
                             <span class="specimen-type">{{ specimen.type.display }}</span>
@@ -1016,6 +1022,11 @@
                             }
                             @if (result.status) {
                               <span class="result-status"> • {{ result.status }}</span>
+                            }
+                            @if (result.specimen) {
+                              <span class="result-specimen">
+                                • Specimen: {{ result.specimen.display }}
+                              </span>
                             }
                           </div>
                         }

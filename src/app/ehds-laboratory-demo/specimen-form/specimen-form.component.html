@@ -9,7 +9,7 @@
     </p>
 
     <form [formGroup]="specimenForm" (ngSubmit)="onSubmit()" class="specimen-form">
-      <!-- Row 1: Status, Type, Received time -->
+      <!-- Row 1: Status, Type, Received time, Reference number -->
       <div class="form-section">
         <h3 class="section-title">
           <mat-icon>info</mat-icon>
@@ -217,6 +217,46 @@
               <input matInput [matDatepicker]="receivedTimePicker" formControlName="receivedTime" placeholder="Select received time">
               <mat-datepicker-toggle matSuffix [for]="receivedTimePicker"></mat-datepicker-toggle>
               <mat-datepicker #receivedTimePicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <div class="fhir-field-wrapper">
+            <div class="fhir-badges-container">
+              <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="referenceNumberMenu">
+                FHIR
+              </button>
+            </div>
+            <mat-menu #referenceNumberMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <div class="fhir-menu-content">
+                <div class="fhir-menu-header">
+                  <h4>Specimen.identifier</h4>
+                  <a href="https://hl7.org/fhir/R4/specimen-definitions.html#Specimen.identifier" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </div>
+                <div class="fhir-menu-body">
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Definition:</span>
+                    <span class="fhir-value">Id for specimen.</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Short:</span>
+                    <span class="fhir-value">External identifier</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Control:</span>
+                    <span class="fhir-value">0..*</span>
+                  </div>
+                  <div class="fhir-menu-item">
+                    <span class="fhir-label">Type:</span>
+                    <span class="fhir-value">Identifier</span>
+                  </div>
+                </div>
+              </div>
+            </mat-menu>
+            <mat-form-field>
+              <mat-label>Reference number</mat-label>
+              <input matInput formControlName="referenceNumber" placeholder="e.g. Specimen1">
             </mat-form-field>
           </div>
         </div>
