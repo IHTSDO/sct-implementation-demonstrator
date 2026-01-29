@@ -36,6 +36,7 @@ import { PhaserGameComponent } from './phaser-game/phaser-v1/phaser-game.compone
 import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
 import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
 import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-generator.component';
+import { DrugStrengthRoundingComponent } from './drug-strength-rounding/drug-strength-rounding.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -78,6 +79,7 @@ const routes: Routes = [
   { path: 'ehds-laboratory-demo', component: EhdsLaboratoryDemoComponent },
   { path: 'mdrs-viewer', component: MdrsViewerComponent },
   { path: 'crs-batch-generator', component: CrsBatchGeneratorComponent },
+  { path: 'drug-strength-rounding', component: DrugStrengthRoundingComponent },
   { path: '**', redirectTo: '' }
 ];
 

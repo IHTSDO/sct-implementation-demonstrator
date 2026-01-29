@@ -159,6 +159,13 @@ export class MenuService {
       type: "internal",
       url: "/mdrs-viewer",
       description: "A graphical viewer for the Module Dependency Reference Set (MDRS) that displays dependencies between SNOMED CT modules, showing which module versions depend on which other module versions."
+    },
+    {
+      name: "Drug Strength Rounding Rules",
+      subtitle: "Learning demo",
+      type: "internal",
+      url: "/drug-strength-rounding",
+      description: "A demonstration of drug strength rounding rules for significant figures in pharmaceutical calculations"
     }
 
   ];
