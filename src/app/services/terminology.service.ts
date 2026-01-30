@@ -133,15 +133,54 @@ export class TerminologyService {
 
   getComputedLanguageContext(): string {
     if (this.context) {
-      return this.context.languageDialects;
+      const dialects = this.context.languageDialects;
+      if (this.isOntoserver() && dialects && this.isSnowstormLanguageFormat(dialects)) {
+        const { lang, refsetCode } = this.parseSnowstormLanguageFormat(dialects);
+        return this.toLanguageCode(lang, refsetCode);
+      }
+      return dialects ?? this.lang;
     } else if (this.languageRefsetConcept) {
-      return this.lang + '-X-' + this.languageRefsetConcept.code
+      const code = String(this.languageRefsetConcept.code);
+      if (this.isOntoserver()) {
+        return this.toLanguageCode(this.lang, code);
+      }
+      return this.lang + '-X-' + code;
     } else return this.lang;
+  }
+
+  /** True when the configured FHIR base URL is an Ontoserver (different language refset format). */
+  private isOntoserver(): boolean {
+    return this.snowstormFhirBase.toLowerCase().includes('ontoserver');
+  }
+
+  /** Matches Snowstorm format e.g. en-X-900000000000509007 (lang-X-refsetCode). */
+  private isSnowstormLanguageFormat(value: string): boolean {
+    return /^[a-z]{2}-X-\d+$/i.test(value);
+  }
+
+  /** Parses Snowstorm format en-X-900000000000509007 into { lang, refsetCode }. */
+  private parseSnowstormLanguageFormat(value: string): { lang: string; refsetCode: string } {
+    const match = value.match(/^([a-z]{2})-X-(\d+)$/i);
+    if (match) {
+      return { lang: match[1], refsetCode: match[2] };
+    }
+    return { lang: this.lang, refsetCode: '' };
+  }
+
+  /** Ontoserver-style language dialect: e.g. en-x-sctlang-00000000-00000000-00000000 */
+  private toLanguageCode(lang: string, langRefset: string): string {
+    if (langRefset.length > 16) {
+      return `${lang}-x-sctlang-${langRefset.substring(0, 8)}-${langRefset.substring(8, 16)}-${langRefset.substring(16)}`;
+    } else if (langRefset.length > 8) {
+      return `${lang}-x-sctlang-${langRefset.substring(0, 8)}-${langRefset.substring(8)}`;
+    } else {
+      return `${lang}-x-sctlang-${langRefset}`;
+    }
   }
 
   getCodeSystems() {
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem`;
-    if (this.snowstormFhirBase.includes('ontoserver')) {
+    if (this.isOntoserver()) {
       requestUrl += `?system=http://snomed.info/sct`;
     }
     const headers = new HttpHeaders({
