@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "clean": "rm -rf docs .angular/cache",
     "build": "ng build",
     "build:test": "ng build --base-href /",
     "watch": "ng build --watch --configuration development",

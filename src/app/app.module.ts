@@ -132,6 +132,7 @@ import { ObservationResultFormComponent } from './ehds-laboratory-demo/observati
 import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
 import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-generator.component';
 import { DrugStrengthRoundingComponent } from './drug-strength-rounding/drug-strength-rounding.component';
+import { ExtensionsSearchComponent } from './extensions-search/extensions-search.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -222,7 +223,8 @@ const app = initializeApp(firebaseConfig);
         ObservationResultFormComponent,
         MdrsViewerComponent,
         CrsBatchGeneratorComponent,
-        DrugStrengthRoundingComponent
+        DrugStrengthRoundingComponent,
+        ExtensionsSearchComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

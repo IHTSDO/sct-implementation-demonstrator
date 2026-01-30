@@ -1,0 +1,156 @@
+<div class="extensions-search-container">
+  <div class="ecl-section">
+    <h2>ECL Expression</h2>
+    <mat-form-field class="ecl-field" appearance="fill">
+      <mat-label>Enter ECL (module filter is added per edition)</mat-label>
+      <textarea
+        matInput
+        [(ngModel)]="eclInput"
+        placeholder="e.g. < 363680008 |Radiographic imaging procedure (procedure)|"
+        rows="4"
+      ></textarea>
+    </mat-form-field>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="runExecute()"
+      [disabled]="!eclInput.trim() || runningEditions"
+    >
+      <mat-icon>play_arrow</mat-icon>
+      Run for all editions
+    </button>
+  </div>
+
+  @if (error) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+  }
+
+  <div class="progress-section">
+    @if (runningEditions) {
+      <mat-progress-bar mode="determinate" [value]="(runningProgress / runningTotal) * 100"></mat-progress-bar>
+      <p class="progress-message">Running ECL for {{ currentRunningEditionName }} edition ({{ runningProgress }} / {{ runningTotal }})...</p>
+    } @else if (runCompleted) {
+      <mat-progress-bar mode="determinate" [value]="100"></mat-progress-bar>
+      <p class="progress-message summary">
+        <span class="success-count">
+          <mat-icon>check_circle</mat-icon> {{ successCount }} successful
+        </span>
+        @if (errorCount > 0) {
+          <span class="error-count">
+            <mat-icon>error</mat-icon> {{ errorCount }} failed
+          </span>
+        }
+      </p>
+    } @else {
+      <mat-progress-bar mode="determinate" [value]="0"></mat-progress-bar>
+      <p class="progress-message hint">Enter ECL and click "Run for all editions" to start</p>
+    }
+  </div>
+
+  <div class="col-container">
+    <div class="column first">
+      <h3>Editions ({{ latestEditions.length }})</h3>
+      @if (loading && latestEditions.length === 0) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+      @if (!loading && latestEditions.length === 0 && !runningEditions) {
+        <p class="hint">No editions found. Check server connection.</p>
+      }
+      <mat-list class="editions-list">
+        @for (edition of latestEditions; track $index) {
+          <mat-list-item
+            (click)="onSelectEdition($index)"
+            [class.selected]="selectedEditionIndex === $index"
+            [class.has-error]="hasEditionError($index)"
+            class="edition-item"
+          >
+            <span class="edition-name">
+              {{ getEditionTitle(edition) }}
+              @if (hasEditionError($index)) {
+                <mat-icon class="edition-error-icon" [matTooltip]="getEditionErrorMessage($index)">error</mat-icon>
+              }
+            </span>
+            <span class="edition-count">{{ getLastRelease(edition) }} - Matches: {{ getCountDisplay($index) }}</span>
+          </mat-list-item>
+        }
+      </mat-list>
+    </div>
+
+    <div class="column second">
+      @if (selectedEditionIndex != null) {
+        <h3>Results for {{ getEditionTitle(latestEditions[selectedEditionIndex]) }} edition</h3>
+        <div class="right-panel-header">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="runSelectedEdition()"
+            [disabled]="!eclInput.trim() || runningEditions || runningEditionIndex !== null"
+          >
+            @if (runningEditionIndex === selectedEditionIndex) {
+              <mat-spinner diameter="22" class="btn-spinner"></mat-spinner>
+              <span>Running...</span>
+            } @else {
+              <ng-container>
+                <mat-icon>play_arrow</mat-icon>
+                <span>Run ECL for this edition</span>
+              </ng-container>
+            }
+          </button>
+        </div>
+        @if (loadingRightPanel) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }
+        <p class="total-hint">
+          Showing {{ rightPanelResults.length }} of {{ rightPanelTotal }} concepts
+          @if (getExecutedEcl()) {
+            <span class="executed-ecl"> - {{ getExecutedEcl() }}</span>
+          }
+        </p>
+        @if (rightPanelTotal === 0 && !loadingRightPanel && rightPanelResults.length === 0) {
+          <p class="hint">Run ECL for all editions above, or enter ECL and click "Run ECL for this edition" to load results for this edition.</p>
+        }
+        <div class="results-table-wrapper">
+          <table mat-table [dataSource]="displayedResultsWithLoadMore" class="results-table">
+            <ng-container matColumnDef="code">
+              <th mat-header-cell *matHeaderCellDef>Code</th>
+              <td mat-cell *matCellDef="let row">{{ row.code }}</td>
+            </ng-container>
+            <ng-container matColumnDef="display">
+              <th mat-header-cell *matHeaderCellDef>Display</th>
+              <td mat-cell *matCellDef="let row">{{ row.display }}</td>
+            </ng-container>
+            <ng-container matColumnDef="loadMore">
+              <td mat-cell *matCellDef="let row" colspan="2" class="load-more-cell">
+                <a class="load-more-link" (click)="loadMore()">Load more...</a>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['code', 'display']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['code', 'display']; when: isDataRow"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['loadMore']; when: isLoadMoreRow"></tr>
+          </table>
+        </div>
+      } @else {
+        <p class="hint">Select an edition from the left to view results.</p>
+      }
+    </div>
+  </div>
+
+  <div class="export-section">
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="exportToExcel()"
+      [disabled]="editionsWithResults.length === 0 || exporting"
+    >
+      <mat-icon>download</mat-icon>
+      {{ exporting ? 'Exporting...' : 'Export as a spreadsheet' }}
+    </button>
+    @if (exporting) {
+      <span class="export-status">Reading {{ exportingEditionName || '...' }}</span>
+      <mat-progress-bar mode="indeterminate" class="export-progress"></mat-progress-bar>
+    }
+  </div>
+</div>

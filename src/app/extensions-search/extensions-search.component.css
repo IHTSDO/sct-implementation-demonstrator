@@ -1,0 +1,321 @@
+.extensions-search-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ecl-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.ecl-section h2 {
+  width: 100%;
+  margin: 0 0 8px 0;
+}
+
+.ecl-field {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* Sin outline en el form field */
+:host .ecl-field .mat-mdc-text-field-wrapper,
+:host .ecl-field .mdc-notched-outline,
+:host .ecl-field input,
+:host .ecl-field textarea {
+  outline: none !important;
+}
+:host .ecl-field .mdc-notched-outline__leading,
+:host .ecl-field .mdc-notched-outline__notch,
+:host .ecl-field .mdc-notched-outline__trailing {
+  border: none !important;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c62828;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.progress-section {
+  margin-bottom: 16px;
+  min-height: 50px;
+  flex-shrink: 0;
+}
+
+.progress-message {
+  margin: 8px 0 0 0;
+  font-size: 0.9rem;
+}
+
+.progress-message.hint {
+  color: #999;
+  font-style: italic;
+}
+
+.progress-message.summary {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.progress-message .success-count,
+.progress-message .error-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress-message .success-count {
+  color: #4caf50;
+}
+
+.progress-message .success-count mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.progress-message .error-count {
+  color: #f44336;
+}
+
+.progress-message .error-count mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.col-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.column {
+  padding: 16px;
+  border: 1px solid #ccc;
+  overflow-y: auto;
+}
+
+.first {
+  width: 28%;
+  min-width: 220px;
+}
+
+.second {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.second h3 {
+  flex-shrink: 0;
+}
+
+.second .right-panel-header {
+  flex-shrink: 0;
+}
+
+.second .total-hint {
+  flex-shrink: 0;
+}
+
+.column h3 {
+  margin: 0 0 12px 0;
+}
+
+.hint {
+  color: #666;
+  font-style: italic;
+  margin: 12px 0;
+}
+
+.editions-list {
+  padding: 0;
+}
+
+/* Material wraps content in .mdc-list-item__content; make it flex row so icon stays on the right */
+:host ::ng-deep .edition-item .mdc-list-item__content {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Allow two lines of text in list item (override single-line) */
+:host ::ng-deep .edition-item.mdc-list-item--with-one-line {
+  align-items: center;
+  min-height: 52px;
+}
+
+.edition-item {
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.edition-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.edition-play-icon {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1976d2;
+}
+
+.edition-play-icon:hover:not(.disabled) {
+  color: #1565c0;
+}
+
+.edition-play-icon.disabled {
+  color: #9e9e9e;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.edition-play-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.edition-play-icon mat-spinner {
+  display: inline-block;
+}
+
+.edition-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.edition-item:hover {
+  background-color: #f5f5f5;
+}
+
+.edition-item.selected {
+  background-color: #e3f2fd;
+}
+
+.edition-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.edition-error-icon {
+  color: #f44336;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  cursor: help;
+}
+
+.edition-count {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.edition-item.has-error .edition-count {
+  color: #f44336;
+}
+
+.right-panel-header {
+  margin-bottom: 12px;
+}
+
+/* Alinear ícono y texto en el botón del panel derecho */
+:host ::ng-deep .right-panel-header button .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+:host ::ng-deep .right-panel-header button mat-icon {
+  margin: 0 !important;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .right-panel-header button .btn-spinner {
+  margin-right: 0 !important;
+}
+
+.total-hint {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+}
+
+.executed-ecl {
+  font-weight: 300;
+  font-style: italic;
+  color: #666;
+}
+
+.results-table-wrapper {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.results-table {
+  width: 100%;
+}
+
+.export-section {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.export-status {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.export-progress {
+  width: 200px;
+}
+
+.load-more-link {
+  display: inline-block;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.load-more-link:hover {
+  text-decoration: underline;
+  color: #1565c0;
+}
+
+/* Load more row - styled like other table rows */
+:host ::ng-deep .results-table .load-more-cell {
+  padding: 12px 16px;
+}

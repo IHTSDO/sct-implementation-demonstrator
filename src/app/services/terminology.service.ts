@@ -55,6 +55,9 @@ export class TerminologyService {
   public languages$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv']);
   public filteredLanguageMetadata$: BehaviorSubject<any> = new BehaviorSubject<any>({ contexts: [] });
   public contexts$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  
+  /** Full language metadata for all editions (used for on-the-fly context calculation) */
+  private languageMetadata: any = { editions: [] };
 
 
   // For external components to subscribe to
@@ -68,6 +71,19 @@ export class TerminologyService {
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) { 
     this.loadCache();
+    this.loadLanguageMetadata();
+  }
+
+  /** Load language metadata for on-the-fly context calculation */
+  private loadLanguageMetadata(): void {
+    this.http.get('assets/language/national-language-metadata.json').subscribe({
+      next: (data: any) => {
+        this.languageMetadata = data || { editions: [] };
+      },
+      error: () => {
+        this.languageMetadata = { editions: [] };
+      }
+    });
   }
 
   setSnowstormFhirBase(url: string) {
@@ -401,7 +417,8 @@ export class TerminologyService {
     if (typeof terms != 'string') {
       terms = '';
     }
-    let langParam = this.getComputedLanguageContext();
+    // Calculate language context on-the-fly based on the edition being queried
+    let langParam = this.computedLanguageContextForUri(fhirUrl);
     // For LOINC SNOMED server, use simpler language parameter (just 'en' instead of language refset)
     const isLoincSnomedServer = fhirBase.includes('loincsnomed');
     const languageParam = isLoincSnomedServer ? 'en' : langParam;
@@ -800,6 +817,47 @@ export class TerminologyService {
   setFilteredLanguageMetadata(metadata: any) {
     this.filteredLanguageMetadata$.next(metadata);
     this.contexts$.next(metadata?.contexts || []);
+  }
+
+  /**
+   * Extract the base edition URI from a fhirUrl (removing /version/YYYYMMDD)
+   * e.g. "http://snomed.info/sct/11000221109/version/20251120" -> "http://snomed.info/sct/11000221109"
+   */
+  private extractEditionUri(fhirUrl: string): string {
+    if (!fhirUrl || typeof fhirUrl !== 'string') return '';
+    if (fhirUrl.includes('/version/')) {
+      const parts = fhirUrl.split('/version/');
+      return parts[0];
+    }
+    return fhirUrl;
+  }
+
+  /**
+   * Compute the appropriate language context for a specific edition URI.
+   * Returns the first available languageDialects from the edition's contexts,
+   * or falls back to the global computed language context if not found.
+   * Always prepends "en," to ensure English fallback.
+   */
+  computedLanguageContextForUri(fhirUrl: string): string {
+    const editionUri = this.extractEditionUri(fhirUrl);
+    let langContext: string;
+    if (!editionUri || !this.languageMetadata?.editions?.length) {
+      langContext = this.getComputedLanguageContext();
+    } else {
+      const edition = this.languageMetadata.editions.find(
+        (e: any) => e.moduleUri === editionUri
+      );
+      if (edition?.contexts?.length > 0) {
+        langContext = edition.contexts[0].languageDialects || this.getComputedLanguageContext();
+      } else {
+        langContext = this.getComputedLanguageContext();
+      }
+    }
+    // Prepend "en," if not already starting with "en"
+    if (!langContext.startsWith('en')) {
+      return 'en,' + langContext;
+    }
+    return langContext;
   }
 
   /**
