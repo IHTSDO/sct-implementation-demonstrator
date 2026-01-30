@@ -58,7 +58,8 @@ export class DrugStrengthRoundingComponent implements OnInit {
     return a < 0n ? -a : a;
   }
 
-  // Count significant figures in a number string
+  // Count significant figures in a number string.
+  // Leading zeros do not count as significant figures (e.g. 0.00123 has 3 sig figs).
   countSigFigs(numStr: string): number {
     let s = numStr.trim();
 
@@ -68,11 +69,22 @@ export class DrugStrengthRoundingComponent implements OnInit {
       s = s.toLowerCase().split('e')[0];
     }
 
-    // Strip signs and decimal point
-    s = s.replace(/[\+\-]/g, '').replace(/\./g, '');
+    s = s.replace(/[\+\-]/g, '');
 
-    // Every remaining digit is significant
-    return s.length;
+    // Find first non-zero digit; leading zeros don't count as significant
+    const firstNonZero = s.search(/[1-9]/);
+    if (firstNonZero === -1) {
+      return 0; // all zeros
+    }
+
+    // From first significant digit to end, count every digit (0-9)
+    let count = 0;
+    for (let i = firstNonZero; i < s.length; i++) {
+      if (s[i] >= '0' && s[i] <= '9') {
+        count++;
+      }
+    }
+    return count;
   }
 
   // Determine if a fraction terminates (denominator only has factors 2 and 5 after reduction)

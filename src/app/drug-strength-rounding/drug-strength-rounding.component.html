@@ -160,18 +160,29 @@
             <div class="rule-item">
               <strong>3. Significant Figures Counting:</strong>
               <p>
-                All digits in a number are significant, including:
+                Leading zeros do not count as significant figures (e.g. 0.00123 has 3 sig figs; 0.045 has 2).
+              </p>
+              <p>
+                Otherwise, digits that are significant include:
               </p>
               <ul>
                 <li>All non-zero digits</li>
                 <li>Zeros between non-zero digits</li>
                 <li>Trailing zeros in numbers with decimal points</li>
-                <li>All digits in scientific notation</li>
+                <li>All digits in the mantissa in scientific notation</li>
               </ul>
             </div>
 
             <div class="rule-item">
-              <strong>4. Trailing Zero Padding:</strong>
+              <strong>4. Round Only Once:</strong>
+              <p>
+                Never round intermediate calculations. Rounding too early introduces unnecessary rounding errors.
+                Rounding should only be applied once — after the final result (or after the final expanded uncertainty when applicable).
+              </p>
+            </div>
+
+            <div class="rule-item">
+              <strong>5. Trailing Zero Padding:</strong>
               <p>
                 For non-terminating fractions, if the result has fewer significant figures than desired (p+1), 
                 pad with trailing zeros to reach the required precision.
@@ -196,7 +207,7 @@
                   <li>Pad with trailing zeros if needed to reach desired precision</li>
                 </ul>
               </li>
-              <li>Format result string (trim trailing zeros, handle decimal point)</li>
+              <li>Format result string (trim trailing zeros, handle decimal point) — no rounding of intermediates</li>
             </ol>
           </div>
         </div>
