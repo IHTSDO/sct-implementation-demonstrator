@@ -486,7 +486,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
           { wch: 16 }
         ];
         XLSX.utils.book_append_sheet(wb, ws, 'Promotion candidates');
-        const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+        const timestamp = new Date().toISOString().replace(/-|:|T/g, '').slice(0, 14);
         XLSX.writeFile(wb, `extension_promotion_candidates_${timestamp}.xlsx`);
         this.exporting = false;
         this.exportingEditionName = '';
