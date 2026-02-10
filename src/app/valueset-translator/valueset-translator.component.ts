@@ -8,8 +8,6 @@ import { saveAs } from 'file-saver';
 import { v4 as uuidv4 } from 'uuid';
 import JSZip from 'jszip';
 import * as pako from 'pako';
-import { MatDialog } from '@angular/material/dialog';
-import { FhirServerDialogComponent } from './fhir-server-dialog/fhir-server-dialog.component';
 
 interface ColumnOption {
   header: string;
@@ -86,6 +84,12 @@ interface FHIRPackage {
   };
 }
 
+interface ConceptRow {
+  code: string;
+  display?: string;
+  system?: string;
+}
+
 @Component({
   selector: 'app-valueset-translator',
   templateUrl: './valueset-translator.component.html',
@@ -94,6 +98,7 @@ interface FHIRPackage {
 })
 export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef;
+  private readonly scrollHandler = () => this.onScroll();
   
   file: File | null = null;
   columns: ColumnOption[] = [];
@@ -119,14 +124,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   };
   private subscriptions = new Subscription();
   selectedFile: File | null = null;
-  isProcessing = false;
-  outputFormat = 'csv';
-  baseUri = 'http://organization.org/fhir';
-  setName = 'LocalCodes';
   isMap = false;
-  showFhirOptions = false;
   showIndicators = true;
-  showValueSetMetadata = true;
   sourceSystemUri = '';
   valueSetUri = '';
   valueSetName = '';
@@ -134,10 +133,17 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   mapBetweenValueSets = false;
   targetPreviewData: Array<{code: string, originalDisplay: string, translatedDisplay: string}> = [];
   targetPreviewColumns = ['code', 'originalDisplay', 'translatedDisplay'];
+  previewVisibleCount = 5;
+  previewIncrement = 25;
+  targetPreviewVisibleCount = 10;
+  targetPreviewIncrement = 25;
   selectedAction: string | null = null;
-  translationEnabled = false;
+  codeDisplayExported = false;
+  codeDisplayExportedCount = 0;
+  translationEnabled = true;
   isRf2Refset = false;
   isEclResult = false;
+  fullEclConcepts: ConceptRow[] = [];
   public editionsDetails: any[] = [];
   public languages: string[] = [];
   public contexts: any[] = [];
@@ -148,20 +154,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   public isFileLoading = false;
   public isTranslationLoading = false;
   totalCount: number = 0;
-  
-  // FHIR Package upload properties
-  showFhirServerUpload = false;
-  fhirServerUrl = '';
-  isUploading = false;
-  instructionTab = 'download';
   generatedPackage: FHIRPackage | null = null;
 
 
   constructor(
     private fb: FormBuilder,
     private terminologyService: TerminologyService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private snackBar: MatSnackBar
   ) {
     this.importForm = this.fb.group({
       codeColumn: ['', Validators.required],
@@ -211,14 +210,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       this.languageRefsets = (this.terminologyService as any).languageRefsets;
     }
 
-    // Add scroll event listener with arrow function
-    window.addEventListener('scroll', () => this.onScroll());
+    // Register a stable scroll handler so it can be removed correctly on destroy.
+    window.addEventListener('scroll', this.scrollHandler);
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
-    // Remove scroll event listener with arrow function
-    window.removeEventListener('scroll', () => this.onScroll());
+    window.removeEventListener('scroll', this.scrollHandler);
   }
 
   private onScroll(): void {
@@ -235,8 +233,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       // Hide ECL input if it was shown
       this.showEclInput = false;
       this.eclExpression = '';
-      // Reset FHIR options
-      this.showFhirOptions = false;
       this.readFile();
     }
   }
@@ -566,96 +562,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     this.isLoading = false;
   }
 
-  importCodes() {
-    if (!this.previewData.length) return;
-
-    if (this.isValueSetFile) {
-      // For ValueSet files, just expand the source ValueSet
-      this.expandValueSet();
-    } else {
-      // For Excel/CSV/TSV files, process as before
-      if (!this.importForm.valid) return;
-
-      // Store selected columns before resetting the form
-      this.selectedCodeColumn = this.importForm.get('codeColumn')?.value;
-      this.selectedDisplayColumn = this.importForm.get('displayColumn')?.value;
-      const skipHeader = this.importForm.get('skipHeader')?.value;
-
-
-
-      // Start from index 1 if skipping header, or 0 if not
-      const startIndex = skipHeader ? 1 : 0;
-
-
-
-      // Map data starting from appropriate row
-      const codes = this.previewData.slice(startIndex)
-        .map(row => {
-          const code = String(row[this.selectedCodeColumn!] || '').trim();
-          // Only include display if display column is selected and has a value
-          const display = this.selectedDisplayColumn !== null && this.selectedDisplayColumn !== undefined ? 
-            String(row[this.selectedDisplayColumn] || '').trim() : undefined;
-          return { code, display };
-        })
-        .filter(item => item.code && item.code !== ''); // Only filter out empty codes
-
-
-
-      if (codes.length === 0) {
-        this.error = 'No valid codes found in the selected column';
-        return;
-      }
-
-      // Create source ValueSet from codes
-      this.sourceValueSet = {
-        resourceType: 'Parameters',
-        parameter: [{
-          name: 'valueSet',
-          resource: {
-            resourceType: 'ValueSet',
-            status: 'draft',
-            experimental: true,
-            compose: {
-              include: [{
-                system: 'http://snomed.info/sct',
-                version: this.terminologyContext.fhirUrlParam,
-                concept: codes
-              }]
-            }
-          }
-        }]
-      };
-
-
-      
-      this.expandValueSet();
-    }
-  }
-
-  private expandValueSet() {
-    // Create target ValueSet by expanding the source ValueSet
-    this.isLoading = true;
-    this.terminologyService.expandInlineValueSet(this.sourceValueSet).subscribe(
-      (expandedValueSet) => {
-        this.targetValueSet = expandedValueSet;
-        this.isLoading = false;
-        this.showPreview = false;
-        this.successMessage = 'Successfully created expanded ValueSet';
-      },
-      (error) => {
-        this.error = 'Error expanding ValueSet: ' + error.message;
-        this.isLoading = false;
-      }
-    );
-    
-    // Reset form and file input but keep skipHeader value
-    if (!this.isValueSetFile) {
-      const currentSkipHeader = this.importForm.get('skipHeader')?.value;
-      this.importForm.reset({ skipHeader: currentSkipHeader });
-    }
-    this.file = null;
-  }
-
   downloadSourceValueSet() {
     if (!this.sourceValueSet) return;
     this.downloadValueSet(this.sourceValueSet, 'source-valueset.json');
@@ -701,6 +607,41 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
     // Generate and download file
     XLSX.writeFile(wb, 'target-valueset.xlsx');
+  }
+
+  async downloadCodeDisplayAsExcel(): Promise<void> {
+    this.isLoading = true;
+    this.error = null;
+
+    try {
+      const concepts = await this.getCodesForPreview();
+      if (!concepts.length) {
+        this.snackBar.open('No concepts available to export', 'OK', { duration: 3000 });
+        return;
+      }
+
+      const data = [
+        ['code', 'display'],
+        ...concepts.map(concept => [
+          concept.code || '',
+          concept.display || ''
+        ])
+      ];
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      ws['!cols'] = [{ wch: 24 }, { wch: 60 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'CodeDisplay');
+      XLSX.writeFile(wb, 'code-display-list.xlsx');
+      this.codeDisplayExported = true;
+      this.codeDisplayExportedCount = concepts.length;
+      this.successMessage = `Exported ${concepts.length} concepts to code-display-list.xlsx`;
+    } catch (error: any) {
+      this.error = `Error exporting code/display table: ${error.message || error}`;
+      this.snackBar.open(this.error, 'Close', { duration: 5000 });
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   private downloadValueSet(valueSet: any, filename: string) {
@@ -759,19 +700,23 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     
     // Reset action state
     this.selectedAction = null;
+    this.codeDisplayExported = false;
+    this.codeDisplayExportedCount = 0;
     this.targetPreviewData = [];
+    this.targetPreviewVisibleCount = 10;
+    this.previewVisibleCount = 5;
     
     // Reset UI state
     this.error = null;
     this.successMessage = null;
     this.isLoading = false;
-    this.isProcessing = false;
     this.isTranslationLoading = false;
-    this.showFhirOptions = false;
     
     // Reset ECL state
     this.eclExpression = '';
     this.isEclResult = false;
+    this.fullEclConcepts = [];
+    this.totalCount = 0;
     
     // Reset file input
     if (this.fileInput) {
@@ -804,19 +749,23 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     
     // Reset action state
     this.selectedAction = null;
+    this.codeDisplayExported = false;
+    this.codeDisplayExportedCount = 0;
     this.targetPreviewData = [];
+    this.targetPreviewVisibleCount = 10;
+    this.previewVisibleCount = 5;
     
     // Reset UI state
     this.error = null;
     this.successMessage = null;
     this.isLoading = false;
-    this.isProcessing = false;
     this.isTranslationLoading = false;
-    this.showFhirOptions = false;
     
     // Reset ECL state
     this.eclExpression = '';
     this.isEclResult = false;
+    this.fullEclConcepts = [];
+    this.totalCount = 0;
     
     // Note: We don't reset file input value here as we need it for file selection
   }
@@ -833,6 +782,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     this.successMessage = null;
     this.isEclResult = true;
     this.previewData = [];
+    this.fullEclConcepts = [];
+    this.previewVisibleCount = 5;
     this.showPreview = false;
     this.targetValueSet = null;
 
@@ -849,15 +800,29 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
         if (matchCount > 0) {
           this.targetValueSet = expandedValueSet;
-          // Populate previewData and showPreview
-          const first5 = expandedValueSet.expansion.contains.slice(0, 5).map((c: any) => [
-            c.code || '',
-            c.display || '',
-            c.system || ''
-          ]);
+          this.fullEclConcepts = (expandedValueSet.expansion.contains || []).map((c: any) => ({
+            code: c.code || '',
+            display: c.display || '',
+            system: c.system || ''
+          }));
+
+          // Keep the full ECL result as source data for all downstream actions.
+          const eclCodes = this.fullEclConcepts.map(c => ({
+            code: c.code,
+            display: c.display || ''
+          }));
+          this.sourceValueSet = {
+            resourceType: 'Parameters',
+            parameter: [{
+              name: 'valueSet',
+              resource: this.buildValueSetResource(eclCodes)
+            }]
+          };
+
+          // Build full preview data and render incrementally via "Load more".
           this.previewData = [
             ['Code', 'Display', 'System'],
-            ...first5
+            ...this.fullEclConcepts.map(c => [c.code, c.display || '', c.system || ''])
           ];
           
           // Set up columns for the preview table
@@ -1078,27 +1043,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     XLSX.writeFile(wb, filename);
   }
 
-  async convert(): Promise<void> {
-    if (!this.selectedFile) {
-      this.snackBar.open('Please select a file first', 'OK', { duration: 3000 });
-      return;
-    }
-
-    this.isProcessing = true;
-
-    try {
-      if (this.isMap) {
-        await this.generateFHIRPackage();
-      } else {
-        await this.convertToCSV();
-      }
-    } catch (error) {
-      this.snackBar.open('Error during conversion', 'OK', { duration: 3000 });
-    } finally {
-      this.isProcessing = false;
-    }
-  }
-
   async generateFHIRPackage(): Promise<void> {
     const data = await this.readExcelFile(this.selectedFile!);
     const { source, snomed } = this.extractConcepts(data);
@@ -1108,83 +1052,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     
     saveAs(tarBlob, `${this.valueSetName}.tgz`);
     this.snackBar.open('FHIR package generated successfully!', 'OK', { duration: 3000 });
-  }
-
-  downloadFHIRPackage(): void {
-    if (!this.generatedPackage) {
-      this.snackBar.open('No package available to download', 'OK', { duration: 3000 });
-      return;
-    }
-    
-    this.createTarGz(this.generatedPackage).then(tarBlob => {
-      saveAs(tarBlob, `${this.valueSetName}.tgz`);
-    });
-  }
-
-  toggleFhirServerInput(): void {
-    this.showFhirServerUpload = !this.showFhirServerUpload;
-    if (!this.showFhirServerUpload) {
-      this.fhirServerUrl = '';
-    }
-  }
-
-  async uploadToFhirServer(): Promise<void> {
-    if (!this.generatedPackage || !this.fhirServerUrl) {
-      this.snackBar.open('No package or server URL provided', 'OK', { duration: 3000 });
-      return;
-    }
-
-    this.isUploading = true;
-    const serverUrl = this.fhirServerUrl.endsWith('/') ? this.fhirServerUrl.slice(0, -1) : this.fhirServerUrl;
-
-    try {
-      const resources = [
-        { resource: this.generatedPackage.resources.codeSystem, type: 'CodeSystem' },
-        { resource: this.generatedPackage.resources.valueSet, type: 'ValueSet' },
-        { resource: this.generatedPackage.resources.snomedValueSet, type: 'ValueSet' },
-        { resource: this.generatedPackage.resources.conceptMap, type: 'ConceptMap' }
-      ];
-
-      const results = [];
-      for (const { resource, type } of resources) {
-        try {
-          const response = await fetch(`${serverUrl}/${type}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/fhir+json',
-              'Accept': 'application/fhir+json'
-            },
-            body: JSON.stringify(resource)
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            results.push({ type, success: true, id: result.id });
-          } else {
-            const error = await response.text();
-            results.push({ type, success: false, error: error });
-          }
-        } catch (error) {
-          results.push({ type, success: false, error: error });
-        }
-      }
-
-      const successCount = results.filter(r => r.success).length;
-      const totalCount = results.length;
-
-      if (successCount === totalCount) {
-        this.snackBar.open(`Successfully uploaded all ${totalCount} resources to FHIR server!`, 'OK', { duration: 5000 });
-      } else {
-        this.snackBar.open(`Uploaded ${successCount}/${totalCount} resources. Check console for details.`, 'OK', { duration: 5000 });
-      }
-
-      // Log detailed results
-
-    } catch (error) {
-      this.snackBar.open('Error uploading to FHIR server', 'OK', { duration: 5000 });
-    } finally {
-      this.isUploading = false;
-    }
   }
 
   private extractConcepts(data: any[]): { source: Array<{code: string, display: string}>, snomed: Array<{code: string, display: string}> } {
@@ -1491,10 +1358,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     buffer[155] = 0x20;
   }
 
-  private async convertToCSV(): Promise<void> {
-    // ... existing CSV conversion code ...
-  }
-
   private async readExcelFile(file: File): Promise<any[]> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1514,284 +1377,28 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     });
   }
 
-  async processAndDownload(type: 'source' | 'target' | 'excel' | 'fhir'): Promise<void> {
-    if (!this.previewData.length) return;
-
-    this.isLoading = true;
-    this.error = null;
-
-    try {
-      // Get the selected columns from the form
-      const codeColumn = this.importForm.get('codeColumn')?.value;
-      const displayColumn = this.importForm.get('displayColumn')?.value;
-      const skipHeader = this.importForm.get('skipHeader')?.value;
-
-      // Start from index 1 if skipping header, or 0 if not
-      const startIndex = skipHeader ? 1 : 0;
-
-      // Map data starting from appropriate row
-      const codes = this.previewData.slice(startIndex)
-        .map(row => {
-          const code = String(row[codeColumn] || '').trim();
-          // Only include display if display column is selected and has a value
-          const display = displayColumn !== null && displayColumn !== undefined ? 
-            String(row[displayColumn] || '').trim() : undefined;
-          return { code, display };
-        })
-        .filter(item => item.code && item.code !== ''); // Only filter out empty codes
-
-      if (codes.length === 0) {
-        this.error = 'No valid codes found in the selected column';
-        this.isLoading = false;
-        return;
-      }
-
-      // Create source ValueSet from codes
-      this.sourceValueSet = {
-        resourceType: 'Parameters',
-        parameter: [{
-          name: 'valueSet',
-          resource: {
-            resourceType: 'ValueSet',
-            url: this.valueSetUri,
-            name: this.valueSetName,
-            version: this.valueSetVersion,
-            status: 'draft',
-            experimental: true,
-            compose: {
-              include: [{
-                system: 'http://snomed.info/sct',
-                version: this.terminologyContext.fhirUrlParam,
-                concept: codes
-              }]
-            }
-          }
-        }]
-      };
-
-      if (type === 'source') {
-        this.downloadSourceValueSet();
-        return;
-      }
-
-      if (type === 'fhir') {
-        await this.generateFHIRPackage();
-        return;
-      }
-
-      // For target and excel, we need to expand the ValueSet
-      const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
-      this.targetValueSet = expandedValueSet;
-
-      if (type === 'target') {
-        this.downloadTargetValueSet();
-      } else if (type === 'excel') {
-        this.downloadTargetAsExcel();
-      }
-    } catch (error: any) {
-      this.error = `Error processing file: ${error.message || error}`;
-      this.snackBar.open(this.error, 'Close', { duration: 5000 });
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  postToFhirServer() {
-    if (!this.targetValueSet) {
-      this.snackBar.open('No ValueSet available to post', 'Close', { duration: 3000 });
-      return;
-    }
-
-    const dialogRef = this.dialog.open(FhirServerDialogComponent, {
-      width: '500px'
-    });
-
-    dialogRef.afterClosed().subscribe(serverUrl => {
-      if (serverUrl) {
-        this.isLoading = true;
-
-        // Extract ValueSet if it's wrapped in Parameters
-        let valueSetToPost = this.targetValueSet;
-        if (this.targetValueSet.resourceType === 'Parameters' && this.targetValueSet.parameter) {
-          const valueSetParam = this.targetValueSet.parameter.find((p: any) => p.name === 'valueSet');
-          if (valueSetParam?.resource) {
-            valueSetToPost = valueSetParam.resource;
-          }
-        }
-
-        // Add required FHIR metadata
-        const id = valueSetToPost.id || uuidv4();
-        valueSetToPost.id = id;
-        valueSetToPost.url = `http://example.org/vs/${id}`;
-        valueSetToPost.status = valueSetToPost.status || 'active';
-
-        // Add name if not present
-        if (!valueSetToPost.name) {
-          const timestamp = new Date().toISOString().split('T')[0];
-          if (this.showEclInput && this.eclExpression) {
-            // For ECL-based ValueSets
-            const eclForName = this.eclExpression.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
-            valueSetToPost.name = `ECL_${eclForName}_${timestamp}`;
-          } else {
-            // For file-based ValueSets
-            const fileName = this.file?.name.split('.')[0] || 'custom';
-            valueSetToPost.name = `${fileName}_${timestamp}`;
-          }
-        }
-
-        // Add title if not present
-        if (!valueSetToPost.title) {
-          if (this.showEclInput && this.eclExpression) {
-            valueSetToPost.title = `ECL ValueSet: ${this.eclExpression}`;
-          } else {
-            valueSetToPost.title = `ValueSet from ${this.file?.name || 'uploaded file'}`;
-          }
-        }
-
-        // Add description if not present
-        if (!valueSetToPost.description) {
-          const conceptCount = valueSetToPost.expansion?.contains?.length || 
-                             valueSetToPost.compose?.include?.[0]?.concept?.length || 0;
-          const system = valueSetToPost.compose?.include?.[0]?.system || 'unknown system';
-          
-          if (this.showEclInput && this.eclExpression) {
-            valueSetToPost.description = `ValueSet created from ECL expression: "${this.eclExpression}". Contains ${conceptCount} matching concepts.`;
-          } else {
-            valueSetToPost.description = `ValueSet containing ${conceptCount} concepts from ${system}`;
-          }
-        }
-
-        this.terminologyService.postValueSetToFhirServer(valueSetToPost, serverUrl).subscribe({
-          next: (response: any) => {
-            this.snackBar.open('ValueSet successfully posted to FHIR server', 'Close', { duration: 5000 });
-          },
-          error: (error: any) => {
-            this.error = `Error posting to FHIR server: ${error.message || error}`;
-            this.snackBar.open(this.error, 'Close', { duration: 5000 });
-          },
-          complete: () => {
-            this.isLoading = false;
-          }
-        });
-      }
-    });
-  }
-
   async generateTargetPreview(): Promise<void> {
-    
-    // For JSON ValueSets, check sourceValueSet instead of previewData
-    if (this.isValueSetFile) {
-      if (!this.sourceValueSet) {
-        this.error = 'No ValueSet resource loaded from JSON file.';
-        return;
-      }
-    } else {
-      // For other file types, check previewData
-      if (!this.previewData.length) {
-        this.error = 'No preview data available.';
-        return;
-      }
+    if (!this.previewData.length && !this.isValueSetFile && !this.isEclResult) {
+      this.error = 'No preview data available.';
+      return;
     }
 
     this.isTranslationLoading = true;
     this.error = null;
 
     try {
-      let valueSetToExpand: any;
-
-      if (this.isValueSetFile && this.sourceValueSet) {
-        // Use the loaded ValueSet JSON directly
-        valueSetToExpand = this.sourceValueSet.parameter[0].resource;
-        // If compose.include[0].concept is empty but expansion.contains exists, reconstruct compose
-        if (
-          valueSetToExpand.compose?.include?.[0]?.concept?.length === 0 &&
-          valueSetToExpand.expansion?.contains?.length > 0
-        ) {
-          valueSetToExpand.compose = {
-            include: [
-              {
-                system: valueSetToExpand.expansion.contains[0].system || 'http://snomed.info/sct',
-                concept: valueSetToExpand.expansion.contains.map((c: any) => ({
-                  code: c.code,
-                  display: c.display
-                }))
-              }
-            ]
-          };
-        }
-        // If still no codes, show error and abort
-        if (!valueSetToExpand.compose?.include?.[0]?.concept?.length) {
-          this.error = 'No codes found in the ValueSet. Please upload a ValueSet with at least one concept.';
-          this.isTranslationLoading = false;
-          return;
-        }
-      } else {
-        // Existing logic for spreadsheets
-        const codes = await this.extractCodesFromForm();
-        const timestamp = new Date().toISOString().split('T')[0];
-        const defaultUrl = this.valueSetUri || `http://example.org/fhir/ValueSet/preview-${timestamp}`;
-        const defaultName = this.valueSetName || `PreviewValueSet-${timestamp}`;
-        valueSetToExpand = {
-          resourceType: 'ValueSet',
-          url: defaultUrl,
-          name: defaultName,
-          version: this.valueSetVersion,
-          status: 'draft',
-          experimental: true,
-          compose: {
-            include: [{
-              system: 'http://snomed.info/sct',
-              version: this.terminologyContext.fhirUrlParam,
-              concept: codes
-            }]
-          }
-        };
-        if (!codes.length) {
-          this.error = 'No codes found in the selected columns.';
-          this.isTranslationLoading = false;
-          return;
-        }
-      }
-
-      // Expand the ValueSet to get translations
-      const expandedValueSet = await this.terminologyService.expandInlineValueSet({
-        resourceType: 'Parameters',
-        parameter: [{
-          name: 'valueSet',
-          resource: valueSetToExpand
-        }]
-      }).toPromise();
-      this.targetValueSet = expandedValueSet;
-
-      // Create preview data
-      let codes: any[] = [];
-      if (this.isValueSetFile) {
-        // For JSON ValueSets, extract codes from the ValueSet
-        if (valueSetToExpand.compose?.include?.[0]?.concept) {
-          codes = valueSetToExpand.compose.include[0].concept;
-        } else if (valueSetToExpand.expansion?.contains) {
-          // If the ValueSet is already expanded, use the expansion
-          codes = valueSetToExpand.expansion.contains.map((c: any) => ({
-            code: c.code,
-            display: c.display
-          }));
-        } else if (this.previewData.length > 1) {
-          // Fallback: use the preview data that was created during file loading
-          codes = this.previewData.slice(1).map((row: any[]) => ({
-            code: row[0] || '',
-            display: row[1] || ''
-          })).filter((item: any) => item.code && item.code !== '');
-        }
-      } else {
-        // For other file types, extract codes from form
-        codes = await this.extractCodesFromForm();
-      }
-      
+      // Use the same inline ValueSet builder used by map translation to keep behavior consistent.
+      const codes = await this.getCodesForPreview();
       if (!codes.length) {
         this.error = 'No codes found to create preview.';
         this.isTranslationLoading = false;
         return;
       }
+      const sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
+
+      // Expand the ValueSet to get translations
+      const expandedValueSet = await this.terminologyService.expandInlineValueSet(sourceValueSet).toPromise();
+      this.targetValueSet = expandedValueSet;
       
       this.targetPreviewData = codes.map(codeItem => {
         const translatedConcept = expandedValueSet?.expansion?.contains?.find(
@@ -1803,6 +1410,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
           translatedDisplay: translatedConcept?.display || 'Not found'
         };
       });
+      this.targetPreviewVisibleCount = 10;
 
     } catch (error: any) {
       this.error = `Error generating preview: ${error.message || error}`;
@@ -1814,20 +1422,36 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
   selectAction(action: string) {
     this.selectedAction = action;
+    if (action !== 'code-display-excel') {
+      this.codeDisplayExported = false;
+      this.codeDisplayExportedCount = 0;
+    }
     this.targetPreviewData = [];
+    this.targetPreviewVisibleCount = 10;
     this.targetValueSet = null;
     // Don't clear sourceValueSet as it's needed for JSON ValueSet operations
     // this.sourceValueSet = null;
-    
-    // Check form state after action selection
+
+    // For ECL code/display export, run immediately from step 3 with no extra button click.
+    if (action === 'code-display-excel') {
+      this.executeAction();
+    }
   }
 
   canExecuteAction(): boolean {
+    if (!this.hasRequiredMetadataForAction()) {
+      return false;
+    }
 
     if (this.isValueSetFile) {
       // For JSON ValueSets, require that sourceValueSet exists
       const result = !!this.sourceValueSet;
       return result;
+    }
+
+    if (this.isEclResult) {
+      // For ECL results, require the prepared source ValueSet from full expansion.
+      return !!this.sourceValueSet;
     }
     
     if (this.isMap) {
@@ -1852,6 +1476,33 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  private hasRequiredMetadataForAction(): boolean {
+    if (!this.selectedAction) {
+      return false;
+    }
+
+    // Translation-only preview does not require metadata.
+    if (this.selectedAction === 'translate' || this.selectedAction === 'translate-target') {
+      return true;
+    }
+
+    const hasValueSetUri = !!this.normalizeBaseUrl(this.valueSetUri);
+    const hasValueSetName = !!(this.valueSetName || '').trim();
+    const hasVersion = !!(this.valueSetVersion || '').trim();
+
+    if (this.selectedAction === 'source-valueset' || this.selectedAction === 'target-valueset') {
+      return hasValueSetUri && hasValueSetName && hasVersion;
+    }
+
+    if (this.selectedAction === 'fhir-package') {
+      if (!this.isMap) return false;
+      const hasSourceSystemUri = !!(this.sourceSystemUri || '').trim();
+      return hasSourceSystemUri && hasValueSetUri && hasValueSetName && hasVersion;
+    }
+
+    return true;
+  }
+
   getActionIcon(): string {
     switch (this.selectedAction) {
       case 'translate': return 'translate';
@@ -1859,6 +1510,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       case 'target-valueset': return 'expand_more';
       case 'translate-target': return 'swap_horiz';
       case 'fhir-package': return 'archive';
+      case 'code-display-excel': return 'table_view';
       default: return 'play_arrow';
     }
   }
@@ -1870,6 +1522,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       case 'target-valueset': return 'Generate Target ValueSet';
       case 'translate-target': return 'Translate Target Column';
       case 'fhir-package': return 'Generate FHIR Package';
+      case 'code-display-excel': return 'Generate code/display Excel';
       default: return 'Execute Action';
     }
   }
@@ -1893,6 +1546,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       case 'fhir-package':
         await this.generateFHIRPackage();
         break;
+      case 'code-display-excel':
+        await this.downloadCodeDisplayAsExcel();
+        break;
     }
   }
 
@@ -1901,8 +1557,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     this.error = null;
 
     try {
-      if (this.isValueSetFile && this.sourceValueSet) {
-        // For JSON ValueSets, use the existing sourceValueSet
+      if ((this.isValueSetFile || this.isEclResult) && this.sourceValueSet) {
+        // For JSON and ECL flows, use the prepared source ValueSet.
         this.targetValueSet = this.sourceValueSet;
       } else {
         // For other file types, check previewData and extract codes
@@ -1918,21 +1574,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
           resourceType: 'Parameters',
           parameter: [{
             name: 'valueSet',
-            resource: {
-              resourceType: 'ValueSet',
-              url: this.valueSetUri,
-              name: this.valueSetName,
-              version: this.valueSetVersion,
-              status: 'draft',
-              experimental: true,
-              compose: {
-                include: [{
-                  system: 'http://snomed.info/sct',
-                  version: this.terminologyContext.fhirUrlParam,
-                  concept: codes
-                }]
-              }
-            }
+            resource: this.buildValueSetResource(codes)
           }]
         };
 
@@ -1951,46 +1593,17 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     this.error = null;
 
     try {
-      if (this.isValueSetFile && this.sourceValueSet) {
-        // For JSON ValueSets, expand the existing sourceValueSet
-        const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
-        this.targetValueSet = expandedValueSet;
-      } else {
-        // For other file types, check previewData and extract codes
-        if (!this.previewData.length) {
-          this.error = 'No preview data available.';
-          this.isLoading = false;
-          return;
-        }
-        
-        const codes = await this.extractCodesFromForm();
-        
-        this.sourceValueSet = {
-          resourceType: 'Parameters',
-          parameter: [{
-            name: 'valueSet',
-            resource: {
-              resourceType: 'ValueSet',
-              url: this.valueSetUri,
-              name: this.valueSetName,
-              version: this.valueSetVersion,
-              status: 'draft',
-              experimental: true,
-              compose: {
-                include: [{
-                  system: 'http://snomed.info/sct',
-                  version: this.terminologyContext.fhirUrlParam,
-                  concept: codes
-                }]
-              }
-            }
-          }]
-        };
-
-        // Expand the ValueSet to get translations
-        const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
-        this.targetValueSet = expandedValueSet;
+      // Use the same inline ValueSet builder used by map translation and preview.
+      const codes = await this.getCodesForPreview();
+      if (!codes.length) {
+        this.error = 'No codes found to generate target ValueSet.';
+        this.isLoading = false;
+        return;
       }
+
+      this.sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
+      const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
+      this.targetValueSet = expandedValueSet;
     } catch (error: any) {
       this.error = `Error generating target ValueSet: ${error.message || error}`;
       this.snackBar.open(this.error, 'Close', { duration: 5000 });
@@ -2037,6 +1650,102 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
         return { code, display };
       })
       .filter(item => item.code && item.code !== '');
+  }
+
+  private buildValueSetResource(codes: Array<{code: string, display?: string}>): any {
+    const timestamp = new Date().toISOString().split('T')[0];
+    const defaultUrl = this.valueSetUri || `http://example.org/fhir/ValueSet/preview-${timestamp}`;
+    const defaultName = this.valueSetName || `PreviewValueSet-${timestamp}`;
+
+    return {
+      resourceType: 'ValueSet',
+      url: defaultUrl,
+      name: defaultName,
+      version: this.valueSetVersion,
+      status: 'draft',
+      experimental: true,
+      compose: {
+        include: [{
+          system: 'http://snomed.info/sct',
+          version: this.terminologyContext.fhirUrlParam,
+          concept: codes
+        }]
+      }
+    };
+  }
+
+  private async getCodesForPreview(): Promise<Array<{code: string, display?: string}>> {
+    if (this.isEclResult && this.fullEclConcepts.length > 0) {
+      return this.fullEclConcepts.map(c => ({ code: c.code, display: c.display }));
+    }
+
+    if (this.isValueSetFile && this.sourceValueSet?.parameter?.[0]?.resource) {
+      const valueSet = this.sourceValueSet.parameter[0].resource;
+      if (valueSet.compose?.include?.[0]?.concept?.length) {
+        return valueSet.compose.include[0].concept.map((c: any) => ({
+          code: c.code,
+          display: c.display
+        }));
+      }
+      if (valueSet.expansion?.contains?.length) {
+        return valueSet.expansion.contains.map((c: any) => ({
+          code: c.code,
+          display: c.display
+        }));
+      }
+      return [];
+    }
+
+    return this.extractCodesFromForm();
+  }
+
+  get visiblePreviewRows(): any[] {
+    if (!this.previewData.length) return [];
+    return this.previewData.slice(1, this.previewVisibleCount + 1);
+  }
+
+  get hasInputReady(): boolean {
+    return this.showPreview && this.previewData.length > 0;
+  }
+
+  get hasResultData(): boolean {
+    return this.targetPreviewData.length > 0 || !!this.targetValueSet;
+  }
+
+  get currentWorkflowStep(): number {
+    if (this.codeDisplayExported) return 4;
+    if (this.hasResultData || this.isTranslationLoading) return 4;
+    if (this.selectedAction) return 3;
+    if (this.hasInputReady) return 2;
+    return 1;
+  }
+
+  get totalPreviewRowCount(): number {
+    return Math.max(this.previewData.length - 1, 0);
+  }
+
+  get canLoadMorePreviewRows(): boolean {
+    return this.totalPreviewRowCount > this.previewVisibleCount;
+  }
+
+  loadMorePreviewRows(): void {
+    const totalRows = this.totalPreviewRowCount;
+    this.previewVisibleCount = Math.min(this.previewVisibleCount + this.previewIncrement, totalRows);
+  }
+
+  get visibleTargetPreviewRows(): Array<{code: string, originalDisplay: string, translatedDisplay: string}> {
+    return this.targetPreviewData.slice(0, this.targetPreviewVisibleCount);
+  }
+
+  get canLoadMoreTargetPreviewRows(): boolean {
+    return this.targetPreviewData.length > this.targetPreviewVisibleCount;
+  }
+
+  loadMoreTargetPreviewRows(): void {
+    this.targetPreviewVisibleCount = Math.min(
+      this.targetPreviewVisibleCount + this.targetPreviewIncrement,
+      this.targetPreviewData.length
+    );
   }
 
   onEditionChange(editionName: string) {

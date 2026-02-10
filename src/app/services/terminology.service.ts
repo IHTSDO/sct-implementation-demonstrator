@@ -317,11 +317,14 @@ export class TerminologyService {
   }
 
   expandInlineValueSet(inlineValueSet: any): Observable<any> {
-    let requestUrl = `${this.snowstormFhirBase}/ValueSet/$expand`;
+    // For inline expansion, the edition is carried in compose.include.version
+    // inside the posted ValueSet payload.
+    const requestUrl = `${this.snowstormFhirBase}/ValueSet/$expand`;
+    const acceptLanguage = this.getComputedLanguageContext();
     const httpOptions = {
       headers: new HttpHeaders({
           'Content-Type': 'application/fhir+json', // FHIR JSON content type
-          'Accept-Language': this.getComputedLanguageContext(), 
+          'Accept-Language': acceptLanguage,
       })
   };
     return this.http.post<any>(requestUrl, inlineValueSet, httpOptions)

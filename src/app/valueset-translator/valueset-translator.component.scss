@@ -39,6 +39,64 @@
     }
 }
 
+.workflow-progress {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 8px 0 20px;
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #6c757d;
+
+    .step-number {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid #ced4da;
+    }
+
+    .step-label {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    &.active {
+        border-color: #007bff;
+        color: #007bff;
+        background: #eef6ff;
+    }
+
+    &.completed {
+        border-color: #28a745;
+        color: #1e7e34;
+        background: #edf9f0;
+    }
+}
+
+.step-divider {
+    margin-top: 10px;
+
+    h3 {
+        margin: 0;
+        color: #495057;
+        font-size: 16px;
+        font-weight: 600;
+    }
+}
+
 .instructions {
     color: #666;
     margin: 0 0 24px 0;
@@ -519,6 +577,10 @@ mat-progress-spinner {
 
 // Responsive adjustments
 @media (max-width: 768px) {
+    .workflow-progress {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .main-container {
         width: 100%;
         padding: 15px;
@@ -735,6 +797,34 @@ mat-progress-bar {
 
 .preview-button {
   margin-top: 16px;
+}
+
+.preview-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.export-confirmation {
+  margin: 24px 0;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #b7e4c7;
+  background: #edf9f0;
+  color: #1e7e34;
+
+  h3 {
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
 }
 
 .target-preview-table {

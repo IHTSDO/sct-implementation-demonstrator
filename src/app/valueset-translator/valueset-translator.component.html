@@ -10,6 +10,25 @@
     </p>
   </div>
 
+  <div class="workflow-progress">
+    <div class="workflow-step" [class.active]="currentWorkflowStep === 1" [class.completed]="currentWorkflowStep > 1">
+      <span class="step-number">1</span>
+      <span class="step-label">Input</span>
+    </div>
+    <div class="workflow-step" [class.active]="currentWorkflowStep === 2" [class.completed]="currentWorkflowStep > 2">
+      <span class="step-number">2</span>
+      <span class="step-label">Configure</span>
+    </div>
+    <div class="workflow-step" [class.active]="currentWorkflowStep === 3" [class.completed]="currentWorkflowStep > 3">
+      <span class="step-number">3</span>
+      <span class="step-label">Action</span>
+    </div>
+    <div class="workflow-step" [class.active]="currentWorkflowStep === 4">
+      <span class="step-number">4</span>
+      <span class="step-label">Results</span>
+    </div>
+  </div>
+
   <!-- Language indicators -->
   @if (translationEnabled) {
     <div>
@@ -164,15 +183,20 @@
           </div>
         </div>
       }
+      @if (hasInputReady) {
+        <div class="step-divider">
+          <h3>Step 2: Configure Input</h3>
+        </div>
+      }
       <!-- Preview Table -->
       @if (showPreview && previewData.length > 0 && !isLoading) {
         <div class="preview-table">
           <h3 class="preview-title">
             <mat-icon>table_view</mat-icon>
-            Preview (First 5 rows)
+            Preview ({{ visiblePreviewRows.length }} of {{ totalPreviewRowCount }} rows)
           </h3>
           <div class="table-container">
-            <table mat-table [dataSource]="previewData.slice(1, 6)" class="preview-data-table">
+            <table mat-table [dataSource]="visiblePreviewRows" class="preview-data-table">
               @for (col of columns; track col; let i = $index) {
                 <ng-container [matColumnDef]="i.toString()">
                   <th mat-header-cell *matHeaderCellDef>{{ col.header }}</th>
@@ -183,6 +207,14 @@
               <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
           </div>
+          @if (canLoadMorePreviewRows) {
+            <div class="preview-actions">
+              <button mat-stroked-button color="primary" (click)="loadMorePreviewRows()">
+                <mat-icon>expand_more</mat-icon>
+                <span>Load more</span>
+              </button>
+            </div>
+          }
         </div>
       }
       <!-- Column Selection Form -->
@@ -224,8 +256,13 @@
           </div>
         </form>
       }
+      @if (hasInputReady) {
+        <div class="step-divider">
+          <h3>Step 3: Select and Execute Action</h3>
+        </div>
+      }
       <!-- Action Selection -->
-      @if (showPreview && previewData.length > 0 && !selectedAction && !isLoading && (isValueSetFile || isMap || isRf2Refset || importForm.get('codeColumn')?.value !== null)) {
+      @if (showPreview && previewData.length > 0 && !isLoading && (isValueSetFile || isMap || isRf2Refset || importForm.get('codeColumn')?.valid)) {
         <div class="action-selection">
           <h3 class="action-title">
             <mat-icon>play_circle</mat-icon>
@@ -279,6 +316,17 @@
                 >
                 <mat-icon>archive</mat-icon>
                 <span>Create FHIR Package (Snap2Snomed Map)</span>
+              </button>
+            }
+            @if (isEclResult) {
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="selectAction('code-display-excel')"
+                class="action-button"
+                >
+                <mat-icon>table_view</mat-icon>
+                <span>Download code/display table (Excel)</span>
               </button>
             }
           </div>
@@ -387,7 +435,7 @@
         </div>
       }
       <!-- Execute Action Button -->
-      @if (selectedAction) {
+      @if (selectedAction && selectedAction !== 'code-display-excel') {
         <div class="execute-action">
           <button
             mat-raised-button
@@ -401,16 +449,21 @@
           </button>
         </div>
       }
+      @if (selectedAction || targetPreviewData.length > 0 || targetValueSet) {
+        <div class="step-divider">
+          <h3>Step 4: Review and Download</h3>
+        </div>
+      }
       <!-- Target Preview Table -->
       @if (targetPreviewData.length > 0 || isTranslationLoading) {
         <div class="target-preview-table">
           <h3 class="target-preview-title">
             <mat-icon>preview</mat-icon>
-            Target Preview (First 10 rows)
+            Target Preview ({{ visibleTargetPreviewRows.length }} of {{ targetPreviewData.length }} rows)
           </h3>
           @if (!isTranslationLoading) {
             <div class="target-table-container">
-              <table mat-table [dataSource]="targetPreviewData.slice(0, 10)" class="target-preview-data-table">
+              <table mat-table [dataSource]="visibleTargetPreviewRows" class="target-preview-data-table">
                 <ng-container matColumnDef="code">
                   <th mat-header-cell *matHeaderCellDef>Code</th>
                   <td mat-cell *matCellDef="let row">{{ row.code }}</td>
@@ -427,6 +480,14 @@
                 <tr mat-row *matRowDef="let row; columns: targetPreviewColumns"></tr>
               </table>
             </div>
+            @if (canLoadMoreTargetPreviewRows) {
+              <div class="preview-actions">
+                <button mat-stroked-button color="primary" (click)="loadMoreTargetPreviewRows()">
+                  <mat-icon>expand_more</mat-icon>
+                  <span>Load more</span>
+                </button>
+              </div>
+            }
           } @else {
             <div class="loading-container">
               <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
@@ -506,8 +567,16 @@
           </div>
         </div>
       }
-      @if (isProcessing) {
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      @if (codeDisplayExported) {
+        <div class="export-confirmation">
+          <h3>
+            <mat-icon>check_circle</mat-icon>
+            Export Completed
+          </h3>
+          <p>
+            Code/display table exported successfully with {{ codeDisplayExportedCount }} concepts.
+          </p>
+        </div>
       }
     </div>
   }
