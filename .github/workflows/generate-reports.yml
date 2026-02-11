@@ -35,14 +35,14 @@ jobs:
       - name: Check for changes
         id: git-check
         run: |
-          git diff --exit-code src/assets/reports/ || echo "changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet -- src/assets/reports/ || echo "changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push updated reports
         if: steps.git-check.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/assets/reports/*.html
+          git add -A src/assets/reports/
           git diff --staged --quiet || git commit -m "🤖 Auto-update: SNOMED reports for $(date +'%Y-%m-%d')"
           git push
 
