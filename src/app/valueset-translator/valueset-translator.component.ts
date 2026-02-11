@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { TerminologyService } from '../services/terminology.service';
@@ -96,9 +96,10 @@ interface ConceptRow {
   styleUrl: './valueset-translator.component.scss',
   standalone: false
 })
-export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
+export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('fileInput') fileInput!: ElementRef;
-  private readonly scrollHandler = () => this.onScroll();
+  @ViewChild('workflowProgressAnchor') workflowProgressAnchor!: ElementRef<HTMLElement>;
+  private workflowProgressObserver?: IntersectionObserver;
   
   file: File | null = null;
   columns: ColumnOption[] = [];
@@ -125,7 +126,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   selectedFile: File | null = null;
   isMap = false;
-  showIndicators = true;
   sourceSystemUri = '';
   valueSetUri = '';
   valueSetName = '';
@@ -140,7 +140,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   selectedAction: string | null = null;
   codeDisplayExported = false;
   codeDisplayExportedCount = 0;
-  translationEnabled = true;
+  showFloatingWorkflowProgress = false;
   isRf2Refset = false;
   isEclResult = false;
   fullEclConcepts: ConceptRow[] = [];
@@ -210,18 +210,55 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       this.languageRefsets = (this.terminologyService as any).languageRefsets;
     }
 
-    // Register a stable scroll handler so it can be removed correctly on destroy.
-    window.addEventListener('scroll', this.scrollHandler);
+  }
+
+  ngAfterViewInit(): void {
+    this.setupWorkflowProgressObserver();
+    setTimeout(() => this.updateFloatingWorkflowProgressVisibility(), 0);
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
-    window.removeEventListener('scroll', this.scrollHandler);
+    this.workflowProgressObserver?.disconnect();
   }
 
-  private onScroll(): void {
-    // Hide indicators if scrolled more than 50px
-    this.showIndicators = window.scrollY < 50;
+  private setupWorkflowProgressObserver(): void {
+    const anchor = this.workflowProgressAnchor?.nativeElement;
+    if (!anchor || typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+
+    this.workflowProgressObserver = new IntersectionObserver(
+      () => this.updateFloatingWorkflowProgressVisibility(),
+      {
+        root: null,
+        threshold: [0, 1]
+      }
+    );
+
+    this.workflowProgressObserver.observe(anchor);
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.updateFloatingWorkflowProgressVisibility();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateFloatingWorkflowProgressVisibility();
+  }
+
+  private updateFloatingWorkflowProgressVisibility(): void {
+    const anchor = this.workflowProgressAnchor?.nativeElement;
+    if (!anchor) {
+      this.showFloatingWorkflowProgress = false;
+      return;
+    }
+
+    const topOffset = window.innerWidth <= 768 ? 64 : 72;
+    const rect = anchor.getBoundingClientRect();
+    this.showFloatingWorkflowProgress = rect.bottom <= topOffset;
   }
 
   onFileSelected(event: any) {
@@ -377,6 +414,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       this.error = `Error reading file: ${err.message || err}`;
     } finally {
       this.isFileLoading = false;
+      if (this.showPreview && !this.error) {
+        this.scrollToBottomAfterRender();
+      }
     }
   }
 
@@ -666,11 +706,25 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
       if (this.fileInput) {
         this.fileInput.nativeElement.value = '';
       }
+      this.scrollToBottomAfterRender();
     }
     // Reset ECL-related state when switching away from ECL
     if (!this.showEclInput) {
       this.eclExpression = '';
     }
+  }
+
+  private scrollToBottom(): void {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  }
+
+  private scrollToBottomAfterRender(): void {
+    // Trigger twice to account for async UI sections that render after data arrives.
+    setTimeout(() => this.scrollToBottom(), 0);
+    setTimeout(() => this.scrollToBottom(), 260);
   }
 
   private resetState(): void {
@@ -786,6 +840,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     this.previewVisibleCount = 5;
     this.showPreview = false;
     this.targetValueSet = null;
+    this.scrollToBottomAfterRender();
 
     this.terminologyService.expandValueSet(this.eclExpression, '', 0, 1000).subscribe(
       (expandedValueSet) => {
@@ -844,14 +899,17 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
           this.totalCount = total;
           this.isLoading = false;
           this.successMessage = `Successfully expanded ECL expression. Found ${matchCount} matching concepts.`;
+          this.scrollToBottomAfterRender();
         } else {
           this.error = 'No concepts found for the given ECL expression';
           this.isLoading = false;
+          this.scrollToBottomAfterRender();
         }
       },
       (error) => {
         this.error = 'Error expanding ECL: ' + error.message;
         this.isLoading = false;
+        this.scrollToBottomAfterRender();
       }
     );
   }
@@ -1435,7 +1493,10 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     // For ECL code/display export, run immediately from step 3 with no extra button click.
     if (action === 'code-display-excel') {
       this.executeAction();
+      return;
     }
+
+    this.scrollToBottomAfterRender();
   }
 
   canExecuteAction(): boolean {
@@ -1517,7 +1578,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
 
   getActionButtonText(): string {
     switch (this.selectedAction) {
-      case 'translate': return 'Generate Translation Preview';
+      case 'translate': return this.isRf2Refset ? 'Generate Description Assignment Preview' : 'Generate Translation Preview';
       case 'source-valueset': return 'Generate Source ValueSet';
       case 'target-valueset': return 'Generate Target ValueSet';
       case 'translate-target': return 'Translate Target Column';
@@ -1530,25 +1591,29 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
   async executeAction(): Promise<void> {
     if (!this.selectedAction) return;
 
-    switch (this.selectedAction) {
-      case 'translate':
-        await this.generateTargetPreview();
-        break;
-      case 'source-valueset':
-        await this.generateSourceValueSet();
-        break;
-      case 'target-valueset':
-        await this.generateTargetValueSet();
-        break;
-      case 'translate-target':
-        await this.translateTargetColumn();
-        break;
-      case 'fhir-package':
-        await this.generateFHIRPackage();
-        break;
-      case 'code-display-excel':
-        await this.downloadCodeDisplayAsExcel();
-        break;
+    try {
+      switch (this.selectedAction) {
+        case 'translate':
+          await this.generateTargetPreview();
+          break;
+        case 'source-valueset':
+          await this.generateSourceValueSet();
+          break;
+        case 'target-valueset':
+          await this.generateTargetValueSet();
+          break;
+        case 'translate-target':
+          await this.translateTargetColumn();
+          break;
+        case 'fhir-package':
+          await this.generateFHIRPackage();
+          break;
+        case 'code-display-excel':
+          await this.downloadCodeDisplayAsExcel();
+          break;
+      }
+    } finally {
+      this.scrollToBottomAfterRender();
     }
   }
 
@@ -1737,6 +1802,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     return this.targetPreviewData.slice(0, this.targetPreviewVisibleCount);
   }
 
+  get visibleTargetPreviewColumns(): string[] {
+    if (this.isRf2Refset && this.selectedAction === 'translate') {
+      return ['code', 'translatedDisplay'];
+    }
+    return this.targetPreviewColumns;
+  }
+
   get canLoadMoreTargetPreviewRows(): boolean {
     return this.targetPreviewData.length > this.targetPreviewVisibleCount;
   }
@@ -1754,19 +1826,23 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     if (editionObj && editionObj.editions && editionObj.editions.length > 0) {
       // Use the first version for the selected edition
       this.terminologyService.setFhirUrlParam(editionObj.editions[0].resource.version);
+      this.scrollToBottomAfterRender();
     }
   }
 
   onLanguageChange(language: string) {
     this.terminologyService.setLang(language);
+    this.scrollToBottomAfterRender();
   }
 
   onContextChange(context: any) {
     this.terminologyService.setContext(context);
+    this.scrollToBottomAfterRender();
   }
 
   onLanguageRefsetChange(langRefset: any) {
     this.terminologyService.setLanguageRefsetConcept(langRefset);
+    this.scrollToBottomAfterRender();
   }
 
   updateSelectedLanguageLabel() {
@@ -1781,5 +1857,22 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy {
     } else if (activeLanguage && typeof activeLanguage === 'object') {
       this.selectedLanguageDisplayLabel = activeLanguage['name'];
     }
+  }
+
+  getEditionReleaseDate(): string {
+    const versionText = this.terminologyContext?.fhirUrlParam || '';
+    // Prefer explicit FHIR version segment: /version/YYYYMMDD
+    const versionSegmentMatch = versionText.match(/\/version\/(\d{8})(?:$|[/?#])/i);
+    if (versionSegmentMatch) {
+      return versionSegmentMatch[1];
+    }
+
+    // Fallback: use the last 8-digit group if no /version/ segment is present.
+    const allEightDigitMatches = versionText.match(/\d{8}/g);
+    if (allEightDigitMatches && allEightDigitMatches.length > 0) {
+      return allEightDigitMatches[allEightDigitMatches.length - 1];
+    }
+
+    return 'unknown release';
   }
 }

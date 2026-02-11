@@ -44,6 +44,37 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
     margin: 8px 0 20px;
+    background: transparent;
+    padding: 8px 0;
+    width: 100%;
+}
+
+.workflow-progress-floating {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(95%, 1400px);
+    z-index: 1100;
+    pointer-events: none;
+    margin: 0;
+    padding: 10px 12px 12px;
+    border: 1px solid #d5dbe1;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.floating-workflow-title {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: #495057;
+    text-transform: uppercase;
+    margin-bottom: 2px;
 }
 
 .workflow-step {
@@ -71,6 +102,14 @@
     .step-label {
         font-size: 13px;
         font-weight: 600;
+    }
+
+    .step-check {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: #28a745;
+        margin-left: auto;
     }
 
     &.active {
@@ -174,6 +213,14 @@
             width: 20px;
             height: 20px;
         }
+    }
+
+    .upload-description {
+        margin: -8px 0 4px 0;
+        color: #5f6b77;
+        line-height: 1.5;
+        font-size: 14px;
+        max-width: 1100px;
     }
 
     .input-method-buttons {
@@ -388,6 +435,41 @@
     }
 }
 
+.preview-skeleton {
+  min-height: 330px;
+
+  .skeleton-container {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 250px;
+    background: #fff;
+  }
+
+  .skeleton-row {
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #f1f3f5 25%, #e9ecef 37%, #f1f3f5 63%);
+    background-size: 400% 100%;
+    animation: skeleton-shimmer 1.3s ease infinite;
+  }
+
+  .skeleton-header {
+    height: 34px;
+    margin-bottom: 4px;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
 mat-progress-spinner {
     margin: 20px auto;
 }
@@ -511,74 +593,14 @@ mat-progress-spinner {
     }
 }
 
-.floating-indicators {
-    position: fixed;
-    top: 64px; /* Standard Material nav bar height */
-    left: 0;
-    right: 0;
-    height: 0;
-    pointer-events: none;
-    z-index: 1000;
-}
-
-.indicator {
-    position: absolute;
-    top: 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    animation: float 2s ease-in-out infinite;
-    
-    .indicator-arrow {
-        font-size: 24px;
-        color: #1976d2;
-        text-shadow: 0 0 10px rgba(25, 118, 210, 0.3);
-        animation: pulse 2s ease-in-out infinite;
-    }
-    
-    .indicator-text {
-        background-color: #1976d2;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        white-space: nowrap;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-}
-
-.edition-indicator {
-    right: 200px; // Adjust based on your nav bar layout
-}
-
-.language-indicator {
-    right: 80px; // Adjust based on your nav bar layout
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-5px);
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.7;
-        transform: scale(1.2);
-    }
-}
-
 // Responsive adjustments
 @media (max-width: 768px) {
     .workflow-progress {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .workflow-progress-floating {
+        top: 64px;
     }
 
     .main-container {

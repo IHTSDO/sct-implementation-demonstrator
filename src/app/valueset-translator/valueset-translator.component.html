@@ -5,52 +5,62 @@
       This tool is specifically designed to help implementers bridge the gap between legacy or proprietary representations (such as spreadsheets or
       simple lists) and modern, standards-compliant FHIR ValueSet resources, streamlining the path to interoperable SNOMED CT implementations.
     </p>
-    <p class="instructions">
-      Load a file (Excel, CSV, TSV, or FHIR ValueSet JSON) or enter an ECL expression to start.
-    </p>
   </div>
 
-  <div class="workflow-progress">
+  <div #workflowProgressAnchor class="workflow-progress">
     <div class="workflow-step" [class.active]="currentWorkflowStep === 1" [class.completed]="currentWorkflowStep > 1">
       <span class="step-number">1</span>
       <span class="step-label">Input</span>
+      @if (currentWorkflowStep > 1) {
+        <mat-icon class="step-check">check_circle</mat-icon>
+      }
     </div>
     <div class="workflow-step" [class.active]="currentWorkflowStep === 2" [class.completed]="currentWorkflowStep > 2">
       <span class="step-number">2</span>
       <span class="step-label">Configure</span>
+      @if (currentWorkflowStep > 2) {
+        <mat-icon class="step-check">check_circle</mat-icon>
+      }
     </div>
     <div class="workflow-step" [class.active]="currentWorkflowStep === 3" [class.completed]="currentWorkflowStep > 3">
       <span class="step-number">3</span>
       <span class="step-label">Action</span>
+      @if (currentWorkflowStep > 3) {
+        <mat-icon class="step-check">check_circle</mat-icon>
+      }
     </div>
     <div class="workflow-step" [class.active]="currentWorkflowStep === 4">
       <span class="step-number">4</span>
       <span class="step-label">Results</span>
     </div>
   </div>
-
-  <!-- Language indicators -->
-  @if (translationEnabled) {
-    <div>
-      @if (showIndicators) {
-        <div class="floating-indicators">
-          <div class="indicator edition-indicator">
-            <div class="indicator-arrow">↑</div>
-            <div class="indicator-text">Select Edition</div>
-          </div>
-          <div class="indicator language-indicator">
-            <div class="indicator-arrow">↑</div>
-            <div class="indicator-text">Select Language</div>
-          </div>
-        </div>
-      }
-      <div class="terminology-context">
-        <p>Target terminology context:</p>
-        <ul>
-          <li><strong>Edition:</strong> {{ terminologyContext.editionName }}</li>
-          <li><strong>Version:</strong> {{ terminologyContext.fhirUrlParam }}</li>
-          <li><strong>Language:</strong> {{ terminologyContext.language }}</li>
-        </ul>
+  @if (showFloatingWorkflowProgress) {
+    <div class="workflow-progress workflow-progress-floating" aria-hidden="true">
+      <div class="floating-workflow-title">Valueset transformation workflow progress</div>
+      <div class="workflow-step" [class.active]="currentWorkflowStep === 1" [class.completed]="currentWorkflowStep > 1">
+        <span class="step-number">1</span>
+        <span class="step-label">Input</span>
+        @if (currentWorkflowStep > 1) {
+          <mat-icon class="step-check">check_circle</mat-icon>
+        }
+      </div>
+      <div class="workflow-step" [class.active]="currentWorkflowStep === 2" [class.completed]="currentWorkflowStep > 2">
+        <span class="step-number">2</span>
+        <span class="step-label">Configure</span>
+        @if (currentWorkflowStep > 2) {
+          <mat-icon class="step-check">check_circle</mat-icon>
+        }
+      </div>
+      <div class="workflow-step" [class.active]="currentWorkflowStep === 3" [class.completed]="currentWorkflowStep > 3">
+        <span class="step-number">3</span>
+        <span class="step-label">Action</span>
+        @if (currentWorkflowStep > 3) {
+          <mat-icon class="step-check">check_circle</mat-icon>
+        }
+      </div>
+      <div class="workflow-step" [class.active]="currentWorkflowStep === 4">
+        <span class="step-number">4</span>
+        <span class="step-label">Results</span>
       </div>
     </div>
   }
@@ -73,8 +83,11 @@
       <div class="upload-section">
         <h3 class="upload-title">
           <mat-icon>cloud_upload</mat-icon>
-          Upload Data
+          Input
         </h3>
+        <p class="upload-description">
+          The source content for the Value Set can be uploaded from a spreadsheet, text file, Snap2Snomed map file, FHIR Valueset, or a SNOMED RF2 file. Also, it is possible to start the Value Set transformation from the results of an ECL expression executed over the currently selected server and edition in the top bar ({{ terminologyContext.editionName }}, {{ getEditionReleaseDate() }}).
+        </p>
         <div class="input-method-buttons">
           @if (!showEclInput) {
             <button
@@ -188,6 +201,22 @@
           <h3>Step 2: Configure Input</h3>
         </div>
       }
+      @if (isLoading && showEclInput && isEclResult) {
+        <div class="preview-table preview-skeleton">
+          <h3 class="preview-title">
+            <mat-icon>table_view</mat-icon>
+            Preview
+          </h3>
+          <div class="table-container skeleton-container">
+            <div class="skeleton-row skeleton-header"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+          </div>
+        </div>
+      }
       <!-- Preview Table -->
       @if (showPreview && previewData.length > 0 && !isLoading) {
         <div class="preview-table">
@@ -276,7 +305,7 @@
               class="action-button"
               >
               <mat-icon>translate</mat-icon>
-              <span>Translate the set of concepts</span>
+              <span>{{ isRf2Refset ? 'Assign descriptions to the set of concepts' : 'Translate the set of concepts' }}</span>
             </button>
             <button
               mat-raised-button
@@ -468,16 +497,18 @@
                   <th mat-header-cell *matHeaderCellDef>Code</th>
                   <td mat-cell *matCellDef="let row">{{ row.code }}</td>
                 </ng-container>
-                <ng-container matColumnDef="originalDisplay">
-                  <th mat-header-cell *matHeaderCellDef>Original Display</th>
-                  <td mat-cell *matCellDef="let row">{{ row.originalDisplay }}</td>
-                </ng-container>
+                @if (!(isRf2Refset && selectedAction === 'translate')) {
+                  <ng-container matColumnDef="originalDisplay">
+                    <th mat-header-cell *matHeaderCellDef>Original Display</th>
+                    <td mat-cell *matCellDef="let row">{{ row.originalDisplay }}</td>
+                  </ng-container>
+                }
                 <ng-container matColumnDef="translatedDisplay">
                   <th mat-header-cell *matHeaderCellDef>Translated Display</th>
                   <td mat-cell *matCellDef="let row">{{ row.translatedDisplay }}</td>
                 </ng-container>
-                <tr mat-header-row *matHeaderRowDef="targetPreviewColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: targetPreviewColumns"></tr>
+                <tr mat-header-row *matHeaderRowDef="visibleTargetPreviewColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: visibleTargetPreviewColumns"></tr>
               </table>
             </div>
             @if (canLoadMoreTargetPreviewRows) {
