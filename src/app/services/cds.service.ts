@@ -217,16 +217,26 @@ export class CdsService {
     patient: CDSPatient,
     conditions: CDSCondition[],
     medications: CDSMedicationRequest[],
-    allergies: any[] = []
+    allergies: any[] = [],
+    contextOverrides?: {
+      encounterId?: string;
+      userId?: string;
+      hookInstance?: string;
+    }
   ): CDSRequest {
+    const encounterId = contextOverrides?.encounterId ||
+      this.extractEncounterIdFromResources(medications) ||
+      this.extractEncounterIdFromResources(conditions) ||
+      this.generateId();
+
     return {
       hook: 'order-page',
-      hookInstance: this.generateId(),
+      hookInstance: contextOverrides?.hookInstance || this.generateId(),
       fhirServer: this.fhirBaseUrl,
       context: {
         patientId: patient.id,
-        encounterId: this.generateId(),
-        userId: 'practitioner-' + this.generateId()
+        encounterId: encounterId,
+        userId: contextOverrides?.userId || ('practitioner-' + this.generateId())
       },
       prefetch: {
         patient: patient,
@@ -310,6 +320,24 @@ export class CdsService {
         }
       }
     };
+  }
+
+  private extractEncounterIdFromResources(
+    resources: Array<{ encounter?: { reference: string } }>
+  ): string | null {
+    for (const resource of resources) {
+      const reference = resource?.encounter?.reference;
+      if (!reference) {
+        continue;
+      }
+
+      const [resourceType, id] = reference.split('/');
+      if (resourceType === 'Encounter' && id) {
+        return id;
+      }
+    }
+
+    return null;
   }
 
   /**

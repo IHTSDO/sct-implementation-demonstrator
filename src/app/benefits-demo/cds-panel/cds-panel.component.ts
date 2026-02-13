@@ -79,12 +79,19 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
     try {
       // Convert patient data to CDS format
       const cdsPatient = this.convertPatientToCdsFormat(this.patient);
-      const cdsConditions = this.convertConditionsToCdsFormat(this.conditions);
-      const cdsMedications = this.convertMedicationsToCdsFormat(this.medications);
+      const encounterId = this.resolveEncounterId(this.conditions, this.medications);
+      const cdsConditions = this.convertConditionsToCdsFormat(this.conditions, encounterId);
+      const cdsMedications = this.convertMedicationsToCdsFormat(this.medications, encounterId);
       const cdsAllergies = this.convertAllergiesToCdsFormat(this.allergies);
 
       // Build CDS request
-      const cdsRequest = this.cdsService.buildCDSRequest(cdsPatient, cdsConditions, cdsMedications, cdsAllergies);
+      const cdsRequest = this.cdsService.buildCDSRequest(
+        cdsPatient,
+        cdsConditions,
+        cdsMedications,
+        cdsAllergies,
+        { encounterId }
+      );
 
       // Submit to CDS service
       this.subscriptions.push(
@@ -158,7 +165,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
     };
   }
 
-  private convertConditionsToCdsFormat(conditions: Condition[]): any[] {
+  private convertConditionsToCdsFormat(conditions: Condition[], fallbackEncounterId: string): any[] {
     return conditions.map(condition => ({
       resourceType: 'Condition',
       id: condition.id || this.generateId(),
@@ -192,14 +199,14 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
         reference: `Patient/${this.patient?.id}`
       },
       encounter: {
-        reference: `Encounter/${this.generateId()}`
+        reference: `Encounter/${this.extractEncounterId(condition.encounter?.reference) || fallbackEncounterId}`
       },
       onsetDateTime: condition.onsetDateTime || new Date().toISOString(),
       recordedDate: condition.recordedDate || new Date().toISOString()
     }));
   }
 
-  private convertMedicationsToCdsFormat(medications: MedicationStatement[]): any[] {
+  private convertMedicationsToCdsFormat(medications: MedicationStatement[], fallbackEncounterId: string): any[] {
     return medications.map(medication => {
       const medicationText = medication.medicationCodeableConcept?.text || 
                             medication.medicationCodeableConcept?.coding?.[0]?.display || 
@@ -231,13 +238,23 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
       if (isTablet || knownTabletCodes.includes(medicationCode || '')) {
         doseQuantity.unit = 'Tablet';
       }
+      if (!doseQuantity.unit) {
+        doseQuantity.unit = likelyOral ? 'Tablet' : 'Dose';
+      }
       
       // Include route if it's oral or likely oral
       // Use simple format that works with dummy CDS service
-      const route = likelyOral ? {
-        coding: [{ code: "", display: "O" }],
-        text: "O"
-      } : undefined;
+      const existingRoute = medication.dosage?.[0]?.route;
+      const hasValidExistingRoute = !!existingRoute?.coding?.some(coding => !!coding?.code);
+
+      const route = hasValidExistingRoute ? existingRoute : (likelyOral ? {
+        coding: [{
+          system: 'http://snomed.info/sct',
+          code: '26643006',
+          display: 'Oral route'
+        }],
+        text: 'Oral route'
+      } : undefined);
 
       return {
         resourceType: 'MedicationRequest',
@@ -248,7 +265,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
           coding: [
             {
               system: 'http://snomed.info/sct',
-              code: medication.medicationCodeableConcept?.coding?.[0]?.code || '387207008',
+              code: '318353009',
               display: medication.medicationCodeableConcept?.coding?.[0]?.display || 
                        medication.medicationCodeableConcept?.text || 'Unknown medication'
             }
@@ -259,7 +276,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
           reference: `Patient/${this.patient?.id}`
         },
         encounter: {
-          reference: `Encounter/${this.generateId()}`
+          reference: `Encounter/${this.extractEncounterId(medication.context?.reference) || fallbackEncounterId}`
         },
         authoredOn: medication.effectiveDateTime || new Date().toISOString(),
         requester: {
@@ -295,6 +312,39 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
         ]
       };
     });
+  }
+
+  private resolveEncounterId(conditions: Condition[], medications: MedicationStatement[]): string {
+    const medicationEncounter = medications
+      .map(medication => this.extractEncounterId(medication.context?.reference))
+      .find(encounterId => !!encounterId);
+
+    if (medicationEncounter) {
+      return medicationEncounter;
+    }
+
+    const conditionEncounter = conditions
+      .map(condition => this.extractEncounterId(condition.encounter?.reference))
+      .find(encounterId => !!encounterId);
+
+    if (conditionEncounter) {
+      return conditionEncounter;
+    }
+
+    return this.generateId();
+  }
+
+  private extractEncounterId(reference?: string): string | null {
+    if (!reference) {
+      return null;
+    }
+
+    const parts = reference.split('/');
+    if (parts.length !== 2 || parts[0] !== 'Encounter' || !parts[1]) {
+      return null;
+    }
+
+    return parts[1];
   }
 
   private convertAllergiesToCdsFormat(allergies: AllergyIntolerance[]): any[] {

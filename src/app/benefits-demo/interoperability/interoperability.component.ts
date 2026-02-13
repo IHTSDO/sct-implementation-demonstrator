@@ -113,7 +113,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
     
-    const ipsFilePath = 'assets/data/ips-example.json';
+    const ipsFilePath = 'assets/data/ips-example-active-penicillin.json';
     
     this.ipsReaderService.loadIPSBundle(ipsFilePath).subscribe({
       next: (data) => {

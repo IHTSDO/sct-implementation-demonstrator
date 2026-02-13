@@ -7,23 +7,26 @@
     </button>
   </div>
 
-  <div class="header">
-    <h1>Interoperability Demo</h1>
-    <p class="subtitle">Demonstrating SNOMED CT and FHIR IPS (International Patient Summary) interoperability in the clinical record</p>
-    <div class="header-actions">
-      <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading">
-        <mat-icon>upload_file</mat-icon>
-        Upload IPS File
-      </button>
-      @if (hasPatientData()) {
-        <button mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading">
-          <mat-icon>refresh</mat-icon>
-          Reload Example
+  @if (isLoading || error || hasPatientData()) {
+    <div class="header">
+      <h1>Interoperability Demo</h1>
+      <p class="subtitle">Demonstrating SNOMED CT and FHIR IPS (International Patient Summary) interoperability in the clinical record</p>
+      <div class="header-actions">
+        <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading">
+          <mat-icon>upload_file</mat-icon>
+          Upload IPS File
         </button>
-      }
-      <input #fileInput type="file" accept=".json" (change)="onFileSelected($event)" style="display: none;">
+        @if (hasPatientData()) {
+          <button mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading">
+            <mat-icon>refresh</mat-icon>
+            Reload Example
+          </button>
+        }
+      </div>
     </div>
-  </div>
+  }
+
+  <input #fileInput type="file" accept=".json" (change)="onFileSelected($event)" style="display: none;">
 
   <div class="content">
     <!-- Loading State -->
@@ -886,30 +889,72 @@
           <div class="welcome-icon">
             <mat-icon>integration_instructions</mat-icon>
           </div>
-          <h2>Welcome to the Interoperability Demo</h2>
+          <h2>IPS Interoperability Use Case</h2>
           <p class="welcome-description">
-            This demo showcases how SNOMED CT and FHIR IPS (International Patient Summary) work together
-            to enable seamless healthcare data interoperability. Upload your own IPS file or try our example
-            to see how patient data can be imported and linked to existing records.
+            This workflow shows how a clinician receives an IPS, reviews existing and incoming data,
+            reconciles what to keep, and sends selected items into the EHR.
           </p>
-          <div class="welcome-features">
-            <div class="feature-item">
-              <mat-icon>medical_services</mat-icon>
-              <span>Import clinical conditions, procedures, and medications</span>
+
+          <div class="workflow-diagram">
+            <div class="workflow-row">
+              <div class="workflow-step system-step">
+                <div class="step-number">1</div>
+                <mat-icon>forward_to_inbox</mat-icon>
+                <h3>Receive IPS</h3>
+                <p>Clinician gets a share link or file.</p>
+              </div>
+              <div class="workflow-arrow" aria-hidden="true">
+                <mat-icon>east</mat-icon>
+              </div>
+              <div class="workflow-step system-step">
+                <div class="step-number">2</div>
+                <mat-icon>description</mat-icon>
+                <h3>Retrieve and Parse</h3>
+                <p>System loads and reads IPS sections.</p>
+              </div>
+              <div class="workflow-arrow" aria-hidden="true">
+                <mat-icon>east</mat-icon>
+              </div>
+              <div class="workflow-step decision-step">
+                <div class="step-number">3</div>
+                <mat-icon>person_search</mat-icon>
+                <h3>Match or Create Patient</h3>
+                <p>Assign IPS to existing patient or create new.</p>
+              </div>
             </div>
-            <div class="feature-item">
-              <mat-icon>link</mat-icon>
-              <span>Automatically link to existing patient records</span>
+            <div class="workflow-elbow" aria-hidden="true">
+              <div class="elbow-vert-right"></div>
+              <div class="elbow-horiz"></div>
+              <div class="elbow-vert-left"></div>
             </div>
-            <div class="feature-item">
-              <mat-icon>verified_user</mat-icon>
-              <span>Detect and resolve potential data duplicates</span>
-            </div>
-            <div class="feature-item">
-              <mat-icon>science</mat-icon>
-              <span>Imported data will be available in the Demo EHR</span>
+            <div class="workflow-row">
+              <div class="workflow-step system-step">
+                <div class="step-number">4</div>
+                <mat-icon>splitscreen</mat-icon>
+                <h3>Show EHR and IPS Data</h3>
+                <p>Conditions, allergies, procedures, medications.</p>
+              </div>
+              <div class="workflow-arrow" aria-hidden="true">
+                <mat-icon>east</mat-icon>
+              </div>
+              <div class="workflow-step decision-step">
+                <div class="step-number">5</div>
+                <mat-icon>rule</mat-icon>
+                <h3>Clinical Reconciliation</h3>
+                <p>Clinician accepts or rejects each incoming item.</p>
+              </div>
+              <div class="workflow-arrow" aria-hidden="true">
+                <mat-icon>east</mat-icon>
+              </div>
+              <div class="workflow-step outcome-step">
+                <div class="step-number">6</div>
+                <mat-icon>publish</mat-icon>
+                <h3>Integrate and Open Record</h3>
+                <p>System imports selected data and opens clinical record.</p>
+              </div>
             </div>
           </div>
+
           <div class="welcome-actions">
             <button mat-raised-button color="primary" (click)="loadExampleIPSBundle()" class="primary-action">
               <mat-icon>play_arrow</mat-icon>
@@ -922,7 +967,7 @@
           </div>
           <div class="welcome-info">
             <mat-icon>info</mat-icon>
-            <span>The example demonstrates a complete patient summary with conditions, procedures, medications, and allergies.</span>
+            <span>Tip: Start with the example IPS to walk through the full reconciliation flow end to end.</span>
           </div>
         </div>
       </div>
