@@ -12,6 +12,87 @@
           role="listbox"
           aria-label="Interactive odontogram"
           aria-multiselectable="true">
+          <defs>
+            <linearGradient id="surface-left-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0.62)"></stop>
+              <stop offset="34%" stop-color="rgba(244,127,36,0.62)"></stop>
+              <stop offset="54%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-right-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(255,179,71,0)"></stop>
+              <stop offset="46%" stop-color="rgba(255,179,71,0)"></stop>
+              <stop offset="66%" stop-color="rgba(255,179,71,0.62)"></stop>
+              <stop offset="100%" stop-color="rgba(255,179,71,0.62)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-top-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0.62)"></stop>
+              <stop offset="34%" stop-color="rgba(244,127,36,0.62)"></stop>
+              <stop offset="54%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-bottom-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="rgba(255,179,71,0)"></stop>
+              <stop offset="46%" stop-color="rgba(255,179,71,0)"></stop>
+              <stop offset="66%" stop-color="rgba(255,179,71,0.62)"></stop>
+              <stop offset="100%" stop-color="rgba(255,179,71,0.62)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-vestibular-left" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="34%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="58%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-vestibular-right" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="42%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="66%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0.58)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-vestibular-top" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="34%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="56%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-vestibular-bottom" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="44%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="66%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0.58)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-lingual-left" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="34%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="58%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-lingual-right" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="42%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="66%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0.58)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-lingual-top" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="34%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="56%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
+            </linearGradient>
+            <linearGradient id="surface-lingual-bottom" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="44%" stop-color="rgba(244,127,36,0)"></stop>
+              <stop offset="66%" stop-color="rgba(244,127,36,0.58)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0.58)"></stop>
+            </linearGradient>
+            <radialGradient id="surface-occlusal-center" cx="50%" cy="50%" r="42%">
+              <stop offset="0%" stop-color="rgba(244,127,36,0.62)"></stop>
+              <stop offset="55%" stop-color="rgba(244,127,36,0.45)"></stop>
+              <stop offset="78%" stop-color="rgba(244,127,36,0.12)"></stop>
+              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
+            </radialGradient>
+          </defs>
+
           <text class="arch-label" x="204.5" y="214">Upper Arch</text>
           <text class="arch-label" x="204.5" y="480">Lower Arch</text>
 
@@ -37,6 +118,15 @@
               (keydown.space)="pinTooth(tooth); $event.preventDefault()">
               <path class="tooth-outline" [attr.d]="tooth.outlinePath"></path>
               <path class="tooth-shadow" [attr.d]="tooth.shadowPath"></path>
+              <ng-container *ngFor="let option of surfaceOptions">
+                <path
+                  *ngIf="hasSurfaceVisual(tooth.id, option.code)"
+                  class="surface-overlay-path {{ getSurfaceOverlayClass(option.code, tooth, quadrant.prefix) }}"
+                  [class.surface-preview]="isSurfacePreview(tooth.id, option.code)"
+                  [attr.d]="getSurfaceOverlayPath(option.code, tooth)"
+                  [attr.fill]="getSurfaceFill(option.code, tooth, quadrant.prefix)">
+                </path>
+              </ng-container>
               <path
                 class="tooth-highlight"
                 *ngFor="let linePath of getLinePaths(tooth)"
@@ -134,6 +224,29 @@
                     Entry saved for tooth {{ pinnedTooth.notations.fdi }}.
                   </div>
                 </div>
+
+                <div class="tooth-findings-section">
+                  <h4>Current Findings For This Tooth</h4>
+                  <div *ngIf="getPinnedToothSavedFindings().length > 0; else noPinnedToothFindings" class="tooth-findings-list">
+                    <div class="tooth-finding-item" *ngFor="let item of getPinnedToothSavedFindings()">
+                      <div class="tooth-finding-main">
+                        <div class="tooth-finding-line">{{ item.surfaceDisplay }}</div>
+                        <div class="tooth-finding-line">{{ item.findingDisplay }}</div>
+                      </div>
+                      <button
+                        type="button"
+                        class="delete-finding-button"
+                        (click)="deleteSavedFinding(item)">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                  <ng-template #noPinnedToothFindings>
+                    <div class="empty-selection">
+                      No findings saved for this tooth yet.
+                    </div>
+                  </ng-template>
+                </div>
               </div>
               <ng-template #noPinnedTooth>
                 <div class="empty-details">
@@ -141,6 +254,7 @@
                 </div>
               </ng-template>
             </div>
+
           </mat-tab>
 
           <mat-tab label="Saved Findings">

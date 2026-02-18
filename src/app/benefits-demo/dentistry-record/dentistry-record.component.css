@@ -92,6 +92,50 @@
   stroke-linejoin: round;
 }
 
+.surface-overlay-path {
+  pointer-events: none;
+  opacity: 0.88;
+}
+
+.surface-overlay-path.overlay-mesial-top,
+.surface-overlay-path.overlay-mesial-bottom,
+.surface-overlay-path.overlay-distal-top,
+.surface-overlay-path.overlay-distal-bottom,
+.surface-overlay-path.overlay-mesial-left,
+.surface-overlay-path.overlay-mesial-right,
+.surface-overlay-path.overlay-distal-left,
+.surface-overlay-path.overlay-distal-right {
+  opacity: 0.9;
+}
+
+.surface-overlay-path.overlay-vestibular-top,
+.surface-overlay-path.overlay-vestibular-bottom,
+.surface-overlay-path.overlay-vestibular-left,
+.surface-overlay-path.overlay-vestibular-right {
+  opacity: 0.85;
+}
+
+.surface-overlay-path.overlay-occlusal {
+  opacity: 0.9;
+}
+
+.surface-overlay-path.overlay-lingual-top,
+.surface-overlay-path.overlay-lingual-bottom,
+.surface-overlay-path.overlay-lingual-left,
+.surface-overlay-path.overlay-lingual-right {
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+}
+
+.surface-overlay-path.overlay-entire-tooth {
+  opacity: 0.78;
+}
+
+.surface-overlay-path.surface-preview {
+  opacity: 0.98;
+  filter: saturate(1.25);
+}
+
 .tooth-tooltip {
   position: fixed;
   z-index: 1100;
@@ -231,6 +275,61 @@
   font-weight: 600;
 }
 
+.tooth-findings-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e9ef;
+}
+
+.tooth-findings-section h4 {
+  margin: 0 0 8px;
+  color: #2c3e50;
+  font-size: 0.8rem;
+}
+
+.tooth-findings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tooth-finding-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d7dde7;
+  border-radius: 7px;
+  background-color: #f9fafc;
+  padding: 8px;
+}
+
+.tooth-finding-main {
+  min-width: 0;
+}
+
+.tooth-finding-line {
+  font-size: 0.74rem;
+  color: #495057;
+  line-height: 1.3;
+}
+
+.delete-finding-button {
+  border: 1px solid #c53b3b;
+  border-radius: 5px;
+  background-color: #fff5f5;
+  color: #9f2c2c;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.delete-finding-button:hover {
+  background-color: #ffe7e7;
+}
+
 .saved-findings-list {
   display: flex;
   flex-direction: column;
@@ -276,6 +375,7 @@
   color: #495057;
   line-height: 1.35;
 }
+
 
 .empty-details,
 .empty-selection {

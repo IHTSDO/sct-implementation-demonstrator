@@ -14,6 +14,7 @@ export interface SnomedStructureConcept {
 export interface SnomedConceptOption {
   code: string;
   display: string;
+  entire?: boolean;
 }
 
 export interface ToothFindingEntry {
