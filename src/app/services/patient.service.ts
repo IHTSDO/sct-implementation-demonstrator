@@ -857,6 +857,66 @@ export interface Encounter {
   }>;
 }
 
+export interface FhirObservation {
+  resourceType: 'Observation';
+  id: string;
+  status: 'registered' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'cancelled' | 'entered-in-error' | 'unknown';
+  category?: Array<{
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  }>;
+  code: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  subject: {
+    reference: string;
+    display?: string;
+  };
+  effectiveDateTime?: string;
+  issued?: string;
+  valueCodeableConcept?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  bodySite?: Array<{
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  }>;
+  method?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  note?: Array<{
+    text: string;
+    time?: string;
+    authorReference?: {
+      reference: string;
+      display?: string;
+    };
+  }>;
+}
+
 export interface AllergyIntolerance {
   resourceType: 'AllergyIntolerance';
   id: string;
@@ -1172,6 +1232,26 @@ export class PatientService {
     });
   }
 
+  private isDuplicateObservation(existingObservations: FhirObservation[], newObservation: FhirObservation): boolean {
+    const newFindingCode = newObservation.valueCodeableConcept?.coding?.[0]?.code;
+    const newToothCode = newObservation.bodySite?.[0]?.coding?.[0]?.code;
+    const newSurfaceCode = newObservation.bodySite?.[1]?.coding?.[0]?.code;
+
+    if (!newFindingCode || !newToothCode || !newSurfaceCode) {
+      return false;
+    }
+
+    return existingObservations.some((existing) => {
+      const existingFindingCode = existing.valueCodeableConcept?.coding?.[0]?.code;
+      const existingToothCode = existing.bodySite?.[0]?.coding?.[0]?.code;
+      const existingSurfaceCode = existing.bodySite?.[1]?.coding?.[0]?.code;
+
+      return existingFindingCode === newFindingCode
+        && existingToothCode === newToothCode
+        && existingSurfaceCode === newSurfaceCode;
+    });
+  }
+
   private loadPatients(): void {
     if (this.storageService.isLocalStorageSupported()) {
       const storedPatients = this.storageService.getItem(this.STORAGE_KEY);
@@ -1391,10 +1471,12 @@ export class PatientService {
       const conditionsKey = `ehr_conditions_${patient.id}`;
       const proceduresKey = `ehr_procedures_${patient.id}`;
       const medicationsKey = `ehr_medications_${patient.id}`;
+      const observationsKey = `ehr_observations_${patient.id}`;
       
       this.storageService.removeItem(conditionsKey);
       this.storageService.removeItem(proceduresKey);
       this.storageService.removeItem(medicationsKey);
+      this.storageService.removeItem(observationsKey);
     });
     
     // Clear all patients
@@ -1522,6 +1604,45 @@ export class PatientService {
   private savePatientMedications(patientId: string, medications: MedicationStatement[]): void {
     const key = `ehr_medications_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(medications));
+  }
+
+  // Observations
+  getPatientObservations(patientId: string): FhirObservation[] {
+    const key = `ehr_observations_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  addPatientObservation(patientId: string, observation: FhirObservation): boolean {
+    const observations = this.getPatientObservations(patientId);
+
+    if (this.isDuplicateObservation(observations, observation)) {
+      return false;
+    }
+
+    observations.push(observation);
+    this.savePatientObservations(patientId, observations);
+    return true;
+  }
+
+  updatePatientObservation(patientId: string, observationId: string, updatedObservation: FhirObservation): void {
+    const observations = this.getPatientObservations(patientId);
+    const index = observations.findIndex((observation) => observation.id === observationId);
+    if (index !== -1) {
+      observations[index] = updatedObservation;
+      this.savePatientObservations(patientId, observations);
+    }
+  }
+
+  deletePatientObservation(patientId: string, observationId: string): void {
+    const observations = this.getPatientObservations(patientId);
+    const filteredObservations = observations.filter((observation) => observation.id !== observationId);
+    this.savePatientObservations(patientId, filteredObservations);
+  }
+
+  private savePatientObservations(patientId: string, observations: FhirObservation[]): void {
+    const key = `ehr_observations_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(observations));
   }
 
   // Allergies
@@ -1906,6 +2027,7 @@ export class PatientService {
     this.storageService.removeItem(`ehr_conditions_${patientId}`);
     this.storageService.removeItem(`ehr_procedures_${patientId}`);
     this.storageService.removeItem(`ehr_medications_${patientId}`);
+    this.storageService.removeItem(`ehr_observations_${patientId}`);
     this.storageService.removeItem(`ehr_allergies_${patientId}`);
     this.storageService.removeItem(`ehr_encounters_${patientId}`);
     this.storageService.removeItem(`ehr_questionnaire_responses_${patientId}`);

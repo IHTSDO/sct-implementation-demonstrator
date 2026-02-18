@@ -20,3 +20,11 @@ To run these demos locally:
 `ng serve` 
 
 Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+## Attribution
+
+The Dentistry odontogram feature in this project is inspired by the following open-source project:
+
+- [react-odontogram](https://github.com/biomathcode/react-odontogram) by [biomathcode](https://github.com/biomathcode)
+
+We reused and adapted SVG tooth path data from that project. `react-odontogram` is licensed under the MIT License.

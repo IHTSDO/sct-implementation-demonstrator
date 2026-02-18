@@ -34,8 +34,32 @@
     </div>
   </div>
 
+  <div class="module-selector" *ngIf="patient">
+    <button
+      mat-stroked-button
+      class="module-option"
+      [class.active]="selectedModule === 'clinical'"
+      (click)="setSelectedModule('clinical')">
+      Clinical
+    </button>
+    <button
+      mat-stroked-button
+      class="module-option"
+      [class.active]="selectedModule === 'dentistry'"
+      (click)="setSelectedModule('dentistry')">
+      Dentistry
+    </button>
+    <button
+      mat-stroked-button
+      class="module-option"
+      [class.active]="selectedModule === 'nursing'"
+      [disabled]="true">
+      Nursing
+    </button>
+  </div>
+
   <!-- Main content area -->
-  <div class="record-content" *ngIf="patient">
+  <div class="record-content" *ngIf="patient && selectedModule === 'clinical'">
     <!-- Patient Demographics Section -->
     <div class="record-section">
       <h2>Summary</h2>
@@ -522,6 +546,11 @@
     </div>
 
   </div>
+
+  <app-dentistry-record
+    *ngIf="patient && selectedModule === 'dentistry'"
+    [patient]="patient">
+  </app-dentistry-record>
 
   <!-- No patient selected message -->
   <div class="no-patient-message" *ngIf="!patient">

@@ -42,6 +42,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   allergies: AllergyIntolerance[] = [];
   encounters: any[] = [];
   currentDate = new Date();
+  selectedModule: 'clinical' | 'dentistry' | 'nursing' = 'clinical';
   private subscriptions: Subscription[] = [];
   
 
@@ -205,6 +206,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.router.navigate(['/ehr-lab']);
   }
 
+  setSelectedModule(module: 'clinical' | 'dentistry' | 'nursing'): void {
+    if (module === 'nursing') {
+      return;
+    }
+    this.selectedModule = module;
+  }
+
   getPatientDisplayName(patient: Patient): string {
     if (patient.name && patient.name.length > 0) {
       const name = patient.name[0];
@@ -322,7 +330,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   onCdsNoticeClick(): void {
     // Switch to Decision Support tab (index 4) when clicking on CDS notice
     // Tab order: 0=AI Entry, 1=Encounters, 2=Timeline, 3=Problems List, 4=Decision Support, 5=Clinical Forms
-    this.tabGroup.selectedIndex = 4;
+    if (this.tabGroup) {
+      this.tabGroup.selectedIndex = 4;
+    }
   }
 
   formatDate(dateString: string | undefined): string {

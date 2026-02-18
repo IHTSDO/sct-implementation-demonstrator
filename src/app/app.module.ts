@@ -107,6 +107,7 @@ import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-c
 import { PlotlyTreemapChartComponent } from './descriptive-statistics/plotly-treemap-chart/plotly-treemap-chart.component';
 import { BenefitsDemoComponent } from './benefits-demo/benefits-demo.component';
 import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinical-record.component';
+import { DentistryRecordComponent } from './benefits-demo/dentistry-record/dentistry-record.component';
 import { ClinicalFormsComponent } from './benefits-demo/clinical-forms/clinical-forms.component';
 import { AdverseReactionFormComponent } from './benefits-demo/clinical-forms/adverse-reaction-form/adverse-reaction-form.component';
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
@@ -199,6 +200,7 @@ const app = initializeApp(firebaseConfig);
         PlotlyTreemapChartComponent,
         BenefitsDemoComponent,
         ClinicalRecordComponent,
+        DentistryRecordComponent,
         ClinicalFormsComponent,
         AdverseReactionFormComponent,
         CreatePatientComponent,

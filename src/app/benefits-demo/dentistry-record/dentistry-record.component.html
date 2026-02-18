@@ -1,0 +1,174 @@
+<div class="record-content" *ngIf="patient">
+  <div class="record-section">
+    <h2>Odontogram</h2>
+
+    <div class="odontogram-layout">
+      <div class="odontogram-canvas-container">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 409 694"
+          class="odontogram-canvas"
+          role="listbox"
+          aria-label="Interactive odontogram"
+          aria-multiselectable="true">
+          <text class="arch-label" x="204.5" y="214">Upper Arch</text>
+          <text class="arch-label" x="204.5" y="480">Lower Arch</text>
+
+          <g
+            *ngFor="let quadrant of quadrants"
+            [attr.transform]="quadrant.transform"
+            role="group"
+            [attr.aria-label]="quadrant.label">
+            <g
+              class="tooth"
+              *ngFor="let tooth of getTeethForQuadrant(quadrant.prefix); trackBy: trackByToothId"
+              [class.selected]="isSelected(tooth.id)"
+              [attr.aria-label]="'Tooth ' + tooth.notations.fdi"
+              [attr.aria-selected]="isSelected(tooth.id)"
+              role="option"
+              tabindex="0"
+              (mousedown)="$event.preventDefault()"
+              (click)="pinTooth(tooth)"
+              (mouseenter)="onToothMouseEnter(tooth, $event)"
+              (mousemove)="onToothMouseMove($event)"
+              (mouseleave)="onToothMouseLeave()"
+              (keydown.enter)="pinTooth(tooth)"
+              (keydown.space)="pinTooth(tooth); $event.preventDefault()">
+              <path class="tooth-outline" [attr.d]="tooth.outlinePath"></path>
+              <path class="tooth-shadow" [attr.d]="tooth.shadowPath"></path>
+              <path
+                class="tooth-highlight"
+                *ngFor="let linePath of getLinePaths(tooth)"
+                [attr.d]="linePath">
+              </path>
+            </g>
+          </g>
+        </svg>
+
+        <div
+          class="tooth-tooltip"
+          *ngIf="hoveredTooth"
+          [style.left.px]="tooltipX"
+          [style.top.px]="tooltipY">
+          <div class="tooltip-number">Tooth {{ hoveredTooth.notations.fdi }}</div>
+          <div class="tooltip-type">{{ hoveredTooth.type }}</div>
+        </div>
+      </div>
+
+      <div class="odontogram-details">
+        <mat-tab-group class="dental-side-tabs">
+          <mat-tab label="Data Entry">
+            <div class="side-tab-content">
+              <h3>Tooth Details</h3>
+              <div *ngIf="pinnedTooth; else noPinnedTooth" class="details-card">
+                <div class="detail-row">
+                  <span>Tooth Type</span>
+                  <strong>{{ pinnedTooth.type }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>FDI</span>
+                  <strong>{{ pinnedTooth.notations.fdi }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>Universal</span>
+                  <strong>{{ pinnedTooth.notations.universal }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>Palmer</span>
+                  <strong>{{ pinnedTooth.notations.palmer }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>Selected Tooth</span>
+                  <strong>{{ pinnedTooth.notations.fdi }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>SNOMED CT Code</span>
+                  <strong>{{ pinnedTooth.snomedStructure?.code || 'Not mapped' }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>SNOMED CT Display</span>
+                  <strong>{{ pinnedTooth.snomedStructure?.display || 'Not mapped' }}</strong>
+                </div>
+
+                <div class="finding-entry-section">
+                  <label class="entry-label" for="surface-select">Affected Surface *</label>
+                  <select
+                    id="surface-select"
+                    class="entry-select"
+                    required
+                    [value]="getPinnedSurfaceCode()"
+                    (change)="onSurfaceChange(($any($event.target).value || '').toString())">
+                    <option value="">Select affected surface</option>
+                    <option *ngFor="let option of surfaceOptions" [value]="option.code">
+                      {{ option.display }}
+                    </option>
+                  </select>
+
+                  <label class="entry-label" for="finding-select">Finding *</label>
+                  <input
+                    id="finding-select"
+                    class="entry-input"
+                    type="text"
+                    required
+                    placeholder="Type to search findings"
+                    [value]="getPinnedFindingQuery()"
+                    (input)="onFindingInputChange(($any($event.target).value || '').toString())"
+                    [matAutocomplete]="findingAutocomplete">
+                  <mat-autocomplete
+                    #findingAutocomplete="matAutocomplete"
+                    (optionSelected)="onFindingSelected(($event.option.value || '').toString())">
+                    <mat-option *ngFor="let option of getFilteredFindingOptions()" [value]="option.code">
+                      {{ option.display }}
+                    </mat-option>
+                  </mat-autocomplete>
+
+                  <button
+                    type="button"
+                    class="save-entry-button"
+                    [disabled]="!canSavePinnedFindingEntry()"
+                    (click)="savePinnedFindingEntry()">
+                    Save
+                  </button>
+                  <div class="save-entry-feedback" *ngIf="isPinnedEntrySaved()">
+                    Entry saved for tooth {{ pinnedTooth.notations.fdi }}.
+                  </div>
+                </div>
+              </div>
+              <ng-template #noPinnedTooth>
+                <div class="empty-details">
+                  Click a tooth to pin it here for data entry.
+                </div>
+              </ng-template>
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Saved Findings">
+            <div class="side-tab-content">
+              <h3>Saved Dental Findings</h3>
+              <div *ngIf="getDentalObservationList().length > 0; else noSavedFindings" class="saved-findings-list">
+                <button
+                  type="button"
+                  class="saved-finding-item"
+                  *ngFor="let item of getDentalObservationList()"
+                  (click)="focusObservationTooth(item)">
+                  <div class="saved-finding-top">
+                    <span class="saved-finding-tooth">Tooth {{ item.toothFdi }}</span>
+                    <span class="saved-finding-date" *ngIf="item.recordedDateTime">{{ item.recordedDateTime | date:'MMM d, y, HH:mm' }}</span>
+                  </div>
+                  <div class="saved-finding-line">{{ item.surfaceDisplay }}</div>
+                  <div class="saved-finding-line">{{ item.findingDisplay }}</div>
+                </button>
+              </div>
+              <ng-template #noSavedFindings>
+                <div class="empty-details">
+                  No saved dental findings for this patient yet.
+                </div>
+              </ng-template>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </div>
+  </div>
+</div>
