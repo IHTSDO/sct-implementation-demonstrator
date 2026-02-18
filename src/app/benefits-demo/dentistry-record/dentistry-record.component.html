@@ -155,7 +155,7 @@
               <div *ngIf="pinnedTooth; else noPinnedTooth" class="details-card">
                 <div class="tooth-compact-header">
                   <div class="tooth-notation-line">
-                    <span class="tooth-name">{{ pinnedTooth.type }}</span>
+                    Selected: <span class="tooth-name">{{ pinnedTooth.type }}</span>
                     <br>
                     FDI: <strong>{{ pinnedTooth.notations.fdi }}</strong>
                     <span class="meta-separator">-</span>
@@ -221,7 +221,9 @@
                     <div class="tooth-finding-item" *ngFor="let item of getPinnedToothSavedFindings()">
                       <div class="tooth-finding-main">
                         <div class="tooth-finding-line">{{ item.surfaceDisplay }}:</div>
+                        <div class="tooth-finding-code">{{ item.surfaceCode }}</div>
                         <div class="tooth-finding-line">{{ item.findingDisplay }}</div>
+                        <div class="tooth-finding-code">{{ item.findingCode }}</div>
                       </div>
                       <button
                         type="button"
@@ -261,7 +263,9 @@
                     <span class="saved-finding-date" *ngIf="item.recordedDateTime">{{ item.recordedDateTime | date:'MMM d, y, HH:mm' }}</span>
                   </div>
                   <div class="saved-finding-line">{{ item.surfaceDisplay }}</div>
+                  <div class="saved-finding-code">{{ item.surfaceCode }}</div>
                   <div class="saved-finding-line">{{ item.findingDisplay }}</div>
+                  <div class="saved-finding-code">{{ item.findingCode }}</div>
                 </button>
               </div>
               <ng-template #noSavedFindings>
