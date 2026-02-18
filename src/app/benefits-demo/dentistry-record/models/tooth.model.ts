@@ -14,8 +14,15 @@ export interface SnomedStructureConcept {
 export interface SnomedConceptOption {
   code: string;
   display: string;
-  entire?: boolean;
+  scope: FindingScope;
 }
+
+// FindingScope describes the level at which a finding applies
+export type FindingScope =
+  | 'surface'          // Level 2 - tooth surfaces (M/D/O/V/L)
+  | 'tooth'            // Level 1 - whole tooth
+  | 'periodontalSite'  // Periodontal chart sites (MB/B/DB/ML/L/DL)
+  | 'global';          // Not part of the per-tooth odontogram
 
 export interface ToothFindingEntry {
   surfaceCode?: string;

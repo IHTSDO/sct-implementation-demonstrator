@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FhirObservation, Patient, PatientService } from '../../services/patient.service';
 import { BASE_TEETH } from './data/tooth-data';
-import { OdontogramTooth, SnomedConceptOption, ToothFindingEntry } from './models/tooth.model';
+import { FindingScope, OdontogramTooth, SnomedConceptOption, ToothFindingEntry } from './models/tooth.model';
 import { getToothNotations } from './utils/tooth-notation.utils';
 import { FDI_TO_SNOMED_STRUCTURE_MAP } from './data/fdi-snomed-structure-map';
 import { DENTAL_SURFACE_OPTIONS } from './data/dental-surface-options';
@@ -43,6 +43,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly SURFACE_CODE_LINGUAL = '72203008';
   readonly SURFACE_CODE_VESTIBULAR = '62579006';
   readonly SURFACE_CODE_COMPLETE = '302214001';
+  readonly SURFACE_CODE_PERIODONTAL = '8711009';
 
   pinnedTooth: OdontogramTooth | null = null;
   hoveredTooth: OdontogramTooth | null = null;
@@ -107,6 +108,9 @@ export class DentistryRecordComponent implements OnChanges {
     if (this.findingQueryByToothId[tooth.id] === undefined) {
       this.findingQueryByToothId[tooth.id] = '';
     }
+
+    // Only show "saved" feedback for a successful save action in the current interaction.
+    this.saveFeedbackByToothId[tooth.id] = false;
   }
 
   onToothMouseEnter(tooth: OdontogramTooth, event: MouseEvent): void {
@@ -150,6 +154,10 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   getSurfaceFill(surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string): string {
+    if (surfaceCode === this.SURFACE_CODE_PERIODONTAL) {
+      return 'none';
+    }
+
     if (surfaceCode === this.SURFACE_CODE_COMPLETE) {
       return 'rgba(223, 123, 0, 0.58)';
     }
@@ -194,6 +202,10 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   getSurfaceOverlayClass(surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string): string {
+    if (surfaceCode === this.SURFACE_CODE_PERIODONTAL) {
+      return 'overlay-periodontal-ring';
+    }
+
     if (surfaceCode === this.SURFACE_CODE_MESIAL) {
       const mesialLocalDirection = this.getMesialLocalDirection(tooth.notations.fdi, quadrantPrefix);
       if (mesialLocalDirection === 'left') {
@@ -232,10 +244,24 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   getSurfaceOverlayPath(surfaceCode: string, tooth: OdontogramTooth): string {
-    if (surfaceCode === this.SURFACE_CODE_COMPLETE) {
+    if (surfaceCode === this.SURFACE_CODE_COMPLETE || surfaceCode === this.SURFACE_CODE_PERIODONTAL) {
       return tooth.outlinePath;
     }
     return tooth.shadowPath;
+  }
+
+  getSurfaceStroke(surfaceCode: string): string | null {
+    if (surfaceCode === this.SURFACE_CODE_PERIODONTAL) {
+      return 'rgba(244, 127, 36, 0.85)';
+    }
+    return null;
+  }
+
+  getSurfaceStrokeWidth(surfaceCode: string): string | null {
+    if (surfaceCode === this.SURFACE_CODE_PERIODONTAL) {
+      return '3';
+    }
+    return null;
   }
 
   // Mesial/Distal follow the arch progression toward the midline.
@@ -351,9 +377,9 @@ export class DentistryRecordComponent implements OnChanges {
 
     const current = this.toothDraftById[this.pinnedTooth.id] || {};
     const nextSurfaceCode = surfaceCode || undefined;
-    const nextIsEntireSurface = nextSurfaceCode === this.SURFACE_CODE_COMPLETE;
     const currentFinding = this.findingOptions.find((item) => item.code === current.findingCode);
-    const isCurrentFindingCompatible = !currentFinding || !!currentFinding.entire === nextIsEntireSurface;
+    const desiredScope = this.getFindingScopeForSurfaceCode(nextSurfaceCode);
+    const isCurrentFindingCompatible = !currentFinding || currentFinding.scope === desiredScope;
 
     this.toothDraftById[this.pinnedTooth.id] = {
       ...current,
@@ -392,8 +418,8 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   getFilteredFindingOptions(): SnomedConceptOption[] {
-    const isEntireSurface = this.getPinnedSurfaceCode() === this.SURFACE_CODE_COMPLETE;
-    const compatibleOptions = this.findingOptions.filter((option) => !!option.entire === isEntireSurface);
+    const desiredScope = this.getFindingScopeForSurfaceCode(this.getPinnedSurfaceCode() || undefined);
+    const compatibleOptions = this.findingOptions.filter((option) => option.scope === desiredScope);
     const query = this.getPinnedFindingQuery().trim().toLowerCase();
 
     if (!query) {
@@ -425,6 +451,7 @@ export class DentistryRecordComponent implements OnChanges {
       return;
     }
 
+    this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
     const added = this.patientService.addPatientObservation(this.patient.id, observation);
     if (!added) {
       return;
@@ -684,5 +711,10 @@ export class DentistryRecordComponent implements OnChanges {
       }
       return a.display.localeCompare(b.display);
     });
+  }
+
+  private getFindingScopeForSurfaceCode(surfaceCode?: string): FindingScope {
+    const selectedSite = this.surfaceOptions.find((option) => option.code === surfaceCode);
+    return selectedSite?.scope || 'surface';
   }
 }

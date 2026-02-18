@@ -124,7 +124,9 @@
                   class="surface-overlay-path {{ getSurfaceOverlayClass(option.code, tooth, quadrant.prefix) }}"
                   [class.surface-preview]="isSurfacePreview(tooth.id, option.code)"
                   [attr.d]="getSurfaceOverlayPath(option.code, tooth)"
-                  [attr.fill]="getSurfaceFill(option.code, tooth, quadrant.prefix)">
+                  [attr.fill]="getSurfaceFill(option.code, tooth, quadrant.prefix)"
+                  [attr.stroke]="getSurfaceStroke(option.code)"
+                  [attr.stroke-width]="getSurfaceStrokeWidth(option.code)">
                 </path>
               </ng-container>
               <path
@@ -150,35 +152,23 @@
         <mat-tab-group class="dental-side-tabs">
           <mat-tab label="Data Entry">
             <div class="side-tab-content">
-              <h3>Tooth Details</h3>
               <div *ngIf="pinnedTooth; else noPinnedTooth" class="details-card">
-                <div class="detail-row">
-                  <span>Tooth Type</span>
-                  <strong>{{ pinnedTooth.type }}</strong>
-                </div>
-                <div class="detail-row">
-                  <span>FDI</span>
-                  <strong>{{ pinnedTooth.notations.fdi }}</strong>
-                </div>
-                <div class="detail-row">
-                  <span>Universal</span>
-                  <strong>{{ pinnedTooth.notations.universal }}</strong>
-                </div>
-                <div class="detail-row">
-                  <span>Palmer</span>
-                  <strong>{{ pinnedTooth.notations.palmer }}</strong>
-                </div>
-                <div class="detail-row">
-                  <span>Selected Tooth</span>
-                  <strong>{{ pinnedTooth.notations.fdi }}</strong>
-                </div>
-                <div class="detail-row">
-                  <span>SNOMED CT Code</span>
-                  <strong>{{ pinnedTooth.snomedStructure?.code || 'Not mapped' }}</strong>
-                </div>
-                <div class="detail-row">
-                  <span>SNOMED CT Display</span>
-                  <strong>{{ pinnedTooth.snomedStructure?.display || 'Not mapped' }}</strong>
+                <div class="tooth-compact-header">
+                  <div class="tooth-notation-line">
+                    <span class="tooth-name">{{ pinnedTooth.type }}</span>
+                    <br>
+                    FDI: <strong>{{ pinnedTooth.notations.fdi }}</strong>
+                    <span class="meta-separator">-</span>
+                    Universal: <strong>{{ pinnedTooth.notations.universal }}</strong>
+                    <span class="meta-separator">-</span>
+                    Palmer: <strong>{{ pinnedTooth.notations.palmer }}</strong>
+                  </div>
+                  <div class="tooth-snomed-line">
+                    SNOMED: <strong>{{ pinnedTooth.snomedStructure?.code || 'Not mapped' }}</strong>
+                    <span class="meta-separator">|</span>
+                    {{ pinnedTooth.snomedStructure?.display || 'Not mapped' }}
+                    <span class="meta-separator">|</span>
+                  </div>
                 </div>
 
                 <div class="finding-entry-section">
@@ -230,7 +220,7 @@
                   <div *ngIf="getPinnedToothSavedFindings().length > 0; else noPinnedToothFindings" class="tooth-findings-list">
                     <div class="tooth-finding-item" *ngFor="let item of getPinnedToothSavedFindings()">
                       <div class="tooth-finding-main">
-                        <div class="tooth-finding-line">{{ item.surfaceDisplay }}</div>
+                        <div class="tooth-finding-line">{{ item.surfaceDisplay }}:</div>
                         <div class="tooth-finding-line">{{ item.findingDisplay }}</div>
                       </div>
                       <button
@@ -257,9 +247,9 @@
 
           </mat-tab>
 
-          <mat-tab label="Saved Findings">
+          <mat-tab label="All Findings">
             <div class="side-tab-content">
-              <h3>Saved Dental Findings</h3>
+              <h3>All Dental Findings</h3>
               <div *ngIf="getDentalObservationList().length > 0; else noSavedFindings" class="saved-findings-list">
                 <button
                   type="button"
