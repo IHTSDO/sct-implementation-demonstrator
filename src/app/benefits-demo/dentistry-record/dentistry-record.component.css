@@ -248,6 +248,38 @@
   letter-spacing: 0.2px;
 }
 
+.site-selector {
+  margin-bottom: 10px;
+  border: 1px solid #d8dee7;
+  border-radius: 6px;
+  background-color: #ffffff;
+  padding: 8px;
+}
+
+.site-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-bottom: 6px;
+  color: #495057;
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.site-checkbox:last-child {
+  margin-bottom: 0;
+}
+
+.site-checkbox input[type='checkbox'] {
+  margin-top: 1px;
+}
+
+.surface-checkbox-grid {
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px dashed #dde3ec;
+}
+
 .entry-select {
   width: 100%;
   margin-bottom: 10px;

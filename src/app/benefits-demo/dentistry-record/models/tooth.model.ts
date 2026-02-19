@@ -25,7 +25,7 @@ export type FindingScope =
   | 'global';          // Not part of the per-tooth odontogram
 
 export interface ToothFindingEntry {
-  surfaceCode?: string;
+  siteCodes?: string[];
   findingCode?: string;
   observationId?: string;
 }

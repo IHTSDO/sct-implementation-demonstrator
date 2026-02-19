@@ -172,18 +172,33 @@
                 </div>
 
                 <div class="finding-entry-section">
-                  <label class="entry-label" for="surface-select">Affected Surface *</label>
-                  <select
-                    id="surface-select"
-                    class="entry-select"
-                    required
-                    [value]="getPinnedSurfaceCode()"
-                    (change)="onSurfaceChange(($any($event.target).value || '').toString())">
-                    <option value="">Select affected surface</option>
-                    <option *ngFor="let option of surfaceOptions" [value]="option.code">
-                      {{ option.display }}
-                    </option>
-                  </select>
+                  <label class="entry-label">Affected Site(s) *</label>
+                  <div class="site-selector">
+                    <label class="site-checkbox">
+                      <input
+                        type="checkbox"
+                        [checked]="isPinnedSiteSelected(SURFACE_CODE_COMPLETE)"
+                        (change)="onExclusiveSiteToggle(SURFACE_CODE_COMPLETE, !!$any($event.target).checked)">
+                      <span>Entire tooth</span>
+                    </label>
+                    <label class="site-checkbox">
+                      <input
+                        type="checkbox"
+                        [checked]="isPinnedSiteSelected(SURFACE_CODE_PERIODONTAL)"
+                        (change)="onExclusiveSiteToggle(SURFACE_CODE_PERIODONTAL, !!$any($event.target).checked)">
+                      <span>Periodontal tissues</span>
+                    </label>
+
+                    <div class="surface-checkbox-grid">
+                      <label class="site-checkbox" *ngFor="let option of getSurfaceOnlyOptions()">
+                        <input
+                          type="checkbox"
+                          [checked]="isPinnedSiteSelected(option.code)"
+                          (change)="onSurfaceSiteToggle(option.code, !!$any($event.target).checked)">
+                        <span>{{ option.display }}</span>
+                      </label>
+                    </div>
+                  </div>
 
                   <label class="entry-label" for="finding-select">Finding *</label>
                   <input

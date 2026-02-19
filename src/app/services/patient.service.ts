@@ -294,6 +294,33 @@ export interface Condition {
   icd10Code?: string;
   snomedConceptId?: string;
   computedLocation?: string;
+  bodyStructure?: {
+    reference?: string;
+    display?: string;
+  };
+}
+
+export interface BodyStructure {
+  resourceType: 'BodyStructure';
+  id: string;
+  patient: {
+    reference: string;
+    display?: string;
+  };
+  includedStructure?: Array<{
+    structure: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+  }>;
+  note?: Array<{
+    text: string;
+    time?: string;
+  }>;
 }
 
 export interface Procedure {
@@ -1472,11 +1499,13 @@ export class PatientService {
       const proceduresKey = `ehr_procedures_${patient.id}`;
       const medicationsKey = `ehr_medications_${patient.id}`;
       const observationsKey = `ehr_observations_${patient.id}`;
+      const bodyStructuresKey = `ehr_body_structures_${patient.id}`;
       
       this.storageService.removeItem(conditionsKey);
       this.storageService.removeItem(proceduresKey);
       this.storageService.removeItem(medicationsKey);
       this.storageService.removeItem(observationsKey);
+      this.storageService.removeItem(bodyStructuresKey);
     });
     
     // Clear all patients
@@ -1505,6 +1534,12 @@ export class PatientService {
     return true; // Successfully added
   }
 
+  addPatientConditionAllowDuplicates(patientId: string, condition: Condition): void {
+    const conditions = this.getPatientConditions(patientId);
+    conditions.push(condition);
+    this.savePatientConditions(patientId, conditions);
+  }
+
   updatePatientCondition(patientId: string, conditionId: string, updatedCondition: Condition): void {
     const conditions = this.getPatientConditions(patientId);
     const index = conditions.findIndex(c => c.id === conditionId);
@@ -1523,6 +1558,39 @@ export class PatientService {
   private savePatientConditions(patientId: string, conditions: Condition[]): void {
     const key = `ehr_conditions_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(conditions));
+  }
+
+  // BodyStructures
+  getPatientBodyStructures(patientId: string): BodyStructure[] {
+    const key = `ehr_body_structures_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  addPatientBodyStructure(patientId: string, bodyStructure: BodyStructure): void {
+    const bodyStructures = this.getPatientBodyStructures(patientId);
+    bodyStructures.push(bodyStructure);
+    this.savePatientBodyStructures(patientId, bodyStructures);
+  }
+
+  updatePatientBodyStructure(patientId: string, bodyStructureId: string, updatedBodyStructure: BodyStructure): void {
+    const bodyStructures = this.getPatientBodyStructures(patientId);
+    const index = bodyStructures.findIndex((item) => item.id === bodyStructureId);
+    if (index !== -1) {
+      bodyStructures[index] = updatedBodyStructure;
+      this.savePatientBodyStructures(patientId, bodyStructures);
+    }
+  }
+
+  deletePatientBodyStructure(patientId: string, bodyStructureId: string): void {
+    const bodyStructures = this.getPatientBodyStructures(patientId);
+    const filtered = bodyStructures.filter((item) => item.id !== bodyStructureId);
+    this.savePatientBodyStructures(patientId, filtered);
+  }
+
+  private savePatientBodyStructures(patientId: string, bodyStructures: BodyStructure[]): void {
+    const key = `ehr_body_structures_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(bodyStructures));
   }
 
   // Procedures
@@ -2028,6 +2096,7 @@ export class PatientService {
     this.storageService.removeItem(`ehr_procedures_${patientId}`);
     this.storageService.removeItem(`ehr_medications_${patientId}`);
     this.storageService.removeItem(`ehr_observations_${patientId}`);
+    this.storageService.removeItem(`ehr_body_structures_${patientId}`);
     this.storageService.removeItem(`ehr_allergies_${patientId}`);
     this.storageService.removeItem(`ehr_encounters_${patientId}`);
     this.storageService.removeItem(`ehr_questionnaire_responses_${patientId}`);
