@@ -18,6 +18,7 @@ interface QuadrantConfig {
 }
 
 type SurfaceDirection = 'top' | 'bottom' | 'left' | 'right';
+type OdontogramViewMode = 'anatomic' | 'rootSurface';
 
 @Component({
   selector: 'app-dentistry-record',
@@ -60,8 +61,26 @@ export class DentistryRecordComponent implements OnChanges {
   ];
   readonly teethByQuadrant = this.buildTeethByQuadrant();
   readonly toothIdBySnomedCode = this.buildToothIdBySnomedCodeMap();
+  viewMode: OdontogramViewMode = 'anatomic';
+  readonly getTeethForQuadrantFn = (prefix: string) => this.getTeethForQuadrant(prefix);
+  readonly trackByToothIdFn = (_: number, tooth: OdontogramTooth) => this.trackByToothId(_, tooth);
+  readonly isSelectedFn = (toothId: string) => this.isSelected(toothId);
+  readonly getLinePathsFn = (tooth: OdontogramTooth) => this.getLinePaths(tooth);
+  readonly hasSurfaceVisualFn = (toothId: string, surfaceCode: string) => this.hasSurfaceVisual(toothId, surfaceCode);
+  readonly getSurfaceOverlayClassFn = (surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string) =>
+    this.getSurfaceOverlayClass(surfaceCode, tooth, quadrantPrefix);
+  readonly isSurfacePreviewFn = (toothId: string, surfaceCode: string) => this.isSurfacePreview(toothId, surfaceCode);
+  readonly getSurfaceOverlayPathFn = (surfaceCode: string, tooth: OdontogramTooth) => this.getSurfaceOverlayPath(surfaceCode, tooth);
+  readonly getSurfaceFillFn = (surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string) =>
+    this.getSurfaceFill(surfaceCode, tooth, quadrantPrefix);
+  readonly getSurfaceStrokeFn = (surfaceCode: string) => this.getSurfaceStroke(surfaceCode);
+  readonly getSurfaceStrokeWidthFn = (surfaceCode: string) => this.getSurfaceStrokeWidth(surfaceCode);
 
   constructor(private patientService: PatientService, private dialog: MatDialog) {}
+
+  setViewMode(mode: OdontogramViewMode): void {
+    this.viewMode = mode;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['patient']) {

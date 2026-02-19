@@ -7,151 +7,69 @@
       </button>
     </div>
 
+    <div class="view-mode-switch" role="group" aria-label="Odontogram view selector">
+      <button
+        type="button"
+        class="view-mode-button"
+        [class.active]="viewMode === 'anatomic'"
+        (click)="setViewMode('anatomic')">
+        Anatomic View
+      </button>
+      <button
+        type="button"
+        class="view-mode-button"
+        [class.active]="viewMode === 'rootSurface'"
+        (click)="setViewMode('rootSurface')">
+        Root Surface View
+      </button>
+    </div>
+
     <div class="odontogram-layout">
-      <div class="odontogram-canvas-container">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 409 694"
-          class="odontogram-canvas"
-          role="listbox"
-          aria-label="Interactive odontogram"
-          aria-multiselectable="true">
-          <defs>
-            <linearGradient id="surface-left-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0.62)"></stop>
-              <stop offset="34%" stop-color="rgba(244,127,36,0.62)"></stop>
-              <stop offset="54%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-right-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="rgba(255,179,71,0)"></stop>
-              <stop offset="46%" stop-color="rgba(255,179,71,0)"></stop>
-              <stop offset="66%" stop-color="rgba(255,179,71,0.62)"></stop>
-              <stop offset="100%" stop-color="rgba(255,179,71,0.62)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-top-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0.62)"></stop>
-              <stop offset="34%" stop-color="rgba(244,127,36,0.62)"></stop>
-              <stop offset="54%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-bottom-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="rgba(255,179,71,0)"></stop>
-              <stop offset="46%" stop-color="rgba(255,179,71,0)"></stop>
-              <stop offset="66%" stop-color="rgba(255,179,71,0.62)"></stop>
-              <stop offset="100%" stop-color="rgba(255,179,71,0.62)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-vestibular-left" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="34%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="58%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-vestibular-right" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="42%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="66%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0.58)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-vestibular-top" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="34%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="56%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-vestibular-bottom" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="44%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="66%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0.58)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-lingual-left" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="34%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="58%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-lingual-right" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="42%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="66%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0.58)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-lingual-top" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="34%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="56%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
-            </linearGradient>
-            <linearGradient id="surface-lingual-bottom" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="44%" stop-color="rgba(244,127,36,0)"></stop>
-              <stop offset="66%" stop-color="rgba(244,127,36,0.58)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0.58)"></stop>
-            </linearGradient>
-            <radialGradient id="surface-occlusal-center" cx="50%" cy="50%" r="42%">
-              <stop offset="0%" stop-color="rgba(244,127,36,0.62)"></stop>
-              <stop offset="55%" stop-color="rgba(244,127,36,0.45)"></stop>
-              <stop offset="78%" stop-color="rgba(244,127,36,0.12)"></stop>
-              <stop offset="100%" stop-color="rgba(244,127,36,0)"></stop>
-            </radialGradient>
-          </defs>
+      <app-dentistry-odontogram-anatomic
+        *ngIf="viewMode === 'anatomic'"
+        [quadrants]="quadrants"
+        [surfaceOptions]="surfaceOptions"
+        [hoveredTooth]="hoveredTooth"
+        [tooltipX]="tooltipX"
+        [tooltipY]="tooltipY"
+        [getTeethForQuadrant]="getTeethForQuadrantFn"
+        [trackByToothId]="trackByToothIdFn"
+        [isSelected]="isSelectedFn"
+        [getLinePaths]="getLinePathsFn"
+        [hasSurfaceVisual]="hasSurfaceVisualFn"
+        [getSurfaceOverlayClass]="getSurfaceOverlayClassFn"
+        [isSurfacePreview]="isSurfacePreviewFn"
+        [getSurfaceOverlayPath]="getSurfaceOverlayPathFn"
+        [getSurfaceFill]="getSurfaceFillFn"
+        [getSurfaceStroke]="getSurfaceStrokeFn"
+        [getSurfaceStrokeWidth]="getSurfaceStrokeWidthFn"
+        (toothPinned)="pinTooth($event)"
+        (toothMouseEnter)="onToothMouseEnter($event.tooth, $event.event)"
+        (toothMouseMove)="onToothMouseMove($event)"
+        (toothMouseLeave)="onToothMouseLeave()">
+      </app-dentistry-odontogram-anatomic>
 
-          <text class="arch-label" x="204.5" y="214">Upper Arch</text>
-          <text class="arch-label" x="204.5" y="480">Lower Arch</text>
-
-          <g
-            *ngFor="let quadrant of quadrants"
-            [attr.transform]="quadrant.transform"
-            role="group"
-            [attr.aria-label]="quadrant.label">
-            <g
-              class="tooth"
-              *ngFor="let tooth of getTeethForQuadrant(quadrant.prefix); trackBy: trackByToothId"
-              [class.selected]="isSelected(tooth.id)"
-              [attr.aria-label]="'Tooth ' + tooth.notations.fdi"
-              [attr.aria-selected]="isSelected(tooth.id)"
-              role="option"
-              tabindex="0"
-              (mousedown)="$event.preventDefault()"
-              (click)="pinTooth(tooth)"
-              (mouseenter)="onToothMouseEnter(tooth, $event)"
-              (mousemove)="onToothMouseMove($event)"
-              (mouseleave)="onToothMouseLeave()"
-              (keydown.enter)="pinTooth(tooth)"
-              (keydown.space)="pinTooth(tooth); $event.preventDefault()">
-              <path class="tooth-outline" [attr.d]="tooth.outlinePath"></path>
-              <path class="tooth-shadow" [attr.d]="tooth.shadowPath"></path>
-              <ng-container *ngFor="let option of surfaceOptions">
-                <path
-                  *ngIf="hasSurfaceVisual(tooth.id, option.code)"
-                  class="surface-overlay-path {{ getSurfaceOverlayClass(option.code, tooth, quadrant.prefix) }}"
-                  [class.surface-preview]="isSurfacePreview(tooth.id, option.code)"
-                  [attr.d]="getSurfaceOverlayPath(option.code, tooth)"
-                  [attr.fill]="getSurfaceFill(option.code, tooth, quadrant.prefix)"
-                  [attr.stroke]="getSurfaceStroke(option.code)"
-                  [attr.stroke-width]="getSurfaceStrokeWidth(option.code)">
-                </path>
-              </ng-container>
-              <path
-                class="tooth-highlight"
-                *ngFor="let linePath of getLinePaths(tooth)"
-                [attr.d]="linePath">
-              </path>
-            </g>
-          </g>
-        </svg>
-
-        <div
-          class="tooth-tooltip"
-          *ngIf="hoveredTooth"
-          [style.left.px]="tooltipX"
-          [style.top.px]="tooltipY">
-          <div class="tooltip-number">Tooth {{ hoveredTooth.notations.fdi }}</div>
-          <div class="tooltip-type">{{ hoveredTooth.type }}</div>
-        </div>
-      </div>
+      <app-dentistry-odontogram-root-surface
+        *ngIf="viewMode === 'rootSurface'"
+        [getTeethForQuadrant]="getTeethForQuadrantFn"
+        [isSelected]="isSelectedFn"
+        [hasSurfaceVisual]="hasSurfaceVisualFn"
+        [isSurfacePreview]="isSurfacePreviewFn"
+        [hoveredTooth]="hoveredTooth"
+        [tooltipX]="tooltipX"
+        [tooltipY]="tooltipY"
+        [surfaceCodeMesial]="SURFACE_CODE_MESIAL"
+        [surfaceCodeDistal]="SURFACE_CODE_DISTAL"
+        [surfaceCodeOcclusal]="SURFACE_CODE_OCCLUSAL"
+        [surfaceCodeLingual]="SURFACE_CODE_LINGUAL"
+        [surfaceCodeVestibular]="SURFACE_CODE_VESTIBULAR"
+        [surfaceCodeEntire]="SURFACE_CODE_COMPLETE"
+        [surfaceCodePeriodontal]="SURFACE_CODE_PERIODONTAL"
+        (toothPinned)="pinTooth($event)"
+        (toothMouseEnter)="onToothMouseEnter($event.tooth, $event.event)"
+        (toothMouseMove)="onToothMouseMove($event)"
+        (toothMouseLeave)="onToothMouseLeave()">
+      </app-dentistry-odontogram-root-surface>
 
       <div class="odontogram-details">
         <mat-tab-group class="dental-side-tabs">

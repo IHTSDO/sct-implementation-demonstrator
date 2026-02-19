@@ -1,0 +1,148 @@
+.odontogram-canvas-container {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fbfcfd 0%, #f4f6f8 100%);
+  padding: 12px;
+  position: relative;
+}
+
+.odontogram-canvas {
+  width: 100%;
+  height: auto;
+  max-height: 680px;
+  display: block;
+}
+
+.arch-label {
+  fill: #7a8594;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-anchor: middle;
+  user-select: none;
+  pointer-events: none;
+}
+
+.tooth {
+  color: #8a98be;
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+
+.tooth:focus-visible {
+  color: #5361e6;
+  outline: none;
+}
+
+.tooth:hover {
+  color: #6678ea;
+}
+
+.tooth.selected {
+  color: #2f49d1;
+}
+
+.tooth-outline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tooth-shadow {
+  fill: currentColor;
+  opacity: 0.34;
+}
+
+.tooth-highlight {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.surface-overlay-path {
+  pointer-events: none;
+  opacity: 0.88;
+}
+
+.surface-overlay-path.overlay-mesial-top,
+.surface-overlay-path.overlay-mesial-bottom,
+.surface-overlay-path.overlay-distal-top,
+.surface-overlay-path.overlay-distal-bottom,
+.surface-overlay-path.overlay-mesial-left,
+.surface-overlay-path.overlay-mesial-right,
+.surface-overlay-path.overlay-distal-left,
+.surface-overlay-path.overlay-distal-right {
+  opacity: 0.9;
+}
+
+.surface-overlay-path.overlay-vestibular-top,
+.surface-overlay-path.overlay-vestibular-bottom,
+.surface-overlay-path.overlay-vestibular-left,
+.surface-overlay-path.overlay-vestibular-right {
+  opacity: 0.85;
+}
+
+.surface-overlay-path.overlay-occlusal {
+  opacity: 0.9;
+}
+
+.surface-overlay-path.overlay-lingual-top,
+.surface-overlay-path.overlay-lingual-bottom,
+.surface-overlay-path.overlay-lingual-left,
+.surface-overlay-path.overlay-lingual-right {
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+}
+
+.surface-overlay-path.overlay-entire-tooth {
+  opacity: 0.78;
+}
+
+.surface-overlay-path.overlay-periodontal-ring {
+  fill: none;
+  opacity: 0.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 2px rgba(244, 127, 36, 0.45)) drop-shadow(0 0 5px rgba(244, 127, 36, 0.3));
+}
+
+.surface-overlay-path.surface-preview {
+  opacity: 0.98;
+  filter: saturate(1.25);
+}
+
+.tooth-tooltip {
+  position: fixed;
+  z-index: 1100;
+  pointer-events: none;
+  background: rgba(20, 27, 40, 0.96);
+  color: #f8fbff;
+  border: 1px solid rgba(141, 164, 210, 0.35);
+  border-radius: 10px;
+  padding: 8px 10px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.35);
+  transform: translate3d(0, 0, 0);
+}
+
+.tooltip-number {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.tooltip-type {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #cdd7ec;
+}
+
+@media (max-width: 640px) {
+  .odontogram-canvas-container {
+    padding: 8px;
+  }
+}

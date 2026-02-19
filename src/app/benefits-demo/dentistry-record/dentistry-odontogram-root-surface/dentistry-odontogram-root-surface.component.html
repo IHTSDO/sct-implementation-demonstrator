@@ -1,0 +1,220 @@
+<div class="root-surface-container">
+  <div class="root-surface-header">
+    <h3>Root Surface Odontogram (Dennison)</h3>
+    <p>Segmented surfaces with larger central polygon for molars.</p>
+  </div>
+
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 1000 560"
+    class="root-surface-canvas"
+    role="listbox"
+    aria-label="Interactive root surface odontogram"
+    aria-multiselectable="true"
+    (mouseleave)="toothMouseLeave.emit()">
+    <line class="cross-line" x1="500" y1="85" x2="500" y2="470"></line>
+    <line class="cross-line" x1="120" y1="280" x2="880" y2="280"></line>
+
+    <g class="quadrant-labels">
+      <text x="80" y="290">R</text>
+      <text x="900" y="290">L</text>
+    </g>
+
+    <ng-container *ngFor="let positioned of upperLeftRow; trackBy: trackByToothPosition">
+      <g
+        class="root-tooth"
+        [class.selected]="isSelected(positioned.tooth.id)"
+        [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
+        role="option"
+        tabindex="0"
+        [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
+        [attr.aria-selected]="isSelected(positioned.tooth.id)"
+        (mouseenter)="onMouseEnter(positioned.tooth, $event)"
+        (mousemove)="toothMouseMove.emit($event)"
+        (mouseleave)="toothMouseLeave.emit()"
+        (keydown.enter)="onPinTooth(positioned.tooth)"
+        (keydown.space)="onPinTooth(positioned.tooth); $event.preventDefault()">
+        <circle
+          class="tooth-node"
+          cx="0"
+          cy="0"
+          r="18"
+          (click)="onPinTooth(positioned.tooth)">
+        </circle>
+
+        <circle *ngIf="hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" cx="0" cy="0" r="18"></circle>
+        <circle *ngIf="hasPeriodontalSurface(positioned.tooth)" class="surface-periodontal" [class.surface-preview]="isPeriodontalPreview(positioned.tooth)" cx="0" cy="0" r="21"></circle>
+
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'top')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'top')" [attr.points]="getTopPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'right')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'right')" [attr.points]="getRightPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'bottom')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'bottom')" [attr.points]="getBottomPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'left')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'left')" [attr.points]="getLeftPolygonPoints(positioned.tooth)"></polygon>
+
+        <polygon *ngIf="hasOcclusalSurface(positioned.tooth)" class="surface-occlusal" [class.surface-preview]="isOcclusalPreview(positioned.tooth)" [attr.points]="getCenterPolygonPoints(positioned.tooth)"></polygon>
+
+        <polygon class="tooth-outer-square" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
+        <polygon class="tooth-inner-square" [attr.points]="getInnerSquarePoints(positioned.tooth)"></polygon>
+        <line
+          class="tooth-connector"
+          *ngFor="let connector of getConnectorLines(positioned.tooth)"
+          [attr.x1]="connector.x1"
+          [attr.y1]="connector.y1"
+          [attr.x2]="connector.x2"
+          [attr.y2]="connector.y2">
+        </line>
+
+        <text class="tooth-label" x="0" y="-26">{{ positioned.tooth.notations.fdi }}</text>
+      </g>
+    </ng-container>
+
+    <ng-container *ngFor="let positioned of upperRightRow; trackBy: trackByToothPosition">
+      <g
+        class="root-tooth"
+        [class.selected]="isSelected(positioned.tooth.id)"
+        [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
+        role="option"
+        tabindex="0"
+        [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
+        [attr.aria-selected]="isSelected(positioned.tooth.id)"
+        (mouseenter)="onMouseEnter(positioned.tooth, $event)"
+        (mousemove)="toothMouseMove.emit($event)"
+        (mouseleave)="toothMouseLeave.emit()"
+        (keydown.enter)="onPinTooth(positioned.tooth)"
+        (keydown.space)="onPinTooth(positioned.tooth); $event.preventDefault()">
+        <circle
+          class="tooth-node"
+          cx="0"
+          cy="0"
+          r="18"
+          (click)="onPinTooth(positioned.tooth)">
+        </circle>
+
+        <circle *ngIf="hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" cx="0" cy="0" r="18"></circle>
+        <circle *ngIf="hasPeriodontalSurface(positioned.tooth)" class="surface-periodontal" [class.surface-preview]="isPeriodontalPreview(positioned.tooth)" cx="0" cy="0" r="21"></circle>
+
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'top')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'top')" [attr.points]="getTopPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'right')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'right')" [attr.points]="getRightPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'bottom')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'bottom')" [attr.points]="getBottomPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'left')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'left')" [attr.points]="getLeftPolygonPoints(positioned.tooth)"></polygon>
+
+        <polygon *ngIf="hasOcclusalSurface(positioned.tooth)" class="surface-occlusal" [class.surface-preview]="isOcclusalPreview(positioned.tooth)" [attr.points]="getCenterPolygonPoints(positioned.tooth)"></polygon>
+
+        <polygon class="tooth-outer-square" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
+        <polygon class="tooth-inner-square" [attr.points]="getInnerSquarePoints(positioned.tooth)"></polygon>
+        <line
+          class="tooth-connector"
+          *ngFor="let connector of getConnectorLines(positioned.tooth)"
+          [attr.x1]="connector.x1"
+          [attr.y1]="connector.y1"
+          [attr.x2]="connector.x2"
+          [attr.y2]="connector.y2">
+        </line>
+
+        <text class="tooth-label" x="0" y="-26">{{ positioned.tooth.notations.fdi }}</text>
+      </g>
+    </ng-container>
+
+    <ng-container *ngFor="let positioned of lowerLeftRow; trackBy: trackByToothPosition">
+      <g
+        class="root-tooth"
+        [class.selected]="isSelected(positioned.tooth.id)"
+        [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
+        role="option"
+        tabindex="0"
+        [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
+        [attr.aria-selected]="isSelected(positioned.tooth.id)"
+        (mouseenter)="onMouseEnter(positioned.tooth, $event)"
+        (mousemove)="toothMouseMove.emit($event)"
+        (mouseleave)="toothMouseLeave.emit()"
+        (keydown.enter)="onPinTooth(positioned.tooth)"
+        (keydown.space)="onPinTooth(positioned.tooth); $event.preventDefault()">
+        <circle
+          class="tooth-node"
+          cx="0"
+          cy="0"
+          r="18"
+          (click)="onPinTooth(positioned.tooth)">
+        </circle>
+
+        <circle *ngIf="hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" cx="0" cy="0" r="18"></circle>
+        <circle *ngIf="hasPeriodontalSurface(positioned.tooth)" class="surface-periodontal" [class.surface-preview]="isPeriodontalPreview(positioned.tooth)" cx="0" cy="0" r="21"></circle>
+
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'top')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'top')" [attr.points]="getTopPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'right')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'right')" [attr.points]="getRightPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'bottom')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'bottom')" [attr.points]="getBottomPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'left')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'left')" [attr.points]="getLeftPolygonPoints(positioned.tooth)"></polygon>
+
+        <polygon *ngIf="hasOcclusalSurface(positioned.tooth)" class="surface-occlusal" [class.surface-preview]="isOcclusalPreview(positioned.tooth)" [attr.points]="getCenterPolygonPoints(positioned.tooth)"></polygon>
+
+        <polygon class="tooth-outer-square" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
+        <polygon class="tooth-inner-square" [attr.points]="getInnerSquarePoints(positioned.tooth)"></polygon>
+        <line
+          class="tooth-connector"
+          *ngFor="let connector of getConnectorLines(positioned.tooth)"
+          [attr.x1]="connector.x1"
+          [attr.y1]="connector.y1"
+          [attr.x2]="connector.x2"
+          [attr.y2]="connector.y2">
+        </line>
+
+        <text class="tooth-label" x="0" y="35">{{ positioned.tooth.notations.fdi }}</text>
+      </g>
+    </ng-container>
+
+    <ng-container *ngFor="let positioned of lowerRightRow; trackBy: trackByToothPosition">
+      <g
+        class="root-tooth"
+        [class.selected]="isSelected(positioned.tooth.id)"
+        [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
+        role="option"
+        tabindex="0"
+        [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
+        [attr.aria-selected]="isSelected(positioned.tooth.id)"
+        (mouseenter)="onMouseEnter(positioned.tooth, $event)"
+        (mousemove)="toothMouseMove.emit($event)"
+        (mouseleave)="toothMouseLeave.emit()"
+        (keydown.enter)="onPinTooth(positioned.tooth)"
+        (keydown.space)="onPinTooth(positioned.tooth); $event.preventDefault()">
+        <circle
+          class="tooth-node"
+          cx="0"
+          cy="0"
+          r="18"
+          (click)="onPinTooth(positioned.tooth)">
+        </circle>
+
+        <circle *ngIf="hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" cx="0" cy="0" r="18"></circle>
+        <circle *ngIf="hasPeriodontalSurface(positioned.tooth)" class="surface-periodontal" [class.surface-preview]="isPeriodontalPreview(positioned.tooth)" cx="0" cy="0" r="21"></circle>
+
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'top')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'top')" [attr.points]="getTopPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'right')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'right')" [attr.points]="getRightPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'bottom')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'bottom')" [attr.points]="getBottomPolygonPoints(positioned.tooth)"></polygon>
+        <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'left')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'left')" [attr.points]="getLeftPolygonPoints(positioned.tooth)"></polygon>
+
+        <polygon *ngIf="hasOcclusalSurface(positioned.tooth)" class="surface-occlusal" [class.surface-preview]="isOcclusalPreview(positioned.tooth)" [attr.points]="getCenterPolygonPoints(positioned.tooth)"></polygon>
+
+        <polygon class="tooth-outer-square" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
+        <polygon class="tooth-inner-square" [attr.points]="getInnerSquarePoints(positioned.tooth)"></polygon>
+        <line
+          class="tooth-connector"
+          *ngFor="let connector of getConnectorLines(positioned.tooth)"
+          [attr.x1]="connector.x1"
+          [attr.y1]="connector.y1"
+          [attr.x2]="connector.x2"
+          [attr.y2]="connector.y2">
+        </line>
+
+        <text class="tooth-label" x="0" y="35">{{ positioned.tooth.notations.fdi }}</text>
+      </g>
+    </ng-container>
+  </svg>
+
+  <div
+    class="tooth-tooltip"
+    *ngIf="hoveredTooth"
+    [style.left.px]="tooltipX"
+    [style.top.px]="tooltipY">
+    <div class="tooltip-number">Tooth {{ hoveredTooth.notations.fdi }}</div>
+    <div class="tooltip-type">{{ hoveredTooth.type }}</div>
+  </div>
+</div>

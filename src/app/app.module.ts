@@ -111,6 +111,8 @@ import { DentistryRecordComponent } from './benefits-demo/dentistry-record/denti
 import { DentistryDataEntryPanelComponent } from './benefits-demo/dentistry-record/dentistry-data-entry-panel/dentistry-data-entry-panel.component';
 import { DentistryAllFindingsListComponent } from './benefits-demo/dentistry-record/dentistry-all-findings-list/dentistry-all-findings-list.component';
 import { DentistryFhirDialogComponent } from './benefits-demo/dentistry-record/dentistry-fhir-dialog/dentistry-fhir-dialog.component';
+import { DentistryOdontogramAnatomicComponent } from './benefits-demo/dentistry-record/dentistry-odontogram-anatomic/dentistry-odontogram-anatomic.component';
+import { DentistryOdontogramRootSurfaceComponent } from './benefits-demo/dentistry-record/dentistry-odontogram-root-surface/dentistry-odontogram-root-surface.component';
 import { ClinicalFormsComponent } from './benefits-demo/clinical-forms/clinical-forms.component';
 import { AdverseReactionFormComponent } from './benefits-demo/clinical-forms/adverse-reaction-form/adverse-reaction-form.component';
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
@@ -207,6 +209,8 @@ const app = initializeApp(firebaseConfig);
         DentistryDataEntryPanelComponent,
         DentistryAllFindingsListComponent,
         DentistryFhirDialogComponent,
+        DentistryOdontogramAnatomicComponent,
+        DentistryOdontogramRootSurfaceComponent,
         ClinicalFormsComponent,
         AdverseReactionFormComponent,
         CreatePatientComponent,

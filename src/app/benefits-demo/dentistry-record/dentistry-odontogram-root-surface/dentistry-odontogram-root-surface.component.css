@@ -1,0 +1,133 @@
+.root-surface-container {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fbfcfd 0%, #f4f6f8 100%);
+  padding: 12px;
+  position: relative;
+}
+
+.root-surface-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.root-surface-header p {
+  margin: 4px 0 12px;
+  color: #6b7786;
+  font-size: 0.8rem;
+}
+
+.root-surface-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cross-line {
+  stroke: #2d3648;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.quadrant-labels text {
+  fill: #1f2937;
+  font-size: 38px;
+  font-weight: 800;
+}
+
+.root-tooth {
+  color: #5f6c7d;
+  cursor: pointer;
+  transition: color 0.14s ease;
+}
+
+.root-tooth:hover {
+  color: #3f4f67;
+}
+
+.root-tooth.selected {
+  color: #2f49d1;
+}
+
+.root-tooth:focus-visible {
+  outline: none;
+  color: #5361e6;
+}
+
+.tooth-node {
+  fill: #f5f7fa;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  pointer-events: all;
+}
+
+.tooth-outer-square,
+.tooth-inner-square,
+.tooth-connector {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  pointer-events: none;
+}
+
+.surface-segment,
+.surface-occlusal,
+.surface-entire {
+  fill: rgba(244, 127, 36, 0.58);
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+.surface-periodontal {
+  fill: none;
+  stroke: rgba(244, 127, 36, 0.9);
+  stroke-width: 3;
+  opacity: 0.9;
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px rgba(244, 127, 36, 0.45));
+}
+
+.surface-preview {
+  opacity: 1;
+  filter: saturate(1.2);
+}
+
+.tooth-label {
+  fill: #2f3847;
+  font-size: 6px;
+  font-weight: 700;
+  text-anchor: middle;
+  user-select: none;
+  pointer-events: none;
+}
+
+.tooth-tooltip {
+  position: fixed;
+  z-index: 1100;
+  pointer-events: none;
+  background: rgba(20, 27, 40, 0.96);
+  color: #f8fbff;
+  border: 1px solid rgba(141, 164, 210, 0.35);
+  border-radius: 10px;
+  padding: 8px 10px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.35);
+}
+
+.tooltip-number {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.tooltip-type {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #cdd7ec;
+}
+
+@media (max-width: 640px) {
+  .root-surface-container {
+    padding: 8px;
+  }
+}
