@@ -1,0 +1,109 @@
+<div *ngIf="pinnedTooth; else noPinnedTooth" class="details-card">
+  <div class="tooth-compact-header">
+    <div class="tooth-notation-line">
+      Selected: <span class="tooth-name">{{ pinnedTooth.type }}</span>
+      <br>
+      FDI: <strong>{{ pinnedTooth.notations.fdi }}</strong>
+      <span class="meta-separator">-</span>
+      Universal: <strong>{{ pinnedTooth.notations.universal }}</strong>
+      <span class="meta-separator">-</span>
+      Palmer: <strong>{{ pinnedTooth.notations.palmer }}</strong>
+    </div>
+    <div class="tooth-snomed-line">
+      SNOMED: <strong>{{ pinnedTooth.snomedStructure?.code || 'Not mapped' }}</strong>
+      <span class="meta-separator">|</span>
+      {{ pinnedTooth.snomedStructure?.display || 'Not mapped' }}
+      <span class="meta-separator">|</span>
+    </div>
+  </div>
+
+  <div class="finding-entry-section">
+    <label class="entry-label">Affected Site(s) *</label>
+    <div class="site-selector">
+      <label class="site-checkbox">
+        <input
+          type="checkbox"
+          [checked]="isSelectedSite(completeSiteCode)"
+          (change)="onExclusiveToggle(completeSiteCode, !!$any($event.target).checked)">
+        <span>Entire tooth</span>
+      </label>
+      <label class="site-checkbox">
+        <input
+          type="checkbox"
+          [checked]="isSelectedSite(periodontalSiteCode)"
+          (change)="onExclusiveToggle(periodontalSiteCode, !!$any($event.target).checked)">
+        <span>Periodontal tissues</span>
+      </label>
+
+      <div class="surface-checkbox-grid">
+        <label class="site-checkbox" *ngFor="let option of surfaceOnlyOptions">
+          <input
+            type="checkbox"
+            [checked]="isSelectedSite(option.code)"
+            (change)="onSurfaceToggle(option.code, !!$any($event.target).checked)">
+          <span>{{ option.display }}</span>
+        </label>
+      </div>
+    </div>
+
+    <label class="entry-label" for="finding-select">Finding *</label>
+    <input
+      id="finding-select"
+      class="entry-input"
+      type="text"
+      required
+      placeholder="Type to search findings"
+      [value]="findingQuery"
+      (input)="onFindingInput(($any($event.target).value || '').toString())"
+      [matAutocomplete]="findingAutocomplete">
+    <mat-autocomplete
+      #findingAutocomplete="matAutocomplete"
+      (optionSelected)="onFindingOptionSelected(($event.option.value || '').toString())">
+      <mat-option *ngFor="let option of filteredFindingOptions" [value]="option.code">
+        {{ option.display }}
+      </mat-option>
+    </mat-autocomplete>
+
+    <button
+      type="button"
+      class="save-entry-button"
+      [disabled]="!canSave"
+      (click)="onSaveClick()">
+      Save
+    </button>
+    <div class="save-entry-feedback" *ngIf="isSaved">
+      Entry saved for tooth {{ pinnedTooth.notations.fdi }}.
+    </div>
+  </div>
+
+  <div class="tooth-findings-section">
+    <h4>Current Findings For This Tooth</h4>
+    <div *ngIf="pinnedToothSavedFindings.length > 0; else noPinnedToothFindings" class="tooth-findings-list">
+      <div class="tooth-finding-item" *ngFor="let item of pinnedToothSavedFindings">
+        <div class="tooth-finding-main">
+          <div class="tooth-finding-line">{{ item.surfaceDisplay }}:</div>
+          <div class="tooth-finding-code">{{ item.surfaceCode }}</div>
+          <div class="tooth-finding-line">{{ item.findingDisplay }}</div>
+          <div class="tooth-finding-code">{{ item.findingCode }}</div>
+        </div>
+        <button
+          type="button"
+          class="delete-finding-button"
+          (click)="onDeleteFinding(item)">
+          Delete
+        </button>
+      </div>
+    </div>
+    <ng-template #noPinnedToothFindings>
+      <div class="empty-selection">
+        No findings saved for this tooth yet.
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<ng-template #noPinnedTooth>
+  <div class="empty-details">
+    Click a tooth to pin it here for data entry.
+  </div>
+</ng-template>

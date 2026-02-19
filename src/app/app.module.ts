@@ -108,6 +108,9 @@ import { PlotlyTreemapChartComponent } from './descriptive-statistics/plotly-tre
 import { BenefitsDemoComponent } from './benefits-demo/benefits-demo.component';
 import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinical-record.component';
 import { DentistryRecordComponent } from './benefits-demo/dentistry-record/dentistry-record.component';
+import { DentistryDataEntryPanelComponent } from './benefits-demo/dentistry-record/dentistry-data-entry-panel/dentistry-data-entry-panel.component';
+import { DentistryAllFindingsListComponent } from './benefits-demo/dentistry-record/dentistry-all-findings-list/dentistry-all-findings-list.component';
+import { DentistryFhirDialogComponent } from './benefits-demo/dentistry-record/dentistry-fhir-dialog/dentistry-fhir-dialog.component';
 import { ClinicalFormsComponent } from './benefits-demo/clinical-forms/clinical-forms.component';
 import { AdverseReactionFormComponent } from './benefits-demo/clinical-forms/adverse-reaction-form/adverse-reaction-form.component';
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
@@ -201,6 +204,9 @@ const app = initializeApp(firebaseConfig);
         BenefitsDemoComponent,
         ClinicalRecordComponent,
         DentistryRecordComponent,
+        DentistryDataEntryPanelComponent,
+        DentistryAllFindingsListComponent,
+        DentistryFhirDialogComponent,
         ClinicalFormsComponent,
         AdverseReactionFormComponent,
         CreatePatientComponent,

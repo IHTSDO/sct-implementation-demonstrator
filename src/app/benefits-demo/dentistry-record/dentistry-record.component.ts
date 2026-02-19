@@ -1,30 +1,20 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { BodyStructure, Condition, Patient, PatientService } from '../../services/patient.service';
+import { MatDialog } from '@angular/material/dialog';
 import { BASE_TEETH } from './data/tooth-data';
 import { FindingScope, OdontogramTooth, SnomedConceptOption, ToothFindingEntry } from './models/tooth.model';
 import { getToothNotations } from './utils/tooth-notation.utils';
 import { FDI_TO_SNOMED_STRUCTURE_MAP } from './data/fdi-snomed-structure-map';
 import { DENTAL_SURFACE_OPTIONS } from './data/dental-surface-options';
 import { DENTAL_FINDING_OPTIONS } from './data/dental-finding-options';
+import { DentalFindingListItem } from './models/dental-finding-list-item.model';
+import { DentistryFhirDialogComponent, DentistryFhirDialogData } from './dentistry-fhir-dialog/dentistry-fhir-dialog.component';
 
 interface QuadrantConfig {
   key: string;
   label: string;
   prefix: string;
   transform: string;
-}
-
-interface DentalFindingListItem {
-  conditionId: string;
-  bodyStructureId: string;
-  toothId: string;
-  toothFdi: string;
-  siteCodes: string[];
-  surfaceCode: string;
-  surfaceDisplay: string;
-  findingCode: string;
-  findingDisplay: string;
-  recordedDateTime: string;
 }
 
 type SurfaceDirection = 'top' | 'bottom' | 'left' | 'right';
@@ -71,7 +61,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly teethByQuadrant = this.buildTeethByQuadrant();
   readonly toothIdBySnomedCode = this.buildToothIdBySnomedCodeMap();
 
-  constructor(private patientService: PatientService) {}
+  constructor(private patientService: PatientService, private dialog: MatDialog) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['patient']) {
@@ -476,6 +466,29 @@ export class DentistryRecordComponent implements OnChanges {
     }
   }
 
+  openDentalFhirDialog(): void {
+    if (!this.patient) {
+      return;
+    }
+
+    const data: DentistryFhirDialogData = {
+      title: 'Dental HL7 FHIR Resources',
+      links: [
+        { label: 'Condition', href: 'https://hl7.org/fhir/condition.html' },
+        { label: 'BodyStructure', href: 'https://hl7.org/fhir/bodystructure.html' }
+      ],
+      jsonString: JSON.stringify(this.buildDentalFhirBundle(this.patient.id), null, 2),
+      fileName: `dental-fhir-${this.patient.id}.json`
+    };
+
+    this.dialog.open(DentistryFhirDialogComponent, {
+      width: '860px',
+      maxWidth: '96vw',
+      maxHeight: '90vh',
+      data
+    });
+  }
+
   private onSiteSelectionChanged(nextSiteCodes: string[]): void {
     if (!this.pinnedTooth) {
       return;
@@ -752,6 +765,30 @@ export class DentistryRecordComponent implements OnChanges {
         const bTime = b.recordedDateTime ? new Date(b.recordedDateTime).getTime() : 0;
         return bTime - aTime;
       });
+  }
+
+  private buildDentalFhirBundle(patientId: string): any {
+    const conditions = this.patientService.getPatientConditions(patientId).filter((condition) => this.isDentalCondition(condition));
+    const bodyStructures = this.patientService.getPatientBodyStructures(patientId);
+    const referencedBodyStructureIds = new Set(
+      conditions
+        .map((condition) => condition.bodyStructure?.reference || '')
+        .filter(Boolean)
+        .map((reference) => reference.replace('BodyStructure/', ''))
+    );
+
+    const linkedBodyStructures = bodyStructures.filter((resource) => referencedBodyStructureIds.has(resource.id));
+    const resources = [...conditions, ...linkedBodyStructures];
+
+    return {
+      resourceType: 'Bundle',
+      type: 'collection',
+      timestamp: new Date().toISOString(),
+      total: resources.length,
+      entry: resources.map((resource) => ({
+        resource
+      }))
+    };
   }
 
   private updateTooltipPosition(event: MouseEvent): void {

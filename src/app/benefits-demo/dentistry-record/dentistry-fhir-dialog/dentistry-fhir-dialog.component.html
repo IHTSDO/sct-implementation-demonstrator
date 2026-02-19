@@ -1,0 +1,35 @@
+<div class="fhir-dialog">
+  <h2 mat-dialog-title class="dialog-title">
+    {{ data.title }}
+    (
+    <ng-container *ngFor="let link of data.links; let isLast = last">
+      <a [href]="link.href" target="_blank">{{ link.label }}</a><span *ngIf="!isLast">, </span>
+    </ng-container>
+    )
+  </h2>
+
+  <mat-dialog-content class="dialog-content">
+    <div class="output-wrapper">
+      <div class="json-actions">
+        <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource">
+          <mat-icon fontIcon="cloud_download"></mat-icon>
+        </button>
+        <button mat-icon-button (click)="copyToClipboard()" matTooltip="Copy FHIR Resource">
+          <mat-icon fontIcon="content_copy"></mat-icon>
+        </button>
+      </div>
+
+      <pre
+        highlight-js
+        [options]="{}"
+        [lang]="'json'"
+        class="fhir-output"
+        [innerHTML]="data.jsonString">
+      </pre>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-stroked-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+</div>

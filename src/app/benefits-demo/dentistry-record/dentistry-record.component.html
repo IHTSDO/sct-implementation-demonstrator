@@ -1,6 +1,11 @@
 <div class="record-content" *ngIf="patient">
   <div class="record-section">
-    <h2>Odontogram</h2>
+    <div class="section-header">
+      <h2>Odontogram</h2>
+      <button mat-icon-button matTooltip="View Dental FHIR Resources" (click)="openDentalFhirDialog()">
+        <mat-icon fontIcon="data_object"></mat-icon>
+      </button>
+    </div>
 
     <div class="odontogram-layout">
       <div class="odontogram-canvas-container">
@@ -152,143 +157,33 @@
         <mat-tab-group class="dental-side-tabs">
           <mat-tab label="Data Entry">
             <div class="side-tab-content">
-              <div *ngIf="pinnedTooth; else noPinnedTooth" class="details-card">
-                <div class="tooth-compact-header">
-                  <div class="tooth-notation-line">
-                    Selected: <span class="tooth-name">{{ pinnedTooth.type }}</span>
-                    <br>
-                    FDI: <strong>{{ pinnedTooth.notations.fdi }}</strong>
-                    <span class="meta-separator">-</span>
-                    Universal: <strong>{{ pinnedTooth.notations.universal }}</strong>
-                    <span class="meta-separator">-</span>
-                    Palmer: <strong>{{ pinnedTooth.notations.palmer }}</strong>
-                  </div>
-                  <div class="tooth-snomed-line">
-                    SNOMED: <strong>{{ pinnedTooth.snomedStructure?.code || 'Not mapped' }}</strong>
-                    <span class="meta-separator">|</span>
-                    {{ pinnedTooth.snomedStructure?.display || 'Not mapped' }}
-                    <span class="meta-separator">|</span>
-                  </div>
-                </div>
-
-                <div class="finding-entry-section">
-                  <label class="entry-label">Affected Site(s) *</label>
-                  <div class="site-selector">
-                    <label class="site-checkbox">
-                      <input
-                        type="checkbox"
-                        [checked]="isPinnedSiteSelected(SURFACE_CODE_COMPLETE)"
-                        (change)="onExclusiveSiteToggle(SURFACE_CODE_COMPLETE, !!$any($event.target).checked)">
-                      <span>Entire tooth</span>
-                    </label>
-                    <label class="site-checkbox">
-                      <input
-                        type="checkbox"
-                        [checked]="isPinnedSiteSelected(SURFACE_CODE_PERIODONTAL)"
-                        (change)="onExclusiveSiteToggle(SURFACE_CODE_PERIODONTAL, !!$any($event.target).checked)">
-                      <span>Periodontal tissues</span>
-                    </label>
-
-                    <div class="surface-checkbox-grid">
-                      <label class="site-checkbox" *ngFor="let option of getSurfaceOnlyOptions()">
-                        <input
-                          type="checkbox"
-                          [checked]="isPinnedSiteSelected(option.code)"
-                          (change)="onSurfaceSiteToggle(option.code, !!$any($event.target).checked)">
-                        <span>{{ option.display }}</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <label class="entry-label" for="finding-select">Finding *</label>
-                  <input
-                    id="finding-select"
-                    class="entry-input"
-                    type="text"
-                    required
-                    placeholder="Type to search findings"
-                    [value]="getPinnedFindingQuery()"
-                    (input)="onFindingInputChange(($any($event.target).value || '').toString())"
-                    [matAutocomplete]="findingAutocomplete">
-                  <mat-autocomplete
-                    #findingAutocomplete="matAutocomplete"
-                    (optionSelected)="onFindingSelected(($event.option.value || '').toString())">
-                    <mat-option *ngFor="let option of getFilteredFindingOptions()" [value]="option.code">
-                      {{ option.display }}
-                    </mat-option>
-                  </mat-autocomplete>
-
-                  <button
-                    type="button"
-                    class="save-entry-button"
-                    [disabled]="!canSavePinnedFindingEntry()"
-                    (click)="savePinnedFindingEntry()">
-                    Save
-                  </button>
-                  <div class="save-entry-feedback" *ngIf="isPinnedEntrySaved()">
-                    Entry saved for tooth {{ pinnedTooth.notations.fdi }}.
-                  </div>
-                </div>
-
-                <div class="tooth-findings-section">
-                  <h4>Current Findings For This Tooth</h4>
-                  <div *ngIf="getPinnedToothSavedFindings().length > 0; else noPinnedToothFindings" class="tooth-findings-list">
-                    <div class="tooth-finding-item" *ngFor="let item of getPinnedToothSavedFindings()">
-                      <div class="tooth-finding-main">
-                        <div class="tooth-finding-line">{{ item.surfaceDisplay }}:</div>
-                        <div class="tooth-finding-code">{{ item.surfaceCode }}</div>
-                        <div class="tooth-finding-line">{{ item.findingDisplay }}</div>
-                        <div class="tooth-finding-code">{{ item.findingCode }}</div>
-                      </div>
-                      <button
-                        type="button"
-                        class="delete-finding-button"
-                        (click)="deleteSavedFinding(item)">
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  <ng-template #noPinnedToothFindings>
-                    <div class="empty-selection">
-                      No findings saved for this tooth yet.
-                    </div>
-                  </ng-template>
-                </div>
-              </div>
-              <ng-template #noPinnedTooth>
-                <div class="empty-details">
-                  Click a tooth to pin it here for data entry.
-                </div>
-              </ng-template>
+              <app-dentistry-data-entry-panel
+                [pinnedTooth]="pinnedTooth"
+                [surfaceOnlyOptions]="getSurfaceOnlyOptions()"
+                [selectedSiteCodes]="getPinnedSiteCodes()"
+                [completeSiteCode]="SURFACE_CODE_COMPLETE"
+                [periodontalSiteCode]="SURFACE_CODE_PERIODONTAL"
+                [findingQuery]="getPinnedFindingQuery()"
+                [filteredFindingOptions]="getFilteredFindingOptions()"
+                [canSave]="canSavePinnedFindingEntry()"
+                [isSaved]="isPinnedEntrySaved()"
+                [pinnedToothSavedFindings]="getPinnedToothSavedFindings()"
+                (exclusiveSiteToggle)="onExclusiveSiteToggle($event.siteCode, $event.checked)"
+                (surfaceSiteToggle)="onSurfaceSiteToggle($event.siteCode, $event.checked)"
+                (findingInputChange)="onFindingInputChange($event)"
+                (findingSelected)="onFindingSelected($event)"
+                (save)="savePinnedFindingEntry()"
+                (deleteFinding)="deleteSavedFinding($event)">
+              </app-dentistry-data-entry-panel>
             </div>
 
           </mat-tab>
 
           <mat-tab label="All Findings">
-            <div class="side-tab-content">
-              <h3>All Dental Findings</h3>
-              <div *ngIf="getDentalObservationList().length > 0; else noSavedFindings" class="saved-findings-list">
-                <button
-                  type="button"
-                  class="saved-finding-item"
-                  *ngFor="let item of getDentalObservationList()"
-                  (click)="focusObservationTooth(item)">
-                  <div class="saved-finding-top">
-                    <span class="saved-finding-tooth">Tooth {{ item.toothFdi }}</span>
-                    <span class="saved-finding-date" *ngIf="item.recordedDateTime">{{ item.recordedDateTime | date:'MMM d, y, HH:mm' }}</span>
-                  </div>
-                  <div class="saved-finding-line">{{ item.surfaceDisplay }}</div>
-                  <div class="saved-finding-code">{{ item.surfaceCode }}</div>
-                  <div class="saved-finding-line">{{ item.findingDisplay }}</div>
-                  <div class="saved-finding-code">{{ item.findingCode }}</div>
-                </button>
-              </div>
-              <ng-template #noSavedFindings>
-                <div class="empty-details">
-                  No saved dental findings for this patient yet.
-                </div>
-              </ng-template>
-            </div>
+            <app-dentistry-all-findings-list
+              [items]="getDentalObservationList()"
+              (focusFinding)="focusObservationTooth($event)">
+            </app-dentistry-all-findings-list>
           </mat-tab>
         </mat-tab-group>
       </div>
