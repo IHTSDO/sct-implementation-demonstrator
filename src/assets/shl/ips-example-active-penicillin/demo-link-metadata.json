@@ -1,0 +1,9 @@
+{
+  "id": "ips-example-active-penicillin",
+  "label": "IPS Example Active Penicillin",
+  "sourceFile": "assets/data/ips-example-active-penicillin.json",
+  "manifestFile": "assets/shl/ips-example-active-penicillin/manifest.json",
+  "key": "RfauHCPL59FysuVS0nmEpawm_VhF4z1P8Z-w_gtZqII",
+  "alg": "dir",
+  "enc": "A256GCM"
+}

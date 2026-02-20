@@ -1326,7 +1326,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
     try {
       const shlinkPayload = this.parseShlinkPayload(rawQrValue);
-      const bundle = await this.fetchBundleFromShl(shlinkPayload.url);
+      const bundle = await this.fetchBundleFromShl(shlinkPayload.url, shlinkPayload.key);
       this.validateIPSBundleOrThrow(bundle);
       this.processIPSBundleObject(bundle, 'SHL');
     } catch (error) {
@@ -1337,7 +1337,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     }
   }
 
-  private parseShlinkPayload(rawQrValue: string): { url: string } {
+  private parseShlinkPayload(rawQrValue: string): { url: string; key?: string } {
     if (!rawQrValue.startsWith('shlink:/')) {
       throw new Error('Scanned QR is not a SMART Health Link (shlink:/...).');
     }
@@ -1354,20 +1354,27 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       throw new Error('SHL payload does not contain a valid manifest URL.');
     }
 
-    return { url: payload.url };
+    if (payload.key !== undefined && typeof payload.key !== 'string') {
+      throw new Error('SHL payload key must be a base64url string.');
+    }
+
+    return { url: payload.url, key: payload.key };
   }
 
   private decodeBase64UrlToText(base64Url: string): string {
+    return new TextDecoder().decode(this.decodeBase64UrlToBytes(base64Url));
+  }
+
+  private decodeBase64UrlToBytes(base64Url: string): Uint8Array {
     const base64 = base64Url
       .replace(/-/g, '+')
       .replace(/_/g, '/')
       .padEnd(Math.ceil(base64Url.length / 4) * 4, '=');
     const binary = atob(base64);
-    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
+    return Uint8Array.from(binary, char => char.charCodeAt(0));
   }
 
-  private async fetchBundleFromShl(manifestUrl: string): Promise<any> {
+  private async fetchBundleFromShl(manifestUrl: string, shlKey?: string): Promise<any> {
     const manifestResponse = await fetch(manifestUrl);
     if (!manifestResponse.ok) {
       throw new Error(`Unable to download SHL manifest (${manifestResponse.status}).`);
@@ -1390,7 +1397,84 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       throw new Error(`Unable to download SHL file (${resourceResponse.status}).`);
     }
 
-    return resourceResponse.json();
+    const resourceText = await resourceResponse.text();
+    const trimmedContent = resourceText.trim();
+
+    if (this.isCompactJwe(trimmedContent)) {
+      if (!shlKey) {
+        throw new Error('SHL payload does not include a decryption key for JWE content.');
+      }
+      const decryptedPayload = await this.decryptCompactJwe(trimmedContent, shlKey);
+      return JSON.parse(decryptedPayload);
+    }
+
+    return JSON.parse(resourceText);
+  }
+
+  private isCompactJwe(content: string): boolean {
+    const parts = content.split('.');
+    return parts.length === 5 && parts[0].length > 0;
+  }
+
+  private async decryptCompactJwe(compactJwe: string, keyBase64Url: string): Promise<string> {
+    const parts = compactJwe.split('.');
+    if (parts.length !== 5) {
+      throw new Error('Invalid Compact JWE format.');
+    }
+
+    const [protectedHeaderB64, encryptedKeyB64, ivB64, ciphertextB64, tagB64] = parts;
+    if (encryptedKeyB64 !== '') {
+      throw new Error('Only direct encryption (alg=dir) is supported in this demo.');
+    }
+
+    const protectedHeaderText = this.decodeBase64UrlToText(protectedHeaderB64);
+    const protectedHeader = JSON.parse(protectedHeaderText);
+    if (protectedHeader.alg !== 'dir' || protectedHeader.enc !== 'A256GCM') {
+      throw new Error('Unsupported JWE algorithm. Expected alg=dir and enc=A256GCM.');
+    }
+
+    const keyBytes = this.decodeBase64UrlToBytes(keyBase64Url);
+    if (keyBytes.byteLength !== 32) {
+      throw new Error('Invalid SHL key length. Expected 32 bytes for A256GCM.');
+    }
+
+    const iv = this.decodeBase64UrlToBytes(ivB64);
+    const ciphertext = this.decodeBase64UrlToBytes(ciphertextB64);
+    const tag = this.decodeBase64UrlToBytes(tagB64);
+    const encryptedPayload = this.concatUint8Arrays(ciphertext, tag);
+    const aad = new TextEncoder().encode(protectedHeaderB64);
+
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw',
+      this.toArrayBuffer(keyBytes),
+      { name: 'AES-GCM' },
+      false,
+      ['decrypt']
+    );
+
+    const decryptedBuffer = await crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv: this.toArrayBuffer(iv),
+        additionalData: this.toArrayBuffer(aad),
+        tagLength: 128
+      },
+      cryptoKey,
+      this.toArrayBuffer(encryptedPayload)
+    );
+
+    return new TextDecoder().decode(new Uint8Array(decryptedBuffer));
+  }
+
+  private concatUint8Arrays(first: Uint8Array, second: Uint8Array): Uint8Array {
+    const combined = new Uint8Array(first.length + second.length);
+    combined.set(first, 0);
+    combined.set(second, first.length);
+    return combined;
+  }
+
+  private toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+    return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
   }
 
   private validateIPSBundleOrThrow(bundle: any): void {

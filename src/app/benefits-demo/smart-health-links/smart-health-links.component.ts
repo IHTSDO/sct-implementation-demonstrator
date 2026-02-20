@@ -27,7 +27,8 @@ export class SmartHealthLinksComponent implements OnInit {
         'ips-example-active-penicillin',
         'IPS Example Active Penicillin',
         'assets/data/ips-example-active-penicillin.json',
-        'assets/shl/ips-example-active-penicillin/manifest.json'
+        'assets/shl/ips-example-active-penicillin/manifest.json',
+        'RfauHCPL59FysuVS0nmEpawm_VhF4z1P8Z-w_gtZqII'
       )
     ];
   }
@@ -78,11 +79,17 @@ export class SmartHealthLinksComponent implements OnInit {
     }
   }
 
-  private buildLinkItem(id: string, label: string, sourceFile: string, manifestPath: string): SmartHealthLinkItem {
+  private buildLinkItem(
+    id: string,
+    label: string,
+    sourceFile: string,
+    manifestPath: string,
+    key: string
+  ): SmartHealthLinkItem {
     const manifestUrl = this.getAbsoluteUrl(manifestPath);
     const payload = {
       url: manifestUrl,
-      key: this.generateDemoKey(),
+      key,
       label
     };
 
@@ -107,19 +114,6 @@ export class SmartHealthLinksComponent implements OnInit {
     bytes.forEach(byte => {
       binary += String.fromCharCode(byte);
     });
-    const base64 = btoa(binary);
-    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-  }
-
-  private generateDemoKey(): string {
-    const bytes = new Uint8Array(32);
-    crypto.getRandomValues(bytes);
-
-    let binary = '';
-    bytes.forEach(byte => {
-      binary += String.fromCharCode(byte);
-    });
-
     const base64 = btoa(binary);
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
   }

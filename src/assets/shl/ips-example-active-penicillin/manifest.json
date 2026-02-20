@@ -5,7 +5,7 @@
   "files": [
     {
       "contentType": "application/fhir+json",
-      "location": "../../data/ips-example-active-penicillin.json"
+      "location": "./ips-example-active-penicillin.jwe"
     }
   ]
 }
