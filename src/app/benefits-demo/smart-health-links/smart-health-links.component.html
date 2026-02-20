@@ -24,7 +24,7 @@
             <td>
               <img
                 class="qr-preview"
-                [src]="getQrPreviewUrl(item)"
+                [src]="item.qrPreviewDataUrl || ''"
                 [alt]="'QR preview for ' + item.label"
                 loading="lazy"
               />

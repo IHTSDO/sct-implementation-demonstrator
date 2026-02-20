@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import QRCode from 'qrcode';
 
 interface SmartHealthLinkItem {
   id: string;
@@ -6,6 +7,7 @@ interface SmartHealthLinkItem {
   sourceFile: string;
   manifestFile: string;
   shlink: string;
+  qrPreviewDataUrl?: string;
 }
 
 type QrFormat = 'svg' | 'png';
@@ -16,7 +18,7 @@ type QrFormat = 'svg' | 'png';
   styleUrls: ['./smart-health-links.component.css'],
   standalone: false
 })
-export class SmartHealthLinksComponent {
+export class SmartHealthLinksComponent implements OnInit {
   readonly links: SmartHealthLinkItem[];
 
   constructor() {
@@ -30,6 +32,10 @@ export class SmartHealthLinksComponent {
     ];
   }
 
+  ngOnInit(): void {
+    void this.generateQrPreviews();
+  }
+
   async copyShLink(item: SmartHealthLinkItem): Promise<void> {
     try {
       await navigator.clipboard.writeText(item.shlink);
@@ -41,27 +47,35 @@ export class SmartHealthLinksComponent {
   }
 
   async downloadQr(item: SmartHealthLinkItem, format: QrFormat): Promise<void> {
-    const qrUrl = this.getQrUrl(item.shlink, format);
     const fileName = `${item.id}-qr.${format}`;
 
     try {
-      const response = await fetch(qrUrl);
-      if (!response.ok) {
-        throw new Error(`QR generation failed with status ${response.status}`);
+      if (format === 'svg') {
+        const svg = await QRCode.toString(item.shlink, {
+          type: 'svg',
+          errorCorrectionLevel: 'M',
+          margin: 2,
+          width: 300
+        });
+        const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
+        const blobUrl = URL.createObjectURL(svgBlob);
+        this.downloadBlobUrl(blobUrl, fileName);
+        URL.revokeObjectURL(blobUrl);
+        return;
       }
 
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const pngDataUrl = await QRCode.toDataURL(item.shlink, {
+        errorCorrectionLevel: 'M',
+        margin: 2,
+        width: 300
+      });
+      const blobUrl = await this.dataUrlToBlobUrl(pngDataUrl);
       this.downloadBlobUrl(blobUrl, fileName);
       URL.revokeObjectURL(blobUrl);
     } catch (error) {
-      console.error('QR download failed. Falling back to direct URL:', error);
-      this.openInNewTab(qrUrl);
+      console.error('QR download failed:', error);
+      alert('Unable to generate QR code locally.');
     }
-  }
-
-  getQrPreviewUrl(item: SmartHealthLinkItem): string {
-    return this.getQrUrl(item.shlink, 'svg');
   }
 
   private buildLinkItem(id: string, label: string, sourceFile: string, manifestPath: string): SmartHealthLinkItem {
@@ -87,14 +101,13 @@ export class SmartHealthLinksComponent {
     return new URL(path, document.baseURI).toString();
   }
 
-  private getQrUrl(shlink: string, format: QrFormat): string {
-    const encodedText = encodeURIComponent(shlink);
-    const encodedFormat = encodeURIComponent(format);
-    return `https://quickchart.io/qr?size=300&ecLevel=M&margin=2&format=${encodedFormat}&text=${encodedText}`;
-  }
-
   private encodeBase64Url(input: string): string {
-    const base64 = btoa(unescape(encodeURIComponent(input)));
+    const bytes = new TextEncoder().encode(input);
+    let binary = '';
+    bytes.forEach(byte => {
+      binary += String.fromCharCode(byte);
+    });
+    const base64 = btoa(binary);
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
   }
 
@@ -118,7 +131,28 @@ export class SmartHealthLinksComponent {
     anchor.click();
   }
 
-  private openInNewTab(url: string): void {
-    window.open(url, '_blank', 'noopener,noreferrer');
+  private async generateQrPreviews(): Promise<void> {
+    await Promise.all(
+      this.links.map(async item => {
+        try {
+          const svg = await QRCode.toString(item.shlink, {
+            type: 'svg',
+            errorCorrectionLevel: 'M',
+            margin: 2,
+            width: 180
+          });
+          item.qrPreviewDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+        } catch (error) {
+          console.error(`Failed to generate QR preview for ${item.id}:`, error);
+          item.qrPreviewDataUrl = '';
+        }
+      })
+    );
+  }
+
+  private async dataUrlToBlobUrl(dataUrl: string): Promise<string> {
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
   }
 }
