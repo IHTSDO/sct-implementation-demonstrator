@@ -12,12 +12,12 @@
       <h1>Interoperability Demo</h1>
       <p class="subtitle">Demonstrating SNOMED CT and FHIR IPS (International Patient Summary) interoperability in the clinical record</p>
       <div class="header-actions">
-        <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading">
+        <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading || isImporting">
           <mat-icon>upload_file</mat-icon>
           Upload IPS File
         </button>
         @if (hasPatientData()) {
-          <button mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading">
+          <button mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading || isImporting">
             <mat-icon>refresh</mat-icon>
             Reload Example
           </button>
@@ -872,7 +872,7 @@
               mat-raised-button
               color="primary"
               (click)="importAllSelectedItems()"
-              [disabled]="!hasSelectedItems()"
+              [disabled]="!hasSelectedItems() || isImporting"
               class="save-button">
               <mat-icon>save</mat-icon>
               Save All Selected Items ({{ getTotalSelectedCount() }})
@@ -894,6 +894,17 @@
             This workflow shows how a clinician receives an IPS, reviews existing and incoming data,
             reconciles what to keep, and sends selected items into the EHR.
           </p>
+
+          <div class="welcome-actions">
+            <button mat-raised-button color="primary" (click)="loadExampleIPSBundle()" [disabled]="isImporting" class="primary-action">
+              <mat-icon>play_arrow</mat-icon>
+              Try Example IPS Bundle
+            </button>
+            <button mat-stroked-button color="accent" (click)="triggerFileUpload()" [disabled]="isImporting" class="secondary-action">
+              <mat-icon>upload_file</mat-icon>
+              Upload Your Own IPS File
+            </button>
+          </div>
 
           <div class="workflow-diagram">
             <div class="workflow-row">
@@ -954,17 +965,6 @@
               </div>
             </div>
           </div>
-
-          <div class="welcome-actions">
-            <button mat-raised-button color="primary" (click)="loadExampleIPSBundle()" class="primary-action">
-              <mat-icon>play_arrow</mat-icon>
-              Try Example IPS Bundle
-            </button>
-            <button mat-stroked-button color="accent" (click)="triggerFileUpload()" class="secondary-action">
-              <mat-icon>upload_file</mat-icon>
-              Upload Your Own IPS File
-            </button>
-          </div>
           <div class="welcome-info">
             <mat-icon>info</mat-icon>
             <span>Tip: Start with the example IPS to walk through the full reconciliation flow end to end.</span>
@@ -973,6 +973,16 @@
       </div>
     }
   </div>
+
+  @if (isImporting) {
+    <div class="import-overlay">
+      <div class="import-overlay-content">
+        <mat-spinner diameter="56"></mat-spinner>
+        <h3>Integrating Selected Data</h3>
+        <p>Saving selected IPS items into the patient record and opening clinical record...</p>
+      </div>
+    </div>
+  }
 
   <!-- Data Verification Dialog -->
   @if (showDataVerification) {

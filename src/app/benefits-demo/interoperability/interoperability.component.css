@@ -1545,6 +1545,53 @@ mat-card-title mat-icon {
 .patient-data-container > *:nth-child(5) { animation-delay: 0.5s; }
 .patient-data-container > *:nth-child(6) { animation-delay: 0.6s; }
 
+/* Import Overlay */
+.import-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 20px;
+}
+
+.import-overlay-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 32px;
+  min-width: 320px;
+  max-width: 520px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e2e8f0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  row-gap: 10px;
+}
+
+.import-overlay-content mat-spinner {
+  display: block;
+  margin: 0;
+}
+
+.import-overlay-content h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.import-overlay-content p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
+  max-width: 420px;
+}
+
 /* Verification Dialog */
 .verification-overlay {
   position: fixed;

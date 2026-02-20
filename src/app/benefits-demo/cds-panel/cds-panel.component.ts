@@ -246,15 +246,15 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
       // Use simple format that works with dummy CDS service
       const existingRoute = medication.dosage?.[0]?.route;
       const hasValidExistingRoute = !!existingRoute?.coding?.some(coding => !!coding?.code);
+      const existingRouteLooksOral = (existingRoute?.text || '').toLowerCase().includes('oral') ||
+        !!existingRoute?.coding?.some(coding => coding?.code === '26643006');
 
-      const route = hasValidExistingRoute ? existingRoute : (likelyOral ? {
-        coding: [{
-          system: 'http://snomed.info/sct',
-          code: '26643006',
-          display: 'Oral route'
-        }],
-        text: 'Oral route'
-      } : undefined);
+      // Compatibility with snomed-fhir-cds-service branch "allergy-detection":
+      // it compares dosage.route.text against ATC route code and expects "O" for oral.
+      const route = (likelyOral || existingRouteLooksOral) ? {
+        coding: [{ code: '', display: 'O' }],
+        text: 'O'
+      } : (hasValidExistingRoute ? existingRoute : undefined);
 
       return {
         resourceType: 'MedicationRequest',
@@ -265,7 +265,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
           coding: [
             {
               system: 'http://snomed.info/sct',
-              code: '318353009',
+              code: medication.medicationCodeableConcept?.coding?.[0]?.code || '387207008',
               display: medication.medicationCodeableConcept?.coding?.[0]?.display || 
                        medication.medicationCodeableConcept?.text || 'Unknown medication'
             }

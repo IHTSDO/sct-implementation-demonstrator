@@ -1803,7 +1803,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     
     this.snackBar.open(
       'All clinical events have been deleted successfully.',
-      'Close',
+      undefined,
       {
         duration: 4000,
         horizontalPosition: 'center',

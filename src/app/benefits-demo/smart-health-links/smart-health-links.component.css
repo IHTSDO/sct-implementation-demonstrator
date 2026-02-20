@@ -1,0 +1,70 @@
+.smart-health-links-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+  font-size: 1.9rem;
+}
+
+.header p {
+  margin: 0 0 20px;
+  color: #475569;
+}
+
+.table-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.links-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.links-table th,
+.links-table td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+}
+
+.links-table th {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.qr-preview {
+  width: 90px;
+  height: 90px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+code {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .smart-health-links-page {
+    padding: 16px;
+  }
+
+  .links-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

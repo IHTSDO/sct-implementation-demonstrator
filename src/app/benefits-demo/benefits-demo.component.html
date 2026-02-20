@@ -8,7 +8,7 @@
         but framed around end-to-end information quality.</p>
       </div>
       <div class="header-actions">
-        <button mat-button [matMenuTriggerFor]="dataMenu">
+        <button mat-flat-button color="primary" [matMenuTriggerFor]="dataMenu">
           <mat-icon>storage</mat-icon>
           <span>
             <span>Data</span>
@@ -17,6 +17,11 @@
 
         </button>
         <mat-menu #dataMenu="matMenu">
+          <button mat-menu-item (click)="openSmartHealthLinks()">
+            <mat-icon>qr_code_2</mat-icon>
+            <span>Smart Health Links</span>
+          </button>
+          <mat-divider></mat-divider>
           <button mat-menu-item (click)="downloadPatientsAsZip()">
             <mat-icon>download</mat-icon>
             <span>Download patient data</span>

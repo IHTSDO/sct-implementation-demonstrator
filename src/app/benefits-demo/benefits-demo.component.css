@@ -11,7 +11,7 @@
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 20px 0;
 }
 
@@ -30,7 +30,7 @@
 
 .header-actions {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .header-actions button span {

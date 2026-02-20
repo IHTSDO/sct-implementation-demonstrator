@@ -119,40 +119,13 @@ export class ClinicalEntryComponent implements AfterViewInit {
   }
 
   private async addCondition() {
-    const newCondition: Condition = {
-      resourceType: 'Condition',
-      id: `condition-${Date.now()}`,
-      clinicalStatus: {
-        coding: [{
-          system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
-          code: 'active',
-          display: 'Active'
-        }],
-        text: 'Active'
-      },
-      verificationStatus: {
-        coding: [{
-          system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
-          code: 'confirmed',
-          display: 'Confirmed'
-        }],
-        text: 'Confirmed'
-      },
-      code: {
-        coding: [{
-          system: 'http://snomed.info/sct',
-          code: this.selectedConcept.code,
-          display: this.selectedConcept.display
-        }],
-        text: this.selectedConcept.display
-      },
-      subject: {
-        reference: `Patient/${this.patientId}`,
-        display: `Patient ${this.patientId}`
-      },
-      onsetDateTime: new Date().toISOString(),
-      recordedDate: new Date().toISOString()
-    };
+    const newCondition: Condition = this.patientService.createConditionFromClinicalEntryConcept(
+      this.patientId,
+      {
+        code: this.selectedConcept.code,
+        display: this.selectedConcept.display
+      }
+    );
 
     // Let the parent component handle adding to the service
     this.itemAdded.emit(newCondition);
@@ -160,24 +133,13 @@ export class ClinicalEntryComponent implements AfterViewInit {
   }
 
   private async addProcedure() {
-    const newProcedure: Procedure = {
-      resourceType: 'Procedure',
-      id: `procedure-${Date.now()}`,
-      status: 'completed',
-      code: {
-        coding: [{
-          system: 'http://snomed.info/sct',
-          code: this.selectedConcept.code,
-          display: this.selectedConcept.display
-        }],
-        text: this.selectedConcept.display
-      },
-      subject: {
-        reference: `Patient/${this.patientId}`,
-        display: `Patient ${this.patientId}`
-      },
-      performedDateTime: new Date().toISOString()
-    };
+    const newProcedure: Procedure = this.patientService.createProcedureFromClinicalEntryConcept(
+      this.patientId,
+      {
+        code: this.selectedConcept.code,
+        display: this.selectedConcept.display
+      }
+    );
 
     // Let the parent component handle adding to the service
     this.itemAdded.emit(newProcedure);
@@ -185,35 +147,19 @@ export class ClinicalEntryComponent implements AfterViewInit {
   }
 
   private async addMedication() {
-    const newMedication: MedicationStatement = {
-      resourceType: 'MedicationStatement',
-      id: `medication-${Date.now()}`,
-      status: 'active',
-      medicationCodeableConcept: {
-        coding: [{
-          system: 'http://snomed.info/sct',
-          code: this.selectedConcept.code,
-          display: this.selectedConcept.display
-        }],
-        text: this.selectedConcept.display
-      },
-      subject: {
-        reference: `Patient/${this.patientId}`,
-        display: `Patient ${this.patientId}`
-      },
-      effectiveDateTime: new Date().toISOString(),
-      dosage: [{
-        text: 'Take as prescribed'
-      }]
-    };
+    const reasonReference = this.selectedAssociation ? [{
+      reference: `${this.selectedAssociation.resource.resourceType}/${this.selectedAssociation.resource.id}`,
+      display: this.selectedAssociation.resource.code.text
+    }] : undefined;
 
-    // Add association if selected
-    if (this.selectedAssociation) {
-      newMedication.reasonReference = [{
-        reference: `${this.selectedAssociation.resource.resourceType}/${this.selectedAssociation.resource.id}`,
-        display: this.selectedAssociation.resource.code.text
-      }];
-    }
+    const newMedication: MedicationStatement = this.patientService.createMedicationFromClinicalEntryConcept(
+      this.patientId,
+      {
+        code: this.selectedConcept.code,
+        display: this.selectedConcept.display
+      },
+      { reasonReference }
+    );
 
     // Let the parent component handle adding to the service
     this.itemAdded.emit(newMedication);

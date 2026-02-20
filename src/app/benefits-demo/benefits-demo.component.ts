@@ -7,6 +7,7 @@ import { Subscription, forkJoin, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BatchPatientDialogComponent } from './batch-patient-dialog/batch-patient-dialog.component';
+import { ConfirmationDialogComponent } from '../questionnaires/confirmation-dialog/confirmation-dialog.component';
 import { catchError, delay } from 'rxjs/operators';
 
 @Component({
@@ -407,6 +408,10 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.router.navigate(['/interoperability']);
   }
 
+  openSmartHealthLinks(): void {
+    this.router.navigate(['/ehr-lab/smart-health-links']);
+  }
+
   async downloadPatientsAsZip(): Promise<void> {
     try {
       await this.patientService.downloadPatientsZip();
@@ -450,24 +455,44 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   clearAllData(): void {
-    const confirmation = confirm(
-      'Are you sure you want to clear all patient data?\n\n' +
-      'This will permanently delete:\n' +
-      '• All patient records\n' +
-      '• All clinical conditions\n' +
-      '• All procedures\n' +
-      '• All medications\n\n' +
-      'This action cannot be undone.'
-    );
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '560px',
+      data: {
+        title: 'Clear All Patient Data',
+        message: 'Are you sure you want to permanently delete all patient records and all related clinical data (conditions, procedures, medications, allergies, and encounters)? This action cannot be undone.'
+      }
+    });
 
-    if (confirmation) {
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+
       try {
         this.patientService.clearAllPatientsAndClinicalData();
-        alert('All patient data has been cleared successfully.');
+        this.snackBar.open(
+          'All patient data has been cleared successfully.',
+          undefined,
+          {
+            duration: 3500,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
+          }
+        );
       } catch (error) {
         console.error('Error clearing patient data:', error);
-        alert('Error clearing patient data. Please try again.');
+        this.snackBar.open(
+          'Error clearing patient data. Please try again.',
+          undefined,
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          }
+        );
       }
-    }
+    });
   }
 }

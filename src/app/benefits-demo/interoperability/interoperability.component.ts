@@ -15,6 +15,7 @@ import { TerminologyService } from '../../services/terminology.service';
 export class InteroperabilityComponent implements OnInit, OnDestroy {
   patientData: ProcessedPatientData | null = null;
   isLoading = false;
+  isImporting = false;
   error: string | null = null;
   
   // Patient linking properties
@@ -985,179 +986,168 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
            this.selectedAllergies.size;
   }
 
+  private toClinicalEntryCondition(condition: any, patientId: string): any {
+    const snomedCode = this.patientService.extractSnomedCode(condition);
+    const display = this.ipsReaderService.getConditionDisplay(condition) || condition.code?.text || 'Unknown condition';
+    return this.patientService.createConditionFromClinicalEntryConcept(patientId, {
+      code: snomedCode || undefined,
+      display
+    });
+  }
+
+  private toClinicalEntryProcedure(procedure: any, patientId: string): any {
+    const snomedCode = this.patientService.extractSnomedCode(procedure);
+    const display = this.ipsReaderService.getProcedureDisplay(procedure) || procedure.code?.text || 'Unknown procedure';
+    return this.patientService.createProcedureFromClinicalEntryConcept(patientId, {
+      code: snomedCode || undefined,
+      display
+    });
+  }
+
+  private toClinicalEntryMedication(medication: any, patientId: string): any {
+    const snomedCode = this.patientService.extractSnomedCode(medication);
+    const display = this.ipsReaderService.getMedicationDisplay(medication) || medication.medicationCodeableConcept?.text || 'Medication';
+    return this.patientService.createMedicationFromClinicalEntryConcept(patientId, {
+      code: snomedCode || undefined,
+      display
+    }, {
+      reasonReference: medication.reasonReference
+    });
+  }
+
+  private toClinicalEntryAllergy(allergy: any, patientId: string): any {
+    const snomedCode = this.patientService.extractSnomedCode(allergy);
+    const display = this.ipsReaderService.getAllergyDisplay(allergy) || allergy.code?.text || 'Allergy';
+    return this.patientService.createAllergyFromClinicalEntryConcept(patientId, {
+      code: snomedCode || undefined,
+      display
+    });
+  }
+
   /**
    * Import all selected items at once
    */
   async importAllSelectedItems(): Promise<void> {
-    if (!this.linkedPatient || !this.patientData) {
+    if (!this.linkedPatient || !this.patientData || this.isImporting) {
       return;
     }
 
+    this.isImporting = true;
     let importedCount = 0;
+    try {
+      // Import selected conditions
+      if (this.selectedConditions.size > 0) {
+        const selectedConditionsData = this.patientData.conditions.filter(
+          condition => this.selectedConditions.has(condition.id)
+        );
 
-    // Import selected conditions
-    if (this.selectedConditions.size > 0) {
-      const selectedConditionsData = this.patientData.conditions.filter(
-        condition => this.selectedConditions.has(condition.id)
-      );
-
-      console.log(`Attempting to import ${selectedConditionsData.length} conditions for patient ${this.linkedPatient.id}`);
-      
-      for (const condition of selectedConditionsData) {
-        const snomedCode = this.patientService.extractSnomedCode(condition);
-        let icd10Code: string | undefined = undefined;
-        let computedLocation: string | undefined = undefined;
+        console.log(`Attempting to import ${selectedConditionsData.length} conditions for patient ${this.linkedPatient.id}`);
         
-        // Try to get ICD-10 mapping if we have a SNOMED code
-        if (snomedCode) {
-          try {
-            const icd10Response = await this.terminologyService.getIcd10MapTargets(snomedCode).toPromise();
-            if (icd10Response?.parameter) {
-              const targetParam = icd10Response.parameter.find((p: any) => p.name === 'match');
-              if (targetParam?.part) {
-                const conceptPart = targetParam.part.find((part: any) => part.name === 'concept');
-                if (conceptPart?.valueCoding?.code) {
-                  icd10Code = conceptPart.valueCoding.code;
+        for (const condition of selectedConditionsData) {
+          const snomedCode = this.patientService.extractSnomedCode(condition);
+          let icd10Code: string | undefined = undefined;
+          let computedLocation: string | undefined = undefined;
+          
+          // Try to get ICD-10 mapping if we have a SNOMED code
+          if (snomedCode) {
+            try {
+              const icd10Response = await this.terminologyService.getIcd10MapTargets(snomedCode).toPromise();
+              if (icd10Response?.parameter) {
+                const targetParam = icd10Response.parameter.find((p: any) => p.name === 'match');
+                if (targetParam?.part) {
+                  const conceptPart = targetParam.part.find((part: any) => part.name === 'concept');
+                  if (conceptPart?.valueCoding?.code) {
+                    icd10Code = conceptPart.valueCoding.code;
+                  }
                 }
               }
+            } catch (error) {
+              console.warn('Could not fetch ICD-10 mapping for SNOMED code:', snomedCode, error);
             }
-          } catch (error) {
-            console.warn('Could not fetch ICD-10 mapping for SNOMED code:', snomedCode, error);
+
+            // Calculate anatomic location using ancestor mapping
+            try {
+              computedLocation = await this.calculateAnatomicLocation(snomedCode);
+            } catch (error) {
+              console.warn('Could not calculate anatomic location for SNOMED code:', snomedCode, error);
+              computedLocation = 'systemic'; // Default fallback
+            }
           }
 
-          // Calculate anatomic location using ancestor mapping
-          try {
-            computedLocation = await this.calculateAnatomicLocation(snomedCode);
-          } catch (error) {
-            console.warn('Could not calculate anatomic location for SNOMED code:', snomedCode, error);
-            computedLocation = 'systemic'; // Default fallback
+          const convertedCondition = {
+            ...this.toClinicalEntryCondition(condition, this.linkedPatient.id),
+            snomedConceptId: snomedCode || undefined,
+            icd10Code: icd10Code,
+            computedLocation: computedLocation || 'systemic'
+          };
+          console.log(`Importing condition: ${convertedCondition.code.text} (SNOMED: ${snomedCode}, ICD-10: ${icd10Code || 'N/A'}, Location: ${computedLocation})`);
+          
+          const success = this.patientService.addPatientCondition(this.linkedPatient.id, convertedCondition);
+          console.log(`Condition import result: ${success}`);
+          if (success) {
+            importedCount++;
           }
-        }
-
-        const convertedCondition = {
-          ...condition,
-          code: {
-            ...condition.code,
-            text: condition.code?.text || this.ipsReaderService.getConditionDisplay(condition)
-          },
-          // Ensure we have proper dates
-          recordedDate: condition.recordedDate || new Date().toISOString(),
-          onsetDateTime: condition.onsetDateTime || condition.recordedDate || new Date().toISOString(),
-          // Add SNOMED concept ID for easier lookup
-          snomedConceptId: snomedCode || undefined,
-          // Add ICD-10 mapping if available
-          icd10Code: icd10Code,
-          // Add computed anatomic location
-          computedLocation: computedLocation || 'systemic',
-          // Ensure proper subject reference
-          subject: {
-            reference: `Patient/${this.linkedPatient.id}`,
-            display: this.getPatientDisplayName(this.linkedPatient)
-          }
-        };
-        console.log(`Importing condition: ${convertedCondition.code.text} (SNOMED: ${snomedCode}, ICD-10: ${icd10Code || 'N/A'}, Location: ${computedLocation})`);
-        
-        const success = this.patientService.addPatientCondition(this.linkedPatient.id, convertedCondition);
-        console.log(`Condition import result: ${success}`);
-        if (success) {
-          importedCount++;
         }
       }
+
+      // Import selected procedures
+      if (this.selectedProcedures.size > 0) {
+        const selectedProceduresData = this.patientData.procedures.filter(
+          procedure => this.selectedProcedures.has(procedure.id)
+        );
+
+        selectedProceduresData.forEach(procedure => {
+          const convertedProcedure = this.toClinicalEntryProcedure(procedure, this.linkedPatient.id);
+          this.patientService.addPatientProcedure(this.linkedPatient.id, convertedProcedure);
+          importedCount++;
+        });
+      }
+
+      // Import selected medications
+      if (this.selectedMedications.size > 0) {
+        const selectedMedicationsData = this.patientData.medications.filter(
+          medication => this.selectedMedications.has(medication.id)
+        );
+
+        selectedMedicationsData.forEach(medication => {
+          const convertedMedication = this.toClinicalEntryMedication(medication, this.linkedPatient.id);
+          
+          this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
+          importedCount++;
+        });
+      }
+
+      // Import selected allergies
+      if (this.selectedAllergies.size > 0) {
+        const selectedAllergiesData = this.patientData.allergies.filter(
+          allergy => this.selectedAllergies.has(allergy.id)
+        );
+
+        selectedAllergiesData.forEach(allergy => {
+          const convertedAllergy = this.toClinicalEntryAllergy(allergy, this.linkedPatient.id);
+          this.patientService.addPatientAllergy(this.linkedPatient.id, convertedAllergy as any);
+          importedCount++;
+        });
+      }
+
+      // Clear all selections after import
+      this.clearSelections();
+      
+      // Debug: Check what conditions are now stored for this patient
+      const storedConditions = this.patientService.getPatientConditions(this.linkedPatient.id);
+      console.log(`Patient ${this.linkedPatient.id} now has ${storedConditions.length} conditions stored:`, storedConditions);
+      
+      console.log(`Successfully imported ${importedCount} items to patient ${this.linkedPatient.id}`);
+      
+      // Navigate to clinical record with patient ID
+      const navigated = await this.router.navigate(['/clinical-record', this.linkedPatient.id]);
+      if (!navigated) {
+        this.isImporting = false;
+      }
+    } catch (error) {
+      console.error('Error importing selected items:', error);
+      this.isImporting = false;
     }
-
-    // Import selected procedures
-    if (this.selectedProcedures.size > 0) {
-      const selectedProceduresData = this.patientData.procedures.filter(
-        procedure => this.selectedProcedures.has(procedure.id)
-      );
-
-      selectedProceduresData.forEach(procedure => {
-        const convertedProcedure = {
-          ...procedure,
-          status: this.convertProcedureStatus(procedure.status),
-          code: {
-            ...procedure.code,
-            text: procedure.code?.text || 'Unknown procedure'
-          }
-        };
-        this.patientService.addPatientProcedure(this.linkedPatient.id, convertedProcedure);
-        importedCount++;
-      });
-    }
-
-    // Import selected medications
-    if (this.selectedMedications.size > 0) {
-      const selectedMedicationsData = this.patientData.medications.filter(
-        medication => this.selectedMedications.has(medication.id)
-      );
-
-      selectedMedicationsData.forEach(medication => {
-        // Normalize to match clinical-entry structure
-        const convertedMedication: any = {
-          resourceType: 'MedicationStatement',
-          id: medication.id,
-          status: this.convertMedicationStatus(medication.status),
-          medicationCodeableConcept: medication.medicationCodeableConcept ? {
-            coding: medication.medicationCodeableConcept.coding || [],
-            text: medication.medicationCodeableConcept.text || 
-                  medication.medicationCodeableConcept.coding?.[0]?.display || 
-                  medication.medicationCodeableConcept.coding?.[0]?.code || 
-                  'Medication'
-          } : undefined,
-          subject: medication.subject || {
-            reference: `Patient/${this.linkedPatient.id}`,
-            display: this.getPatientDisplayName(this.linkedPatient)
-          },
-          // Use effectiveDateTime (like clinical-entry) instead of effectivePeriod
-          // Normalize partial dates to full ISO timestamps
-          effectiveDateTime: this.normalizePartialDateToISO(
-            medication.effectiveDateTime || (medication as any).effectivePeriod?.start
-          ),
-          // Preserve dosage if it exists
-          dosage: medication.dosage || [{
-            text: 'As prescribed'
-          }],
-          // Preserve reasonReference if it exists (medication association)
-          ...((medication as any).reasonReference && { reasonReference: (medication as any).reasonReference })
-        };
-        
-        this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
-        importedCount++;
-      });
-    }
-
-    // Import selected allergies
-    if (this.selectedAllergies.size > 0) {
-      const selectedAllergiesData = this.patientData.allergies.filter(
-        allergy => this.selectedAllergies.has(allergy.id)
-      );
-
-      selectedAllergiesData.forEach(allergy => {
-        const convertedAllergy = {
-          ...allergy,
-          type: this.convertAllergyType(allergy.type),
-          category: this.convertAllergyCategory(allergy.category),
-          criticality: this.convertAllergyCriticality(allergy.criticality)
-        };
-        this.patientService.addPatientAllergy(this.linkedPatient.id, convertedAllergy as any);
-        importedCount++;
-      });
-    }
-
-    // Clear all selections after import
-    this.clearSelections();
-    
-    // Debug: Check what conditions are now stored for this patient
-    const storedConditions = this.patientService.getPatientConditions(this.linkedPatient.id);
-    console.log(`Patient ${this.linkedPatient.id} now has ${storedConditions.length} conditions stored:`, storedConditions);
-    
-    console.log(`Successfully imported ${importedCount} items to patient ${this.linkedPatient.id}`);
-    
-    // Navigate to clinical record with patient ID
-    this.router.navigate(['/clinical-record', this.linkedPatient.id]);
-    
-    // You could add a success snackbar here
-    // this.snackBar.open(`Successfully imported ${importedCount} items`, 'Close', { duration: 3000 });
   }
 
   /**
@@ -1250,13 +1240,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     ipsData.conditions
       .filter(condition => this.selectedConditions.has(condition.id))
       .forEach(condition => {
-        const convertedCondition = {
-          ...condition,
-          code: {
-            ...condition.code,
-            text: condition.code?.text || 'Unknown condition'
-          }
-        };
+        const convertedCondition = this.toClinicalEntryCondition(condition, patientId);
         this.patientService.addPatientCondition(patientId, convertedCondition);
       });
     
@@ -1264,14 +1248,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     ipsData.procedures
       .filter(procedure => this.selectedProcedures.has(procedure.id))
       .forEach(procedure => {
-        const convertedProcedure = {
-          ...procedure,
-          status: this.convertProcedureStatus(procedure.status),
-          code: {
-            ...procedure.code,
-            text: procedure.code?.text || 'Unknown procedure'
-          }
-        };
+        const convertedProcedure = this.toClinicalEntryProcedure(procedure, patientId);
         this.patientService.addPatientProcedure(patientId, convertedProcedure);
       });
     
@@ -1279,35 +1256,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     ipsData.medications
       .filter(medication => this.selectedMedications.has(medication.id))
       .forEach(medication => {
-        // Normalize to match clinical-entry structure
-        const patient = this.availablePatients.find(p => p.id === patientId);
-        const convertedMedication: any = {
-          resourceType: 'MedicationStatement',
-          id: medication.id,
-          status: this.convertMedicationStatus(medication.status),
-          medicationCodeableConcept: medication.medicationCodeableConcept ? {
-            coding: medication.medicationCodeableConcept.coding || [],
-            text: medication.medicationCodeableConcept.text || 
-                  medication.medicationCodeableConcept.coding?.[0]?.display || 
-                  medication.medicationCodeableConcept.coding?.[0]?.code || 
-                  'Medication'
-          } : undefined,
-          subject: medication.subject || {
-            reference: `Patient/${patientId}`,
-            display: patient ? this.getPatientDisplayName(patient) : `Patient ${patientId}`
-          },
-          // Use effectiveDateTime (like clinical-entry) instead of effectivePeriod
-          // Normalize partial dates to full ISO timestamps
-          effectiveDateTime: this.normalizePartialDateToISO(
-            medication.effectiveDateTime || (medication as any).effectivePeriod?.start
-          ),
-          // Preserve dosage if it exists
-          dosage: medication.dosage || [{
-            text: 'As prescribed'
-          }],
-          // Preserve reasonReference if it exists (medication association)
-          ...((medication as any).reasonReference && { reasonReference: (medication as any).reasonReference })
-        };
+        const convertedMedication = this.toClinicalEntryMedication(medication, patientId);
         
         this.patientService.addPatientMedication(patientId, convertedMedication);
       });
@@ -1316,12 +1265,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     ipsData.allergies
       .filter(allergy => this.selectedAllergies.has(allergy.id))
       .forEach(allergy => {
-        const convertedAllergy = {
-          ...allergy,
-          type: this.convertAllergyType(allergy.type),
-          category: this.convertAllergyCategory(allergy.category),
-          criticality: this.convertAllergyCriticality(allergy.criticality)
-        };
+        const convertedAllergy = this.toClinicalEntryAllergy(allergy, patientId);
         this.patientService.addPatientAllergy(patientId, convertedAllergy as any);
       });
   }
@@ -1339,13 +1283,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     );
 
     selectedConditionsData.forEach(condition => {
-      const convertedCondition = {
-        ...condition,
-        code: {
-          ...condition.code,
-          text: condition.code?.text || 'Unknown condition'
-        }
-      };
+      const convertedCondition = this.toClinicalEntryCondition(condition, this.linkedPatient.id);
       this.patientService.addPatientCondition(this.linkedPatient.id, convertedCondition);
     });
 
@@ -1369,14 +1307,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     );
 
     selectedProceduresData.forEach(procedure => {
-      const convertedProcedure = {
-        ...procedure,
-        status: this.convertProcedureStatus(procedure.status),
-        code: {
-          ...procedure.code,
-          text: procedure.code?.text || 'Unknown procedure'
-        }
-      };
+      const convertedProcedure = this.toClinicalEntryProcedure(procedure, this.linkedPatient.id);
       this.patientService.addPatientProcedure(this.linkedPatient.id, convertedProcedure);
     });
 
@@ -1399,33 +1330,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     );
 
     selectedMedicationsData.forEach(medication => {
-      // Normalize to match clinical-entry structure
-      const convertedMedication: any = {
-        resourceType: 'MedicationStatement',
-        id: medication.id,
-        status: this.convertMedicationStatus(medication.status),
-        medicationCodeableConcept: medication.medicationCodeableConcept ? {
-          coding: medication.medicationCodeableConcept.coding || [],
-          text: medication.medicationCodeableConcept.text || 
-                medication.medicationCodeableConcept.coding?.[0]?.display || 
-                medication.medicationCodeableConcept.coding?.[0]?.code || 
-                'Medication'
-        } : undefined,
-        subject: medication.subject || {
-          reference: `Patient/${this.linkedPatient.id}`,
-          display: this.getPatientDisplayName(this.linkedPatient)
-        },
-        // Use effectiveDateTime (like clinical-entry) instead of effectivePeriod
-        effectiveDateTime: medication.effectiveDateTime || 
-                           (medication as any).effectivePeriod?.start || 
-                           new Date().toISOString(),
-        // Preserve dosage if it exists
-        dosage: medication.dosage || [{
-          text: 'As prescribed'
-        }],
-        // Preserve reasonReference if it exists (medication association)
-        ...((medication as any).reasonReference && { reasonReference: (medication as any).reasonReference })
-      };
+      const convertedMedication = this.toClinicalEntryMedication(medication, this.linkedPatient.id);
       
       this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
     });
@@ -1449,12 +1354,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     );
 
     selectedAllergiesData.forEach(allergy => {
-      const convertedAllergy = {
-        ...allergy,
-        type: this.convertAllergyType(allergy.type),
-        category: this.convertAllergyCategory(allergy.category),
-        criticality: this.convertAllergyCriticality(allergy.criticality)
-      };
+      const convertedAllergy = this.toClinicalEntryAllergy(allergy, this.linkedPatient.id);
       this.patientService.addPatientAllergy(this.linkedPatient.id, convertedAllergy as any);
     });
 

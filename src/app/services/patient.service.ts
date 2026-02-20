@@ -1890,6 +1890,158 @@ export class PatientService {
   }
 
   // Centralized FHIR resource creation methods for AI-detected entities
+  createConditionFromClinicalEntryConcept(
+    patientId: string,
+    concept: { code?: string; display?: string; text?: string }
+  ): Condition {
+    const display = concept.display || concept.text || concept.code || 'Unknown condition';
+
+    return {
+      resourceType: 'Condition',
+      id: `condition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      clinicalStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+          code: 'active',
+          display: 'Active'
+        }],
+        text: 'Active'
+      },
+      verificationStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
+          code: 'confirmed',
+          display: 'Confirmed'
+        }],
+        text: 'Confirmed'
+      },
+      code: {
+        coding: concept.code ? [{
+          system: 'http://snomed.info/sct',
+          code: concept.code,
+          display
+        }] : undefined,
+        text: display
+      },
+      subject: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      onsetDateTime: new Date().toISOString(),
+      recordedDate: new Date().toISOString()
+    };
+  }
+
+  createProcedureFromClinicalEntryConcept(
+    patientId: string,
+    concept: { code?: string; display?: string; text?: string }
+  ): Procedure {
+    const display = concept.display || concept.text || concept.code || 'Unknown procedure';
+
+    return {
+      resourceType: 'Procedure',
+      id: `procedure-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      status: 'completed',
+      code: {
+        coding: concept.code ? [{
+          system: 'http://snomed.info/sct',
+          code: concept.code,
+          display
+        }] : undefined,
+        text: display
+      },
+      subject: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      performedDateTime: new Date().toISOString()
+    };
+  }
+
+  createMedicationFromClinicalEntryConcept(
+    patientId: string,
+    concept: { code?: string; display?: string; text?: string },
+    options?: {
+      effectiveDateTime?: string;
+      reasonReference?: Array<{ reference: string; display?: string }>;
+    }
+  ): MedicationStatement {
+    const display = concept.display || concept.text || concept.code || 'Unknown medication';
+
+    const medication: MedicationStatement = {
+      resourceType: 'MedicationStatement',
+      id: `medication-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      status: 'active',
+      medicationCodeableConcept: {
+        coding: concept.code ? [{
+          system: 'http://snomed.info/sct',
+          code: concept.code,
+          display
+        }] : undefined,
+        text: display
+      },
+      subject: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      effectiveDateTime: options?.effectiveDateTime || new Date().toISOString(),
+      dosage: [{
+        text: 'Take as prescribed'
+      }]
+    };
+
+    if (options?.reasonReference?.length) {
+      medication.reasonReference = options.reasonReference;
+    }
+
+    return medication;
+  }
+
+  createAllergyFromClinicalEntryConcept(
+    patientId: string,
+    concept: { code?: string; display?: string; text?: string }
+  ): AllergyIntolerance {
+    const display = concept.display || concept.text || concept.code || 'Allergy';
+
+    return {
+      resourceType: 'AllergyIntolerance',
+      id: `allergy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      clinicalStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical',
+          code: 'active',
+          display: 'Active'
+        }],
+        text: 'Active'
+      },
+      verificationStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-verification',
+          code: 'confirmed',
+          display: 'Confirmed'
+        }],
+        text: 'Confirmed'
+      },
+      type: 'allergy',
+      category: ['medication'],
+      criticality: 'low',
+      code: {
+        coding: concept.code ? [{
+          system: 'http://snomed.info/sct',
+          code: concept.code,
+          display
+        }] : undefined,
+        text: display
+      },
+      patient: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      recordedDate: new Date().toISOString(),
+      reaction: []
+    };
+  }
+
   createConditionFromDetectedEntity(patientId: string, detectedEntity: { name: string; conceptId?: string; confidence?: number; detectedText?: string }): Condition {
     return {
       resourceType: 'Condition',

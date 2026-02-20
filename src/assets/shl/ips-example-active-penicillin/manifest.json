@@ -1,0 +1,11 @@
+{
+  "presentationInfo": {
+    "name": "IPS Example Active Penicillin"
+  },
+  "files": [
+    {
+      "contentType": "application/fhir+json",
+      "location": "../../data/ips-example-active-penicillin.json"
+    }
+  ]
+}

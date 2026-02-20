@@ -31,6 +31,7 @@ import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinica
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
 import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
 import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
+import { SmartHealthLinksComponent } from './benefits-demo/smart-health-links/smart-health-links.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { PhaserGameComponent } from './phaser-game/phaser-v1/phaser-game.component';
 import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
@@ -76,6 +77,7 @@ const routes: Routes = [
   { path: 'create-patient', component: CreatePatientComponent },
   { path: 'encounter-record', component: EncounterRecordComponent },
   { path: 'interoperability', component: InteroperabilityComponent },
+  { path: 'ehr-lab/smart-health-links', component: SmartHealthLinksComponent },
   { path: 'expo-quiz-2025', component: ExpoQuiz2025Component },
   { path: 'ehds-laboratory-demo', component: EhdsLaboratoryDemoComponent },
   { path: 'mdrs-viewer', component: MdrsViewerComponent },
