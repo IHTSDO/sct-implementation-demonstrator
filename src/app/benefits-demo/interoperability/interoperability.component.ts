@@ -44,6 +44,13 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
   // File upload
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('shlScannerVideo') shlScannerVideo?: ElementRef<HTMLVideoElement>;
+  isShlScanning = false;
+  isShlResolving = false;
+  shlScanError: string | null = null;
+  private shlScanStream: MediaStream | null = null;
+  private shlScanIntervalId: number | null = null;
+  private shlScanInProgress = false;
 
   constructor(
     public ipsReaderService: IPSReaderService,
@@ -57,6 +64,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.stopShlQrScan();
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
@@ -1199,25 +1207,12 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       try {
         const jsonContent = e.target?.result as string;
         const bundle = JSON.parse(jsonContent);
-        
-        // Process the bundle using the IPS reader service
-        this.ipsReaderService.processIPSBundleFromObject(bundle).subscribe({
-          next: (data) => {
-            this.patientData = data;
-            this.isLoading = false;
-            this.calculateAndSortPatientsByScore();
-            this.findSuggestedPatient();
-            // Clear the file input
-            this.fileInput.nativeElement.value = '';
-          },
-          error: (error) => {
-            this.error = 'Failed to parse IPS bundle: ' + error.message;
-            this.isLoading = false;
-            this.fileInput.nativeElement.value = '';
-          }
-        });
+        this.validateIPSBundleOrThrow(bundle);
+        this.processIPSBundleObject(bundle, 'uploaded file');
       } catch (parseError) {
-        this.error = 'Invalid JSON file. Please check the file format.';
+        this.error = parseError instanceof Error
+          ? parseError.message
+          : 'Invalid JSON file. Please check the file format.';
         this.isLoading = false;
         this.fileInput.nativeElement.value = '';
       }
@@ -1230,6 +1225,210 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     };
 
     reader.readAsText(file);
+  }
+
+  async startShlQrScan(): Promise<void> {
+    this.error = null;
+    this.shlScanError = null;
+
+    if (this.isShlScanning) {
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      this.shlScanError = 'Camera access is not supported in this browser.';
+      return;
+    }
+
+    const BarcodeDetectorCtor = (window as any).BarcodeDetector;
+    if (!BarcodeDetectorCtor) {
+      this.shlScanError = 'QR scanning requires BarcodeDetector support in this browser.';
+      return;
+    }
+
+    try {
+      this.isShlScanning = true;
+      this.shlScanInProgress = false;
+
+      this.shlScanStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false
+      });
+
+      const videoElement = this.shlScannerVideo?.nativeElement;
+      if (!videoElement) {
+        throw new Error('Scanner video element is not available.');
+      }
+
+      videoElement.srcObject = this.shlScanStream;
+      await videoElement.play();
+
+      const detector = new BarcodeDetectorCtor({ formats: ['qr_code'] });
+      this.shlScanIntervalId = window.setInterval(() => {
+        void this.scanShlFrame(detector, videoElement);
+      }, 250);
+    } catch (error) {
+      this.stopShlQrScan();
+      this.shlScanError = error instanceof Error
+        ? error.message
+        : 'Unable to start QR scanner.';
+    }
+  }
+
+  stopShlQrScan(): void {
+    this.isShlScanning = false;
+    this.shlScanInProgress = false;
+
+    if (this.shlScanIntervalId !== null) {
+      window.clearInterval(this.shlScanIntervalId);
+      this.shlScanIntervalId = null;
+    }
+
+    const videoElement = this.shlScannerVideo?.nativeElement;
+    if (videoElement) {
+      videoElement.pause();
+      videoElement.srcObject = null;
+    }
+
+    if (this.shlScanStream) {
+      this.shlScanStream.getTracks().forEach(track => track.stop());
+      this.shlScanStream = null;
+    }
+  }
+
+  private async scanShlFrame(detector: any, videoElement: HTMLVideoElement): Promise<void> {
+    if (!this.isShlScanning || this.shlScanInProgress || videoElement.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      return;
+    }
+
+    try {
+      this.shlScanInProgress = true;
+      const detectedCodes = await detector.detect(videoElement);
+      const firstCode = detectedCodes?.[0];
+      const rawValue = firstCode?.rawValue;
+
+      if (rawValue) {
+        this.stopShlQrScan();
+        await this.resolveShlAndLoadIPS(rawValue);
+      }
+    } catch {
+      // Keep scanning; transient detection failures are expected.
+    } finally {
+      this.shlScanInProgress = false;
+    }
+  }
+
+  private async resolveShlAndLoadIPS(rawQrValue: string): Promise<void> {
+    this.isShlResolving = true;
+    this.isLoading = true;
+    this.error = null;
+    this.shlScanError = null;
+
+    try {
+      const shlinkPayload = this.parseShlinkPayload(rawQrValue);
+      const bundle = await this.fetchBundleFromShl(shlinkPayload.url);
+      this.validateIPSBundleOrThrow(bundle);
+      this.processIPSBundleObject(bundle, 'SHL');
+    } catch (error) {
+      this.isLoading = false;
+      this.error = error instanceof Error ? error.message : 'Failed to load IPS from SHL.';
+    } finally {
+      this.isShlResolving = false;
+    }
+  }
+
+  private parseShlinkPayload(rawQrValue: string): { url: string } {
+    if (!rawQrValue.startsWith('shlink:/')) {
+      throw new Error('Scanned QR is not a SMART Health Link (shlink:/...).');
+    }
+
+    const encodedPayload = rawQrValue.slice('shlink:/'.length).replace(/^\/+/, '');
+    if (!encodedPayload) {
+      throw new Error('SHL payload is empty.');
+    }
+
+    const payloadText = this.decodeBase64UrlToText(encodedPayload);
+    const payload = JSON.parse(payloadText);
+
+    if (!payload?.url || typeof payload.url !== 'string') {
+      throw new Error('SHL payload does not contain a valid manifest URL.');
+    }
+
+    return { url: payload.url };
+  }
+
+  private decodeBase64UrlToText(base64Url: string): string {
+    const base64 = base64Url
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      .padEnd(Math.ceil(base64Url.length / 4) * 4, '=');
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
+  private async fetchBundleFromShl(manifestUrl: string): Promise<any> {
+    const manifestResponse = await fetch(manifestUrl);
+    if (!manifestResponse.ok) {
+      throw new Error(`Unable to download SHL manifest (${manifestResponse.status}).`);
+    }
+
+    const manifest = await manifestResponse.json();
+    const files = Array.isArray(manifest?.files) ? manifest.files : [];
+    if (files.length === 0) {
+      throw new Error('SHL manifest does not contain files to retrieve.');
+    }
+
+    const firstFile = files[0];
+    if (!firstFile?.location || typeof firstFile.location !== 'string') {
+      throw new Error('This demo currently supports SHL manifests with files[].location only.');
+    }
+
+    const resourceUrl = new URL(firstFile.location, manifestUrl).toString();
+    const resourceResponse = await fetch(resourceUrl);
+    if (!resourceResponse.ok) {
+      throw new Error(`Unable to download SHL file (${resourceResponse.status}).`);
+    }
+
+    return resourceResponse.json();
+  }
+
+  private validateIPSBundleOrThrow(bundle: any): void {
+    if (!bundle || bundle.resourceType !== 'Bundle') {
+      throw new Error('The retrieved file is not a FHIR Bundle.');
+    }
+
+    if (bundle.type !== 'document') {
+      throw new Error('The retrieved Bundle is not an IPS document bundle (Bundle.type must be "document").');
+    }
+
+    if (!Array.isArray(bundle.entry) || bundle.entry.length === 0) {
+      throw new Error('The retrieved Bundle has no entries.');
+    }
+
+    const hasPatient = bundle.entry.some((entry: any) => entry?.resource?.resourceType === 'Patient');
+    const hasComposition = bundle.entry.some((entry: any) => entry?.resource?.resourceType === 'Composition');
+
+    if (!hasPatient || !hasComposition) {
+      throw new Error('The retrieved Bundle does not look like an IPS document (missing Patient or Composition).');
+    }
+  }
+
+  private processIPSBundleObject(bundle: any, sourceLabel: string): void {
+    this.ipsReaderService.processIPSBundleFromObject(bundle).subscribe({
+      next: (data) => {
+        this.patientData = data;
+        this.isLoading = false;
+        this.calculateAndSortPatientsByScore();
+        this.findSuggestedPatient();
+        this.fileInput.nativeElement.value = '';
+      },
+      error: (error) => {
+        this.error = `Failed to parse IPS bundle from ${sourceLabel}: ${error.message}`;
+        this.isLoading = false;
+        this.fileInput.nativeElement.value = '';
+      }
+    });
   }
 
   /**

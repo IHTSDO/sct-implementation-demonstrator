@@ -62,6 +62,65 @@
   margin-top: 20px;
 }
 
+.shl-scanner-panel {
+  margin: 20px auto 0;
+  max-width: 720px;
+  padding: 16px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
+.scanner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.scanner-header h3 {
+  margin: 0;
+  color: #1e40af;
+}
+
+.scanner-video {
+  width: 100%;
+  max-height: 420px;
+  border-radius: 10px;
+  background: #111827;
+  object-fit: cover;
+}
+
+.scanner-help {
+  margin: 10px 0 0;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.scanner-error,
+.scanner-loading {
+  margin: 12px auto 0;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.scanner-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.scanner-loading {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
 /* Loading State */
 .loading-container {
   display: flex;

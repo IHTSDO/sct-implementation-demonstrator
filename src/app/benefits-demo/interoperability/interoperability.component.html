@@ -16,6 +16,10 @@
           <mat-icon>upload_file</mat-icon>
           Upload IPS File
         </button>
+        <button mat-stroked-button color="accent" (click)="startShlQrScan()" [disabled]="isLoading || isImporting || isShlResolving">
+          <mat-icon>qr_code_scanner</mat-icon>
+          Scan SHL QR (webcam)
+        </button>
         @if (hasPatientData()) {
           <button mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading || isImporting">
             <mat-icon>refresh</mat-icon>
@@ -27,6 +31,34 @@
   }
 
   <input #fileInput type="file" accept=".json" (change)="onFileSelected($event)" style="display: none;">
+
+  @if (isShlScanning) {
+    <div class="shl-scanner-panel">
+      <div class="scanner-header">
+        <h3>Scan Smart Health Link QR</h3>
+        <button mat-stroked-button color="warn" (click)="stopShlQrScan()">
+          <mat-icon>close</mat-icon>
+          Stop scanner
+        </button>
+      </div>
+      <video #shlScannerVideo class="scanner-video" autoplay playsinline muted></video>
+      <p class="scanner-help">Point your camera at an SHL QR code. The IPS will load automatically after detection.</p>
+    </div>
+  }
+
+  @if (shlScanError) {
+    <div class="scanner-error">
+      <mat-icon>error</mat-icon>
+      <span>{{ shlScanError }}</span>
+    </div>
+  }
+
+  @if (isShlResolving && !isLoading) {
+    <div class="scanner-loading">
+      <mat-spinner diameter="28"></mat-spinner>
+      <span>Resolving SHL and downloading IPS...</span>
+    </div>
+  }
 
   <div class="content">
     <!-- Loading State -->
@@ -899,6 +931,10 @@
             <button mat-raised-button color="primary" (click)="loadExampleIPSBundle()" [disabled]="isImporting" class="primary-action">
               <mat-icon>play_arrow</mat-icon>
               Try Example IPS Bundle
+            </button>
+            <button mat-raised-button color="accent" (click)="startShlQrScan()" [disabled]="isImporting || isShlResolving" class="primary-action">
+              <mat-icon>qr_code_scanner</mat-icon>
+              Scan SHL QR (webcam)
             </button>
             <button mat-stroked-button color="accent" (click)="triggerFileUpload()" [disabled]="isImporting" class="secondary-action">
               <mat-icon>upload_file</mat-icon>
