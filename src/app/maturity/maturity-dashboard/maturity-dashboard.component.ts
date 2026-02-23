@@ -66,6 +66,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   private overallScoreChart!: Chart;
   private map!: L.Map;
   private mapOverlay: any;
+  private readonly averageRadarDatasetIndex = 0;
 
   colorPalette = [
     { bg: 'rgba(22, 160, 133, 0.3)', border: 'rgba(22, 160, 133, 1)' },  // Teal
@@ -1801,7 +1802,24 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
         responsive: true,
         plugins: {
           legend: {
-            position: 'top'
+            position: 'top',
+            onClick: (_event, legendItem, legend) => {
+              const datasetIndex = legendItem.datasetIndex;
+              if (datasetIndex === undefined) {
+                return;
+              }
+
+              const chart = legend.chart;
+              if (datasetIndex === this.averageRadarDatasetIndex) {
+                chart.setDatasetVisibility(this.averageRadarDatasetIndex, true);
+                chart.update();
+                return;
+              }
+
+              const isVisible = chart.isDatasetVisible(datasetIndex);
+              chart.setDatasetVisibility(datasetIndex, !isVisible);
+              chart.update();
+            }
           },
           title: {
             display: true,
@@ -1822,6 +1840,42 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
         }
       }
     });
+
+    this.showAllRadarSeries();
+  }
+
+  showAllRadarSeries(): void {
+    if (!this.chart) {
+      return;
+    }
+
+    this.chart.data.datasets.forEach((_, index) => {
+      this.chart.setDatasetVisibility(index, true);
+    });
+    this.chart.update();
+  }
+
+  showOnlyAverageRadarSeries(): void {
+    if (!this.chart) {
+      return;
+    }
+
+    this.chart.data.datasets.forEach((_, index) => {
+      this.chart.setDatasetVisibility(index, index === this.averageRadarDatasetIndex);
+    });
+    this.chart.update();
+  }
+
+  showOnlyRadarSeries(datasetIndex: number): void {
+    if (!this.chart) {
+      return;
+    }
+
+    this.chart.data.datasets.forEach((_, index) => {
+      const shouldShow = index === this.averageRadarDatasetIndex || index === datasetIndex;
+      this.chart.setDatasetVisibility(index, shouldShow);
+    });
+    this.chart.update();
   }
 
   private generateOverallBarChart(): void {

@@ -104,8 +104,12 @@
             <div class="chart-container flex-1 dashboard-card">
               <canvas #overallScoreCanvas></canvas>
             </div>
-            <div class="chart-container flex-1 dashboard-card">
+            <div class="chart-container flex-1 dashboard-card radar-chart-card">
               <canvas #radarCanvas></canvas>
+              <div class="radar-controls">
+                <button class="radar-control-button" mat-stroked-button color="primary" (click)="showAllRadarSeries()">All stakeholders</button>
+                <button class="radar-control-button" mat-stroked-button color="primary" (click)="showOnlyAverageRadarSeries()">None</button>
+              </div>
             </div>
           </div>
           <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-4 items-center justify-center">
