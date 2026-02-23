@@ -142,7 +142,8 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
   buildEclWithModule(userEcl: string, moduleId: string | null): string {
     const base = (userEcl || '').trim();
     if (!base || !moduleId) return base;
-    return base + ' {{ C moduleId = ' + moduleId + ' }}';
+    const wrappedBase = base.startsWith('(') && base.endsWith(')') ? base : `(${base})`;
+    return wrappedBase + ' {{ C moduleId = ' + moduleId + ' }}';
   }
 
   runExecute(): void {
