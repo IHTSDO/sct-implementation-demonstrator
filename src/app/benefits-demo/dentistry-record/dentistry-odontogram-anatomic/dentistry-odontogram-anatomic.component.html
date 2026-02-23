@@ -102,15 +102,11 @@
         [class.selected]="isSelected(tooth.id)"
         [attr.aria-label]="'Tooth ' + tooth.notations.fdi"
         [attr.aria-selected]="isSelected(tooth.id)"
-        role="option"
-        tabindex="0"
         (mousedown)="$event.preventDefault()"
         (click)="onPinTooth(tooth)"
         (mouseenter)="onMouseEnter(tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
-        (mouseleave)="toothMouseLeave.emit()"
-        (keydown.enter)="onPinTooth(tooth)"
-        (keydown.space)="onPinTooth(tooth); $event.preventDefault()">
+        (mouseleave)="toothMouseLeave.emit()">
         <path class="tooth-outline" [attr.d]="tooth.outlinePath"></path>
         <path class="tooth-shadow" [attr.d]="tooth.shadowPath"></path>
         <ng-container *ngFor="let option of surfaceOptions">

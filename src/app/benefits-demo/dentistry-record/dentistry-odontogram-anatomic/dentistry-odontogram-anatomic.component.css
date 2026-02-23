@@ -29,11 +29,6 @@
   transition: color 0.16s ease;
 }
 
-.tooth:focus-visible {
-  color: #5361e6;
-  outline: none;
-}
-
 .tooth:hover {
   color: #6678ea;
 }

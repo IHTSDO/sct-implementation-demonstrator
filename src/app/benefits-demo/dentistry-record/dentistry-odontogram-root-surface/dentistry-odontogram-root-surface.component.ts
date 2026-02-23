@@ -74,13 +74,8 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   }
 
   getToothScale(tooth: OdontogramTooth): number {
-    if (this.isMolar(tooth)) {
-      return 1.12;
-    }
-    if (this.isPremolar(tooth)) {
-      return 1;
-    }
-    return 0.9;
+    void tooth;
+    return 1;
   }
 
   getCenterPolygonPoints(tooth: OdontogramTooth): string {

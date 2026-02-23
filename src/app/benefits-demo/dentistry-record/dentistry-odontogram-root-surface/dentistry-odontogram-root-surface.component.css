@@ -51,9 +51,8 @@
   color: #2f49d1;
 }
 
-.root-tooth:focus-visible {
-  outline: none;
-  color: #5361e6;
+.root-tooth.selected .tooth-node {
+  fill: rgba(47, 73, 209, 0.24);
 }
 
 .tooth-node {
@@ -96,7 +95,7 @@
 
 .tooth-label {
   fill: #2f3847;
-  font-size: 6px;
+  font-size: 12px;
   font-weight: 700;
   text-anchor: middle;
   user-select: none;

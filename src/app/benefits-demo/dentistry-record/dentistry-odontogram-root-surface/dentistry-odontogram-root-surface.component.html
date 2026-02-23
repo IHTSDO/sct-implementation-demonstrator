@@ -25,15 +25,11 @@
         class="root-tooth"
         [class.selected]="isSelected(positioned.tooth.id)"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        role="option"
-        tabindex="0"
         [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
-        (mouseleave)="toothMouseLeave.emit()"
-        (keydown.enter)="onPinTooth(positioned.tooth)"
-        (keydown.space)="onPinTooth(positioned.tooth); $event.preventDefault()">
+        (mouseleave)="toothMouseLeave.emit()">
         <circle
           class="tooth-node"
           cx="0"
@@ -72,15 +68,11 @@
         class="root-tooth"
         [class.selected]="isSelected(positioned.tooth.id)"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        role="option"
-        tabindex="0"
         [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
-        (mouseleave)="toothMouseLeave.emit()"
-        (keydown.enter)="onPinTooth(positioned.tooth)"
-        (keydown.space)="onPinTooth(positioned.tooth); $event.preventDefault()">
+        (mouseleave)="toothMouseLeave.emit()">
         <circle
           class="tooth-node"
           cx="0"
@@ -119,15 +111,11 @@
         class="root-tooth"
         [class.selected]="isSelected(positioned.tooth.id)"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        role="option"
-        tabindex="0"
         [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
-        (mouseleave)="toothMouseLeave.emit()"
-        (keydown.enter)="onPinTooth(positioned.tooth)"
-        (keydown.space)="onPinTooth(positioned.tooth); $event.preventDefault()">
+        (mouseleave)="toothMouseLeave.emit()">
         <circle
           class="tooth-node"
           cx="0"
@@ -166,15 +154,11 @@
         class="root-tooth"
         [class.selected]="isSelected(positioned.tooth.id)"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        role="option"
-        tabindex="0"
         [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
-        (mouseleave)="toothMouseLeave.emit()"
-        (keydown.enter)="onPinTooth(positioned.tooth)"
-        (keydown.space)="onPinTooth(positioned.tooth); $event.preventDefault()">
+        (mouseleave)="toothMouseLeave.emit()">
         <circle
           class="tooth-node"
           cx="0"
