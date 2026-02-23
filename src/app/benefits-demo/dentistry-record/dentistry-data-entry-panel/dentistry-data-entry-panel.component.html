@@ -17,7 +17,43 @@
     </div>
   </div>
 
+  <div class="tooth-findings-section">
+    <h4>Current Records For This Tooth</h4>
+    <div *ngIf="pinnedToothSavedFindings.length > 0; else noPinnedToothFindings" class="tooth-findings-list">
+      <app-dentistry-finding-item
+        *ngFor="let item of pinnedToothSavedFindings"
+        [item]="item"
+        [showDelete]="true"
+        (toggleStatus)="onResolveFinding($event)"
+        (delete)="onDeleteFinding($event)">
+      </app-dentistry-finding-item>
+    </div>
+    <ng-template #noPinnedToothFindings>
+      <div class="empty-selection">
+        No records saved for this tooth yet.
+      </div>
+    </ng-template>
+  </div>
+
   <div class="finding-entry-section">
+    <label class="entry-label">Add new record</label>
+    <div class="entry-type-switch" role="group" aria-label="Entry type selector">
+      <button
+        type="button"
+        class="entry-type-button"
+        [class.active]="entryType === 'finding'"
+        (click)="onEntryTypeChanged('finding')">
+        Findings
+      </button>
+      <button
+        type="button"
+        class="entry-type-button"
+        [class.active]="entryType === 'procedure'"
+        (click)="onEntryTypeChanged('procedure')">
+        Procedures
+      </button>
+    </div>
+
     <label class="entry-label">Affected Site(s) *</label>
     <div class="site-selector">
       <label class="site-checkbox">
@@ -46,13 +82,13 @@
       </div>
     </div>
 
-    <label class="entry-label" for="finding-select">Finding *</label>
+    <label class="entry-label" for="finding-select">{{ entryType === 'finding' ? 'Finding *' : 'Procedure *' }}</label>
     <input
       id="finding-select"
       class="entry-input"
       type="text"
       required
-      placeholder="Type to search findings"
+      [placeholder]="entryType === 'finding' ? 'Type to search findings' : 'Type to search procedures'"
       [value]="findingQuery"
       (input)="onFindingInput(($any($event.target).value || '').toString())"
       [matAutocomplete]="findingAutocomplete">
@@ -74,31 +110,9 @@
     <div class="save-entry-feedback" *ngIf="isSaved">
       Entry saved for tooth {{ pinnedTooth.notations.fdi }}.
     </div>
-  </div>
-
-  <div class="tooth-findings-section">
-    <h4>Current Findings For This Tooth</h4>
-    <div *ngIf="pinnedToothSavedFindings.length > 0; else noPinnedToothFindings" class="tooth-findings-list">
-      <div class="tooth-finding-item" *ngFor="let item of pinnedToothSavedFindings">
-        <div class="tooth-finding-main">
-          <div class="tooth-finding-line">{{ item.surfaceDisplay }}:</div>
-          <div class="tooth-finding-code">{{ item.surfaceCode }}</div>
-          <div class="tooth-finding-line">{{ item.findingDisplay }}</div>
-          <div class="tooth-finding-code">{{ item.findingCode }}</div>
-        </div>
-        <button
-          type="button"
-          class="delete-finding-button"
-          (click)="onDeleteFinding(item)">
-          Delete
-        </button>
-      </div>
+    <div class="save-entry-disabled-reason" *ngIf="!canSave && saveDisabledReason">
+      {{ saveDisabledReason }}
     </div>
-    <ng-template #noPinnedToothFindings>
-      <div class="empty-selection">
-        No findings saved for this tooth yet.
-      </div>
-    </ng-template>
   </div>
 </div>
 

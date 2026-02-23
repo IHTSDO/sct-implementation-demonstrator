@@ -27,6 +27,7 @@ export type FindingScope =
 export interface ToothFindingEntry {
   siteCodes?: string[];
   findingCode?: string;
+  entryType?: 'finding' | 'procedure';
   observationId?: string;
 }
 

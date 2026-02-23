@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { BodyStructure, Condition, Patient, PatientService } from '../../services/patient.service';
+import { BodyStructure, Condition, Patient, PatientService, Procedure } from '../../services/patient.service';
 import { MatDialog } from '@angular/material/dialog';
 import { BASE_TEETH } from './data/tooth-data';
 import { FindingScope, OdontogramTooth, SnomedConceptOption, ToothFindingEntry } from './models/tooth.model';
@@ -7,6 +7,7 @@ import { getToothNotations } from './utils/tooth-notation.utils';
 import { FDI_TO_SNOMED_STRUCTURE_MAP } from './data/fdi-snomed-structure-map';
 import { DENTAL_SURFACE_OPTIONS } from './data/dental-surface-options';
 import { DENTAL_FINDING_OPTIONS } from './data/dental-finding-options';
+import { DENTAL_PROCEDURE_OPTIONS } from './data/dental-procedure-options';
 import { DentalFindingListItem } from './models/dental-finding-list-item.model';
 import { DentistryFhirDialogComponent, DentistryFhirDialogData } from './dentistry-fhir-dialog/dentistry-fhir-dialog.component';
 
@@ -19,6 +20,7 @@ interface QuadrantConfig {
 
 type SurfaceDirection = 'top' | 'bottom' | 'left' | 'right';
 type OdontogramViewMode = 'anatomic' | 'rootSurface';
+type SurfaceVisualType = 'finding' | 'procedure-planned' | 'procedure-completed';
 
 @Component({
   selector: 'app-dentistry-record',
@@ -31,6 +33,7 @@ export class DentistryRecordComponent implements OnChanges {
 
   private readonly DENTAL_CATEGORY_SYSTEM = 'http://example.org/fhir/CodeSystem/condition-category';
   private readonly DENTAL_CATEGORY_CODE = 'dental';
+  private readonly DENTAL_PROCEDURE_CATEGORY_CODE = 'dental-procedure';
   readonly SURFACE_CODE_MESIAL = '8483002';
   readonly SURFACE_CODE_DISTAL = '90933009';
   readonly SURFACE_CODE_OCCLUSAL = '83473006';
@@ -49,10 +52,11 @@ export class DentistryRecordComponent implements OnChanges {
   saveFeedbackByToothId: Record<string, boolean> = {};
 
   dentalFindingList: DentalFindingListItem[] = [];
-  savedSurfaceByToothId: Record<string, Record<string, boolean>> = {};
+  savedSurfaceByToothId: Record<string, Record<string, SurfaceVisualType>> = {};
 
   readonly surfaceOptions: SnomedConceptOption[] = DENTAL_SURFACE_OPTIONS;
   readonly findingOptions: SnomedConceptOption[] = DENTAL_FINDING_OPTIONS;
+  readonly procedureOptions: SnomedConceptOption[] = DENTAL_PROCEDURE_OPTIONS;
   readonly quadrants: QuadrantConfig[] = [
     { key: 'upper-right', label: 'Upper Right', prefix: '1', transform: '' },
     { key: 'upper-left', label: 'Upper Left', prefix: '2', transform: 'scale(-1, 1) translate(-409, 0)' },
@@ -62,11 +66,13 @@ export class DentistryRecordComponent implements OnChanges {
   readonly teethByQuadrant = this.buildTeethByQuadrant();
   readonly toothIdBySnomedCode = this.buildToothIdBySnomedCodeMap();
   viewMode: OdontogramViewMode = 'anatomic';
+  selectedSideTabIndex = 0;
   readonly getTeethForQuadrantFn = (prefix: string) => this.getTeethForQuadrant(prefix);
   readonly trackByToothIdFn = (_: number, tooth: OdontogramTooth) => this.trackByToothId(_, tooth);
   readonly isSelectedFn = (toothId: string) => this.isSelected(toothId);
   readonly getLinePathsFn = (tooth: OdontogramTooth) => this.getLinePaths(tooth);
   readonly hasSurfaceVisualFn = (toothId: string, surfaceCode: string) => this.hasSurfaceVisual(toothId, surfaceCode);
+  readonly getSurfaceVisualTypeFn = (toothId: string, surfaceCode: string) => this.getSurfaceVisualType(toothId, surfaceCode);
   readonly getSurfaceOverlayClassFn = (surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string) =>
     this.getSurfaceOverlayClass(surfaceCode, tooth, quadrantPrefix);
   readonly isSurfacePreviewFn = (toothId: string, surfaceCode: string) => this.isSurfacePreview(toothId, surfaceCode);
@@ -116,9 +122,10 @@ export class DentistryRecordComponent implements OnChanges {
     }
 
     this.pinnedTooth = tooth;
+    this.selectedSideTabIndex = 0;
 
     if (!this.toothDraftById[tooth.id]) {
-      this.toothDraftById[tooth.id] = { siteCodes: [] };
+      this.toothDraftById[tooth.id] = { siteCodes: [], entryType: 'finding' };
     }
 
     if (this.findingQueryByToothId[tooth.id] === undefined) {
@@ -153,7 +160,7 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   hasSavedSurface(toothId: string, surfaceCode: string): boolean {
-    return !!this.savedSurfaceByToothId[toothId]?.[surfaceCode];
+    return !!this.getSavedSurfaceVisualType(toothId, surfaceCode);
   }
 
   hasSurfaceVisual(toothId: string, surfaceCode: string): boolean {
@@ -167,6 +174,13 @@ export class DentistryRecordComponent implements OnChanges {
     const draft = this.getPinnedToothDraftEntry();
     const siteCodes = draft?.siteCodes || [];
     return siteCodes.includes(surfaceCode);
+  }
+
+  getSurfaceVisualType(toothId: string, surfaceCode: string): SurfaceVisualType | null {
+    if (this.isSurfacePreview(toothId, surfaceCode)) {
+      return this.getPinnedEntryType() === 'procedure' ? 'procedure-planned' : 'finding';
+    }
+    return this.getSavedSurfaceVisualType(toothId, surfaceCode);
   }
 
   isPinnedSiteSelected(siteCode: string): boolean {
@@ -214,7 +228,7 @@ export class DentistryRecordComponent implements OnChanges {
     }
 
     if (surfaceCode === this.SURFACE_CODE_COMPLETE) {
-      return 'rgba(223, 123, 0, 0.58)';
+      return 'rgba(255, 0, 0, 0.8)';
     }
 
     if (surfaceCode === this.SURFACE_CODE_VESTIBULAR) {
@@ -257,48 +271,55 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   getSurfaceOverlayClass(surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string): string {
+    const visualType = this.getSurfaceVisualType(tooth.id, surfaceCode);
+    const visualTypeClass = visualType === 'procedure-planned'
+      ? 'surface-procedure'
+      : visualType === 'procedure-completed'
+        ? 'surface-procedure-completed'
+        : '';
+
     if (surfaceCode === this.SURFACE_CODE_PERIODONTAL) {
-      return 'overlay-periodontal-ring';
+      return `overlay-periodontal-ring ${visualTypeClass}`.trim();
     }
 
     if (surfaceCode === this.SURFACE_CODE_MESIAL) {
       const mesialLocalDirection = this.getMesialLocalDirection(tooth.notations.fdi, quadrantPrefix);
       if (mesialLocalDirection === 'left') {
-        return 'overlay-mesial-left';
+        return `overlay-mesial-left ${visualTypeClass}`.trim();
       }
       if (mesialLocalDirection === 'right') {
-        return 'overlay-mesial-right';
+        return `overlay-mesial-right ${visualTypeClass}`.trim();
       }
-      return mesialLocalDirection === 'top' ? 'overlay-mesial-top' : 'overlay-mesial-bottom';
+      return `${mesialLocalDirection === 'top' ? 'overlay-mesial-top' : 'overlay-mesial-bottom'} ${visualTypeClass}`.trim();
     }
 
     if (surfaceCode === this.SURFACE_CODE_DISTAL) {
       const mesialLocalDirection = this.getMesialLocalDirection(tooth.notations.fdi, quadrantPrefix);
       if (mesialLocalDirection === 'left') {
-        return 'overlay-distal-right';
+        return `overlay-distal-right ${visualTypeClass}`.trim();
       }
       if (mesialLocalDirection === 'right') {
-        return 'overlay-distal-left';
+        return `overlay-distal-left ${visualTypeClass}`.trim();
       }
-      return mesialLocalDirection === 'top' ? 'overlay-distal-bottom' : 'overlay-distal-top';
+      return `${mesialLocalDirection === 'top' ? 'overlay-distal-bottom' : 'overlay-distal-top'} ${visualTypeClass}`.trim();
     }
 
     if (surfaceCode === this.SURFACE_CODE_VESTIBULAR) {
       const vestibularLocalDirection = this.getVestibularLocalDirection(tooth.notations.fdi, quadrantPrefix);
-      return `overlay-vestibular-${vestibularLocalDirection}`;
+      return `overlay-vestibular-${vestibularLocalDirection} ${visualTypeClass}`.trim();
     }
 
     if (surfaceCode === this.SURFACE_CODE_LINGUAL) {
       const lingualLocalDirection = this.getLingualLocalDirection(tooth.notations.fdi, quadrantPrefix);
-      return `overlay-lingual-${lingualLocalDirection}`;
+      return `overlay-lingual-${lingualLocalDirection} ${visualTypeClass}`.trim();
     }
 
     if (surfaceCode === this.SURFACE_CODE_OCCLUSAL) {
-      return 'overlay-occlusal';
+      return `overlay-occlusal ${visualTypeClass}`.trim();
     }
 
     if (surfaceCode === this.SURFACE_CODE_COMPLETE) {
-      return 'overlay-entire-tooth';
+      return `overlay-entire-tooth ${visualTypeClass}`.trim();
     }
 
     return '';
@@ -313,7 +334,7 @@ export class DentistryRecordComponent implements OnChanges {
 
   getSurfaceStroke(surfaceCode: string): string | null {
     if (surfaceCode === this.SURFACE_CODE_PERIODONTAL) {
-      return 'rgba(244, 127, 36, 0.85)';
+      return 'rgba(255, 0, 0, 0.95)';
     }
     return null;
   }
@@ -369,6 +390,10 @@ export class DentistryRecordComponent implements OnChanges {
     return this.getPinnedToothDraftEntry()?.findingCode || '';
   }
 
+  getPinnedEntryType(): 'finding' | 'procedure' {
+    return this.getPinnedToothDraftEntry()?.entryType || 'finding';
+  }
+
   getPinnedFindingQuery(): string {
     if (!this.pinnedTooth) {
       return '';
@@ -382,7 +407,7 @@ export class DentistryRecordComponent implements OnChanges {
     }
 
     this.findingQueryByToothId[this.pinnedTooth.id] = query;
-    const current = this.toothDraftById[this.pinnedTooth.id] || { siteCodes: [] };
+    const current = this.toothDraftById[this.pinnedTooth.id] || { siteCodes: [], entryType: 'finding' };
     this.toothDraftById[this.pinnedTooth.id] = { ...current, findingCode: undefined };
     this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
   }
@@ -392,10 +417,25 @@ export class DentistryRecordComponent implements OnChanges {
       return;
     }
 
-    const option = this.findingOptions.find((item) => item.code === findingCode);
-    const current = this.toothDraftById[this.pinnedTooth.id] || { siteCodes: [] };
+    const option = this.getActiveConceptOptions().find((item) => item.code === findingCode);
+    const current = this.toothDraftById[this.pinnedTooth.id] || { siteCodes: [], entryType: 'finding' };
     this.toothDraftById[this.pinnedTooth.id] = { ...current, findingCode: findingCode || undefined };
     this.findingQueryByToothId[this.pinnedTooth.id] = option ? option.display : '';
+    this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
+  }
+
+  onEntryTypeChange(entryType: 'finding' | 'procedure'): void {
+    if (!this.pinnedTooth) {
+      return;
+    }
+
+    const current = this.toothDraftById[this.pinnedTooth.id] || { siteCodes: [], entryType: 'finding' };
+    this.toothDraftById[this.pinnedTooth.id] = {
+      ...current,
+      entryType,
+      findingCode: undefined
+    };
+    this.findingQueryByToothId[this.pinnedTooth.id] = '';
     this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
   }
 
@@ -405,7 +445,7 @@ export class DentistryRecordComponent implements OnChanges {
       return [];
     }
 
-    const compatibleOptions = this.findingOptions.filter((option) => option.scope === desiredScope);
+    const compatibleOptions = this.getActiveConceptOptions().filter((option) => option.scope === desiredScope);
     const query = this.getPinnedFindingQuery().trim().toLowerCase();
 
     if (!query) {
@@ -422,6 +462,10 @@ export class DentistryRecordComponent implements OnChanges {
     return !!entry?.siteCodes?.length && !!entry?.findingCode;
   }
 
+  getSaveDisabledReason(): string {
+    return '';
+  }
+
   savePinnedFindingEntry(): void {
     if (!this.patient || !this.pinnedTooth || !this.canSavePinnedFindingEntry()) {
       return;
@@ -432,14 +476,22 @@ export class DentistryRecordComponent implements OnChanges {
       return;
     }
 
-    const resources = this.buildDentalConditionAndBodyStructure(this.patient.id, this.pinnedTooth, entry.siteCodes, entry.findingCode);
-    if (!resources) {
-      return;
-    }
-
     this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
-    this.patientService.addPatientBodyStructure(this.patient.id, resources.bodyStructure);
-    this.patientService.addPatientConditionAllowDuplicates(this.patient.id, resources.condition);
+    if (this.getPinnedEntryType() === 'procedure') {
+      const resources = this.buildDentalProcedureAndBodyStructure(this.patient.id, this.pinnedTooth, entry.siteCodes, entry.findingCode);
+      if (!resources) {
+        return;
+      }
+      this.patientService.addPatientBodyStructure(this.patient.id, resources.bodyStructure);
+      this.patientService.addPatientProcedure(this.patient.id, resources.procedure);
+    } else {
+      const resources = this.buildDentalConditionAndBodyStructure(this.patient.id, this.pinnedTooth, entry.siteCodes, entry.findingCode);
+      if (!resources) {
+        return;
+      }
+      this.patientService.addPatientBodyStructure(this.patient.id, resources.bodyStructure);
+      this.patientService.addPatientConditionAllowDuplicates(this.patient.id, resources.condition);
+    }
 
     this.saveFeedbackByToothId[this.pinnedTooth.id] = true;
     this.clearToothDraft(this.pinnedTooth.id);
@@ -477,9 +529,65 @@ export class DentistryRecordComponent implements OnChanges {
       return;
     }
 
-    this.patientService.deletePatientCondition(this.patient.id, item.conditionId);
-    this.patientService.deletePatientBodyStructure(this.patient.id, item.bodyStructureId);
+    if (item.entryType === 'procedure' && item.procedureId) {
+      this.patientService.deletePatientProcedure(this.patient.id, item.procedureId);
+    }
+    if (item.entryType === 'finding' && item.conditionId) {
+      this.patientService.deletePatientCondition(this.patient.id, item.conditionId);
+    }
+    if (item.bodyStructureId) {
+      this.patientService.deletePatientBodyStructure(this.patient.id, item.bodyStructureId);
+    }
     this.refreshDentalFindingList(this.patient.id);
+    if (this.pinnedTooth) {
+      this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
+    }
+  }
+
+  resolveSavedFinding(item: DentalFindingListItem): void {
+    if (!this.patient) {
+      return;
+    }
+
+    const nextIsResolved = !item.isResolved;
+    if (item.entryType === 'procedure' && item.procedureId) {
+      const procedures = this.patientService.getPatientProcedures(this.patient.id);
+      const procedure = procedures.find((entry) => entry.id === item.procedureId);
+      if (!procedure) {
+        return;
+      }
+
+      const updatedProcedure: Procedure = {
+        ...procedure,
+        status: nextIsResolved ? 'completed' : 'preparation'
+      };
+      this.patientService.updatePatientProcedure(this.patient.id, procedure.id, updatedProcedure);
+    } else if (item.entryType === 'finding' && item.conditionId) {
+      const conditions = this.patientService.getPatientConditions(this.patient.id);
+      const condition = conditions.find((entry) => entry.id === item.conditionId);
+      if (!condition) {
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const updatedCondition: Condition = {
+        ...condition,
+        clinicalStatus: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+              code: nextIsResolved ? 'resolved' : 'active',
+              display: nextIsResolved ? 'Resolved' : 'Active'
+            }
+          ],
+          text: nextIsResolved ? 'Resolved' : 'Active'
+        },
+        abatementDateTime: nextIsResolved ? (condition.abatementDateTime || now) : undefined
+      };
+      this.patientService.updatePatientCondition(this.patient.id, condition.id, updatedCondition);
+    }
+    this.refreshDentalFindingList(this.patient.id);
+
     if (this.pinnedTooth) {
       this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
     }
@@ -513,8 +621,8 @@ export class DentistryRecordComponent implements OnChanges {
       return;
     }
 
-    const current = this.toothDraftById[this.pinnedTooth.id] || { siteCodes: [] };
-    const currentFinding = this.findingOptions.find((item) => item.code === current.findingCode);
+    const current = this.toothDraftById[this.pinnedTooth.id] || { siteCodes: [], entryType: 'finding' };
+    const currentFinding = this.getActiveConceptOptions().find((item) => item.code === current.findingCode);
     const desiredScope = this.getFindingScopeForSiteCodes(nextSiteCodes);
     const isCurrentFindingCompatible = !currentFinding || (desiredScope ? currentFinding.scope === desiredScope : false);
 
@@ -706,6 +814,117 @@ export class DentistryRecordComponent implements OnChanges {
     return { condition, bodyStructure };
   }
 
+  private buildDentalProcedureAndBodyStructure(
+    patientId: string,
+    tooth: OdontogramTooth,
+    siteCodes: string[],
+    procedureCode: string
+  ): { procedure: Procedure; bodyStructure: BodyStructure } | null {
+    const toothStructure = tooth.snomedStructure;
+    const procedureOption = this.procedureOptions.find((option) => option.code === procedureCode);
+    if (!toothStructure || !procedureOption) {
+      return null;
+    }
+
+    const selectedSites = siteCodes
+      .map((siteCode) => this.surfaceOptions.find((option) => option.code === siteCode))
+      .filter((option): option is SnomedConceptOption => !!option);
+
+    if (!selectedSites.length) {
+      return null;
+    }
+
+    const now = new Date().toISOString();
+    const bodyStructureId = `body-structure-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const procedureId = `procedure-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    const bodyStructure: BodyStructure = {
+      resourceType: 'BodyStructure',
+      id: bodyStructureId,
+      patient: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      includedStructure: [
+        {
+          structure: {
+            coding: [
+              {
+                system: 'http://snomed.info/sct',
+                code: toothStructure.code,
+                display: toothStructure.display
+              }
+            ],
+            text: toothStructure.display
+          }
+        },
+        ...selectedSites.map((site) => ({
+          structure: {
+            coding: [
+              {
+                system: 'http://snomed.info/sct',
+                code: site.code,
+                display: site.display
+              }
+            ],
+            text: site.display
+          }
+        }))
+      ],
+      note: [
+        {
+          text: `Dental body structure for FDI tooth ${tooth.notations.fdi}.`,
+          time: now
+        }
+      ]
+    };
+
+    const procedure: Procedure = {
+      resourceType: 'Procedure',
+      id: procedureId,
+      status: 'preparation',
+      category: {
+        coding: [
+          {
+            system: this.DENTAL_CATEGORY_SYSTEM,
+            code: this.DENTAL_PROCEDURE_CATEGORY_CODE,
+            display: 'Dental procedure'
+          }
+        ],
+        text: 'Dental procedure'
+      },
+      code: {
+        coding: [
+          {
+            system: 'http://snomed.info/sct',
+            code: procedureOption.code,
+            display: procedureOption.display
+          }
+        ],
+        text: procedureOption.display
+      },
+      subject: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      performedDateTime: now,
+      reasonReference: [
+        {
+          reference: `BodyStructure/${bodyStructureId}`,
+          display: toothStructure.display
+        }
+      ],
+      note: [
+        {
+          text: `Dental procedure recorded for FDI tooth ${tooth.notations.fdi} at ${selectedSites.map((site) => site.display).join(', ')}.`,
+          time: now
+        }
+      ]
+    };
+
+    return { procedure, bodyStructure };
+  }
+
   private findToothById(toothId: string): OdontogramTooth | null {
     for (const teeth of Object.values(this.teethByQuadrant)) {
       const match = teeth.find((tooth) => tooth.id === toothId);
@@ -723,8 +942,22 @@ export class DentistryRecordComponent implements OnChanges {
     ) || false;
   }
 
+  private isDentalProcedure(procedure: Procedure): boolean {
+    return procedure.category?.coding?.some(
+      (coding) => coding.system === this.DENTAL_CATEGORY_SYSTEM && coding.code === this.DENTAL_PROCEDURE_CATEGORY_CODE
+    ) || procedure.category?.text === 'Dental procedure' || false;
+  }
+
+  private getBodyStructureIdFromReference(reference: string | undefined): string {
+    if (!reference) {
+      return '';
+    }
+    return reference.startsWith('BodyStructure/') ? reference.replace('BodyStructure/', '') : reference;
+  }
+
   private refreshDentalFindingList(patientId: string): void {
     const conditions = this.patientService.getPatientConditions(patientId);
+    const procedures = this.patientService.getPatientProcedures(patientId);
     const bodyStructures = this.patientService.getPatientBodyStructures(patientId);
     const bodyStructureById = bodyStructures.reduce((acc, item) => {
       acc[item.id] = item;
@@ -733,13 +966,10 @@ export class DentistryRecordComponent implements OnChanges {
 
     this.savedSurfaceByToothId = {};
 
-    this.dentalFindingList = conditions
+    const conditionItems = conditions
       .filter((condition) => this.isDentalCondition(condition))
-      .map((condition) => {
-        const bodyStructureRef = condition.bodyStructure?.reference || '';
-        const bodyStructureId = bodyStructureRef.startsWith('BodyStructure/')
-          ? bodyStructureRef.replace('BodyStructure/', '')
-          : bodyStructureRef;
+      .map((condition): DentalFindingListItem => {
+        const bodyStructureId = this.getBodyStructureIdFromReference(condition.bodyStructure?.reference);
 
         const bodyStructure = bodyStructureById[bodyStructureId];
         const structureCodes = (bodyStructure?.includedStructure || [])
@@ -751,13 +981,19 @@ export class DentistryRecordComponent implements OnChanges {
         const tooth = toothId ? this.findToothById(toothId) : null;
 
         const siteCodes = structureCodes.filter((code) => this.surfaceOptions.some((option) => option.code === code));
-        siteCodes.forEach((siteCode) => {
-          if (!toothId) {
-            return;
-          }
-          this.savedSurfaceByToothId[toothId] = this.savedSurfaceByToothId[toothId] || {};
-          this.savedSurfaceByToothId[toothId][siteCode] = true;
-        });
+        const clinicalStatusCode = this.getConditionClinicalStatusCode(condition);
+        const clinicalStatusDisplay = this.getConditionClinicalStatusDisplay(condition, clinicalStatusCode);
+        const isResolved = clinicalStatusCode === 'resolved';
+
+        if (!isResolved) {
+          siteCodes.forEach((siteCode) => {
+            if (!toothId) {
+              return;
+            }
+            this.savedSurfaceByToothId[toothId] = this.savedSurfaceByToothId[toothId] || {};
+            this.savedSurfaceByToothId[toothId][siteCode] = 'finding';
+          });
+        }
 
         const siteDisplays = siteCodes
           .map((siteCode) => this.surfaceOptions.find((option) => option.code === siteCode)?.display || siteCode)
@@ -767,6 +1003,7 @@ export class DentistryRecordComponent implements OnChanges {
         const findingDisplay = condition.code?.coding?.[0]?.display || condition.code?.text || 'Not specified';
 
         return {
+          entryType: 'finding',
           conditionId: condition.id,
           bodyStructureId,
           toothId,
@@ -776,10 +1013,79 @@ export class DentistryRecordComponent implements OnChanges {
           surfaceDisplay: siteDisplays.join(' + ') || 'Not specified',
           findingCode,
           findingDisplay,
+          clinicalStatusCode,
+          clinicalStatusDisplay,
+          isResolved,
           recordedDateTime: condition.recordedDate || ''
         };
-      })
+      });
+
+    const procedureItems = procedures
+      .filter((procedure) => this.isDentalProcedure(procedure))
+      .map((procedure): DentalFindingListItem => {
+        const bodyStructureRef = procedure.reasonReference?.find((ref) => (ref.reference || '').includes('BodyStructure/'))?.reference || '';
+        const bodyStructureId = this.getBodyStructureIdFromReference(bodyStructureRef);
+        const bodyStructure = bodyStructureById[bodyStructureId];
+        const structureCodes = (bodyStructure?.includedStructure || [])
+          .map((item) => item.structure?.coding?.[0]?.code || '')
+          .filter(Boolean);
+
+        const toothCode = structureCodes.find((code) => !!this.toothIdBySnomedCode[code]) || '';
+        const toothId = this.toothIdBySnomedCode[toothCode] || '';
+        const tooth = toothId ? this.findToothById(toothId) : null;
+
+        const siteCodes = structureCodes.filter((code) => this.surfaceOptions.some((option) => option.code === code));
+        const isResolved = procedure.status === 'completed';
+        siteCodes.forEach((siteCode) => {
+          if (!toothId) {
+            return;
+          }
+          this.savedSurfaceByToothId[toothId] = this.savedSurfaceByToothId[toothId] || {};
+          this.savedSurfaceByToothId[toothId][siteCode] = isResolved ? 'procedure-completed' : 'procedure-planned';
+        });
+
+        const siteDisplays = siteCodes
+          .map((siteCode) => this.surfaceOptions.find((option) => option.code === siteCode)?.display || siteCode)
+          .filter(Boolean);
+
+        const procedureCode = procedure.code?.coding?.[0]?.code || '';
+        const procedureDisplay = procedure.code?.coding?.[0]?.display || procedure.code?.text || 'Not specified';
+
+        return {
+          entryType: 'procedure',
+          procedureId: procedure.id,
+          bodyStructureId,
+          toothId,
+          toothFdi: tooth?.notations.fdi || 'Unknown',
+          siteCodes,
+          surfaceCode: siteCodes.join(', '),
+          surfaceDisplay: siteDisplays.join(' + ') || 'Not specified',
+          findingCode: procedureCode,
+          findingDisplay: procedureDisplay,
+          clinicalStatusCode: isResolved ? 'completed' : 'planned',
+          clinicalStatusDisplay: isResolved ? 'Completed' : 'Planned',
+          isResolved,
+          recordedDateTime: procedure.performedDateTime || ''
+        };
+      });
+
+    this.dentalFindingList = [...conditionItems, ...procedureItems]
       .sort((a, b) => {
+        const aFdi = Number.parseInt(a.toothFdi, 10);
+        const bFdi = Number.parseInt(b.toothFdi, 10);
+        const aHasFdi = Number.isFinite(aFdi);
+        const bHasFdi = Number.isFinite(bFdi);
+
+        if (aHasFdi && bHasFdi && aFdi !== bFdi) {
+          return aFdi - bFdi;
+        }
+        if (aHasFdi && !bHasFdi) {
+          return -1;
+        }
+        if (!aHasFdi && bHasFdi) {
+          return 1;
+        }
+
         const aTime = a.recordedDateTime ? new Date(a.recordedDateTime).getTime() : 0;
         const bTime = b.recordedDateTime ? new Date(b.recordedDateTime).getTime() : 0;
         return bTime - aTime;
@@ -788,16 +1094,21 @@ export class DentistryRecordComponent implements OnChanges {
 
   private buildDentalFhirBundle(patientId: string): any {
     const conditions = this.patientService.getPatientConditions(patientId).filter((condition) => this.isDentalCondition(condition));
+    const procedures = this.patientService.getPatientProcedures(patientId).filter((procedure) => this.isDentalProcedure(procedure));
     const bodyStructures = this.patientService.getPatientBodyStructures(patientId);
     const referencedBodyStructureIds = new Set(
-      conditions
-        .map((condition) => condition.bodyStructure?.reference || '')
+      [
+        ...conditions.map((condition) => condition.bodyStructure?.reference || ''),
+        ...procedures.map(
+          (procedure) => procedure.reasonReference?.find((ref) => (ref.reference || '').includes('BodyStructure/'))?.reference || ''
+        )
+      ]
         .filter(Boolean)
         .map((reference) => reference.replace('BodyStructure/', ''))
     );
 
     const linkedBodyStructures = bodyStructures.filter((resource) => referencedBodyStructureIds.has(resource.id));
-    const resources = [...conditions, ...linkedBodyStructures];
+    const resources = [...conditions, ...procedures, ...linkedBodyStructures];
 
     return {
       resourceType: 'Bundle',
@@ -904,5 +1215,37 @@ export class DentistryRecordComponent implements OnChanges {
     }
 
     return 'surface';
+  }
+
+  private getSavedSurfaceVisualType(toothId: string, surfaceCode: string): SurfaceVisualType | null {
+    return this.savedSurfaceByToothId[toothId]?.[surfaceCode] || null;
+  }
+
+  private getActiveConceptOptions(): SnomedConceptOption[] {
+    return this.getPinnedEntryType() === 'procedure' ? this.procedureOptions : this.findingOptions;
+  }
+
+  private getConditionClinicalStatusCode(condition: Condition): string {
+    const codingCode = condition.clinicalStatus?.coding?.[0]?.code?.trim().toLowerCase();
+    if (codingCode) {
+      return codingCode;
+    }
+    const textCode = condition.clinicalStatus?.text?.trim().toLowerCase();
+    return textCode || 'active';
+  }
+
+  private getConditionClinicalStatusDisplay(condition: Condition, code: string): string {
+    const codingDisplay = condition.clinicalStatus?.coding?.[0]?.display?.trim();
+    if (codingDisplay) {
+      return codingDisplay;
+    }
+    const textDisplay = condition.clinicalStatus?.text?.trim();
+    if (textDisplay) {
+      return textDisplay;
+    }
+    if (code === 'resolved') {
+      return 'Resolved';
+    }
+    return 'Active';
   }
 }

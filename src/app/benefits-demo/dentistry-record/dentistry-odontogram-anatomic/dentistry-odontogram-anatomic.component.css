@@ -60,7 +60,15 @@
 
 .surface-overlay-path {
   pointer-events: none;
-  opacity: 0.88;
+  opacity: 0.96;
+}
+
+.surface-overlay-path.surface-procedure {
+  filter: hue-rotate(120deg) saturate(1.25);
+}
+
+.surface-overlay-path.surface-procedure-completed {
+  filter: hue-rotate(220deg) saturate(1.25);
 }
 
 .surface-overlay-path.overlay-mesial-top,
@@ -71,30 +79,29 @@
 .surface-overlay-path.overlay-mesial-right,
 .surface-overlay-path.overlay-distal-left,
 .surface-overlay-path.overlay-distal-right {
-  opacity: 0.9;
+  opacity: 0.98;
 }
 
 .surface-overlay-path.overlay-vestibular-top,
 .surface-overlay-path.overlay-vestibular-bottom,
 .surface-overlay-path.overlay-vestibular-left,
 .surface-overlay-path.overlay-vestibular-right {
-  opacity: 0.85;
+  opacity: 0.96;
 }
 
 .surface-overlay-path.overlay-occlusal {
-  opacity: 0.9;
+  opacity: 0.96;
 }
 
 .surface-overlay-path.overlay-lingual-top,
 .surface-overlay-path.overlay-lingual-bottom,
 .surface-overlay-path.overlay-lingual-left,
 .surface-overlay-path.overlay-lingual-right {
-  opacity: 0.45;
-  mix-blend-mode: multiply;
+  opacity: 0.9;
 }
 
 .surface-overlay-path.overlay-entire-tooth {
-  opacity: 0.78;
+  opacity: 0.94;
 }
 
 .surface-overlay-path.overlay-periodontal-ring {
@@ -103,12 +110,30 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 2px rgba(244, 127, 36, 0.45)) drop-shadow(0 0 5px rgba(244, 127, 36, 0.3));
+  filter: drop-shadow(0 0 2px rgba(255,0,0, 0.45)) drop-shadow(0 0 5px rgba(255,0,0, 0.3));
+}
+
+.surface-overlay-path.overlay-periodontal-ring.surface-procedure {
+  stroke: rgba(47, 125, 63, 0.92) !important;
+  filter: drop-shadow(0 0 2px rgba(47, 125, 63, 0.45)) drop-shadow(0 0 5px rgba(47, 125, 63, 0.3));
+}
+
+.surface-overlay-path.overlay-periodontal-ring.surface-procedure-completed {
+  stroke: rgba(45, 108, 223, 0.92) !important;
+  filter: drop-shadow(0 0 2px rgba(45, 108, 223, 0.45)) drop-shadow(0 0 5px rgba(45, 108, 223, 0.3));
 }
 
 .surface-overlay-path.surface-preview {
-  opacity: 0.98;
-  filter: saturate(1.25);
+  opacity: 1;
+  filter: saturate(1.35);
+}
+
+.surface-overlay-path.surface-procedure.surface-preview {
+  filter: hue-rotate(120deg) saturate(1.4);
+}
+
+.surface-overlay-path.surface-procedure-completed.surface-preview {
+  filter: hue-rotate(220deg) saturate(1.4);
 }
 
 .tooth-tooltip {
@@ -140,4 +165,40 @@
   .odontogram-canvas-container {
     padding: 8px;
   }
+}
+
+.surface-legend {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  color: #7a8594;
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.legend-findings {
+  background-color: rgba(255, 0, 0, 0.78);
+}
+
+.legend-procedure-planned {
+  background-color: rgba(47, 125, 63, 0.78);
+}
+
+.legend-procedure-completed {
+  background-color: rgba(45, 108, 223, 0.78);
 }

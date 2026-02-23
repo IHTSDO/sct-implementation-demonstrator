@@ -44,6 +44,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   currentDate = new Date();
   selectedModule: 'clinical' | 'dentistry' | 'nursing' = 'clinical';
   private subscriptions: Subscription[] = [];
+  private readonly DENTAL_CATEGORY_SYSTEM = 'http://example.org/fhir/CodeSystem/condition-category';
+  private readonly DENTAL_CONDITION_CATEGORY_CODE = 'dental';
+  private readonly DENTAL_PROCEDURE_CATEGORY_CODE = 'dental-procedure';
   
 
   
@@ -373,6 +376,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   /**
+   * Summary-only conditions (exclude dental records from body diagram summary)
+   */
+  getSortedSummaryConditions(): Condition[] {
+    return this.getSortedConditions().filter((condition) => !this.isDentalCondition(condition));
+  }
+
+  /**
    * Get procedures sorted by most recently added first
    */
   getSortedProcedures(): Procedure[] {
@@ -391,6 +401,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       const indexB = this.procedures.indexOf(b);
       return indexB - indexA; // Most recent (higher index) first
     });
+  }
+
+  /**
+   * Summary-only procedures (exclude dental records from body diagram summary)
+   */
+  getSortedSummaryProcedures(): Procedure[] {
+    return this.getSortedProcedures().filter((procedure) => !this.isDentalProcedure(procedure));
   }
 
   /**
@@ -1334,7 +1351,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const eventsWithAnchors: Array<{event: any, anchorPoint: AnchorPoint | null, type: string}> = [];
     
     // Map conditions
-    this.conditions.forEach(condition => {
+    this.getSortedSummaryConditions().forEach(condition => {
       const conceptId = this.getConceptId(condition);
       const anchorPoint = this.findBestAnchorPointForConcept(conceptId);
       eventsWithAnchors.push({
@@ -1345,7 +1362,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     });
 
     // Map procedures  
-    this.procedures.forEach(procedure => {
+    this.getSortedSummaryProcedures().forEach(procedure => {
       const conceptId = this.getConceptId(procedure);
       const anchorPoint = this.findBestAnchorPointForConcept(conceptId);
       eventsWithAnchors.push({
@@ -1870,13 +1887,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
    */
   hasAssociatedEvents(anchorPoint: AnchorPoint): boolean {
     // Check conditions
-    const hasConditions = this.conditions.some(condition => {
+    const hasConditions = this.getSortedSummaryConditions().some(condition => {
       const bestAnchorPoint = this.findBestAnchorPointForConcept(this.getConceptId(condition));
       return bestAnchorPoint?.id === anchorPoint.id;
     });
     
     // Check procedures
-    const hasProcedures = this.procedures.some(procedure => {
+    const hasProcedures = this.getSortedSummaryProcedures().some(procedure => {
       const bestAnchorPoint = this.findBestAnchorPointForConcept(this.getConceptId(procedure));
       return bestAnchorPoint?.id === anchorPoint.id;
     });
@@ -1930,6 +1947,20 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         }
       });
     });
+  }
+
+  private isDentalCondition(condition: Condition): boolean {
+    return condition.category?.some((category) =>
+      category.coding?.some(
+        (coding) => coding.system === this.DENTAL_CATEGORY_SYSTEM && coding.code === this.DENTAL_CONDITION_CATEGORY_CODE
+      ) || category.text === 'Dental finding'
+    ) || false;
+  }
+
+  private isDentalProcedure(procedure: Procedure): boolean {
+    return procedure.category?.coding?.some(
+      (coding) => coding.system === this.DENTAL_CATEGORY_SYSTEM && coding.code === this.DENTAL_PROCEDURE_CATEGORY_CODE
+    ) || procedure.category?.text === 'Dental procedure' || false;
   }
 
   /**

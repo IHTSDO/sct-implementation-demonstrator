@@ -1,0 +1,37 @@
+<div
+  class="finding-item"
+  [class.resolved]="item.isResolved"
+  [class.clickable]="interactive"
+  (click)="onCardClick()">
+  <div class="finding-top">
+    <span class="finding-tooth">Tooth {{ item.toothFdi }}</span>
+    <div class="finding-meta">
+      <span
+        class="finding-status"
+        [class.resolved]="item.isResolved"
+        [class.planned-procedure]="isProcedurePlanned()"
+        [class.completed-procedure]="isProcedureCompleted()"
+        (click)="onToggleStatus($event)"
+        [matTooltip]="getStatusToggleTooltip()"
+        [matTooltipShowDelay]="100"
+        [matTooltipHideDelay]="0">
+        {{ item.clinicalStatusDisplay }}
+      </span>
+      <span class="finding-date" *ngIf="item.recordedDateTime">{{ item.recordedDateTime | date:'MMM d, y, HH:mm' }}</span>
+    </div>
+  </div>
+
+  <div class="finding-line">{{ item.surfaceDisplay }}:</div>
+  <div class="finding-code">{{ item.surfaceCode }}</div>
+  <div class="finding-line">{{ item.findingDisplay }}</div>
+  <div class="finding-code">{{ item.findingCode }}</div>
+
+  <div class="finding-actions" *ngIf="showDelete">
+    <button
+      type="button"
+      class="delete-finding-button"
+      (click)="onDelete($event)">
+      Delete
+    </button>
+  </div>
+</div>

@@ -16,7 +16,9 @@ export class DentistryDataEntryPanelComponent {
   @Input() periodontalSiteCode = '8711009';
   @Input() findingQuery = '';
   @Input() filteredFindingOptions: SnomedConceptOption[] = [];
+  @Input() entryType: 'finding' | 'procedure' = 'finding';
   @Input() canSave = false;
+  @Input() saveDisabledReason = '';
   @Input() isSaved = false;
   @Input() pinnedToothSavedFindings: DentalFindingListItem[] = [];
 
@@ -24,7 +26,9 @@ export class DentistryDataEntryPanelComponent {
   @Output() surfaceSiteToggle = new EventEmitter<{ siteCode: string; checked: boolean }>();
   @Output() findingInputChange = new EventEmitter<string>();
   @Output() findingSelected = new EventEmitter<string>();
+  @Output() entryTypeChange = new EventEmitter<'finding' | 'procedure'>();
   @Output() save = new EventEmitter<void>();
+  @Output() resolveFinding = new EventEmitter<DentalFindingListItem>();
   @Output() deleteFinding = new EventEmitter<DentalFindingListItem>();
 
   isSelectedSite(siteCode: string): boolean {
@@ -47,11 +51,19 @@ export class DentistryDataEntryPanelComponent {
     this.findingSelected.emit(code);
   }
 
+  onEntryTypeChanged(nextType: 'finding' | 'procedure'): void {
+    this.entryTypeChange.emit(nextType);
+  }
+
   onSaveClick(): void {
     this.save.emit();
   }
 
   onDeleteFinding(item: DentalFindingListItem): void {
     this.deleteFinding.emit(item);
+  }
+
+  onResolveFinding(item: DentalFindingListItem): void {
+    this.resolveFinding.emit(item);
   }
 }

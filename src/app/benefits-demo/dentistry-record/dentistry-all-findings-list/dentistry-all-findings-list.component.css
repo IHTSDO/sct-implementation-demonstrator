@@ -14,55 +14,6 @@
   gap: 8px;
 }
 
-.saved-finding-item {
-  width: 100%;
-  text-align: left;
-  border: 1px solid #d7dde7;
-  border-radius: 8px;
-  background-color: #f9fafc;
-  color: #2c3e50;
-  padding: 8px 9px;
-  cursor: pointer;
-}
-
-.saved-finding-item:hover {
-  border-color: #aeb9cd;
-  background-color: #f2f5fb;
-}
-
-.saved-finding-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.saved-finding-tooth {
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.saved-finding-date {
-  font-size: 0.72rem;
-  color: #6c757d;
-}
-
-.saved-finding-line {
-  font-size: 0.77rem;
-  color: #495057;
-  line-height: 1.35;
-}
-
-.saved-finding-code {
-  font-size: 0.66rem;
-  font-weight: 400;
-  color: #7f8793;
-  line-height: 1.2;
-  margin-top: -1px;
-  margin-bottom: 3px;
-}
-
 .empty-details {
   border: 1px dashed #ced4da;
   border-radius: 8px;

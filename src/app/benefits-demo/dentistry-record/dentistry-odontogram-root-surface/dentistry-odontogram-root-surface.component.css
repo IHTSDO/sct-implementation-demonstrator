@@ -74,18 +74,40 @@
 .surface-segment,
 .surface-occlusal,
 .surface-entire {
-  fill: rgba(244, 127, 36, 0.58);
-  opacity: 0.92;
+  fill: rgba(255, 0, 0, 0.78);
+  opacity: 1;
   pointer-events: none;
 }
 
 .surface-periodontal {
   fill: none;
-  stroke: rgba(244, 127, 36, 0.9);
+  stroke: rgba(255,0,0, 0.9);
   stroke-width: 3;
   opacity: 0.9;
   pointer-events: none;
-  filter: drop-shadow(0 0 2px rgba(244, 127, 36, 0.45));
+  filter: drop-shadow(0 0 2px rgba(255,0,0, 0.45));
+}
+
+.surface-segment.surface-procedure,
+.surface-occlusal.surface-procedure,
+.surface-entire.surface-procedure {
+  fill: rgba(47, 125, 63, 0.78);
+}
+
+.surface-segment.surface-procedure-completed,
+.surface-occlusal.surface-procedure-completed,
+.surface-entire.surface-procedure-completed {
+  fill: rgba(45, 108, 223, 0.78);
+}
+
+.surface-periodontal.surface-procedure {
+  stroke: rgba(47, 125, 63, 0.92);
+  filter: drop-shadow(0 0 2px rgba(47, 125, 63, 0.45));
+}
+
+.surface-periodontal.surface-procedure-completed {
+  stroke: rgba(45, 108, 223, 0.92);
+  filter: drop-shadow(0 0 2px rgba(45, 108, 223, 0.45));
 }
 
 .surface-preview {
@@ -129,4 +151,40 @@
   .root-surface-container {
     padding: 8px;
   }
+}
+
+.surface-legend {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  color: #7a8594;
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.legend-findings {
+  background-color: rgba(255, 0, 0, 0.78);
+}
+
+.legend-procedure-planned {
+  background-color: rgba(47, 125, 63, 0.78);
+}
+
+.legend-procedure-completed {
+  background-color: rgba(45, 108, 223, 0.78);
 }

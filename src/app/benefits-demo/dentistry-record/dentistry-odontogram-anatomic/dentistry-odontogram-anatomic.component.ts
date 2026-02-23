@@ -26,6 +26,7 @@ export class DentistryOdontogramAnatomicComponent {
   @Input() isSelected: (toothId: string) => boolean = () => false;
   @Input() getLinePaths: (tooth: OdontogramTooth) => string[] = () => [];
   @Input() hasSurfaceVisual: (toothId: string, surfaceCode: string) => boolean = () => false;
+  @Input() getSurfaceVisualType: (toothId: string, surfaceCode: string) => 'finding' | 'procedure-planned' | 'procedure-completed' | null = () => null;
   @Input() getSurfaceOverlayClass: (surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string) => string = () => '';
   @Input() isSurfacePreview: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() getSurfaceOverlayPath: (surfaceCode: string, tooth: OdontogramTooth) => string = () => '';

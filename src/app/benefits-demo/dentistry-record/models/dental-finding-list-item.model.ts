@@ -1,5 +1,7 @@
 export interface DentalFindingListItem {
-  conditionId: string;
+  entryType: 'finding' | 'procedure';
+  conditionId?: string;
+  procedureId?: string;
   bodyStructureId: string;
   toothId: string;
   toothFdi: string;
@@ -8,5 +10,8 @@ export interface DentalFindingListItem {
   surfaceDisplay: string;
   findingCode: string;
   findingDisplay: string;
+  clinicalStatusCode: string;
+  clinicalStatusDisplay: string;
+  isResolved: boolean;
   recordedDateTime: string;
 }

@@ -12,6 +12,7 @@
     "download-ucum": "node scripts/download-ucum-units.js",
     "download-ehdsi-results": "node scripts/download-ehdsi-results-coded-value.js",
     "download-ehdsi-lab-technique": "node scripts/download-ehdsi-lab-technique.js",
+    "import-dental-procedures": "node scripts/import-dental-procedures.js",
     "generate-shl-demo": "node scripts/generate-shl-demo.js"
   },
   "private": true,

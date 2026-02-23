@@ -63,13 +63,20 @@
   resize: none;
   background: #1f2430;
   font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
-  line-height: 1.4;
+  font-size: 0.62rem;
+  line-height: 1.28;
   color: #cfd8e3;
   box-sizing: border-box;
   overflow: auto;
   white-space: pre;
   -webkit-overflow-scrolling: touch;
+}
+
+/* ngx-highlight-js injects a sibling <pre class="... hljs ..."> without component attrs */
+:host ::ng-deep .output-wrapper pre.hljs,
+:host ::ng-deep .output-wrapper pre.hljs span {
+  font-size: 0.62rem !important;
+  line-height: 1.28 !important;
 }
 
 .dialog-actions {

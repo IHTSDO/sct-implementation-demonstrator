@@ -68,16 +68,16 @@
           <div class="clinical-events-summary">
             <div class="clinical-summary-section">
               <h5>Conditions</h5>
-              <div class="clinical-summary-list" *ngIf="conditions.length > 0; else noConditions">
+              <div class="clinical-summary-list" *ngIf="getSortedSummaryConditions().length > 0; else noConditions">
                 <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let condition of getSortedConditions() | slice:0:6; let i = index"
+                     *ngFor="let condition of getSortedSummaryConditions() | slice:0:6; let i = index"
                      [attr.data-condition-id]="condition.id"
                      (mouseenter)="onConditionHover(condition, $event)"
                      (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ condition.code.text }}</div>
                 </div>
-                <div class="clinical-summary-item" *ngIf="conditions.length > 6" style="font-style: italic; color: #6c757d;">
-                  +{{ conditions.length - 6 }} more conditions
+                <div class="clinical-summary-item" *ngIf="getSortedSummaryConditions().length > 6" style="font-style: italic; color: #6c757d;">
+                  +{{ getSortedSummaryConditions().length - 6 }} more conditions
                 </div>
               </div>
               <ng-template #noConditions>
@@ -87,16 +87,16 @@
 
             <div class="clinical-summary-section">
               <h5>Procedures</h5>
-              <div class="clinical-summary-list" *ngIf="procedures.length > 0; else noProcedures">
+              <div class="clinical-summary-list" *ngIf="getSortedSummaryProcedures().length > 0; else noProcedures">
                 <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let procedure of getSortedProcedures() | slice:0:4"
+                     *ngFor="let procedure of getSortedSummaryProcedures() | slice:0:4"
                      [attr.data-procedure-id]="procedure.id"
                      (mouseenter)="onProcedureHover(procedure, $event)"
                      (mouseleave)="onConditionHoverEnd()">
                   <div class="item-name">{{ procedure.code.text }}</div>
                 </div>
-                <div class="clinical-summary-item" *ngIf="procedures.length > 4" style="font-style: italic; color: #6c757d;">
-                  +{{ procedures.length - 4 }} more procedures
+                <div class="clinical-summary-item" *ngIf="getSortedSummaryProcedures().length > 4" style="font-style: italic; color: #6c757d;">
+                  +{{ getSortedSummaryProcedures().length - 4 }} more procedures
                 </div>
               </div>
               <ng-template #noProcedures>

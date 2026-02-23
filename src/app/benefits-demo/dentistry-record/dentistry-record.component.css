@@ -14,19 +14,25 @@
 }
 
 .record-section h2 {
-  margin: 0 0 20px 0;
+  margin: 0;
   color: #2c3e50;
   font-size: 1.4rem;
   font-weight: 600;
-  border-bottom: 2px solid #ecf0f1;
-  padding-bottom: 10px;
 }
 
 .section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  position: relative;
+  display: block;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.fhir-floating-button {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
 }
 
 .view-mode-switch {
@@ -168,7 +174,7 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 2px rgba(244, 127, 36, 0.45)) drop-shadow(0 0 5px rgba(244, 127, 36, 0.3));
+  filter: drop-shadow(0 0 2px rgba(255,0,0, 0.45)) drop-shadow(0 0 5px rgba(255,0,0, 0.3));
 }
 
 .surface-overlay-path.surface-preview {

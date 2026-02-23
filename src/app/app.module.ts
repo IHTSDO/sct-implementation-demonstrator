@@ -110,6 +110,7 @@ import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinica
 import { DentistryRecordComponent } from './benefits-demo/dentistry-record/dentistry-record.component';
 import { DentistryDataEntryPanelComponent } from './benefits-demo/dentistry-record/dentistry-data-entry-panel/dentistry-data-entry-panel.component';
 import { DentistryAllFindingsListComponent } from './benefits-demo/dentistry-record/dentistry-all-findings-list/dentistry-all-findings-list.component';
+import { DentistryFindingItemComponent } from './benefits-demo/dentistry-record/dentistry-finding-item/dentistry-finding-item.component';
 import { DentistryFhirDialogComponent } from './benefits-demo/dentistry-record/dentistry-fhir-dialog/dentistry-fhir-dialog.component';
 import { DentistryOdontogramAnatomicComponent } from './benefits-demo/dentistry-record/dentistry-odontogram-anatomic/dentistry-odontogram-anatomic.component';
 import { DentistryOdontogramRootSurfaceComponent } from './benefits-demo/dentistry-record/dentistry-odontogram-root-surface/dentistry-odontogram-root-surface.component';
@@ -209,6 +210,7 @@ const app = initializeApp(firebaseConfig);
         DentistryRecordComponent,
         DentistryDataEntryPanelComponent,
         DentistryAllFindingsListComponent,
+        DentistryFindingItemComponent,
         DentistryFhirDialogComponent,
         DentistryOdontogramAnatomicComponent,
         DentistryOdontogramRootSurfaceComponent,

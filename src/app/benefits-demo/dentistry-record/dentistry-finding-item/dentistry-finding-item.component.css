@@ -1,0 +1,129 @@
+.finding-item {
+  position: relative;
+  border: 1px solid #d7dde7;
+  border-radius: 8px;
+  background-color: #f9fafc;
+  padding: 8px 9px;
+}
+
+.finding-item.clickable {
+  cursor: pointer;
+}
+
+.finding-item.clickable:hover {
+  border-color: #aeb9cd;
+  background-color: #f2f5fb;
+}
+
+.finding-item.resolved {
+  opacity: 0.82;
+}
+
+.finding-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.finding-tooth {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.finding-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.finding-status {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #2f7d3f;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border: 1px solid #2f7d3f;
+  border-radius: 999px;
+  background-color: #ecf7ef;
+  padding: 2px 7px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.finding-status:hover {
+  background-color: #dff1e4;
+}
+
+.finding-status.resolved {
+  border-color: #9aa3ad;
+  background-color: #f1f3f5;
+  color: #6c757d;
+}
+
+.finding-status.resolved:hover {
+  background-color: #e6eaee;
+}
+
+.finding-status.planned-procedure {
+  border-color: #2f7d3f;
+  background-color: #ecf7ef;
+  color: #2f7d3f;
+}
+
+.finding-status.planned-procedure:hover {
+  background-color: #dff1e4;
+}
+
+.finding-status.completed-procedure {
+  border-color: #2d6cdf;
+  background-color: #eaf1ff;
+  color: #2d6cdf;
+}
+
+.finding-status.completed-procedure:hover {
+  background-color: #dce9ff;
+}
+
+.finding-date {
+  font-size: 0.72rem;
+  color: #6c757d;
+}
+
+.finding-line {
+  font-size: 0.77rem;
+  color: #495057;
+  line-height: 1.35;
+}
+
+.finding-code {
+  font-size: 0.66rem;
+  font-weight: 400;
+  color: #7f8793;
+  line-height: 1.2;
+  margin-top: -1px;
+  margin-bottom: 3px;
+}
+
+.finding-actions {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+}
+
+.delete-finding-button {
+  border: 1px solid #c53b3b;
+  border-radius: 5px;
+  background-color: #fff5f5;
+  color: #9f2c2c;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.delete-finding-button:hover {
+  background-color: #ffe7e7;
+}

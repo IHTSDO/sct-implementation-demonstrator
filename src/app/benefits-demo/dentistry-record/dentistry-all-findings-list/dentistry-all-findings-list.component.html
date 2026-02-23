@@ -1,24 +1,19 @@
 <div class="side-tab-content">
-  <h3>All Dental Findings</h3>
+  <h3>All Records</h3>
   <div *ngIf="items.length > 0; else noSavedFindings" class="saved-findings-list">
-    <button
-      type="button"
-      class="saved-finding-item"
+    <app-dentistry-finding-item
       *ngFor="let item of items"
-      (click)="onFocus(item)">
-      <div class="saved-finding-top">
-        <span class="saved-finding-tooth">Tooth {{ item.toothFdi }}</span>
-        <span class="saved-finding-date" *ngIf="item.recordedDateTime">{{ item.recordedDateTime | date:'MMM d, y, HH:mm' }}</span>
-      </div>
-      <div class="saved-finding-line">{{ item.surfaceDisplay }}</div>
-      <div class="saved-finding-code">{{ item.surfaceCode }}</div>
-      <div class="saved-finding-line">{{ item.findingDisplay }}</div>
-      <div class="saved-finding-code">{{ item.findingCode }}</div>
-    </button>
+      [item]="item"
+      [interactive]="true"
+      [showDelete]="true"
+      (focus)="onFocus($event)"
+      (toggleStatus)="onResolve($event)"
+      (delete)="onDelete($event)">
+    </app-dentistry-finding-item>
   </div>
   <ng-template #noSavedFindings>
     <div class="empty-details">
-      No saved dental findings for this patient yet.
+      No saved dental records for this patient yet.
     </div>
   </ng-template>
 </div>

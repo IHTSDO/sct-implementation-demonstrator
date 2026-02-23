@@ -26,6 +26,7 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   @Input() getTeethForQuadrant: (prefix: string) => OdontogramTooth[] = () => [];
   @Input() isSelected: (toothId: string) => boolean = () => false;
   @Input() hasSurfaceVisual: (toothId: string, surfaceCode: string) => boolean = () => false;
+  @Input() getSurfaceVisualType: (toothId: string, surfaceCode: string) => 'finding' | 'procedure-planned' | 'procedure-completed' | null = () => null;
   @Input() isSurfacePreview: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() hoveredTooth: OdontogramTooth | null = null;
   @Input() tooltipX = 0;
@@ -129,37 +130,35 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   }
 
   hasDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
-    const fdi = tooth.notations.fdi;
-    if (direction === this.getMesialDirection(fdi)) {
-      return this.hasSurfaceVisual(tooth.id, this.surfaceCodeMesial);
+    const code = this.getSurfaceCodeForDirection(tooth, direction);
+    if (!code) {
+      return false;
     }
-    if (direction === this.getDistalDirection(fdi)) {
-      return this.hasSurfaceVisual(tooth.id, this.surfaceCodeDistal);
-    }
-    if (direction === this.getVestibularDirection(fdi)) {
-      return this.hasSurfaceVisual(tooth.id, this.surfaceCodeVestibular);
-    }
-    if (direction === this.getLingualDirection(fdi)) {
-      return this.hasSurfaceVisual(tooth.id, this.surfaceCodeLingual);
-    }
-    return false;
+    return this.hasSurfaceVisual(tooth.id, code);
   }
 
   isDirectionPreview(tooth: OdontogramTooth, direction: RootDirection): boolean {
-    const fdi = tooth.notations.fdi;
-    if (direction === this.getMesialDirection(fdi)) {
-      return this.isSurfacePreview(tooth.id, this.surfaceCodeMesial);
+    const code = this.getSurfaceCodeForDirection(tooth, direction);
+    if (!code) {
+      return false;
     }
-    if (direction === this.getDistalDirection(fdi)) {
-      return this.isSurfacePreview(tooth.id, this.surfaceCodeDistal);
+    return this.isSurfacePreview(tooth.id, code);
+  }
+
+  isProcedureDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
+    const code = this.getSurfaceCodeForDirection(tooth, direction);
+    if (!code) {
+      return false;
     }
-    if (direction === this.getVestibularDirection(fdi)) {
-      return this.isSurfacePreview(tooth.id, this.surfaceCodeVestibular);
+    return this.isProcedureSurface(tooth, code);
+  }
+
+  isCompletedProcedureDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
+    const code = this.getSurfaceCodeForDirection(tooth, direction);
+    if (!code) {
+      return false;
     }
-    if (direction === this.getLingualDirection(fdi)) {
-      return this.isSurfacePreview(tooth.id, this.surfaceCodeLingual);
-    }
-    return false;
+    return this.isCompletedProcedureSurface(tooth, code);
   }
 
   hasOcclusalSurface(tooth: OdontogramTooth): boolean {
@@ -184,6 +183,31 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
 
   isPeriodontalPreview(tooth: OdontogramTooth): boolean {
     return this.isSurfacePreview(tooth.id, this.surfaceCodePeriodontal);
+  }
+
+  private getSurfaceCodeForDirection(tooth: OdontogramTooth, direction: RootDirection): string | null {
+    const fdi = tooth.notations.fdi;
+    if (direction === this.getMesialDirection(fdi)) {
+      return this.surfaceCodeMesial;
+    }
+    if (direction === this.getDistalDirection(fdi)) {
+      return this.surfaceCodeDistal;
+    }
+    if (direction === this.getVestibularDirection(fdi)) {
+      return this.surfaceCodeVestibular;
+    }
+    if (direction === this.getLingualDirection(fdi)) {
+      return this.surfaceCodeLingual;
+    }
+    return null;
+  }
+
+  isProcedureSurface(tooth: OdontogramTooth, surfaceCode: string): boolean {
+    return this.getSurfaceVisualType(tooth.id, surfaceCode) === 'procedure-planned';
+  }
+
+  isCompletedProcedureSurface(tooth: OdontogramTooth, surfaceCode: string): boolean {
+    return this.getSurfaceVisualType(tooth.id, surfaceCode) === 'procedure-completed';
   }
 
   private buildRow(prefix: string, sequence: number[], startX: number, y: number): RootSurfaceToothPosition[] {

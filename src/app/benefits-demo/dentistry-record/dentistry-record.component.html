@@ -2,7 +2,11 @@
   <div class="record-section">
     <div class="section-header">
       <h2>Odontogram</h2>
-      <button mat-icon-button matTooltip="View Dental FHIR Resources" (click)="openDentalFhirDialog()">
+      <button
+        mat-icon-button
+        class="fhir-floating-button"
+        matTooltip="View Dental FHIR Resources"
+        (click)="openDentalFhirDialog()">
         <mat-icon fontIcon="data_object"></mat-icon>
       </button>
     </div>
@@ -37,6 +41,7 @@
         [isSelected]="isSelectedFn"
         [getLinePaths]="getLinePathsFn"
         [hasSurfaceVisual]="hasSurfaceVisualFn"
+        [getSurfaceVisualType]="getSurfaceVisualTypeFn"
         [getSurfaceOverlayClass]="getSurfaceOverlayClassFn"
         [isSurfacePreview]="isSurfacePreviewFn"
         [getSurfaceOverlayPath]="getSurfaceOverlayPathFn"
@@ -54,6 +59,7 @@
         [getTeethForQuadrant]="getTeethForQuadrantFn"
         [isSelected]="isSelectedFn"
         [hasSurfaceVisual]="hasSurfaceVisualFn"
+        [getSurfaceVisualType]="getSurfaceVisualTypeFn"
         [isSurfacePreview]="isSurfacePreviewFn"
         [hoveredTooth]="hoveredTooth"
         [tooltipX]="tooltipX"
@@ -72,8 +78,8 @@
       </app-dentistry-odontogram-root-surface>
 
       <div class="odontogram-details">
-        <mat-tab-group class="dental-side-tabs">
-          <mat-tab label="Data Entry">
+        <mat-tab-group class="dental-side-tabs" [(selectedIndex)]="selectedSideTabIndex">
+          <mat-tab label="Selected Tooth">
             <div class="side-tab-content">
               <app-dentistry-data-entry-panel
                 [pinnedTooth]="pinnedTooth"
@@ -83,23 +89,29 @@
                 [periodontalSiteCode]="SURFACE_CODE_PERIODONTAL"
                 [findingQuery]="getPinnedFindingQuery()"
                 [filteredFindingOptions]="getFilteredFindingOptions()"
+                [entryType]="getPinnedEntryType()"
                 [canSave]="canSavePinnedFindingEntry()"
+                [saveDisabledReason]="getSaveDisabledReason()"
                 [isSaved]="isPinnedEntrySaved()"
                 [pinnedToothSavedFindings]="getPinnedToothSavedFindings()"
                 (exclusiveSiteToggle)="onExclusiveSiteToggle($event.siteCode, $event.checked)"
                 (surfaceSiteToggle)="onSurfaceSiteToggle($event.siteCode, $event.checked)"
                 (findingInputChange)="onFindingInputChange($event)"
                 (findingSelected)="onFindingSelected($event)"
+                (entryTypeChange)="onEntryTypeChange($event)"
                 (save)="savePinnedFindingEntry()"
+                (resolveFinding)="resolveSavedFinding($event)"
                 (deleteFinding)="deleteSavedFinding($event)">
               </app-dentistry-data-entry-panel>
             </div>
 
           </mat-tab>
 
-          <mat-tab label="All Findings">
+          <mat-tab label="All Records">
             <app-dentistry-all-findings-list
               [items]="getDentalObservationList()"
+              (resolveFinding)="resolveSavedFinding($event)"
+              (deleteFinding)="deleteSavedFinding($event)"
               (focusFinding)="focusObservationTooth($event)">
             </app-dentistry-all-findings-list>
           </mat-tab>
