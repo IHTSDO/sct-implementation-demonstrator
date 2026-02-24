@@ -60,8 +60,8 @@ export class DentistryRecordComponent implements OnChanges {
   readonly quadrants: QuadrantConfig[] = [
     { key: 'upper-right', label: 'Upper Right', prefix: '1', transform: '' },
     { key: 'upper-left', label: 'Upper Left', prefix: '2', transform: 'scale(-1, 1) translate(-409, 0)' },
-    { key: 'lower-right', label: 'Lower Right', prefix: '3', transform: 'scale(1, -1) translate(0, -694)' },
-    { key: 'lower-left', label: 'Lower Left', prefix: '4', transform: 'scale(-1, -1) translate(-409, -694)' }
+    { key: 'lower-right', label: 'Lower Right', prefix: '4', transform: 'scale(1, -1) translate(0, -694)' },
+    { key: 'lower-left', label: 'Lower Left', prefix: '3', transform: 'scale(-1, -1) translate(-409, -694)' }
   ];
   readonly teethByQuadrant = this.buildTeethByQuadrant();
   readonly toothIdBySnomedCode = this.buildToothIdBySnomedCodeMap();
