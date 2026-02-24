@@ -1,0 +1,39 @@
+<div
+  class="record-item"
+  [class.resolved]="item.isResolved"
+  [class.clickable]="interactive"
+  (click)="onCardClick()">
+  <div class="record-top">
+    <span class="record-tooth">Tooth {{ item.toothFdi }}</span>
+    <div class="record-meta">
+      <span
+        class="record-status"
+        [class.resolved]="item.isResolved"
+        [class.planned-procedure]="isProcedurePlanned()"
+        [class.completed-procedure]="isProcedureCompleted()"
+        (click)="onToggleStatus($event)"
+        [matTooltip]="getStatusToggleTooltip()"
+        [matTooltipShowDelay]="100"
+        [matTooltipHideDelay]="0">
+        {{ item.clinicalStatusDisplay }}
+      </span>
+      <span class="record-date" *ngIf="item.recordedDateTime">{{ item.recordedDateTime | date:'MMM d, y, HH:mm' }}</span>
+    </div>
+  </div>
+
+  <div class="record-line">{{ item.surfaceDisplay }}:</div>
+  <div class="record-code">{{ item.surfaceCode }}</div>
+  <div class="record-line">{{ item.findingDisplay }}</div>
+  <div class="record-code">{{ item.findingCode }}</div>
+
+  <div class="record-actions" *ngIf="showDelete">
+    <button
+      type="button"
+      class="delete-record-button"
+      aria-label="Delete record"
+      matTooltip="Delete record"
+      (click)="onDelete($event)">
+      <mat-icon fontIcon="delete"></mat-icon>
+    </button>
+  </div>
+</div>

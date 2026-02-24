@@ -66,7 +66,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly teethByQuadrant = this.buildTeethByQuadrant();
   readonly toothIdBySnomedCode = this.buildToothIdBySnomedCodeMap();
   viewMode: OdontogramViewMode = 'anatomic';
-  selectedSideTabIndex = 0;
+  selectedSideTabIndex = 1;
   readonly getTeethForQuadrantFn = (prefix: string) => this.getTeethForQuadrant(prefix);
   readonly trackByToothIdFn = (_: number, tooth: OdontogramTooth) => this.trackByToothId(_, tooth);
   readonly isSelectedFn = (toothId: string) => this.isSelected(toothId);
@@ -682,6 +682,7 @@ export class DentistryRecordComponent implements OnChanges {
     this.saveFeedbackByToothId = {};
     this.dentalFindingList = [];
     this.savedSurfaceByToothId = {};
+    this.selectedSideTabIndex = 1;
   }
 
   private buildDentalConditionAndBodyStructure(

@@ -1,7 +1,7 @@
 <div class="side-tab-content">
   <h3>All Records</h3>
   <div *ngIf="items.length > 0; else noSavedFindings" class="saved-findings-list">
-    <app-dentistry-finding-item
+    <app-dentistry-record-item
       *ngFor="let item of items"
       [item]="item"
       [interactive]="true"
@@ -9,7 +9,7 @@
       (focus)="onFocus($event)"
       (toggleStatus)="onResolve($event)"
       (delete)="onDelete($event)">
-    </app-dentistry-finding-item>
+    </app-dentistry-record-item>
   </div>
   <ng-template #noSavedFindings>
     <div class="empty-details">

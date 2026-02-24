@@ -20,13 +20,13 @@
   <div class="tooth-findings-section">
     <h4>Current Records For This Tooth</h4>
     <div *ngIf="pinnedToothSavedFindings.length > 0; else noPinnedToothFindings" class="tooth-findings-list">
-      <app-dentistry-finding-item
+      <app-dentistry-record-item
         *ngFor="let item of pinnedToothSavedFindings"
         [item]="item"
         [showDelete]="true"
         (toggleStatus)="onResolveFinding($event)"
         (delete)="onDeleteFinding($event)">
-      </app-dentistry-finding-item>
+      </app-dentistry-record-item>
     </div>
     <ng-template #noPinnedToothFindings>
       <div class="empty-selection">

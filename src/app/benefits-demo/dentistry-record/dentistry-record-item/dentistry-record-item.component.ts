@@ -2,12 +2,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DentalFindingListItem } from '../models/dental-finding-list-item.model';
 
 @Component({
-  selector: 'app-dentistry-finding-item',
-  templateUrl: './dentistry-finding-item.component.html',
-  styleUrls: ['./dentistry-finding-item.component.css'],
+  selector: 'app-dentistry-record-item',
+  templateUrl: './dentistry-record-item.component.html',
+  styleUrls: ['./dentistry-record-item.component.css'],
   standalone: false
 })
-export class DentistryFindingItemComponent {
+export class DentistryRecordItemComponent {
   @Input() item!: DentalFindingListItem;
   @Input() interactive = false;
   @Input() showDelete = false;
