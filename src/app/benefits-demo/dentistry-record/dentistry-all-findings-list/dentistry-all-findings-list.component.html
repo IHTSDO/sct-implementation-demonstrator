@@ -8,7 +8,8 @@
       [showDelete]="true"
       (focus)="onFocus($event)"
       (toggleStatus)="onResolve($event)"
-      (delete)="onDelete($event)">
+      (delete)="onDelete($event)"
+      (copyPostcoordinated)="onCopyPostcoordinated($event)">
     </app-dentistry-record-item>
   </div>
   <ng-template #noSavedFindings>

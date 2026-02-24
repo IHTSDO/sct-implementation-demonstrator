@@ -101,7 +101,8 @@
                 (entryTypeChange)="onEntryTypeChange($event)"
                 (save)="savePinnedFindingEntry()"
                 (resolveFinding)="resolveSavedFinding($event)"
-                (deleteFinding)="deleteSavedFinding($event)">
+                (deleteFinding)="deleteSavedFinding($event)"
+                (copyPostcoordinated)="copyPostcoordinatedExpression($event)">
               </app-dentistry-data-entry-panel>
             </div>
 
@@ -112,7 +113,8 @@
               [items]="getDentalObservationList()"
               (resolveFinding)="resolveSavedFinding($event)"
               (deleteFinding)="deleteSavedFinding($event)"
-              (focusFinding)="focusObservationTooth($event)">
+              (focusFinding)="focusObservationTooth($event)"
+              (copyPostcoordinated)="copyPostcoordinatedExpression($event)">
             </app-dentistry-all-findings-list>
           </mat-tab>
         </mat-tab-group>

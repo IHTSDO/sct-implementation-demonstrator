@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { DentalFindingListItem } from '../models/dental-finding-list-item.model';
 
 @Component({
@@ -15,6 +15,13 @@ export class DentistryRecordItemComponent {
   @Output() focus = new EventEmitter<DentalFindingListItem>();
   @Output() toggleStatus = new EventEmitter<DentalFindingListItem>();
   @Output() delete = new EventEmitter<DentalFindingListItem>();
+  @Output() copyPostcoordinated = new EventEmitter<DentalFindingListItem>();
+
+  contextMenuVisible = false;
+  contextMenuX = 0;
+  contextMenuY = 0;
+
+  constructor(private hostRef: ElementRef<HTMLElement>) {}
 
   onCardClick(): void {
     if (!this.interactive || !this.item) {
@@ -37,6 +44,44 @@ export class DentistryRecordItemComponent {
       return;
     }
     this.delete.emit(this.item);
+  }
+
+  onContextMenu(event: MouseEvent): void {
+    if (!this.item) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuX = event.clientX;
+    this.contextMenuY = event.clientY;
+    this.contextMenuVisible = true;
+  }
+
+  onCopyPostcoordinated(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuVisible = false;
+    if (!this.item) {
+      return;
+    }
+    this.copyPostcoordinated.emit(this.item);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.contextMenuVisible) {
+      return;
+    }
+    const target = event.target as Node | null;
+    if (target && this.hostRef.nativeElement.contains(target)) {
+      return;
+    }
+    this.contextMenuVisible = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.contextMenuVisible = false;
   }
 
   getStatusToggleTooltip(): string {

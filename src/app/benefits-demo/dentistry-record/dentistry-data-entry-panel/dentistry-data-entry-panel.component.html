@@ -25,7 +25,8 @@
         [item]="item"
         [showDelete]="true"
         (toggleStatus)="onResolveFinding($event)"
-        (delete)="onDeleteFinding($event)">
+        (delete)="onDeleteFinding($event)"
+        (copyPostcoordinated)="onCopyPostcoordinated($event)">
       </app-dentistry-record-item>
     </div>
     <ng-template #noPinnedToothFindings>

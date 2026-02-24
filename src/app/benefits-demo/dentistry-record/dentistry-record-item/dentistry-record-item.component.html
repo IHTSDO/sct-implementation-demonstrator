@@ -2,7 +2,8 @@
   class="record-item"
   [class.resolved]="item.isResolved"
   [class.clickable]="interactive"
-  (click)="onCardClick()">
+  (click)="onCardClick()"
+  (contextmenu)="onContextMenu($event)">
   <div class="record-top">
     <span class="record-tooth">Tooth {{ item.toothFdi }}</span>
     <div class="record-meta">
@@ -36,4 +37,14 @@
       <mat-icon fontIcon="delete"></mat-icon>
     </button>
   </div>
+</div>
+
+<div
+  class="record-context-menu"
+  *ngIf="contextMenuVisible"
+  [style.left.px]="contextMenuX"
+  [style.top.px]="contextMenuY">
+  <button type="button" class="record-context-action" (click)="onCopyPostcoordinated($event)">
+    Copy postcoordinated expression
+  </button>
 </div>

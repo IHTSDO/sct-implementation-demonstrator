@@ -1,6 +1,8 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { BodyStructure, Condition, Patient, PatientService, Procedure } from '../../services/patient.service';
 import { MatDialog } from '@angular/material/dialog';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BASE_TEETH } from './data/tooth-data';
 import { FindingScope, OdontogramTooth, SnomedConceptOption, ToothFindingEntry } from './models/tooth.model';
 import { getToothNotations } from './utils/tooth-notation.utils';
@@ -41,6 +43,10 @@ export class DentistryRecordComponent implements OnChanges {
   readonly SURFACE_CODE_VESTIBULAR = '62579006';
   readonly SURFACE_CODE_COMPLETE = '302214001';
   readonly SURFACE_CODE_PERIODONTAL = '8711009';
+  private readonly FINDING_SITE_ATTRIBUTE_CODE = '363698007';
+  private readonly FINDING_SITE_ATTRIBUTE_DISPLAY = 'Finding site (attribute)';
+  private readonly PROCEDURE_SITE_ATTRIBUTE_CODE = '405813007';
+  private readonly PROCEDURE_SITE_ATTRIBUTE_DISPLAY = 'Procedure site - Direct (attribute)';
 
   pinnedTooth: OdontogramTooth | null = null;
   hoveredTooth: OdontogramTooth | null = null;
@@ -82,7 +88,12 @@ export class DentistryRecordComponent implements OnChanges {
   readonly getSurfaceStrokeFn = (surfaceCode: string) => this.getSurfaceStroke(surfaceCode);
   readonly getSurfaceStrokeWidthFn = (surfaceCode: string) => this.getSurfaceStrokeWidth(surfaceCode);
 
-  constructor(private patientService: PatientService, private dialog: MatDialog) {}
+  constructor(
+    private patientService: PatientService,
+    private dialog: MatDialog,
+    private clipboard: Clipboard,
+    private snackBar: MatSnackBar
+  ) {}
 
   setViewMode(mode: OdontogramViewMode): void {
     this.viewMode = mode;
@@ -542,6 +553,21 @@ export class DentistryRecordComponent implements OnChanges {
     if (this.pinnedTooth) {
       this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
     }
+  }
+
+  copyPostcoordinatedExpression(item: DentalFindingListItem): void {
+    const expression = this.buildPostcoordinatedExpression(item);
+    if (!expression) {
+      this.snackBar.open('Could not generate postcoordinated expression for this record.', 'Close', { duration: 2600 });
+      return;
+    }
+
+    const wasCopied = this.clipboard.copy(expression);
+    this.snackBar.open(
+      wasCopied ? 'Postcoordinated expression copied to clipboard.' : 'Unable to copy expression to clipboard.',
+      'Close',
+      { duration: 2400 }
+    );
   }
 
   resolveSavedFinding(item: DentalFindingListItem): void {
@@ -1091,6 +1117,45 @@ export class DentistryRecordComponent implements OnChanges {
         const bTime = b.recordedDateTime ? new Date(b.recordedDateTime).getTime() : 0;
         return bTime - aTime;
       });
+  }
+
+  private buildPostcoordinatedExpression(item: DentalFindingListItem): string {
+    const conceptCode = (item.findingCode || '').trim();
+    const conceptDisplay = (item.findingDisplay || '').trim();
+    if (!conceptCode || !conceptDisplay) {
+      return '';
+    }
+
+    const tooth = this.findToothById(item.toothId);
+    const toothCode = tooth?.snomedStructure?.code || '';
+    const toothDisplay = tooth?.snomedStructure?.display || '';
+    if (!toothCode || !toothDisplay) {
+      return '';
+    }
+
+    const attributeCode = item.entryType === 'finding'
+      ? this.FINDING_SITE_ATTRIBUTE_CODE
+      : this.PROCEDURE_SITE_ATTRIBUTE_CODE;
+    const attributeDisplay = item.entryType === 'finding'
+      ? this.FINDING_SITE_ATTRIBUTE_DISPLAY
+      : this.PROCEDURE_SITE_ATTRIBUTE_DISPLAY;
+
+    const siteLines = item.siteCodes
+      .map((siteCode) => {
+        const site = this.surfaceOptions.find((option) => option.code === siteCode);
+        if (!site) {
+          return '';
+        }
+        return `${attributeCode} |${attributeDisplay}| = ${site.code} |${site.display}|`;
+      })
+      .filter((line) => !!line);
+
+    const attributeLines = [
+      `${attributeCode} |${attributeDisplay}| = ${toothCode} |${toothDisplay}|`,
+      ...siteLines
+    ];
+
+    return `=== ${conceptCode} |${conceptDisplay}| :\n${attributeLines.join(',\n')}`;
   }
 
   private buildDentalFhirBundle(patientId: string): any {

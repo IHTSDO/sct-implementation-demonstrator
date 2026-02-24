@@ -12,6 +12,7 @@ export class DentistryAllFindingsListComponent {
   @Output() focusFinding = new EventEmitter<DentalFindingListItem>();
   @Output() resolveFinding = new EventEmitter<DentalFindingListItem>();
   @Output() deleteFinding = new EventEmitter<DentalFindingListItem>();
+  @Output() copyPostcoordinated = new EventEmitter<DentalFindingListItem>();
 
   onFocus(item: DentalFindingListItem): void {
     this.focusFinding.emit(item);
@@ -23,5 +24,9 @@ export class DentistryAllFindingsListComponent {
 
   onDelete(item: DentalFindingListItem): void {
     this.deleteFinding.emit(item);
+  }
+
+  onCopyPostcoordinated(item: DentalFindingListItem): void {
+    this.copyPostcoordinated.emit(item);
   }
 }

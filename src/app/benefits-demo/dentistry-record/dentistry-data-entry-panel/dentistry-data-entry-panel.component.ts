@@ -30,6 +30,7 @@ export class DentistryDataEntryPanelComponent {
   @Output() save = new EventEmitter<void>();
   @Output() resolveFinding = new EventEmitter<DentalFindingListItem>();
   @Output() deleteFinding = new EventEmitter<DentalFindingListItem>();
+  @Output() copyPostcoordinated = new EventEmitter<DentalFindingListItem>();
 
   isSelectedSite(siteCode: string): boolean {
     return this.selectedSiteCodes.includes(siteCode);
@@ -65,5 +66,9 @@ export class DentistryDataEntryPanelComponent {
 
   onResolveFinding(item: DentalFindingListItem): void {
     this.resolveFinding.emit(item);
+  }
+
+  onCopyPostcoordinated(item: DentalFindingListItem): void {
+    this.copyPostcoordinated.emit(item);
   }
 }
