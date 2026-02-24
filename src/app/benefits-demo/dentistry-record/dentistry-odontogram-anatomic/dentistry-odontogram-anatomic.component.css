@@ -37,6 +37,22 @@
   color: #2f49d1;
 }
 
+.tooth.absent {
+  color: #bcc3ce;
+}
+
+.tooth.absent .tooth-shadow {
+  opacity: 0.16;
+}
+
+.tooth.absent .tooth-highlight {
+  opacity: 0.35;
+}
+
+.tooth.absent:hover {
+  color: #aeb7c4;
+}
+
 .tooth-outline {
   fill: none;
   stroke: currentColor;
@@ -159,6 +175,18 @@
   margin-top: 2px;
   font-size: 0.75rem;
   color: #cdd7ec;
+}
+
+.tooltip-records {
+  margin-top: 5px;
+  border-top: 1px solid rgba(141, 164, 210, 0.25);
+  padding-top: 5px;
+}
+
+.tooltip-record-line {
+  font-size: 0.68rem;
+  line-height: 1.25;
+  color: #dce5f4;
 }
 
 @media (max-width: 640px) {

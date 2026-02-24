@@ -25,12 +25,14 @@ interface ConnectorLine {
 export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChanges {
   @Input() getTeethForQuadrant: (prefix: string) => OdontogramTooth[] = () => [];
   @Input() isSelected: (toothId: string) => boolean = () => false;
+  @Input() isToothAbsent: (toothId: string) => boolean = () => false;
   @Input() hasSurfaceVisual: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() getSurfaceVisualType: (toothId: string, surfaceCode: string) => 'finding' | 'procedure-planned' | 'procedure-completed' | null = () => null;
   @Input() isSurfacePreview: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() hoveredTooth: OdontogramTooth | null = null;
   @Input() tooltipX = 0;
   @Input() tooltipY = 0;
+  @Input() getToothTooltipLines: (toothId: string) => string[] = () => [];
 
   @Input() surfaceCodeMesial = '';
   @Input() surfaceCodeDistal = '';

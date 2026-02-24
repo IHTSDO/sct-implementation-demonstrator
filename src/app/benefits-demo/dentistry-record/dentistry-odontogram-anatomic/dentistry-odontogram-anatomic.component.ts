@@ -24,6 +24,7 @@ export class DentistryOdontogramAnatomicComponent {
   @Input() getTeethForQuadrant: (prefix: string) => OdontogramTooth[] = () => [];
   @Input() trackByToothId: (_: number, tooth: OdontogramTooth) => string = (_: number, tooth: OdontogramTooth) => tooth.id;
   @Input() isSelected: (toothId: string) => boolean = () => false;
+  @Input() isToothAbsent: (toothId: string) => boolean = () => false;
   @Input() getLinePaths: (tooth: OdontogramTooth) => string[] = () => [];
   @Input() hasSurfaceVisual: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() getSurfaceVisualType: (toothId: string, surfaceCode: string) => 'finding' | 'procedure-planned' | 'procedure-completed' | null = () => null;
@@ -33,6 +34,7 @@ export class DentistryOdontogramAnatomicComponent {
   @Input() getSurfaceFill: (surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string) => string = () => 'none';
   @Input() getSurfaceStroke: (surfaceCode: string) => string | null = () => null;
   @Input() getSurfaceStrokeWidth: (surfaceCode: string) => string | null = () => null;
+  @Input() getToothTooltipLines: (toothId: string) => string[] = () => [];
 
   @Output() toothPinned = new EventEmitter<OdontogramTooth>();
   @Output() toothMouseEnter = new EventEmitter<{ tooth: OdontogramTooth; event: MouseEvent }>();

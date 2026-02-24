@@ -43,6 +43,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly SURFACE_CODE_VESTIBULAR = '62579006';
   readonly SURFACE_CODE_COMPLETE = '302214001';
   readonly SURFACE_CODE_PERIODONTAL = '8711009';
+  private readonly TOOTH_ABSENT_FINDING_CODE = '234948008';
   private readonly FINDING_SITE_ATTRIBUTE_CODE = '363698007';
   private readonly FINDING_SITE_ATTRIBUTE_DISPLAY = 'Finding site (attribute)';
   private readonly PROCEDURE_SITE_ATTRIBUTE_CODE = '405813007';
@@ -59,6 +60,7 @@ export class DentistryRecordComponent implements OnChanges {
 
   dentalFindingList: DentalFindingListItem[] = [];
   savedSurfaceByToothId: Record<string, Record<string, SurfaceVisualType>> = {};
+  private absentToothIds = new Set<string>();
 
   readonly surfaceOptions: SnomedConceptOption[] = DENTAL_SURFACE_OPTIONS;
   readonly findingOptions: SnomedConceptOption[] = DENTAL_FINDING_OPTIONS;
@@ -79,6 +81,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly getLinePathsFn = (tooth: OdontogramTooth) => this.getLinePaths(tooth);
   readonly hasSurfaceVisualFn = (toothId: string, surfaceCode: string) => this.hasSurfaceVisual(toothId, surfaceCode);
   readonly getSurfaceVisualTypeFn = (toothId: string, surfaceCode: string) => this.getSurfaceVisualType(toothId, surfaceCode);
+  readonly isToothAbsentFn = (toothId: string) => this.isToothAbsent(toothId);
   readonly getSurfaceOverlayClassFn = (surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string) =>
     this.getSurfaceOverlayClass(surfaceCode, tooth, quadrantPrefix);
   readonly isSurfacePreviewFn = (toothId: string, surfaceCode: string) => this.isSurfacePreview(toothId, surfaceCode);
@@ -87,6 +90,7 @@ export class DentistryRecordComponent implements OnChanges {
     this.getSurfaceFill(surfaceCode, tooth, quadrantPrefix);
   readonly getSurfaceStrokeFn = (surfaceCode: string) => this.getSurfaceStroke(surfaceCode);
   readonly getSurfaceStrokeWidthFn = (surfaceCode: string) => this.getSurfaceStrokeWidth(surfaceCode);
+  readonly getToothTooltipLinesFn = (toothId: string) => this.getToothTooltipLines(toothId);
 
   constructor(
     private patientService: PatientService,
@@ -175,6 +179,9 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   hasSurfaceVisual(toothId: string, surfaceCode: string): boolean {
+    if (this.isToothAbsent(toothId)) {
+      return false;
+    }
     return this.hasSavedSurface(toothId, surfaceCode) || this.isSurfacePreview(toothId, surfaceCode);
   }
 
@@ -188,10 +195,17 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   getSurfaceVisualType(toothId: string, surfaceCode: string): SurfaceVisualType | null {
+    if (this.isToothAbsent(toothId)) {
+      return null;
+    }
     if (this.isSurfacePreview(toothId, surfaceCode)) {
       return this.getPinnedEntryType() === 'procedure' ? 'procedure-planned' : 'finding';
     }
     return this.getSavedSurfaceVisualType(toothId, surfaceCode);
+  }
+
+  isToothAbsent(toothId: string): boolean {
+    return this.absentToothIds.has(toothId);
   }
 
   isPinnedSiteSelected(siteCode: string): boolean {
@@ -992,6 +1006,7 @@ export class DentistryRecordComponent implements OnChanges {
     }, {} as Record<string, BodyStructure>);
 
     this.savedSurfaceByToothId = {};
+    this.absentToothIds = new Set<string>();
 
     const conditionItems = conditions
       .filter((condition) => this.isDentalCondition(condition))
@@ -1011,8 +1026,14 @@ export class DentistryRecordComponent implements OnChanges {
         const clinicalStatusCode = this.getConditionClinicalStatusCode(condition);
         const clinicalStatusDisplay = this.getConditionClinicalStatusDisplay(condition, clinicalStatusCode);
         const isResolved = clinicalStatusCode === 'resolved';
+        const findingCode = condition.code?.coding?.[0]?.code || '';
+        const isToothAbsentFinding = findingCode === this.TOOTH_ABSENT_FINDING_CODE;
 
-        if (!isResolved) {
+        if (!isResolved && toothId && isToothAbsentFinding) {
+          this.absentToothIds.add(toothId);
+        }
+
+        if (!isResolved && !isToothAbsentFinding) {
           siteCodes.forEach((siteCode) => {
             if (!toothId) {
               return;
@@ -1026,7 +1047,6 @@ export class DentistryRecordComponent implements OnChanges {
           .map((siteCode) => this.surfaceOptions.find((option) => option.code === siteCode)?.display || siteCode)
           .filter(Boolean);
 
-        const findingCode = condition.code?.coding?.[0]?.code || '';
         const findingDisplay = condition.code?.coding?.[0]?.display || condition.code?.text || 'Not specified';
 
         return {
@@ -1191,6 +1211,51 @@ export class DentistryRecordComponent implements OnChanges {
     const offset = 16;
     this.tooltipX = event.clientX + offset;
     this.tooltipY = event.clientY - offset;
+  }
+
+  private getToothTooltipLines(toothId: string): string[] {
+    const items = this.dentalFindingList.filter((item) => item.toothId === toothId);
+    if (!items.length) {
+      return [];
+    }
+
+    const findingLabels = this.toUniqueCompactLabels(
+      items
+        .filter((item) => item.entryType === 'finding' && !item.isResolved)
+        .map((item) => item.findingDisplay)
+    );
+    const procedureLabels = this.toUniqueCompactLabels(
+      items
+        .filter((item) => item.entryType === 'procedure')
+        .map((item) => `${this.toTooltipProcedureName(item.findingDisplay)} (${item.isResolved ? 'completed' : 'planned'})`)
+    );
+
+    const lines: string[] = [];
+    if (findingLabels.length) {
+      lines.push(this.compactTooltipList(findingLabels, 2));
+    }
+    if (procedureLabels.length) {
+      lines.push(this.compactTooltipList(procedureLabels, 2));
+    }
+    return lines;
+  }
+
+  private toUniqueCompactLabels(values: string[]): string[] {
+    const cleaned = values
+      .map((value) => (value || '').trim())
+      .filter((value) => !!value);
+    return Array.from(new Set(cleaned));
+  }
+
+  private toTooltipProcedureName(display: string): string {
+    return (display || '').replace(/\s*\(procedure\)\s*$/i, '').trim();
+  }
+
+  private compactTooltipList(values: string[], maxItems: number): string {
+    if (values.length <= maxItems) {
+      return values.join(', ');
+    }
+    return `${values.slice(0, maxItems).join(', ')} +${values.length - maxItems}`;
   }
 
   private clearToothDraft(toothId: string): void {

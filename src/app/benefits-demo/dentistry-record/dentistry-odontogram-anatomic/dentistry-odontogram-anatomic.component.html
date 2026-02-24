@@ -100,6 +100,7 @@
         class="tooth"
         *ngFor="let tooth of getTeethForQuadrant(quadrant.prefix); trackBy: trackByToothId"
         [class.selected]="isSelected(tooth.id)"
+        [class.absent]="isToothAbsent(tooth.id)"
         [attr.aria-label]="'Tooth ' + tooth.notations.fdi"
         [attr.aria-selected]="isSelected(tooth.id)"
         (mousedown)="$event.preventDefault()"
@@ -136,6 +137,11 @@
     [style.top.px]="tooltipY">
     <div class="tooltip-number">Tooth {{ hoveredTooth.notations.fdi }}</div>
     <div class="tooltip-type">{{ hoveredTooth.type }}</div>
+    <ng-container *ngIf="getToothTooltipLines(hoveredTooth.id) as tooltipLines">
+      <div class="tooltip-records" *ngIf="tooltipLines.length">
+        <div class="tooltip-record-line" *ngFor="let line of tooltipLines">{{ line }}</div>
+      </div>
+    </ng-container>
   </div>
 
   <div class="surface-legend" aria-label="Surface color legend">

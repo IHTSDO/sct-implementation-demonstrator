@@ -55,6 +55,18 @@
   fill: rgba(47, 73, 209, 0.24);
 }
 
+.root-tooth.absent {
+  color: #b8c0cb;
+}
+
+.root-tooth.absent .tooth-node {
+  fill: #eef1f5;
+}
+
+.root-tooth.absent .tooth-label {
+  fill: #8e98a6;
+}
+
 .tooth-node {
   fill: #f5f7fa;
   stroke: currentColor;
@@ -145,6 +157,18 @@
   margin-top: 2px;
   font-size: 0.75rem;
   color: #cdd7ec;
+}
+
+.tooltip-records {
+  margin-top: 5px;
+  border-top: 1px solid rgba(141, 164, 210, 0.25);
+  padding-top: 5px;
+}
+
+.tooltip-record-line {
+  font-size: 0.68rem;
+  line-height: 1.25;
+  color: #dce5f4;
 }
 
 @media (max-width: 640px) {
