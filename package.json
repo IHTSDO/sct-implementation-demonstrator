@@ -41,7 +41,7 @@
     "highlight.js": "^11.7.0",
     "html2canvas": "^1.4.1",
     "install": "^0.13.0",
-    "jspdf": "^3.0.0",
+    "jspdf": "^4.2.0",
     "jszip": "^3.10.1",
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^4.2.0",
