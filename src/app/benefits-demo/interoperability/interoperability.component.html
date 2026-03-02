@@ -277,8 +277,14 @@
             }
           </div>
         </div>
+        @if (!linkedPatient) {
+          <div class="link-required-global">
+            <mat-icon>info</mat-icon>
+            <span>Link or create a patient to view and reconcile IPS clinical sections.</span>
+          </div>
+        }
         <!-- Conditions Row -->
-        @if (hasConditions()) {
+        @if (linkedPatient && hasConditions()) {
           <div class="data-row">
             <div class="left-section">
               <!-- Conditions Section -->
@@ -439,7 +445,7 @@
           </div>
         }
         <!-- Procedures Row -->
-        @if (hasProcedures()) {
+        @if (linkedPatient && hasProcedures()) {
           <div class="data-row">
             <div class="left-section">
               <!-- Procedures Section -->
@@ -533,7 +539,7 @@
           </div>
         }
         <!-- Medications Row -->
-        @if (hasMedications()) {
+        @if (linkedPatient && hasMedications()) {
           <div class="data-row">
             <div class="left-section">
               <!-- Medications Section -->
@@ -692,7 +698,7 @@
           </div>
         }
         <!-- Allergies Row -->
-        @if (hasAllergies()) {
+        @if (linkedPatient && hasAllergies()) {
           <div class="data-row">
             <div class="left-section">
               <!-- Allergies Section -->
