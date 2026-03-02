@@ -233,6 +233,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.suggestedPatient = { ...topMatch.patient, matchType: matchType, score: topMatch.score };
   }
 
+  needsManualPatientEntry(): boolean {
+    return !!this.patientData && !this.suggestedPatient;
+  }
+
   /**
    * Accept the suggested patient
    */

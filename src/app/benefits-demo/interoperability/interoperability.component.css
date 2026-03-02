@@ -1074,6 +1074,15 @@ mat-card-title mat-icon {
   align-items: stretch;
 }
 
+.no-match-note {
+  font-size: 0.9rem;
+  color: #475569;
+  background: #f8fafc;
+  border-left: 3px solid #38bdf8;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
 .patient-selector {
   flex: 1;
   min-width: 250px;

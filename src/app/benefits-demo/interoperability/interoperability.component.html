@@ -130,7 +130,7 @@
                   Link IPS Patient to records
                 </mat-card-title>
               </mat-card-header>
-              <mat-card-content>
+                <mat-card-content>
                 <!-- Patient Suggestion -->
                 @if (suggestedPatient && !linkedPatient) {
                   <div class="patient-suggestion">
@@ -157,6 +157,11 @@
                   </div>
                 }
                 <div class="link-controls">
+                  @if (needsManualPatientEntry() && !linkedPatient) {
+                    <div class="no-match-note">
+                      No automatic match with existing patients. Create a <strong>new patient</strong> when ready.
+                    </div>
+                  }
                   <mat-form-field class="patient-selector">
                     <mat-label>Select existing patient (sorted by similarity)</mat-label>
                     <mat-select [(value)]="selectedPatientId" (selectionChange)="onPatientSelectionChange($event)">
