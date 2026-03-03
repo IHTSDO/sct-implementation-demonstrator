@@ -97,6 +97,8 @@ interface ConceptRow {
   standalone: false
 })
 export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterViewInit {
+  private static readonly MAX_ECL_RESULTS = 1000;
+
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('workflowProgressAnchor') workflowProgressAnchor!: ElementRef<HTMLElement>;
   private workflowProgressObserver?: IntersectionObserver;
@@ -842,16 +844,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.targetValueSet = null;
     this.scrollToBottomAfterRender();
 
-    this.terminologyService.expandValueSet(this.eclExpression, '', 0, 1000).subscribe(
+    this.terminologyService.expandValueSet(this.eclExpression, '', 0, ValuesetTranslatorComponent.MAX_ECL_RESULTS).subscribe(
       (expandedValueSet) => {
         const total = expandedValueSet?.expansion?.total || 0;
         const matchCount = expandedValueSet?.expansion?.contains?.length || 0;
-
-        if (total > 1000) {
-          this.error = `Found ${total} matching concepts. This tool currently supports a maximum of 1000 concepts. Please refine your ECL expression to return fewer results.`;
-          this.isLoading = false;
-          return;
-        }
+        const isTruncated = total > ValuesetTranslatorComponent.MAX_ECL_RESULTS;
 
         if (matchCount > 0) {
           this.targetValueSet = expandedValueSet;
@@ -898,7 +895,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           this.showPreview = true;
           this.totalCount = total;
           this.isLoading = false;
-          this.successMessage = `Successfully expanded ECL expression. Found ${matchCount} matching concepts.`;
+          this.successMessage = isTruncated
+            ? `Successfully expanded ECL expression. Found ${total} matching concepts and loaded the first ${ValuesetTranslatorComponent.MAX_ECL_RESULTS}.`
+            : `Successfully expanded ECL expression. Found ${matchCount} matching concepts.`;
           this.scrollToBottomAfterRender();
         } else {
           this.error = 'No concepts found for the given ECL expression';
