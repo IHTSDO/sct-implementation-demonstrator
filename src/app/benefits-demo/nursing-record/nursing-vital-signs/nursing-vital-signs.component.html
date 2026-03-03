@@ -1,0 +1,25 @@
+<div class="vital-signs-section">
+  <div class="section-header">
+    <h3>Vital Signs</h3>
+    <button
+      mat-icon-button
+      class="fhir-floating-button"
+      matTooltip="View Vital FHIR Resources"
+      (click)="openVitalFhirDialog()">
+      <mat-icon fontIcon="data_object"></mat-icon>
+    </button>
+  </div>
+
+  <div class="vital-grid">
+    <app-nursing-vital-card
+      *ngFor="let sign of vitalSigns; trackBy: trackByKey"
+      [patient]="patient"
+      [emoji]="sign.emoji"
+      [label]="sign.label"
+      [unit]="sign.unit"
+      [code]="sign.loincCode"
+      [snomedCode]="sign.snomedCode || ''"
+      [isBloodPressure]="!!sign.isBloodPressure">
+    </app-nursing-vital-card>
+  </div>
+</div>

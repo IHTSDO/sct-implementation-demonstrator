@@ -1,0 +1,21 @@
+<div class="record-content" *ngIf="patient">
+  <div class="record-section">
+    <div class="section-header">
+      <h2>Nursing</h2>
+    </div>
+
+    <mat-tab-group class="nursing-tabs">
+      <mat-tab label="Vital Signs">
+        <div class="tab-content">
+          <app-nursing-vital-signs [patient]="patient"></app-nursing-vital-signs>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Nutritional Careplan">
+        <div class="tab-content">
+          <app-nursing-nutritional-careplan [patient]="patient"></app-nursing-nutritional-careplan>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

@@ -51,6 +51,7 @@ import { RadiosBindingComponent } from './bindings/radios-binding/radios-binding
 import { TextBoxBindingComponent } from './bindings/textbox-binding/textbox-binding.component';
 import { EclBuilderDialogComponent } from './bindings/ecl-builder-dialog/ecl-builder-dialog.component';
 import { CheckBoxBindingComponent } from './bindings/checkbox-binding/checkbox-binding.component';
+import { MultiPrefixSelectBindingComponent } from './bindings/multi-prefix-select-binding/multi-prefix-select-binding.component';
 import { PrescriptionMainComponent } from './prescription/prescription-main/prescription-main.component';
 import { QuestionnairesMainComponent } from './questionnaires/questionnaires-main/questionnaires-main.component';
 import { SubsetValidatorComponent } from './implementation-course/subset-validator/subset-validator.component';
@@ -114,6 +115,10 @@ import { DentistryRecordItemComponent } from './benefits-demo/dentistry-record/d
 import { DentistryFhirDialogComponent } from './benefits-demo/dentistry-record/dentistry-fhir-dialog/dentistry-fhir-dialog.component';
 import { DentistryOdontogramAnatomicComponent } from './benefits-demo/dentistry-record/dentistry-odontogram-anatomic/dentistry-odontogram-anatomic.component';
 import { DentistryOdontogramRootSurfaceComponent } from './benefits-demo/dentistry-record/dentistry-odontogram-root-surface/dentistry-odontogram-root-surface.component';
+import { NursingRecordComponent } from './benefits-demo/nursing-record/nursing-record.component';
+import { NursingNutritionalCareplanComponent } from './benefits-demo/nursing-record/nursing-nutritional-careplan/nursing-nutritional-careplan.component';
+import { NursingVitalSignsComponent } from './benefits-demo/nursing-record/nursing-vital-signs/nursing-vital-signs.component';
+import { NursingVitalCardComponent } from './benefits-demo/nursing-record/nursing-vital-card/nursing-vital-card.component';
 import { ClinicalFormsComponent } from './benefits-demo/clinical-forms/clinical-forms.component';
 import { AdverseReactionFormComponent } from './benefits-demo/clinical-forms/adverse-reaction-form/adverse-reaction-form.component';
 import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
@@ -158,6 +163,7 @@ const app = initializeApp(firebaseConfig);
         TextBoxBindingComponent,
         EclBuilderDialogComponent,
         CheckBoxBindingComponent,
+        MultiPrefixSelectBindingComponent,
         PrescriptionMainComponent,
         QuestionnairesMainComponent,
         SubsetValidatorComponent,
@@ -214,6 +220,10 @@ const app = initializeApp(firebaseConfig);
         DentistryFhirDialogComponent,
         DentistryOdontogramAnatomicComponent,
         DentistryOdontogramRootSurfaceComponent,
+        NursingRecordComponent,
+        NursingNutritionalCareplanComponent,
+        NursingVitalSignsComponent,
+        NursingVitalCardComponent,
         ClinicalFormsComponent,
         AdverseReactionFormComponent,
         CreatePatientComponent,

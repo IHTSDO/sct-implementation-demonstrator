@@ -1,0 +1,42 @@
+<div class="vital-card">
+  <div class="vital-card-header">
+    <span class="vital-emoji">{{ emoji }}</span>
+    <span class="vital-label">{{ label }}</span>
+  </div>
+
+  <div class="vital-value-row">
+    <span class="vital-value">{{ latestValue }}</span>
+    <span class="vital-unit" *ngIf="latestValue !== noDataLabel">{{ unit }}</span>
+  </div>
+  <div class="vital-time">Last: {{ latestTimestamp }}</div>
+
+  <div class="vital-actions" *ngIf="allowEntry && !editOpen">
+    <button mat-stroked-button type="button" (click)="openEditor()">
+      Add new
+    </button>
+  </div>
+
+  <div class="vital-editor" *ngIf="allowEntry && editOpen">
+    <div class="bp-inputs" *ngIf="isBloodPressure; else singleInput">
+      <mat-form-field appearance="fill">
+        <mat-label>Systolic</mat-label>
+        <input matInput type="number" min="1" step="1" [(ngModel)]="draftSystolic">
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Diastolic</mat-label>
+        <input matInput type="number" min="1" step="1" [(ngModel)]="draftDiastolic">
+      </mat-form-field>
+    </div>
+    <ng-template #singleInput>
+      <mat-form-field appearance="fill">
+        <mat-label>{{ label }}</mat-label>
+        <input matInput type="number" [min]="min" [step]="step" [(ngModel)]="draftValue">
+      </mat-form-field>
+    </ng-template>
+
+    <div class="editor-actions">
+      <button mat-flat-button color="primary" type="button" (click)="save()">Save</button>
+      <button mat-button type="button" (click)="closeEditor()">Cancel</button>
+    </div>
+  </div>
+</div>

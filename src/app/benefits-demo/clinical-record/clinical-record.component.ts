@@ -210,9 +210,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   setSelectedModule(module: 'clinical' | 'dentistry' | 'nursing'): void {
-    if (module === 'nursing') {
-      return;
-    }
     this.selectedModule = module;
   }
 

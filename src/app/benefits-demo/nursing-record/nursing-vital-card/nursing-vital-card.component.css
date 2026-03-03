@@ -1,0 +1,74 @@
+.vital-card {
+  border: 1px solid #e4e9ef;
+  border-radius: 10px;
+  padding: 12px;
+  background-color: #fcfdff;
+}
+
+.vital-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.vital-emoji {
+  font-size: 1rem;
+}
+
+.vital-label {
+  color: #2f3b4a;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.vital-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.vital-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #243447;
+}
+
+.vital-unit {
+  font-size: 0.8rem;
+  color: #6e7b88;
+}
+
+.vital-time {
+  margin-top: 2px;
+  margin-bottom: 10px;
+  color: #7f8a96;
+  font-size: 0.75rem;
+}
+
+.vital-actions {
+  margin-bottom: 8px;
+}
+
+.vital-actions button {
+  min-height: 30px;
+  line-height: 30px;
+  font-size: 0.78rem;
+}
+
+.vital-editor {
+  padding-top: 8px;
+  border-top: 1px solid #edf1f5;
+}
+
+.bp-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}

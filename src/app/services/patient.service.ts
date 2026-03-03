@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { StorageService } from './storage.service';
 import JSZip from 'jszip';
 
@@ -910,6 +910,12 @@ export interface FhirObservation {
   };
   effectiveDateTime?: string;
   issued?: string;
+  valueQuantity?: {
+    value?: number;
+    unit?: string;
+    system?: string;
+    code?: string;
+  };
   valueCodeableConcept?: {
     coding?: Array<{
       system?: string;
@@ -934,6 +940,22 @@ export interface FhirObservation {
     }>;
     text?: string;
   };
+  component?: Array<{
+    code: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+    valueQuantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+  }>;
   note?: Array<{
     text: string;
     time?: string;
@@ -1154,6 +1176,7 @@ export class PatientService {
   private readonly STORAGE_KEY = 'ehr_patients';
   private patientsSubject = new BehaviorSubject<Patient[]>([]);
   private selectedPatientSubject = new BehaviorSubject<Patient | null>(null);
+  private observationsChangedSubject = new Subject<string>();
 
   public patients$ = this.patientsSubject.asObservable();
   public selectedPatient$ = this.selectedPatientSubject.asObservable();
@@ -1447,6 +1470,10 @@ export class PatientService {
     return this.selectedPatient$;
   }
 
+  getObservationsChanged(): Observable<string> {
+    return this.observationsChangedSubject.asObservable();
+  }
+
   selectPatient(patient: Patient | null): void {
     this.selectedPatientSubject.next(patient);
   }
@@ -1690,6 +1717,7 @@ export class PatientService {
 
     observations.push(observation);
     this.savePatientObservations(patientId, observations);
+    this.observationsChangedSubject.next(patientId);
     return true;
   }
 
@@ -1699,6 +1727,7 @@ export class PatientService {
     if (index !== -1) {
       observations[index] = updatedObservation;
       this.savePatientObservations(patientId, observations);
+      this.observationsChangedSubject.next(patientId);
     }
   }
 
@@ -1706,6 +1735,7 @@ export class PatientService {
     const observations = this.getPatientObservations(patientId);
     const filteredObservations = observations.filter((observation) => observation.id !== observationId);
     this.savePatientObservations(patientId, filteredObservations);
+    this.observationsChangedSubject.next(patientId);
   }
 
   private savePatientObservations(patientId: string, observations: FhirObservation[]): void {

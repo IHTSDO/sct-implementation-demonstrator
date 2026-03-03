@@ -53,7 +53,7 @@
       mat-stroked-button
       class="module-option"
       [class.active]="selectedModule === 'nursing'"
-      [disabled]="true">
+      (click)="setSelectedModule('nursing')">
       Nursing
     </button>
   </div>
@@ -551,6 +551,11 @@
     *ngIf="patient && selectedModule === 'dentistry'"
     [patient]="patient">
   </app-dentistry-record>
+
+  <app-nursing-record
+    *ngIf="patient && selectedModule === 'nursing'"
+    [patient]="patient">
+  </app-nursing-record>
 
   <!-- No patient selected message -->
   <div class="no-patient-message" *ngIf="!patient">

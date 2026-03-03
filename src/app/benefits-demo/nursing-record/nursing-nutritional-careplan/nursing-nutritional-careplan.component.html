@@ -1,0 +1,90 @@
+<div class="nutritional-careplan-container">
+  <div class="careplan-section">
+    <h3>Nutritional Evaluation</h3>
+
+    <h4 class="section-subtitle">Anthropometry</h4>
+    <div class="anthropometry-cards">
+      <app-nursing-vital-card
+        [patient]="patient"
+        emoji="🏋️"
+        label="Weight"
+        unit="kg"
+        code="29463-7"
+        snomedCode="27113001"
+        [step]="0.1">
+      </app-nursing-vital-card>
+
+      <app-nursing-vital-card
+        [patient]="patient"
+        emoji="📏"
+        label="Height"
+        unit="cm"
+        code="8302-2"
+        snomedCode="1153637007"
+        [step]="0.1">
+      </app-nursing-vital-card>
+
+      <div class="anthro-card bmi-card" [ngClass]="bmiCardClass" [style.background-color]="bmiBackgroundColor || '#fcfdff'">
+        <div class="anthro-header">
+          <span class="anthro-emoji">📊</span>
+          <span class="anthro-label">BMI</span>
+        </div>
+        <div class="bmi-value">{{ bmiDisplay || 'No data recorded' }}</div>
+      </div>
+    </div>
+
+    <div class="anthropometry-spacer"></div>
+
+    <app-multi-prefix-select-binding
+      [binding]="nursingDiagnosisBinding"
+      [expansionCount]="1000"
+      (selectionChange)="onNursingDiagnosisChange($event)">
+    </app-multi-prefix-select-binding>
+
+    <h4 class="section-subtitle">Nutritional goals</h4>
+    <div class="goals-row">
+      <app-multi-prefix-select-binding
+        [binding]="mainGoalExpectedOutcomeBinding"
+        [expansionCount]="1000"
+        (selectionChange)="onMainGoalExpectedOutcomeChange($event)">
+      </app-multi-prefix-select-binding>
+
+      <app-multi-prefix-select-binding
+        [binding]="subgoalExpectedOutcomeBinding"
+        [expansionCount]="1000"
+        (selectionChange)="onSubgoalExpectedOutcomeChange($event)">
+      </app-multi-prefix-select-binding>
+    </div>
+
+    <h4 class="section-subtitle">Interventions</h4>
+    <div class="interventions-list">
+      <div class="intervention-row" *ngFor="let _ of selectedInterventions; let i = index">
+        <app-multi-prefix-select-binding
+          class="intervention-select"
+          [binding]="interventionsBinding"
+          [expansionCount]="1000"
+          (selectionChange)="onInterventionsChange(i, $event)">
+        </app-multi-prefix-select-binding>
+        <button
+          mat-icon-button
+          color="warn"
+          type="button"
+          class="remove-intervention-button"
+          [disabled]="selectedInterventions.length === 1"
+          (click)="removeInterventionRow(i)"
+          aria-label="Remove intervention">
+          <mat-icon>remove_circle_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+    <button
+      mat-stroked-button
+      type="button"
+      class="add-intervention-button"
+      [disabled]="!canAddIntervention()"
+      (click)="addInterventionRow()">
+      <mat-icon>add</mat-icon>
+      Add intervention
+    </button>
+  </div>
+</div>

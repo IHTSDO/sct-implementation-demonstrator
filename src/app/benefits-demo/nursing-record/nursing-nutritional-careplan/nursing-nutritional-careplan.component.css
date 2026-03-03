@@ -1,0 +1,132 @@
+.nutritional-careplan-container {
+  min-height: 280px;
+}
+
+.careplan-section {
+  max-width: 720px;
+}
+
+.careplan-section h3 {
+  margin: 0 0 14px;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  margin: 12px 0 8px;
+  color: #6b7785;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.goals-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.anthropometry-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.anthro-card {
+  border: 1px solid #e4e9ef;
+  border-radius: 10px;
+  padding: 12px;
+  background-color: #fcfdff;
+}
+
+.anthro-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.anthro-emoji {
+  font-size: 1rem;
+}
+
+.anthro-label {
+  color: #2f3b4a;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.bmi-card.bmi-normal {
+  border-color: #b8e0be;
+}
+
+.bmi-card.bmi-overweight {
+  border-color: #f2d28c;
+}
+
+.bmi-card.bmi-risk {
+  border-color: #efb6b6;
+}
+
+.bmi-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #243447;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.anthropometry-spacer {
+  height: 10px;
+}
+
+.interventions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.intervention-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.intervention-select {
+  flex: 1;
+}
+
+.remove-intervention-button {
+  margin-top: 6px;
+}
+
+.add-intervention-button {
+  margin-top: 6px;
+  min-height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+}
+
+.add-intervention-button .mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+@media (max-width: 900px) {
+  .anthropometry-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .goals-row {
+    grid-template-columns: 1fr;
+  }
+
+  .intervention-row {
+    gap: 4px;
+  }
+}

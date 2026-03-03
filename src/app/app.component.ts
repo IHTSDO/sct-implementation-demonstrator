@@ -42,6 +42,7 @@ export class AppComponent {
     { name: "Ontoserver", url: "https://r4.ontoserver.csiro.au/fhir"},
     { name: "SNOMED Dev 1", url: "https://dev-browser.ihtsdotools.org/fhir"},
     { name: "Implementation Demo", url: "https://implementation-demo.snomedtools.org/fhir"},
+    // { name: "SNOMED International Next", url: "https://snomedbrowser.org/fhir"},
   ];
   selectedServer = this.fhirServers[1];
   embeddedMode: boolean = false;
