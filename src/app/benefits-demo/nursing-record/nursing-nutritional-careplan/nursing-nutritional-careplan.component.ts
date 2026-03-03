@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { FhirObservation, Patient, PatientService } from '../../../services/patient.service';
 
@@ -13,6 +14,8 @@ export class NursingNutritionalCareplanComponent implements OnInit, OnChanges, O
 
   private readonly WEIGHT_LOINC_CODE = '29463-7';
   private readonly HEIGHT_LOINC_CODE = '8302-2';
+  private readonly BMI_LOINC_CODE = '39156-5';
+  private readonly SNOMED_BMI_CODE = '60621009';
   private readonly goalsEcl =
     '1145522009 OR 1156885001 OR 1144549003 OR 1145004001 OR 248324001 OR 1144522003 OR 733739009 OR 288936000 OR 161825005 OR 162056003 OR 162028008 OR 162062008 OR 43664005 OR 271398006 OR 69840006 OR 289148009 OR 1141692002 OR 1144674006 OR 1145005000 OR 249480002';
 
@@ -101,7 +104,7 @@ export class NursingNutritionalCareplanComponent implements OnInit, OnChanges, O
     return this.bmiCategoryClass;
   }
 
-  constructor(private patientService: PatientService) {}
+  constructor(private patientService: PatientService, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     this.observationsChangedSub = this.patientService.getObservationsChanged().subscribe((patientId) => {
@@ -177,6 +180,55 @@ export class NursingNutritionalCareplanComponent implements OnInit, OnChanges, O
 
     const heightValue = latestHeight?.valueQuantity?.value;
     this.heightCm = heightValue !== undefined && heightValue !== null && Number.isFinite(heightValue) ? heightValue : null;
+  }
+
+  saveNutritionalAssessment(): void {
+    if (!this.patient) {
+      return;
+    }
+
+    const bmi = this.bmiValue;
+    if (bmi === null) {
+      return;
+    }
+    const bmiRounded = Number(bmi.toFixed(1));
+
+    const observations = this.patientService.getPatientObservations(this.patient.id);
+    const latestBmi = observations
+      .filter((obs) => obs.code?.coding?.some((coding) => coding.code === this.BMI_LOINC_CODE))
+      .sort((a, b) => this.getTimestampMillis(b) - this.getTimestampMillis(a))[0];
+
+    const latestBmiValue = latestBmi?.valueQuantity?.value;
+    if (latestBmiValue !== undefined && latestBmiValue !== null && Math.abs(latestBmiValue - bmiRounded) < 0.0001) {
+      this.snackBar.open('No changes to save for BMI', 'Close', { duration: 2000 });
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const bmiObservation: FhirObservation = {
+      resourceType: 'Observation',
+      id: `vital-bmi-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      status: 'final',
+      subject: { reference: `Patient/${this.patient.id}` },
+      effectiveDateTime: now,
+      issued: now,
+      code: {
+        coding: [
+          { system: 'http://loinc.org', code: this.BMI_LOINC_CODE, display: 'Body mass index' },
+          { system: 'http://snomed.info/sct', code: this.SNOMED_BMI_CODE, display: 'Body mass index (observable entity)' }
+        ],
+        text: 'Body mass index'
+      },
+      valueQuantity: {
+        value: bmiRounded,
+        unit: 'kg/m2',
+        system: 'http://unitsofmeasure.org',
+        code: 'kg/m2'
+      }
+    };
+
+    this.patientService.addPatientObservation(this.patient.id, bmiObservation);
+    this.snackBar.open('Nutritional assessment saved (BMI)', 'Close', { duration: 2200 });
   }
 
   private getTimestampMillis(observation: FhirObservation): number {

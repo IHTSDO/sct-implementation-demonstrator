@@ -33,6 +33,16 @@
       </div>
     </div>
 
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      class="save-assessment-button"
+      [disabled]="!bmiValue"
+      (click)="saveNutritionalAssessment()">
+      Save
+    </button>
+
     <div class="anthropometry-spacer"></div>
 
     <app-multi-prefix-select-binding

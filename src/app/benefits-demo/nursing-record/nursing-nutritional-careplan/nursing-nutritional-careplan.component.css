@@ -82,6 +82,10 @@
   height: 10px;
 }
 
+.save-assessment-button {
+  margin-top: 10px;
+}
+
 .interventions-list {
   display: flex;
   flex-direction: column;
