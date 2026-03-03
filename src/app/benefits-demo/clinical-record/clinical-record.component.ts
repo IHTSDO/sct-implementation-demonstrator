@@ -329,7 +329,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   onCdsNoticeClick(): void {
     // Switch to Decision Support tab (index 4) when clicking on CDS notice
-    // Tab order: 0=AI Entry, 1=Encounters, 2=Timeline, 3=Problems List, 4=Decision Support, 5=Clinical Forms
+    // Tab order: 0=Encounters, 1=AI Entry, 2=Timeline, 3=Problems List, 4=Decision Support, 5=Clinical Forms
     if (this.tabGroup) {
       this.tabGroup.selectedIndex = 4;
     }
