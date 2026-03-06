@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } fr
 import { MatTabGroup } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance } from '../../services/patient.service';
+import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, FhirObservation } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
@@ -18,6 +18,16 @@ export interface AnchorPoint {
   anatomicalSystem?: string;
   defaultColor?: string;
   type?: 'circle' | 'systemic'; // Type of anchor point visual style
+}
+
+interface VitalSignObservationConfig {
+  loincCode: string;
+  label: string;
+  unit: string;
+  snomedCode?: string;
+  bloodPressureParentCode?: string;
+  bloodPressureComponentCode?: string;
+  bloodPressureComponentSnomed?: string;
 }
 
 @Component({
@@ -937,7 +947,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         let successMessage = `✅ Questionnaire "${questionnaireResponse.questionnaireName || 'Response'}" saved successfully`;
         
         if (extractedConditions > 0) {
-          successMessage += `. ${extractedConditions} condition(s) extracted.`;
+          successMessage += `. ${extractedConditions} item(s) extracted.`;
           // Reload conditions to update the UI
           this.conditions = this.patientService.getPatientConditions(this.patient.id);
         }
@@ -976,7 +986,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return 0;
     }
 
-    let conditionsCreated = 0;
+    let extractedCount = 0;
+    // SDC extraction relationship (None/component/member/derived/independent) is intentionally ignored for now.
+    // We currently extract recognized observable items as individual Conditions/Observations and then apply
+    // the vital-signs consolidation (for BP) at the questionnaire level.
+    let systolicBloodPressure: number | null = null;
+    let diastolicBloodPressure: number | null = null;
+    let bloodPressureDetected = false;
 
     try {
       // Find items in the questionnaire that have observationExtract extension
@@ -990,23 +1006,68 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         if (isRecognizedObservable) {
           // Find the corresponding response
           const responseItem = this.findResponseItem(response.items || [], questionnaireItem.linkId);
+          const vitalSign = this.getVitalSignConfig(questionnaireItem);
 
-          if (responseItem && responseItem.value) {
-            // Extract conditions from the response
+          if (responseItem && responseItem.value !== undefined && responseItem.value !== null) {
+            if (this.isVitalSignObservable(questionnaireItem)) {
+              if (!vitalSign) {
+                continue;
+              }
+
+              const numericValue = this.extractNumericValue(responseItem.value);
+              if (numericValue === null) {
+                continue;
+              }
+
+              if (this.isBloodPressureVitalSign(vitalSign)) {
+                bloodPressureDetected = true;
+                if (vitalSign.bloodPressureComponentCode === '8480-6') {
+                  systolicBloodPressure = numericValue;
+                } else if (vitalSign.bloodPressureComponentCode === '8462-4') {
+                  diastolicBloodPressure = numericValue;
+                } else {
+                  extractedCount += await this.createVitalSignsFromQuestionnaireResponseWithValue(
+                    vitalSign,
+                    numericValue,
+                    questionnaire.title || 'Questionnaire'
+                  );
+                }
+
+                continue;
+              } else {
+                extractedCount += await this.createVitalSignsFromQuestionnaireResponseWithValue(
+                  vitalSign,
+                  numericValue,
+                  questionnaire.title || 'Questionnaire'
+                );
+                continue;
+              }
+            }
+
+            // Extract either a Condition or an Observation depending on the observable type
             const extracted = await this.createConditionsFromRiskFactorResponse(
               questionnaireItem,
               responseItem,
               questionnaire.title || 'Questionnaire'
             );
-            conditionsCreated += extracted;
+            extractedCount += extracted;
           }
         }
+      }
+
+      if (bloodPressureDetected && (systolicBloodPressure !== null || diastolicBloodPressure !== null)) {
+        const observationCreated = await this.createBloodPressureObservationFromValues(
+          systolicBloodPressure,
+          diastolicBloodPressure,
+          questionnaire.title || 'Questionnaire'
+        );
+        extractedCount += observationCreated;
       }
     } catch (error) {
       console.error('Error extracting conditions from questionnaire:', error);
     }
 
-    return conditionsCreated;
+    return extractedCount;
   }
 
   private findExtractableItems(items: any[]): any[] {
@@ -1015,9 +1076,15 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     for (const item of items) {
       // Check if item has observationExtract extension set to true
       if (item.extension) {
+        // SDC compatibility rule: consider extractable when sdc-questionnaire-observationExtract is present
+        // as valueBoolean=true or as any non-empty valueCode (independent/component/member/derived/none/etc.).
+        // We intentionally do not enforce relation semantics here.
         const extractExtension = item.extension.find((ext: any) =>
           ext.url === 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract' &&
-          ext.valueBoolean === true
+          (
+            ext.valueBoolean === true ||
+            (typeof ext.valueCode === 'string' && ext.valueCode.trim().length > 0)
+          )
         );
 
         if (extractExtension) {
@@ -1044,43 +1111,349 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     RISK_FACTOR: '80943009'
   };
 
+  // Vital sign observable entity codes (SNOMED CT) that should be converted to Observations
+  private readonly RECOGNIZED_VITAL_SIGNS: Record<string, VitalSignObservationConfig> = {
+    '364075005': {
+      loincCode: '8867-4',
+      label: 'Heart rate',
+      unit: 'bpm',
+      snomedCode: '364075005'
+    },
+    '386725007': {
+      loincCode: '8310-5',
+      label: 'Body temperature',
+      unit: '°C',
+      snomedCode: '386725007'
+    },
+    '86290005': {
+      loincCode: '9279-1',
+      label: 'Respiratory rate',
+      unit: 'breaths/min',
+      snomedCode: '86290005'
+    },
+    '103228002': {
+      loincCode: '2708-6',
+      label: 'Oxygen saturation in arterial blood',
+      unit: '%',
+      snomedCode: '103228002'
+    },
+    '27113001': {
+      loincCode: '29463-7',
+      label: 'Body weight',
+      unit: 'kg',
+      snomedCode: '27113001'
+    },
+    '271649006': {
+      bloodPressureParentCode: '85354-9',
+      bloodPressureComponentCode: '8480-6',
+      bloodPressureComponentSnomed: '271649006',
+      loincCode: '8480-6',
+      label: 'Systolic blood pressure',
+      unit: 'mmHg',
+      snomedCode: '271649006'
+    },
+    '271650006': {
+      bloodPressureParentCode: '85354-9',
+      bloodPressureComponentCode: '8462-4',
+      bloodPressureComponentSnomed: '271650006',
+      loincCode: '8462-4',
+      label: 'Diastolic blood pressure',
+      unit: 'mmHg',
+      snomedCode: '271650006'
+    }
+  };
+
   private isObservableRecognized(item: any): boolean {
-    // Check if the item's code indicates it's a recognized observable entity (Diagnosis, Risk Factor, etc.)
-    // Support both FHIR Questionnaire format and LForms format
-    // Match ONLY by SNOMED CT codes (language-independent)
-    
-    const recognizedCodes = Object.values(this.RECOGNIZED_OBSERVABLES);
-    
+    const recognizedCodes = [
+      ...Object.values(this.RECOGNIZED_OBSERVABLES),
+      ...Object.keys(this.RECOGNIZED_VITAL_SIGNS)
+    ];
+    const itemCodes = this.extractQuestionnaireItemCodes(item);
+    return itemCodes.some((code) => recognizedCodes.includes(code));
+  }
+
+  private isVitalSignObservable(item: any): boolean {
+    const itemCodes = this.extractQuestionnaireItemCodes(item);
+    return itemCodes.some((code) => code in this.RECOGNIZED_VITAL_SIGNS);
+  }
+
+  private isBloodPressureVitalSign(vitalSign: VitalSignObservationConfig): boolean {
+    return !!(
+      vitalSign.bloodPressureParentCode &&
+      vitalSign.bloodPressureComponentCode &&
+      vitalSign.bloodPressureComponentSnomed
+    );
+  }
+
+  private getVitalSignConfig(item: any): VitalSignObservationConfig | null {
+    const itemCodes = this.extractQuestionnaireItemCodes(item);
+    for (const code of itemCodes) {
+      const vitalSign = this.RECOGNIZED_VITAL_SIGNS[code];
+      if (vitalSign) {
+        return vitalSign;
+      }
+    }
+
+    return null;
+  }
+
+  private extractQuestionnaireItemCodes(item: any): string[] {
+    const codes = new Set<string>();
+
     // LForms format - check codeList
-    // Note: Some LForms implementations may have the SNOMED code in either 'code' or 'system' field
     if (item.codeList && Array.isArray(item.codeList)) {
-      const hasRecognizedObservable = item.codeList.some((coding: any) =>
-        recognizedCodes.includes(coding.code) || recognizedCodes.includes(coding.system)
-      );
-      if (hasRecognizedObservable) {
-        return true;
+      for (const coding of item.codeList) {
+        if (coding?.code) {
+          codes.add(String(coding.code));
+        }
+        if (coding?.system) {
+          codes.add(String(coding.system));
+        }
       }
     }
-    
-    // LForms format - check questionCodeSystem (the SNOMED code is stored here)
+
+    // LForms format - check questionCodeSystem
     if (item.questionCodeSystem && typeof item.questionCodeSystem === 'string') {
-      if (recognizedCodes.includes(item.questionCodeSystem)) {
-        return true;
-      }
+      codes.add(String(item.questionCodeSystem));
     }
-    
+
     // FHIR Questionnaire format - check code array
-    // Note: Check both 'code' and 'system' fields for flexibility
     if (item.code && Array.isArray(item.code)) {
-      const hasRecognizedObservable = item.code.some((coding: any) =>
-        recognizedCodes.includes(coding.code) || recognizedCodes.includes(coding.system)
-      );
-      if (hasRecognizedObservable) {
-        return true;
+      for (const coding of item.code) {
+        if (coding?.code) {
+          codes.add(String(coding.code));
+        }
+        if (coding?.system) {
+          codes.add(String(coding.system));
+        }
       }
     }
-    
-    return false;
+
+    return Array.from(codes);
+  }
+
+  private async createVitalSignsFromQuestionnaireResponseWithValue(
+    vitalSign: VitalSignObservationConfig,
+    numericValue: number,
+    questionnaireName: string
+  ): Promise<number> {
+    if (!this.patient) return 0;
+
+    if (!vitalSign) {
+      return 0;
+    }
+
+    const observation = this.createVitalSignObservation(vitalSign, numericValue, questionnaireName);
+    const added = this.patientService.addPatientObservation(this.patient.id, observation);
+
+    return added ? 1 : 0;
+  }
+
+  private async createBloodPressureObservationFromValues(
+    systolic: number | null,
+    diastolic: number | null,
+    questionnaireName: string
+  ): Promise<number> {
+    if (!this.patient) {
+      return 0;
+    }
+
+    const now = new Date().toISOString();
+    const subjectDisplay = this.patient?.name?.[0]?.text || `${this.patient?.name?.[0]?.given?.[0]} ${this.patient?.name?.[0]?.family}`;
+
+    const bloodPressureComponents: Array<{
+      code: {
+        coding?: Array<{
+          system?: string;
+          code?: string;
+          display?: string;
+        }>;
+        text?: string;
+      };
+      valueQuantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+    }> = [];
+
+    const observation: FhirObservation = {
+      resourceType: 'Observation',
+      id: `observation-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      status: 'final',
+      subject: {
+        reference: `Patient/${this.patient.id}`,
+        display: subjectDisplay
+      },
+      effectiveDateTime: now,
+      issued: now,
+      code: {
+        coding: [
+          {
+            system: 'http://loinc.org',
+            code: '85354-9',
+            display: 'Blood pressure'
+          }
+        ],
+        text: 'Blood pressure'
+      },
+      note: [{
+        text: `Extracted from questionnaire: ${questionnaireName}`,
+        time: now
+      }]
+    };
+
+    if (systolic !== null && Number.isFinite(systolic)) {
+      bloodPressureComponents.push({
+        code: {
+          coding: [
+            {
+              system: 'http://loinc.org',
+              code: '8480-6',
+              display: 'Systolic blood pressure'
+            },
+            {
+              system: 'http://snomed.info/sct',
+              code: '271649006',
+              display: 'Systolic blood pressure (observable entity)'
+            }
+          ],
+          text: 'Systolic blood pressure'
+        },
+        valueQuantity: {
+          value: systolic,
+          unit: 'mmHg',
+          system: 'http://unitsofmeasure.org',
+          code: 'mm[Hg]'
+        }
+      });
+    }
+
+    if (diastolic !== null && Number.isFinite(diastolic)) {
+      bloodPressureComponents.push({
+        code: {
+          coding: [
+            {
+              system: 'http://loinc.org',
+              code: '8462-4',
+              display: 'Diastolic blood pressure'
+            },
+            {
+              system: 'http://snomed.info/sct',
+              code: '271650006',
+              display: 'Diastolic blood pressure (observable entity)'
+            }
+          ],
+          text: 'Diastolic blood pressure'
+        },
+        valueQuantity: {
+          value: diastolic,
+          unit: 'mmHg',
+          system: 'http://unitsofmeasure.org',
+          code: 'mm[Hg]'
+        }
+      });
+    }
+
+    if (bloodPressureComponents.length === 0) {
+      return 0;
+    }
+
+    observation.component = bloodPressureComponents;
+
+    const added = this.patientService.addPatientObservation(this.patient.id, observation);
+    return added ? 1 : 0;
+  }
+
+  private extractNumericValue(value: any): number | null {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : null;
+    }
+
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    if (Array.isArray(value)) {
+      return this.extractNumericValue(value[0]);
+    }
+
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    if (typeof value.value === 'number' || typeof value.value === 'string') {
+      return this.extractNumericValue(value.value);
+    }
+
+    if (value.valueQuantity && typeof value.valueQuantity === 'object' && value.valueQuantity.value !== undefined) {
+      return this.extractNumericValue(value.valueQuantity.value);
+    }
+
+    if (value.valueInteger !== undefined) {
+      return this.extractNumericValue(value.valueInteger);
+    }
+
+    if (value.valueDecimal !== undefined) {
+      return this.extractNumericValue(value.valueDecimal);
+    }
+
+    return null;
+  }
+
+  private createVitalSignObservation(
+    vitalSign: VitalSignObservationConfig,
+    numericValue: number,
+    source: string
+  ): FhirObservation {
+    const now = new Date().toISOString();
+    const subjectDisplay = this.patient?.name?.[0]?.text || `${this.patient?.name?.[0]?.given?.[0]} ${this.patient?.name?.[0]?.family}`;
+
+    const primaryCodings: Array<{ system: string; code: string; display: string }> = [
+      {
+        system: 'http://loinc.org',
+        code: vitalSign.bloodPressureParentCode || vitalSign.loincCode,
+        display: vitalSign.label
+      }
+    ];
+
+    if (!vitalSign.bloodPressureParentCode && vitalSign.snomedCode) {
+      primaryCodings.push({
+        system: 'http://snomed.info/sct',
+        code: vitalSign.snomedCode,
+        display: `${vitalSign.label} (observable entity)`
+      });
+    }
+
+    const observation: FhirObservation = {
+      resourceType: 'Observation',
+      id: `observation-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      status: 'final',
+      subject: {
+        reference: `Patient/${this.patient?.id || ''}`,
+        display: subjectDisplay
+      },
+      effectiveDateTime: now,
+      issued: now,
+      code: {
+        coding: primaryCodings,
+        text: vitalSign.label
+      },
+      valueQuantity: {
+        value: numericValue,
+        unit: vitalSign.unit,
+        system: 'http://unitsofmeasure.org',
+        code: vitalSign.unit
+      },
+      note: [{
+        text: `Extracted from questionnaire: ${source}`,
+        time: now
+      }]
+    };
+
+    return observation;
   }
 
   private findResponseItem(responseItems: any[], linkId: string): any {

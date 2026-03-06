@@ -359,8 +359,8 @@ export class FormRecordsComponent implements OnChanges {
     } catch (error) {
       console.error('Error extracting Q&A pairs:', error);
     }
-    
-    return pairs;
+
+    return pairs.filter((pair) => (pair.question || '').trim().length > 0);
   }
 
   private formatFieldName(key: string): string {
@@ -408,16 +408,27 @@ export class FormRecordsComponent implements OnChanges {
     
     for (const item of items) {
       const hasSubItems = item.items && Array.isArray(item.items) && item.items.length > 0;
-      const isSection = hasSubItems && (item.value === undefined || item.value === null || item.value === '');
+      const questionTextRaw = (item.question || item.text || '').toString().trim();
+      const hasValue = item.value !== undefined && item.value !== null;
+      const hasValueContent = hasValue ? this.formatAnswerValue(item.value, item).trim() !== '' : false;
+      const isSection = hasSubItems && !hasValue;
+
+      if (!questionTextRaw && !hasValueContent && !hasSubItems) {
+        // Ignore empty containers or malformed items that would render as blank lines.
+        if (item.items && Array.isArray(item.items)) {
+          this.extractQAPairs(item.items, pairs, level + 1);
+        }
+        continue;
+      }
       
-      // Only add if there's a question
-      if (item.question || item.text) {
-        const questionText = item.question || item.text || 'Untitled';
+      // Only add if there's a visible question
+      if (questionTextRaw) {
+        const questionText = questionTextRaw;
         let answer = '';
         let type = 'text';
         
         // Extract answer based on type
-        if (item.value !== undefined && item.value !== null && item.value !== '') {
+        if (hasValue) {
           answer = this.formatAnswerValue(item.value, item);
           type = this.determineAnswerType(item.value, item);
         } else if (isSection) {

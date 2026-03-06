@@ -21,25 +21,36 @@
                         <span class="form-name">{{ form.name }}</span>
                         <span class="form-badge"
                           [class.badge-fhir]="getFormType(form.id) === 'fhir'"
-                          [class.badge-openehr]="getFormType(form.id) === 'openehr'">
-                          {{ getFormType(form.id) === 'openehr' ? 'openEHR' : 'FHIR' }}
+                          [class.badge-openehr]="getFormType(form.id) === 'openehr'"
+                          [class.badge-custom]="getFormType(form.id) === 'custom'">
+                          {{ getFormTypeLabel(form.id) }}
                         </span>
                       </div>
                     </mat-option>
                   }
                 </mat-optgroup>
-                @if (customQuestionnaires.length > 0) {
-                  <mat-optgroup label="Custom Questionnaires">
+                <mat-optgroup label="Uploaded forms">
+                  @if (customQuestionnaires.length === 0) {
+                    <mat-option disabled>
+                      No local forms uploaded yet
+                    </mat-option>
+                  }
+                  @if (customQuestionnaires.length > 0) {
                     @for (form of customQuestionnaires; track form) {
                       <mat-option [value]="form.id">
                         <div class="form-option-content">
                           <span class="form-name">{{ form.name }}</span>
-                          <span class="form-badge badge-fhir">FHIR</span>
+                          <span class="form-badge"
+                            [class.badge-fhir]="getFormType(form.id) === 'fhir'"
+                            [class.badge-openehr]="getFormType(form.id) === 'openehr'"
+                            [class.badge-custom]="getFormType(form.id) === 'custom'">
+                            {{ getFormTypeLabel(form.id) }}
+                          </span>
                         </div>
                       </mat-option>
                     }
-                  </mat-optgroup>
-                }
+                  }
+                </mat-optgroup>
               </mat-select>
             </mat-form-field>
           </div>

@@ -145,6 +145,11 @@
   color: #ffffff;
 }
 
+.badge-custom {
+  background-color: #2e7d32;
+  color: #ffffff;
+}
+
 /* Style badges in mat-select panel */
 ::ng-deep .mat-mdc-select-panel .mat-mdc-option .form-badge {
   margin-left: auto;

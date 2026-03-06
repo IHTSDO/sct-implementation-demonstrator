@@ -13,6 +13,7 @@ export interface ClinicalForm {
   description: string;
   category: string;
   available: boolean;
+  formType?: 'fhir' | 'openehr' | 'custom';
 }
 
 @Component({
@@ -45,49 +46,56 @@ export class ClinicalFormsComponent implements OnInit {
       name: 'Adverse Drug Reaction Report (ICSR)',
       description: 'Individual Case Safety Report for adverse drug reactions',
       category: 'Pharmacovigilance',
-      available: true
+      available: true,
+      formType: 'custom'
     },
     {
       id: 'allergies',
       name: 'Allergy/Intolerance Documentation',
       description: 'Document patient allergies and intolerances using SNOMED CT terminology',
       category: 'Clinical Documentation',
-      available: true
+      available: true,
+      formType: 'custom'
     },
     {
       id: 'questionnaire-phq9',
       name: 'PHQ-9 Depression Screening',
       description: 'Patient Health Questionnaire-9 for depression screening',
       category: 'Questionnaires',
-      available: true
+      available: true,
+      formType: 'fhir'
     },
     {
       id: 'questionnaire-gad7',
       name: 'GAD-7 Anxiety Screening',
       description: 'Generalized Anxiety Disorder 7-item scale',
       category: 'Questionnaires',
-      available: true
+      available: true,
+      formType: 'fhir'
     },
     {
       id: 'questionnaire-carcinoma',
       name: 'Carcinoma of the Exocrine Pancreas - Histopathology Reporting Form',
       description: 'Comprehensive histopathology reporting form for pancreatic carcinoma',
       category: 'Questionnaires',
-      available: true
+      available: true,
+      formType: 'fhir'
     },
     {
       id: 'questionnaire-terminology-bindings',
       name: 'A simple form with terminology bindings',
       description: 'Simple form demonstrating SNOMED CT terminology bindings',
       category: 'Questionnaires',
-      available: true
+      available: true,
+      formType: 'fhir'
     },
     {
       id: 'openehr-vital-signs',
       name: 'Vital signs',
       description: 'openEHR template for documenting vital signs: body temperature, blood pressure, BMI, height, weight, pulse, respiration, and pulse oximetry',
       category: 'openEHR Templates',
-      available: true
+      available: true,
+      formType: 'openehr'
     }
   ];
 
@@ -122,6 +130,7 @@ export class ClinicalFormsComponent implements OnInit {
       name: cq.name,
       description: cq.description,
       category: cq.category,
+      formType: 'fhir',
       available: true
     }));
 
@@ -374,10 +383,29 @@ export class ClinicalFormsComponent implements OnInit {
 
   getFormType(formId: string | null): 'fhir' | 'openehr' | 'custom' | null {
     if (!formId) return null;
-    if (formId.startsWith('openehr-')) return 'openehr';
-    if (this.customQuestionnaireService.isCustomQuestionnaire(formId)) return 'fhir'; // Custom questionnaires are FHIR
-    // All other forms (questionnaires, adverse-reaction, allergies) are FHIR
-    return 'fhir';
+
+    const builtIn = this.getBuiltInForm(formId);
+    if (builtIn?.formType) {
+      return builtIn.formType;
+    }
+
+    if (this.customQuestionnaireService.isCustomQuestionnaire(formId)) {
+      return 'fhir';
+    }
+
+    // Forms not explicitly configured fall back to custom (component-based render)
+    return 'custom';
+  }
+
+  getFormTypeLabel(formId: string | null): string {
+    const formType = this.getFormType(formId);
+    if (formType === 'openehr') return 'openEHR';
+    if (formType === 'custom') return 'Custom';
+    return 'FHIR';
+  }
+
+  private getBuiltInForm(formId: string): ClinicalForm | undefined {
+    return this.availableForms.find(form => form.id === formId);
   }
 
   private async loadOpenehrTemplate(formId: string): Promise<void> {
