@@ -127,7 +127,7 @@
                     <div
                       class="qa-item"
                       [class.qa-section]="qa.isSection"
-                      [style.margin-left.px]="(qa.level ?? 0) * 24">
+                      [style.margin-left.px]="qa.level * 24">
                       @if (!qa.isSection) {
                         <div class="question-number"
                           [class.question-number-section]="qa.isSection"
