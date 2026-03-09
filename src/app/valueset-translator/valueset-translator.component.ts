@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import { v4 as uuidv4 } from 'uuid';
 import JSZip from 'jszip';
 import * as pako from 'pako';
+import { EclBuilderDialogService } from '../bindings/ecl-builder/ecl-builder-dialog.service';
 
 interface ColumnOption {
   header: string;
@@ -162,7 +163,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   constructor(
     private fb: FormBuilder,
     private terminologyService: TerminologyService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private eclBuilderDialog: EclBuilderDialogService
   ) {
     this.importForm = this.fb.group({
       codeColumn: ['', Validators.required],
@@ -714,6 +716,14 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     if (!this.showEclInput) {
       this.eclExpression = '';
     }
+  }
+
+  openEclBuilder(): void {
+    this.eclBuilderDialog.open(this.eclExpression).subscribe(result => {
+      if (result !== null) {
+        this.eclExpression = result;
+      }
+    });
   }
 
   private scrollToBottom(): void {

@@ -1,0 +1,50 @@
+.attribute-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  background: #f7fbff;
+}
+
+.attribute-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: minmax(145px, 0.78fr) minmax(170px, 0.95fr) minmax(80px, 0.38fr) minmax(145px, 0.78fr) minmax(240px, 1.35fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.field-grid > * {
+  min-width: 0;
+  width: 100%;
+}
+
+.comparison-field {
+  width: 100%;
+}
+
+.attribute-operator-cell,
+.attribute-name-cell,
+.comparison-cell,
+.value-operator-cell,
+.value-cell {
+  min-width: 0;
+}
+
+.state-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 900px) {
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+}

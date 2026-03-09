@@ -6,8 +6,7 @@ import { TerminologyService } from '../services/terminology.service';
 import { count, lastValueFrom, map } from 'rxjs';
 import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { EclBuilderDialogComponent } from '../bindings/ecl-builder-dialog/ecl-builder-dialog.component';
+import { MatDialogRef } from '@angular/material/dialog';
 import {
   trigger,
   state,
@@ -17,6 +16,7 @@ import {
 } from '@angular/animations';
 import { AutocompleteBindingComponent } from '../bindings/autocomplete-binding/autocomplete-binding.component';
 import { repeat } from 'lodash';
+import { EclBuilderDialogService } from '../bindings/ecl-builder/ecl-builder-dialog.service';
 @Component({
     selector: 'app-bindings-sandbox',
     templateUrl: './bindings-sandbox.component.html',
@@ -171,7 +171,11 @@ export class BindingsSandboxComponent implements OnInit {
 
   showRightContainer = false;
 
-  constructor(private terminologyService: TerminologyService, private clipboard: Clipboard, public dialog: MatDialog) { }
+  constructor(
+    private terminologyService: TerminologyService,
+    private clipboard: Clipboard,
+    private eclBuilderDialog: EclBuilderDialogService
+  ) { }
   ngOnInit(): void {
     this.checkboxBinding.title = this.checkboxBinding.title.replace('Question', 'Checkbox');
   }
@@ -630,17 +634,11 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   openEclBuilder(ecl: any, controlName: string) {
-    const dialogRef = this.dialog.open(EclBuilderDialogComponent, {
-      data: { ecl },
-      width: '80%',
-      height: '80%'
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+    this.eclBuilderDialog.open(ecl ?? '').subscribe(result => {
+      if (result !== null) {
         const control = this.newBindingForm.get(controlName);
         if (control) {
-          control.setValue(result.ecl);
+          control.setValue(result);
         }
       }
     });

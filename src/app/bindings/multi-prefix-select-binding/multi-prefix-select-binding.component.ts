@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { MatFormFieldAppearance } from '@angular/material/form-field';
 import { TerminologyService } from '../../services/terminology.service';
 
 interface SnomedOption {
@@ -22,6 +23,9 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
     note?: string;
   };
   @Input() expansionCount = 1000;
+  @Input() term: SnomedOption | SnomedOption[] | null = null;
+  @Input() readonly = false;
+  @Input() appearance: MatFormFieldAppearance = 'fill';
   @Output() selectionChange = new EventEmitter<SnomedOption | SnomedOption[] | null>();
 
   options: SnomedOption[] = [];
@@ -48,6 +52,10 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
       this.selectedOptions = [];
       this.searchCtrl.setValue('', { emitEvent: false });
       this.loadOptions();
+    }
+
+    if (changes['term'] && !changes['term'].firstChange) {
+      this.syncSelectionFromTerm();
     }
   }
 
@@ -94,6 +102,7 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
         next: (response: any) => {
           const contains = (response?.expansion?.contains || []) as SnomedOption[];
           this.options = this.sortOptions(contains);
+          this.syncSelectionFromTerm();
           this.applyFilter(this.searchCtrl.value || '');
           this.isLoading = false;
         },
@@ -103,6 +112,26 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
           this.isLoading = false;
         }
       });
+  }
+
+  private syncSelectionFromTerm(): void {
+    if (this.isMultiple) {
+      const requested = Array.isArray(this.term) ? this.term : [];
+      this.selectedOptions = requested
+        .map((item) => this.findOption(item))
+        .filter((item): item is SnomedOption => !!item);
+      return;
+    }
+
+    this.selectedOption = Array.isArray(this.term) ? null : this.findOption(this.term);
+  }
+
+  private findOption(option: SnomedOption | null): SnomedOption | null {
+    if (!option?.code) {
+      return null;
+    }
+
+    return this.options.find((candidate) => candidate.code === option.code) ?? option;
   }
 
   private applyFilter(rawQuery: string): void {

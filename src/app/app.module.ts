@@ -146,6 +146,12 @@ import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
 import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-generator.component';
 import { DrugStrengthRoundingComponent } from './drug-strength-rounding/drug-strength-rounding.component';
 import { ExtensionsSearchComponent } from './extensions-search/extensions-search.component';
+import { EclBuilderComponent } from './bindings/ecl-builder/ecl-builder.component';
+import { ConceptPickerComponent } from './bindings/ecl-builder/concept-picker/concept-picker.component';
+import { ConstraintOperatorSelectComponent } from './bindings/ecl-builder/constraint-operator-select/constraint-operator-select.component';
+import { ExpressionConstraintNodeComponent } from './bindings/ecl-builder/expression-constraint-node/expression-constraint-node.component';
+import { AttributeSetEditorComponent } from './bindings/ecl-builder/attribute-set-editor/attribute-set-editor.component';
+import { AttributeEditorComponent } from './bindings/ecl-builder/attribute-editor/attribute-editor.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -250,7 +256,13 @@ const app = initializeApp(firebaseConfig);
         MdrsViewerComponent,
         CrsBatchGeneratorComponent,
         DrugStrengthRoundingComponent,
-        ExtensionsSearchComponent
+        ExtensionsSearchComponent,
+        EclBuilderComponent,
+        ConceptPickerComponent,
+        ConstraintOperatorSelectComponent,
+        ExpressionConstraintNodeComponent,
+        AttributeSetEditorComponent,
+        AttributeEditorComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

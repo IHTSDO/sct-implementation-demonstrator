@@ -153,15 +153,27 @@
             ECL Expression
           </h3>
           <div class="ecl-content">
-            <mat-form-field appearance="fill" class="ecl-textarea">
-              <mat-label>Enter ECL Expression</mat-label>
-              <textarea
-                matInput
-                [(ngModel)]="eclExpression"
-                placeholder="Enter your ECL expression here..."
-                rows="4"
-              ></textarea>
-            </mat-form-field>
+            <div class="ecl-editor-row">
+              <mat-form-field appearance="fill" class="ecl-textarea">
+                <mat-label>Enter ECL Expression</mat-label>
+                <textarea
+                  matInput
+                  [(ngModel)]="eclExpression"
+                  placeholder="Enter your ECL expression here..."
+                  rows="4"
+                ></textarea>
+              </mat-form-field>
+              <button
+                mat-stroked-button
+                color="primary"
+                type="button"
+                class="ecl-builder-button"
+                (click)="openEclBuilder()"
+              >
+                <mat-icon>schema</mat-icon>
+                <span>Query builder</span>
+              </button>
+            </div>
             <button
               mat-raised-button
               color="primary"

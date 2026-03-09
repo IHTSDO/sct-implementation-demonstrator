@@ -1,0 +1,16 @@
+.node-shell {
+  display: grid;
+  grid-template-columns: minmax(220px, 240px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.concept-picker {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .node-shell {
+    grid-template-columns: 1fr;
+  }
+}

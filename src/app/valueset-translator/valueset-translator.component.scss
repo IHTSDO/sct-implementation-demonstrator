@@ -527,8 +527,25 @@ mat-progress-spinner {
         gap: 16px;
     }
 
+    .ecl-editor-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
     .ecl-textarea {
         width: 100%;
+        flex: 1 1 auto;
+    }
+
+    .ecl-builder-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 160px;
+        height: 56px;
+        border-radius: 8px;
+        flex: 0 0 auto;
     }
 
     .ecl-button {
@@ -1741,7 +1758,12 @@ mat-progress-bar {
       font-size: 16px;
       margin-bottom: 16px;
     }
+
+    .ecl-editor-row {
+      flex-direction: column;
+    }
     
+    .ecl-builder-button,
     .ecl-button {
       min-width: 140px;
       height: 44px;
@@ -1965,6 +1987,7 @@ mat-progress-bar {
   }
 
   .ecl-input-section {
+    .ecl-builder-button,
     .ecl-button {
       min-width: auto;
       width: 100%;

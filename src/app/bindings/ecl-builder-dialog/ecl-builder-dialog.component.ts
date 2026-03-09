@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
     selector: 'app-ecl-builder-dialog',
@@ -10,6 +10,8 @@ import { MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialo
 
 export class EclBuilderDialogComponent {
   localEcl = '';
+  isValid = false;
+
   constructor(
     public dialogRef: MatDialogRef<EclBuilderDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -20,8 +22,16 @@ export class EclBuilderDialogComponent {
     this.dialogRef.close();
   }
 
-  eclChanged(event: any) {
-    // this.localEcl = event?.detail[0];
-    this.data.ecl = event?.detail[0];
+  confirm(): void {
+    this.dialogRef.close(this.localEcl);
+  }
+
+  eclChanged(ecl: string) {
+    this.localEcl = ecl;
+    this.data.ecl = ecl;
+  }
+
+  validityChanged(isValid: boolean) {
+    this.isValid = isValid;
   }
 }

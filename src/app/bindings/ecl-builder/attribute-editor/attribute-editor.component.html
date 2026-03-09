@@ -1,0 +1,65 @@
+<mat-card appearance="outlined" class="attribute-card">
+  <div class="attribute-header">
+    <span>Attribute</span>
+    <button mat-icon-button type="button" [disabled]="readonly" (click)="remove.emit()" aria-label="Remove attribute">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+
+  @if (loadingDomainAttributes) {
+    <div class="state-row">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>Loading attribute constraints</span>
+    </div>
+  }
+
+  <div class="field-grid">
+    <app-constraint-operator-select
+      class="attribute-operator-cell"
+      [label]="'Attribute operator'"
+      [value]="attribute.attributeName.operator ?? 'descendantorselfof'"
+      [readonly]="readonly"
+      (valueChange)="updateAttributeOperator($event)">
+    </app-constraint-operator-select>
+
+    <app-multi-prefix-select-binding
+      class="attribute-name-cell"
+      [binding]="{ title: 'Attribute name', note: 'Restricted by MRCM when available', ecl: domainAttributesEcl, type: 'Select' }"
+      [term]="attributeNameSelection"
+      [readonly]="readonly"
+      [appearance]="'outline'"
+      (selectionChange)="updateAttributeNameSelection($event)">
+    </app-multi-prefix-select-binding>
+
+    <mat-form-field appearance="outline" class="comparison-field comparison-cell">
+      <mat-label>Comparison</mat-label>
+      <mat-select
+        [value]="attribute.expressionComparisonOperator ?? '='"
+        [disabled]="readonly"
+        (selectionChange)="attribute.expressionComparisonOperator = $event.value; changed.emit()">
+        @for (operator of comparisonOperators; track operator) {
+          <mat-option [value]="operator">{{ operator }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <app-constraint-operator-select
+      class="value-operator-cell"
+      [label]="'Value operator'"
+      [value]="valueOperatorSelection"
+      [readonly]="readonly"
+      (valueChange)="updateValueOperator($event)">
+    </app-constraint-operator-select>
+
+    <app-concept-picker
+      class="value-cell"
+      [label]="'Value'"
+      [note]="'Constrained by attribute range when available'"
+      [ecl]="getAttributeRangeEcl()"
+      [conceptId]="valueConceptId"
+      [readonly]="readonly"
+      [appearance]="'outline'"
+      (conceptIdChange)="updateValue($event)">
+    </app-concept-picker>
+  </div>
+</mat-card>

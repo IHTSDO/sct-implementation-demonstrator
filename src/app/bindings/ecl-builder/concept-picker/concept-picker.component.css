@@ -1,0 +1,9 @@
+.picker {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.picker app-autocomplete-binding {
+  flex: 1;
+}

@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, UntypedFormControl, NgControl 
 import {debounceTime, distinctUntilChanged, finalize, map, startWith, switchMap, tap, catchError} from 'rxjs/operators';
 import {concat, Observable, of, Subject} from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
-import { MatFormFieldControl } from '@angular/material/form-field';
+import { MatFormFieldAppearance, MatFormFieldControl } from '@angular/material/form-field';
 
 @Component({
     selector: 'app-autocomplete-binding',
@@ -24,10 +24,11 @@ import { MatFormFieldControl } from '@angular/material/form-field';
 })
 export class AutocompleteBindingComponent implements OnInit, OnChanges, AfterViewInit, ControlValueAccessor, DoCheck  {
   @Input() binding: any;
-  @Input() term: string = "";
+  @Input() term: any = "";
   @Input() readonly: boolean = false;
   @Input() terminologyServer?: string; // Optional: FHIR base URL for terminology server
   @Input() editionUri?: string; // Optional: Edition URI (e.g., 'http://snomed.info/sct/11000221109/version/20211130')
+  @Input() appearance: MatFormFieldAppearance = 'fill';
   @Output() selectionChange = new EventEmitter<any>();
   @Output() cleared = new EventEmitter<any>();
   @ViewChild('inputElement') inputElement!: ElementRef<HTMLInputElement>;

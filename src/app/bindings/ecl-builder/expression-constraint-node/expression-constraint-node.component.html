@@ -1,0 +1,18 @@
+<div class="node-shell">
+  <app-constraint-operator-select
+    [value]="model.operator ?? ''"
+    [readonly]="readonly"
+    (valueChange)="updateOperator($event)">
+  </app-constraint-operator-select>
+
+  <app-concept-picker
+    class="concept-picker"
+    [label]="label"
+    [note]="note"
+    [ecl]="conceptEcl"
+    [conceptId]="currentConceptId"
+    [readonly]="readonly"
+    [appearance]="'outline'"
+    (conceptIdChange)="updateConceptId($event)">
+  </app-concept-picker>
+</div>

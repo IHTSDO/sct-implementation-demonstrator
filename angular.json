@@ -37,9 +37,7 @@
                 "node_modules"
               ]
             },
-            "scripts": [
-              "src/vue-ecl-builder.js"
-            ],
+            "scripts": [],
               "allowedCommonJsDependencies": [
                 "file-saver",
                 "bad-words",

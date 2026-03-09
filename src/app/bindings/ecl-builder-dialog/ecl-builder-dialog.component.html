@@ -1,12 +1,12 @@
 <h1 mat-dialog-title>ECL Builder</h1>
 <div mat-dialog-content class="full-height">
-    <snomed-ecl-builder (eclOutput)="eclChanged($event)"
-    apiurl="https://snowstorm.ihtsdotools.org/snowstorm/snomed-ct"
-    branch="MAIN/2023-01-31"
-    :eclstring="{{ localEcl }}"
-    v-on:eclOutput="eclChange"
-    />
+  <app-ecl-builder
+    [eclString]="localEcl"
+    (eclStringChange)="eclChanged($event)"
+    (validityChange)="validityChanged($event)">
+  </app-ecl-builder>
 </div>
 <div mat-dialog-actions class="actions">
-  <button mat-flat-button color="accent" [mat-dialog-close]="data" cdkFocusInitial>Ok</button>
+  <button mat-button (click)="onNoClick()" cdkFocusInitial>Cancel</button>
+  <button mat-flat-button color="accent" [disabled]="!isValid" (click)="confirm()">Ok</button>
 </div>

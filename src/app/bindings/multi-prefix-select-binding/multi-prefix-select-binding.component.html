@@ -1,11 +1,11 @@
-<mat-form-field appearance="fill" class="multi-prefix-select">
+<mat-form-field [appearance]="appearance" class="multi-prefix-select">
   <mat-label>{{ binding.title || 'Select value' }}</mat-label>
 
   <mat-select
     [multiple]="isMultiple"
     [ngModel]="isMultiple ? selectedOptions : selectedOption"
     (ngModelChange)="onModelChange($event)"
-    [disabled]="isLoading">
+    [disabled]="isLoading || readonly">
 
     <mat-option>
       <ngx-mat-select-search

@@ -1,0 +1,124 @@
+<div class="builder-shell">
+  @if (loading) {
+    <div class="loading-state">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>{{ loadingMessage }}</span>
+    </div>
+  } @else if (model) {
+    <mat-card appearance="outlined" class="editor-card">
+      <div class="builder-section">
+        <div class="section-header">
+          <div class="section-title">Focus concept</div>
+        </div>
+
+        @if (!hasCompoundConstraints()) {
+          <div class="focus-line">
+            <app-expression-constraint-node
+              [model]="model.subexpressionConstraint ?? model"
+              [label]="'Concept'"
+              [note]="'Search SNOMED CT concepts or use wildcard'"
+              [conceptEcl]="'*'"
+              [allowWildcard]="true"
+              (changed)="onModelChanged()">
+            </app-expression-constraint-node>
+            <div class="focus-actions">
+              @if (canAddCompoundFromConstraint(model.subexpressionConstraint ?? model)) {
+                <button mat-icon-button type="button" [matMenuTriggerFor]="compoundMenu" aria-label="Add concept">
+                  <mat-icon>add</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        @for (constraint of conjunctionConstraints; track trackConstraint($index, constraint)) {
+          <div class="compound-line">
+            <div class="compound-label">{{ $index === 0 ? '' : 'AND' }}</div>
+            <app-expression-constraint-node
+              [model]="constraint"
+              [label]="'Concept'"
+              [note]="'Search SNOMED CT concepts'"
+              [conceptEcl]="'*'"
+              (changed)="onModelChanged()">
+            </app-expression-constraint-node>
+            <div class="focus-actions">
+              <button mat-icon-button type="button" (click)="removeCompoundConstraint('conjunction', $index)" aria-label="Remove concept">
+                <mat-icon>delete</mat-icon>
+              </button>
+              @if (isLastCompoundConstraint('conjunction', $index) && canAddCompoundFromConstraint(constraint)) {
+                <button mat-icon-button type="button" [matMenuTriggerFor]="compoundMenu" aria-label="Add concept">
+                  <mat-icon>add</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        @for (constraint of disjunctionConstraints; track trackConstraint($index, constraint)) {
+          <div class="compound-line">
+            <div class="compound-label">{{ $index === 0 && conjunctionConstraints.length === 0 ? '' : 'OR' }}</div>
+            <app-expression-constraint-node
+              [model]="constraint"
+              [label]="'Concept'"
+              [note]="'Search SNOMED CT concepts'"
+              [conceptEcl]="'*'"
+              (changed)="onModelChanged()">
+            </app-expression-constraint-node>
+            <div class="focus-actions">
+              <button mat-icon-button type="button" (click)="removeCompoundConstraint('disjunction', $index)" aria-label="Remove concept">
+                <mat-icon>delete</mat-icon>
+              </button>
+              @if (isLastCompoundConstraint('disjunction', $index) && canAddCompoundFromConstraint(constraint)) {
+                <button mat-icon-button type="button" [matMenuTriggerFor]="compoundMenu" aria-label="Add concept">
+                  <mat-icon>add</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (canAddRefinement()) {
+          <div class="section-actions">
+            <button mat-stroked-button type="button" (click)="addRefinement()">
+              Add refinement
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (shouldShowRefinementSection()) {
+        <div class="builder-section">
+          <div class="section-title">Refinement</div>
+          <app-attribute-set-editor
+            [model]="model"
+            (changed)="onModelChanged()">
+          </app-attribute-set-editor>
+        </div>
+      }
+    </mat-card>
+
+    <mat-menu #compoundMenu="matMenu">
+      <button mat-menu-item type="button" (click)="addCompoundConstraint('conjunction')">Add AND concept</button>
+      <button mat-menu-item type="button" (click)="addCompoundConstraint('disjunction')">Add OR concept</button>
+    </mat-menu>
+
+    <mat-card appearance="outlined" class="output-card">
+      <div class="section-title">Generated ECL</div>
+      <textarea class="output" [value]="generatedEcl" readonly></textarea>
+    </mat-card>
+  }
+
+  @if (unsupportedMessage) {
+    <mat-card appearance="outlined" class="message-card warning-card">
+      <mat-icon>warning</mat-icon>
+      <span>{{ unsupportedMessage }}</span>
+    </mat-card>
+  }
+
+  @if (errorMessage) {
+    <mat-card appearance="outlined" class="message-card error-card">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </mat-card>
+  }
+</div>

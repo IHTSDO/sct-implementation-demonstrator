@@ -1,0 +1,116 @@
+.builder-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.editor-card,
+.output-card,
+.message-card {
+  display: grid;
+  gap: 16px;
+}
+
+.editor-card,
+.output-card {
+  padding: 20px;
+}
+
+.builder-section {
+  display: grid;
+  gap: 12px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.section-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.focus-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px;
+  gap: 12px;
+  align-items: start;
+}
+
+.compound-line {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 88px;
+  gap: 12px;
+  align-items: start;
+}
+
+.compound-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.focus-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-height: 56px;
+}
+
+.output {
+  min-height: 110px;
+  resize: vertical;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 12px;
+  font: inherit;
+  line-height: 1.5;
+  background: #fafafa;
+}
+
+.loading-state,
+.message-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.warning-card {
+  color: #8d6e00;
+  background: #fff8e1;
+}
+
+.error-card {
+  color: #b3261e;
+  background: #fdecea;
+}
+
+@media (max-width: 900px) {
+  .focus-line,
+  .compound-line {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-actions,
+  .compound-label {
+    justify-content: flex-start;
+    min-height: auto;
+  }
+}

@@ -1,0 +1,24 @@
+<div class="attribute-set">
+  <div class="attribute-set-header">
+    <span>Refinement attributes</span>
+    <button mat-stroked-button type="button" [disabled]="readonly" (click)="addAttribute()">
+      Add attribute
+    </button>
+  </div>
+
+  @for (item of attributes; track trackAttribute($index, item)) {
+    <div class="attribute-row">
+      @if ($index > 0) {
+        <div class="and-chip">AND</div>
+      }
+      <app-attribute-editor
+        [attribute]="item.attribute"
+        [focusConceptId]="model.subexpressionConstraint?.conceptId || model.conceptId || ''"
+        [focusConceptOperator]="model.subexpressionConstraint?.operator || model.operator || ''"
+        [readonly]="readonly"
+        (changed)="changed.emit()"
+        (remove)="removeAttribute($index)">
+      </app-attribute-editor>
+    </div>
+  }
+</div>

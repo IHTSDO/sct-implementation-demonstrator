@@ -1,0 +1,11 @@
+<mat-form-field appearance="outline" class="operator-field">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select
+    [value]="value"
+    [disabled]="readonly"
+    (selectionChange)="valueChange.emit($event.value)">
+    @for (option of options; track option.value) {
+      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>
