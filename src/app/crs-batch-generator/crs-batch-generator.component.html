@@ -91,6 +91,22 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
+        <div class="preview-toolbar">
+          <div class="check-progress">
+            @if (isCheckingSubstances) {
+              <span>Checking {{ currentCheckIndex }} of {{ totalChecks }}: {{ currentCheckName }}</span>
+            }
+          </div>
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="validateFilteredRows(filteredRows)"
+            [disabled]="isLoading || isCheckingSubstances || filteredRows.length === 0">
+            <mat-icon>fact_check</mat-icon>
+            Check substances in SNOMED edition
+          </button>
+        </div>
+
         <div class="table-container">
           <table mat-table [dataSource]="filteredRows" class="results-table">
             <!-- Select Column -->
@@ -131,6 +147,27 @@
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef>Date</th>
               <td mat-cell *matCellDef="let row">{{ row.latestDateDisplay }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="validation">
+              <th mat-header-cell *matHeaderCellDef>SNOMED Check</th>
+              <td mat-cell *matCellDef="let row">
+                @if (isValidationPending(row)) {
+                  <div class="validation-cell">
+                    <div class="validation-skeleton"></div>
+                    <div class="validation-skeleton"></div>
+                  </div>
+                } @else {
+                  <div class="validation-cell">
+                    <div class="validation-line">
+                      {{ getValidationSummary(row.substanceValidation, 'Substance') }}
+                    </div>
+                    <div class="validation-line">
+                      {{ getValidationSummary(row.productValidation, 'Product') }}
+                    </div>
+                  </div>
+                }
+              </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

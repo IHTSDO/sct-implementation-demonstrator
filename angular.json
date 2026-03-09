@@ -32,13 +32,18 @@
               "src/styles.css",
               "node_modules/leaflet/dist/leaflet.css"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules"
+              ]
+            },
             "scripts": [
-              "node_modules/snomed-ecl-builder-vue/dist/snomed-ecl-builder.js"
+              "src/vue-ecl-builder.js"
             ],
-            "allowedCommonJsDependencies": [
-              "file-saver",
-              "bad-words",
-              "phaser",
+              "allowedCommonJsDependencies": [
+                "file-saver",
+                "bad-words",
+                "phaser",
               "lodash/cloneDeep",
               "core-js",
               "core-js/modules/es.promise.js",
@@ -59,11 +64,12 @@
               "raf",
               "rgbcolor",
               "html2canvas",
-              "leaflet",
-              "jszip",
-              "plotly.js-dist",
-              "papaparse"
-            ],
+                "leaflet",
+                "jszip",
+                "plotly.js-dist",
+                "papaparse",
+                "qrcode"
+              ],
             "browser": "src/main.ts"
           },
           "configurations": {
@@ -72,7 +78,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "13mb",
+                  "maximumWarning": "14mb",
                   "maximumError": "15mb"
                 },
                 {

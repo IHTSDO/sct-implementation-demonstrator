@@ -8541,7 +8541,13 @@ var component = (0,componentNormalizer/* default */.Z)(
 
 
 
-window.customElements.define('vue-ecl-builder', vue_wc_wrapper((external_Vue_default()), ECLBuildershadow))
+var VueEclBuilderElement = vue_wc_wrapper((external_Vue_default()), ECLBuildershadow);
+if (!window.customElements.get('vue-ecl-builder')) {
+  window.customElements.define('vue-ecl-builder', VueEclBuilderElement);
+}
+if (!window.customElements.get('snomed-ecl-builder')) {
+  window.customElements.define('snomed-ecl-builder', VueEclBuilderElement);
+}
 }();
 /******/ })()
 ;

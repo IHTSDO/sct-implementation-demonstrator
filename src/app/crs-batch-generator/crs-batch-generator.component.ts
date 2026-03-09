@@ -4,8 +4,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { saveAs } from 'file-saver';
+import { firstValueFrom } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { ConfirmationDialogComponent } from '../questionnaires/confirmation-dialog/confirmation-dialog.component';
+import { TerminologyService } from '../services/terminology.service';
+
+interface ValidationResult {
+  exists: boolean;
+  total: number;
+  firstMatch: string;
+  firstMatchCode: string;
+}
 
 interface FilteredRow {
   substanceName: string; // Column A
@@ -18,6 +27,8 @@ interface FilteredRow {
   latestDateDisplay: string; // Human readable date string
   selected: boolean; // For checkbox selection
   originalRowIndex: number; // Original row index in the file
+  substanceValidation?: ValidationResult;
+  productValidation?: ValidationResult;
   [key: string]: any; // Allow additional columns
 }
 
@@ -33,17 +44,24 @@ export class CrsBatchGeneratorComponent implements OnInit {
   dateRangeForm: FormGroup;
   uploadedFile: File | null = null;
   filteredRows: FilteredRow[] = [];
-  displayedColumns: string[] = ['select', 'substanceName', 'substanceType', 'date'];
+  displayedColumns: string[] = ['select', 'substanceName', 'substanceType', 'date', 'validation'];
   isLoading = false;
+  isCheckingSubstances = false;
+  currentCheckIndex = 0;
+  totalChecks = 0;
+  currentCheckName = '';
   error: string | null = null;
   templateWorkbook: XLSX.WorkBook | null = null;
   headerRowIndex: number = -1;
+  readonly substanceValidationEcl = '<< 105590001 |Substance (substance)|';
+  readonly productValidationEcl = '<< 373873005 |Pharmaceutical / biologic product (product)|';
 
   constructor(
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private http: HttpClient
+    private http: HttpClient,
+    private terminologyService: TerminologyService
   ) {
     this.dateRangeForm = this.fb.group({
       startDate: ['', Validators.required],
@@ -112,20 +130,11 @@ export class CrsBatchGeneratorComponent implements OnInit {
         throw new Error('Could not find header row. Expected column H header.');
       }
 
-      // Debug: Log header row and first few data rows
-      console.log('Header row index:', this.headerRowIndex);
-      console.log('Header row:', data[this.headerRowIndex]);
-      if (data.length > this.headerRowIndex + 1) {
-        console.log('First data row:', data[this.headerRowIndex + 1]);
-      }
-
       // Filter rows
       const filtered = this.applyFilters(data, startDate, endDate);
-      console.log('Filtered rows before deduplication:', filtered.length);
       
       // Deduplicate by substance name (column A)
       this.filteredRows = this.deduplicateRows(filtered);
-      console.log('Filtered rows after deduplication:', this.filteredRows.length);
 
       this.snackBar.open(`Found ${this.filteredRows.length} unique rows matching criteria`, 'Close', { duration: 3000 });
     } catch (error: any) {
@@ -164,8 +173,6 @@ export class CrsBatchGeneratorComponent implements OnInit {
     const startRow = this.headerRowIndex + 1;
     let rowsWithN = 0;
     let rowsWithValidDates = 0;
-
-    console.log('Filtering with date range:', startDate, 'to', endDate);
 
     for (let i = startRow; i < data.length; i++) {
       const row = data[i];
@@ -211,10 +218,6 @@ export class CrsBatchGeneratorComponent implements OnInit {
         });
       }
     }
-
-    console.log('Rows with H=N:', rowsWithN);
-    console.log('Rows with valid dates:', rowsWithValidDates);
-    console.log('Rows in date range:', filtered.length);
 
     return filtered;
   }
@@ -297,6 +300,77 @@ export class CrsBatchGeneratorComponent implements OnInit {
     }
 
     return unique;
+  }
+
+  async validateFilteredRows(rows: FilteredRow[]): Promise<void> {
+    this.isCheckingSubstances = true;
+    this.totalChecks = rows.length;
+    this.currentCheckIndex = 0;
+    this.currentCheckName = '';
+    rows.forEach(row => {
+      row.substanceValidation = undefined;
+      row.productValidation = undefined;
+    });
+
+    try {
+      for (const row of rows) {
+        this.currentCheckIndex += 1;
+        this.currentCheckName = row.substanceName.trim();
+        const filterTerm = row.substanceName.trim();
+        const substanceResponse = await firstValueFrom(
+          this.terminologyService.expandValueSet(this.substanceValidationEcl, filterTerm, 0, 5)
+        );
+        await this.delay(1000);
+        const productResponse = await firstValueFrom(
+          this.terminologyService.expandValueSet(this.productValidationEcl, filterTerm, 0, 5)
+        );
+
+        row.substanceValidation = this.mapValidationResult(substanceResponse);
+        row.productValidation = this.mapValidationResult(productResponse);
+
+        await this.delay(1000);
+      }
+
+      this.snackBar.open(`Checked ${rows.length} row(s) in the selected SNOMED edition`, 'Close', { duration: 3000 });
+    } finally {
+      this.isCheckingSubstances = false;
+      this.currentCheckIndex = 0;
+      this.totalChecks = 0;
+      this.currentCheckName = '';
+    }
+  }
+
+  delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  mapValidationResult(response: any): ValidationResult {
+    const total = response?.expansion?.total ?? 0;
+    const firstMatch = response?.expansion?.contains?.[0]?.display ?? '';
+    const firstMatchCode = response?.expansion?.contains?.[0]?.code ?? '';
+
+    return {
+      exists: total > 0,
+      total,
+      firstMatch,
+      firstMatchCode
+    };
+  }
+
+  getValidationSummary(result?: ValidationResult, typeLabel?: string): string {
+    if (!result) {
+      return `${typeLabel}: not checked`;
+    }
+
+    if (!result.exists) {
+      return `${typeLabel}: not found`;
+    }
+
+    return `${typeLabel}: ${result.firstMatch} (${result.firstMatchCode})`;
+  }
+
+  isValidationPending(row: FilteredRow): boolean {
+    return this.isCheckingSubstances && (!row.substanceValidation || !row.productValidation);
   }
 
   toggleRowSelection(row: FilteredRow): void {
@@ -496,6 +570,11 @@ export class CrsBatchGeneratorComponent implements OnInit {
     const substanceNameLowercase = substanceName.charAt(0).toLowerCase() + substanceName.slice(1);
     const productContainingText = `Product containing ${substanceNameLowercase}`;
     const containingProductText = `${substanceName}-containing product`;
+
+    // Column G (index 6) - Semantic tag should be "medicinal product"
+    if (row.length > 6) {
+      row[6] = 'medicinal product';
+    }
     
     // Column F (index 5) - FSN (Fully Specified Name)
     if (row.length > 5) {
