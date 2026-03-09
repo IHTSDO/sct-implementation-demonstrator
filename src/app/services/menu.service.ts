@@ -7,11 +7,18 @@ export class MenuService {
 
   demos = [
     { 
-      name: "Clinical User Interface Demo",
+      name: "Encounters UI Demo",
       subtitle: "Clinical demo",
       type: "external", 
       url: "https://ihtsdo.github.io/snomed-ui-examples",
-      description: "A simulation of clinical data entry on an EHR using SNOMED FHIR Terminology services"
+      description: "A simulation of clinical data entry for clinial encounters SNOMED FHIR Terminology services. The classic SNOMED UI Demo."
+    },
+    {
+      name: "SNOMED EHR Lab",
+      subtitle: "Clinical demo",
+      type: "internal",
+      url: "/ehr-lab",
+      description: "A complete EHR simulation with generated persistent patients, clinical, dental, and nursing records, AI-assisted entry, CDS, analytics, interoperability tools, and Smart Health Links powered by FHIR and SNOMED CT."
     },
     { 
       name: "Allergies",
@@ -124,13 +131,6 @@ export class MenuService {
       type: "internal",
       url: "/descriptive-analytics",
       description: "A demo of descriptive analytics for SNOMED CT, including a treemap visualization with nested boxes for hierarchical data exploration."
-    },
-    {
-      name: "SNOMED EHR Lab",
-      subtitle: "Clinical demo",
-      type: "internal",
-      url: "/ehr-lab",
-      description: "A hands-on demo suite showing how to design clinical workflows that produce clean, connected, computable data—ready for safety checks, analytics, and exchange. Powered by FHIR and SNOMED CT, but framed around end-to-end information quality."
     },
     {
       name: "SNOMED Integrations Hub",
