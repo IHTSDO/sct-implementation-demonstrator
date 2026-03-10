@@ -110,8 +110,9 @@ export class EclBuilderService {
       },
       expressionComparisonOperator: '=',
       value: {
-        conceptId: '',
-        operator: 'descendantorselfof'
+        conceptId: '*',
+        wildcard: true,
+        operator: ''
       }
     });
   }

@@ -15,6 +15,7 @@ export class ConceptPickerComponent {
   @Input() readonly = false;
   @Input() appearance: MatFormFieldAppearance = 'fill';
   @Input() compact = false;
+  @Input() allowWildcard = false;
 
   @Output() conceptIdChange = new EventEmitter<string>();
 
@@ -34,9 +35,23 @@ export class ConceptPickerComponent {
     this.selectedTerm = this.toSelectedTerm(this.conceptId);
   }
 
-  onSelectionChange(selection: { code?: string; display?: string }): void {
+  onSelectionChange(selection: { code?: string; display?: string } | string): void {
+    if (typeof selection === 'string') {
+      if (this.allowWildcard && selection.trim() === '*') {
+        this.conceptIdChange.emit('*');
+      } else {
+        this.conceptIdChange.emit('');
+      }
+      return;
+    }
+
     if (!selection?.code) {
       this.conceptIdChange.emit('');
+      return;
+    }
+
+    if (this.allowWildcard && selection.code === '*') {
+      this.conceptIdChange.emit('*');
       return;
     }
 

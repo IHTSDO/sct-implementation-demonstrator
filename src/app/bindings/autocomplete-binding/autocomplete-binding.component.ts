@@ -30,6 +30,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, AfterVie
   @Input() editionUri?: string; // Optional: Edition URI (e.g., 'http://snomed.info/sct/11000221109/version/20211130')
   @Input() appearance: MatFormFieldAppearance = 'fill';
   @Input() compact = false;
+  @Input() allowWildcard = false;
   @Output() selectionChange = new EventEmitter<any>();
   @Output() cleared = new EventEmitter<any>();
   @ViewChild('inputElement') inputElement!: ElementRef<HTMLInputElement>;
@@ -313,6 +314,13 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, AfterVie
   onBlur(): void {
     this.focused = false;
     this.onTouched();
+
+    const rawValue = (this.formControl.value ?? '').toString().trim();
+    if (this.allowWildcard && rawValue === '*') {
+      this.selectedConcept = { code: '*', display: '*' };
+      this.selectionChange.emit(this.selectedConcept);
+      this.onChange(this.selectedConcept);
+    }
     
     // Sync validation state with parent control when blurring
     if (this.ngControl && this.ngControl.control) {
