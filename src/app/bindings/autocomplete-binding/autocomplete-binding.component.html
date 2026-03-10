@@ -1,4 +1,4 @@
-<mat-form-field [appearance]="appearance">
+<mat-form-field [appearance]="appearance" [class.compact-field]="compact">
   @if (binding.title) {
     <mat-label>{{ binding.title }}</mat-label>
   }
@@ -26,8 +26,8 @@
   }
   <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="change($event)">
     @if (loading) {
-      <mat-option disabled class="loading">
-        <mat-spinner diameter="35"></mat-spinner>
+    <mat-option disabled class="loading">
+        <mat-spinner [diameter]="compact ? 24 : 35"></mat-spinner>
       </mat-option>
     }
     @for (concept of autoFilter | async; track concept.code) {

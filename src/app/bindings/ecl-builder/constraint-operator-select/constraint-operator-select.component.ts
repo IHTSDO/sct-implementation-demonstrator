@@ -11,6 +11,7 @@ export class ConstraintOperatorSelectComponent {
   @Input() label = 'Operator';
   @Input() value: EclOperator = '';
   @Input() readonly = false;
+  @Input() compact = false;
   @Output() valueChange = new EventEmitter<EclOperator>();
 
   readonly options: Array<{ value: EclOperator; label: string }> = [

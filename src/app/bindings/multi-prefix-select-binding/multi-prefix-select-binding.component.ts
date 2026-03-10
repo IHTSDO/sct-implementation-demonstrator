@@ -26,6 +26,7 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
   @Input() term: SnomedOption | SnomedOption[] | null = null;
   @Input() readonly = false;
   @Input() appearance: MatFormFieldAppearance = 'fill';
+  @Input() compact = false;
   @Output() selectionChange = new EventEmitter<SnomedOption | SnomedOption[] | null>();
 
   options: SnomedOption[] = [];

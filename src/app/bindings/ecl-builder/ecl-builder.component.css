@@ -1,23 +1,24 @@
 .builder-shell {
   display: grid;
-  gap: 16px;
+  gap: 10px;
+  font-size: 13px;
 }
 
 .editor-card,
 .output-card,
 .message-card {
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 
 .editor-card,
 .output-card {
-  padding: 20px;
+  padding: 14px;
 }
 
 .builder-section {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .section-header {
@@ -28,7 +29,7 @@
 }
 
 .section-title {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -42,15 +43,15 @@
 
 .focus-line {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 88px;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 76px;
+  gap: 8px;
   align-items: start;
 }
 
 .compound-line {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) 88px;
-  gap: 12px;
+  grid-template-columns: 54px minmax(0, 1fr) 76px;
+  gap: 8px;
   align-items: start;
 }
 
@@ -58,8 +59,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 56px;
-  font-size: 12px;
+  min-height: 44px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: rgba(0, 0, 0, 0.6);
@@ -69,19 +70,25 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
-  min-height: 56px;
+  gap: 2px;
+  min-height: 44px;
+}
+
+.focus-actions .mat-mdc-icon-button.mat-mdc-button-base {
+  width: 34px;
+  height: 34px;
+  padding: 5px;
 }
 
 .output {
-  min-height: 110px;
+  min-height: 84px;
   resize: vertical;
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid rgba(0, 0, 0, 0.16);
-  border-radius: 12px;
+  border-radius: 8px;
   font: inherit;
-  line-height: 1.5;
+  line-height: 1.35;
   background: #fafafa;
 }
 
@@ -89,7 +96,7 @@
 .message-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .warning-card {

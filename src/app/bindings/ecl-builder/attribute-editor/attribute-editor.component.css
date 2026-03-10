@@ -1,7 +1,7 @@
 .attribute-card {
   display: grid;
-  gap: 12px;
-  padding: 16px;
+  gap: 8px;
+  padding: 10px;
   background: #f7fbff;
 }
 
@@ -10,12 +10,13 @@
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
+  font-size: 13px;
 }
 
 .field-grid {
   display: grid;
-  grid-template-columns: minmax(145px, 0.78fr) minmax(170px, 0.95fr) minmax(80px, 0.38fr) minmax(145px, 0.78fr) minmax(240px, 1.35fr);
-  gap: 8px;
+  grid-template-columns: minmax(132px, 0.78fr) minmax(160px, 0.92fr) minmax(72px, 0.34fr) minmax(132px, 0.78fr) minmax(220px, 1.3fr);
+  gap: 6px;
   align-items: start;
 }
 
@@ -28,6 +29,12 @@
   width: 100%;
 }
 
+.comparison-field.compact-field {
+  --mat-form-field-container-height: 44px;
+  --mat-form-field-container-vertical-padding: 10px;
+  font-size: 13px;
+}
+
 .attribute-operator-cell,
 .attribute-name-cell,
 .comparison-cell,
@@ -38,8 +45,9 @@
 
 .state-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+  font-size: 12px;
   color: rgba(0, 0, 0, 0.7);
 }
 

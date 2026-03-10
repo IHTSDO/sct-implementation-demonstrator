@@ -1,6 +1,8 @@
 <div class="node-shell">
   <app-constraint-operator-select
+    class="focus-operator"
     [value]="model.operator ?? ''"
+    [compact]="compact"
     [readonly]="readonly"
     (valueChange)="updateOperator($event)">
   </app-constraint-operator-select>
@@ -12,6 +14,7 @@
     [ecl]="conceptEcl"
     [conceptId]="currentConceptId"
     [readonly]="readonly"
+    [compact]="compact"
     [appearance]="'outline'"
     (conceptIdChange)="updateConceptId($event)">
   </app-concept-picker>

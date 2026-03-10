@@ -14,6 +14,7 @@ export class ConceptPickerComponent {
   @Input() conceptId = '';
   @Input() readonly = false;
   @Input() appearance: MatFormFieldAppearance = 'fill';
+  @Input() compact = false;
 
   @Output() conceptIdChange = new EventEmitter<string>();
 

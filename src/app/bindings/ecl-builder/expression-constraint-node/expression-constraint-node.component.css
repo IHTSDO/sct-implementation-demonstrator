@@ -1,12 +1,16 @@
 .node-shell {
   display: grid;
-  grid-template-columns: minmax(220px, 240px) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(188px, 196px) minmax(0, 1fr);
+  gap: 8px;
   align-items: flex-start;
 }
 
 .concept-picker {
   min-width: 0;
+}
+
+:host ::ng-deep .focus-operator .operator-field.compact-field {
+  --mat-form-field-container-height: 48px;
 }
 
 @media (max-width: 900px) {

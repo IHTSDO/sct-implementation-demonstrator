@@ -1,3 +1,10 @@
 .operator-field {
-  width: 240px;
+  width: 100%;
+  min-width: 0;
+}
+
+.operator-field.compact-field {
+  --mat-form-field-container-height: 44px;
+  --mat-form-field-container-vertical-padding: 10px;
+  font-size: 13px;
 }

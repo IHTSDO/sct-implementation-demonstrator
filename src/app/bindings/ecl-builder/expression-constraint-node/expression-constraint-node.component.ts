@@ -15,6 +15,7 @@ export class ExpressionConstraintNodeComponent {
   @Input() conceptEcl = '*';
   @Input() allowWildcard = false;
   @Input() readonly = false;
+  @Input() compact = false;
 
   @Output() changed = new EventEmitter<void>();
  

@@ -2,6 +2,16 @@
   width: 100%;
 }
 
+.multi-prefix-select.compact-field {
+  --mat-form-field-container-height: 44px;
+  --mat-form-field-container-vertical-padding: 10px;
+  font-size: 13px;
+}
+
 mat-hint {
   font-size: 12px;
+}
+
+.multi-prefix-select.compact-field mat-hint {
+  font-size: 11px;
 }

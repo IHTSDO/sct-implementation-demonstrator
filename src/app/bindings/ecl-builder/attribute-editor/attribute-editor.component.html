@@ -17,6 +17,7 @@
     <app-constraint-operator-select
       class="attribute-operator-cell"
       [label]="'Attribute operator'"
+      [compact]="true"
       [value]="attribute.attributeName.operator ?? 'descendantorselfof'"
       [readonly]="readonly"
       (valueChange)="updateAttributeOperator($event)">
@@ -28,10 +29,11 @@
       [term]="attributeNameSelection"
       [readonly]="readonly"
       [appearance]="'outline'"
+      [compact]="true"
       (selectionChange)="updateAttributeNameSelection($event)">
     </app-multi-prefix-select-binding>
 
-    <mat-form-field appearance="outline" class="comparison-field comparison-cell">
+    <mat-form-field appearance="outline" class="comparison-field comparison-cell compact-field">
       <mat-label>Comparison</mat-label>
       <mat-select
         [value]="attribute.expressionComparisonOperator ?? '='"
@@ -46,6 +48,7 @@
     <app-constraint-operator-select
       class="value-operator-cell"
       [label]="'Value operator'"
+      [compact]="true"
       [value]="valueOperatorSelection"
       [readonly]="readonly"
       (valueChange)="updateValueOperator($event)">
@@ -59,6 +62,7 @@
       [conceptId]="valueConceptId"
       [readonly]="readonly"
       [appearance]="'outline'"
+      [compact]="true"
       (conceptIdChange)="updateValue($event)">
     </app-concept-picker>
   </div>

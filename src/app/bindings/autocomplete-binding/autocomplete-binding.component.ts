@@ -29,6 +29,7 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, AfterVie
   @Input() terminologyServer?: string; // Optional: FHIR base URL for terminology server
   @Input() editionUri?: string; // Optional: Edition URI (e.g., 'http://snomed.info/sct/11000221109/version/20211130')
   @Input() appearance: MatFormFieldAppearance = 'fill';
+  @Input() compact = false;
   @Output() selectionChange = new EventEmitter<any>();
   @Output() cleared = new EventEmitter<any>();
   @ViewChild('inputElement') inputElement!: ElementRef<HTMLInputElement>;
