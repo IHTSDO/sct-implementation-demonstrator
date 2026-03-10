@@ -80,6 +80,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { CheckBoxMultipleBindingComponent } from './bindings/checkbox-multiple-binding/checkbox-multiple-binding.component';
 import { HomeComponent } from './home/home.component';
 import { BindingsViewerComponent } from './bindings-sandbox/bindings-viewer/bindings-viewer.component';
+import { BindingsDataDialogComponent } from './bindings-sandbox/bindings-data-dialog/bindings-data-dialog.component';
 import { NcptComponent } from './ncpt/ncpt.component';
 import { MaturityResultsComponent } from './maturity/maturity-results/maturity-results.component';
 import { MaturityResultsDialogComponent } from './maturity/maturity-results-dialog';
@@ -194,6 +195,7 @@ const app = initializeApp(firebaseConfig);
         CheckBoxMultipleBindingComponent,
         HomeComponent,
         BindingsViewerComponent,
+        BindingsDataDialogComponent,
         NcptComponent,
         MaturityResultsComponent,
         MaturityResultsDialogComponent,

@@ -1,59 +1,24 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatExpansionPanel } from '@angular/material/expansion';
-import { TerminologyService } from '../services/terminology.service';
-import { count, lastValueFrom, map } from 'rxjs';
-import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { MatDialogRef } from '@angular/material/dialog';
-import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition
-} from '@angular/animations';
-import { AutocompleteBindingComponent } from '../bindings/autocomplete-binding/autocomplete-binding.component';
-import { repeat } from 'lodash';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { map, lastValueFrom } from 'rxjs';
+import { saveAs } from 'file-saver';
 import { EclBuilderDialogService } from '../bindings/ecl-builder/ecl-builder-dialog.service';
+import { TerminologyService } from '../services/terminology.service';
+import { BindingsDataDialogComponent } from './bindings-data-dialog/bindings-data-dialog.component';
+
 @Component({
-    selector: 'app-bindings-sandbox',
-    templateUrl: './bindings-sandbox.component.html',
-    styleUrls: ['./bindings-sandbox.component.css'],
-    animations: [
-        trigger('openClose', [
-            state('open', style({
-                opacity: 1,
-                width: '50%'
-            })),
-            state('closed', style({
-                opacity: 0,
-                width: '0'
-            })),
-            transition('open <=> closed', [
-                animate('0.5s')
-            ]),
-        ]),
-        trigger('growShrink', [
-            state('open', style({
-                width: '50%'
-            })),
-            state('closed', style({
-                width: '100%'
-            })),
-            transition('open <=> closed', [
-                animate('0.5s')
-            ]),
-        ]),
-    ],
-    standalone: false
+  selector: 'app-bindings-sandbox',
+  templateUrl: './bindings-sandbox.component.html',
+  styleUrls: ['./bindings-sandbox.component.css'],
+  standalone: false
 })
 export class BindingsSandboxComponent implements OnInit {
-  @ViewChild('newPanel') newPanel!: MatExpansionPanel;
-
   formTitle: string = 'My new form';
   titleEditMode = false;
+
   bindings: any[] = [];
   output: any = {};
   outputStr: string = '{}';
@@ -64,20 +29,16 @@ export class BindingsSandboxComponent implements OnInit {
   fhirQuestionnaire: any = {};
   fhirQuestionnaireStr: string = '{}';
 
-  observableBinding: any = {
-    title: 'Question code',
-    type: 'Autocomplete',
-    ecl: `<< 363787002 |Observable entity (observable entity)|`,
-    value: '',
-    // note: 'Select observable for question code.'
-  };
+  editorMode: 'create' | 'edit' = 'create';
+  editorSheetOpen = false;
+  isTabletViewport = false;
+  isMobileViewport = false;
 
   codeBindingObservables: any = {
     title: 'Question code (Observables)',
     type: 'Autocomplete',
     ecl: `<< 363787002 |Observable entity (observable entity)|`,
     value: '',
-    // note: 'Select observable for question code.'
   };
 
   codeBindingAll: any = {
@@ -85,7 +46,6 @@ export class BindingsSandboxComponent implements OnInit {
     type: 'Autocomplete',
     ecl: `<< 363787002 |Observable entity (observable entity)| OR << 404684003 |Clinical finding (finding)| OR << 71388002 |Procedure (procedure)| OR << 243796009 |Situation with explicit context (situation)|`,
     value: '',
-    // note: 'Select observable for question code.'
   };
 
   codeBinding: any = this.codeBindingAll;
@@ -95,8 +55,7 @@ export class BindingsSandboxComponent implements OnInit {
     type: 'Autocomplete',
     ecl: `<< 767524001 |Unit of measure (qualifier value)|`,
     value: '',
-    // note: 'Select unit of measure
-  }
+  };
 
   checkboxBinding: any = JSON.parse(JSON.stringify(this.codeBindingAll));
 
@@ -163,25 +122,80 @@ export class BindingsSandboxComponent implements OnInit {
   });
 
   indexInEdit = -1;
-  panelOpenState = false;
   maxSelectCount = 50;
   maxOptionsCount = 10;
+  maxMultiPrefixCount = 500;
 
-  controlTypes = ['Autocomplete', 'Select (Single)', 'Select (Multiple)', 'Options', 'Section header', 'Text box', 'Integer', 'Decimal', 'Checkbox', 'Checkbox multiple'].sort((a, b) => a.localeCompare(b));
-
-  showRightContainer = false;
+  controlTypes = [
+    'Autocomplete',
+    'Select (Single)',
+    'Select (Multiple)',
+    'Multi-prefix search select',
+    'Options',
+    'Section header',
+    'Text box',
+    'Integer',
+    'Decimal',
+    'Checkbox',
+    'Checkbox multiple'
+  ].sort((a, b) => a.localeCompare(b));
 
   constructor(
     private terminologyService: TerminologyService,
     private clipboard: Clipboard,
-    private eclBuilderDialog: EclBuilderDialogService
-  ) { }
+    private eclBuilderDialog: EclBuilderDialogService,
+    private dialog: MatDialog
+  ) {}
+
   ngOnInit(): void {
     this.checkboxBinding.title = this.checkboxBinding.title.replace('Question', 'Checkbox');
+    this.updateViewportState();
   }
 
-  get stateName() {
-    return this.showRightContainer ? 'open' : 'closed';
+  @HostListener('window:resize')
+  onResize(): void {
+    this.updateViewportState();
+  }
+
+  private updateViewportState(): void {
+    this.isTabletViewport = window.innerWidth < 1024;
+    this.isMobileViewport = window.innerWidth < 768;
+    if (!this.isTabletViewport) {
+      this.editorSheetOpen = false;
+    }
+  }
+
+  toggleEditorSheet(): void {
+    this.editorSheetOpen = !this.editorSheetOpen;
+  }
+
+  startCreateBinding(): void {
+    this.indexInEdit = -1;
+    this.editorMode = 'create';
+    this.newBindingForm.reset({ repeatable: false });
+    if (this.isTabletViewport) {
+      this.editorSheetOpen = true;
+    }
+  }
+
+  openDataDialog(): void {
+    this.refreshResponse();
+    this.refreshFhirQuestionnaire();
+
+    const isMobile = this.isMobileViewport;
+    this.dialog.open(BindingsDataDialogComponent, {
+      data: {
+        formTitle: this.formTitle,
+        outputStr: this.outputStr,
+        responseStr: this.responseStr,
+        responseBundleStr: this.responseBundleStr,
+        fhirQuestionnaireStr: this.fhirQuestionnaireStr
+      },
+      width: isMobile ? '100vw' : '88vw',
+      maxWidth: isMobile ? '100vw' : '1400px',
+      height: isMobile ? '100vh' : '84vh',
+      panelClass: isMobile ? 'bindings-data-dialog-mobile' : 'bindings-data-dialog'
+    });
   }
 
   async addBinding() {
@@ -189,8 +203,9 @@ export class BindingsSandboxComponent implements OnInit {
     if (this.newBindingForm.invalid) {
       return;
     }
+
     const { title, code, type, ecl, value, unit, note, repeatable } = this.newBindingForm.controls;
-    let binding = {
+    const binding = {
       title: title.value,
       code: code.value,
       type: type.value,
@@ -200,50 +215,64 @@ export class BindingsSandboxComponent implements OnInit {
       note: note.value,
       repeatable: repeatable.value,
       count: 1
-    }
+    };
+
     let errors = false;
     if (ecl.value) {
-        if (typeof binding.type?.indexOf('Select') !== 'undefined' && binding.type?.indexOf('Select') > -1) {
-          let results = await this.getEclPreview(ecl.value);
-          if (results.expansion.contains.length > this.maxSelectCount) {
-            errors = true;
-            ecl.setErrors({ selectTooManyResults: true });
-          }
-        } else if ((typeof binding.type?.indexOf('Options') !== 'undefined' && binding.type?.indexOf('Options') > -1) || 
-                   (typeof binding.type?.indexOf('Checkbox multiple') !== 'undefined' && binding.type?.indexOf('Checkbox multiple') > -1)) {
-          let results = await this.getEclPreview(ecl.value);
-          if (results.expansion.contains.length > this.maxOptionsCount) {
-            errors = true;
-            ecl.setErrors({ optionsTooManyResults: true });
-          }
+      if (typeof binding.type?.indexOf('Select') !== 'undefined' && binding.type?.indexOf('Select') > -1) {
+        const results = await this.getEclPreview(ecl.value);
+        if (results.expansion.contains.length > this.maxSelectCount) {
+          errors = true;
+          ecl.setErrors({ selectTooManyResults: true });
         }
-    } else if (binding.type != 'Section header' && binding.type != 'Text box' && binding.type != 'Integer' && binding.type != 'Decimal') {
+      } else if ((typeof binding.type?.indexOf('Options') !== 'undefined' && binding.type?.indexOf('Options') > -1) ||
+                 (typeof binding.type?.indexOf('Checkbox multiple') !== 'undefined' && binding.type?.indexOf('Checkbox multiple') > -1)) {
+        const results = await this.getEclPreview(ecl.value);
+        if (results.expansion.contains.length > this.maxOptionsCount) {
+          errors = true;
+          ecl.setErrors({ optionsTooManyResults: true });
+        }
+      } else if (binding.type === 'Multi-prefix search select') {
+        const results = await this.getEclPreview(ecl.value);
+        if (results.expansion.contains.length > this.maxMultiPrefixCount) {
+          errors = true;
+          ecl.setErrors({ multiPrefixTooManyResults: true });
+        }
+      }
+    } else if (binding.type !== 'Section header' && binding.type !== 'Text box' && binding.type !== 'Integer' && binding.type !== 'Decimal') {
       errors = true;
       ecl.setErrors({ required: true });
     }
+
     if (errors) {
       return;
     }
+
     if (this.indexInEdit > -1) {
       this.bindings[this.indexInEdit] = binding;
     } else {
       this.bindings.push(binding);
     }
-    this.newBindingForm.reset();
-    this.newPanel.close();
+
+    this.newBindingForm.reset({ repeatable: false });
     this.indexInEdit = -1;
+    this.editorMode = 'create';
+    if (this.isTabletViewport) {
+      this.editorSheetOpen = false;
+    }
+
     setTimeout(() => {
       this.refreshFhirQuestionnaire();
       this.refreshResponse();
-    },100);
+    }, 100);
   }
 
   refreshFhirQuestionnaire() {
     this.fhirQuestionnaire = {
-      "resourceType": "Questionnaire",
-      "title": this.formTitle,
-      "status": "draft",
-      "item": []
+      resourceType: 'Questionnaire',
+      title: this.formTitle,
+      status: 'draft',
+      item: []
     };
 
     this.bindings.forEach((binding, index) => {
@@ -258,29 +287,29 @@ export class BindingsSandboxComponent implements OnInit {
 
   createItemForBinding(binding: any, index: number) {
     const baseItem: any = this.initializeBaseItem(binding, index);
-    baseItem['extension'] = [];
+    baseItem.extension = [];
 
-    if (['Select (Single)', 'Select (Multiple)', 'Options', 'Autocomplete'].includes(binding.type)) {
-      baseItem['extension'] = this.getExtensionForSelectableTypes();
-      baseItem['answerValueSet'] = this.getAnswerValueSet(binding);
+    if (['Select (Single)', 'Select (Multiple)', 'Options', 'Autocomplete', 'Multi-prefix search select'].includes(binding.type)) {
+      baseItem.extension = this.getExtensionForSelectableTypes();
+      baseItem.answerValueSet = this.getAnswerValueSet(binding);
     }
 
     if (binding.type === 'Autocomplete') {
-      baseItem['extension'].push(this.getAutocompleteExtension());
+      baseItem.extension.push(this.getAutocompleteExtension());
     }
 
     if (binding.type === 'Select (Multiple)' || binding.repeatable) {
-      baseItem['repeats'] = true;
+      baseItem.repeats = true;
     }
 
     if (binding.type === 'Decimal' && binding.unit) {
-      baseItem['extension'].push( {
-            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
-            "valueCoding":{
-              "system": binding.unit.system,
-              "code": binding.unit.code,
-              "display": binding.unit.display
-          }
+      baseItem.extension.push({
+        url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unit',
+        valueCoding: {
+          system: binding.unit.system,
+          code: binding.unit.code,
+          display: binding.unit.display
+        }
       });
     }
 
@@ -289,19 +318,17 @@ export class BindingsSandboxComponent implements OnInit {
 
   initializeBaseItem(binding: any, index: number) {
     const item: any = {
-      "linkId": (index + 1).toString(),
-      "text": binding.title,
-      "type": this.getQuestionnaireItemType(binding.type)
+      linkId: (index + 1).toString(),
+      text: binding.title,
+      type: this.getQuestionnaireItemType(binding.type)
     };
 
     if (binding.code) {
-      item['code'] = [
-        {
-          "system": "http://snomed.info/sct",
-          "code": binding.code.code,
-          "display": binding.code.display
-        }
-      ];
+      item.code = [{
+        system: 'http://snomed.info/sct',
+        code: binding.code.code,
+        display: binding.code.display
+      }];
     }
 
     return item;
@@ -309,21 +336,22 @@ export class BindingsSandboxComponent implements OnInit {
 
   getQuestionnaireItemType(type: any) {
     switch (type) {
-      case 'Section header': 
+      case 'Section header':
         return 'display';
-      case 'Select (Single)': 
-      case 'Select (Multiple)': 
+      case 'Select (Single)':
+      case 'Select (Multiple)':
       case 'Options':
-      case 'Checkbox multiple': 
-      case 'Autocomplete': 
+      case 'Checkbox multiple':
+      case 'Autocomplete':
+      case 'Multi-prefix search select':
         return 'choice';
-      case 'Text box': 
+      case 'Text box':
         return 'text';
-      case 'Integer': 
+      case 'Integer':
         return 'integer';
-      case 'Decimal': 
+      case 'Decimal':
         return 'decimal';
-      default: 
+      default:
         console.warn(`Unhandled binding type: ${type}`);
         return null;
     }
@@ -331,22 +359,20 @@ export class BindingsSandboxComponent implements OnInit {
 
   getExtensionForSelectableTypes() {
     return [{
-      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer",
-      "valueUrl": "https://snowstorm.ihtsdotools.org/fhir"
+      url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer',
+      valueUrl: 'https://snowstorm.ihtsdotools.org/fhir'
     }];
   }
 
   getAutocompleteExtension() {
     return {
-      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
-      "valueCodeableConcept": {
-        "coding": [
-          {
-            "system": "http://hl7.org/fhir/questionnaire-item-control",
-            "code": "autocomplete",
-            "display": "Auto-complete"
-          }
-        ]
+      url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl',
+      valueCodeableConcept: {
+        coding: [{
+          system: 'http://hl7.org/fhir/questionnaire-item-control',
+          code: 'autocomplete',
+          display: 'Auto-complete'
+        }]
       }
     };
   }
@@ -362,24 +388,28 @@ export class BindingsSandboxComponent implements OnInit {
 
   edit(i: number) {
     this.indexInEdit = i;
+    this.editorMode = 'edit';
     const binding = this.bindings[i];
     this.newBindingForm.setValue({
       title: binding.title,
-      code: (binding.code) ? binding.code : '',
+      code: binding.code ? binding.code : '',
       type: binding.type,
       ecl: binding.ecl,
       value: binding.value,
-      unit: (binding.unit) ? binding.unit : null,
+      unit: binding.unit ? binding.unit : null,
       note: binding.note,
       repeatable: binding.repeatable
     });
-    this.newPanel.open();
+
+    if (this.isTabletViewport) {
+      this.editorSheetOpen = true;
+    }
   }
 
   onDrop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.bindings, event.previousIndex, event.currentIndex);
   }
-  
+
   getErrors(controlName: string) {
     const control = this.newBindingForm.get(controlName);
     if (control) {
@@ -398,10 +428,13 @@ export class BindingsSandboxComponent implements OnInit {
         return `This field must be less than ${errors['maxlength'].requiredLength} characters`;
       }
       if (errors['selectTooManyResults']) {
-        return `Too many results (Max = ${ this.maxSelectCount })`;
+        return `Too many results (Max = ${this.maxSelectCount})`;
       }
       if (errors['optionsTooManyResults']) {
-        return `Too many results (Max = ${ this.maxOptionsCount })`;
+        return `Too many results (Max = ${this.maxOptionsCount})`;
+      }
+      if (errors['multiPrefixTooManyResults']) {
+        return `Too many results (Max = ${this.maxMultiPrefixCount})`;
       }
     }
     return null;
@@ -409,7 +442,7 @@ export class BindingsSandboxComponent implements OnInit {
 
   refreshResponse() {
     this.response = {};
-    for (let binding of this.bindings) {
+    for (const binding of this.bindings) {
       this.response[binding.title] = {};
       if (binding.code) {
         this.response[binding.title].code = binding.code;
@@ -418,13 +451,13 @@ export class BindingsSandboxComponent implements OnInit {
         this.response[binding.title].unit = binding.unit;
       }
     }
-    for (let [key, value] of Object.entries(this.output)) {
-        if (this.output[key].code) {
-          this.response[key].code = this.output[key].code;
-        }
-        if (this.output[key].value) {
-          this.response[key].value = this.output[key].value;
-        }
+    for (const [key] of Object.entries(this.output)) {
+      if (this.output[key].code) {
+        this.response[key].code = this.output[key].code;
+      }
+      if (this.output[key].value) {
+        this.response[key].value = this.output[key].value;
+      }
     }
     this.responseStr = JSON.stringify(this.response, null, 2);
     this.refreshResponseBundle();
@@ -432,97 +465,95 @@ export class BindingsSandboxComponent implements OnInit {
 
   refreshResponseBundle() {
     this.responseBundle = {
-      "resourceType": "Bundle",
-      "type": "collection",
-      "entry": []
+      resourceType: 'Bundle',
+      type: 'collection',
+      entry: []
     };
-    for (let [key, valuet] of Object.entries(this.response)) {
-      let value = valuet as any;
-      // Using optional chaining to safely access nested properties
+
+    for (const [, valuet] of Object.entries(this.response)) {
+      const value = valuet as any;
       const code = value.code ? {
-        "coding": [{
-          "system": 'http://snomed.info/sct',
-          "code": value.code.code,
-          "display": value.code.display
+        coding: [{
+          system: 'http://snomed.info/sct',
+          code: value.code.code,
+          display: value.code.display
         }]
       } : undefined;
       const valueCodeableConcept = value.value?.code ? {
-        "coding": [{
-          "system": 'http://snomed.info/sct',
-          "code": value.value.code,
-          "display": value.value.display
+        coding: [{
+          system: 'http://snomed.info/sct',
+          code: value.value.code,
+          display: value.value.display
         }]
       } : undefined;
       const unit = value.unit ? {
-        "coding": [{
-          "system": 'http://snomed.info/sct',
-          "code": value.unit.code,
-          "display": value.unit.display
+        coding: [{
+          system: 'http://snomed.info/sct',
+          code: value.unit.code,
+          display: value.unit.display
         }]
       } : undefined;
 
-      let observation: any = {
-        "resourceType": "Observation",
-        "status": "final",
-        "category": [{
-          "coding": [{
-            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
-            "code": "survey",
-            "display": "Survey"
+      const observation: any = {
+        resourceType: 'Observation',
+        status: 'final',
+        category: [{
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+            code: 'survey',
+            display: 'Survey'
           }]
         }],
-        "subject": {
-          "reference": "Patient/123"
+        subject: {
+          reference: 'Patient/123'
         },
       };
 
       if (code) {
-        observation['code'] = code;
+        observation.code = code;
       } else {
-        observation['code'] = {
-          "coding": [{
-            "system": "http://snomed.info/sct",
-            "code": "363788007",
-            "display": "Clinical history/examination observable (observable entity)"
+        observation.code = {
+          coding: [{
+            system: 'http://snomed.info/sct',
+            code: '363788007',
+            display: 'Clinical history/examination observable (observable entity)'
           }]
         };
       }
+
       if (valueCodeableConcept) {
-        observation['valueCodeableConcept'] = valueCodeableConcept;
+        observation.valueCodeableConcept = valueCodeableConcept;
       }
-      // if value si string populate valueString
       if (value.value && typeof value.value === 'string') {
-        observation['valueString'] = value.value;
+        observation.valueString = value.value;
       }
       if (unit) {
-        observation['valueQuantity'] = {
-          "value": value.value,
-          "unit": unit.coding[0].display,
-          "system": unit.coding[0].system,
-          "code": unit.coding[0].code
+        observation.valueQuantity = {
+          value: value.value,
+          unit: unit.coding[0].display,
+          system: unit.coding[0].system,
+          code: unit.coding[0].code
         };
       }
-  
-      // Check if 'code' is not undefined before pushing to the entry array
+
       if (observation.valueCodeableConcept || observation.valueString || observation.valueQuantity) {
         this.responseBundle.entry.push(observation);
       }
     }
+
     this.responseBundleStr = JSON.stringify(this.responseBundle, null, 2);
   }
-  
 
   optionSelected(title: string, code: string, event: any) {
     this.output[title] = {
-      code: code,
+      code,
       value: event
-    }
+    };
 
-    // remove code property if null
     if (!code) {
       delete this.output[title].code;
     }
-   
+
     this.outputStr = JSON.stringify(this.output, null, 2);
     this.refreshResponse();
   }
@@ -544,49 +575,51 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   cancelEdit() {
-    this.newBindingForm.reset();
-    this.newPanel.close();
+    this.newBindingForm.reset({ repeatable: false });
     this.indexInEdit = -1;
+    this.editorMode = 'create';
+    if (this.isTabletViewport) {
+      this.editorSheetOpen = false;
+    }
   }
 
   clear() {
     this.bindings = [];
     this.clearOutput();
-    this.newBindingForm.reset();
+    this.newBindingForm.reset({ repeatable: false });
     this.formTitle = 'My new form';
-    this.showRightContainer = false;
+    this.indexInEdit = -1;
+    this.editorMode = 'create';
   }
 
   clearOutput() {
     this.output = {};
     this.outputStr = '{}';
-    // Clone bindings
     const savedBindings = JSON.parse(JSON.stringify(this.bindings));
     this.bindings = [];
     this.bindings = savedBindings;
   }
 
   saveForm() {
-    // Set all counts to 1
     this.bindings.forEach((binding: any) => {
       binding.count = 1;
     });
-    var blob = new Blob([JSON.stringify({ title: this.formTitle, bindings: this.bindings }, null, 2)], {type: "text/plain;charset=utf-8"});
+    const blob = new Blob([JSON.stringify({ title: this.formTitle, bindings: this.bindings }, null, 2)], { type: 'text/plain;charset=utf-8' });
     saveAs(blob, `${this.formTitle}.json`);
   }
 
   saveOutput(text: string) {
-    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     saveAs(blob, `${this.formTitle}-data.json`);
   }
 
   saveFhirQuestionnaire(text: string) {
-    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     saveAs(blob, `${this.formTitle}-fhir-questionnaire.json`);
   }
 
   saveBundleOutput(text: string) {
-    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     saveAs(blob, `${this.formTitle}-fhir-bundle.json`);
   }
 
@@ -599,23 +632,21 @@ export class BindingsSandboxComponent implements OnInit {
       console.error('No file selected');
     } else {
       const reader = new FileReader();
-      reader.onloadend = (e) => {
+      reader.onloadend = () => {
         if (reader.result) {
-          const uploadedVersion = JSON.parse(reader.result?.toString());
-          // if uploaded version is array, assume it's the bindings
+          const uploadedVersion = JSON.parse(reader.result.toString());
           if (Array.isArray(uploadedVersion)) {
             this.bindings = uploadedVersion;
             this.formTitle = 'My new form';
           } else {
             this.bindings = [];
             this.bindings = uploadedVersion.bindings;
-            // Add count = 1 to all bindings
             this.bindings.forEach((binding: any) => {
               binding.count = 1;
             });
             this.formTitle = uploadedVersion.title;
           }
-          // set repeatable = false and count = 1 if not present
+
           this.bindings.forEach((binding: any) => {
             if (!binding.repeatable) {
               binding.repeatable = false;
@@ -624,6 +655,7 @@ export class BindingsSandboxComponent implements OnInit {
               binding.count = 1;
             }
           });
+
           this.clearOutput();
           this.refreshResponse();
           this.refreshFhirQuestionnaire();
@@ -649,8 +681,9 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   toggleCheckboxBinding() {
-    this.checkboxBinding = this.checkboxBinding.ecl === this.codeBindingAll.ecl ? JSON.parse(JSON.stringify(this.codeBindingObservables)) : JSON.parse(JSON.stringify(this.codeBindingAll))
+    this.checkboxBinding = this.checkboxBinding.ecl === this.codeBindingAll.ecl
+      ? JSON.parse(JSON.stringify(this.codeBindingObservables))
+      : JSON.parse(JSON.stringify(this.codeBindingAll));
     this.checkboxBinding.title = this.checkboxBinding.title.replace('Question', 'Checkbox');
   }
-
 }

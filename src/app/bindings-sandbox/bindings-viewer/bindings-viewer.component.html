@@ -12,6 +12,9 @@
         @if (binding.type == 'Options') {
           <app-radios-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-radios-binding>
         }
+        @if (binding.type == 'Multi-prefix search select') {
+          <app-multi-prefix-select-binding [binding]="binding" [expansionCount]="500" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-multi-prefix-select-binding>
+        }
         @if (binding.type == 'Section header') {
           <span class="title grow">{{ binding.title }}</span>
         }

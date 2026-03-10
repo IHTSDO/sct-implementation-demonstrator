@@ -110,3 +110,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   min-height: 0;
   flex: 1;
 }
+
+/* Bindings data dialog styles */
+::ng-deep .bindings-data-dialog .mat-mdc-dialog-container,
+::ng-deep .bindings-data-dialog-mobile .mat-mdc-dialog-container {
+  padding: 0 !important;
+}
+
+::ng-deep .bindings-data-dialog-mobile .mat-mdc-dialog-surface {
+  border-radius: 0 !important;
+}

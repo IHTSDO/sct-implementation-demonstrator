@@ -1,177 +1,345 @@
-#main-panel {
-    padding: 10px;
+:host {
+  --bs-surface: #ffffff;
+  --bs-surface-alt: #f8fafc;
+  --bs-border: #d7e0ea;
+  --bs-text: #1f2937;
+  --bs-muted: #5f6b7a;
+  --bs-accent: #0075bf;
+  --bs-radius-lg: 14px;
+  --bs-radius-md: 10px;
+  --bs-shadow: 0 10px 24px rgba(20, 46, 79, 0.08);
+  --bs-space-1: 0.5rem;
+  --bs-space-2: 0.75rem;
+  --bs-space-3: 1rem;
+  --bs-space-4: 1.5rem;
+  --bs-space-5: 2rem;
 }
 
-h3 {
-    margin-top: 0px;
+.sandbox-page {
+  padding: var(--bs-space-4);
+  color: var(--bs-text);
 }
 
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    margin: -5px; /* Half of the gap */
-    align-items: center;
-    gap: 10px;
+.sandbox-header {
+  margin-bottom: var(--bs-space-4);
 }
 
-.grow {
-    flex-grow: 4; /* default 0 */
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-1);
 }
 
-mat-hint, mat-error {
-    font-size: 12px;
+.header-title-row h2 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
 }
 
-.editPanel {
-    /* width: calc(50% - 5px); */
-    /* margin: 5px;
-    margin-bottom: 25px;
-    padding: 10px; */
-    border: 1px solid #cccccc00;
-    border-radius: 5px;
-    background-color: #a0c8e5;
+.header-subtitle {
+  margin: var(--bs-space-1) 0 0;
+  color: var(--bs-muted);
 }
 
-.control {
-    margin-bottom: 30px;
+.workspace-layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: var(--bs-space-4);
+  align-items: start;
 }
 
-.output-panel {
-    width: 100%;
+.main-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bs-space-3);
 }
 
-.row .tool {
-    opacity: 0;
-    transition: opacity 0.5s;
+.toolbar-card,
+.form-title-card,
+.bindings-list-card,
+.editor-sheet {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: var(--bs-radius-lg);
+  box-shadow: var(--bs-shadow);
 }
 
-.row:hover .tool {
-    opacity: 1;
+.toolbar-card {
+  padding: var(--bs-space-3);
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--bs-space-2);
+}
+
+.form-title-card {
+  padding: var(--bs-space-2) var(--bs-space-3);
+}
+
+.form-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-2);
+}
+
+.form-title-text {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 650;
+  color: #1d2838;
+}
+
+.form-title-form {
+  flex: 1;
+}
+
+.bindings-list-card {
+  padding: var(--bs-space-3);
+}
+
+.bindings-list-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--bs-space-3);
+}
+
+.bindings-list-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.bindings-list-header span {
+  color: var(--bs-muted);
+  font-size: 0.9rem;
+}
+
+.empty-state {
+  padding: var(--bs-space-4);
+  border: 1px dashed var(--bs-border);
+  border-radius: var(--bs-radius-md);
+  background: var(--bs-surface-alt);
+  color: var(--bs-muted);
+  text-align: center;
+}
+
+.bindings-drop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.binding-card {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.binding-card-section {
+  border-top: 1px solid var(--bs-border);
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
+}
+
+.binding-card-repeat {
+  border-left: 3px solid #c7dbef;
+  padding-left: 0.35rem;
+}
+
+.binding-control-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bs-space-2);
+  padding: 0.75rem 0.25rem;
+  border-radius: 0;
+}
+
+.binding-control-row + .binding-control-row {
+  margin-top: 0;
+  border-top: 1px dashed #dbe5f0;
+  padding-top: 0.75rem;
 }
 
 .drag-handle {
-    cursor: move;
-    color: #616161;
+  cursor: move;
+  color: #6b7280;
+  margin-top: 0.25rem;
 }
 
-.title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    margin-left: 2rem;
+.binding-control {
+  min-width: 0;
+  flex-grow: 1;
 }
 
-.action-button {
-    position: absolute;
-    right: 0px;
-    margin-right: 20px;
+.binding-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.2rem;
+  flex-shrink: 0;
 }
 
-.action-button button {
-    margin: 5px;;
+.section-header-title {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0.35rem 0;
 }
 
-.row-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
+.editor-sheet {
+  position: sticky;
+  top: 1rem;
+  padding: var(--bs-space-3);
 }
 
-.compact-row-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
+.editor-sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--bs-space-3);
 }
 
-.row-container-item {
-    width: 100%; /* Adjust the width as per your requirements */
-    padding: 10px;
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  color: var(--bs-muted);
 }
 
-.output {
-    border-radius: 10px;
-    background-color: #282c34;
-    padding: 10px;
-    position: relative;
-    margin: 2rem;
+.editor-sheet-header h3 {
+  margin: 0.25rem 0 0;
 }
 
-#save {
-    position: absolute;
-    right: 0;
-    top: 0;
-    color: rgb(232, 140, 21);
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bs-space-2);
 }
 
-.top-right-link {
-    position: absolute;
-    top: 5px;
-    right: 0;
-    font-size: smaller;
+.editor-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--bs-space-3);
 }
 
-.form-title {
-    margin-left: 1rem;
+.editor-column h4 {
+  margin: 0 0 var(--bs-space-2);
+  font-size: 1rem;
+}
+
+.input-field {
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.field-helper-link,
+.field-builder-link {
+  position: absolute;
+  right: 0;
+  font-size: 0.78rem;
+  color: var(--bs-accent);
+  text-decoration: none;
+}
+
+.field-helper-link {
+  bottom: 5px;
+}
+
+.field-builder-link {
+  top: 5px;
+}
+
+.toggle-row {
+  padding: var(--bs-space-2) 0;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--bs-space-2);
+  padding-top: var(--bs-space-2);
+  border-top: 1px solid var(--bs-border);
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  border: none;
+  background: rgba(15, 23, 42, 0.35);
+  z-index: 39;
+}
+
+.grow {
+  flex-grow: 1;
+}
+
+mat-hint,
+mat-error {
+  font-size: 12px;
 }
 
 .mat-mdc-form-field-infix {
-    padding: 0px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
 }
 
-.bottom-right-link {
-    position: absolute;
-    bottom: 5px; /* Align to the bottom */
+@media (max-width: 1023px) {
+  .workspace-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-sheet {
+    position: fixed;
+    top: 0;
     right: 0;
-    font-size: smaller;
+    bottom: 0;
+    width: min(92vw, 520px);
+    max-width: 100%;
+    border-radius: 0;
+    transform: translateX(100%);
+    transition: transform 220ms ease;
+    z-index: 40;
+    overflow-y: auto;
+  }
+
+  .editor-sheet.open {
+    transform: translateX(0);
+  }
 }
 
-.form-layout {
-    display: flex;
-    flex-direction: column;
-    width: 100%; /* Set the form layout to take the full width */
-}
+@media (max-width: 767px) {
+  .sandbox-page {
+    padding: var(--bs-space-3);
+  }
 
-.form-row {
-    display: flex;
-    flex-wrap: wrap; /* This allows form fields to wrap when the screen size is too small */
-    margin-right: -10px; /* Adjust these negative margins to match the sum of your gap */
-    margin-left: -10px; /* Adjust these negative margins to match the sum of your gap */
+  .header-title-row h2 {
+    font-size: 1.35rem;
+  }
+
+  .toolbar-actions {
+    gap: var(--bs-space-1);
+  }
+
+  .editor-sheet {
+    width: 100vw;
+  }
+
+  .binding-control-row {
+    flex-wrap: wrap;
+  }
+
+  .binding-actions {
     width: 100%;
-}
-
-.form-column {
-    flex: 1 1 0px; /* This will allow the columns to grow and fill the space */
-    padding-right: 10px; /* This padding should be half of your desired gap */
-    padding-left: 10px; /* This padding should be half of your desired gap */
-    display: flex;
-    flex-direction: column;
-    width: 100%; /* Set the column to take the full width */
-}
-
-.input-field.full-width {
-    width: calc(100% - 20px); /* Adjust the width based on padding */
-    margin-bottom: 20px; /* Spacing between the rows */
-}
-
-.form-actions {
-    display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
+  }
 }
-
-.actions {
-    display: flex;
-    align-items: flex-start;
-    width: 25%;
-}
-
-.border-question {
-    border: 1px solid #cccccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
