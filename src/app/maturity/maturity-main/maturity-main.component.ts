@@ -90,25 +90,23 @@ export class MaturityMainComponent implements OnInit {
         }
       }
     }
-    
-    // Check if a specific spec is requested via query parameter (e.g., ?spec=readiness-1)
-    if (params['spec']) {
-      const specName = params['spec'];
-      try {
-        // Load spec from assets/maturity/{specName}.json
-        this.baseMaturityQuestions = await lastValueFrom(
-          this.http.get(`assets/maturity/${specName}.json`)
-        );
-        this.initializeForm();
-        return;
-      } catch (error) {
-        console.error(`Error loading spec "${specName}" from assets:`, error);
-        // Fall through to load default spec if specified spec fails
-      }
-    }
-    
-    // Load default spec if not in preview mode, no spec specified, or spec loading failed
-    this.baseMaturityQuestions = await lastValueFrom(this.http.get('assets/maturity/maturityLevels.json'));
+
+    // Load default spec and always append readiness stakeholders at the end.
+    const [defaultSpec, readinessSpec] = await Promise.all([
+      lastValueFrom(this.http.get<any>('assets/maturity/maturityLevels.json')),
+      lastValueFrom(this.http.get<any>('assets/maturity/readiness-1.json'))
+    ]);
+
+    const defaultStakeholders = Array.isArray(defaultSpec?.stakeHolders) ? defaultSpec.stakeHolders : [];
+    const readinessStakeholders = Array.isArray(readinessSpec?.stakeHolders) ? readinessSpec.stakeHolders : [];
+    const existingIds = new Set(defaultStakeholders.map((stakeholder: any) => stakeholder.id));
+    const stakeholdersToAppend = readinessStakeholders.filter((stakeholder: any) => !existingIds.has(stakeholder.id));
+
+    this.baseMaturityQuestions = {
+      ...defaultSpec,
+      stakeHolders: [...defaultStakeholders, ...stakeholdersToAppend]
+    };
+
     this.initializeForm();
     // Flatten all questions into one array for one-at-a-time display
     // this.flattenQuestions();

@@ -81,7 +81,7 @@
     {
       "name": "Prospective member",
       "id": "prospective",
-      "description": "A country that is not yet a member",
+      "description": "A country that is interested inm becoming a member, and wants to assess its readiness to adopt SNOMED CT.",
       "kpas": [
         {
           "name": "Political and Legal",
