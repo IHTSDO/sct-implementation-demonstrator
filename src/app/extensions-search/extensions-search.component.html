@@ -1,15 +1,27 @@
 <div class="extensions-search-container">
   <div class="ecl-section">
     <h2>ECL Expression</h2>
-    <mat-form-field class="ecl-field" appearance="fill">
-      <mat-label>Enter ECL (module filter is added per edition)</mat-label>
-      <textarea
-        matInput
-        [(ngModel)]="eclInput"
-        placeholder="e.g. < 363680008 |Radiographic imaging procedure (procedure)|"
-        rows="4"
-      ></textarea>
-    </mat-form-field>
+    <div class="ecl-editor-row">
+      <mat-form-field class="ecl-field" appearance="fill">
+        <mat-label>Enter ECL (module filter is added per edition)</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="eclInput"
+          placeholder="e.g. < 363680008 |Radiographic imaging procedure (procedure)|"
+          rows="4"
+        ></textarea>
+      </mat-form-field>
+      <button
+        mat-stroked-button
+        color="primary"
+        type="button"
+        class="ecl-builder-button"
+        (click)="openEclBuilder()"
+      >
+        <mat-icon>schema</mat-icon>
+        <span>Query builder</span>
+      </button>
+    </div>
     <button
       mat-raised-button
       color="primary"
@@ -31,7 +43,7 @@
   <div class="progress-section">
     @if (runningEditions) {
       <mat-progress-bar mode="determinate" [value]="(runningProgress / runningTotal) * 100"></mat-progress-bar>
-      <p class="progress-message">Running ECL for {{ currentRunningEditionName }} edition ({{ runningProgress }} / {{ runningTotal }})...</p>
+      <p class="progress-message">Running ECL for {{ currentRunningEditionName }} edition ({{ runningProgress }} / {{ runningTotal }})... Total concepts found so far: {{ totalConceptsFound }}</p>
     } @else if (runCompleted) {
       <mat-progress-bar mode="determinate" [value]="100"></mat-progress-bar>
       <p class="progress-message summary">

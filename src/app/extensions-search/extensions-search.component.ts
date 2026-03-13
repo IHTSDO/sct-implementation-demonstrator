@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TerminologyService } from '../services/terminology.service';
 import { concatMap, delay, of, from, Subscription, catchError } from 'rxjs';
 import * as XLSX from 'xlsx';
+import { EclBuilderDialogService } from '../bindings/ecl-builder/ecl-builder-dialog.service';
 
 export interface EditionWithResult {
   edition: any;
@@ -10,6 +11,12 @@ export interface EditionWithResult {
   executedEcl?: string;
   hasError?: boolean;
   errorMessage?: string;
+}
+
+interface ExportEditionConcepts {
+  extensionName: string;
+  total: number;
+  concepts: Array<{ code: string; display: string }>;
 }
 
 @Component({
@@ -39,6 +46,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
   runningProgress = 0;
   runningTotal = 0;
   currentRunningEditionName = '';
+  totalConceptsFound = 0;
   /** Summary after running all editions */
   successCount = 0;
   errorCount = 0;
@@ -52,7 +60,10 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
   private readonly DELAY_MS = 1000;
   private serverChangeSub?: Subscription;
 
-  constructor(private terminologyService: TerminologyService) {}
+  constructor(
+    private terminologyService: TerminologyService,
+    private eclBuilderDialog: EclBuilderDialogService
+  ) {}
 
   ngOnInit(): void {
     this.serverChangeSub = this.terminologyService.snowstormFhirBase$.subscribe(() => {
@@ -146,6 +157,14 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
     return wrappedBase + ' {{ C moduleId = ' + moduleId + ' }}';
   }
 
+  openEclBuilder(): void {
+    this.eclBuilderDialog.open(this.eclInput).subscribe(result => {
+      if (result !== null) {
+        this.eclInput = result;
+      }
+    });
+  }
+
   runExecute(): void {
     if (!this.eclInput.trim()) {
       this.error = 'Please enter an ECL expression';
@@ -160,6 +179,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
     this.runningProgress = 0;
     this.runningTotal = this.latestEditions.length;
     this.currentRunningEditionName = '';
+    this.totalConceptsFound = 0;
     this.successCount = 0;
     this.errorCount = 0;
     this.runCompleted = false;
@@ -195,6 +215,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
                   executedEcl: eclWithModule,
                   hasError: false
                 };
+                this.totalConceptsFound += total;
                 this.successCount++;
                 return of(null);
               }),
@@ -399,14 +420,83 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
     return item?.executedEcl || '';
   }
 
+  private buildCrossCountryRows(exportData: ExportEditionConcepts[]): any[][] {
+    const editionHeaders = exportData.map(item => `${item.extensionName} (${item.total})`);
+    const displayMap = new Map<string, Map<string, string[]>>();
+
+    exportData.forEach(item => {
+      item.concepts.forEach(concept => {
+        const display = (concept.display || '').trim();
+        const code = (concept.code || '').trim();
+        if (!display || !code) {
+          return;
+        }
+
+        let displayEntry = displayMap.get(display);
+        if (!displayEntry) {
+          displayEntry = new Map<string, string[]>();
+          displayMap.set(display, displayEntry);
+        }
+
+        const existingCodes = displayEntry.get(item.extensionName) || [];
+        if (!existingCodes.includes(code)) {
+          existingCodes.push(code);
+        }
+        displayEntry.set(item.extensionName, existingCodes);
+      });
+    });
+
+    const rows = Array.from(displayMap.entries())
+      .map(([display, editionMap]) => {
+        const row: any[] = [display];
+        let count = 0;
+
+        exportData.forEach(item => {
+          const codes = editionMap.get(item.extensionName) || [];
+          if (codes.length) {
+            count++;
+          }
+          row.push(codes.length ? codes.join(', ') : '');
+        });
+
+        row.push(count);
+        return row;
+      })
+      .sort((a, b) => {
+        const countDiff = Number(b[b.length - 1]) - Number(a[a.length - 1]);
+        if (countDiff !== 0) {
+          return countDiff;
+        }
+        return String(a[0]).localeCompare(String(b[0]));
+      });
+
+    return [['display', ...editionHeaders, 'count'], ...rows];
+  }
+
+  private addEditionToExportData(
+    exportData: ExportEditionConcepts[],
+    extensionName: string,
+    total: number,
+    concepts: Array<{ code: string; display: string }>
+  ): void {
+    if (total <= 0) {
+      return;
+    }
+
+    exportData.push({
+      extensionName,
+      total,
+      concepts
+    });
+  }
+
   exportToExcel(): void {
     if (!this.editionsWithResults.length) return;
     this.exporting = true;
     this.exportingEditionName = '';
     const fhirBase = this.terminologyService.getSnowstormFhirBase();
-    const rows: any[][] = [
-      ['ConceptId', 'FSN/Display', 'ModuleId', 'Extension Name', 'Last Release']
-    ];
+    const exportData: ExportEditionConcepts[] = [];
+    const executionDate = new Date();
 
     from(this.editionsWithResults).pipe(
       concatMap((item, index) => {
@@ -420,19 +510,18 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
 
         const fhirUrl = item.edition.resource.version;
         const moduleId = this.extractModuleId(fhirUrl);
-        const lastRelease = this.getLastRelease(item.edition);
 
         // If we already have all the data (total <= what we loaded), use cached data
         if (item.total <= item.firstPage.length) {
-          item.firstPage.forEach((c: any) => {
-            rows.push([
-              c.code || '',
-              c.display || '',
-              moduleId,
-              extensionName,
-              lastRelease
-            ]);
-          });
+          this.addEditionToExportData(
+            exportData,
+            extensionName,
+            item.total,
+            item.firstPage.map((c: any) => ({
+              code: c.code || '',
+              display: c.display || ''
+            }))
+          );
           return of(null);
         }
 
@@ -451,15 +540,15 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
             ).pipe(
               concatMap((res: any) => {
                 const contains = res?.expansion?.contains ?? [];
-                contains.forEach((c: any) => {
-                  rows.push([
-                    c.code || '',
-                    c.display || '',
-                    moduleId,
-                    extensionName,
-                    lastRelease
-                  ]);
-                });
+                this.addEditionToExportData(
+                  exportData,
+                  extensionName,
+                  res?.expansion?.total ?? item.total,
+                  contains.map((c: any) => ({
+                    code: c.code || '',
+                    display: c.display || ''
+                  }))
+                );
                 return of(null);
               }),
               catchError(() => {
@@ -477,18 +566,29 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
         this.exportingEditionName = '';
       },
       complete: () => {
+        const rows = this.buildCrossCountryRows(exportData);
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws['!cols'] = [
-          { wch: 18 },
-          { wch: 60 },
-          { wch: 20 },
-          { wch: 40 },
-          { wch: 16 }
+        const metadataRows = [
+          ['field', 'value'],
+          ['ecl', this.eclInput.trim()],
+          ['executionDate', executionDate.toISOString()],
+          ['executionDateLocal', executionDate.toLocaleString()]
         ];
-        XLSX.utils.book_append_sheet(wb, ws, 'Promotion candidates');
+        const metadataWs = XLSX.utils.aoa_to_sheet(metadataRows);
+        ws['!cols'] = [
+          { wch: 60 },
+          ...exportData.map(() => ({ wch: 24 })),
+          { wch: 10 }
+        ];
+        metadataWs['!cols'] = [
+          { wch: 20 },
+          { wch: 80 }
+        ];
+        XLSX.utils.book_append_sheet(wb, ws, 'Cross-country matches');
+        XLSX.utils.book_append_sheet(wb, metadataWs, 'Execution metadata');
         const timestamp = new Date().toISOString().replace(/-|:|T/g, '').slice(0, 14);
-        XLSX.writeFile(wb, `extension_promotion_candidates_${timestamp}.xlsx`);
+        XLSX.writeFile(wb, `extension_cross_country_matches_${timestamp}.xlsx`);
         this.exporting = false;
         this.exportingEditionName = '';
       }

@@ -27,6 +27,23 @@
   min-width: 300px;
 }
 
+.ecl-editor-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1 1 100%;
+}
+
+.ecl-builder-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  height: 56px;
+  border-radius: 8px;
+  flex: 0 0 auto;
+}
+
 /* Sin outline en el form field */
 :host .ecl-field .mat-mdc-text-field-wrapper,
 :host .ecl-field .mdc-notched-outline,
@@ -318,4 +335,15 @@
 /* Load more row - styled like other table rows */
 :host ::ng-deep .results-table .load-more-cell {
   padding: 12px 16px;
+}
+
+@media (max-width: 768px) {
+  .ecl-editor-row {
+    flex-direction: column;
+  }
+
+  .ecl-field,
+  .ecl-builder-button {
+    width: 100%;
+  }
 }
