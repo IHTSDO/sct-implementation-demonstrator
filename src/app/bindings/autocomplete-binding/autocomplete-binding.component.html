@@ -8,7 +8,7 @@
     <mat-hint>SNOMED CT: {{ selectedConcept.code }}</mat-hint>
   }
   @if (!selectedConcept?.code && !errorState) {
-    <mat-hint>{{ binding.note }}</mat-hint>
+    <mat-hint><span [innerHTML]="binding.note"></span></mat-hint>
   }
   @if (formControl.value && !readonly) {
     <button matSuffix mat-icon-button aria-label="Clear" (click)="clearInput()">

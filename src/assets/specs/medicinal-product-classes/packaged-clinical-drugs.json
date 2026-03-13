@@ -1,0 +1,20 @@
+{
+  "title": "Packaged Clinical Drugs",
+  "description": "This section contains all the packaged Clinical Drug classes, abstract and real.",
+  "bindings": [
+    {
+      "title": "Packaged Clinical drugs",
+      "type": "autocomplete",
+      "ecl": "<< 781405001 |Medicinal product package|:\n      [0..0] 774158006 |Has product name| = *",
+      "value": "",
+      "note": "Packaged Clinical Drugs, with ingredients, form, strength and package details, but no brand.<br><b>Not populated in the International Edition</b>"
+    },
+    {
+      "title": "Real Packaged Clinical drugs",
+      "type": "autocomplete",
+      "ecl": "<< 781405001 |Medicinal product package|:\n      774158006 |Has product name| = *",
+      "value": "",
+      "note": "Packaged Clinical Drugs, with ingredients, form, strength, package details, and brand.<br><b>Not populated in the International Edition</b>"
+    }
+  ]
+}

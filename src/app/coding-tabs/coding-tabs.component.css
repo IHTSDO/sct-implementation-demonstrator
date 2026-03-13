@@ -1,0 +1,37 @@
+.coding-tabs-shell {
+  padding: 0 1rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.page-header h2 {
+  margin-bottom: 0.25rem;
+}
+
+.page-header p {
+  margin: 0;
+  color: #4b5563;
+  max-width: 72ch;
+}
+
+.tab-panel {
+  padding: 1.25rem 0;
+}
+
+.state-panel {
+  min-height: 12rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: #4b5563;
+}
+
+.error-panel {
+  color: #b91c1c;
+}

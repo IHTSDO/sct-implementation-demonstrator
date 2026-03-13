@@ -1,0 +1,35 @@
+<div class="outer-container coding-tabs-shell">
+  @if (title) {
+    <div class="page-header">
+      <h2>{{ title }}</h2>
+      @if (intro) {
+        <p>{{ intro }}</p>
+      }
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="state-panel">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Loading coding specs...</span>
+    </div>
+  } @else if (errorMessage) {
+    <div class="state-panel error-panel">
+      {{ errorMessage }}
+    </div>
+  } @else if (!tabs.length) {
+    <div class="state-panel">
+      No coding specs available.
+    </div>
+  } @else {
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+      @for (tab of tabs; track tab.title) {
+        <mat-tab label="{{ tab.title }}">
+          <div class="tab-panel">
+            <app-bindings-viewer [spec]="tab"></app-bindings-viewer>
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  }
+</div>

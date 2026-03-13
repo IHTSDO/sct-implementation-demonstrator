@@ -153,6 +153,8 @@ import { ConstraintOperatorSelectComponent } from './bindings/ecl-builder/constr
 import { ExpressionConstraintNodeComponent } from './bindings/ecl-builder/expression-constraint-node/expression-constraint-node.component';
 import { AttributeSetEditorComponent } from './bindings/ecl-builder/attribute-set-editor/attribute-set-editor.component';
 import { AttributeEditorComponent } from './bindings/ecl-builder/attribute-editor/attribute-editor.component';
+import { CodingTabsComponent } from './coding-tabs/coding-tabs.component';
+import { MedicinalProductClassesComponent } from './medicinal-product-classes/medicinal-product-classes.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -259,12 +261,14 @@ const app = initializeApp(firebaseConfig);
         CrsBatchGeneratorComponent,
         DrugStrengthRoundingComponent,
         ExtensionsSearchComponent,
+        CodingTabsComponent,
         EclBuilderComponent,
         ConceptPickerComponent,
         ConstraintOperatorSelectComponent,
         ExpressionConstraintNodeComponent,
         AttributeSetEditorComponent,
-        AttributeEditorComponent
+        AttributeEditorComponent,
+        MedicinalProductClassesComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

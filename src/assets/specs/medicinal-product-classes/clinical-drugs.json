@@ -1,0 +1,20 @@
+{
+  "title": "Clinical Drugs",
+  "description": "This section contains all the Clinical Drug classes, abstract and real.",
+  "bindings": [
+    {
+      "title": "Clinical drug",
+      "type": "autocomplete",
+      "ecl": "<< 763158003 |Medicinal product| :\n      732943007 |Has basis of strength substance (attribute)| = *,\n      [0..0] 774158006 |Has product name| = *",
+      "value": "",
+      "note": "Clinical Drugs, with ingredients, form, and strength, but no brand."
+    },
+    {
+      "title": "Real Clinical drug",
+      "type": "autocomplete",
+      "ecl": "<< 763158003 |Medicinal product| :\n      732943007 |Has basis of strength substance (attribute)| = *,\n      774158006 |Has product name| = *",
+      "value": "",
+      "note": "Clinical Drugs, with ingredients, form, strength, and brand.<br><b>Not populated in the International Edition</b>"
+    }
+  ]
+}

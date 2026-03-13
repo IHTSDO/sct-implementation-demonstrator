@@ -1,0 +1,20 @@
+{
+  "title": "Groupers",
+  "description": "This section contains all the \"Containing\" Medicinal Product classes, plus groupers.",
+  "bindings": [
+    {
+      "title": "Medicinal product + groupers",
+      "type": "autocomplete",
+      "ecl": "<< 763158003 |Medicinal product| :\n      [0..0] 1142139005 |Count of base of active ingredient| = *,\n      [0..0] 411116001 |Has manufactured dose form| = *,\n      [0..0] 774158006 |Has product name| = *",
+      "value": "",
+      "note": "Medicinal products, contain at least provided ingredientes (open world assuption), no information on form."
+    },
+    {
+      "title": "Medicinal product form + groupers",
+      "type": "autocomplete",
+      "ecl": "<< 763158003 |Medicinal product| :\n      [0..0] 1142139005 |Count of base of active ingredient| = *,\n      411116001 |Has manufactured dose form| = *,\n      [0..0] 774158006 |Has product name| = *",
+      "value": "",
+      "note": "Medicinal products, with form details."
+    }
+  ]
+}

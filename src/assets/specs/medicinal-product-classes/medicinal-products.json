@@ -1,0 +1,34 @@
+{
+  "title": "Medicinal products",
+  "description": "This section contains all the \"Only\" Medicinal product and Medicinal product form classes.",
+  "bindings": [
+    {
+      "title": "Medicinal product only",
+      "type": "autocomplete",
+      "ecl": "<< 763158003 |Medicinal product| :\n      1142139005 |Count of base of active ingredient| = *,\n      [0..0] 411116001 |Has manufactured dose form| = *,\n      [0..0] 774158006 |Has product name| = *",
+      "value": "",
+      "note": "Medicinal products, containing only the provided ingredientes (close world assuption), with no information on form."
+    },
+    {
+      "title": "Medicinal product form only",
+      "type": "autocomplete",
+      "ecl": "<< 763158003 |Medicinal product| :\n      1142139005 |Count of base of active ingredient| = *,\n      411116001 |Has manufactured dose form| = *,\n      [0..0] 732943007 |Has basis of strength substance (attribute)| = *,\n      [0..0] 774158006 |Has product name| = *",
+      "value": "",
+      "note": "Medicinal products, with form details, containing only the provided ingredientes (close world assuption)."
+    },
+    {
+      "title": "Medicinal product precisely",
+      "type": "autocomplete",
+      "ecl": "<< 763158003 |Medicinal product| :\n      762949000 |Has precise active ingredient (attribute)| = *,\n      1142139005 |Count of base of active ingredient| = *,\n      [0..0] 732943007 |Has basis of strength substance (attribute)| = *,\n      [0..0] 774158006 |Has product name| = *",
+      "value": "",
+      "note": "Medicinal products, with form details, precise active ingredient, and containing only the provided ingredientes (close world assuption).<br><b>Not populated in the International Edition</b>"
+    },
+    {
+      "title": "Real medicinal product",
+      "type": "autocomplete",
+      "ecl": "<< 763158003 |Medicinal product| :\n      [0..0] 411116001 |Has manufactured dose form| = *,\n      774158006 |Has product name| = *",
+      "value": "",
+      "note": "Real Medicinal products, contain only the provided ingredients (close world assuption), no information on form, and brand name.<br><b>Not populated in the International Edition</b>"
+    }
+  ]
+}

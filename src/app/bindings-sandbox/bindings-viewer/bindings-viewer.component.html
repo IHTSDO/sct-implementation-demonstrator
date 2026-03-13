@@ -1,40 +1,50 @@
-<h2>{{ spec.title }}</h2>
+@if (showTitle && spec?.title) {
+  <h2>{{ spec.title }}</h2>
+}
+@if (spec?.description) {
+  <p class="spec-description" [innerHTML]="spec.description"></p>
+}
 @for (binding of spec.bindings; track binding; let i = $index) {
   <div class="output-panel" [ngClass]="{ 'border-question' : binding.count > 1 }">
     @for (num of [].constructor(binding.count); track num; let i = $index) {
       <div class="row control">
-        @if (binding.type == 'Autocomplete') {
+        @if (getBindingType(binding) == 'Autocomplete') {
           <app-autocomplete-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-autocomplete-binding>
         }
-        @if (binding.type == 'Select (Single)' || binding.type == 'Select (Multiple)') {
+        @if (getBindingType(binding) == 'Select (Single)' || getBindingType(binding) == 'Select (Multiple)') {
           <app-dropdown-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-dropdown-binding>
         }
-        @if (binding.type == 'Options') {
+        @if (getBindingType(binding) == 'Options') {
           <app-radios-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-radios-binding>
         }
-        @if (binding.type == 'Multi-prefix search select') {
+        @if (getBindingType(binding) == 'Multi-prefix search select') {
           <app-multi-prefix-select-binding [binding]="binding" [expansionCount]="500" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-multi-prefix-select-binding>
         }
-        @if (binding.type == 'Section header') {
+        @if (getBindingType(binding) == 'Section header') {
           <span class="title grow">{{ binding.title }}</span>
         }
-        @if (binding.type == 'Text box') {
+        @if (getBindingType(binding) == 'Text box') {
           <app-textbox-binding [binding]="binding" class="grow" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-textbox-binding>
         }
-        @if (binding.type == 'Integer') {
+        @if (getBindingType(binding) == 'Integer') {
           <app-integer-binding [binding]="binding" class="grow" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-integer-binding>
         }
-        @if (binding.type == 'Decimal') {
+        @if (getBindingType(binding) == 'Decimal') {
           <app-decimal-binding [binding]="binding" class="grow" (textChange)="optionSelected(binding.title, binding.code, $event)"></app-decimal-binding>
         }
-        @if (binding.type == 'Checkbox') {
+        @if (getBindingType(binding) == 'Checkbox') {
           <app-checkbox-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-binding>
         }
-        @if (binding.type == 'Checkbox multiple') {
+        @if (getBindingType(binding) == 'Checkbox multiple') {
           <app-checkbox-multiple-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-multiple-binding>
         }
+        @if (!isSupportedBindingType(binding)) {
+          <div class="unsupported-binding grow">
+            Unsupported binding type: <code>{{ binding.type }}</code>
+          </div>
+        }
         <div class="actions">
-          @if (binding.type != 'Section header') {
+          @if (getBindingType(binding) != 'Section header') {
             <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" [disabled]="!binding.code  && !binding.ecl">
               <mat-icon>info</mat-icon>
             </button>

@@ -166,6 +166,13 @@ export class MenuService {
       type: "internal",
       url: "/drug-strength-rounding",
       description: "A demonstration of drug strength rounding rules for significant figures in pharmaceutical calculations"
+    },
+    {
+      name: "Medicinal Product Classes",
+      subtitle: "Learning demo",
+      type: "internal",
+      url: "/medicinal-product-classes",
+      description: "A terminology bindings demonstrator for medicinal product, clinical drug, and packaged clinical drug classes using reusable coding spec tabs."
     }
 
   ];

@@ -39,6 +39,7 @@ import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
 import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-generator.component';
 import { DrugStrengthRoundingComponent } from './drug-strength-rounding/drug-strength-rounding.component';
 import { ExtensionsSearchComponent } from './extensions-search/extensions-search.component';
+import { MedicinalProductClassesComponent } from './medicinal-product-classes/medicinal-product-classes.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -83,6 +84,7 @@ const routes: Routes = [
   { path: 'mdrs-viewer', component: MdrsViewerComponent },
   { path: 'crs-batch-generator', component: CrsBatchGeneratorComponent },
   { path: 'drug-strength-rounding', component: DrugStrengthRoundingComponent },
+  { path: 'medicinal-product-classes', component: MedicinalProductClassesComponent },
   { path: 'extensions-search', component: ExtensionsSearchComponent },
   { path: '**', redirectTo: '' }
 ];

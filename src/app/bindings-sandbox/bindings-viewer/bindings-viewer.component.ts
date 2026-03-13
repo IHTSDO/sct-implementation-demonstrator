@@ -11,6 +11,7 @@ import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
 export class BindingsViewerComponent implements OnInit, OnChanges {
 
   @Input() spec: any;
+  @Input() showTitle: boolean = true;
 
   output: any = {};
   outputStr: string = '{}';
@@ -22,10 +23,10 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
 
   constructor(private _snackBar: MatSnackBar) { } 
   ngOnChanges(changes: SimpleChanges): void {
-    // Add count = 1 to all bindings in the spec is input changed
     if (changes['spec']) {
       this.spec?.bindings?.forEach((binding: any) => {
-        binding.count = 1;
+        binding.count = binding.count ?? 1;
+        binding.type = this.normalizeBindingType(binding.type);
       });
     }
   }
@@ -39,6 +40,58 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
 
   removeRow(binding: any) {
     binding.count--;
+  }
+
+  getBindingType(binding: any): string {
+    return this.normalizeBindingType(binding?.type);
+  }
+
+  isSupportedBindingType(binding: any): boolean {
+    return [
+      'Autocomplete',
+      'Select (Single)',
+      'Select (Multiple)',
+      'Options',
+      'Multi-prefix search select',
+      'Section header',
+      'Text box',
+      'Integer',
+      'Decimal',
+      'Checkbox',
+      'Checkbox multiple'
+    ].includes(this.getBindingType(binding));
+  }
+
+  private normalizeBindingType(type: string | null | undefined): string {
+    const normalizedType = (type || '').trim().toLowerCase();
+    switch (normalizedType) {
+      case 'autocomplete':
+        return 'Autocomplete';
+      case 'select':
+      case 'select (single)':
+        return 'Select (Single)';
+      case 'select (multiple)':
+        return 'Select (Multiple)';
+      case 'options':
+        return 'Options';
+      case 'multi-prefix search select':
+        return 'Multi-prefix search select';
+      case 'section header':
+        return 'Section header';
+      case 'text box':
+      case 'textbox':
+        return 'Text box';
+      case 'integer':
+        return 'Integer';
+      case 'decimal':
+        return 'Decimal';
+      case 'checkbox':
+        return 'Checkbox';
+      case 'checkbox multiple':
+        return 'Checkbox multiple';
+      default:
+        return type || '';
+    }
   }
 
   optionSelected(title: string, code: string, event: any) {

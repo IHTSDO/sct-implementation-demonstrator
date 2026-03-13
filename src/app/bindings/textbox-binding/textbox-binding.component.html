@@ -1,5 +1,5 @@
 <mat-form-field class="example-full-width">
   <mat-label>{{ binding.title }}</mat-label>
   <textarea matInput placeholder="Enter text..." [(ngModel)]="text" (ngModelChange)="onTextChange($event)"></textarea>
-  <mat-hint>{{ binding.note }}</mat-hint>
+  <mat-hint><span [innerHTML]="binding.note"></span></mat-hint>
 </mat-form-field>

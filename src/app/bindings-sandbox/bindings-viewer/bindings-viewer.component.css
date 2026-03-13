@@ -6,16 +6,24 @@ h3 {
     margin-top: 0px;
 }
 
+.spec-description {
+    margin: 0 0 1.5rem;
+    color: #4b5563;
+}
+
 .row {
     display: flex;
     flex-wrap: wrap;
-    margin: -5px; /* Half of the gap */
     align-items: center;
     gap: 10px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .grow {
-    flex-grow: 4; /* default 0 */
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 mat-hint, mat-error {
@@ -38,6 +46,7 @@ mat-hint, mat-error {
 
 .output-panel {
     width: 100%;
+    min-width: 0;
 }
 
 .row .tool {
@@ -172,7 +181,9 @@ mat-hint, mat-error {
 .actions {
     display: flex;
     align-items: flex-start;
-    width: 25%;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
 }
 
 .border-question {
@@ -180,4 +191,17 @@ mat-hint, mat-error {
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 10px;
+}
+
+.unsupported-binding {
+    border: 1px dashed #d97706;
+    border-radius: 8px;
+    color: #92400e;
+    padding: 0.9rem 1rem;
+    background: #fffbeb;
+}
+
+:host ::ng-deep .mat-mdc-form-field {
+    width: 100%;
+    min-width: 0;
 }
