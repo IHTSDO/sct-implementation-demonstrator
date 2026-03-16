@@ -1,0 +1,30 @@
+.validation-summary {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+}
+
+.validation-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #9a3412;
+}
+
+.validation-summary-list {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.validation-summary-item {
+  display: grid;
+  gap: 4px;
+  color: #7c2d12;
+}
+
+.validation-summary-item.validation-warning {
+  color: #92400e;
+}

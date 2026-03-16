@@ -1,0 +1,17 @@
+<div class="editor-grid">
+  <mat-form-field>
+    <mat-label>Count Operator</mat-label>
+    <mat-select [ngModel]="model.operator" (ngModelChange)="update('operator', $event)">
+      <mat-option value="=">=</mat-option>
+      <mat-option value=">=">>=</mat-option>
+      <mat-option value="<="><=</mat-option>
+      <mat-option value=">">></mat-option>
+      <mat-option value="<"><</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Count Value</mat-label>
+    <input matInput type="number" min="0" [ngModel]="model.value" (ngModelChange)="update('value', +$event)">
+  </mat-form-field>
+</div>

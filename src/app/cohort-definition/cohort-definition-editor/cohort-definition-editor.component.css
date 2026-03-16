@@ -1,0 +1,102 @@
+.editor-shell {
+  padding: 24px;
+  display: grid;
+  gap: 20px;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.editor-main {
+  display: grid;
+  gap: 20px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.card-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.rules-content {
+  display: grid;
+  gap: 16px;
+}
+
+.rule-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rule-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  display: grid;
+  gap: 16px;
+}
+
+.rule-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.preview-card pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.empty-inline {
+  color: #64748b;
+}
+
+.empty-state {
+  padding: 48px 24px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 20px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  color: #64748b;
+}
+
+@media (max-width: 1200px) {
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}

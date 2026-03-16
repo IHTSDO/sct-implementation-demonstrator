@@ -1,0 +1,272 @@
+<div class="editor-shell">
+  <div class="editor-header">
+    <button mat-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to workspace
+    </button>
+    <div class="editor-actions">
+      <button mat-stroked-button color="primary" (click)="duplicate()" [disabled]="!definition">Duplicate</button>
+      <button mat-stroked-button color="warn" (click)="delete()" [disabled]="!definition">Delete</button>
+      <button mat-flat-button color="primary" (click)="save()" [disabled]="!definition">Save</button>
+    </div>
+  </div>
+
+  @if (definition) {
+    <div class="editor-layout">
+      <div class="editor-main">
+        <app-validation-summary [title]="'Definition Validation'" [issues]="issues"></app-validation-summary>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Metadata</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="card-grid">
+            <mat-form-field>
+              <mat-label>Name</mat-label>
+              <input matInput [ngModel]="definition.name" (ngModelChange)="updateField('name', $event)">
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Version</mat-label>
+              <input matInput [ngModel]="definition.version" (ngModelChange)="updateField('version', $event)">
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput rows="3" [ngModel]="definition.description" (ngModelChange)="updateField('description', $event)"></textarea>
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Entry Event</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="card-grid">
+            <mat-form-field>
+              <mat-label>Domain</mat-label>
+              <mat-select [ngModel]="definition.entryEvent.domain" (ngModelChange)="updateEntryEvent({ domain: $event })">
+                <mat-option value="condition_occurrence">Condition occurrence</mat-option>
+                <mat-option value="drug_exposure">Drug exposure</mat-option>
+                <mat-option value="procedure_occurrence">Procedure occurrence</mat-option>
+                <mat-option value="measurement">Measurement</mat-option>
+                <mat-option value="observation">Observation</mat-option>
+                <mat-option value="visit_occurrence">Visit occurrence</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <app-concept-set-select
+              [conceptSets]="conceptSets"
+              [value]="definition.entryEvent.conceptSetId"
+              (valueChange)="updateEntryEvent({ conceptSetId: $event })">
+            </app-concept-set-select>
+
+            <mat-form-field>
+              <mat-label>Occurrence</mat-label>
+              <mat-select [ngModel]="definition.entryEvent.occurrence" (ngModelChange)="updateEntryEvent({ occurrence: $event })">
+                <mat-option value="first">First</mat-option>
+                <mat-option value="all">All</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-slide-toggle
+              class="full-width"
+              [ngModel]="definition.entryEvent.restrictToObservationPeriod"
+              (ngModelChange)="updateEntryEvent({ restrictToObservationPeriod: $event })">
+              Restrict to observation period
+            </mat-slide-toggle>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Observation</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="card-grid">
+            <mat-form-field>
+              <mat-label>Prior Days</mat-label>
+              <input matInput type="number" min="0" [ngModel]="definition.observation.priorDays" (ngModelChange)="updateObservation({ priorDays: +$event })">
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Post Days</mat-label>
+              <input matInput type="number" min="0" [ngModel]="definition.observation.postDays" (ngModelChange)="updateObservation({ postDays: +$event })">
+            </mat-form-field>
+
+            <mat-slide-toggle
+              class="full-width"
+              [ngModel]="definition.observation.requireContinuous"
+              (ngModelChange)="updateObservation({ requireContinuous: $event })">
+              Require continuous observation
+            </mat-slide-toggle>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Rules</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="rules-content">
+            <div class="rule-actions">
+              <button mat-stroked-button color="primary" (click)="addClinicalRule()">
+                <mat-icon>playlist_add</mat-icon>
+                Add Clinical Rule
+              </button>
+              <button mat-stroked-button color="primary" (click)="addDemographicRule()">
+                <mat-icon>person_add</mat-icon>
+                Add Demographic Rule
+              </button>
+            </div>
+
+            @for (rule of definition.rules; track rule.id; let index = $index) {
+              <div class="rule-card">
+                <div class="rule-card-header">
+                  <strong>{{ rule.type === 'clinical' ? 'Clinical Rule' : 'Demographic Rule' }}</strong>
+                  <button mat-icon-button color="warn" (click)="removeRule(index)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                @if (rule.type === 'clinical') {
+                  <div class="card-grid">
+                    <mat-form-field>
+                      <mat-label>Name</mat-label>
+                      <input matInput [ngModel]="rule.name" (ngModelChange)="updateClinicalRule(index, { name: $event })">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>Domain</mat-label>
+                      <mat-select [ngModel]="rule.domain" (ngModelChange)="updateClinicalRule(index, { domain: $event })">
+                        <mat-option value="condition_occurrence">Condition occurrence</mat-option>
+                        <mat-option value="drug_exposure">Drug exposure</mat-option>
+                        <mat-option value="procedure_occurrence">Procedure occurrence</mat-option>
+                        <mat-option value="measurement">Measurement</mat-option>
+                        <mat-option value="observation">Observation</mat-option>
+                        <mat-option value="visit_occurrence">Visit occurrence</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <app-concept-set-select
+                      [conceptSets]="conceptSets"
+                      [value]="rule.conceptSetId"
+                      (valueChange)="updateClinicalRule(index, { conceptSetId: $event })">
+                    </app-concept-set-select>
+
+                    <mat-form-field>
+                      <mat-label>Presence</mat-label>
+                      <mat-select [ngModel]="rule.presence" (ngModelChange)="updateClinicalRule(index, { presence: $event })">
+                        <mat-option value="present">Present</mat-option>
+                        <mat-option value="absent">Absent</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  <app-time-window-editor
+                    [model]="rule.timeWindow"
+                    (modelChange)="updateClinicalRule(index, { timeWindow: $event })">
+                  </app-time-window-editor>
+
+                  <app-count-constraint-editor
+                    [model]="rule.count"
+                    (modelChange)="updateClinicalRule(index, { count: $event })">
+                  </app-count-constraint-editor>
+                }
+
+                @if (rule.type === 'demographic') {
+                  <div class="card-grid">
+                    <mat-form-field>
+                      <mat-label>Name</mat-label>
+                      <input matInput [ngModel]="rule.name" (ngModelChange)="updateDemographicRule(index, { name: $event })">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>Minimum Age</mat-label>
+                      <input matInput type="number" min="0" [ngModel]="rule.minAge" (ngModelChange)="updateDemographicRule(index, { minAge: $event === '' ? undefined : +$event })">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>Maximum Age</mat-label>
+                      <input matInput type="number" min="0" [ngModel]="rule.maxAge" (ngModelChange)="updateDemographicRule(index, { maxAge: $event === '' ? undefined : +$event })">
+                    </mat-form-field>
+
+                    <mat-form-field class="full-width">
+                      <mat-label>Sexes</mat-label>
+                      <mat-select multiple [ngModel]="rule.sexes || []" (ngModelChange)="updateDemographicRule(index, { sexes: $event })">
+                        <mat-option value="male">Male</mat-option>
+                        <mat-option value="female">Female</mat-option>
+                        <mat-option value="other">Other</mat-option>
+                        <mat-option value="unknown">Unknown</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (definition.rules.length === 0) {
+              <div class="empty-inline">No rules added yet.</div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Exit Strategy</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="card-grid">
+            <mat-form-field>
+              <mat-label>Exit Type</mat-label>
+              <mat-select [ngModel]="definition.exit.type" (ngModelChange)="updateExit({ type: $event })">
+                <mat-option value="fixedDays">Fixed days after index</mat-option>
+                <mat-option value="observationPeriodEnd">Observation period end</mat-option>
+                <mat-option value="indexEventEnd">Index event end</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            @if (definition.exit.type === 'fixedDays') {
+              <mat-form-field>
+                <mat-label>Days After Index</mat-label>
+                <input matInput type="number" min="0" [ngModel]="definition.exit.daysAfterIndex" (ngModelChange)="updateExit({ daysAfterIndex: +$event })">
+              </mat-form-field>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Collapse Strategy</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="card-grid">
+            <mat-form-field>
+              <mat-label>Collapse Type</mat-label>
+              <mat-select [ngModel]="definition.collapse.type" (ngModelChange)="updateCollapse({ type: $event })">
+                <mat-option value="none">None</mat-option>
+                <mat-option value="mergeOverlapping">Merge overlapping</mat-option>
+                <mat-option value="eraPadding">Era padding</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Padding Days</mat-label>
+              <input matInput type="number" min="0" [ngModel]="definition.collapse.paddingDays" (ngModelChange)="updateCollapse({ paddingDays: +$event })">
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-card class="preview-card">
+        <mat-card-header>
+          <mat-card-title>JSON Preview</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <pre>{{ getJsonPreview() }}</pre>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon>biotech</mat-icon>
+      <p>Cohort definition not found.</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,38 @@
+<div class="concept-set-items">
+  <div class="concept-set-items-header">
+    <h3>Concepts</h3>
+    <button mat-stroked-button color="primary" (click)="addRow()">
+      <mat-icon>add</mat-icon>
+      Add Row
+    </button>
+  </div>
+
+  <app-concept-set-lookup-panel (conceptSelected)="addConceptFromLookup($event)"></app-concept-set-lookup-panel>
+
+  <div class="concept-set-table">
+    @for (item of items; track $index; let index = $index) {
+      <div class="concept-set-row">
+        <mat-form-field>
+          <mat-label>Concept ID</mat-label>
+          <input matInput [ngModel]="item.conceptId" (ngModelChange)="updateRow(index, { conceptId: $event })">
+        </mat-form-field>
+
+        <mat-checkbox [ngModel]="item.includeDescendants" (ngModelChange)="updateRow(index, { includeDescendants: $event })">
+          Descendants
+        </mat-checkbox>
+
+        <mat-checkbox [ngModel]="item.includeMapped" (ngModelChange)="updateRow(index, { includeMapped: $event })">
+          Mapped
+        </mat-checkbox>
+
+        <mat-checkbox [ngModel]="item.exclude" (ngModelChange)="updateRow(index, { exclude: $event })">
+          Exclude
+        </mat-checkbox>
+
+        <button mat-icon-button color="warn" (click)="removeRow(index)" aria-label="Remove concept row">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+</div>

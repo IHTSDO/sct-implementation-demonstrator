@@ -1,0 +1,19 @@
+<div class="editor-grid">
+  <mat-form-field>
+    <mat-label>{{ label }} Anchor</mat-label>
+    <mat-select [ngModel]="model.anchor" (ngModelChange)="update('anchor', $event)">
+      <mat-option value="indexStart">Index start</mat-option>
+      <mat-option value="indexEnd">Index end</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Start Day</mat-label>
+    <input matInput type="number" [ngModel]="model.startDay" (ngModelChange)="update('startDay', +$event)">
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>End Day</mat-label>
+    <input matInput type="number" [ngModel]="model.endDay" (ngModelChange)="update('endDay', +$event)">
+  </mat-form-field>
+</div>

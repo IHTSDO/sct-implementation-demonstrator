@@ -1,0 +1,57 @@
+<div class="editor-shell">
+  <div class="editor-header">
+    <button mat-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to workspace
+    </button>
+    <div class="editor-actions">
+      <button mat-stroked-button color="primary" (click)="duplicate()" [disabled]="!conceptSet">Duplicate</button>
+      <button mat-stroked-button color="warn" (click)="delete()" [disabled]="!conceptSet || usageCount > 0">Delete</button>
+      <button mat-flat-button color="primary" (click)="save()" [disabled]="!conceptSet">Save</button>
+    </div>
+  </div>
+
+  @if (conceptSet) {
+    <div class="editor-content">
+      <app-validation-summary [title]="'Concept Set Validation'" [issues]="issues"></app-validation-summary>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Concept Set Metadata</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="editor-card-content">
+          <mat-form-field>
+            <mat-label>Name</mat-label>
+            <input matInput [ngModel]="conceptSet.name" (ngModelChange)="updateName($event)">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="3" [ngModel]="conceptSet.description" (ngModelChange)="updateDescription($event)"></textarea>
+          </mat-form-field>
+
+          <div class="editor-note">
+            Used by {{ usageCount }} cohort {{ usageCount === 1 ? 'reference' : 'references' }}.
+          </div>
+          @if (usageCount > 0) {
+            <div class="editor-warning">Delete is blocked while this concept set is referenced by cohort definitions.</div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Concept Set Items</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-concept-set-item-table [items]="conceptSet.items" (itemsChange)="updateItems($event)"></app-concept-set-item-table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon>dataset</mat-icon>
+      <p>Concept set not found.</p>
+    </div>
+  }
+</div>

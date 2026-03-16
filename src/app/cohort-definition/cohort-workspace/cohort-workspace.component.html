@@ -1,0 +1,84 @@
+<div class="workspace-shell">
+  <div class="workspace-header">
+    <div>
+      <button mat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to home
+      </button>
+      <h1>Cohort Workspace</h1>
+      <p>Author global concept sets and cohort definitions with a simple OMOP-aligned model.</p>
+    </div>
+    <div class="workspace-actions">
+      <button mat-stroked-button color="primary" (click)="createConceptSet()">
+        <mat-icon>dataset</mat-icon>
+        New Concept Set
+      </button>
+      <button mat-flat-button color="primary" (click)="createDefinition()">
+        <mat-icon>biotech</mat-icon>
+        New Cohort Definition
+      </button>
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Concept Set Library</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="workspace-list">
+        @for (conceptSet of conceptSets; track conceptSet.id) {
+          <div class="workspace-row" (click)="editConceptSet(conceptSet)">
+            <div class="workspace-row-copy">
+              <strong>{{ conceptSet.name }}</strong>
+              <span>{{ conceptSet.items.length }} concepts · {{ getConceptSetUsage(conceptSet.id) }} uses</span>
+            </div>
+            <div class="workspace-row-actions">
+              <button mat-icon-button (click)="duplicateConceptSet(conceptSet); $event.stopPropagation()">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                [disabled]="getConceptSetUsage(conceptSet.id) > 0"
+                (click)="deleteConceptSet(conceptSet, $event)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (conceptSets.length === 0) {
+          <div class="workspace-empty">No concept sets yet.</div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Cohort Definitions</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="workspace-list">
+        @for (definition of cohortDefinitions; track definition.id) {
+          <div class="workspace-row" (click)="editDefinition(definition)">
+            <div class="workspace-row-copy">
+              <strong>{{ definition.name }}</strong>
+              <span>{{ definition.rules.length }} rules · updated {{ definition.updatedAt | date:'short' }}</span>
+            </div>
+            <div class="workspace-row-actions">
+              <button mat-icon-button (click)="duplicateDefinition(definition); $event.stopPropagation()">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteDefinition(definition, $event)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (cohortDefinitions.length === 0) {
+          <div class="workspace-empty">No cohort definitions yet.</div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

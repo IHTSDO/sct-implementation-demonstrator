@@ -1,0 +1,48 @@
+.editor-shell {
+  padding: 24px;
+  display: grid;
+  gap: 20px;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.editor-content {
+  display: grid;
+  gap: 20px;
+}
+
+.editor-card-content {
+  display: grid;
+  gap: 16px;
+}
+
+.editor-note {
+  color: #475569;
+}
+
+.editor-warning {
+  color: #b45309;
+  font-weight: 600;
+}
+
+.empty-state {
+  padding: 48px 24px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 20px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  color: #64748b;
+}

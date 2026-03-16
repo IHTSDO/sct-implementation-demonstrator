@@ -156,6 +156,15 @@ import { AttributeSetEditorComponent } from './bindings/ecl-builder/attribute-se
 import { AttributeEditorComponent } from './bindings/ecl-builder/attribute-editor/attribute-editor.component';
 import { CodingTabsComponent } from './coding-tabs/coding-tabs.component';
 import { MedicinalProductClassesComponent } from './medicinal-product-classes/medicinal-product-classes.component';
+import { CohortWorkspaceComponent } from './cohort-definition/cohort-workspace/cohort-workspace.component';
+import { ConceptSetEditorComponent } from './cohort-definition/concept-set-editor/concept-set-editor.component';
+import { CohortDefinitionEditorComponent } from './cohort-definition/cohort-definition-editor/cohort-definition-editor.component';
+import { ValidationSummaryComponent } from './cohort-definition/validation-summary/validation-summary.component';
+import { TimeWindowEditorComponent } from './cohort-definition/time-window-editor/time-window-editor.component';
+import { CountConstraintEditorComponent } from './cohort-definition/count-constraint-editor/count-constraint-editor.component';
+import { ConceptSetSelectComponent } from './cohort-definition/concept-set-select/concept-set-select.component';
+import { ConceptSetLookupPanelComponent } from './cohort-definition/concept-set-lookup-panel/concept-set-lookup-panel.component';
+import { ConceptSetItemTableComponent } from './cohort-definition/concept-set-item-table/concept-set-item-table.component';
 
 const app = initializeApp(firebaseConfig);
 
@@ -270,7 +279,16 @@ const app = initializeApp(firebaseConfig);
         ExpressionConstraintNodeComponent,
         AttributeSetEditorComponent,
         AttributeEditorComponent,
-        MedicinalProductClassesComponent
+        MedicinalProductClassesComponent,
+        CohortWorkspaceComponent,
+        ConceptSetEditorComponent,
+        CohortDefinitionEditorComponent,
+        ValidationSummaryComponent,
+        TimeWindowEditorComponent,
+        CountConstraintEditorComponent,
+        ConceptSetSelectComponent,
+        ConceptSetLookupPanelComponent,
+        ConceptSetItemTableComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserModule,

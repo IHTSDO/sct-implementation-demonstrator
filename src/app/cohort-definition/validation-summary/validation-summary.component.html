@@ -1,0 +1,16 @@
+@if (issues.length > 0) {
+  <div class="validation-summary">
+    <div class="validation-summary-header">
+      <mat-icon>rule</mat-icon>
+      <span>{{ title }}</span>
+    </div>
+    <div class="validation-summary-list">
+      @for (issue of issues; track issue.path + issue.message) {
+        <div class="validation-summary-item" [class.validation-warning]="issue.severity === 'warning'">
+          <strong>{{ issue.severity === 'error' ? 'Error' : 'Warning' }}</strong>
+          <span>{{ issue.message }}</span>
+        </div>
+      }
+    </div>
+  </div>
+}

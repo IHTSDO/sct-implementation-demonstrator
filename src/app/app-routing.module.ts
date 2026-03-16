@@ -40,6 +40,9 @@ import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-gene
 import { DrugStrengthRoundingComponent } from './drug-strength-rounding/drug-strength-rounding.component';
 import { ExtensionsSearchComponent } from './extensions-search/extensions-search.component';
 import { MedicinalProductClassesComponent } from './medicinal-product-classes/medicinal-product-classes.component';
+import { CohortWorkspaceComponent } from './cohort-definition/cohort-workspace/cohort-workspace.component';
+import { ConceptSetEditorComponent } from './cohort-definition/concept-set-editor/concept-set-editor.component';
+import { CohortDefinitionEditorComponent } from './cohort-definition/cohort-definition-editor/cohort-definition-editor.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -86,6 +89,9 @@ const routes: Routes = [
   { path: 'drug-strength-rounding', component: DrugStrengthRoundingComponent },
   { path: 'medicinal-product-classes', component: MedicinalProductClassesComponent },
   { path: 'extensions-search', component: ExtensionsSearchComponent },
+  { path: 'cohort-workspace', component: CohortWorkspaceComponent },
+  { path: 'cohort-workspace/concept-sets/:conceptSetId', component: ConceptSetEditorComponent },
+  { path: 'cohort-workspace/definitions/:definitionId', component: CohortDefinitionEditorComponent },
   { path: '**', redirectTo: '' }
 ];
 

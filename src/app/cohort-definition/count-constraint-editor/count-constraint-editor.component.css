@@ -1,0 +1,11 @@
+.editor-grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(160px, 220px);
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
