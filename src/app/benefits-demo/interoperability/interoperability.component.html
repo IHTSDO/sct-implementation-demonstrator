@@ -141,25 +141,6 @@
               </button>
             }
           </div>
-
-          <div class="ips-mini-summary">
-            <div class="ips-mini-stat">
-              <span>Conditions</span>
-              <strong>{{ patientData?.conditions?.length || 0 }}</strong>
-            </div>
-            <div class="ips-mini-stat">
-              <span>Procedures</span>
-              <strong>{{ patientData?.procedures?.length || 0 }}</strong>
-            </div>
-            <div class="ips-mini-stat">
-              <span>Medications</span>
-              <strong>{{ patientData?.medications?.length || 0 }}</strong>
-            </div>
-            <div class="ips-mini-stat">
-              <span>Allergies</span>
-              <strong>{{ patientData?.allergies?.length || 0 }}</strong>
-            </div>
-          </div>
         </aside>
 
         <section class="wizard-stage">
@@ -380,7 +361,7 @@
               <div class="summary-patient-grid">
                 <mat-card class="step-card">
                   <mat-card-header>
-                    <mat-card-title>
+                    <mat-card-title class="summary-card-title">
                       <mat-icon>badge</mat-icon>
                       IPS Patient
                     </mat-card-title>
@@ -401,7 +382,7 @@
 
                 <mat-card class="step-card">
                   <mat-card-header>
-                    <mat-card-title>
+                    <mat-card-title class="summary-card-title">
                       <mat-icon>person_outline</mat-icon>
                       Target Clinical Record
                     </mat-card-title>

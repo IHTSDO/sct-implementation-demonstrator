@@ -342,27 +342,6 @@
   line-height: 1.35;
 }
 
-.ips-mini-summary {
-  margin-top: 22px;
-  display: grid;
-  gap: 10px;
-}
-
-.ips-mini-stat {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: #f8fafc;
-  border-radius: 14px;
-  color: #334155;
-}
-
-.ips-mini-stat strong {
-  color: #0f172a;
-  font-size: 1.05rem;
-}
-
 .wizard-stage {
   padding: 28px;
 }
@@ -622,6 +601,12 @@
 
 .summary-header {
   margin: 22px 0 16px;
+}
+
+.summary-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .summary-header h3 {
