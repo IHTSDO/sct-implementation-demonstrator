@@ -127,6 +127,7 @@ import { ClinicalEntryComponent } from './benefits-demo/clinical-entry/clinical-
 import { ClinicalTimelineComponent } from './benefits-demo/clinical-timeline/clinical-timeline.component';
 import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
 import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
+import { ConceptValidationDialogComponent } from './benefits-demo/interoperability/concept-validation-dialog/concept-validation-dialog.component';
 import { SmartHealthLinksComponent } from './benefits-demo/smart-health-links/smart-health-links.component';
 import { QuestionnaireFormComponent } from './benefits-demo/questionnaire-form/questionnaire-form.component';
 import { OpenehrFormComponent } from './benefits-demo/openehr-form/openehr-form.component';
@@ -241,6 +242,7 @@ const app = initializeApp(firebaseConfig);
         ClinicalTimelineComponent,
         EncounterRecordComponent,
         InteroperabilityComponent,
+        ConceptValidationDialogComponent,
         SmartHealthLinksComponent,
         QuestionnaireFormComponent,
         OpenehrFormComponent,

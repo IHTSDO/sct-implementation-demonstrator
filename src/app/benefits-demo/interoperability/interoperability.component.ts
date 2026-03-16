@@ -1,10 +1,21 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
 import { PatientService, Patient, PatientSimilarityResult } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
+import {
+  ConceptHierarchyValidationService,
+  HierarchyMatch,
+  HierarchyValidationResult,
+  RecordConcept
+} from '../../services/concept-hierarchy-validation.service';
+import {
+  ConceptValidationDialogComponent,
+  ConceptValidationDialogState
+} from './concept-validation-dialog/concept-validation-dialog.component';
 
 type MergeSectionId = 'conditions' | 'procedures' | 'medications' | 'allergies';
 type WizardStepId = 'patient' | MergeSectionId | 'summary';
@@ -69,7 +80,9 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     public ipsReaderService: IPSReaderService,
     private patientService: PatientService,
     private router: Router,
-    private terminologyService: TerminologyService
+    private terminologyService: TerminologyService,
+    private dialog: MatDialog,
+    private conceptHierarchyValidationService: ConceptHierarchyValidationService
   ) { }
 
   ngOnInit(): void {
@@ -267,6 +280,16 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.loadExistingPatientData();
     this.clearSelections();
     this.rebuildWizardSteps();
+  }
+
+  backToInteroperabilityHome(): void {
+    this.stopShlQrScan();
+    this.patientData = null;
+    this.error = null;
+    this.shlScanError = null;
+    this.isLoading = false;
+    this.isShlResolving = false;
+    this.resetWizard();
   }
 
   private rebuildWizardSteps(): void {
@@ -526,10 +549,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     // Load existing data (will be empty for new patient)
     this.loadExistingPatientData();
     
-    // Initialize selections (select all by default)
+    // Initialize selections for the wizard
     this.initializeSelections();
-    
-    console.log(`Created new patient: ${newPatientId}`, newPatient);
   }
 
   /**
@@ -560,13 +581,16 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Add a condition from IPS to the selection by clicking on it
    */
-  addConditionFromIPS(conditionId: string): void {
+  async addConditionFromIPS(conditionId: string): Promise<void> {
     if (!this.linkedPatient) {
       return;
     }
 
     // Find the condition to check if it's already recorded
     const condition = this.patientData?.conditions.find(c => c.id === conditionId);
+    if (!condition) {
+      return;
+    }
     if (condition && this.isConditionAlreadyRecorded(condition)) {
       return; // Don't allow adding if already recorded
     }
@@ -575,7 +599,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (this.selectedConditions.has(conditionId)) {
       this.selectedConditions.delete(conditionId);
     } else {
-      this.selectedConditions.add(conditionId);
+      const canAdd = await this.confirmConceptSelection('conditions', condition);
+      if (canAdd) {
+        this.selectedConditions.add(conditionId);
+      }
     }
   }
 
@@ -636,12 +663,15 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     });
   }
 
-  addProcedureFromIPS(procedureId: string): void {
+  async addProcedureFromIPS(procedureId: string): Promise<void> {
     if (!this.linkedPatient) {
       return;
     }
 
     const procedure = this.patientData?.procedures.find(p => p.id === procedureId);
+    if (!procedure) {
+      return;
+    }
     if (procedure && this.isProcedureAlreadyRecorded(procedure)) {
       return;
     }
@@ -649,7 +679,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (this.selectedProcedures.has(procedureId)) {
       this.selectedProcedures.delete(procedureId);
     } else {
-      this.selectedProcedures.add(procedureId);
+      const canAdd = await this.confirmConceptSelection('procedures', procedure);
+      if (canAdd) {
+        this.selectedProcedures.add(procedureId);
+      }
     }
   }
 
@@ -709,13 +742,16 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Add a medication from IPS to the selection by clicking on it
    */
-  addMedicationFromIPS(medicationId: string): void {
+  async addMedicationFromIPS(medicationId: string): Promise<void> {
     if (!this.linkedPatient) {
       return;
     }
 
     // Find the medication to check if it's already recorded
     const medication = this.patientData?.medications.find(m => m.id === medicationId);
+    if (!medication) {
+      return;
+    }
     if (medication && this.isMedicationAlreadyRecorded(medication)) {
       return; // Don't allow adding if already recorded
     }
@@ -724,7 +760,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (this.selectedMedications.has(medicationId)) {
       this.selectedMedications.delete(medicationId);
     } else {
-      this.selectedMedications.add(medicationId);
+      const canAdd = await this.confirmConceptSelection('medications', medication);
+      if (canAdd) {
+        this.selectedMedications.add(medicationId);
+      }
     }
   }
 
@@ -793,13 +832,16 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Add an allergy from IPS to the selection by clicking on it
    */
-  addAllergyFromIPS(allergyId: string): void {
+  async addAllergyFromIPS(allergyId: string): Promise<void> {
     if (!this.linkedPatient) {
       return;
     }
 
     // Find the allergy to check if it's already recorded
     const allergy = this.patientData?.allergies.find(a => a.id === allergyId);
+    if (!allergy) {
+      return;
+    }
     if (allergy && this.isAllergyAlreadyRecorded(allergy)) {
       return; // Don't allow adding if already recorded
     }
@@ -808,7 +850,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (this.selectedAllergies.has(allergyId)) {
       this.selectedAllergies.delete(allergyId);
     } else {
-      this.selectedAllergies.add(allergyId);
+      const canAdd = await this.confirmConceptSelection('allergies', allergy);
+      if (canAdd) {
+        this.selectedAllergies.add(allergyId);
+      }
     }
   }
 
@@ -1306,19 +1351,19 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleSectionSelection(section: MergeSectionId, itemId: string): void {
+  async toggleSectionSelection(section: MergeSectionId, itemId: string): Promise<void> {
     switch (section) {
       case 'conditions':
-        this.addConditionFromIPS(itemId);
+        await this.addConditionFromIPS(itemId);
         break;
       case 'procedures':
-        this.addProcedureFromIPS(itemId);
+        await this.addProcedureFromIPS(itemId);
         break;
       case 'medications':
-        this.addMedicationFromIPS(itemId);
+        await this.addMedicationFromIPS(itemId);
         break;
       case 'allergies':
-        this.addAllergyFromIPS(itemId);
+        await this.addAllergyFromIPS(itemId);
         break;
     }
   }
@@ -1334,6 +1379,120 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       case 'allergies':
         return this.hasAvailableAllergies();
     }
+  }
+
+  private async confirmConceptSelection(section: MergeSectionId, item: any): Promise<boolean> {
+    const candidate = this.toRecordConcept(section, item);
+    if (!candidate) {
+      return true;
+    }
+
+    const dialogRef = this.dialog.open(ConceptValidationDialogComponent, {
+      width: '680px',
+      maxWidth: '95vw',
+      disableClose: true,
+      data: this.buildConceptValidationLoadingState(candidate)
+    });
+
+    try {
+      const result = await this.conceptHierarchyValidationService.validateCandidateAgainstRecord(
+        candidate,
+        this.getExistingRecordConcepts(section),
+        progress => {
+          dialogRef.componentInstance.state = {
+            ...dialogRef.componentInstance.state,
+            loading: true,
+            progressCurrent: progress.current,
+            progressTotal: progress.total,
+            message: progress.message
+          };
+        }
+      );
+
+      dialogRef.componentInstance.state = this.buildConceptValidationResultState(result);
+      dialogRef.disableClose = false;
+
+      return (await firstValueFrom(dialogRef.afterClosed())) === true;
+    } catch (error) {
+      dialogRef.componentInstance.state = {
+        ...dialogRef.componentInstance.state,
+        loading: false,
+        message: 'We could not complete the hierarchy check. You can still add the concept if you want to continue.',
+        primaryActionLabel: 'Add anyway',
+        hasConflict: true,
+        relations: []
+      };
+      dialogRef.disableClose = false;
+
+      return (await firstValueFrom(dialogRef.afterClosed())) === true;
+    }
+  }
+
+  private buildConceptValidationLoadingState(candidate: RecordConcept): ConceptValidationDialogState {
+    return {
+      title: 'Checking SNOMED hierarchy',
+      message: 'Preparing concept hierarchy validation...',
+      loading: true,
+      progressCurrent: 0,
+      progressTotal: 1,
+      candidateLabel: `${candidate.label || candidate.code} (${candidate.code})`,
+      primaryActionLabel: 'Add',
+      hasConflict: false,
+      relations: []
+    };
+  }
+
+  private buildConceptValidationResultState(result: HierarchyValidationResult): ConceptValidationDialogState {
+    const relations = result.matches.map(match => ({
+      label: match.existing.label || match.existing.code,
+      code: match.existing.code,
+      relationLabel: this.getHierarchyRelationLabel(match)
+    }));
+
+    return {
+      title: result.hasConflict ? 'Hierarchy review required' : 'Hierarchy check complete',
+      message: result.hasConflict
+        ? 'The selected concept overlaps hierarchically with one or more concepts already in the record. Review the relationships before deciding whether to add it.'
+        : 'No hierarchical overlap was found with the existing concepts in this section.',
+      loading: false,
+      progressCurrent: relations.length + 1,
+      progressTotal: relations.length + 1,
+      candidateLabel: `${result.candidate.label || result.candidate.code} (${result.candidate.code})`,
+      primaryActionLabel: result.hasConflict ? 'Add anyway' : 'Add',
+      hasConflict: result.hasConflict,
+      relations
+    };
+  }
+
+  private getHierarchyRelationLabel(match: HierarchyMatch): string {
+    switch (match.relation) {
+      case 'exact-match':
+        return 'Exact match';
+      case 'candidate-is-ancestor':
+        return 'Selected concept is broader';
+      case 'candidate-is-descendant':
+        return 'Selected concept is narrower';
+    }
+  }
+
+  private getExistingRecordConcepts(section: MergeSectionId): RecordConcept[] {
+    return this.getExistingItems(section)
+      .map(item => this.toRecordConcept(section, item))
+      .filter((concept): concept is RecordConcept => !!concept);
+  }
+
+  private toRecordConcept(section: MergeSectionId, item: any): RecordConcept | null {
+    const code = this.patientService.extractSnomedCode(item);
+    if (!code) {
+      return null;
+    }
+
+    return {
+      code,
+      label: this.getItemDisplay(section, item),
+      sourceId: item.id,
+      section
+    };
   }
 
   getItemDisplay(section: MergeSectionId, item: any): string {
@@ -1465,8 +1624,6 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
           condition => this.selectedConditions.has(condition.id)
         );
 
-        console.log(`Attempting to import ${selectedConditionsData.length} conditions for patient ${this.linkedPatient.id}`);
-        
         for (const condition of selectedConditionsData) {
           const snomedCode = this.patientService.extractSnomedCode(condition);
           let icd10Code: string | undefined = undefined;
@@ -1504,10 +1661,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
             icd10Code: icd10Code,
             computedLocation: computedLocation || 'systemic'
           };
-          console.log(`Importing condition: ${convertedCondition.code.text} (SNOMED: ${snomedCode}, ICD-10: ${icd10Code || 'N/A'}, Location: ${computedLocation})`);
-          
+
           const success = this.patientService.addPatientCondition(this.linkedPatient.id, convertedCondition);
-          console.log(`Condition import result: ${success}`);
           if (success) {
             importedCount++;
           }
@@ -1556,13 +1711,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
       // Clear all selections after import
       this.clearSelections();
-      
-      // Debug: Check what conditions are now stored for this patient
-      const storedConditions = this.patientService.getPatientConditions(this.linkedPatient.id);
-      console.log(`Patient ${this.linkedPatient.id} now has ${storedConditions.length} conditions stored:`, storedConditions);
-      
-      console.log(`Successfully imported ${importedCount} items to patient ${this.linkedPatient.id}`);
-      
+
       // Navigate to clinical record with patient ID
       const navigated = await this.router.navigate(['/clinical-record', this.linkedPatient.id]);
       if (!navigated) {
@@ -1572,6 +1721,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       console.error('Error importing selected items:', error);
       this.isImporting = false;
     }
+  }
+
+  async openLinkedPatientRecord(): Promise<void> {
+    if (!this.linkedPatient || this.isImporting) {
+      return;
+    }
+
+    await this.router.navigate(['/clinical-record', this.linkedPatient.id]);
   }
 
   /**
@@ -1990,8 +2147,6 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     // Clear selections after import
     this.selectedConditions.clear();
     
-    // Show success message (you could add a snackbar here)
-    console.log(`Imported ${selectedConditionsData.length} conditions`);
   }
 
   /**
@@ -2014,7 +2169,6 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     // Clear selections after import
     this.selectedProcedures.clear();
     
-    console.log(`Imported ${selectedProceduresData.length} procedures`);
   }
 
   /**
@@ -2038,7 +2192,6 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     // Clear selections after import
     this.selectedMedications.clear();
     
-    console.log(`Imported ${selectedMedicationsData.length} medications`);
   }
 
   /**
@@ -2061,7 +2214,6 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     // Clear selections after import
     this.selectedAllergies.clear();
     
-    console.log(`Imported ${selectedAllergiesData.length} allergies`);
   }
 
   /**

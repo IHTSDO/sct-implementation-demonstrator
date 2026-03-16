@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>{{ state.title }}</h2>
+
+<mat-dialog-content class="validation-dialog-content">
+  <div class="validation-dialog-lead">
+    <strong>{{ state.candidateLabel }}</strong>
+  </div>
+
+  @if (state.loading) {
+    <div class="validation-progress">
+      <mat-progress-bar mode="determinate" [value]="progressValue"></mat-progress-bar>
+      <p>{{ state.message }}</p>
+    </div>
+  }
+
+  @if (!state.loading) {
+    <p class="validation-message">{{ state.message }}</p>
+
+    @if (state.relations.length > 0) {
+      <div class="validation-relations-title">Concepts in patient record with overlapping meaning</div>
+
+      <div class="validation-relations">
+        @for (relation of state.relations; track relation.code + relation.relationLabel) {
+          <div class="validation-relation-item">
+            <div class="validation-relation-copy">
+              <strong>{{ relation.label }}</strong>
+              <span>{{ relation.code }}</span>
+            </div>
+            <span class="validation-relation-badge">{{ relation.relationLabel }}</span>
+          </div>
+        }
+      </div>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="state.loading">Cancel</button>
+  <button mat-flat-button color="primary" (click)="confirm()" [disabled]="state.loading">
+    {{ state.primaryActionLabel }}
+  </button>
+</mat-dialog-actions>

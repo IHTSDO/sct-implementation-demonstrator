@@ -13,18 +13,25 @@
         <p>Load an IPS, identify the patient, review each clinical section, and import only the items you want to keep.</p>
       </div>
       <div class="page-header-actions">
-        <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading || isImporting">
-          <mat-icon>upload_file</mat-icon>
-          Upload IPS File
-        </button>
-        <button mat-stroked-button color="primary" (click)="startShlQrScan()" [disabled]="isLoading || isImporting || isShlResolving">
-          <mat-icon>qr_code_scanner</mat-icon>
-          Scan SHL QR
-        </button>
-        <button mat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading || isImporting">
-          <mat-icon>play_arrow</mat-icon>
-          Try Example IPS
-        </button>
+        @if (hasPatientData()) {
+          <button mat-stroked-button color="primary" (click)="backToInteroperabilityHome()" [disabled]="isImporting">
+            <mat-icon>arrow_back</mat-icon>
+            Back to interoperability home
+          </button>
+        } @else {
+          <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading || isImporting">
+            <mat-icon>upload_file</mat-icon>
+            Upload IPS File
+          </button>
+          <button mat-stroked-button color="primary" (click)="startShlQrScan()" [disabled]="isLoading || isImporting || isShlResolving">
+            <mat-icon>qr_code_scanner</mat-icon>
+            Scan SHL QR
+          </button>
+          <button mat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading || isImporting">
+            <mat-icon>play_arrow</mat-icon>
+            Try Example IPS
+          </button>
+        }
       </div>
     </div>
   }
@@ -439,6 +446,7 @@
                   </mat-card>
                 }
               </div>
+
             </div>
           }
 
@@ -456,10 +464,20 @@
             }
 
             @if (isCurrentStep('summary')) {
-              <button mat-flat-button color="primary" (click)="importAllSelectedItems()" [disabled]="!hasSelectedItems() || isImporting">
-                <mat-icon>save</mat-icon>
-                Import Selected Items ({{ getTotalSelectedCount() }})
-              </button>
+              @if (hasSelectedItems()) {
+                <button mat-flat-button color="primary" (click)="importAllSelectedItems()" [disabled]="isImporting">
+                  <mat-icon>save</mat-icon>
+                  Import Selected Items ({{ getTotalSelectedCount() }})
+                </button>
+              } @else {
+                <div class="wizard-actions-inline-note">
+                  <span class="wizard-actions-note">Nothing to add</span>
+                  <button mat-flat-button color="primary" (click)="openLinkedPatientRecord()" [disabled]="!linkedPatient || isImporting">
+                    <mat-icon>open_in_new</mat-icon>
+                    Open record
+                  </button>
+                </div>
+              }
             }
           </div>
         </section>
