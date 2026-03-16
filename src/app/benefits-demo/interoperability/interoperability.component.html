@@ -1,5 +1,4 @@
 <div class="interoperability-container">
-  <!-- Back button positioned at top left -->
   <div class="back-button-container">
     <button mat-flat-button (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
@@ -8,24 +7,24 @@
   </div>
 
   @if (isLoading || error || hasPatientData()) {
-    <div class="header">
-      <h1>Interoperability Demo</h1>
-      <p class="subtitle">Demonstrating SNOMED CT and FHIR IPS (International Patient Summary) interoperability in the clinical record</p>
-      <div class="header-actions">
+    <div class="page-header">
+      <div class="page-header-copy">
+        <h1>IPS Reconciliation Wizard</h1>
+        <p>Load an IPS, identify the patient, review each clinical section, and import only the items you want to keep.</p>
+      </div>
+      <div class="page-header-actions">
         <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading || isImporting">
           <mat-icon>upload_file</mat-icon>
           Upload IPS File
         </button>
-        <button mat-stroked-button color="accent" (click)="startShlQrScan()" [disabled]="isLoading || isImporting || isShlResolving">
+        <button mat-stroked-button color="primary" (click)="startShlQrScan()" [disabled]="isLoading || isImporting || isShlResolving">
           <mat-icon>qr_code_scanner</mat-icon>
-          Scan SHL QR (webcam)
+          Scan SHL QR
         </button>
-        @if (hasPatientData()) {
-          <button mat-flat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading || isImporting">
-            <mat-icon>refresh</mat-icon>
-            Reload Example
-          </button>
-        }
+        <button mat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading || isImporting">
+          <mat-icon>play_arrow</mat-icon>
+          Try Example IPS
+        </button>
       </div>
     </div>
   }
@@ -33,990 +32,456 @@
   <input #fileInput type="file" accept=".json" (change)="onFileSelected($event)" style="display: none;">
 
   @if (isShlScanning) {
-    <div class="shl-scanner-panel">
-      <div class="scanner-header">
-        <h3>Scan Smart Health Link QR</h3>
+    <div class="scanner-panel">
+      <div class="scanner-panel-header">
+        <div>
+          <h3>Scan Smart Health Link</h3>
+          <p>Point the camera at an SHL QR code to load the IPS bundle.</p>
+        </div>
         <button mat-stroked-button color="warn" (click)="stopShlQrScan()">
           <mat-icon>close</mat-icon>
           Stop scanner
         </button>
       </div>
       <video #shlScannerVideo class="scanner-video" autoplay playsinline muted></video>
-      <p class="scanner-help">Point your camera at an SHL QR code. The IPS will load automatically after detection.</p>
     </div>
   }
 
   @if (shlScanError) {
-    <div class="scanner-error">
+    <div class="banner banner-error">
       <mat-icon>error</mat-icon>
       <span>{{ shlScanError }}</span>
     </div>
   }
 
   @if (isShlResolving && !isLoading) {
-    <div class="scanner-loading">
-      <mat-spinner diameter="28"></mat-spinner>
+    <div class="banner banner-info">
+      <mat-spinner diameter="24"></mat-spinner>
       <span>Resolving SHL and downloading IPS...</span>
     </div>
   }
 
   <div class="content">
-    <!-- Loading State -->
     @if (isLoading) {
-      <div class="loading-container">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p>Loading IPS bundle...</p>
+      <div class="state-card">
+        <mat-spinner diameter="48"></mat-spinner>
+        <h3>Loading IPS bundle</h3>
+        <p>We are parsing the patient summary and preparing the wizard steps.</p>
       </div>
     }
 
-    <!-- Error State -->
     @if (error && !isLoading) {
-      <div class="error-container">
-        <mat-icon class="error-icon">error</mat-icon>
-        <h3>Error Loading IPS Bundle</h3>
+      <div class="state-card state-card-error">
+        <mat-icon class="state-icon">error</mat-icon>
+        <h3>Could not load the IPS</h3>
         <p>{{ error }}</p>
-        <p><strong>Note:</strong> Please check that the IPS bundle file is available and properly formatted.</p>
-        <div class="error-actions">
-          <button mat-flat-button color="primary" (click)="loadExampleIPSBundle()">
-            <mat-icon>refresh</mat-icon>
-            Retry
-          </button>
+        <button mat-flat-button color="primary" (click)="loadExampleIPSBundle()">
+          <mat-icon>refresh</mat-icon>
+          Retry with example IPS
+        </button>
+      </div>
+    }
+
+    @if (!isLoading && !error && !hasPatientData()) {
+      <div class="welcome-shell">
+        <div class="welcome-panel">
+          <div class="welcome-logo-row">
+            <img class="welcome-ips-logo" src="assets/img/ips-logo.png" alt="IPS logo">
+            <img class="welcome-snomed-logo" src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT logo">
+          </div>
+          <h2>Reconcile an incoming IPS step by step</h2>
+          <p>
+            This module guides the clinician through patient identification first, then one reconciliation step
+            per IPS section that contains content, and finally a summary before import.
+          </p>
+          <div class="welcome-actions">
+            <button mat-flat-button color="primary" (click)="loadExampleIPSBundle()" [disabled]="isImporting">
+              <mat-icon>play_arrow</mat-icon>
+              Try Example IPS Bundle
+            </button>
+            <button mat-stroked-button color="primary" (click)="triggerFileUpload()" [disabled]="isImporting">
+              <mat-icon>upload_file</mat-icon>
+              Upload Your Own IPS File
+            </button>
+            <button mat-stroked-button color="primary" (click)="startShlQrScan()" [disabled]="isImporting || isShlResolving">
+              <mat-icon>qr_code_scanner</mat-icon>
+              Scan SHL QR
+            </button>
+          </div>
         </div>
       </div>
     }
 
-    <!-- Patient Data Display -->
     @if (!isLoading && !error && hasPatientData()) {
-      <div class="patient-data-container">
-        <!-- Summary Row -->
-        <div class="data-row">
-          <div class="left-section">
-            <!-- Summary -->
-            <mat-card class="summary-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>summarize</mat-icon>
-                  IPS Bundle Summary
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="summary-stats">
-                  <div class="stat-item">
-                    <mat-icon>medical_services</mat-icon>
-                    <span>{{ patientData?.conditions?.length || 0 }} Conditions</span>
-                  </div>
-                  <div class="stat-item">
-                    <mat-icon>local_hospital</mat-icon>
-                    <span>{{ patientData?.procedures?.length || 0 }} Procedures</span>
-                  </div>
-                  <div class="stat-item">
-                    <mat-icon>medication</mat-icon>
-                    <span>{{ patientData?.medications?.length || 0 }} Medications</span>
-                  </div>
-                  <div class="stat-item">
-                    <mat-icon>warning</mat-icon>
-                    <span>{{ patientData?.allergies?.length || 0 }} Allergies</span>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
+      <div class="wizard-shell">
+        <aside class="wizard-sidebar">
+          <div class="wizard-sidebar-header">
+            <span class="eyebrow">Workflow</span>
+            <h3>Reconciliation Steps</h3>
           </div>
-          <div class="right-section">
-            <!-- Patient Link Controls -->
-            <mat-card class="merge-controls-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>link</mat-icon>
-                  Link IPS Patient to records
-                </mat-card-title>
-              </mat-card-header>
+
+          <div class="wizard-steps">
+            @for (step of wizardSteps; track step.id; let index = $index) {
+              <button
+                type="button"
+                class="wizard-step"
+                [class.active]="currentStepIndex === index"
+                [class.complete]="index < currentStepIndex"
+                [class.clickable]="canNavigateToStep(index)"
+                [disabled]="!canNavigateToStep(index)"
+                (click)="goToStep(index)">
+                <div class="wizard-step-index">{{ index + 1 }}</div>
+                <div class="wizard-step-copy">
+                  <div class="wizard-step-title">{{ step.title }}</div>
+                  <div class="wizard-step-description">{{ step.description }}</div>
+                  @if (getWizardStepMeta(step, index); as stepMeta) {
+                    <div class="wizard-step-meta">{{ stepMeta }}</div>
+                  }
+                </div>
+              </button>
+            }
+          </div>
+
+          <div class="ips-mini-summary">
+            <div class="ips-mini-stat">
+              <span>Conditions</span>
+              <strong>{{ patientData?.conditions?.length || 0 }}</strong>
+            </div>
+            <div class="ips-mini-stat">
+              <span>Procedures</span>
+              <strong>{{ patientData?.procedures?.length || 0 }}</strong>
+            </div>
+            <div class="ips-mini-stat">
+              <span>Medications</span>
+              <strong>{{ patientData?.medications?.length || 0 }}</strong>
+            </div>
+            <div class="ips-mini-stat">
+              <span>Allergies</span>
+              <strong>{{ patientData?.allergies?.length || 0 }}</strong>
+            </div>
+          </div>
+        </aside>
+
+        <section class="wizard-stage">
+          <div class="wizard-stage-header">
+            <span class="eyebrow">Step {{ currentStepIndex + 1 }} of {{ wizardSteps.length }}</span>
+            <h2>{{ getCurrentStep()?.title }}</h2>
+            <p>{{ getCurrentStep()?.description }}</p>
+          </div>
+
+          @if (isCurrentStep('patient')) {
+            <div class="step-grid step-grid-patient">
+              <mat-card class="step-card">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>badge</mat-icon>
+                    IPS Patient
+                  </mat-card-title>
+                </mat-card-header>
                 <mat-card-content>
-                <!-- Patient Suggestion -->
-                @if (suggestedPatient && !linkedPatient) {
-                  <div class="patient-suggestion">
-                    <div class="suggestion-header">
-                      <mat-icon class="suggestion-icon">lightbulb</mat-icon>
-                      <span class="suggestion-title">Suggested Match</span>
-                      <span class="match-type">{{ getMatchTypeLabel(suggestedPatient.matchType) }}</span>
+                  <div class="patient-summary-grid">
+                    <div class="patient-summary-item">
+                      <span class="patient-summary-label">Name</span>
+                      <strong>{{ getPatientName() }}</strong>
                     </div>
-                    <div class="suggestion-content">
-                      <div class="suggested-patient">
-                        <strong>{{ getPatientDisplayName(suggestedPatient) }}</strong> ({{ suggestedPatient.birthDate }})
+                    <div class="patient-summary-item">
+                      <span class="patient-summary-label">Date of birth</span>
+                      <strong>{{ patientData?.patient?.birthDate | date:'mediumDate' }}</strong>
+                    </div>
+                    <div class="patient-summary-item">
+                      <span class="patient-summary-label">Gender</span>
+                      <strong>{{ getPatientGender() }}</strong>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card class="step-card">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>person_search</mat-icon>
+                    Identify or Create Patient
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  @if (suggestedPatient && !linkedPatient) {
+                    <div class="suggestion-card">
+                      <div class="suggestion-copy">
+                        <span class="eyebrow">Suggested automatic match</span>
+                        <strong>{{ getPatientDisplayName(suggestedPatient) }}</strong>
+                        <span>{{ suggestedPatient.birthDate }} · {{ formatScoreAsPercentage(suggestedPatient.score) }} match</span>
                       </div>
                       <div class="suggestion-actions">
-                        <button mat-raised-button color="primary" (click)="acceptSuggestion()" class="accept-button">
+                        <button mat-flat-button color="primary" (click)="acceptSuggestion()">
                           <mat-icon>check</mat-icon>
-                          Accept Suggestion
+                          Use this patient
                         </button>
-                        <button mat-button (click)="dismissSuggestion()" class="dismiss-button">
-                          <mat-icon>close</mat-icon>
+                        <button mat-button (click)="dismissSuggestion()">
                           Dismiss
                         </button>
                       </div>
                     </div>
-                  </div>
-                }
-                <div class="link-controls">
+                  }
+
                   @if (needsManualPatientEntry() && !linkedPatient) {
-                    <div class="no-match-note">
-                      No automatic match with existing patients. Create a <strong>new patient</strong> when ready.
+                    <div class="banner banner-muted">
+                      <mat-icon>info</mat-icon>
+                      <span>No automatic match with existing patients. You can select one manually or create a new patient.</span>
                     </div>
                   }
+
                   <mat-form-field class="patient-selector">
-                    <mat-label>Select existing patient (sorted by similarity)</mat-label>
+                    <mat-label>Select existing patient</mat-label>
                     <mat-select [(value)]="selectedPatientId" (selectionChange)="onPatientSelectionChange($event)">
                       <mat-option value="">No patient selected</mat-option>
-                      @for (item of sortedPatientsWithScores; track item) {
+                      @for (item of sortedPatientsWithScores; track item.patient.id) {
                         <mat-option [value]="item.patient.id">
-                          <span class="patient-option">
-                            <span class="patient-name">{{ getPatientDisplayName(item.patient) }}</span>
-                            <span class="patient-details">({{ item.patient.birthDate }})</span>
-                            <span class="similarity-score" [class.high-score]="item.score >= 0.8"
-                              [class.medium-score]="item.score >= 0.5 && item.score < 0.8"
-                              [class.low-score]="item.score < 0.5">
-                              {{ formatScoreAsPercentage(item.score) }} match
-                            </span>
-                          </span>
+                          {{ getPatientDisplayName(item.patient) }} ({{ item.patient.birthDate }}) · {{ formatScoreAsPercentage(item.score) }}
                         </mat-option>
                       }
                     </mat-select>
                   </mat-form-field>
-                  <div class="link-buttons">
-                    <button
-                      mat-raised-button
-                      color="primary"
-                      [disabled]="!selectedPatientId"
-                      (click)="linkPatient()"
-                      class="link-button">
-                      <mat-icon>link</mat-icon>
-                      Link Patient
-                    </button>
-                    <button
-                      mat-raised-button
-                      color="accent"
-                      (click)="createNewPatient()"
-                      class="create-button">
-                      <mat-icon>person_add</mat-icon>
-                      Create New Patient
-                    </button>
-                  </div>
-                </div>
-                @if (linkedPatient) {
-                  <div class="linked-patient-info">
-                    <mat-icon class="success-icon">check_circle</mat-icon>
-                    <span>Linking IPS data to: {{ getPatientDisplayName(linkedPatient) }}</span>
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </div>
-        <!-- Patient Information Row -->
-        <div class="data-row">
-          <div class="left-section">
-            <!-- Patient Information Card -->
-            <mat-card class="patient-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>person</mat-icon>
-                  Patient Information
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="patient-info">
-                  <div class="info-item">
-                    <strong>Name:</strong> {{ getPatientName() }}
-                  </div>
-                  <div class="info-item">
-                    <strong>Date of Birth:</strong> {{ patientData?.patient?.birthDate | date:'mediumDate' }}
-                  </div>
-                  <div class="info-item">
-                    <strong>Gender:</strong> {{ getPatientGender() }}
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <div class="right-section">
-            <!-- Linked Patient Information Card -->
-            @if (linkedPatient) {
-              <mat-card class="patient-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>person_outline</mat-icon>
-                    Linked Patient Information
-                    <span class="similarity-badge"
-                      [class.high-similarity]="getPatientScore(linkedPatient.id) >= 0.8"
-                      [class.medium-similarity]="getPatientScore(linkedPatient.id) >= 0.5 && getPatientScore(linkedPatient.id) < 0.8"
-                      [class.low-similarity]="getPatientScore(linkedPatient.id) < 0.5 && getPatientScore(linkedPatient.id) > 0">
-                      {{ formatScoreAsPercentage(getPatientScore(linkedPatient.id)) }} match
-                    </span>
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="patient-info">
-                    <div class="info-item">
-                      <strong>Name:</strong> {{ getPatientDisplayName(linkedPatient) }}
+
+                  @if (!linkedPatient) {
+                    <div class="action-row">
+                      <button mat-stroked-button color="primary" (click)="createNewPatient()">
+                        <mat-icon>person_add</mat-icon>
+                        Create New Patient
+                      </button>
                     </div>
-                    <div class="info-item">
-                      <strong>Date of Birth:</strong> {{ linkedPatient.birthDate | date:'mediumDate' }}
+                  }
+
+                  @if (linkedPatient) {
+                    <div class="linked-patient-card">
+                      <div>
+                        <span class="eyebrow">Linked target record</span>
+                        <strong>{{ getPatientDisplayName(linkedPatient) }}</strong>
+                        <span>{{ linkedPatient.birthDate | date:'mediumDate' }} · {{ linkedPatient.gender | titlecase }}</span>
+                      </div>
+                      <span class="success-pill">Ready</span>
                     </div>
-                    <div class="info-item">
-                      <strong>Gender:</strong> {{ linkedPatient.gender | titlecase }}
-                    </div>
-                  </div>
+                  }
                 </mat-card-content>
               </mat-card>
-            }
-            <!-- Placeholder when no patient is linked -->
-            @if (!linkedPatient) {
-              <div class="placeholder-section">
-                <mat-icon class="placeholder-icon">info</mat-icon>
-                <p>Link to a patient to see their information here</p>
+            </div>
+          }
+
+          @if (getCurrentMergeSection(); as section) {
+            <div class="merge-step-shell">
+              <div class="merge-step-overview">
+                <div class="merge-overview-card">
+                  <span class="merge-overview-label">IPS items</span>
+                  <strong>{{ getSectionItems(section).length }}</strong>
+                </div>
+                <div class="merge-overview-card">
+                  <span class="merge-overview-label">Already in record</span>
+                  <strong>{{ getExistingItems(section).length }}</strong>
+                </div>
+                <div class="merge-overview-card">
+                  <span class="merge-overview-label">Selected to import</span>
+                  <strong>{{ getSelectedCount(section) }}</strong>
+                </div>
+                <div class="merge-overview-card">
+                  <span class="merge-overview-label">Skipped</span>
+                  <strong>{{ getSkippedCount(section) }}</strong>
+                </div>
               </div>
-            }
-          </div>
-        </div>
-        @if (!linkedPatient) {
-          <div class="link-required-global">
-            <mat-icon>info</mat-icon>
-            <span>Link or create a patient to view and reconcile IPS clinical sections.</span>
-          </div>
-        }
-        <!-- Conditions Row -->
-        @if (linkedPatient && hasConditions()) {
-          <div class="data-row">
-            <div class="left-section">
-              <!-- Conditions Section -->
-              <mat-card class="data-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>medical_services</mat-icon>
-                    Conditions ({{ patientData?.conditions?.length || 0 }})
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="data-list">
-                    @for (condition of patientData?.conditions; track condition.id) {
-                      <div
-                        class="data-item clickable-item"
-                        [class.selected-item]="isConditionAdded(condition.id) && !isConditionAlreadyRecorded(condition)"
-                        [class.disabled-item]="!linkedPatient"
-                        [class.already-recorded-item]="linkedPatient && isConditionAlreadyRecorded(condition)"
-                        (click)="linkedPatient && !isConditionAlreadyRecorded(condition) && addConditionFromIPS(condition.id)">
-                        <div class="item-header">
-                          @if (linkedPatient && !isConditionAlreadyRecorded(condition)) {
-                            <mat-icon class="add-icon">
-                              {{ isConditionAdded(condition.id) ? 'check_circle' : 'add_circle_outline' }}
-                            </mat-icon>
-                          }
-                          @if (linkedPatient && isConditionAlreadyRecorded(condition)) {
-                            <mat-icon class="add-icon recorded-icon">
-                              verified
-                            </mat-icon>
-                          }
-                          <span class="item-title">{{ ipsReaderService.getConditionDisplay(condition) }}</span>
-                          @if (!isConditionAlreadyRecorded(condition)) {
-                            <span class="item-status">{{ ipsReaderService.getConditionStatus(condition) }}</span>
-                          }
-                          @if (linkedPatient && isConditionAlreadyRecorded(condition)) {
-                            <span class="already-recorded-badge">Already Recorded</span>
-                          }
-                        </div>
-                        <div class="item-details">
-                          @if (condition.onsetDateTime) {
-                            <span class="detail-item">
-                              <mat-icon>schedule</mat-icon>
-                              Onset: {{ condition.onsetDateTime | date:'short' }}
-                            </span>
-                          }
-                          @if (condition.recordedDate) {
-                            <span class="detail-item">
-                              <mat-icon>edit</mat-icon>
-                              Recorded: {{ condition.recordedDate | date:'short' }}
-                            </span>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-            <div class="right-section">
-              <!-- Conditions Merge Controls -->
-              <mat-card class="merge-controls-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>merge_type</mat-icon>
-                    Conditions Merge
-                    @if (linkedPatient) {
-                      <span class="selection-count">({{ selectedConditions.size }}/{{ patientData?.conditions?.length || 0 }} selected)</span>
-                    }
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  @if (!linkedPatient) {
-                    <div class="link-required-message">
-                      <mat-icon>info</mat-icon>
-                      <span>Please link to a patient first to enable merge controls</span>
-                    </div>
-                  }
-                  @if (linkedPatient) {
-                    <div class="merge-controls">
-                      @if (hasAvailableConditions()) {
-                        <p class="merge-hint">
-                          <mat-icon>info</mat-icon>
-                          Click on conditions in the left panel to select and unselect items
-                        </p>
-                      }
-                      <!-- All items already recorded message -->
-                      @if (!hasAvailableConditions() && existingConditions.length > 0) {
-                        <p class="all-recorded-message">
-                          <mat-icon>check_circle</mat-icon>
-                          All IPS conditions are already recorded
-                        </p>
-                      }
-                      <!-- Selected IPS Conditions (New - shown first) -->
-                      @if (getSelectedIPSConditions().length > 0) {
-                        <div class="conditions-section">
-                          <div class="section-header new-conditions-header">
-                            <mat-icon>new_label</mat-icon>
-                            <span>New from IPS ({{ getSelectedIPSConditions().length }})</span>
-                          </div>
-                          <div class="item-list">
-                            @for (condition of getSelectedIPSConditions(); track condition.id) {
-                              <div class="item-row new-item">
-                                <mat-icon class="status-icon">add_circle</mat-icon>
-                                <div class="item-content">
-                                  <div class="item-title">{{ ipsReaderService.getConditionDisplay(condition) }}</div>
-                                  <div class="item-details">
-                                    <span class="item-status">{{ condition.clinicalStatus?.coding?.[0]?.display || condition.clinicalStatus?.coding?.[0]?.code || 'Unknown status' }}</span>
-                                    @if (condition.onsetDateTime) {
-                                      <span class="item-date">{{ condition.onsetDateTime | date:'short' }}</span>
-                                    }
-                                  </div>
-                                </div>
-                                <button mat-icon-button (click)="addConditionFromIPS(condition.id)" class="remove-btn">
-                                  <mat-icon>close</mat-icon>
-                                </button>
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      }
-                      <!-- Existing Patient Conditions -->
-                      @if (existingConditions.length > 0) {
-                        <div class="conditions-section">
-                          <div class="section-header existing-conditions-header">
-                            <mat-icon>article</mat-icon>
-                            <span>Existing Conditions ({{ existingConditions.length }})</span>
-                          </div>
-                          <div class="item-list">
-                            @for (condition of existingConditions; track condition.id) {
-                              <div class="item-row existing-item">
-                                <mat-icon class="status-icon">check</mat-icon>
-                                <div class="item-content">
-                                  <div class="item-title">{{ ipsReaderService.getConditionDisplay(condition) }}</div>
-                                  <div class="item-details">
-                                    <span class="item-status">{{ ipsReaderService.getConditionStatus(condition) }}</span>
-                                    @if (condition.onsetDateTime) {
-                                      <span class="item-date">{{ condition.onsetDateTime | date:'short' }}</span>
-                                    }
-                                  </div>
-                                </div>
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      }
-                      <!-- Empty state -->
-                      @if (getSelectedIPSConditions().length === 0 && existingConditions.length === 0) {
-                        <div class="empty-state">
-                          <mat-icon>inbox</mat-icon>
-                          <p>No conditions yet. Click on conditions from the left to add them.</p>
-                        </div>
-                      }
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </div>
-        }
-        <!-- Procedures Row -->
-        @if (linkedPatient && hasProcedures()) {
-          <div class="data-row">
-            <div class="left-section">
-              <!-- Procedures Section -->
-              <mat-card class="data-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>local_hospital</mat-icon>
-                    Procedures ({{ patientData?.procedures?.length || 0 }})
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="data-list">
-                    @for (procedure of patientData?.procedures; track procedure.id) {
-                      <div class="data-item">
-                        <div class="item-header">
-                          <span class="item-title">{{ ipsReaderService.getProcedureDisplay(procedure) }}</span>
-                          <span class="item-status">{{ procedure.status | titlecase }}</span>
-                        </div>
-                        <div class="item-details">
-                          <span class="detail-item">
-                            <mat-icon>schedule</mat-icon>
-                            Performed: {{ ipsReaderService.getProcedureDate(procedure) }}
-                          </span>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-            <div class="right-section">
-              <!-- Procedures Merge Controls -->
-              <mat-card class="merge-controls-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>merge_type</mat-icon>
-                    Procedures Merge
-                    @if (linkedPatient) {
-                      <span class="selection-count">({{ selectedProcedures.size }}/{{ patientData?.procedures?.length || 0 }} selected)</span>
-                    }
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  @if (!linkedPatient) {
-                    <div class="link-required-message">
-                      <mat-icon>info</mat-icon>
-                      <span>Please link to a patient first to enable merge controls</span>
-                    </div>
-                  }
-                  @if (linkedPatient) {
-                    <div class="merge-controls">
-                      <!-- Category Actions -->
-                      <div class="category-actions">
-                        <button mat-button (click)="selectAllProcedures()" class="select-all-btn">
-                          <mat-icon>select_all</mat-icon>
-                          Select All
-                        </button>
-                        <button mat-button (click)="deselectAllProcedures()" class="deselect-all-btn">
-                          <mat-icon>deselect</mat-icon>
-                          Deselect All
-                        </button>
-                      </div>
-                      <!-- Procedures List -->
-                      @if (patientData && patientData.procedures && patientData.procedures.length > 0) {
-                        <div class="item-list">
-                          @for (procedure of patientData.procedures || []; track procedure.id) {
-                            <div class="item-row">
-                              <mat-checkbox
-                                [checked]="selectedProcedures.has(procedure.id)"
-                                (change)="toggleProcedureSelection(procedure.id)"
-                                class="item-checkbox">
-                              </mat-checkbox>
-                              <div class="item-content">
-                                <div class="item-title">{{ ipsReaderService.getProcedureDisplay(procedure) }}</div>
-                                <div class="item-details">
-                                  <span class="item-status">{{ procedure.status }}</span>
-                                  @if (procedure.performedDateTime) {
-                                    <span class="item-date">{{ procedure.performedDateTime | date:'short' }}</span>
-                                  }
-                                </div>
+
+              @if (!hasAvailableItems(section) && getExistingItems(section).length > 0) {
+                <div class="banner banner-muted">
+                  <mat-icon>verified</mat-icon>
+                  <span>All IPS {{ getSectionTitle(section).toLowerCase() }} already appear to exist in the clinical record.</span>
+                </div>
+              }
+
+              <div class="comparison-grid">
+                <mat-card class="comparison-card">
+                  <mat-card-header>
+                    <mat-card-title class="comparison-title comparison-title-ips">
+                      <span>From IPS</span>
+                      <img class="ips-title-logo" src="assets/img/ips-logo.png" alt="IPS logo">
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="comparison-list">
+                      @for (item of getSectionItems(section); track item.id) {
+                        <div
+                          class="comparison-item"
+                          [class.item-selected]="isItemSelected(section, item.id) && !isItemAlreadyRecorded(section, item)"
+                          [class.item-recorded]="isItemAlreadyRecorded(section, item)">
+                          <div class="comparison-item-main">
+                            <div class="comparison-item-copy">
+                              <div class="comparison-item-title">{{ getItemDisplay(section, item) }}</div>
+                              <div class="comparison-item-meta">
+                                <span class="meta-chip">{{ getItemCode(section, item) }}</span>
+                                <span class="meta-chip">{{ getItemStatus(section, item) }}</span>
+                                @if (getItemDate(section, item)) {
+                                  <span class="meta-chip">{{ getItemDateLabel(section) }}: {{ getItemDate(section, item) | date:'short' }}</span>
+                                }
                               </div>
                             </div>
-                          }
-                        </div>
-                      }
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </div>
-        }
-        <!-- Medications Row -->
-        @if (linkedPatient && hasMedications()) {
-          <div class="data-row">
-            <div class="left-section">
-              <!-- Medications Section -->
-              <mat-card class="data-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>medication</mat-icon>
-                    Medications ({{ patientData?.medications?.length || 0 }})
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="data-list">
-                    @for (medication of patientData?.medications; track medication.id) {
-                      <div
-                        class="data-item clickable-item"
-                        [class.selected-item]="isMedicationAdded(medication.id) && !isMedicationAlreadyRecorded(medication)"
-                        [class.disabled-item]="!linkedPatient"
-                        [class.already-recorded-item]="linkedPatient && isMedicationAlreadyRecorded(medication)"
-                        (click)="linkedPatient && !isMedicationAlreadyRecorded(medication) && addMedicationFromIPS(medication.id)">
-                        <div class="item-header">
-                          @if (linkedPatient && !isMedicationAlreadyRecorded(medication)) {
-                            <mat-icon class="add-icon">
-                              {{ isMedicationAdded(medication.id) ? 'check_circle' : 'add_circle_outline' }}
-                            </mat-icon>
-                          }
-                          @if (linkedPatient && isMedicationAlreadyRecorded(medication)) {
-                            <mat-icon class="add-icon recorded-icon">
-                              verified
-                            </mat-icon>
-                          }
-                          <span class="item-title">{{ ipsReaderService.getMedicationDisplay(medication) }}</span>
-                          @if (!isMedicationAlreadyRecorded(medication)) {
-                            <span class="item-status">{{ ipsReaderService.getMedicationStatus(medication) }}</span>
-                          }
-                          @if (linkedPatient && isMedicationAlreadyRecorded(medication)) {
-                            <span class="already-recorded-badge">Already Recorded</span>
-                          }
-                        </div>
-                        <div class="item-details">
-                          <span class="detail-item">
-                            <mat-icon>schedule</mat-icon>
-                            Effective: {{ ipsReaderService.getMedicationEffectivePeriod(medication) }}
-                          </span>
-                          @if (medication.dosage && medication.dosage.length > 0) {
-                            <span class="detail-item">
-                              <mat-icon>straighten</mat-icon>
-                              Dosage: {{ medication.dosage[0].text || 'As prescribed' }}
-                            </span>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-            <div class="right-section">
-              <!-- Medications Merge Controls -->
-              <mat-card class="merge-controls-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>merge_type</mat-icon>
-                    Medications Merge
-                    @if (linkedPatient) {
-                      <span class="selection-count">({{ selectedMedications.size }}/{{ patientData?.medications?.length || 0 }} selected)</span>
-                    }
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  @if (!linkedPatient) {
-                    <div class="link-required-message">
-                      <mat-icon>info</mat-icon>
-                      <span>Please link to a patient first to enable merge controls</span>
-                    </div>
-                  }
-                  @if (linkedPatient) {
-                    <div class="merge-controls">
-                      @if (hasAvailableMedications()) {
-                        <p class="merge-hint">
-                          <mat-icon>info</mat-icon>
-                          Click on medications in the left panel to select and unselect items
-                        </p>
-                      }
-                      <!-- All items already recorded message -->
-                      @if (!hasAvailableMedications() && existingMedications.length > 0) {
-                        <p class="all-recorded-message">
-                          <mat-icon>check_circle</mat-icon>
-                          All IPS medications are already recorded
-                        </p>
-                      }
-                      <!-- Selected IPS Medications (New - shown first) -->
-                      @if (getSelectedIPSMedications().length > 0) {
-                        <div class="conditions-section">
-                          <div class="section-header new-conditions-header">
-                            <mat-icon>new_label</mat-icon>
-                            <span>New from IPS ({{ getSelectedIPSMedications().length }})</span>
-                          </div>
-                          <div class="item-list">
-                            @for (medication of getSelectedIPSMedications(); track medication.id) {
-                              <div class="item-row new-item">
-                                <mat-icon class="status-icon">add_circle</mat-icon>
-                                <div class="item-content">
-                                  <div class="item-title">{{ ipsReaderService.getMedicationDisplay(medication) }}</div>
-                                  <div class="item-details">
-                                    <span class="item-status">{{ medication.status }}</span>
-                                    @if (medication.effectiveDateTime) {
-                                      <span class="item-date">{{ medication.effectiveDateTime | date:'short' }}</span>
-                                    }
-                                  </div>
-                                </div>
-                                <button mat-icon-button (click)="addMedicationFromIPS(medication.id)" class="remove-btn">
-                                  <mat-icon>close</mat-icon>
-                                </button>
-                              </div>
+
+                            @if (isItemAlreadyRecorded(section, item)) {
+                              <span class="status-pill status-pill-neutral">Already in record</span>
+                            }
+
+                            @if (!isItemAlreadyRecorded(section, item)) {
+                              <button mat-flat-button color="primary" (click)="toggleSectionSelection(section, item.id)">
+                                <mat-icon>{{ isItemSelected(section, item.id) ? 'remove_circle' : 'add_circle' }}</mat-icon>
+                                {{ isItemSelected(section, item.id) ? 'Remove' : 'Add' }}
+                              </button>
                             }
                           </div>
                         </div>
                       }
-                      <!-- Existing Patient Medications -->
-                      @if (existingMedications.length > 0) {
-                        <div class="conditions-section">
-                          <div class="section-header existing-conditions-header">
-                            <mat-icon>article</mat-icon>
-                            <span>Existing Medications ({{ existingMedications.length }})</span>
-                          </div>
-                          <div class="item-list">
-                            @for (medication of existingMedications; track medication.id) {
-                              <div class="item-row existing-item">
-                                <mat-icon class="status-icon">check</mat-icon>
-                                <div class="item-content">
-                                  <div class="item-title">{{ ipsReaderService.getMedicationDisplay(medication) }}</div>
-                                  <div class="item-details">
-                                    <span class="item-status">{{ ipsReaderService.getMedicationStatus(medication) }}</span>
-                                    @if (medication.effectiveDateTime) {
-                                      <span class="item-date">{{ medication.effectiveDateTime | date:'short' }}</span>
-                                    }
-                                  </div>
-                                </div>
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      }
-                      <!-- Empty state -->
-                      @if (getSelectedIPSMedications().length === 0 && existingMedications.length === 0) {
-                        <div class="empty-state">
-                          <mat-icon>inbox</mat-icon>
-                          <p>No medications yet. Click on medications from the left to add them.</p>
-                        </div>
-                      }
                     </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </div>
-        }
-        <!-- Allergies Row -->
-        @if (linkedPatient && hasAllergies()) {
-          <div class="data-row">
-            <div class="left-section">
-              <!-- Allergies Section -->
-              <mat-card class="data-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>warning</mat-icon>
-                    Allergies ({{ patientData?.allergies?.length || 0 }})
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="data-list">
-                    @for (allergy of patientData?.allergies; track allergy.id) {
-                      <div
-                        class="data-item clickable-item"
-                        [class.selected-item]="isAllergyAdded(allergy.id) && !isAllergyAlreadyRecorded(allergy)"
-                        [class.disabled-item]="!linkedPatient"
-                        [class.already-recorded-item]="linkedPatient && isAllergyAlreadyRecorded(allergy)"
-                        (click)="linkedPatient && !isAllergyAlreadyRecorded(allergy) && addAllergyFromIPS(allergy.id)">
-                        <div class="item-header">
-                          @if (linkedPatient && !isAllergyAlreadyRecorded(allergy)) {
-                            <mat-icon class="add-icon">
-                              {{ isAllergyAdded(allergy.id) ? 'check_circle' : 'add_circle_outline' }}
-                            </mat-icon>
-                          }
-                          @if (linkedPatient && isAllergyAlreadyRecorded(allergy)) {
-                            <mat-icon class="add-icon recorded-icon">
-                              verified
-                            </mat-icon>
-                          }
-                          <span class="item-title">{{ ipsReaderService.getAllergyDisplay(allergy) }}</span>
-                          @if (!isAllergyAlreadyRecorded(allergy)) {
-                            <span class="item-status severity-{{ allergy.criticality || 'unknown' }}">
-                              {{ ipsReaderService.getAllergySeverity(allergy) }}
-                            </span>
-                          }
-                          @if (linkedPatient && isAllergyAlreadyRecorded(allergy)) {
-                            <span class="already-recorded-badge">Already Recorded</span>
-                          }
-                        </div>
-                        <div class="item-details">
-                          @if (allergy.onsetDateTime) {
-                            <span class="detail-item">
-                              <mat-icon>schedule</mat-icon>
-                              Onset: {{ allergy.onsetDateTime | date:'short' }}
-                            </span>
-                          }
-                          @if (allergy.recordedDate) {
-                            <span class="detail-item">
-                              <mat-icon>edit</mat-icon>
-                              Recorded: {{ allergy.recordedDate | date:'short' }}
-                            </span>
-                          }
-                          @if (ipsReaderService.getAllergyReactions(allergy).length > 0) {
-                            <div class="reactions">
-                              <strong>Reactions:</strong>
-                              @for (reaction of ipsReaderService.getAllergyReactions(allergy); track reaction) {
-                                <span class="reaction-tag">
-                                  {{ reaction }}
-                                </span>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="comparison-card">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <mat-icon>description</mat-icon>
+                      Existing Clinical Record
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    @if (getExistingItems(section).length > 0) {
+                      <div class="comparison-list">
+                        @for (item of getExistingItems(section); track item.id) {
+                          <div class="comparison-item comparison-item-existing">
+                            <div class="comparison-item-title">{{ getItemDisplay(section, item) }}</div>
+                            <div class="comparison-item-meta">
+                              <span class="meta-chip">{{ getItemCode(section, item) }}</span>
+                              <span class="meta-chip">{{ getItemStatus(section, item) }}</span>
+                              @if (getItemDate(section, item)) {
+                                <span class="meta-chip">{{ getItemDateLabel(section) }}: {{ getItemDate(section, item) | date:'short' }}</span>
                               }
                             </div>
-                          }
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (getExistingItems(section).length === 0) {
+                      <div class="empty-panel">
+                        <mat-icon>inbox</mat-icon>
+                        <p>No {{ getSectionTitle(section).toLowerCase() }} currently exist in the linked clinical record.</p>
+                      </div>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          }
+
+          @if (isCurrentStep('summary')) {
+            <div class="summary-shell">
+              <div class="summary-patient-grid">
+                <mat-card class="step-card">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <mat-icon>badge</mat-icon>
+                      IPS Patient
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="patient-summary-grid">
+                      <div class="patient-summary-item">
+                        <span class="patient-summary-label">Name</span>
+                        <strong>{{ getPatientName() }}</strong>
+                      </div>
+                      <div class="patient-summary-item">
+                        <span class="patient-summary-label">Date of birth</span>
+                        <strong>{{ patientData?.patient?.birthDate | date:'mediumDate' }}</strong>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="step-card">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <mat-icon>person_outline</mat-icon>
+                      Target Clinical Record
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    @if (linkedPatient) {
+                      <div class="patient-summary-grid">
+                        <div class="patient-summary-item">
+                          <span class="patient-summary-label">Name</span>
+                          <strong>{{ getPatientDisplayName(linkedPatient) }}</strong>
+                        </div>
+                        <div class="patient-summary-item">
+                          <span class="patient-summary-label">Date of birth</span>
+                          <strong>{{ linkedPatient.birthDate | date:'mediumDate' }}</strong>
                         </div>
                       </div>
                     }
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-            <div class="right-section">
-              <!-- Allergies Merge Controls -->
-              <mat-card class="merge-controls-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>merge_type</mat-icon>
-                    Allergies Merge
-                    @if (linkedPatient) {
-                      <span class="selection-count">({{ selectedAllergies.size }}/{{ patientData?.allergies?.length || 0 }} selected)</span>
-                    }
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  @if (!linkedPatient) {
-                    <div class="link-required-message">
-                      <mat-icon>info</mat-icon>
-                      <span>Please link to a patient first to enable merge controls</span>
-                    </div>
-                  }
-                  @if (linkedPatient) {
-                    <div class="merge-controls">
-                      @if (hasAvailableAllergies()) {
-                        <p class="merge-hint">
-                          <mat-icon>info</mat-icon>
-                          Click on allergies in the left panel to select and unselect items
-                        </p>
-                      }
-                      <!-- All items already recorded message -->
-                      @if (!hasAvailableAllergies() && existingAllergies.length > 0) {
-                        <p class="all-recorded-message">
-                          <mat-icon>check_circle</mat-icon>
-                          All IPS allergies are already recorded
-                        </p>
-                      }
-                      <!-- Selected IPS Allergies (New - shown first) -->
-                      @if (getSelectedIPSAllergies().length > 0) {
-                        <div class="conditions-section">
-                          <div class="section-header new-conditions-header">
-                            <mat-icon>new_label</mat-icon>
-                            <span>New from IPS ({{ getSelectedIPSAllergies().length }})</span>
-                          </div>
-                          <div class="item-list">
-                            @for (allergy of getSelectedIPSAllergies(); track allergy.id) {
-                              <div class="item-row new-item">
-                                <mat-icon class="status-icon">add_circle</mat-icon>
-                                <div class="item-content">
-                                  <div class="item-title">{{ ipsReaderService.getAllergyDisplay(allergy) }}</div>
-                                  <div class="item-details">
-                                    <span class="item-status severity-{{ allergy.criticality || 'unknown' }}">
-                                      {{ ipsReaderService.getAllergySeverity(allergy) }}
-                                    </span>
-                                    @if (allergy.recordedDate) {
-                                      <span class="item-date">{{ allergy.recordedDate | date:'short' }}</span>
-                                    }
-                                  </div>
-                                </div>
-                                <button mat-icon-button (click)="addAllergyFromIPS(allergy.id)" class="remove-btn">
-                                  <mat-icon>close</mat-icon>
-                                </button>
-                              </div>
-                            }
-                          </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+
+              <div class="summary-header">
+                <h3>Import summary</h3>
+                <p>{{ getSummarySubtitle() }}</p>
+              </div>
+
+              <div class="summary-sections">
+                @for (section of getMergeSections(); track section) {
+                  <mat-card class="summary-section-card">
+                    <mat-card-header>
+                      <mat-card-title>{{ getSectionTitle(section) }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="summary-counts">
+                        <span>{{ getSelectedCount(section) }} selected</span>
+                        <span>{{ getSkippedCount(section) }} skipped</span>
+                      </div>
+
+                      @if (getSelectedItems(section).length > 0) {
+                        <div class="summary-item-list">
+                          @for (item of getSelectedItems(section); track item.id) {
+                            <div class="summary-item">
+                              <span>{{ getItemDisplay(section, item) }}</span>
+                              <span class="summary-item-code">{{ getItemCode(section, item) }}</span>
+                            </div>
+                          }
                         </div>
                       }
-                      <!-- Existing Patient Allergies -->
-                      @if (existingAllergies.length > 0) {
-                        <div class="conditions-section">
-                          <div class="section-header existing-conditions-header">
-                            <mat-icon>article</mat-icon>
-                            <span>Existing Allergies ({{ existingAllergies.length }})</span>
-                          </div>
-                          <div class="item-list">
-                            @for (allergy of existingAllergies; track allergy.id) {
-                              <div class="item-row existing-item">
-                                <mat-icon class="status-icon">check</mat-icon>
-                                <div class="item-content">
-                                  <div class="item-title">{{ ipsReaderService.getAllergyDisplay(allergy) }}</div>
-                                  <div class="item-details">
-                                    <span class="item-status severity-{{ allergy.criticality || 'unknown' }}">
-                                      {{ ipsReaderService.getAllergySeverity(allergy) }}
-                                    </span>
-                                    @if (allergy.recordedDate) {
-                                      <span class="item-date">{{ allergy.recordedDate | date:'short' }}</span>
-                                    }
-                                  </div>
-                                </div>
-                              </div>
-                            }
-                          </div>
-                        </div>
+
+                      @if (getSelectedItems(section).length === 0) {
+                        <div class="empty-inline">No {{ getSectionTitle(section).toLowerCase() }} selected for import.</div>
                       }
-                      <!-- Empty state -->
-                      @if (getSelectedIPSAllergies().length === 0 && existingAllergies.length === 0) {
-                        <div class="empty-state">
-                          <mat-icon>inbox</mat-icon>
-                          <p>No allergies yet. Click on allergies from the left to add them.</p>
-                        </div>
-                      }
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
             </div>
-          </div>
-        }
-      </div>
-    }
+          }
 
-    <!-- Single Save Button Section -->
-    @if (!isLoading && !error && hasPatientData() && linkedPatient) {
-      <div class="save-section">
-        <div class="save-container">
-          <div class="save-summary">
-            <h3>Ready to Import</h3>
-            <div class="save-stats">
-              @if (selectedConditions.size > 0) {
-                <div class="save-stat">
-                  <mat-icon>medical_services</mat-icon>
-                  <span>{{ selectedConditions.size }} Conditions</span>
-                </div>
-              }
-              @if (selectedProcedures.size > 0) {
-                <div class="save-stat">
-                  <mat-icon>local_hospital</mat-icon>
-                  <span>{{ selectedProcedures.size }} Procedures</span>
-                </div>
-              }
-              @if (selectedMedications.size > 0) {
-                <div class="save-stat">
-                  <mat-icon>medication</mat-icon>
-                  <span>{{ selectedMedications.size }} Medications</span>
-                </div>
-              }
-              @if (selectedAllergies.size > 0) {
-                <div class="save-stat">
-                  <mat-icon>warning</mat-icon>
-                  <span>{{ selectedAllergies.size }} Allergies</span>
-                </div>
-              }
-            </div>
-          </div>
-          <div class="save-actions">
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="importAllSelectedItems()"
-              [disabled]="!hasSelectedItems() || isImporting"
-              class="save-button">
-              <mat-icon>save</mat-icon>
-              Save All Selected Items ({{ getTotalSelectedCount() }})
+          <div class="wizard-actions">
+            <button mat-button (click)="goToPreviousStep()" [disabled]="!canGoToPreviousStep() || isImporting">
+              <mat-icon>west</mat-icon>
+              Back
             </button>
-          </div>
-        </div>
-      </div>
-    }
 
-    <!-- Welcome/Empty State -->
-    @if (!isLoading && !error && !hasPatientData()) {
-      <div class="welcome-container">
-        <div class="welcome-content">
-          <div class="welcome-icon">
-            <mat-icon>integration_instructions</mat-icon>
-          </div>
-          <h2>IPS Interoperability Use Case</h2>
-          <p class="welcome-description">
-            This workflow shows how a clinician receives an IPS, reviews existing and incoming data,
-            reconciles what to keep, and sends selected items into the EHR.
-          </p>
+            @if (!isCurrentStep('summary')) {
+              <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="!canGoToNextStep() || isImporting">
+                Next
+                <mat-icon>east</mat-icon>
+              </button>
+            }
 
-          <div class="welcome-actions">
-            <button mat-raised-button color="primary" (click)="loadExampleIPSBundle()" [disabled]="isImporting" class="primary-action">
-              <mat-icon>play_arrow</mat-icon>
-              Try Example IPS Bundle
-            </button>
-            <button mat-raised-button color="accent" (click)="startShlQrScan()" [disabled]="isImporting || isShlResolving" class="primary-action">
-              <mat-icon>qr_code_scanner</mat-icon>
-              Scan SHL QR (webcam)
-            </button>
-            <button mat-stroked-button color="accent" (click)="triggerFileUpload()" [disabled]="isImporting" class="secondary-action">
-              <mat-icon>upload_file</mat-icon>
-              Upload Your Own IPS File
-            </button>
+            @if (isCurrentStep('summary')) {
+              <button mat-flat-button color="primary" (click)="importAllSelectedItems()" [disabled]="!hasSelectedItems() || isImporting">
+                <mat-icon>save</mat-icon>
+                Import Selected Items ({{ getTotalSelectedCount() }})
+              </button>
+            }
           </div>
-
-          <div class="workflow-diagram">
-            <div class="workflow-row">
-              <div class="workflow-step system-step">
-                <div class="step-number">1</div>
-                <mat-icon>forward_to_inbox</mat-icon>
-                <h3>Receive IPS</h3>
-                <p>Clinician gets a share link or file.</p>
-              </div>
-              <div class="workflow-arrow" aria-hidden="true">
-                <mat-icon>east</mat-icon>
-              </div>
-              <div class="workflow-step system-step">
-                <div class="step-number">2</div>
-                <mat-icon>description</mat-icon>
-                <h3>Retrieve and Parse</h3>
-                <p>System loads and reads IPS sections.</p>
-              </div>
-              <div class="workflow-arrow" aria-hidden="true">
-                <mat-icon>east</mat-icon>
-              </div>
-              <div class="workflow-step decision-step">
-                <div class="step-number">3</div>
-                <mat-icon>person_search</mat-icon>
-                <h3>Match or Create Patient</h3>
-                <p>Assign IPS to existing patient or create new.</p>
-              </div>
-            </div>
-            <div class="workflow-elbow" aria-hidden="true">
-              <div class="elbow-vert-right"></div>
-              <div class="elbow-horiz"></div>
-              <div class="elbow-vert-left"></div>
-            </div>
-            <div class="workflow-row">
-              <div class="workflow-step system-step">
-                <div class="step-number">4</div>
-                <mat-icon>splitscreen</mat-icon>
-                <h3>Show EHR and IPS Data</h3>
-                <p>Conditions, allergies, procedures, medications.</p>
-              </div>
-              <div class="workflow-arrow" aria-hidden="true">
-                <mat-icon>east</mat-icon>
-              </div>
-              <div class="workflow-step decision-step">
-                <div class="step-number">5</div>
-                <mat-icon>rule</mat-icon>
-                <h3>Clinical Reconciliation</h3>
-                <p>Clinician accepts or rejects each incoming item.</p>
-              </div>
-              <div class="workflow-arrow" aria-hidden="true">
-                <mat-icon>east</mat-icon>
-              </div>
-              <div class="workflow-step outcome-step">
-                <div class="step-number">6</div>
-                <mat-icon>publish</mat-icon>
-                <h3>Integrate and Open Record</h3>
-                <p>System imports selected data and opens clinical record.</p>
-              </div>
-            </div>
-          </div>
-          <div class="welcome-info">
-            <mat-icon>info</mat-icon>
-            <span>Tip: Start with the example IPS to walk through the full reconciliation flow end to end.</span>
-          </div>
-        </div>
+        </section>
       </div>
     }
   </div>
@@ -1025,346 +490,8 @@
     <div class="import-overlay">
       <div class="import-overlay-content">
         <mat-spinner diameter="56"></mat-spinner>
-        <h3>Integrating Selected Data</h3>
-        <p>Saving selected IPS items into the patient record and opening clinical record...</p>
-      </div>
-    </div>
-  }
-
-  <!-- Data Verification Dialog -->
-  @if (showDataVerification) {
-    <div class="verification-overlay">
-      <div class="verification-dialog">
-        <div class="verification-header">
-          <h2>
-            <mat-icon>verified_user</mat-icon>
-            Data Import Verification
-          </h2>
-          <button mat-icon-button (click)="cancelImport()" class="close-button">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-        <div class="verification-content">
-          <div class="patient-info-section">
-            <h3>Importing to: {{ getPatientDisplayName(linkedPatient) }}</h3>
-            <p>Review the data comparison below before proceeding with the import.</p>
-          </div>
-          <!-- Data Summary -->
-          <div class="data-summary">
-            <div class="summary-card">
-              <h4>IPS Data Available</h4>
-              <div class="summary-stats">
-                <div class="stat-item">
-                  <mat-icon>medical_services</mat-icon>
-                  <span>{{ importSummary?.ipsData?.conditions || 0 }} Conditions</span>
-                </div>
-                <div class="stat-item">
-                  <mat-icon>local_hospital</mat-icon>
-                  <span>{{ importSummary?.ipsData?.procedures || 0 }} Procedures</span>
-                </div>
-                <div class="stat-item">
-                  <mat-icon>medication</mat-icon>
-                  <span>{{ importSummary?.ipsData?.medications || 0 }} Medications</span>
-                </div>
-                <div class="stat-item">
-                  <mat-icon>warning</mat-icon>
-                  <span>{{ importSummary?.ipsData?.allergies || 0 }} Allergies</span>
-                </div>
-              </div>
-            </div>
-            <div class="summary-card">
-              <h4>Existing Patient Data</h4>
-              <div class="summary-stats">
-                <div class="stat-item">
-                  <mat-icon>medical_services</mat-icon>
-                  <span>{{ importSummary?.existingData?.conditions || 0 }} Conditions</span>
-                </div>
-                <div class="stat-item">
-                  <mat-icon>local_hospital</mat-icon>
-                  <span>{{ importSummary?.existingData?.procedures || 0 }} Procedures</span>
-                </div>
-                <div class="stat-item">
-                  <mat-icon>medication</mat-icon>
-                  <span>{{ importSummary?.existingData?.medications || 0 }} Medications</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Individual Item Selection -->
-          <div class="item-selection">
-            <h4>
-              <mat-icon>checklist</mat-icon>
-              Select Items to Import
-            </h4>
-            <p>Choose which items you want to import to the patient record.</p>
-            <!-- Conditions -->
-            @if (patientData && patientData.conditions && patientData.conditions.length > 0) {
-              <div class="category-section">
-                <div class="category-header">
-                  <h5>
-                    <mat-icon>medical_services</mat-icon>
-                    Conditions ({{ selectedConditions.size }}/{{ patientData.conditions.length }} selected)
-                  </h5>
-                  <div class="category-actions">
-                    <button mat-button (click)="selectAllConditions()" class="select-all-btn">
-                      <mat-icon>select_all</mat-icon>
-                      Select All
-                    </button>
-                    <button mat-button (click)="deselectAllConditions()" class="deselect-all-btn">
-                      <mat-icon>deselect</mat-icon>
-                      Deselect All
-                    </button>
-                  </div>
-                </div>
-                <div class="item-list">
-                  @for (condition of patientData.conditions || []; track condition.id) {
-                    <div class="item-row">
-                      <mat-checkbox
-                        [checked]="selectedConditions.has(condition.id)"
-                        (change)="toggleConditionSelection(condition.id)"
-                        class="item-checkbox">
-                      </mat-checkbox>
-                      <div class="item-content">
-                        <div class="item-title">{{ ipsReaderService.getConditionDisplay(condition) }}</div>
-                        <div class="item-details">
-                          <span class="item-status">{{ condition.clinicalStatus?.coding?.[0]?.display || condition.clinicalStatus?.coding?.[0]?.code || 'Unknown status' }}</span>
-                          @if (condition.onsetDateTime) {
-                            <span class="item-date">{{ condition.onsetDateTime | date:'short' }}</span>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-            <!-- Procedures -->
-            @if (patientData && patientData.procedures && patientData.procedures.length > 0) {
-              <div class="category-section">
-                <div class="category-header">
-                  <h5>
-                    <mat-icon>local_hospital</mat-icon>
-                    Procedures ({{ selectedProcedures.size }}/{{ patientData.procedures.length }} selected)
-                  </h5>
-                  <div class="category-actions">
-                    <button mat-button (click)="selectAllProcedures()" class="select-all-btn">
-                      <mat-icon>select_all</mat-icon>
-                      Select All
-                    </button>
-                    <button mat-button (click)="deselectAllProcedures()" class="deselect-all-btn">
-                      <mat-icon>deselect</mat-icon>
-                      Deselect All
-                    </button>
-                  </div>
-                </div>
-                <div class="item-list">
-                  @for (procedure of patientData.procedures || []; track procedure.id) {
-                    <div class="item-row">
-                      <mat-checkbox
-                        [checked]="selectedProcedures.has(procedure.id)"
-                        (change)="toggleProcedureSelection(procedure.id)"
-                        class="item-checkbox">
-                      </mat-checkbox>
-                      <div class="item-content">
-                        <div class="item-title">{{ ipsReaderService.getProcedureDisplay(procedure) }}</div>
-                        <div class="item-details">
-                          <span class="item-status">{{ procedure.status }}</span>
-                          @if (procedure.performedDateTime) {
-                            <span class="item-date">{{ procedure.performedDateTime | date:'short' }}</span>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-            <!-- Medications -->
-            @if (patientData && patientData.medications && patientData.medications.length > 0) {
-              <div class="category-section">
-                <div class="category-header">
-                  <h5>
-                    <mat-icon>medication</mat-icon>
-                    Medications ({{ selectedMedications.size }}/{{ patientData.medications.length }} selected)
-                  </h5>
-                  <div class="category-actions">
-                    <button mat-button (click)="selectAllMedications()" class="select-all-btn">
-                      <mat-icon>select_all</mat-icon>
-                      Select All
-                    </button>
-                    <button mat-button (click)="deselectAllMedications()" class="deselect-all-btn">
-                      <mat-icon>deselect</mat-icon>
-                      Deselect All
-                    </button>
-                  </div>
-                </div>
-                <div class="item-list">
-                  @for (medication of patientData.medications || []; track medication.id) {
-                    <div class="item-row">
-                      <mat-checkbox
-                        [checked]="selectedMedications.has(medication.id)"
-                        (change)="toggleMedicationSelection(medication.id)"
-                        class="item-checkbox">
-                      </mat-checkbox>
-                      <div class="item-content">
-                        <div class="item-title">{{ ipsReaderService.getMedicationDisplay(medication) }}</div>
-                        <div class="item-details">
-                          <span class="item-status">{{ medication.status }}</span>
-                          @if (medication.effectiveDateTime) {
-                            <span class="item-date">{{ medication.effectiveDateTime | date:'short' }}</span>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-            <!-- Allergies -->
-            @if (patientData && patientData.allergies && patientData.allergies.length > 0) {
-              <div class="category-section">
-                <div class="category-header">
-                  <h5>
-                    <mat-icon>warning</mat-icon>
-                    Allergies ({{ selectedAllergies.size }}/{{ patientData.allergies.length }} selected)
-                  </h5>
-                  <div class="category-actions">
-                    <button mat-button (click)="selectAllAllergies()" class="select-all-btn">
-                      <mat-icon>select_all</mat-icon>
-                      Select All
-                    </button>
-                    <button mat-button (click)="deselectAllAllergies()" class="deselect-all-btn">
-                      <mat-icon>deselect</mat-icon>
-                      Deselect All
-                    </button>
-                  </div>
-                </div>
-                <div class="item-list">
-                  @for (allergy of patientData.allergies || []; track allergy.id) {
-                    <div class="item-row">
-                      <mat-checkbox
-                        [checked]="selectedAllergies.has(allergy.id)"
-                        (change)="toggleAllergySelection(allergy.id)"
-                        class="item-checkbox">
-                      </mat-checkbox>
-                      <div class="item-content">
-                        <div class="item-title">{{ ipsReaderService.getAllergyDisplay(allergy) }}</div>
-                        <div class="item-details">
-                          <span class="item-status">{{ allergy.clinicalStatus?.coding?.[0]?.display || allergy.clinicalStatus?.coding?.[0]?.code || 'Unknown status' }}</span>
-                          @if (allergy.recordedDate) {
-                            <span class="item-date">{{ allergy.recordedDate | date:'short' }}</span>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-          <!-- Potential Duplicates -->
-          @if (importSummary?.potentialDuplicates) {
-            <div class="duplicates-section">
-              <h4>
-                <mat-icon>warning</mat-icon>
-                Potential Duplicates Found
-              </h4>
-              <!-- Duplicate Conditions -->
-              @if (importSummary.potentialDuplicates.conditions.length > 0) {
-                <div class="duplicate-category">
-                  <h5>Conditions ({{ importSummary.potentialDuplicates.conditions.length }})</h5>
-                  <div class="duplicate-list">
-                    @for (duplicate of importSummary.potentialDuplicates.conditions; track duplicate.id) {
-                      <div class="duplicate-item">
-                        <div class="duplicate-comparison">
-                          <div class="ips-item">
-                            <strong>IPS:</strong> {{ ipsReaderService.getConditionDisplay(duplicate.ips) }}
-                          </div>
-                          <div class="existing-item">
-                            <strong>Existing:</strong> {{ ipsReaderService.getConditionDisplay(duplicate.existing) }}
-                          </div>
-                          <div class="similarity">
-                            <mat-icon>compare_arrows</mat-icon>
-                            {{ (duplicate.similarity * 100).toFixed(0) }}% similar
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
-              <!-- Duplicate Procedures -->
-              @if (importSummary.potentialDuplicates.procedures.length > 0) {
-                <div class="duplicate-category">
-                  <h5>Procedures ({{ importSummary.potentialDuplicates.procedures.length }})</h5>
-                  <div class="duplicate-list">
-                    @for (duplicate of importSummary.potentialDuplicates.procedures; track duplicate.id) {
-                      <div class="duplicate-item">
-                        <div class="duplicate-comparison">
-                          <div class="ips-item">
-                            <strong>IPS:</strong> {{ ipsReaderService.getProcedureDisplay(duplicate.ips) }}
-                          </div>
-                          <div class="existing-item">
-                            <strong>Existing:</strong> {{ ipsReaderService.getProcedureDisplay(duplicate.existing) }}
-                          </div>
-                          <div class="similarity">
-                            <mat-icon>compare_arrows</mat-icon>
-                            {{ (duplicate.similarity * 100).toFixed(0) }}% similar
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
-              <!-- Duplicate Medications -->
-              @if (importSummary.potentialDuplicates.medications.length > 0) {
-                <div class="duplicate-category">
-                  <h5>Medications ({{ importSummary.potentialDuplicates.medications.length }})</h5>
-                  <div class="duplicate-list">
-                    @for (duplicate of importSummary.potentialDuplicates.medications; track duplicate.id) {
-                      <div class="duplicate-item">
-                        <div class="duplicate-comparison">
-                          <div class="ips-item">
-                            <strong>IPS:</strong> {{ ipsReaderService.getMedicationDisplay(duplicate.ips) }}
-                          </div>
-                          <div class="existing-item">
-                            <strong>Existing:</strong> {{ ipsReaderService.getMedicationDisplay(duplicate.existing) }}
-                          </div>
-                          <div class="similarity">
-                            <mat-icon>compare_arrows</mat-icon>
-                            {{ (duplicate.similarity * 100).toFixed(0) }}% similar
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          }
-          <!-- No Duplicates Message -->
-          @if (!importSummary?.potentialDuplicates ||
-            (importSummary.potentialDuplicates.conditions.length === 0 &&
-            importSummary.potentialDuplicates.procedures.length === 0 &&
-            importSummary.potentialDuplicates.medications.length === 0)) {
-            <div
-              class="no-duplicates">
-              <mat-icon class="success-icon">check_circle</mat-icon>
-              <span>No potential duplicates found. Safe to proceed with import.</span>
-            </div>
-          }
-        </div>
-        <div class="verification-actions">
-          <button mat-flat-button (click)="cancelImport()">
-            <mat-icon>cancel</mat-icon>
-            Cancel
-          </button>
-          <button mat-flat-button color="primary" (click)="proceedWithImport()" [disabled]="!hasSelectedItems()">
-            <mat-icon>file_download</mat-icon>
-            Import Selected Items ({{ selectedConditions.size + selectedProcedures.size + selectedMedications.size + selectedAllergies.size }})
-          </button>
-        </div>
+        <h3>Importing selected IPS items</h3>
+        <p>Saving the selected concepts into the clinical record and opening the patient chart.</p>
       </div>
     </div>
   }

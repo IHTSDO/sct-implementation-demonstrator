@@ -6,6 +6,15 @@ import { ProcessedPatientData } from './ips-interfaces';
 import { PatientService, Patient, PatientSimilarityResult } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 
+type MergeSectionId = 'conditions' | 'procedures' | 'medications' | 'allergies';
+type WizardStepId = 'patient' | MergeSectionId | 'summary';
+
+interface WizardStep {
+  id: WizardStepId;
+  title: string;
+  description: string;
+}
+
 @Component({
   selector: 'app-interoperability',
   templateUrl: './interoperability.component.html',
@@ -39,8 +48,12 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   
   // Current patient data
   existingConditions: any[] = [];
+  existingProcedures: any[] = [];
   existingMedications: any[] = [];
   existingAllergies: any[] = [];
+
+  wizardSteps: WizardStep[] = [];
+  currentStepIndex = 0;
 
   // File upload
   @ViewChild('fileInput') fileInput!: ElementRef;
@@ -128,6 +141,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.patientData = data;
         this.isLoading = false;
+        this.resetWizard();
         this.calculateAndSortPatientsByScore();
         this.findSuggestedPatient();
       },
@@ -200,14 +214,22 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
    */
   onPatientSelectionChange(event: any): void {
     this.selectedPatientId = event.value;
-    // Clear linked patient when selection changes
-    this.linkedPatient = null;
+    if (!this.selectedPatientId) {
+      this.linkedPatient = null;
+      this.loadExistingPatientData();
+      this.clearSelections();
+      return;
+    }
+
+    this.linkPatient();
   }
 
   /**
    * Find suggested patient based on similarity score from PatientService
    */
   findSuggestedPatient(): void {
+    this.suggestedPatient = null;
+
     if (!this.patientData?.patient || this.sortedPatientsWithScores.length === 0) {
       return;
     }
@@ -237,6 +259,120 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return !!this.patientData && !this.suggestedPatient;
   }
 
+  private resetWizard(): void {
+    this.currentStepIndex = 0;
+    this.linkedPatient = null;
+    this.selectedPatientId = '';
+    this.suggestedPatient = null;
+    this.loadExistingPatientData();
+    this.clearSelections();
+    this.rebuildWizardSteps();
+  }
+
+  private rebuildWizardSteps(): void {
+    const steps: WizardStep[] = [
+      {
+        id: 'patient',
+        title: 'Identify Patient',
+        description: 'Match the IPS patient to an existing record or create a new one.'
+      }
+    ];
+
+    if (this.hasConditions()) {
+      steps.push({
+        id: 'conditions',
+        title: 'Merge Conditions',
+        description: 'Review IPS conditions against the current clinical record.'
+      });
+    }
+
+    if (this.hasProcedures()) {
+      steps.push({
+        id: 'procedures',
+        title: 'Merge Procedures',
+        description: 'Review IPS procedures against the current clinical record.'
+      });
+    }
+
+    if (this.hasMedications()) {
+      steps.push({
+        id: 'medications',
+        title: 'Merge Medications',
+        description: 'Review IPS medications against the current clinical record.'
+      });
+    }
+
+    if (this.hasAllergies()) {
+      steps.push({
+        id: 'allergies',
+        title: 'Merge Allergies',
+        description: 'Review IPS allergies against the current clinical record.'
+      });
+    }
+
+    steps.push({
+      id: 'summary',
+      title: 'Summary',
+      description: 'Confirm the selected IPS items before importing them.'
+    });
+
+    this.wizardSteps = steps;
+    if (this.currentStepIndex > this.wizardSteps.length - 1) {
+      this.currentStepIndex = this.wizardSteps.length - 1;
+    }
+  }
+
+  getCurrentStep(): WizardStep | null {
+    return this.wizardSteps[this.currentStepIndex] || null;
+  }
+
+  isCurrentStep(stepId: WizardStepId): boolean {
+    return this.getCurrentStep()?.id === stepId;
+  }
+
+  getStepNumber(stepId: WizardStepId): number {
+    return this.wizardSteps.findIndex(step => step.id === stepId) + 1;
+  }
+
+  canGoToPreviousStep(): boolean {
+    return this.currentStepIndex > 0;
+  }
+
+  canGoToNextStep(): boolean {
+    const currentStep = this.getCurrentStep();
+    if (!currentStep) {
+      return false;
+    }
+
+    if (currentStep.id === 'patient') {
+      return !!this.linkedPatient;
+    }
+
+    return currentStep.id !== 'summary' && this.currentStepIndex < this.wizardSteps.length - 1;
+  }
+
+  goToPreviousStep(): void {
+    if (this.canGoToPreviousStep()) {
+      this.currentStepIndex -= 1;
+    }
+  }
+
+  canNavigateToStep(index: number): boolean {
+    return index <= this.currentStepIndex;
+  }
+
+  goToStep(index: number): void {
+    if (this.canNavigateToStep(index)) {
+      this.currentStepIndex = index;
+    }
+  }
+
+  goToNextStep(): void {
+    if (this.canGoToNextStep()) {
+      this.currentStepIndex += 1;
+    }
+  }
+
   /**
    * Accept the suggested patient
    */
@@ -245,6 +381,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       this.selectedPatientId = this.suggestedPatient.id;
       this.linkedPatient = this.suggestedPatient;
       this.suggestedPatient = null;
+
+      this.loadExistingPatientData();
       
       // Initialize selections (select all by default)
       this.initializeSelections();
@@ -344,12 +482,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   private loadExistingPatientData(): void {
     if (!this.linkedPatient) {
       this.existingConditions = [];
+      this.existingProcedures = [];
       this.existingMedications = [];
       this.existingAllergies = [];
       return;
     }
     
     this.existingConditions = this.patientService.getPatientConditions(this.linkedPatient.id);
+    this.existingProcedures = this.patientService.getPatientProcedures(this.linkedPatient.id);
     this.existingMedications = this.patientService.getPatientMedications(this.linkedPatient.id);
     this.existingAllergies = this.patientService.getPatientAllergies(this.linkedPatient.id);
   }
@@ -469,6 +609,71 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     
     return this.patientData.conditions.some(condition => 
       !this.isConditionAlreadyRecorded(condition)
+    );
+  }
+
+  // ========================================
+  // Procedures Methods
+  // ========================================
+
+  isProcedureAlreadyRecorded(procedure: any): boolean {
+    if (!this.linkedPatient || this.existingProcedures.length === 0) {
+      return false;
+    }
+
+    const snomedCode = this.patientService.extractSnomedCode(procedure);
+    if (!snomedCode) {
+      const procedureText = procedure.code?.text || '';
+      return this.existingProcedures.some(existing => {
+        const existingText = existing.code?.text || '';
+        return this.simpleTextSimilarity(procedureText, existingText) > 0.9;
+      });
+    }
+
+    return this.existingProcedures.some(existing => {
+      const existingCode = this.patientService.extractSnomedCode(existing);
+      return existingCode === snomedCode;
+    });
+  }
+
+  addProcedureFromIPS(procedureId: string): void {
+    if (!this.linkedPatient) {
+      return;
+    }
+
+    const procedure = this.patientData?.procedures.find(p => p.id === procedureId);
+    if (procedure && this.isProcedureAlreadyRecorded(procedure)) {
+      return;
+    }
+
+    if (this.selectedProcedures.has(procedureId)) {
+      this.selectedProcedures.delete(procedureId);
+    } else {
+      this.selectedProcedures.add(procedureId);
+    }
+  }
+
+  isProcedureAdded(procedureId: string): boolean {
+    return this.selectedProcedures.has(procedureId);
+  }
+
+  getSelectedIPSProcedures(): any[] {
+    if (!this.patientData?.procedures) {
+      return [];
+    }
+
+    return this.patientData.procedures.filter(procedure =>
+      this.selectedProcedures.has(procedure.id)
+    );
+  }
+
+  hasAvailableProcedures(): boolean {
+    if (!this.patientData?.procedures || !this.linkedPatient) {
+      return false;
+    }
+
+    return this.patientData.procedures.some(procedure =>
+      !this.isProcedureAlreadyRecorded(procedure)
     );
   }
 
@@ -833,41 +1038,13 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Initialize selections (select all by default, except already recorded items)
+   * Initialize selections with everything deselected so the user opts in item by item.
    */
   private initializeSelections(): void {
     this.selectedConditions.clear();
     this.selectedProcedures.clear();
     this.selectedMedications.clear();
     this.selectedAllergies.clear();
-
-    if (this.patientData) {
-      // Select all conditions by default (except already recorded)
-      this.patientData.conditions.forEach(condition => {
-        if (!this.isConditionAlreadyRecorded(condition)) {
-          this.selectedConditions.add(condition.id);
-        }
-      });
-
-      // Select all procedures by default
-      this.patientData.procedures.forEach(procedure => {
-        this.selectedProcedures.add(procedure.id);
-      });
-
-      // Select all medications by default (except already recorded)
-      this.patientData.medications.forEach(medication => {
-        if (!this.isMedicationAlreadyRecorded(medication)) {
-          this.selectedMedications.add(medication.id);
-        }
-      });
-
-      // Select all allergies by default (except already recorded)
-      this.patientData.allergies.forEach(allergy => {
-        if (!this.isAllergyAlreadyRecorded(allergy)) {
-          this.selectedAllergies.add(allergy.id);
-        }
-      });
-    }
   }
 
   /**
@@ -938,7 +1115,9 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   selectAllProcedures(): void {
     if (this.patientData) {
       this.patientData.procedures.forEach(procedure => {
-        this.selectedProcedures.add(procedure.id);
+        if (!this.isProcedureAlreadyRecorded(procedure)) {
+          this.selectedProcedures.add(procedure.id);
+        }
       });
     }
   }
@@ -996,6 +1175,239 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
            this.selectedProcedures.size + 
            this.selectedMedications.size + 
            this.selectedAllergies.size;
+  }
+
+  isMergeSectionStep(stepId: WizardStepId | undefined): stepId is MergeSectionId {
+    return stepId === 'conditions' || stepId === 'procedures' || stepId === 'medications' || stepId === 'allergies';
+  }
+
+  getCurrentMergeSection(): MergeSectionId | null {
+    const stepId = this.getCurrentStep()?.id;
+    return this.isMergeSectionStep(stepId) ? stepId : null;
+  }
+
+  getMergeSections(): MergeSectionId[] {
+    return this.wizardSteps
+      .map(step => step.id)
+      .filter((stepId): stepId is MergeSectionId => this.isMergeSectionStep(stepId));
+  }
+
+  getSectionTitle(section: MergeSectionId): string {
+    switch (section) {
+      case 'conditions':
+        return 'Conditions';
+      case 'procedures':
+        return 'Procedures';
+      case 'medications':
+        return 'Medications';
+      case 'allergies':
+        return 'Allergies';
+    }
+  }
+
+  getWizardStepMeta(step: WizardStep, index: number): string | null {
+    if (index >= this.currentStepIndex || !this.linkedPatient) {
+      return null;
+    }
+
+    if (step.id === 'patient') {
+      return this.getPatientDisplayName(this.linkedPatient);
+    }
+
+    if (this.isMergeSectionStep(step.id)) {
+      const selectedCount = this.getSelectedCount(step.id);
+      const label = selectedCount === 1 ? 'code selected' : 'codes selected';
+      return `${selectedCount} ${label}`;
+    }
+
+    if (step.id === 'summary') {
+      const totalSelected = this.getTotalSelectedCount();
+      const label = totalSelected === 1 ? 'code selected' : 'codes selected';
+      return `${totalSelected} ${label}`;
+    }
+
+    return null;
+  }
+
+  getSectionItems(section: MergeSectionId): any[] {
+    if (!this.patientData) {
+      return [];
+    }
+
+    switch (section) {
+      case 'conditions':
+        return this.patientData.conditions;
+      case 'procedures':
+        return this.patientData.procedures;
+      case 'medications':
+        return this.patientData.medications;
+      case 'allergies':
+        return this.patientData.allergies;
+    }
+  }
+
+  getExistingItems(section: MergeSectionId): any[] {
+    switch (section) {
+      case 'conditions':
+        return this.existingConditions;
+      case 'procedures':
+        return this.existingProcedures;
+      case 'medications':
+        return this.existingMedications;
+      case 'allergies':
+        return this.existingAllergies;
+    }
+  }
+
+  getSelectedItems(section: MergeSectionId): any[] {
+    return this.getSectionItems(section).filter(item => this.isItemSelected(section, item.id));
+  }
+
+  getSelectedCount(section: MergeSectionId): number {
+    switch (section) {
+      case 'conditions':
+        return this.selectedConditions.size;
+      case 'procedures':
+        return this.selectedProcedures.size;
+      case 'medications':
+        return this.selectedMedications.size;
+      case 'allergies':
+        return this.selectedAllergies.size;
+    }
+  }
+
+  getSkippedCount(section: MergeSectionId): number {
+    return Math.max(this.getSectionItems(section).length - this.getSelectedCount(section), 0);
+  }
+
+  isItemSelected(section: MergeSectionId, itemId: string): boolean {
+    switch (section) {
+      case 'conditions':
+        return this.isConditionAdded(itemId);
+      case 'procedures':
+        return this.isProcedureAdded(itemId);
+      case 'medications':
+        return this.isMedicationAdded(itemId);
+      case 'allergies':
+        return this.isAllergyAdded(itemId);
+    }
+  }
+
+  isItemAlreadyRecorded(section: MergeSectionId, item: any): boolean {
+    switch (section) {
+      case 'conditions':
+        return this.isConditionAlreadyRecorded(item);
+      case 'procedures':
+        return this.isProcedureAlreadyRecorded(item);
+      case 'medications':
+        return this.isMedicationAlreadyRecorded(item);
+      case 'allergies':
+        return this.isAllergyAlreadyRecorded(item);
+    }
+  }
+
+  toggleSectionSelection(section: MergeSectionId, itemId: string): void {
+    switch (section) {
+      case 'conditions':
+        this.addConditionFromIPS(itemId);
+        break;
+      case 'procedures':
+        this.addProcedureFromIPS(itemId);
+        break;
+      case 'medications':
+        this.addMedicationFromIPS(itemId);
+        break;
+      case 'allergies':
+        this.addAllergyFromIPS(itemId);
+        break;
+    }
+  }
+
+  hasAvailableItems(section: MergeSectionId): boolean {
+    switch (section) {
+      case 'conditions':
+        return this.hasAvailableConditions();
+      case 'procedures':
+        return this.hasAvailableProcedures();
+      case 'medications':
+        return this.hasAvailableMedications();
+      case 'allergies':
+        return this.hasAvailableAllergies();
+    }
+  }
+
+  getItemDisplay(section: MergeSectionId, item: any): string {
+    switch (section) {
+      case 'conditions':
+        return this.ipsReaderService.getConditionDisplay(item);
+      case 'procedures':
+        return this.ipsReaderService.getProcedureDisplay(item);
+      case 'medications':
+        return this.ipsReaderService.getMedicationDisplay(item);
+      case 'allergies':
+        return this.ipsReaderService.getAllergyDisplay(item);
+    }
+  }
+
+  getItemStatus(section: MergeSectionId, item: any): string {
+    switch (section) {
+      case 'conditions':
+        return this.ipsReaderService.getConditionStatus(item);
+      case 'procedures':
+        return item.status || 'Unknown status';
+      case 'medications':
+        return this.ipsReaderService.getMedicationStatus(item);
+      case 'allergies':
+        return this.ipsReaderService.getAllergySeverity(item);
+    }
+  }
+
+  getItemCode(section: MergeSectionId, item: any): string {
+    const snomedCode = this.patientService.extractSnomedCode(item);
+    if (snomedCode) {
+      return snomedCode;
+    }
+
+    switch (section) {
+      case 'medications':
+        return item.medicationCodeableConcept?.coding?.[0]?.code || 'No code';
+      default:
+        return item.code?.coding?.[0]?.code || 'No code';
+    }
+  }
+
+  getItemDate(section: MergeSectionId, item: any): string | null {
+    switch (section) {
+      case 'conditions':
+        return item.onsetDateTime || item.recordedDate || null;
+      case 'procedures':
+        return item.performedDateTime || null;
+      case 'medications':
+        return item.effectiveDateTime || null;
+      case 'allergies':
+        return item.recordedDate || item.onsetDateTime || null;
+    }
+  }
+
+  getItemDateLabel(section: MergeSectionId): string {
+    switch (section) {
+      case 'conditions':
+        return 'Onset';
+      case 'procedures':
+        return 'Performed';
+      case 'medications':
+        return 'Effective';
+      case 'allergies':
+        return 'Recorded';
+    }
+  }
+
+  getSummarySubtitle(): string {
+    if (!this.linkedPatient) {
+      return 'Link a patient to review the final import summary.';
+    }
+
+    return `Ready to import ${this.getTotalSelectedCount()} selected IPS items into ${this.getPatientDisplayName(this.linkedPatient)}.`;
   }
 
   private toClinicalEntryCondition(condition: any, patientId: string): any {
@@ -1507,6 +1919,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.patientData = data;
         this.isLoading = false;
+        this.resetWizard();
         this.calculateAndSortPatientsByScore();
         this.findSuggestedPatient();
         this.fileInput.nativeElement.value = '';
