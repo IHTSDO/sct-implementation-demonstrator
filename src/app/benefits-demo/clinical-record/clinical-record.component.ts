@@ -651,8 +651,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // Save the condition to PatientService first (now returns boolean)
-      const wasAdded = this.patientService.addPatientCondition(this.patient!.id, event);
+      // Centralized condition persistence also resolves ICD-10 when needed.
+      const wasAdded = await this.patientService.addPatientConditionWithIcd10(this.patient!.id, event);
       
       if (!wasAdded) {
         // Duplicate detected - show warning and don't add to local array
@@ -677,49 +677,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
         this.clinicalTimeline.refreshTimeline();
       }
-      
-      // Get SNOMED concept ID for ICD-10 mapping
-      const snomedConceptId = this.getConceptId(event);
-      
-      // Get ICD-10 mapping if SNOMED concept ID is available
-      if (snomedConceptId) {
-        try {
-          this.terminologyService.getIcd10MapTargets(snomedConceptId).subscribe({
-            next: (response) => {
-              // Extract the ICD-10 code from the response
-              if (response?.parameter && response.parameter.length > 0) {
-                // Look for the match parameter which contains the ICD-10 code
-                const matchParam = response.parameter.find((param: any) => param.name === 'match');
-                if (matchParam?.part && matchParam.part.length > 0) {
-                  const conceptPart = matchParam.part.find((part: any) => part.name === 'concept');
-                  if (conceptPart?.valueCoding?.code) {
-                    const icd10Code = conceptPart.valueCoding.code;
-                    // Store the ICD-10 code in the condition
-                    event.icd10Code = icd10Code;
-                    event.snomedConceptId = snomedConceptId;
-                    // Update the condition in PatientService with the ICD-10 code
-                    this.patientService.updatePatientCondition(this.patient!.id, event.id, event);
-                  }
-                }
-              }
-            },
-            error: (error) => {
-              console.warn(`Failed to get ICD-10 mapping for SNOMED concept ${snomedConceptId}:`, error);
-              // Store just the SNOMED concept ID if ICD-10 mapping fails
-              event.snomedConceptId = snomedConceptId;
-              // Update the condition in PatientService with the SNOMED concept ID
-              this.patientService.updatePatientCondition(this.patient!.id, event.id, event);
-            }
-          });
-        } catch (mappingError) {
-          console.warn(`Error calling ICD-10 mapping service for concept ${snomedConceptId}:`, mappingError);
-          // Store just the SNOMED concept ID if service call fails
-          event.snomedConceptId = snomedConceptId;
-          // Update the condition in PatientService with the SNOMED concept ID
-          this.patientService.updatePatientCondition(this.patient!.id, event.id, event);
-        }
-      }
-      
+
       // Map the condition to an anchor point directly
       await this.mapSingleEventToAnchorPoint(event);
     } catch (error) {

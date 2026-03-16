@@ -484,9 +484,26 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     
     try {
+      const reasonsForEncounter = this.getPendingReasonsForEncounter();
+      const diagnoses = this.getPendingDiagnoses();
+      const procedures = this.getPendingProcedures();
+
+      const encounterId = this.generateId();
+      this.currentEncounterId = encounterId;
+
+      const reasonConditions = reasonsForEncounter.map(reason =>
+        this.buildEncounterCondition(reason, 'Reason for encounter')
+      );
+      const diagnosisConditions = diagnoses.map(diag =>
+        this.buildEncounterCondition(diag.concept, diag.note)
+      );
+      const encounterProcedures = procedures.map(proc =>
+        this.buildEncounterProcedure(proc.concept, proc.laterality)
+      );
+
       // Build reasonCode array from multiple reasons
-      const reasonCode = this.reasonsForEncounter.length > 0 
-        ? this.reasonsForEncounter.map(reason => ({
+      const reasonCode = reasonsForEncounter.length > 0 
+        ? reasonsForEncounter.map(reason => ({
             coding: [{
               system: 'http://snomed.info/sct',
               code: reason.code,
@@ -497,11 +514,11 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         : undefined;
 
       // Build diagnosis array from multiple diagnoses
-      const diagnosis = this.diagnoses.length > 0
-        ? this.diagnoses.map((diag, index) => ({
+      const diagnosis = diagnosisConditions.length > 0
+        ? diagnosisConditions.map((condition, index) => ({
             condition: {
-              reference: `Condition/${this.generateId()}`,
-              display: diag.concept.display
+              reference: `Condition/${condition.id}`,
+              display: condition.code.text
             },
             use: {
               coding: [{
@@ -516,7 +533,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
       const encounterRecord: Encounter = {
         resourceType: 'Encounter',
-        id: this.generateId(),
+        id: encounterId,
         status: 'finished',
         class: {
           system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
@@ -536,20 +553,20 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         }] : undefined
       };
 
-      // Set current encounter ID for linking procedures
-      this.currentEncounterId = encounterRecord.id;
-
       // Save to localStorage for persistence
       this.saveEncounterToStorage(encounterRecord);
 
-      // Emit events for all diagnoses
-      for (const diag of this.diagnoses) {
-        await this.addConditionFromDiagnosis(diag.concept, diag.note);
+      // Persist reason for encounter and diagnosis entries as Condition resources.
+      for (const reasonCondition of reasonConditions) {
+        this.conditionAdded.emit(reasonCondition);
       }
 
-      // Emit events for all procedures
-      for (const proc of this.procedures) {
-        await this.addProcedureFromEncounter(proc.concept, proc.laterality);
+      for (const diagnosisCondition of diagnosisConditions) {
+        this.conditionAdded.emit(diagnosisCondition);
+      }
+
+      for (const procedure of encounterProcedures) {
+        this.procedureAdded.emit(procedure);
       }
 
       // Reset form
@@ -565,10 +582,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async addConditionFromDiagnosis(diagnosisConcept: any, note: string): Promise<void> {
-    if (!diagnosisConcept || !this.patient) return;
-
-    const newCondition: Condition = {
+  private buildEncounterCondition(concept: any, note: string): Condition {
+    return {
       resourceType: 'Condition',
       id: this.generateId(),
       clinicalStatus: {
@@ -582,13 +597,16 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       code: {
         coding: [{
           system: 'http://snomed.info/sct',
-          code: diagnosisConcept.code,
-          display: diagnosisConcept.display
+          code: concept.code,
+          display: concept.display
         }],
-        text: diagnosisConcept.display
+        text: concept.display
       },
       subject: {
-        reference: `Patient/${this.patient.id}`
+        reference: `Patient/${this.patient!.id}`
+      },
+      encounter: {
+        reference: `Encounter/${this.currentEncounterId}`
       },
       onsetDateTime: `${this.encounterDate}T${this.encounterTime}:00Z`,
       recordedDate: new Date().toISOString(),
@@ -596,16 +614,10 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         text: note
       }] : undefined
     };
-
-    // Emit the condition event - let the parent component (clinical-record) handle saving
-    // This ensures consistent duplicate detection and single source of truth for condition storage
-    this.conditionAdded.emit(newCondition);
   }
 
-  private async addProcedureFromEncounter(procedureConcept: any, laterality: string): Promise<void> {
-    if (!procedureConcept || !this.patient) return;
-
-    const newProcedure: Procedure = {
+  private buildEncounterProcedure(procedureConcept: any, laterality: string): Procedure {
+    return {
       resourceType: 'Procedure',
       id: this.generateId(),
       status: 'completed',
@@ -618,7 +630,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         text: procedureConcept.display
       },
       subject: {
-        reference: `Patient/${this.patient.id}`
+        reference: `Patient/${this.patient!.id}`
       },
       encounter: {
         reference: `Encounter/${this.currentEncounterId}`
@@ -633,10 +645,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         text: this.lateralityOptions.find(opt => opt.value === laterality)?.display || ''
       }] : undefined
     };
-
-    // Emit the procedure event - let the parent component (clinical-record) handle saving
-    // This ensures consistent duplicate detection and single source of truth for procedure storage
-    this.procedureAdded.emit(newProcedure);
   }
 
   private saveEncounterToStorage(encounter: Encounter): void {
@@ -682,10 +690,49 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
   isFormValid(): boolean {
     return !!(this.encounterDate && this.encounterTime && 
-             (this.reasonsForEncounter.length > 0 || 
-              this.diagnoses.length > 0 || 
-              this.procedures.length > 0 || 
+             (this.getPendingReasonsForEncounter().length > 0 || 
+              this.getPendingDiagnoses().length > 0 || 
+              this.getPendingProcedures().length > 0 || 
               this.encounterNotes.trim()));
+  }
+
+  private getPendingReasonsForEncounter(): any[] {
+    const reasons = [...this.reasonsForEncounter];
+
+    if (this.currentReasonForEncounter &&
+        !reasons.some(reason => reason.code === this.currentReasonForEncounter.code)) {
+      reasons.push({ ...this.currentReasonForEncounter });
+    }
+
+    return reasons;
+  }
+
+  private getPendingDiagnoses(): Array<{concept: any, note: string}> {
+    const diagnoses = [...this.diagnoses];
+
+    if (this.currentDiagnosis &&
+        !diagnoses.some(diagnosis => diagnosis.concept.code === this.currentDiagnosis.code)) {
+      diagnoses.push({
+        concept: { ...this.currentDiagnosis },
+        note: this.currentDiagnosisNote
+      });
+    }
+
+    return diagnoses;
+  }
+
+  private getPendingProcedures(): Array<{concept: any, laterality: string}> {
+    const procedures = [...this.procedures];
+
+    if (this.currentProcedure &&
+        !procedures.some(procedure => procedure.concept.code === this.currentProcedure.code)) {
+      procedures.push({
+        concept: { ...this.currentProcedure },
+        laterality: this.currentProcedureLaterality
+      });
+    }
+
+    return procedures;
   }
 
   loadPreviousEncounters(): void {

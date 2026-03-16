@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, firstValueFrom } from 'rxjs';
 import { StorageService } from './storage.service';
+import { TerminologyService } from './terminology.service';
 import JSZip from 'jszip';
 
 export interface Patient {
@@ -1201,7 +1202,10 @@ export class PatientService {
   public patients$ = this.patientsSubject.asObservable();
   public selectedPatient$ = this.selectedPatientSubject.asObservable();
 
-  constructor(private storageService: StorageService) {
+  constructor(
+    private storageService: StorageService,
+    private terminologyService: TerminologyService
+  ) {
     this.loadPatients();
     // this.initializeSamplePatients(); // Deactivated - start with empty patient list
   }
@@ -1591,6 +1595,23 @@ export class PatientService {
     return true; // Successfully added
   }
 
+  async addPatientConditionWithIcd10(patientId: string, condition: Condition): Promise<boolean> {
+    const snomedCode = this.extractSnomedCode(condition);
+
+    if (snomedCode) {
+      condition.snomedConceptId = condition.snomedConceptId || snomedCode;
+
+      if (!condition.icd10Code) {
+        const icd10Code = await this.resolveIcd10Code(snomedCode);
+        if (icd10Code) {
+          condition.icd10Code = icd10Code;
+        }
+      }
+    }
+
+    return this.addPatientCondition(patientId, condition);
+  }
+
   addPatientConditionAllowDuplicates(patientId: string, condition: Condition): void {
     const conditions = this.getPatientConditions(patientId);
     conditions.push(condition);
@@ -1615,6 +1636,18 @@ export class PatientService {
   private savePatientConditions(patientId: string, conditions: Condition[]): void {
     const key = `ehr_conditions_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(conditions));
+  }
+
+  private async resolveIcd10Code(snomedCode: string): Promise<string | undefined> {
+    try {
+      const response = await firstValueFrom(this.terminologyService.getIcd10MapTargets(snomedCode));
+      const matchParam = response?.parameter?.find((param: any) => param.name === 'match');
+      const conceptPart = matchParam?.part?.find((part: any) => part.name === 'concept');
+      return conceptPart?.valueCoding?.code || undefined;
+    } catch (error) {
+      console.warn(`Failed to resolve ICD-10 map for SNOMED concept ${snomedCode}:`, error);
+      return undefined;
+    }
   }
 
   // BodyStructures
