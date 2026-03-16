@@ -1,0 +1,171 @@
+<div class="death-dialog">
+  <div mat-dialog-title class="dialog-header">
+    <div>
+      <h2>{{ getDialogTitle() }}</h2>
+      <p>Capture the cause-of-death certificate and mark this patient as deceased.</p>
+    </div>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <div class="patient-strip">
+      <div class="patient-strip-top">
+        <div>
+          <div class="patient-name">
+            {{ data.patient.name?.[0]?.text || ((data.patient.name?.[0]?.given || []).join(' ') + ' ' + (data.patient.name?.[0]?.family || '')) }}
+          </div>
+          <div class="patient-meta">
+            <span>ID: {{ data.patient.identifier?.[0]?.value || data.patient.id }}</span>
+            <span *ngIf="data.patient.birthDate">DOB: {{ data.patient.birthDate | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <div class="death-datetime-group">
+          <mat-form-field appearance="outline" class="death-date-field">
+            <mat-label>Date of death</mat-label>
+            <input matInput [matDatepicker]="deathDatePicker" [(ngModel)]="deceasedDate">
+            <mat-datepicker-toggle matIconSuffix [for]="deathDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #deathDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="death-time-field">
+            <mat-label>Time</mat-label>
+            <input matInput [matTimepicker]="deathTimePicker" [(ngModel)]="deceasedTime" readonly>
+            <mat-timepicker-toggle matIconSuffix [for]="deathTimePicker"></mat-timepicker-toggle>
+            <mat-timepicker #deathTimePicker></mat-timepicker>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div class="certificate-card">
+      <div class="certificate-header">
+        <div class="title">Cause of death</div>
+        <div class="subtitle">Part I. Enter the chain of events that directly caused the death.</div>
+      </div>
+
+      <div class="line-grid header-row">
+        <div>Line</div>
+        <div>Cause/condition</div>
+        <div>Diagnosis text</div>
+        <div>Approximate interval</div>
+      </div>
+
+      <div class="line-grid" *ngFor="let line of part1Lines; trackBy: trackByIndex">
+        <div class="line-label">{{ line.line }}.</div>
+
+        <div class="source-column">
+          <button
+            type="button"
+            class="mode-link"
+            (click)="line.sourceType = line.sourceType === 'existing-condition' ? 'snomed-search' : 'existing-condition'">
+            {{ line.sourceType === 'existing-condition' ? 'Search in SNOMED' : 'Use existing condition' }}
+          </button>
+          <mat-form-field appearance="outline" *ngIf="line.sourceType === 'existing-condition'">
+            <mat-label>Existing condition</mat-label>
+            <mat-select [(value)]="line.selectedConditionId" (selectionChange)="onExistingConditionSelected(line)">
+              <mat-option [value]="''">Select condition</mat-option>
+              <mat-option *ngFor="let condition of data.conditions" [value]="condition.id">
+                {{ condition.code.text }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <app-autocomplete-binding
+            *ngIf="line.sourceType === 'snomed-search'"
+            [binding]="conditionBinding"
+            [compact]="true"
+            [term]="line.selectedConcept"
+            (selectionChange)="onConceptSelected(line, $event)">
+          </app-autocomplete-binding>
+        </div>
+
+        <div class="diagnosis-column aligned-column">
+          <mat-form-field appearance="outline">
+            <mat-label>Diagnosis text</mat-label>
+            <input matInput [(ngModel)]="line.text" placeholder="Immediate or underlying cause">
+          </mat-form-field>
+        </div>
+
+        <div class="interval-column aligned-column">
+          <mat-form-field appearance="outline">
+            <mat-label>Interval</mat-label>
+            <input matInput [(ngModel)]="line.intervalText" placeholder="e.g. 3 days">
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div class="certificate-card">
+      <div class="certificate-header">
+        <div class="subtitle">Part II. Other significant conditions contributing to death.</div>
+      </div>
+
+      <div class="line-grid part2-grid" *ngFor="let line of part2Lines; let i = index; trackBy: trackByIndex">
+        <div class="line-label">{{ i + 1 }}.</div>
+
+        <div class="source-column">
+          <button
+            type="button"
+            class="mode-link"
+            (click)="line.sourceType = line.sourceType === 'existing-condition' ? 'snomed-search' : 'existing-condition'">
+            {{ line.sourceType === 'existing-condition' ? 'Search in SNOMED' : 'Use existing condition' }}
+          </button>
+          <mat-form-field appearance="outline" *ngIf="line.sourceType === 'existing-condition'">
+            <mat-label>Existing condition</mat-label>
+            <mat-select [(value)]="line.selectedConditionId" (selectionChange)="onExistingConditionSelected(line)">
+              <mat-option [value]="''">Select condition</mat-option>
+              <mat-option *ngFor="let condition of data.conditions" [value]="condition.id">
+                {{ condition.code.text }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <app-autocomplete-binding
+            *ngIf="line.sourceType === 'snomed-search'"
+            [binding]="conditionBinding"
+            [compact]="true"
+            [term]="line.selectedConcept"
+            (selectionChange)="onConceptSelected(line, $event)">
+          </app-autocomplete-binding>
+        </div>
+
+        <div class="diagnosis-column aligned-column">
+          <mat-form-field appearance="outline">
+            <mat-label>Diagnosis text</mat-label>
+            <input matInput [(ngModel)]="line.text" placeholder="Contributing condition">
+          </mat-form-field>
+        </div>
+
+        <div class="interval-column interval-actions aligned-column">
+          <mat-form-field appearance="outline">
+            <mat-label>Interval</mat-label>
+            <input matInput [(ngModel)]="line.intervalText" placeholder="Optional">
+          </mat-form-field>
+          <button mat-icon-button color="warn" (click)="removePart2Line(i)" aria-label="Remove contributing condition">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="part2-actions">
+        <button mat-stroked-button color="primary" (click)="addPart2Line()">
+          <mat-icon>add</mat-icon>
+          Add contributing condition
+        </button>
+      </div>
+    </div>
+
+    <div class="error-message" *ngIf="errorMessage">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+  </mat-dialog-content>
+
+  <div mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-stroked-button (click)="close()" [disabled]="isSaving">Cancel</button>
+    <button mat-flat-button color="warn" (click)="save()" [disabled]="isSaving">
+      <mat-spinner diameter="18" *ngIf="isSaving"></mat-spinner>
+      <span *ngIf="!isSaving">{{ data.existingRecord ? 'Update death record' : 'Save death record' }}</span>
+    </button>
+  </div>
+</div>

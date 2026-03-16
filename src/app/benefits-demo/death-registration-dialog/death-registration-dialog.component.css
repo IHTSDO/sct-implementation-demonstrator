@@ -1,0 +1,253 @@
+.death-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 86vh;
+}
+
+.dialog-header {
+  display: block;
+  padding: 0 20px 6px;
+  margin: 0;
+  flex: 0 0 auto;
+  text-align: left;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.dialog-header h2 {
+  margin: 0 0 4px;
+  color: #243447;
+  font-size: 1.18rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.dialog-header p {
+  margin: 0;
+  color: #5f6b76;
+  text-align: left;
+}
+
+.dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  overflow-x: hidden;
+  padding: 6px 24px 6px;
+  font-size: 0.9rem;
+}
+
+.patient-strip {
+  border: 1px solid #d8dee6;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #fbfcfe 0%, #f3f6fa 100%);
+  margin-top: 8px;
+  margin-bottom: 14px;
+}
+
+.patient-strip-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.patient-name {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.patient-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+  color: #607080;
+  font-size: 0.84rem;
+}
+
+.death-datetime-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.death-date-field {
+  width: 190px;
+}
+
+.death-time-field {
+  width: 132px;
+}
+
+.certificate-card {
+  border: 1px solid #d6dde6;
+  border-radius: 16px;
+  padding: 16px 16px 12px;
+  background: #fff;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.certificate-header {
+  margin-bottom: 12px;
+}
+
+.certificate-header .title {
+  text-transform: uppercase;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  color: #243447;
+  margin-bottom: 4px;
+}
+
+.certificate-header .subtitle {
+  color: #364a5d;
+  font-weight: 500;
+  font-size: 0.88rem;
+}
+
+.line-grid {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1.2fr) minmax(0, 1fr) minmax(140px, 180px);
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header-row {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #56697a;
+  text-transform: uppercase;
+}
+
+.line-label {
+  padding-top: 12px;
+  font-weight: 700;
+  color: #243447;
+}
+
+.source-column,
+.diagnosis-column,
+.interval-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mode-link {
+  align-self: flex-end;
+  margin: 0 2px -2px 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #50657a;
+  font-size: 0.75rem;
+  line-height: 1.1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.mode-link:hover {
+  color: #243447;
+}
+
+.aligned-column {
+  padding-top: 18px;
+}
+
+.source-column mat-form-field,
+.diagnosis-column mat-form-field,
+.interval-column mat-form-field {
+  width: 100%;
+  --mat-form-field-container-height: 44px;
+  --mat-form-field-container-vertical-padding: 10px;
+  font-size: 13px;
+}
+
+.interval-actions {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.interval-actions mat-form-field {
+  flex: 1;
+}
+
+.part2-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 6px;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 2px;
+  font-size: 0.84rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 10px 24px 6px;
+  flex: 0 0 auto;
+}
+
+.dialog-actions button {
+  min-width: 152px;
+}
+
+.dialog-actions button span,
+.part2-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 960px) {
+  .dialog-header,
+  .dialog-content,
+  .dialog-actions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .patient-strip-top {
+    flex-direction: column;
+  }
+
+  .line-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .line-label {
+    padding-top: 0;
+  }
+
+  .header-row {
+    display: none;
+  }
+
+  .interval-actions {
+    flex-direction: column;
+  }
+
+  .certificate-card {
+    padding: 16px 16px 14px;
+  }
+}

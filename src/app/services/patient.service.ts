@@ -1159,6 +1159,26 @@ export interface OpenEHRComposition {
   compositionName?: string;
 }
 
+export interface DeathRecordDiagnosis {
+  sourceType: 'existing-condition' | 'snomed-search';
+  sourceConditionId?: string;
+  text: string;
+  intervalText?: string;
+  snomedConceptId?: string;
+  snomedDisplay?: string;
+  icd10Code?: string;
+  derivedConditionId?: string;
+}
+
+export interface DeathRecord {
+  id: string;
+  patientId: string;
+  recordedAt: string;
+  deceasedDateTime: string;
+  part1: Array<DeathRecordDiagnosis & { line: 'a' | 'b' | 'c' | 'd' }>;
+  part2: DeathRecordDiagnosis[];
+}
+
 export interface PatientSimilarityResult {
   patient: Patient;
   score: number;
@@ -1527,12 +1547,22 @@ export class PatientService {
       const medicationsKey = `ehr_medications_${patient.id}`;
       const observationsKey = `ehr_observations_${patient.id}`;
       const bodyStructuresKey = `ehr_body_structures_${patient.id}`;
+      const allergiesKey = `ehr_allergies_${patient.id}`;
+      const encountersKey = `ehr_encounters_${patient.id}`;
+      const questionnaireResponsesKey = `ehr_questionnaire_responses_${patient.id}`;
+      const openEhrCompositionsKey = `ehr_openehr_compositions_${patient.id}`;
+      const deathRecordKey = `ehr_death_record_${patient.id}`;
       
       this.storageService.removeItem(conditionsKey);
       this.storageService.removeItem(proceduresKey);
       this.storageService.removeItem(medicationsKey);
       this.storageService.removeItem(observationsKey);
       this.storageService.removeItem(bodyStructuresKey);
+      this.storageService.removeItem(allergiesKey);
+      this.storageService.removeItem(encountersKey);
+      this.storageService.removeItem(questionnaireResponsesKey);
+      this.storageService.removeItem(openEhrCompositionsKey);
+      this.storageService.removeItem(deathRecordKey);
     });
     
     // Clear all patients
@@ -1849,6 +1879,21 @@ export class PatientService {
   private savePatientOpenEHRCompositions(patientId: string, compositions: OpenEHRComposition[]): void {
     const key = `ehr_openehr_compositions_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(compositions));
+  }
+
+  getPatientDeathRecord(patientId: string): DeathRecord | null {
+    const key = `ehr_death_record_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : null;
+  }
+
+  savePatientDeathRecord(patientId: string, record: DeathRecord): void {
+    const key = `ehr_death_record_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(record));
+  }
+
+  deletePatientDeathRecord(patientId: string): void {
+    this.storageService.removeItem(`ehr_death_record_${patientId}`);
   }
 
   // Utility methods for creating sample clinical data
@@ -2282,6 +2327,8 @@ export class PatientService {
     this.storageService.removeItem(`ehr_allergies_${patientId}`);
     this.storageService.removeItem(`ehr_encounters_${patientId}`);
     this.storageService.removeItem(`ehr_questionnaire_responses_${patientId}`);
+    this.storageService.removeItem(`ehr_openehr_compositions_${patientId}`);
+    this.storageService.removeItem(`ehr_death_record_${patientId}`);
     
     // Also clear old storage key format for encounters (for backwards compatibility)
     this.storageService.removeItem(`encounters_${patientId}`);
@@ -2304,6 +2351,12 @@ export class PatientService {
         const conditions = this.getPatientConditions(patient.id);
         const procedures = this.getPatientProcedures(patient.id);
         const medications = this.getPatientMedications(patient.id);
+        const observations = this.getPatientObservations(patient.id);
+        const allergies = this.getPatientAllergies(patient.id);
+        const encounters = this.getPatientEncounters(patient.id);
+        const questionnaireResponses = this.getPatientQuestionnaireResponses(patient.id);
+        const openEhrCompositions = this.getPatientOpenEHRCompositions(patient.id);
+        const deathRecord = this.getPatientDeathRecord(patient.id);
         
         return {
           patient: patient,
@@ -2311,7 +2364,22 @@ export class PatientService {
             conditions: conditions,
             procedures: procedures,
             medications: medications,
-            totalClinicalItems: conditions.length + procedures.length + medications.length
+            observations: observations,
+            allergies: allergies,
+            encounters: encounters,
+            questionnaireResponses: questionnaireResponses,
+            openEhrCompositions: openEhrCompositions,
+            deathRecord: deathRecord,
+            totalClinicalItems:
+              conditions.length +
+              procedures.length +
+              medications.length +
+              observations.length +
+              allergies.length +
+              encounters.length +
+              questionnaireResponses.length +
+              openEhrCompositions.length +
+              (deathRecord ? 1 : 0)
           }
         };
       })
@@ -2432,7 +2500,7 @@ export class PatientService {
       }
       
       // Clear existing data
-      this.clearAllPatients();
+      this.clearAllPatientsAndClinicalData();
       
       // Import patients and their clinical data
       let importedCount = 0;
@@ -2464,6 +2532,40 @@ export class PatientService {
             for (const medication of clinicalData.medications) {
               this.addPatientMedication(patient.id, medication);
             }
+          }
+
+          if (clinicalData.observations && Array.isArray(clinicalData.observations)) {
+            for (const observation of clinicalData.observations) {
+              this.addPatientObservation(patient.id, observation);
+            }
+          }
+
+          if (clinicalData.allergies && Array.isArray(clinicalData.allergies)) {
+            for (const allergy of clinicalData.allergies) {
+              this.addPatientAllergy(patient.id, allergy);
+            }
+          }
+
+          if (clinicalData.encounters && Array.isArray(clinicalData.encounters)) {
+            for (const encounter of clinicalData.encounters) {
+              this.addPatientEncounter(patient.id, encounter);
+            }
+          }
+
+          if (clinicalData.questionnaireResponses && Array.isArray(clinicalData.questionnaireResponses)) {
+            for (const response of clinicalData.questionnaireResponses) {
+              this.addPatientQuestionnaireResponse(patient.id, response);
+            }
+          }
+
+          if (clinicalData.openEhrCompositions && Array.isArray(clinicalData.openEhrCompositions)) {
+            for (const composition of clinicalData.openEhrCompositions) {
+              this.addPatientOpenEHRComposition(patient.id, composition);
+            }
+          }
+
+          if (clinicalData.deathRecord) {
+            this.savePatientDeathRecord(patient.id, clinicalData.deathRecord);
           }
           
           importedCount++;

@@ -44,6 +44,24 @@
   font-weight: 600;
 }
 
+.deceased-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.deceased-banner mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
 .patient-meta {
   display: flex;
   justify-content: center;
@@ -80,6 +98,28 @@
   color: #6c757d;
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+.summary-deceased-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #fbcfe8;
+  background: linear-gradient(180deg, #fff1f2 0%, #fff7f9 100%);
+  border-radius: 14px;
+  color: #831843;
+  margin-bottom: 18px;
+}
+
+.summary-deceased-panel mat-icon {
+  margin-top: 2px;
+}
+
+.summary-deceased-panel div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .delete-all-button {

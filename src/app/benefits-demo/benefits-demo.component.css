@@ -185,6 +185,29 @@
   margin-bottom: 5px;
 }
 
+.death-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.death-status-badge mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.list-badge {
+  margin-top: 2px;
+}
+
 .patient-details {
   display: flex;
   gap: 15px;
@@ -428,11 +451,15 @@
 
 /* Patient Actions */
 .patient-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #ecf0f1;
 }
 
+.death-button,
 .delete-button {
   display: flex;
   align-items: center;

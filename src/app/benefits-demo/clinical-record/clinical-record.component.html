@@ -8,6 +8,10 @@
     </div>
     <div class="header-center" *ngIf="patient">
       <h1>{{ getPatientDisplayName(patient) }}</h1>
+      <div class="deceased-banner" *ngIf="isPatientDeceased(patient)">
+        <mat-icon>bed</mat-icon>
+        <span>{{ getPatientDeceasedSummary(patient) }}</span>
+      </div>
       <div class="patient-meta">
         <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
         <span class="patient-dob" *ngIf="patient.birthDate">DOB: {{ patient.birthDate | date:'MMM dd, yyyy' }}</span>
@@ -63,6 +67,13 @@
     <!-- Patient Demographics Section -->
     <div class="record-section">
       <h2>Summary</h2>
+      <div class="summary-deceased-panel" *ngIf="isPatientDeceased(patient)">
+        <mat-icon>warning</mat-icon>
+        <div>
+          <strong>Patient marked as deceased.</strong>
+          <span>{{ getPatientDeceasedSummary(patient) }}</span>
+        </div>
+      </div>
       <div class="demographics-container">
         <div class="demographics-left">
           <div class="clinical-events-summary">

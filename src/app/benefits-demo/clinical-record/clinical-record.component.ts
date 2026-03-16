@@ -260,6 +260,18 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return patient.id;
   }
 
+  isPatientDeceased(patient: Patient | null): boolean {
+    return !!(patient?.deceasedBoolean || patient?.deceasedDateTime);
+  }
+
+  getPatientDeceasedSummary(patient: Patient | null): string {
+    if (!patient?.deceasedDateTime) {
+      return 'Recorded as deceased';
+    }
+
+    return `Recorded as deceased on ${new Date(patient.deceasedDateTime).toLocaleString()}`;
+  }
+
   getBodyModelImage(gender: string | undefined): string {
     if (gender === 'female') {
       return 'assets/img/body-model-female.png';

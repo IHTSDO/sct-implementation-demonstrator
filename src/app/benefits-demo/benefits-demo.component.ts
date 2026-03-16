@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BatchPatientDialogComponent } from './batch-patient-dialog/batch-patient-dialog.component';
 import { ConfirmationDialogComponent } from '../questionnaires/confirmation-dialog/confirmation-dialog.component';
 import { catchError, delay } from 'rxjs/operators';
+import { DeathRegistrationDialogComponent } from './death-registration-dialog/death-registration-dialog.component';
 
 @Component({
   selector: 'app-benefits-demo',
@@ -173,6 +174,44 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     }
   }
 
+  openDeathRegistration(): void {
+    if (!this.selectedPatient) {
+      return;
+    }
+
+    const existingRecord = this.patientService.getPatientDeathRecord(this.selectedPatient.id);
+    const conditions = this.patientService.getPatientConditions(this.selectedPatient.id);
+
+    const dialogRef = this.dialog.open(DeathRegistrationDialogComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: true,
+      data: {
+        patient: this.selectedPatient,
+        conditions,
+        existingRecord
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result?.saved || !result.patient) {
+        return;
+      }
+
+      this.patientService.selectPatient(result.patient);
+      this.snackBar.open(
+        existingRecord ? 'Death registration updated successfully.' : 'Death registration saved successfully.',
+        undefined,
+        {
+          duration: 3500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        }
+      );
+    });
+  }
+
   deleteSelectedPatient(): void {
     if (!this.selectedPatient) {
       return;
@@ -207,6 +246,22 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         alert('Error deleting patient. Please try again.');
       }
     }
+  }
+
+  isPatientDeceased(patient: Patient | null): boolean {
+    return !!(patient?.deceasedBoolean || patient?.deceasedDateTime);
+  }
+
+  getDeathActionLabel(patient: Patient | null): string {
+    return this.isPatientDeceased(patient) ? 'Update Death Record' : 'Register Death';
+  }
+
+  getPatientDeceasedSummary(patient: Patient | null): string {
+    if (!patient?.deceasedDateTime) {
+      return 'Recorded as deceased';
+    }
+
+    return `Deceased on ${new Date(patient.deceasedDateTime).toLocaleString()}`;
   }
 
   createNewPatient(): void {

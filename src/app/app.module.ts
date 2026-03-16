@@ -34,6 +34,7 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { LoadingDialogComponent } from './alerts/loading-dialog.component';
@@ -134,6 +135,7 @@ import { OpenehrFormComponent } from './benefits-demo/openehr-form/openehr-form.
 import { AiAssistedEntryComponent } from './benefits-demo/ai-assisted-entry/ai-assisted-entry.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { BatchPatientDialogComponent } from './benefits-demo/batch-patient-dialog/batch-patient-dialog.component';
+import { DeathRegistrationDialogComponent } from './benefits-demo/death-registration-dialog/death-registration-dialog.component';
 import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 import { FormRecordsComponent } from './benefits-demo/form-records/form-records.component';
@@ -258,6 +260,7 @@ const app = initializeApp(firebaseConfig);
         AiAssistedEntryComponent,
         ExpoQuiz2025Component,
         BatchPatientDialogComponent,
+        DeathRegistrationDialogComponent,
         LicenseAgreementComponent,
         CookieConsentComponent,
         FormRecordsComponent,
@@ -327,6 +330,7 @@ const app = initializeApp(firebaseConfig);
         MatChipsModule,
         MatDatepickerModule,
         MatNativeDateModule,
+        MatTimepickerModule,
         NgxGaugeModule,
         NgxMatSelectSearchModule,
         MatRippleModule,

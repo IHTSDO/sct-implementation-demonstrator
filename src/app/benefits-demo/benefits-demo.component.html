@@ -135,6 +135,12 @@
             >
             <div class="patient-info">
               <div class="patient-name">{{ getPatientDisplayName(patient) }}</div>
+              @if (isPatientDeceased(patient)) {
+                <div class="death-status-badge list-badge">
+                  <mat-icon>bed</mat-icon>
+                  Deceased
+                </div>
+              }
               <div class="patient-details">
                 <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
                 @if (patient.birthDate) {
@@ -200,6 +206,12 @@
           <div class="patient-header">
             <div class="patient-name-section">
               <h3>{{ getPatientDisplayName(selectedPatient) }}</h3>
+              @if (isPatientDeceased(selectedPatient)) {
+                <div class="death-status-badge">
+                  <mat-icon>bed</mat-icon>
+                  {{ getPatientDeceasedSummary(selectedPatient) }}
+                </div>
+              }
               <div class="patient-meta">
                 <span class="patient-id">ID: {{ getPatientIdentifier(selectedPatient) }}</span>
                 @if (selectedPatient.birthDate) {
@@ -272,6 +284,15 @@
           <!-- Delete Patient Button -->
           @if (selectedPatient) {
             <div class="patient-actions">
+              <button
+                mat-flat-button
+                color="primary"
+                (click)="openDeathRegistration()"
+                class="death-button"
+                >
+                <mat-icon>bed</mat-icon>
+                {{ getDeathActionLabel(selectedPatient) }}
+              </button>
               <button
                 mat-flat-button
                 color="warn"
