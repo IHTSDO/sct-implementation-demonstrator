@@ -119,6 +119,10 @@
   box-sizing: border-box;
 }
 
+.line-grid-with-actions {
+  grid-template-columns: 44px minmax(0, 1.2fr) minmax(0, 1fr) minmax(140px, 180px) 36px;
+}
+
 .header-row {
   font-size: 0.75rem;
   font-weight: 700;
@@ -177,6 +181,16 @@
   gap: 8px;
 }
 
+.line-reset-button {
+  align-self: start;
+  margin-top: 18px;
+  color: #7b8794;
+}
+
+.line-reset-button:hover {
+  color: #243447;
+}
+
 .interval-actions mat-form-field {
   flex: 1;
 }
@@ -206,6 +220,10 @@
   gap: 12px;
   padding: 10px 24px 6px;
   flex: 0 0 auto;
+}
+
+.delete-record-button {
+  margin-right: auto;
 }
 
 .dialog-actions button {

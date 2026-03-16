@@ -17,6 +17,7 @@ interface DeathDiagnosisFormLine {
   sourceType: 'existing-condition' | 'snomed-search';
   selectedConditionId?: string;
   selectedConcept?: { code?: string; display?: string } | null;
+  previewIcd10Code?: string;
   text: string;
   intervalText: string;
 }
@@ -67,6 +68,31 @@ export class DeathRegistrationDialogComponent {
     this.dialogRef.close(false);
   }
 
+  deleteDeathRecord(): void {
+    const existingRecord = this.data.existingRecord;
+    if (!existingRecord) {
+      return;
+    }
+
+    const confirmed = confirm('Delete the death certification record and mark this patient as not deceased?');
+    if (!confirmed) {
+      return;
+    }
+
+    this.removeExistingDerivedConditions();
+    this.patientService.deletePatientDeathRecord(this.data.patient.id);
+
+    const revivedPatient: Patient = {
+      ...this.data.patient,
+      deceasedBoolean: false,
+      deceasedDateTime: undefined
+    };
+
+    this.patientService.updatePatient(revivedPatient);
+    this.patientService.selectPatient(revivedPatient);
+    this.dialogRef.close({ deleted: true, patient: revivedPatient });
+  }
+
   addPart2Line(): void {
     this.part2Lines = [...this.part2Lines, this.createPart2Line()];
   }
@@ -78,21 +104,47 @@ export class DeathRegistrationDialogComponent {
     }
   }
 
+  resetPart1Line(index: number): void {
+    const lineCode = this.part1Lines[index]?.line;
+    if (!lineCode) {
+      return;
+    }
+
+    this.part1Lines[index] = this.createPart1Line(lineCode);
+    this.part1Lines = [...this.part1Lines];
+  }
+
+  resetPart2Line(index: number): void {
+    this.part2Lines[index] = this.createPart2Line();
+    this.part2Lines = [...this.part2Lines];
+  }
+
   onExistingConditionSelected(line: DeathDiagnosisFormLine): void {
     const condition = this.getConditionById(line.selectedConditionId);
     if (!condition) {
+      line.previewIcd10Code = '';
       return;
     }
 
     const snomed = this.getConditionSnomed(condition);
     line.text = condition.code?.text || snomed.display || '';
     line.selectedConcept = snomed.code ? { code: snomed.code, display: snomed.display || line.text } : null;
+    line.previewIcd10Code = condition.icd10Code || '';
+
+    if (!line.previewIcd10Code && snomed.code) {
+      this.populatePreviewIcd10(line, snomed.code);
+    }
   }
 
   onConceptSelected(line: DeathDiagnosisFormLine, concept: any): void {
     line.selectedConcept = concept;
     if (concept?.display) {
       line.text = concept.display;
+    }
+    line.previewIcd10Code = '';
+
+    if (concept?.code) {
+      this.populatePreviewIcd10(line, concept.code);
     }
   }
 
@@ -163,6 +215,18 @@ export class DeathRegistrationDialogComponent {
     return this.data.existingRecord ? 'Update death registration' : 'Register death';
   }
 
+  getSourceFieldLabel(line: DeathDiagnosisFormLine): string {
+    const baseLabel = line.sourceType === 'existing-condition' ? 'Existing condition' : 'SNOMED condition';
+    return line.previewIcd10Code ? `${baseLabel} - ICD-10 ${line.previewIcd10Code}` : baseLabel;
+  }
+
+  getAutocompleteBinding(line: DeathDiagnosisFormLine): { ecl: string; title: string; placeholder: string } {
+    return {
+      ...this.conditionBinding,
+      title: this.getSourceFieldLabel(line)
+    };
+  }
+
   private initializeFromExistingRecord(): void {
     if (!this.data.existingRecord) {
       return;
@@ -212,6 +276,7 @@ export class DeathRegistrationDialogComponent {
       selectedConcept: diagnosis.snomedConceptId
         ? { code: diagnosis.snomedConceptId, display: diagnosis.snomedDisplay || diagnosis.text }
         : null,
+      previewIcd10Code: diagnosis.icd10Code || '',
       text: diagnosis.text || '',
       intervalText: diagnosis.intervalText || ''
     };
@@ -379,6 +444,12 @@ export class DeathRegistrationDialogComponent {
     } catch {
       return undefined;
     }
+  }
+
+  private populatePreviewIcd10(line: DeathDiagnosisFormLine, snomedConceptId: string): void {
+    this.resolveIcd10Code(snomedConceptId).then(code => {
+      line.previewIcd10Code = code || '';
+    });
   }
 
   private hasMeaningfulContent(line: DeathDiagnosisFormLine): boolean {

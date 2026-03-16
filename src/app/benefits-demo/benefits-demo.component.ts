@@ -194,13 +194,20 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!result?.saved || !result.patient) {
+      if (!result?.patient) {
         return;
       }
 
       this.patientService.selectPatient(result.patient);
+
+      const message = result.deleted
+        ? 'Death certification record deleted. Patient revived.'
+        : existingRecord
+          ? 'Death registration updated successfully.'
+          : 'Death registration saved successfully.';
+
       this.snackBar.open(
-        existingRecord ? 'Death registration updated successfully.' : 'Death registration saved successfully.',
+        message,
         undefined,
         {
           duration: 3500,

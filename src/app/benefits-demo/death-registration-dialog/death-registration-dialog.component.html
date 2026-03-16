@@ -50,7 +50,7 @@
         <div>Approximate interval</div>
       </div>
 
-      <div class="line-grid" *ngFor="let line of part1Lines; trackBy: trackByIndex">
+      <div class="line-grid line-grid-with-actions" *ngFor="let line of part1Lines; let i = index; trackBy: trackByIndex">
         <div class="line-label">{{ line.line }}.</div>
 
         <div class="source-column">
@@ -61,7 +61,7 @@
             {{ line.sourceType === 'existing-condition' ? 'Search in SNOMED' : 'Use existing condition' }}
           </button>
           <mat-form-field appearance="outline" *ngIf="line.sourceType === 'existing-condition'">
-            <mat-label>Existing condition</mat-label>
+            <mat-label>{{ getSourceFieldLabel(line) }}</mat-label>
             <mat-select [(value)]="line.selectedConditionId" (selectionChange)="onExistingConditionSelected(line)">
               <mat-option [value]="''">Select condition</mat-option>
               <mat-option *ngFor="let condition of data.conditions" [value]="condition.id">
@@ -72,7 +72,8 @@
 
           <app-autocomplete-binding
             *ngIf="line.sourceType === 'snomed-search'"
-            [binding]="conditionBinding"
+            [binding]="getAutocompleteBinding(line)"
+            appearance="outline"
             [compact]="true"
             [term]="line.selectedConcept"
             (selectionChange)="onConceptSelected(line, $event)">
@@ -92,6 +93,15 @@
             <input matInput [(ngModel)]="line.intervalText" placeholder="e.g. 3 days">
           </mat-form-field>
         </div>
+
+        <button
+          type="button"
+          mat-icon-button
+          class="line-reset-button"
+          aria-label="Clear line"
+          (click)="resetPart1Line(i)">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
     </div>
 
@@ -100,7 +110,7 @@
         <div class="subtitle">Part II. Other significant conditions contributing to death.</div>
       </div>
 
-      <div class="line-grid part2-grid" *ngFor="let line of part2Lines; let i = index; trackBy: trackByIndex">
+      <div class="line-grid line-grid-with-actions part2-grid" *ngFor="let line of part2Lines; let i = index; trackBy: trackByIndex">
         <div class="line-label">{{ i + 1 }}.</div>
 
         <div class="source-column">
@@ -111,7 +121,7 @@
             {{ line.sourceType === 'existing-condition' ? 'Search in SNOMED' : 'Use existing condition' }}
           </button>
           <mat-form-field appearance="outline" *ngIf="line.sourceType === 'existing-condition'">
-            <mat-label>Existing condition</mat-label>
+            <mat-label>{{ getSourceFieldLabel(line) }}</mat-label>
             <mat-select [(value)]="line.selectedConditionId" (selectionChange)="onExistingConditionSelected(line)">
               <mat-option [value]="''">Select condition</mat-option>
               <mat-option *ngFor="let condition of data.conditions" [value]="condition.id">
@@ -122,7 +132,8 @@
 
           <app-autocomplete-binding
             *ngIf="line.sourceType === 'snomed-search'"
-            [binding]="conditionBinding"
+            [binding]="getAutocompleteBinding(line)"
+            appearance="outline"
             [compact]="true"
             [term]="line.selectedConcept"
             (selectionChange)="onConceptSelected(line, $event)">
@@ -141,6 +152,14 @@
             <mat-label>Interval</mat-label>
             <input matInput [(ngModel)]="line.intervalText" placeholder="Optional">
           </mat-form-field>
+          <button
+            type="button"
+            mat-icon-button
+            class="line-reset-button"
+            aria-label="Clear line"
+            (click)="resetPart2Line(i)">
+            <mat-icon>close</mat-icon>
+          </button>
           <button mat-icon-button color="warn" (click)="removePart2Line(i)" aria-label="Remove contributing condition">
             <mat-icon>delete</mat-icon>
           </button>
@@ -162,6 +181,15 @@
   </mat-dialog-content>
 
   <div mat-dialog-actions align="end" class="dialog-actions">
+    <button
+      *ngIf="data.existingRecord"
+      mat-button
+      color="warn"
+      class="delete-record-button"
+      (click)="deleteDeathRecord()"
+      [disabled]="isSaving">
+      Delete death certification record
+    </button>
     <button mat-stroked-button (click)="close()" [disabled]="isSaving">Cancel</button>
     <button mat-flat-button color="warn" (click)="save()" [disabled]="isSaving">
       <mat-spinner diameter="18" *ngIf="isSaving"></mat-spinner>
