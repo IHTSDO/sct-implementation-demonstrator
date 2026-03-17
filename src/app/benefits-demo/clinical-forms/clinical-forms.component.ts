@@ -847,7 +847,7 @@ export class ClinicalFormsComponent implements OnInit {
         // Check if condition already exists
         const conditionExists = existingConditions.some(condition => {
           // Check by SNOMED code if available
-          if (manifestationCode && condition.code?.coding?.[0]?.code === manifestationCode) {
+          if (manifestationCode && this.patientService.extractSnomedCode(condition) === manifestationCode) {
             return true;
           }
           // Otherwise check by display text

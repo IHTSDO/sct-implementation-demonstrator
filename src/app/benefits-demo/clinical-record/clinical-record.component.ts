@@ -689,8 +689,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
    * Debug method to check if condition has ICD-10 code
    */
   hasIcd10Code(condition: Condition): boolean {
-    const hasCode = !!(condition as any).icd10Code;
-    return hasCode;
+    return !!this.patientService.getConditionIcd10Code(condition);
   }
 
   /**
@@ -714,10 +713,11 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
             const conceptPart = matchParam.part.find((part: any) => part.name === 'concept');
             if (conceptPart?.valueCoding?.code) {
               const icd10Code = conceptPart.valueCoding.code;
-              // Store the ICD-10 code in the condition
-              (condition as any).icd10Code = icd10Code;
-              (condition as any).snomedConceptId = snomedConceptId;
-              // Update the condition in PatientService with the SNOMED concept ID
+              this.patientService.setConditionSnomedCoding(condition, {
+                code: snomedConceptId,
+                display: condition.code?.text || undefined
+              });
+              this.patientService.setConditionIcd10Coding(condition, { code: icd10Code });
               this.patientService.updatePatientCondition(this.patient!.id, condition.id, condition);
             } else {
               console.warn('No ICD-10 code found in mapping response');
@@ -1698,6 +1698,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   // Legacy connection line methods removed - now using dynamic hover-based connections
 
   getConceptId(resource: any): string {
+    const snomedCode = this.patientService.extractSnomedCode(resource);
+    if (snomedCode) {
+      return snomedCode;
+    }
     if (resource.code?.coding && resource.code.coding.length > 0) {
       return resource.code.coding[0].code;
     }
@@ -1708,17 +1712,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   getIcd10Code(condition: any): string | null {
-    // First check if there's a direct ICD-10 code property
-    if (condition.icd10Code) {
-      return condition.icd10Code;
-    }
-    
-    // Then check if there's an ICD-10 coding in the code array
-    if (condition.code?.coding) {
-      const icd10Coding = condition.code.coding.find((c: any) => c.system === 'http://hl7.org/fhir/sid/icd-10-cm');
-      return icd10Coding?.code || null;
-    }
-    return null;
+    return this.patientService.getConditionIcd10Code(condition);
   }
 
   /**

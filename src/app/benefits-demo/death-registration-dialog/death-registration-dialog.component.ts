@@ -129,7 +129,7 @@ export class DeathRegistrationDialogComponent {
     const snomed = this.getConditionSnomed(condition);
     line.text = condition.code?.text || snomed.display || '';
     line.selectedConcept = snomed.code ? { code: snomed.code, display: snomed.display || line.text } : null;
-    line.previewIcd10Code = condition.icd10Code || '';
+    line.previewIcd10Code = this.patientService.getConditionIcd10Code(condition) || '';
 
     if (!line.previewIcd10Code && snomed.code) {
       this.populatePreviewIcd10(line, snomed.code);
@@ -326,7 +326,7 @@ export class DeathRegistrationDialogComponent {
       }
 
       const text = line.text.trim() || condition.code?.text || snomed.display || '';
-      const icd10Code = (await this.resolveIcd10Code(snomed.code)) || condition.icd10Code;
+      const icd10Code = (await this.resolveIcd10Code(snomed.code)) || this.patientService.getConditionIcd10Code(condition) || undefined;
 
       return {
         sourceType: 'existing-condition',
@@ -369,8 +369,15 @@ export class DeathRegistrationDialogComponent {
 
       condition.recordedDate = new Date(deceasedDateTime).toISOString();
       condition.onsetDateTime = new Date(deceasedDateTime).toISOString();
-      condition.icd10Code = diagnosis.icd10Code;
-      condition.snomedConceptId = diagnosis.snomedConceptId;
+      if (diagnosis.snomedConceptId) {
+        this.patientService.setConditionSnomedCoding(condition, {
+          code: diagnosis.snomedConceptId,
+          display: diagnosis.snomedDisplay || diagnosis.text
+        });
+      }
+      if (diagnosis.icd10Code) {
+        this.patientService.setConditionIcd10Coding(condition, { code: diagnosis.icd10Code });
+      }
       condition.category = [
         {
           coding: [
@@ -423,10 +430,10 @@ export class DeathRegistrationDialogComponent {
   }
 
   private getConditionSnomed(condition: Condition): { code?: string; display?: string } {
-    const coding = condition.code?.coding?.find(item => item.system === 'http://snomed.info/sct') || condition.code?.coding?.[0];
+    const coding = this.patientService.getConditionSnomedCoding(condition) || condition.code?.coding?.[0];
 
     return {
-      code: condition.snomedConceptId || coding?.code,
+      code: coding?.code,
       display: coding?.display || condition.code?.text
     };
   }

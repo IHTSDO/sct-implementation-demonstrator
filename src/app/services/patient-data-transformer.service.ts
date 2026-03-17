@@ -75,7 +75,7 @@ export class PatientDataTransformerService {
       // Add condition events
       const conditionsToProcess = useIcd10Filtering 
         ? conditions.filter(condition => 
-            (condition as any).icd10Code && (condition as any).icd10Code.trim() !== ''
+            !!this.patientService.getConditionIcd10Code(condition)?.trim()
           )
         : conditions;
       
@@ -285,7 +285,7 @@ export class PatientDataTransformerService {
       if (useIcd10Filtering) {
         // Filter conditions to only include those with ICD-10 codes
         const conditionsWithIcd10 = patientConditions.filter(condition => 
-          (condition as any).icd10Code && (condition as any).icd10Code.trim() !== ''
+          !!this.patientService.getConditionIcd10Code(condition)?.trim()
         );
         allConditions.push(...conditionsWithIcd10);
       } else {
@@ -509,6 +509,10 @@ export class PatientDataTransformerService {
    * Extract SNOMED CT code from a clinical resource
    */
   private extractCodeFromResource(resource: any): string | null {
+    const snomedCode = this.patientService.extractSnomedCode(resource);
+    if (snomedCode) {
+      return snomedCode;
+    }
     if (resource.code?.coding && resource.code.coding.length > 0) {
       return resource.code.coding[0].code;
     }
@@ -696,7 +700,7 @@ export class PatientDataTransformerService {
       if (useIcd10Filtering) {
         // Only count conditions with ICD-10 codes
         const conditionsWithIcd10 = conditions.filter(condition => 
-          (condition as any).icd10Code && (condition as any).icd10Code.trim() !== ''
+          !!this.patientService.getConditionIcd10Code(condition)?.trim()
         );
         return conditionsWithIcd10.length > 0 || procedures.length > 0 || medications.length > 0;
       } else {
@@ -726,7 +730,7 @@ export class PatientDataTransformerService {
       if (useIcd10Filtering) {
         // Only count conditions with ICD-10 codes
         const conditionsWithIcd10 = conditions.filter(condition => 
-          (condition as any).icd10Code && (condition as any).icd10Code.trim() !== ''
+          !!this.patientService.getConditionIcd10Code(condition)?.trim()
         );
         totalConditions += conditionsWithIcd10.length;
       } else {

@@ -72,11 +72,9 @@ export class DataAnalyticsService {
 
     // Extract codes from conditions
     conditions.forEach(condition => {
-      if (condition.code?.coding && condition.code.coding.length > 0) {
-        const code = condition.code.coding[0].code;
-        if (code) {
-          codes.add(code);
-        }
+      const code = this.extractCodeFromResource(condition);
+      if (code) {
+        codes.add(code);
       }
     });
 
@@ -336,6 +334,15 @@ export class DataAnalyticsService {
    * @returns SNOMED CT code or null
    */
   private extractCodeFromResource(resource: any): string | null {
+    if (resource.code?.coding && resource.code.coding.length > 0) {
+      const snomedCoding = resource.code.coding.find((coding: any) =>
+        coding.system === 'http://snomed.info/sct' ||
+        coding.system === 'http://snomed.info/sct/900000000000207008'
+      );
+      if (snomedCoding?.code) {
+        return snomedCoding.code;
+      }
+    }
     if (resource.code?.coding && resource.code.coding.length > 0) {
       return resource.code.coding[0].code;
     }

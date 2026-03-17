@@ -1632,27 +1632,9 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
         for (const condition of selectedConditionsData) {
           const snomedCode = this.patientService.extractSnomedCode(condition);
-          let icd10Code: string | undefined = undefined;
           let computedLocation: string | undefined = undefined;
-          
-          // Try to get ICD-10 mapping if we have a SNOMED code
-          if (snomedCode) {
-            try {
-              const icd10Response = await this.terminologyService.getIcd10MapTargets(snomedCode).toPromise();
-              if (icd10Response?.parameter) {
-                const targetParam = icd10Response.parameter.find((p: any) => p.name === 'match');
-                if (targetParam?.part) {
-                  const conceptPart = targetParam.part.find((part: any) => part.name === 'concept');
-                  if (conceptPart?.valueCoding?.code) {
-                    icd10Code = conceptPart.valueCoding.code;
-                  }
-                }
-              }
-            } catch (error) {
-              console.warn('Could not fetch ICD-10 mapping for SNOMED code:', snomedCode, error);
-            }
 
-            // Calculate anatomic location using ancestor mapping
+          if (snomedCode) {
             try {
               computedLocation = await this.calculateAnatomicLocation(snomedCode);
             } catch (error) {
@@ -1663,8 +1645,6 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
           const convertedCondition = {
             ...this.toClinicalEntryCondition(condition, this.linkedPatient.id),
-            snomedConceptId: snomedCode || undefined,
-            icd10Code: icd10Code,
             computedLocation: computedLocation || 'systemic'
           };
 

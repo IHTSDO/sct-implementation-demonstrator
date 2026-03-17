@@ -291,9 +291,6 @@ export interface Condition {
     time?: string;
     text: string;
   }>;
-  // Custom properties for ICD-10 mapping
-  icd10Code?: string;
-  snomedConceptId?: string;
   computedLocation?: string;
   bodyStructure?: {
     reference?: string;
@@ -1202,6 +1199,9 @@ export interface PatientSimilarityResult {
   providedIn: 'root'
 })
 export class PatientService {
+  public static readonly SNOMED_SYSTEM = 'http://snomed.info/sct';
+  public static readonly SNOMED_EDITION_SYSTEM = 'http://snomed.info/sct/900000000000207008';
+  public static readonly ICD10_SYSTEM = 'http://hl7.org/fhir/sid/icd-10';
   private readonly STORAGE_KEY = 'ehr_patients';
   private readonly ANATOMICAL_ANCHOR_POINTS: Array<{ id: string; ancestors: string[] }> = [
     {
@@ -1252,30 +1252,75 @@ export class PatientService {
   public extractSnomedCode(resource: any): string | null {
     // Extract SNOMED CT code from various resource types
     if (resource.code?.coding) {
-      const snomedCoding = resource.code.coding.find((coding: any) => 
-        coding.system === 'http://snomed.info/sct' || 
-        coding.system === 'http://snomed.info/sct/900000000000207008'
+      const snomedCoding = resource.code.coding.find((coding: any) =>
+        coding.system === PatientService.SNOMED_SYSTEM ||
+        coding.system === PatientService.SNOMED_EDITION_SYSTEM
       );
       return snomedCoding?.code || null;
     }
     
     if (resource.medicationCodeableConcept?.coding) {
-      const snomedCoding = resource.medicationCodeableConcept.coding.find((coding: any) => 
-        coding.system === 'http://snomed.info/sct' || 
-        coding.system === 'http://snomed.info/sct/900000000000207008'
+      const snomedCoding = resource.medicationCodeableConcept.coding.find((coding: any) =>
+        coding.system === PatientService.SNOMED_SYSTEM ||
+        coding.system === PatientService.SNOMED_EDITION_SYSTEM
       );
       return snomedCoding?.code || null;
     }
     
     if (resource.reasonCode && resource.reasonCode.length > 0 && resource.reasonCode[0].coding) {
-      const snomedCoding = resource.reasonCode[0].coding.find((coding: any) => 
-        coding.system === 'http://snomed.info/sct' || 
-        coding.system === 'http://snomed.info/sct/900000000000207008'
+      const snomedCoding = resource.reasonCode[0].coding.find((coding: any) =>
+        coding.system === PatientService.SNOMED_SYSTEM ||
+        coding.system === PatientService.SNOMED_EDITION_SYSTEM
       );
       return snomedCoding?.code || null;
     }
     
     return null;
+  }
+
+  public getConditionSnomedCoding(condition: Condition): { system?: string; code?: string; display?: string } | undefined {
+    return condition.code?.coding?.find((coding: any) =>
+      coding.system === PatientService.SNOMED_SYSTEM ||
+      coding.system === PatientService.SNOMED_EDITION_SYSTEM
+    );
+  }
+
+  public getConditionIcd10Coding(condition: Condition): { system?: string; code?: string; display?: string } | undefined {
+    return condition.code?.coding?.find((coding: any) => coding.system === PatientService.ICD10_SYSTEM);
+  }
+
+  public getConditionIcd10Code(condition: Condition): string | null {
+    return this.getConditionIcd10Coding(condition)?.code || null;
+  }
+
+  public setConditionSnomedCoding(condition: Condition, coding: { code: string; display?: string }): void {
+    const existingCoding = this.getConditionSnomedCoding(condition);
+    this.upsertConditionCoding(condition, {
+      system: existingCoding?.system || PatientService.SNOMED_SYSTEM,
+      code: coding.code,
+      display: coding.display || existingCoding?.display || condition.code?.text || coding.code
+    }, true);
+  }
+
+  public setConditionIcd10Coding(condition: Condition, coding: { code: string; display?: string }): void {
+    const existingCoding = this.getConditionIcd10Coding(condition);
+    this.upsertConditionCoding(condition, {
+      system: PatientService.ICD10_SYSTEM,
+      code: coding.code,
+      display: coding.display || existingCoding?.display || coding.code
+    }, false);
+  }
+
+  private upsertConditionCoding(
+    condition: Condition,
+    coding: { system?: string; code?: string; display?: string },
+    placeFirst: boolean
+  ): void {
+    condition.code = condition.code || { text: coding.display || coding.code || '' };
+
+    const existingCodings = condition.code.coding || [];
+    const filteredCodings = existingCodings.filter((item: any) => item.system !== coding.system);
+    condition.code.coding = placeFirst ? [coding, ...filteredCodings] : [...filteredCodings, coding];
   }
 
   private isDuplicateCondition(existingConditions: Condition[], newCondition: Condition): boolean {
@@ -1680,7 +1725,7 @@ export class PatientService {
   }
 
   private async enrichConditionInBackground(patientId: string, condition: Condition): Promise<void> {
-    if (condition.icd10Code && condition.computedLocation) {
+    if (this.getConditionIcd10Code(condition) && condition.computedLocation) {
       return;
     }
 
@@ -1696,12 +1741,16 @@ export class PatientService {
     const snomedCode = this.extractSnomedCode(condition);
 
     if (snomedCode) {
-      condition.snomedConceptId = condition.snomedConceptId || snomedCode;
+      const snomedCoding = this.getConditionSnomedCoding(condition);
+      this.setConditionSnomedCoding(condition, {
+        code: snomedCode,
+        display: snomedCoding?.display || condition.code?.text || snomedCode
+      });
 
-      if (!condition.icd10Code) {
+      if (!this.getConditionIcd10Code(condition)) {
         const icd10Code = await this.resolveIcd10Code(snomedCode);
         if (icd10Code) {
-          condition.icd10Code = icd10Code;
+          this.setConditionIcd10Coding(condition, { code: icd10Code });
         }
       }
 
@@ -2264,7 +2313,7 @@ export class PatientService {
       },
       code: {
         coding: concept.code ? [{
-          system: 'http://snomed.info/sct',
+          system: PatientService.SNOMED_SYSTEM,
           code: concept.code,
           display
         }] : undefined,
@@ -2411,7 +2460,7 @@ export class PatientService {
       },
       code: {
         coding: detectedEntity.conceptId ? [{
-          system: 'http://snomed.info/sct',
+          system: PatientService.SNOMED_SYSTEM,
           code: detectedEntity.conceptId,
           display: detectedEntity.name
         }] : undefined,

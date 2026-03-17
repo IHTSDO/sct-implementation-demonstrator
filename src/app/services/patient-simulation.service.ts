@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Patient, Condition } from './patient.service';
+import { Patient, Condition, PatientService } from './patient.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -499,11 +499,18 @@ export class PatientSimulationService {
         text: 'Confirmed'
       },
       code: {
-        coding: [{
-          system: 'http://snomed.info/sct',
-          code: snomedCode,
-          display: snomedDisplay
-        }],
+        coding: [
+          {
+            system: PatientService.SNOMED_SYSTEM,
+            code: snomedCode,
+            display: snomedDisplay
+          },
+          ...(icd10Code ? [{
+            system: PatientService.ICD10_SYSTEM,
+            code: icd10Code,
+            display: icd10Code
+          }] : [])
+        ],
         text: snomedDisplay
       },
       subject: {
@@ -512,8 +519,6 @@ export class PatientSimulationService {
       },
       onsetDateTime: currentTime,
       recordedDate: currentTime,
-      snomedConceptId: snomedCode,
-      icd10Code: icd10Code,
       computedLocation: computedLocation
     } as Condition;
   }
