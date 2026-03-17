@@ -3,6 +3,7 @@
   --kind-condition: #8e44ad;
   --kind-procedure: #17a2b8;
   --kind-medication: #28a745;
+  --kind-allergy: #f39c12;
   --kind-encounter: #4e5d6c;
 }
 
@@ -175,6 +176,16 @@
   background: linear-gradient(135deg, #1f8a3a, #1a7531);
   transform: scale(1.1);
   box-shadow: 0 4px 16px rgba(40, 167, 69, 0.4);
+}
+
+.timeline-item[data-event-type="allergy"] .event-marker {
+  background: linear-gradient(135deg, var(--kind-allergy), #d97706);
+}
+
+.timeline-item[data-event-type="allergy"] .event-marker:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(243, 156, 18, 0.4);
 }
 
 .timeline-item[data-event-type="encounter"] .event-marker {

@@ -1,9 +1,9 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { Condition, Procedure, MedicationStatement } from '../../services/patient.service';
+import { AllergyIntolerance, Condition, Procedure, MedicationStatement } from '../../services/patient.service';
 
 export interface TimelineEvent {
   id: string;
-  type: 'condition' | 'procedure' | 'medication' | 'encounter';
+  type: 'condition' | 'procedure' | 'medication' | 'allergy' | 'encounter';
   title: string;
   date: Date;
   conceptId: string;
@@ -23,6 +23,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
   @Input() conditions: Condition[] = [];
   @Input() procedures: Procedure[] = [];
   @Input() medications: MedicationStatement[] = [];
+  @Input() allergies: AllergyIntolerance[] = [];
   @Input() encounters: any[] = [];
 
   timelineEvents: TimelineEvent[] = [];
@@ -33,6 +34,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
     condition: '#8e44ad',
     procedure: '#17a2b8',
     medication: '#28a745',
+    allergy: '#f39c12',
     encounter: '#4e5d6c'
   };
 
@@ -46,7 +48,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['conditions'] || changes['procedures'] || changes['medications'] || changes['encounters']) {
+    if (changes['conditions'] || changes['procedures'] || changes['medications'] || changes['allergies'] || changes['encounters']) {
       this.processEvents();
     }
   }
@@ -113,6 +115,24 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
       }
     });
 
+    // Process allergies
+    this.allergies.forEach(allergy => {
+      const date = this.getBestDate(allergy, 'allergy');
+      if (date) {
+        this.timelineEvents.push({
+          id: allergy.id,
+          type: 'allergy',
+          title: this.getAllergyTitle(allergy),
+          date: date,
+          conceptId: this.getAllergyConceptId(allergy),
+          status: this.getAllergyStatus(allergy),
+          details: this.getAllergyDetails(allergy),
+          originalEvent: allergy,
+          color: this.eventColors.allergy
+        });
+      }
+    });
+
     // Process encounters
     this.encounters.forEach(encounter => {
       const date = this.getBestDate(encounter, 'encounter');
@@ -148,6 +168,9 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
       case 'medication':
         dateString = event.effectiveDateTime || event.recordedDate;
         break;
+      case 'allergy':
+        dateString = event.recordedDate || event.onsetDateTime;
+        break;
       case 'encounter':
         dateString = event.period?.start || event.recordedDate;
         break;
@@ -162,6 +185,16 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
     }
     if (resource.medicationCodeableConcept?.coding && resource.medicationCodeableConcept.coding.length > 0) {
       return resource.medicationCodeableConcept.coding[0].code;
+    }
+    return '';
+  }
+
+  private getAllergyConceptId(allergy: AllergyIntolerance): string {
+    if (allergy.code?.coding && allergy.code.coding.length > 0) {
+      return allergy.code.coding[0].code || '';
+    }
+    if (allergy.reaction?.[0]?.substance?.[0]?.coding && allergy.reaction[0].substance[0].coding.length > 0) {
+      return allergy.reaction[0].substance[0].coding[0].code || '';
     }
     return '';
   }
@@ -202,6 +235,45 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
     }
     if (medication.dosage && medication.dosage.length > 0) {
       details.push(`Dosage: ${medication.dosage[0].text}`);
+    }
+    return details.join(' • ');
+  }
+
+  private getAllergyTitle(allergy: AllergyIntolerance): string {
+    if (allergy.code?.text) {
+      return allergy.code.text;
+    }
+    if (allergy.code?.coding && allergy.code.coding.length > 0) {
+      return allergy.code.coding[0].display || 'Unknown Allergy';
+    }
+    return 'Unknown Allergy';
+  }
+
+  private getAllergyStatus(allergy: AllergyIntolerance): string {
+    if (allergy.verificationStatus?.text) {
+      return allergy.verificationStatus.text;
+    }
+    if (allergy.verificationStatus?.coding && allergy.verificationStatus.coding.length > 0) {
+      return allergy.verificationStatus.coding[0].display || allergy.verificationStatus.coding[0].code || 'Unknown';
+    }
+    return 'Unknown';
+  }
+
+  private getAllergyDetails(allergy: AllergyIntolerance): string {
+    const details = [];
+    if (allergy.recordedDate) {
+      details.push(`Recorded: ${this.formatDate(allergy.recordedDate)}`);
+    }
+    if (typeof allergy.criticality === 'string' && allergy.criticality.length > 0) {
+      details.push(`Criticality: ${allergy.criticality.charAt(0).toUpperCase()}${allergy.criticality.slice(1).replace(/-/g, ' ')}`);
+    }
+    const reactions = allergy.reaction?.flatMap((reaction) =>
+      reaction.manifestation?.map((manifestation) =>
+        manifestation.text || manifestation.coding?.[0]?.display || ''
+      ) || []
+    ).filter((reaction) => reaction);
+    if (reactions && reactions.length > 0) {
+      details.push(`Reaction: ${reactions.join(', ')}`);
     }
     return details.join(' • ');
   }
@@ -252,6 +324,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
       case 'condition': return 'Condition';
       case 'procedure': return 'Procedure';
       case 'medication': return 'Medication';
+      case 'allergy': return 'Allergy';
       case 'encounter': return 'Encounter';
       default: return 'Event';
     }
@@ -262,6 +335,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
       case 'condition': return 'medical_services';
       case 'procedure': return 'healing';
       case 'medication': return 'medication';
+      case 'allergy': return 'warning';
       case 'encounter': return 'person_pin';
       default: return 'event';
     }
