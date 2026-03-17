@@ -133,6 +133,8 @@ import { SmartHealthLinksComponent } from './benefits-demo/smart-health-links/sm
 import { QuestionnaireFormComponent } from './benefits-demo/questionnaire-form/questionnaire-form.component';
 import { OpenehrFormComponent } from './benefits-demo/openehr-form/openehr-form.component';
 import { AiAssistedEntryComponent } from './benefits-demo/ai-assisted-entry/ai-assisted-entry.component';
+import { ProblemsListSimplifiedComponent } from './benefits-demo/problems-list-simplified/problems-list-simplified.component';
+import { AllergyFormDialogComponent } from './benefits-demo/allergy-form-dialog/allergy-form-dialog.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { BatchPatientDialogComponent } from './benefits-demo/batch-patient-dialog/batch-patient-dialog.component';
 import { DeathRegistrationDialogComponent } from './benefits-demo/death-registration-dialog/death-registration-dialog.component';
@@ -258,6 +260,8 @@ const app = initializeApp(firebaseConfig);
         QuestionnaireFormComponent,
         OpenehrFormComponent,
         AiAssistedEntryComponent,
+        ProblemsListSimplifiedComponent,
+        AllergyFormDialogComponent,
         ExpoQuiz2025Component,
         BatchPatientDialogComponent,
         DeathRegistrationDialogComponent,

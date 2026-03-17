@@ -345,6 +345,22 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
     this.selectedReasonForEncounter = null;
     this.selectedDiagnosis = null;
     this.selectedProcedure = null;
+
+    // Reset the AI editor after save
+    this.clinicalText = '';
+    if (this.editableDiv && this.editableDiv.nativeElement) {
+      this.editableDiv.nativeElement.textContent = '';
+      this.editableDiv.nativeElement.innerHTML = '';
+    }
+    if (this.detectionTimeout) {
+      clearTimeout(this.detectionTimeout);
+      this.detectionTimeout = null;
+    }
+    if (this.detectionSubscription) {
+      this.detectionSubscription.unsubscribe();
+      this.detectionSubscription = undefined;
+    }
+    this.isProcessing = false;
   }
 
   hasDetectedEntities(): boolean {

@@ -66,12 +66,12 @@
 }
 
 .encounter-form-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  overflow: hidden;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
   width: 100%;
-  border-left: 4px solid #28a745;
+  border-left: none;
 }
 
 .form-card {
@@ -261,7 +261,7 @@
 .form-bottom {
   padding: 16px;
   border-top: 1px solid #f0f0f0;
-  background: #fafafa;
+  background: transparent;
 }
 
 .encounter-notes-section {
@@ -555,16 +555,16 @@
 /* Previous Encounters Section */
 .previous-encounters-section {
   margin-top: 30px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  overflow: hidden;
-  border-left: 4px solid #28a745;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  border-left: none;
 }
 
 .previous-encounters-section .section-header {
-  background: #f8f9fa;
-  padding: 16px 20px;
+  background: transparent;
+  padding: 8px 0 12px;
   border-bottom: 1px solid #e9ecef;
 }
 
@@ -583,20 +583,27 @@
 
 .encounters-list {
   padding: 0;
+  border-top: none;
 }
 
 .encounter-item {
   padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s ease;
+  border: 1px solid #e9ecef;
+  border-left: 4px solid #28a745;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  margin-bottom: 12px;
 }
 
 .encounter-item:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .encounter-item:hover {
-  background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+  transform: translateY(-1px);
 }
 
 .encounter-header {

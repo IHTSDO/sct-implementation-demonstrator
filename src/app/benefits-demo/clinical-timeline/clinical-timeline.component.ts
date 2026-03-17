@@ -30,10 +30,10 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
 
   // Color scheme for different event types
   readonly eventColors = {
-    condition: '#FF6B6B',
-    procedure: '#4ECDC4', 
-    medication: '#45B7D1',
-    encounter: '#9B59B6'
+    condition: '#8e44ad',
+    procedure: '#17a2b8',
+    medication: '#28a745',
+    encounter: '#4e5d6c'
   };
 
   // Utility method to determine if an event should be on the left or right

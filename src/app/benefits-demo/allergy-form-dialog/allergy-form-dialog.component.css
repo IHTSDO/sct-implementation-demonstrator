@@ -1,0 +1,45 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.allergy-dialog-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px 10px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.dialog-head h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.dialog-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-top: 8px;
+}
+
+/* Keep this dialog focused on allergy capture only. */
+:host ::ng-deep app-clinical-forms .forms-header {
+  display: none;
+}
+
+:host ::ng-deep app-clinical-forms .forms-tabs .mat-mdc-tab-header {
+  display: none;
+}
+
+:host ::ng-deep app-clinical-forms .form-selection {
+  display: none;
+}

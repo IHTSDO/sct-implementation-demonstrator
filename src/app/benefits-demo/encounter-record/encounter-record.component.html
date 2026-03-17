@@ -28,6 +28,7 @@
                   <div class="field-with-info">
                     <app-autocomplete-binding
                       [binding]="bindings.reasonForEncounter"
+                      appearance="outline"
                       [term]="currentReasonForEncounter?.display || ''"
                       (selectionChange)="onReasonForEncounterSelected($event)">
                     </app-autocomplete-binding>
@@ -98,6 +99,7 @@
                     <div class="field-with-info">
                       <app-autocomplete-binding
                         [binding]="bindings.diagnosis"
+                        appearance="outline"
                         [term]="currentDiagnosis?.display || ''"
                         (selectionChange)="onDiagnosisSelected($event)">
                       </app-autocomplete-binding>
@@ -112,7 +114,7 @@
                   </div>
                   <div class="diagnosis-note-field">
                     <div class="field-with-info">
-                      <mat-form-field class="note-field">
+                      <mat-form-field appearance="outline" class="note-field">
                         <mat-label>Diagnosis Note</mat-label>
                         <textarea matInput
                           [(ngModel)]="currentDiagnosisNote"
@@ -205,6 +207,7 @@
                     <div class="field-with-info">
                       <app-autocomplete-binding
                         [binding]="bindings.procedure"
+                        appearance="outline"
                         [term]="currentProcedure?.display || ''"
                         (selectionChange)="onProcedureSelected($event)">
                       </app-autocomplete-binding>
@@ -219,7 +222,7 @@
                   </div>
                   <div class="laterality-field">
                     <div class="field-with-info">
-                      <mat-form-field class="laterality-select">
+                      <mat-form-field appearance="outline" class="laterality-select">
                         <mat-label>Laterality</mat-label>
                         <mat-select [(value)]="currentProcedureLaterality"
                           placeholder="Select laterality"
@@ -327,7 +330,7 @@
             <div class="form-bottom">
               <div class="encounter-notes-section">
                 <h3>Notes</h3>
-                <mat-form-field class="encounter-notes-field">
+                <mat-form-field appearance="outline" class="encounter-notes-field">
                   <mat-label>Notes</mat-label>
                   <textarea matInput
                     [(ngModel)]="encounterNotes"

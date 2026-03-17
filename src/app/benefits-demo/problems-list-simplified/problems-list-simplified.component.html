@@ -1,0 +1,28 @@
+<section class="problems-list-panel">
+  <header class="panel-header">
+    <h4>Problems List</h4>
+    <span class="problem-count">{{ problemItems.length }}</span>
+  </header>
+
+  <p class="read-only-note">Read-only consolidated view</p>
+
+  <div class="problems-list" *ngIf="problemItems.length > 0; else noProblems">
+    <article class="problem-item" [ngClass]="getKindClass(item.kind)" *ngFor="let item of problemItems; trackBy: trackByProblem">
+      <span class="problem-kind" [ngClass]="getKindClass(item.kind)">
+        <mat-icon>{{ getKindIcon(item.kind) }}</mat-icon>
+        {{ item.kind }}
+      </span>
+      <div class="problem-main">
+        <div class="problem-name">{{ item.name }}</div>
+        <div class="problem-meta">
+          <span>{{ item.status }}</span>
+          <span *ngIf="item.recordedOn">{{ item.recordedOn | date:'MMM d, y' }}</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <ng-template #noProblems>
+    <div class="no-problems-message">No problems recorded</div>
+  </ng-template>
+</section>

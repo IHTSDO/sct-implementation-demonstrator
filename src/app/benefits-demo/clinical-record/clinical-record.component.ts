@@ -1,12 +1,13 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { MatTabGroup } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, FhirObservation } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
 import { Subscription, forkJoin, of, delay } from 'rxjs';
+import { AllergyFormDialogComponent } from '../allergy-form-dialog/allergy-form-dialog.component';
 
 export interface AnchorPoint {
   id: string;
@@ -30,6 +31,11 @@ interface VitalSignObservationConfig {
   bloodPressureComponentSnomed?: string;
 }
 
+type ClinicalModule = 'clinical' | 'dentistry' | 'nursing';
+type ClinicalView = 'summary' | 'encounters' | 'ai-entry' | 'problems' | 'forms' | 'alerts';
+type DentalView = 'odontogram';
+type NursingView = 'vitals' | 'nutrition';
+
 @Component({
   selector: 'app-clinical-record',
   templateUrl: './clinical-record.component.html',
@@ -40,7 +46,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   @ViewChild('conditionEntry') conditionEntry!: ClinicalEntryComponent;
   @ViewChild('procedureEntry') procedureEntry!: ClinicalEntryComponent;
   @ViewChild('medicationEntry') medicationEntry!: ClinicalEntryComponent;
-  @ViewChild('tabGroup') tabGroup!: MatTabGroup;
   @ViewChild('encounterRecord') encounterRecord!: any;
   @ViewChild('clinicalTimeline') clinicalTimeline!: any;
   @ViewChild('clinicalForms') clinicalForms!: any;
@@ -52,7 +57,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   allergies: AllergyIntolerance[] = [];
   encounters: any[] = [];
   currentDate = new Date();
-  selectedModule: 'clinical' | 'dentistry' | 'nursing' = 'clinical';
+  selectedModule: ClinicalModule = 'clinical';
+  selectedClinicalView: ClinicalView = 'summary';
+  selectedDentalView: DentalView = 'odontogram';
+  selectedNursingView: NursingView = 'vitals';
+  isClinicalNavExpanded = true;
+  isDentalNavExpanded = true;
+  isNursingNavExpanded = true;
+  isSidebarCollapsed = false;
   private subscriptions: Subscription[] = [];
   private readonly DENTAL_CATEGORY_SYSTEM = 'http://example.org/fhir/CodeSystem/condition-category';
   private readonly DENTAL_CONDITION_CATEGORY_CODE = 'dental';
@@ -171,7 +183,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     private route: ActivatedRoute,
     private router: Router,
     private terminologyService: TerminologyService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -219,8 +232,109 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.router.navigate(['/ehr-lab']);
   }
 
-  setSelectedModule(module: 'clinical' | 'dentistry' | 'nursing'): void {
+  setSelectedModule(module: ClinicalModule): void {
     this.selectedModule = module;
+    if (module === 'clinical') {
+      this.selectedClinicalView = 'summary';
+      this.isClinicalNavExpanded = true;
+      return;
+    }
+    if (module === 'nursing') {
+      this.selectedNursingView = this.selectedNursingView || 'vitals';
+      this.isNursingNavExpanded = true;
+      return;
+    }
+    if (module === 'dentistry') {
+      this.selectedDentalView = this.selectedDentalView || 'odontogram';
+      this.isDentalNavExpanded = true;
+    }
+  }
+
+  onClinicalRootClick(): void {
+    if (this.selectedModule === 'clinical') {
+      this.toggleClinicalNavGroup();
+      return;
+    }
+    this.setSelectedModule('clinical');
+  }
+
+  onNursingRootClick(): void {
+    if (this.selectedModule === 'nursing') {
+      this.toggleNursingNavGroup();
+      return;
+    }
+    this.setSelectedModule('nursing');
+  }
+
+  onDentalRootClick(): void {
+    if (this.selectedModule === 'dentistry') {
+      this.toggleDentalNavGroup();
+      return;
+    }
+    this.setSelectedModule('dentistry');
+  }
+
+  toggleSidebarCollapsed(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
+  toggleClinicalNavGroup(): void {
+    this.isClinicalNavExpanded = !this.isClinicalNavExpanded;
+  }
+
+  toggleNursingNavGroup(): void {
+    this.isNursingNavExpanded = !this.isNursingNavExpanded;
+  }
+
+  toggleDentalNavGroup(): void {
+    this.isDentalNavExpanded = !this.isDentalNavExpanded;
+  }
+
+  selectClinicalView(view: ClinicalView): void {
+    this.selectedModule = 'clinical';
+    this.selectedClinicalView = view;
+    this.isClinicalNavExpanded = true;
+  }
+
+  selectNursingView(view: NursingView): void {
+    this.selectedModule = 'nursing';
+    this.selectedNursingView = view;
+    this.isNursingNavExpanded = true;
+  }
+
+  selectDentalView(view: DentalView): void {
+    this.selectedModule = 'dentistry';
+    this.selectedDentalView = view;
+    this.isDentalNavExpanded = true;
+  }
+
+  getActiveContentThemeClass(): string {
+    if (this.selectedModule === 'dentistry') {
+      return 'content-theme-dental';
+    }
+
+    if (this.selectedModule === 'nursing') {
+      return this.selectedNursingView === 'nutrition'
+        ? 'content-theme-nursing-nutrition'
+        : 'content-theme-nursing-vitals';
+    }
+
+    switch (this.selectedClinicalView) {
+      case 'summary':
+        return 'content-theme-summary';
+      case 'problems':
+        return 'content-theme-problems';
+      case 'encounters':
+        return 'content-theme-encounters';
+      case 'ai-entry':
+        return 'content-theme-ai-entry';
+      case 'forms':
+        return 'content-theme-forms';
+      case 'alerts':
+        return 'content-theme-alerts';
+      default:
+        return 'content-theme-summary';
+    }
   }
 
   getPatientDisplayName(patient: Patient): string {
@@ -350,11 +464,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   onCdsNoticeClick(): void {
-    // Switch to Decision Support tab (index 4) when clicking on CDS notice
-    // Tab order: 0=Encounters, 1=AI Entry, 2=Timeline, 3=Problems List, 4=Decision Support, 5=Clinical Forms
-    if (this.tabGroup) {
-      this.tabGroup.selectedIndex = 4;
-    }
+    this.selectClinicalView('alerts');
   }
 
   formatDate(dateString: string | undefined): string {
@@ -741,17 +851,26 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   openAllergyForm(): void {
-    // Switch to Clinical Forms tab (index 5)
-    if (this.tabGroup) {
-      this.tabGroup.selectedIndex = 5;
-      
-      // Set the selected form to 'allergies' after a brief delay to ensure tab is rendered
-      setTimeout(() => {
-        if (this.clinicalForms) {
-          this.clinicalForms.selectedForm = 'allergies';
-        }
-      }, 100);
-    }
+    const dialogRef = this.dialog.open(AllergyFormDialogComponent, {
+      width: '1100px',
+      maxWidth: '95vw',
+      height: '86vh',
+      autoFocus: false,
+      data: {
+        patient: this.patient,
+        conditions: this.conditions,
+        procedures: this.procedures,
+        medications: this.medications
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) {
+        return;
+      }
+
+      this.onClinicalFormSubmitted(result);
+    });
   }
 
   async onMedicationAdded(event: any): Promise<void> {

@@ -1,11 +1,11 @@
 .cds-tab-container {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #8e44ad;
-  max-width: 1000px;
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+  box-shadow: none;
+  border-left: none;
+  max-width: none;
 }
 
 .cds-tab-container h3 {
@@ -190,4 +190,3 @@
   padding-top: 8px;
   border-top: 1px solid #f1f3f4;
 }
-

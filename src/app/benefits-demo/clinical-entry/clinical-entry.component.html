@@ -15,6 +15,7 @@
               <app-autocomplete-binding
                 #autocompleteBinding
                 [binding]="currentBinding"
+                appearance="outline"
                 [term]="term"
                 (selectionChange)="updateConcept($event)">
               </app-autocomplete-binding>
@@ -30,7 +31,7 @@
           <!-- Association dropdown for medications -->
           @if (entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)) {
             <div class="association-section">
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Select the reason for the indication</mat-label>
                 <mat-select [(value)]="selectedAssociation" [compareWith]="compareAssociations">
                   <mat-option [value]="null">None - General medication</mat-option>

@@ -1,0 +1,19 @@
+<div class="allergy-dialog-shell">
+  <div class="dialog-head">
+    <h3>Add Allergy / Intolerance</h3>
+    <button mat-icon-button (click)="close()" aria-label="Close allergy dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-body">
+    <app-clinical-forms
+      [patient]="data.patient"
+      [conditions]="data.conditions"
+      [procedures]="data.procedures"
+      [medications]="data.medications"
+      (formSubmitted)="onFormSubmitted($event)"
+      (formCancelled)="close()">
+    </app-clinical-forms>
+  </div>
+</div>

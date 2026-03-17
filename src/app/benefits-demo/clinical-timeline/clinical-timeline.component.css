@@ -1,3 +1,11 @@
+/* Shared semantic colors for timeline event types */
+:host {
+  --kind-condition: #8e44ad;
+  --kind-procedure: #17a2b8;
+  --kind-medication: #28a745;
+  --kind-encounter: #4e5d6c;
+}
+
 /* Container styling now handled by parent tab system */
 
 /* Timeline Header */
@@ -140,43 +148,43 @@
 }
 
 .timeline-item[data-event-type="condition"] .event-marker {
-  background: linear-gradient(135deg, #FF6B6B, #FF5252);
+  background: linear-gradient(135deg, var(--kind-condition), #7d3c98);
 }
 
 .timeline-item[data-event-type="condition"] .event-marker:hover {
-  background: linear-gradient(135deg, #FF5252, #FF1744);
+  background: linear-gradient(135deg, #7d3c98, #6c2f85);
   transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 4px 16px rgba(142, 68, 173, 0.4);
 }
 
 .timeline-item[data-event-type="procedure"] .event-marker {
-  background: linear-gradient(135deg, #4ECDC4, #26C6DA);
+  background: linear-gradient(135deg, var(--kind-procedure), #138496);
 }
 
 .timeline-item[data-event-type="procedure"] .event-marker:hover {
-  background: linear-gradient(135deg, #26C6DA, #00BCD4);
+  background: linear-gradient(135deg, #138496, #0f6f80);
   transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 4px 16px rgba(23, 162, 184, 0.4);
 }
 
 .timeline-item[data-event-type="medication"] .event-marker {
-  background: linear-gradient(135deg, #45B7D1, #2196F3);
+  background: linear-gradient(135deg, var(--kind-medication), #1f8a3a);
 }
 
 .timeline-item[data-event-type="medication"] .event-marker:hover {
-  background: linear-gradient(135deg, #2196F3, #1976D2);
+  background: linear-gradient(135deg, #1f8a3a, #1a7531);
   transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(69, 183, 209, 0.4);
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.4);
 }
 
 .timeline-item[data-event-type="encounter"] .event-marker {
-  background: linear-gradient(135deg, #9B59B6, #8E44AD);
+  background: linear-gradient(135deg, var(--kind-encounter), #3f4a58);
 }
 
 .timeline-item[data-event-type="encounter"] .event-marker:hover {
-  background: linear-gradient(135deg, #8E44AD, #7D3C98);
+  background: linear-gradient(135deg, #3f4a58, #323c49);
   transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(155, 89, 182, 0.4);
+  box-shadow: 0 4px 16px rgba(78, 93, 108, 0.4);
 }
 
 .event-icon {
@@ -509,15 +517,15 @@
 }
 
 .timeline-item[data-event-type="condition"] .event-marker::before {
-  background: radial-gradient(circle, rgba(255, 107, 107, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(142, 68, 173, 0.28) 0%, transparent 70%);
 }
 
 .timeline-item[data-event-type="procedure"] .event-marker::before {
-  background: radial-gradient(circle, rgba(78, 205, 196, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(23, 162, 184, 0.28) 0%, transparent 70%);
 }
 
 .timeline-item[data-event-type="medication"] .event-marker::before {
-  background: radial-gradient(circle, rgba(69, 183, 209, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(40, 167, 69, 0.28) 0%, transparent 70%);
 }
 
 .timeline-item[data-event-type="encounter"] .event-marker::before {

@@ -1,16 +1,16 @@
 .record-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 12px 30px 30px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
 .record-section {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #ccc;
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+  box-shadow: none;
+  border-left: none;
 }
 
 .section-header {

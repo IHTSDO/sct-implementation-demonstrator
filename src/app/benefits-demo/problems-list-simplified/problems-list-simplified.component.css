@@ -1,0 +1,150 @@
+:host {
+  display: block;
+  height: 100%;
+  --kind-condition: #8e44ad;
+  --kind-allergy: #f39c12;
+  --kind-procedure: #17a2b8;
+  --kind-medication: #28a745;
+}
+
+.problems-list-panel {
+  background: #ffffff;
+  border: 1px solid #e4ebf3;
+  border-radius: 12px;
+  padding: 14px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.panel-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.problem-count {
+  background: #e9f2ff;
+  color: #0d6efd;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.read-only-note {
+  margin: 0 0 10px 0;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.problems-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.problem-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 8px;
+  border: 1px solid #edf1f6;
+  border-left: 3px solid #d5deea;
+  border-radius: 8px;
+}
+
+.problem-kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f6f8fb;
+  color: #4e5d6c;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.problem-kind mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.problem-item.kind-condition {
+  border-left-color: var(--kind-condition);
+}
+
+.problem-kind.kind-condition {
+  background: #f3e9fb;
+  color: var(--kind-condition);
+}
+
+.problem-item.kind-allergy {
+  border-left-color: var(--kind-allergy);
+}
+
+.problem-kind.kind-allergy {
+  background: #fff4e5;
+  color: #b06d00;
+}
+
+.problem-item.kind-procedure {
+  border-left-color: var(--kind-procedure);
+}
+
+.problem-kind.kind-procedure {
+  background: #e7f8fb;
+  color: #0f8191;
+}
+
+.problem-item.kind-medication {
+  border-left-color: var(--kind-medication);
+}
+
+.problem-kind.kind-medication {
+  background: #e9f8ef;
+  color: #1d7a3b;
+}
+
+.problem-main {
+  min-width: 0;
+}
+
+.problem-name {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #263442;
+  line-height: 1.3;
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+
+.problem-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: #6c757d;
+}
+
+.no-problems-message {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-style: italic;
+}

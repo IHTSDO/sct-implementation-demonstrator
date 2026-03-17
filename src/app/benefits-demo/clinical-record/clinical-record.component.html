@@ -20,6 +20,14 @@
         <span class="patient-status" [class.active]="patient.active">
           {{ patient.active ? 'Active' : 'Inactive' }}
         </span>
+        <button
+          *ngIf="cdsState.hasRecommendations"
+          type="button"
+          class="patient-cds-alert-link"
+          (click)="onCdsNoticeClick()">
+          <mat-icon>shield</mat-icon>
+          <span>{{ cdsState.recommendationCount }} CDS alert{{ cdsState.recommendationCount === 1 ? '' : 's' }} - View</span>
+        </button>
       </div>
     </div>
     <div class="header-right">
@@ -38,535 +46,677 @@
     </div>
   </div>
 
-  <div class="module-selector" *ngIf="patient">
-    <button
-      mat-stroked-button
-      class="module-option"
-      [class.active]="selectedModule === 'clinical'"
-      (click)="setSelectedModule('clinical')">
-      Clinical
-    </button>
-    <button
-      mat-stroked-button
-      class="module-option"
-      [class.active]="selectedModule === 'dentistry'"
-      (click)="setSelectedModule('dentistry')">
-      Dental
-    </button>
-    <button
-      mat-stroked-button
-      class="module-option"
-      [class.active]="selectedModule === 'nursing'"
-      (click)="setSelectedModule('nursing')">
-      Nursing
-    </button>
-  </div>
-
-  <!-- Main content area -->
-  <div class="record-content" *ngIf="patient && selectedModule === 'clinical'">
-    <!-- Patient Demographics Section -->
-    <div class="record-section">
-      <h2>Summary</h2>
-      <div class="summary-deceased-panel" *ngIf="isPatientDeceased(patient)">
-        <mat-icon>warning</mat-icon>
-        <div>
-          <strong>Patient marked as deceased.</strong>
-          <span>{{ getPatientDeceasedSummary(patient) }}</span>
-        </div>
+  <div class="clinical-workspace" *ngIf="patient" [class.sidebar-collapsed]="isSidebarCollapsed">
+    <aside class="clinical-sidebar" [class.expanded]="isClinicalNavExpanded" [class.collapsed]="isSidebarCollapsed">
+      <div class="sidebar-toggle-row">
+        <span class="workspace-title">EHR Lab</span>
+        <button
+          mat-icon-button
+          class="sidebar-collapse-toggle"
+          (click)="toggleSidebarCollapsed()"
+          [attr.aria-label]="isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+          <mat-icon>{{ isSidebarCollapsed ? 'menu_open' : 'menu' }}</mat-icon>
+        </button>
       </div>
-      <div class="demographics-container">
-        <div class="demographics-left">
-          <div class="clinical-events-summary">
-            <div class="clinical-summary-section">
-              <h5>Conditions</h5>
-              <div class="clinical-summary-list" *ngIf="getSortedSummaryConditions().length > 0; else noConditions">
-                <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let condition of getSortedSummaryConditions() | slice:0:6; let i = index"
-                     [attr.data-condition-id]="condition.id"
-                     (mouseenter)="onConditionHover(condition, $event)"
-                     (mouseleave)="onConditionHoverEnd()">
-                  <div class="item-name">{{ condition.code.text }}</div>
-                </div>
-                <div class="clinical-summary-item" *ngIf="getSortedSummaryConditions().length > 6" style="font-style: italic; color: #6c757d;">
-                  +{{ getSortedSummaryConditions().length - 6 }} more conditions
-                </div>
-              </div>
-              <ng-template #noConditions>
-                <div class="no-clinical-data">No conditions recorded</div>
-              </ng-template>
-            </div>
 
-            <div class="clinical-summary-section">
-              <h5>Procedures</h5>
-              <div class="clinical-summary-list" *ngIf="getSortedSummaryProcedures().length > 0; else noProcedures">
-                <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let procedure of getSortedSummaryProcedures() | slice:0:4"
-                     [attr.data-procedure-id]="procedure.id"
-                     (mouseenter)="onProcedureHover(procedure, $event)"
-                     (mouseleave)="onConditionHoverEnd()">
-                  <div class="item-name">{{ procedure.code.text }}</div>
-                </div>
-                <div class="clinical-summary-item" *ngIf="getSortedSummaryProcedures().length > 4" style="font-style: italic; color: #6c757d;">
-                  +{{ getSortedSummaryProcedures().length - 4 }} more procedures
-                </div>
-              </div>
-              <ng-template #noProcedures>
-                <div class="no-clinical-data">No procedures recorded</div>
-              </ng-template>
-            </div>
-          </div>
-        </div>
-        <div class="demographics-middle">
-          <div class="body-model-container">
-            <div class="model-with-annotations">
-              <img 
-                [src]="getBodyModelImage(patient.gender)" 
-                [alt]="'Human body model - ' + (patient.gender || 'unspecified')"
-                class="body-model-image"
-              />
-              
-              <!-- Loading Overlay -->
-              <div *ngIf="isLoadingMapping" class="mapping-loader-overlay">
-                <div class="mapping-spinner"></div>
-                <div class="mapping-loader-text">Updating event mappings...</div>
-              </div>
-              
-              <!-- Anchor Points (hidden during loading) -->
-              <div 
-                *ngFor="let anchorPoint of anchorPoints" 
-                class="anchor-point"
-                [class.active]="getEventCountForAnchorPoint(anchorPoint.id) > 0"
-                [class.empty]="!hasAssociatedEvents(anchorPoint)"
-                [class.systemic]="anchorPoint.type === 'systemic'"
-                [style.left.%]="patient.gender === 'female' ? anchorPoint.x + 4 : anchorPoint.x"
-                [style.top.%]="anchorPoint.y"
-                [style.display]="isLoadingMapping ? 'none' : 'block'"
-                [style.background-color]="anchorPoint.defaultColor"
-                [attr.data-anchor-id]="anchorPoint.id"
-                [attr.data-system]="anchorPoint.anatomicalSystem"
-                (mouseenter)="onAnchorPointHover(anchorPoint, $event)"
-                (mouseleave)="onAnchorPointHoverEnd()"
-              >
-                <div class="anchor-point-label" *ngIf="anchorPoint.type !== 'systemic'">{{ anchorPoint.name }}</div>
-                <span *ngIf="anchorPoint.type === 'systemic'">Systemic</span>
-                <!-- Event count badge hidden for cleaner design -->
-                <!-- <div class="event-count" *ngIf="getEventCountForAnchorPoint(anchorPoint.id) > 0">
-                  {{ getEventCountForAnchorPoint(anchorPoint.id) }}
-                </div> -->
-              </div>
+      <button
+        mat-stroked-button
+        class="sidebar-item module-root"
+        [class.active]="selectedModule === 'clinical'"
+        (click)="onClinicalRootClick()">
+        <mat-icon>monitor_heart</mat-icon>
+        <span class="module-label" *ngIf="!isSidebarCollapsed">Clinical</span>
+        <span class="group-caret-wrapper" *ngIf="!isSidebarCollapsed">
+          <mat-icon class="group-caret" *ngIf="isClinicalNavExpanded">expand_less</mat-icon>
+          <mat-icon class="group-caret" *ngIf="!isClinicalNavExpanded">expand_more</mat-icon>
+        </span>
+      </button>
 
-              <!-- Connection lines are now handled dynamically via hover events -->
-            </div>
-          </div>
-        </div>
-        <div class="demographics-right">
-          <div class="clinical-events-summary">
-            <div class="clinical-summary-section">
-              <h5>Medications</h5>
-              <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
-                <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let medication of getSortedMedications() | slice:0:6"
-                     [attr.data-medication-id]="medication.id"
-                     (mouseenter)="onMedicationHover(medication, $event)"
-                     (mouseleave)="onConditionHoverEnd()">
-                  <div class="item-name">{{ medication.medicationCodeableConcept?.text }}</div>
-                </div>
-                <div class="clinical-summary-item" *ngIf="medications.length > 6" style="font-style: italic; color: #6c757d;">
-                  +{{ medications.length - 6 }} more medications
-                </div>
-              </div>
-              <ng-template #noMedications>
-                <div class="no-clinical-data">No medications recorded</div>
-              </ng-template>
-            </div>
-
-            <div class="clinical-summary-section">
-              <h5>Allergic to:</h5>
-              <div class="clinical-summary-list" *ngIf="allergies.length > 0; else noAllergies">
-                <div class="clinical-summary-item hoverable-summary-condition" 
-                     *ngFor="let allergy of getSortedAllergies() | slice:0:4"
-                     (mouseenter)="onAllergyHover(allergy, $event)"
-                     (mouseleave)="onConditionHoverEnd()">
-                  <div class="item-name">
-                    {{ getAllergyDisplayName(allergy) }} -
-                    <span class="allergy-meta" *ngIf="getAllergyCriticality(allergy)">Criticality: {{ getAllergyCriticality(allergy) }},</span>
-                    <span class="allergy-meta" *ngIf="getAllergyVerificationStatus(allergy)">{{ getAllergyVerificationStatus(allergy) }}</span>
-                  </div>
-                  <div class="allergy-reactions" *ngIf="getAllergyReactions(allergy).length > 0">
-                    <div class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy)">Reaction: {{ reaction }}</div>
-                  </div>
-                </div>
-                <div class="clinical-summary-item" *ngIf="allergies.length > 4" style="font-style: italic; color: #6c757d;">
-                  +{{ allergies.length - 4 }} more allergies
-                </div>
-              </div>
-              <ng-template #noAllergies>
-                <div class="no-clinical-data">No allergies recorded</div>
-              </ng-template>
-            </div>
-
-            <!-- CDS Section -->
-            <div class="clinical-summary-section">
-              <h5>CDS</h5>
-              <div class="cds-notice-section">
-                <div class="cds-notice clickable" 
-                     [ngClass]="getCdsNoticeClass()"
-                     (click)="onCdsNoticeClick()">
-                  <span class="cds-notice-text"><mat-icon class="cds-notice-icon">{{ getCdsNoticeIcon() }}</mat-icon> {{ getCdsNoticeText() }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="clinical-group" *ngIf="isClinicalNavExpanded">
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'summary'"
+          (click)="selectClinicalView('summary')">
+          <mat-icon>summarize</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">Summary</span>
+        </button>
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'"
+          (click)="selectClinicalView('problems')">
+          <mat-icon>list_alt</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">Problems List</span>
+        </button>
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'"
+          (click)="selectClinicalView('encounters')">
+          <mat-icon>event_note</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">Encounters</span>
+        </button>
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'ai-entry'"
+          (click)="selectClinicalView('ai-entry')">
+          <mat-icon>smart_toy</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">AI Assisted Data Entry</span>
+        </button>
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'forms'"
+          (click)="selectClinicalView('forms')">
+          <mat-icon>description</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">Clinical Forms</span>
+        </button>
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'alerts'"
+          (click)="selectClinicalView('alerts')">
+          <mat-icon>shield</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">Alerts</span>
+        </button>
       </div>
-    </div>
 
-    <!-- Tabbed View for Clinical Data -->
-    <div class="record-section">
-      <mat-tab-group class="clinical-tabs" #tabGroup>
-        <mat-tab label="Encounters">
-          <div class="tab-content">
-            <app-encounter-record 
-              #encounterRecord
-              [patient]="patient"
-              (conditionAdded)="onConditionAdded($event)"
-              (procedureAdded)="onProcedureAdded($event)">
-            </app-encounter-record>
+      <button
+        mat-stroked-button
+        class="sidebar-item module-root"
+        [class.active]="selectedModule === 'dentistry'"
+        (click)="onDentalRootClick()">
+        <mat-icon>medical_services</mat-icon>
+        <span class="module-label" *ngIf="!isSidebarCollapsed">Dental</span>
+        <span class="group-caret-wrapper" *ngIf="!isSidebarCollapsed">
+          <mat-icon class="group-caret" *ngIf="isDentalNavExpanded">expand_less</mat-icon>
+          <mat-icon class="group-caret" *ngIf="!isDentalNavExpanded">expand_more</mat-icon>
+        </span>
+      </button>
+
+      <div class="clinical-group" *ngIf="isDentalNavExpanded">
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'"
+          (click)="selectDentalView('odontogram')">
+          <mat-icon>account_tree</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">Odontogram</span>
+        </button>
+      </div>
+      <button
+        mat-stroked-button
+        class="sidebar-item module-root"
+        [class.active]="selectedModule === 'nursing'"
+        (click)="onNursingRootClick()">
+        <mat-icon>healing</mat-icon>
+        <span class="module-label" *ngIf="!isSidebarCollapsed">Nursing</span>
+        <span class="group-caret-wrapper" *ngIf="!isSidebarCollapsed">
+          <mat-icon class="group-caret" *ngIf="isNursingNavExpanded">expand_less</mat-icon>
+          <mat-icon class="group-caret" *ngIf="!isNursingNavExpanded">expand_more</mat-icon>
+        </span>
+      </button>
+
+      <div class="clinical-group" *ngIf="isNursingNavExpanded">
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'"
+          (click)="selectNursingView('vitals')">
+          <mat-icon>monitor_heart</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">Vital Signs</span>
+        </button>
+        <button
+          mat-stroked-button
+          class="sidebar-item"
+          [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'"
+          (click)="selectNursingView('nutrition')">
+          <mat-icon>restaurant</mat-icon>
+          <span *ngIf="!isSidebarCollapsed">Nutritional Careplan</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="record-content-area">
+      <app-cds-panel
+        class="cds-background-runner"
+        [patient]="patient"
+        [conditions]="conditions"
+        [medications]="medications"
+        [allergies]="allergies"
+        [autoTrigger]="selectedModule !== 'clinical' || selectedClinicalView !== 'alerts'"
+        (stateChange)="onCdsStateChange($event)">
+      </app-cds-panel>
+
+      <!-- Patient Demographics Section -->
+      <div class="record-section" [ngClass]="getActiveContentThemeClass()" *ngIf="selectedModule === 'clinical' && selectedClinicalView === 'summary'">
+        <h2>Summary</h2>
+        <div class="summary-deceased-panel" *ngIf="isPatientDeceased(patient)">
+          <mat-icon>warning</mat-icon>
+          <div>
+            <strong>Patient marked as deceased.</strong>
+            <span>{{ getPatientDeceasedSummary(patient) }}</span>
           </div>
-        </mat-tab>
-
-        <mat-tab label="AI Assisted Entry">
-          <div class="tab-content">
-            <app-ai-assisted-entry 
-              [patient]="patient"
-              [conditions]="conditions"
-              [procedures]="procedures" 
-              [medications]="medications"
-              (conditionAdded)="onConditionAdded($event)"
-              (procedureAdded)="onProcedureAdded($event)"
-              (medicationAdded)="onMedicationAdded($event)"
-              (encounterAdded)="onEncounterAdded($event)">
-            </app-ai-assisted-entry>
-          </div>
-        </mat-tab>
-
-        <!-- Timeline Tab -->
-        <mat-tab label="Timeline">
-          <div class="tab-content">
-            <app-clinical-timeline 
-              #clinicalTimeline
-              [conditions]="conditions"
-              [procedures]="procedures" 
-              [medications]="medications"
-              [encounters]="encounters">
-            </app-clinical-timeline>
-          </div>
-        </mat-tab>
-
-        <!-- List View Tab -->
-        <mat-tab label="Problems List">
-          <div class="tab-content">
-            <!-- Clinical Entry Section - Single Row Above -->
-            <div class="record-section clinical-entry-section">
-              <div class="clinical-entry-controls">
-                <div class="problem-header">
-                  <h3>Add Problem</h3>
-                  <p class="problem-description">A problem is any health-related issue, diagnosis, procedure, or ongoing treatment that needs to be tracked as part of a patient's care.</p>
-                </div>
-                <div class="entry-buttons">
-                  <button mat-raised-button 
-                          color="primary" 
-                          (click)="toggleConditionEntry()"
-                          [disabled]="isProcessingNewEvent"
-                          class="entry-toggle-button"
-                          [class.active]="conditionEntry?.showAddForm">
-                    <mat-icon>medical_services</mat-icon>
-                    Add Condition
-                  </button>
-                  <button mat-raised-button 
-                          color="primary" 
-                          (click)="toggleProcedureEntry()"
-                          [disabled]="isProcessingNewEvent"
-                          class="entry-toggle-button"
-                          [class.active]="procedureEntry?.showAddForm">
-                    <mat-icon>healing</mat-icon>
-                    Add Procedure
-                  </button>
-                  <button mat-raised-button 
-                          color="primary" 
-                          (click)="toggleMedicationEntry()"
-                          [disabled]="isProcessingNewEvent"
-                          class="entry-toggle-button"
-                          [class.active]="medicationEntry?.showAddForm">
-                    <mat-icon>medication</mat-icon>
-                    Add Medication
-                  </button>
-                  <button mat-raised-button 
-                          color="warn" 
-                          (click)="openAllergyForm()"
-                          class="entry-toggle-button">
-                    <mat-icon>warning</mat-icon>
-                    Add Allergy
-                  </button>
-                </div>
-                <div class="processing-indicator" *ngIf="isProcessingNewEvent">
-                  <mat-spinner diameter="20"></mat-spinner>
-                  <span>Processing...</span>
-                </div>
-              </div>
-              
-              <!-- Clinical Entry Forms -->
-              <div class="clinical-entry-forms">
-                <app-clinical-entry 
-                  #conditionEntry
-                  [patientId]="patient.id" 
-                  entryType="condition"
-                  [hideButton]="true"
-                  (itemAdded)="onConditionAdded($event)"
-                  (formOpened)="onClinicalEntryFormOpened($event)">
-                </app-clinical-entry>
-                
-                <app-clinical-entry 
-                  #procedureEntry
-                  [patientId]="patient.id" 
-                  entryType="procedure"
-                  [hideButton]="true"
-                  (itemAdded)="onProcedureAdded($event)"
-                  (formOpened)="onClinicalEntryFormOpened($event)">
-                </app-clinical-entry>
-                
-                <app-clinical-entry 
-                  #medicationEntry
-                  [patientId]="patient.id" 
-                  entryType="medication"
-                  [availableConditions]="conditions"
-                  [availableProcedures]="procedures"
-                  [hideButton]="true"
-                  (itemAdded)="onMedicationAdded($event)"
-                  (formOpened)="onClinicalEntryFormOpened($event)">
-                </app-clinical-entry>
-              </div>
-            </div>
-
-            <!-- Three Column Layout for Clinical Data -->
-            <div class="three-column-layout">
-              <!-- Conditions Column -->
-              <div class="clinical-column conditions-column">
-                <div class="column-header">
-                  <h4><mat-icon>medical_services</mat-icon> Conditions</h4>
-                  <span class="item-count">{{ conditions.length }}</span>
-                </div>
-                <div class="clinical-list compact" *ngIf="conditions.length > 0; else noConditionsList">
-                  <div class="clinical-item compact" 
-                       *ngFor="let condition of getSortedConditions()">
-                    <div class="item-header compact">
-                      <span class="item-title compact">{{ condition.code.text }}</span>
-                      <div class="item-header-actions compact">
-                        <span class="anchor-category-indicator compact" 
-                              [style.background-color]="findBestAnchorPointForConcept(getConceptId(condition))?.defaultColor"
-                              title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}">
-                          {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}
-                        </span>
-                        <button mat-icon-button 
-                                class="delete-button compact" 
-                                (click)="deleteCondition(condition.id)"
-                                title="Delete condition">
-                          <mat-icon>delete_outline</mat-icon>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="item-details compact inline">
-                      <span class="item-concept-id compact" *ngIf="getConceptId(condition)">
-                        {{ getConceptId(condition) }}
-                      </span>
-                      <span class="item-icd10-code compact" *ngIf="getIcd10Code(condition)">
-                        ICD-10: {{ getIcd10Code(condition) }}
-                      </span>
-                      <span class="item-status compact" [class]="getConditionStatus(condition).toLowerCase()">
-                        {{ getConditionStatus(condition) }}
-                      </span>
-                    </div>
+        </div>
+        <div class="demographics-container">
+          <div class="demographics-left">
+            <div class="clinical-events-summary">
+              <div class="clinical-summary-section">
+                <h5 class="summary-heading-conditions">Conditions</h5>
+                <div class="clinical-summary-list" *ngIf="getSortedSummaryConditions().length > 0; else noConditions">
+                  <div class="clinical-summary-item hoverable-summary-condition" 
+                      *ngFor="let condition of getSortedSummaryConditions() | slice:0:6; let i = index"
+                      [attr.data-condition-id]="condition.id"
+                      (mouseenter)="onConditionHover(condition, $event)"
+                      (mouseleave)="onConditionHoverEnd()">
+                    <div class="item-name">{{ condition.code.text }}</div>
+                  </div>
+                  <div class="clinical-summary-item" *ngIf="getSortedSummaryConditions().length > 6" style="font-style: italic; color: #6c757d;">
+                    +{{ getSortedSummaryConditions().length - 6 }} more conditions
                   </div>
                 </div>
-                <ng-template #noConditionsList>
-                  <div class="no-clinical-data compact">No conditions recorded</div>
+                <ng-template #noConditions>
+                  <div class="no-clinical-data">No conditions recorded</div>
                 </ng-template>
-
-                <!-- Allergies Section -->
-                <div class="allergies-subsection" *ngIf="allergies.length > 0">
-                  <div class="subsection-header">
-                    <h5><mat-icon>warning</mat-icon> Allergies & Intolerances</h5>
-                    <span class="item-count">{{ allergies.length }}</span>
-                  </div>
-                  <div class="clinical-list compact">
-                    <div class="clinical-item compact allergy-item" 
-                         *ngFor="let allergy of getSortedAllergies()">
-                      <div class="item-header compact">
-                        <span class="item-title compact">{{ getAllergyDisplayName(allergy) }}</span>
-                        <div class="item-header-actions compact">
-                          <span class="criticality-badge compact" 
-                                [class.high]="getAllergyCriticality(allergy) === 'high'"
-                                [class.low]="getAllergyCriticality(allergy) === 'low'"
-                                *ngIf="getAllergyCriticality(allergy)">
-                            {{ getAllergyCriticality(allergy) }}
-                          </span>
-                          <button mat-icon-button 
-                                  class="delete-button compact" 
-                                  (click)="deleteAllergy(allergy.id)"
-                                  title="Delete allergy">
-                            <mat-icon>delete_outline</mat-icon>
-                          </button>
-                        </div>
-                      </div>
-                      <div class="item-details compact inline">
-                        <span class="item-concept-id compact" *ngIf="getAllergyConceptId(allergy)">
-                          {{ getAllergyConceptId(allergy) }}
-                        </span>
-                        <span class="item-status compact" *ngIf="getAllergyVerificationStatus(allergy)">
-                          {{ getAllergyVerificationStatus(allergy) }}
-                        </span>
-                        <span class="allergy-category compact" *ngIf="allergy.category && allergy.category.length > 0">
-                          {{ allergy.category.join(', ') }}
-                        </span>
-                      </div>
-                      <div class="allergy-reactions compact" *ngIf="getAllergyReactions(allergy).length > 0">
-                        <span class="reactions-label">Reactions:</span>
-                        <span class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy); let last = last">
-                          {{ reaction }}<span *ngIf="!last">, </span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
 
-              <!-- Procedures Column -->
-              <div class="clinical-column procedures-column">
-                <div class="column-header">
-                  <h4><mat-icon>healing</mat-icon> Procedures</h4>
-                  <span class="item-count">{{ procedures.length }}</span>
-                </div>
-                <div class="clinical-list compact" *ngIf="procedures.length > 0; else noProcedures">
-                  <div class="clinical-item compact" *ngFor="let procedure of getSortedProcedures()">
-                    <div class="item-header compact">
-                      <span class="item-title compact">{{ procedure.code.text }}</span>
-                      <div class="item-header-actions compact">
-                        <span class="anchor-category-indicator compact" 
-                              [style.background-color]="findBestAnchorPointForConcept(getConceptId(procedure))?.defaultColor"
-                              title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}">
-                          {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}
-                        </span>
-                        <button mat-icon-button 
-                                class="delete-button compact" 
-                                (click)="deleteProcedure(procedure.id)"
-                                title="Delete procedure">
-                          <mat-icon>delete_outline</mat-icon>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="item-details compact inline">
-                      <span class="item-concept-id compact" *ngIf="getConceptId(procedure)">
-                        {{ getConceptId(procedure) }}
-                      </span>
-                      <span class="item-status compact" [class]="getProcedureStatus(procedure).toLowerCase()">
-                        {{ getProcedureStatus(procedure) }}
-                      </span>
-                    </div>
+              <div class="clinical-summary-section">
+                <h5 class="summary-heading-procedures">Procedures</h5>
+                <div class="clinical-summary-list" *ngIf="getSortedSummaryProcedures().length > 0; else noProcedures">
+                  <div class="clinical-summary-item hoverable-summary-condition" 
+                      *ngFor="let procedure of getSortedSummaryProcedures() | slice:0:4"
+                      [attr.data-procedure-id]="procedure.id"
+                      (mouseenter)="onProcedureHover(procedure, $event)"
+                      (mouseleave)="onConditionHoverEnd()">
+                    <div class="item-name">{{ procedure.code.text }}</div>
+                  </div>
+                  <div class="clinical-summary-item" *ngIf="getSortedSummaryProcedures().length > 4" style="font-style: italic; color: #6c757d;">
+                    +{{ getSortedSummaryProcedures().length - 4 }} more procedures
                   </div>
                 </div>
                 <ng-template #noProcedures>
-                  <div class="no-clinical-data compact">No procedures recorded</div>
-                </ng-template>
-              </div>
-
-              <!-- Medications Column -->
-              <div class="clinical-column medications-column">
-                <div class="column-header">
-                  <h4><mat-icon>medication</mat-icon> Medications</h4>
-                  <span class="item-count">{{ medications.length }}</span>
-                </div>
-                <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
-                  <div class="clinical-item compact" *ngFor="let medication of getSortedMedications()">
-                    <div class="item-header compact">
-                      <span class="item-title compact">{{ medication.medicationCodeableConcept?.text }}</span>
-                      <div class="item-header-actions compact">
-                        <span class="anchor-category-indicator compact" 
-                              [style.background-color]="findBestAnchorPointForConcept(getMappingConceptId(medication))?.defaultColor"
-                              title="Mapped to: {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}">
-                          {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}
-                        </span>
-                        <button mat-icon-button 
-                                class="delete-button compact" 
-                                (click)="deleteMedication(medication.id)"
-                                title="Delete medication">
-                          <mat-icon>delete_outline</mat-icon>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="item-details compact inline">
-                      <span class="item-concept-id compact" *ngIf="getConceptId(medication)">
-                        {{ getConceptId(medication) }}
-                      </span>
-                      <span class="item-status compact" [class]="getMedicationStatus(medication).toLowerCase()">
-                        {{ getMedicationStatus(medication) }}
-                      </span>
-                      <span class="item-association compact" *ngIf="getMedicationAssociation(medication)">
-                        <mat-icon class="association-icon">link</mat-icon>
-                        {{ getMedicationAssociation(medication) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <ng-template #noMedications>
-                  <div class="no-clinical-data compact">No medications recorded</div>
+                  <div class="no-clinical-data">No procedures recorded</div>
                 </ng-template>
               </div>
             </div>
           </div>
-        </mat-tab>
+          <div class="demographics-middle">
+            <div class="body-model-container">
+              <div class="model-with-annotations">
+                <img 
+                  [src]="getBodyModelImage(patient.gender)" 
+                  [alt]="'Human body model - ' + (patient.gender || 'unspecified')"
+                  class="body-model-image"
+                />
+                
+                <!-- Loading Overlay -->
+                <div *ngIf="isLoadingMapping" class="mapping-loader-overlay">
+                  <div class="mapping-spinner"></div>
+                  <div class="mapping-loader-text">Updating event mappings...</div>
+                </div>
+                
+                <!-- Anchor Points (hidden during loading) -->
+                <div 
+                  *ngFor="let anchorPoint of anchorPoints" 
+                  class="anchor-point"
+                  [class.active]="getEventCountForAnchorPoint(anchorPoint.id) > 0"
+                  [class.empty]="!hasAssociatedEvents(anchorPoint)"
+                  [class.systemic]="anchorPoint.type === 'systemic'"
+                  [style.left.%]="patient.gender === 'female' ? anchorPoint.x + 4 : anchorPoint.x"
+                  [style.top.%]="anchorPoint.y"
+                  [style.display]="isLoadingMapping ? 'none' : 'block'"
+                  [style.background-color]="anchorPoint.defaultColor"
+                  [attr.data-anchor-id]="anchorPoint.id"
+                  [attr.data-system]="anchorPoint.anatomicalSystem"
+                  (mouseenter)="onAnchorPointHover(anchorPoint, $event)"
+                  (mouseleave)="onAnchorPointHoverEnd()"
+                >
+                  <div class="anchor-point-label" *ngIf="anchorPoint.type !== 'systemic'">{{ anchorPoint.name }}</div>
+                  <span *ngIf="anchorPoint.type === 'systemic'">Systemic</span>
+                </div>
 
-        <!-- CDS Tab -->
-        <mat-tab label="Decision Support">
-          <div class="tab-content">
-            <app-cds-panel
-              [patient]="patient"
-              [conditions]="conditions"
-              [medications]="medications"
-              [allergies]="allergies"
-              [autoTrigger]="true"
-              (stateChange)="onCdsStateChange($event)">
-            </app-cds-panel>
+                <!-- Connection lines are now handled dynamically via hover events -->
+              </div>
+            </div>
           </div>
-        </mat-tab>
+          <div class="demographics-right">
+            <div class="clinical-events-summary">
+              <div class="clinical-summary-section">
+                <h5 class="summary-heading-medications">Medications</h5>
+                <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
+                  <div class="clinical-summary-item hoverable-summary-condition" 
+                      *ngFor="let medication of getSortedMedications() | slice:0:6"
+                      [attr.data-medication-id]="medication.id"
+                      (mouseenter)="onMedicationHover(medication, $event)"
+                      (mouseleave)="onConditionHoverEnd()">
+                    <div class="item-name">{{ medication.medicationCodeableConcept?.text }}</div>
+                  </div>
+                  <div class="clinical-summary-item" *ngIf="medications.length > 6" style="font-style: italic; color: #6c757d;">
+                    +{{ medications.length - 6 }} more medications
+                  </div>
+                </div>
+                <ng-template #noMedications>
+                  <div class="no-clinical-data">No medications recorded</div>
+                </ng-template>
+              </div>
 
-        <!-- Clinical Forms Tab -->
-        <mat-tab label="Clinical Forms">
-          <div class="tab-content">
-            <app-clinical-forms 
-              #clinicalForms
-              [patient]="patient"
-              [conditions]="conditions"
-              [procedures]="procedures"
-              [medications]="medications"
-              (formSubmitted)="onClinicalFormSubmitted($event)">
-            </app-clinical-forms>
+              <div class="clinical-summary-section">
+                <h5 class="summary-heading-allergies">Allergic to:</h5>
+                <div class="clinical-summary-list" *ngIf="allergies.length > 0; else noAllergies">
+                  <div class="clinical-summary-item hoverable-summary-condition" 
+                      *ngFor="let allergy of getSortedAllergies() | slice:0:4"
+                      (mouseenter)="onAllergyHover(allergy, $event)"
+                      (mouseleave)="onConditionHoverEnd()">
+                    <div class="item-name">
+                      {{ getAllergyDisplayName(allergy) }} -
+                      <span class="allergy-meta" *ngIf="getAllergyCriticality(allergy)">Criticality: {{ getAllergyCriticality(allergy) }},</span>
+                      <span class="allergy-meta" *ngIf="getAllergyVerificationStatus(allergy)">{{ getAllergyVerificationStatus(allergy) }}</span>
+                    </div>
+                    <div class="allergy-reactions" *ngIf="getAllergyReactions(allergy).length > 0">
+                      <div class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy)">Reaction: {{ reaction }}</div>
+                    </div>
+                  </div>
+                  <div class="clinical-summary-item" *ngIf="allergies.length > 4" style="font-style: italic; color: #6c757d;">
+                    +{{ allergies.length - 4 }} more allergies
+                  </div>
+                </div>
+                <ng-template #noAllergies>
+                  <div class="no-clinical-data">No allergies recorded</div>
+                </ng-template>
+              </div>
+
+              <!-- CDS Section -->
+              <div class="clinical-summary-section">
+                <h5>CDS</h5>
+                <div class="cds-notice-section">
+                  <div class="cds-notice clickable" 
+                      [ngClass]="getCdsNoticeClass()"
+                      (click)="onCdsNoticeClick()">
+                    <span class="cds-notice-text"><mat-icon class="cds-notice-icon">{{ getCdsNoticeIcon() }}</mat-icon> {{ getCdsNoticeText() }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </mat-tab>
-        
-      </mat-tab-group>
+        </div>
+        <div class="summary-timeline">
+          <app-clinical-timeline 
+            #clinicalTimeline
+            [conditions]="conditions"
+            [procedures]="procedures" 
+            [medications]="medications"
+            [encounters]="encounters">
+          </app-clinical-timeline>
+        </div>
+      </div>
+
+      <div class="record-section content-section" [ngClass]="getActiveContentThemeClass()" *ngIf="selectedModule !== 'clinical' || selectedClinicalView !== 'summary'">
+        <ng-container [ngSwitch]="selectedModule">
+          <ng-container *ngSwitchCase="'clinical'">
+            <div *ngIf="selectedClinicalView === 'encounters'" class="tab-content with-problems-layout">
+              <div class="main-pane">
+                <app-encounter-record 
+                  #encounterRecord
+                  [patient]="patient"
+                  (conditionAdded)="onConditionAdded($event)"
+                  (procedureAdded)="onProcedureAdded($event)">
+                </app-encounter-record>
+              </div>
+              <aside class="problems-pane">
+                <app-problems-list-simplified
+                  [conditions]="conditions"
+                  [procedures]="procedures"
+                  [medications]="medications"
+                  [allergies]="allergies">
+                </app-problems-list-simplified>
+              </aside>
+            </div>
+
+            <div *ngIf="selectedClinicalView === 'ai-entry'" class="tab-content with-problems-layout ai-entry-layout">
+              <div class="main-pane">
+                <app-ai-assisted-entry 
+                  [patient]="patient"
+                  [conditions]="conditions"
+                  [procedures]="procedures" 
+                  [medications]="medications"
+                  (conditionAdded)="onConditionAdded($event)"
+                  (procedureAdded)="onProcedureAdded($event)"
+                  (medicationAdded)="onMedicationAdded($event)"
+                  (encounterAdded)="onEncounterAdded($event)">
+                </app-ai-assisted-entry>
+              </div>
+              <aside class="problems-pane">
+                <app-problems-list-simplified
+                  [conditions]="conditions"
+                  [procedures]="procedures"
+                  [medications]="medications"
+                  [allergies]="allergies">
+                </app-problems-list-simplified>
+              </aside>
+            </div>
+
+            <div *ngIf="selectedClinicalView === 'problems'" class="tab-content">
+                    <!-- Clinical Entry Section - Single Row Above -->
+                    <div class="record-section clinical-entry-section">
+                      <div class="clinical-entry-controls">
+                        <div class="problem-header">
+                          <h3>Add Problem</h3>
+                          <p class="problem-description">A problem is any health-related issue, diagnosis, procedure, or ongoing treatment that needs to be tracked as part of a patient's care.</p>
+                        </div>
+                        <div class="entry-buttons">
+                          <button mat-raised-button 
+                                  color="primary" 
+                                  (click)="toggleConditionEntry()"
+                                  [disabled]="isProcessingNewEvent"
+                                  class="entry-toggle-button condition-button"
+                                  [class.active]="conditionEntry?.showAddForm">
+                            <mat-icon>medical_services</mat-icon>
+                            Add Condition
+                          </button>
+                          <button mat-raised-button 
+                                  color="primary"
+                                  (click)="openAllergyForm()"
+                                  class="entry-toggle-button allergy-button">
+                            <mat-icon>warning</mat-icon>
+                            Add Allergy
+                          </button>
+                          <button mat-raised-button 
+                                  color="primary" 
+                                  (click)="toggleProcedureEntry()"
+                                  [disabled]="isProcessingNewEvent"
+                                  class="entry-toggle-button procedure-button"
+                                  [class.active]="procedureEntry?.showAddForm">
+                            <mat-icon>healing</mat-icon>
+                            Add Procedure
+                          </button>
+                          <button mat-raised-button 
+                                  color="primary" 
+                                  (click)="toggleMedicationEntry()"
+                                  [disabled]="isProcessingNewEvent"
+                                  class="entry-toggle-button medication-button"
+                                  [class.active]="medicationEntry?.showAddForm">
+                            <mat-icon>medication</mat-icon>
+                            Add Medication
+                          </button>
+                        </div>
+                        <div class="processing-indicator" *ngIf="isProcessingNewEvent">
+                          <mat-spinner diameter="20"></mat-spinner>
+                          <span>Processing...</span>
+                        </div>
+                      </div>
+                      
+                      <!-- Clinical Entry Forms -->
+                      <div class="clinical-entry-forms">
+                        <app-clinical-entry 
+                          #conditionEntry
+                          [patientId]="patient.id" 
+                          entryType="condition"
+                          [hideButton]="true"
+                          (itemAdded)="onConditionAdded($event)"
+                          (formOpened)="onClinicalEntryFormOpened($event)">
+                        </app-clinical-entry>
+                        
+                        <app-clinical-entry 
+                          #procedureEntry
+                          [patientId]="patient.id" 
+                          entryType="procedure"
+                          [hideButton]="true"
+                          (itemAdded)="onProcedureAdded($event)"
+                          (formOpened)="onClinicalEntryFormOpened($event)">
+                        </app-clinical-entry>
+                        
+                        <app-clinical-entry 
+                          #medicationEntry
+                          [patientId]="patient.id" 
+                          entryType="medication"
+                          [availableConditions]="conditions"
+                          [availableProcedures]="procedures"
+                          [hideButton]="true"
+                          (itemAdded)="onMedicationAdded($event)"
+                          (formOpened)="onClinicalEntryFormOpened($event)">
+                        </app-clinical-entry>
+                      </div>
+                    </div>
+
+	                    <!-- Multi-column Layout for Clinical Data -->
+	                    <div class="three-column-layout">
+	                      <!-- Conditions Column -->
+	                      <div class="clinical-column conditions-column">
+                        <div class="column-header">
+                          <h4><mat-icon>medical_services</mat-icon> Conditions</h4>
+                          <span class="item-count">{{ conditions.length }}</span>
+                        </div>
+                        <div class="clinical-list compact" *ngIf="conditions.length > 0; else noConditionsList">
+                          <div class="clinical-item compact" 
+                              *ngFor="let condition of getSortedConditions()">
+                            <div class="item-header compact">
+                              <span class="item-title compact">{{ condition.code.text }}</span>
+                              <div class="item-header-actions compact">
+                                <span class="anchor-category-indicator compact" 
+                                      [style.background-color]="findBestAnchorPointForConcept(getConceptId(condition))?.defaultColor"
+                                      title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}">
+                                  {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}
+                                </span>
+                                <button mat-icon-button 
+                                        class="delete-button compact" 
+                                        (click)="deleteCondition(condition.id)"
+                                        title="Delete condition">
+                                  <mat-icon>delete_outline</mat-icon>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="item-details compact inline">
+                              <span class="item-concept-id compact" *ngIf="getConceptId(condition)">
+                                {{ getConceptId(condition) }}
+                              </span>
+                              <span class="item-icd10-code compact" *ngIf="getIcd10Code(condition)">
+                                ICD-10: {{ getIcd10Code(condition) }}
+                              </span>
+                              <span class="item-status compact" [class]="getConditionStatus(condition).toLowerCase()">
+                                {{ getConditionStatus(condition) }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+	                        <ng-template #noConditionsList>
+	                          <div class="no-clinical-data compact">No conditions recorded</div>
+	                        </ng-template>
+	                      </div>
+
+	                      <!-- Allergies Column -->
+	                      <div class="clinical-column allergies-column">
+	                        <div class="column-header">
+	                          <h4><mat-icon>warning</mat-icon> Allergies</h4>
+	                          <span class="item-count">{{ allergies.length }}</span>
+	                        </div>
+	                        <div class="clinical-list compact" *ngIf="allergies.length > 0; else noAllergiesList">
+	                          <div class="clinical-item compact allergy-item" *ngFor="let allergy of getSortedAllergies()">
+	                            <div class="item-header compact">
+	                              <span class="item-title compact">{{ getAllergyDisplayName(allergy) }}</span>
+	                              <div class="item-header-actions compact">
+	                                <span class="criticality-badge compact" 
+	                                      [class.high]="getAllergyCriticality(allergy) === 'high'"
+	                                      [class.low]="getAllergyCriticality(allergy) === 'low'"
+	                                      *ngIf="getAllergyCriticality(allergy)">
+	                                  {{ getAllergyCriticality(allergy) }}
+	                                </span>
+	                                <button mat-icon-button 
+	                                        class="delete-button compact" 
+	                                        (click)="deleteAllergy(allergy.id)"
+	                                        title="Delete allergy">
+	                                  <mat-icon>delete_outline</mat-icon>
+	                                </button>
+	                              </div>
+	                            </div>
+	                            <div class="item-details compact inline">
+	                              <span class="item-concept-id compact" *ngIf="getAllergyConceptId(allergy)">
+	                                {{ getAllergyConceptId(allergy) }}
+	                              </span>
+	                              <span class="item-status compact" *ngIf="getAllergyVerificationStatus(allergy)">
+	                                {{ getAllergyVerificationStatus(allergy) }}
+	                              </span>
+	                              <span class="allergy-category compact" *ngIf="allergy.category && allergy.category.length > 0">
+	                                {{ allergy.category.join(', ') }}
+	                              </span>
+	                            </div>
+	                            <div class="allergy-reactions compact" *ngIf="getAllergyReactions(allergy).length > 0">
+	                              <span class="reactions-label">Reactions:</span>
+	                              <span class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy); let last = last">
+	                                {{ reaction }}<span *ngIf="!last">, </span>
+	                              </span>
+	                            </div>
+	                          </div>
+	                        </div>
+	                        <ng-template #noAllergiesList>
+	                          <div class="no-clinical-data compact">No allergies recorded</div>
+	                        </ng-template>
+	                      </div>
+
+	                      <!-- Procedures Column -->
+	                      <div class="clinical-column procedures-column">
+                        <div class="column-header">
+                          <h4><mat-icon>healing</mat-icon> Procedures</h4>
+                          <span class="item-count">{{ procedures.length }}</span>
+                        </div>
+                        <div class="clinical-list compact" *ngIf="procedures.length > 0; else noProcedures">
+                          <div class="clinical-item compact" *ngFor="let procedure of getSortedProcedures()">
+                            <div class="item-header compact">
+                              <span class="item-title compact">{{ procedure.code.text }}</span>
+                              <div class="item-header-actions compact">
+                                <span class="anchor-category-indicator compact" 
+                                      [style.background-color]="findBestAnchorPointForConcept(getConceptId(procedure))?.defaultColor"
+                                      title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}">
+                                  {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}
+                                </span>
+                                <button mat-icon-button 
+                                        class="delete-button compact" 
+                                        (click)="deleteProcedure(procedure.id)"
+                                        title="Delete procedure">
+                                  <mat-icon>delete_outline</mat-icon>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="item-details compact inline">
+                              <span class="item-concept-id compact" *ngIf="getConceptId(procedure)">
+                                {{ getConceptId(procedure) }}
+                              </span>
+                              <span class="item-status compact" [class]="getProcedureStatus(procedure).toLowerCase()">
+                                {{ getProcedureStatus(procedure) }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <ng-template #noProcedures>
+                          <div class="no-clinical-data compact">No procedures recorded</div>
+                        </ng-template>
+                      </div>
+
+                      <!-- Medications Column -->
+                      <div class="clinical-column medications-column">
+                        <div class="column-header">
+                          <h4><mat-icon>medication</mat-icon> Medications</h4>
+                          <span class="item-count">{{ medications.length }}</span>
+                        </div>
+                        <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
+                          <div class="clinical-item compact" *ngFor="let medication of getSortedMedications()">
+                            <div class="item-header compact">
+                              <span class="item-title compact">{{ medication.medicationCodeableConcept?.text }}</span>
+                              <div class="item-header-actions compact">
+                                <span class="anchor-category-indicator compact" 
+                                      [style.background-color]="findBestAnchorPointForConcept(getMappingConceptId(medication))?.defaultColor"
+                                      title="Mapped to: {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}">
+                                  {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}
+                                </span>
+                                <button mat-icon-button 
+                                        class="delete-button compact" 
+                                        (click)="deleteMedication(medication.id)"
+                                        title="Delete medication">
+                                  <mat-icon>delete_outline</mat-icon>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="item-details compact inline">
+                              <span class="item-concept-id compact" *ngIf="getConceptId(medication)">
+                                {{ getConceptId(medication) }}
+                              </span>
+                              <span class="item-status compact" [class]="getMedicationStatus(medication).toLowerCase()">
+                                {{ getMedicationStatus(medication) }}
+                              </span>
+                              <span class="item-association compact" *ngIf="getMedicationAssociation(medication)">
+                                <mat-icon class="association-icon">link</mat-icon>
+                                {{ getMedicationAssociation(medication) }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <ng-template #noMedications>
+                          <div class="no-clinical-data compact">No medications recorded</div>
+                        </ng-template>
+                      </div>
+                    </div>
+            </div>
+
+            <div *ngIf="selectedClinicalView === 'forms'" class="tab-content with-problems-layout">
+              <div class="main-pane">
+                <app-clinical-forms 
+                  #clinicalForms
+                  [patient]="patient"
+                  [conditions]="conditions"
+                  [procedures]="procedures"
+                  [medications]="medications"
+                  (formSubmitted)="onClinicalFormSubmitted($event)">
+                </app-clinical-forms>
+              </div>
+              <aside class="problems-pane">
+                <app-problems-list-simplified
+                  [conditions]="conditions"
+                  [procedures]="procedures"
+                  [medications]="medications"
+                  [allergies]="allergies">
+                </app-problems-list-simplified>
+              </aside>
+            </div>
+
+            <div *ngIf="selectedClinicalView === 'alerts'" class="tab-content with-problems-layout">
+              <div class="main-pane">
+                <app-cds-panel
+                  [patient]="patient"
+                  [conditions]="conditions"
+                  [medications]="medications"
+                  [allergies]="allergies"
+                  [autoTrigger]="true"
+                  (stateChange)="onCdsStateChange($event)">
+                </app-cds-panel>
+              </div>
+              <aside class="problems-pane">
+                <app-problems-list-simplified
+                  [conditions]="conditions"
+                  [procedures]="procedures"
+                  [medications]="medications"
+                  [allergies]="allergies">
+                </app-problems-list-simplified>
+              </aside>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'dentistry'">
+            <app-dentistry-record
+              *ngIf="selectedDentalView === 'odontogram'"
+              [patient]="patient">
+            </app-dentistry-record>
+          </ng-container>
+
+          <app-nursing-record
+            *ngSwitchCase="'nursing'"
+            [patient]="patient"
+            [selectedView]="selectedNursingView">
+          </app-nursing-record>
+        </ng-container>
+      </div>
     </div>
-
   </div>
-
-  <app-dentistry-record
-    *ngIf="patient && selectedModule === 'dentistry'"
-    [patient]="patient">
-  </app-dentistry-record>
-
-  <app-nursing-record
-    *ngIf="patient && selectedModule === 'nursing'"
-    [patient]="patient">
-  </app-nursing-record>
 
   <!-- No patient selected message -->
   <div class="no-patient-message" *ngIf="!patient">

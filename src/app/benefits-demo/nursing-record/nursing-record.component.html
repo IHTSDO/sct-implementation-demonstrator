@@ -4,18 +4,12 @@
       <h2>Nursing</h2>
     </div>
 
-    <mat-tab-group class="nursing-tabs">
-      <mat-tab label="Vital Signs">
-        <div class="tab-content">
-          <app-nursing-vital-signs [patient]="patient"></app-nursing-vital-signs>
-        </div>
-      </mat-tab>
+    <div class="tab-content" *ngIf="selectedView === 'vitals'">
+      <app-nursing-vital-signs [patient]="patient"></app-nursing-vital-signs>
+    </div>
 
-      <mat-tab label="Nutritional Careplan">
-        <div class="tab-content">
-          <app-nursing-nutritional-careplan [patient]="patient"></app-nursing-nutritional-careplan>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+    <div class="tab-content" *ngIf="selectedView === 'nutrition'">
+      <app-nursing-nutritional-careplan [patient]="patient"></app-nursing-nutritional-careplan>
+    </div>
   </div>
 </div>

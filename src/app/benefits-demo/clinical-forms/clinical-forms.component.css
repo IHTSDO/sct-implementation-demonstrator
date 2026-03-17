@@ -1,10 +1,10 @@
 .clinical-forms-container {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #ffc107;
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+  box-shadow: none;
+  border-left: none;
 }
 
 .forms-header {
