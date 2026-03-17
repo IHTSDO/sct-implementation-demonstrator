@@ -1251,7 +1251,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   getWizardStepMeta(step: WizardStep, index: number): string | null {
-    if (index >= this.currentStepIndex || !this.linkedPatient) {
+    if (index > this.currentStepIndex || !this.linkedPatient) {
       return null;
     }
 
@@ -1410,6 +1410,12 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       );
 
       dialogRef.componentInstance.state = this.buildConceptValidationResultState(result);
+
+      if (!result.hasConflict) {
+        dialogRef.close(true);
+        return true;
+      }
+
       dialogRef.disableClose = false;
 
       return (await firstValueFrom(dialogRef.afterClosed())) === true;
