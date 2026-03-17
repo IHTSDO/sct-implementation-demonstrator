@@ -67,6 +67,10 @@
   gap: 8px;
 }
 
+.vital-editor mat-form-field {
+  width: 100%;
+}
+
 .editor-actions {
   display: flex;
   justify-content: flex-end;

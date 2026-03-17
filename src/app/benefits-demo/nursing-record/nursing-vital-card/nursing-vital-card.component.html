@@ -18,17 +18,17 @@
 
   <div class="vital-editor" *ngIf="allowEntry && editOpen">
     <div class="bp-inputs" *ngIf="isBloodPressure; else singleInput">
-      <mat-form-field appearance="fill">
+      <mat-form-field appearance="outline">
         <mat-label>Systolic</mat-label>
         <input matInput type="number" min="1" step="1" [(ngModel)]="draftSystolic">
       </mat-form-field>
-      <mat-form-field appearance="fill">
+      <mat-form-field appearance="outline">
         <mat-label>Diastolic</mat-label>
         <input matInput type="number" min="1" step="1" [(ngModel)]="draftDiastolic">
       </mat-form-field>
     </div>
     <ng-template #singleInput>
-      <mat-form-field appearance="fill">
+      <mat-form-field appearance="outline">
         <mat-label>{{ label }}</mat-label>
         <input matInput type="number" [min]="min" [step]="step" [(ngModel)]="draftValue">
       </mat-form-field>
