@@ -171,11 +171,11 @@ export class DeathRegistrationDialogComponent {
 
       this.removeExistingDerivedConditions();
 
-      const enrichedPart1 = this.createDerivedConditions(
+      const enrichedPart1 = await this.createDerivedConditions(
         serializedPart1.map(entry => ({ ...entry })),
         deceasedDateTime
       );
-      const enrichedPart2 = this.createDerivedConditions(
+      const enrichedPart2 = await this.createDerivedConditions(
         serializedPart2.map(entry => ({ ...entry })),
         deceasedDateTime
       );
@@ -357,8 +357,8 @@ export class DeathRegistrationDialogComponent {
     };
   }
 
-  private createDerivedConditions<T extends DeathRecordDiagnosis>(diagnoses: T[], deceasedDateTime: string): T[] {
-    diagnoses.forEach(diagnosis => {
+  private async createDerivedConditions<T extends DeathRecordDiagnosis>(diagnoses: T[], deceasedDateTime: string): Promise<T[]> {
+    for (const diagnosis of diagnoses) {
       const condition = this.patientService.createConditionFromClinicalEntryConcept(
         this.data.patient.id,
         {
@@ -390,9 +390,9 @@ export class DeathRegistrationDialogComponent {
         }
       ];
 
-      this.patientService.addPatientConditionAllowDuplicates(this.data.patient.id, condition);
+      await this.patientService.addPatientConditionAllowDuplicatesEnriched(this.data.patient.id, condition);
       diagnosis.derivedConditionId = condition.id;
-    });
+    }
 
     return diagnoses;
   }

@@ -284,14 +284,14 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
   createRandomPatientWithDiagnoses(): void {
     this.patientSimulationService.generateRandomPatientWithDiagnoses().subscribe({
-      next: (result) => {
+      next: async (result) => {
         // Add the patient to the service
         this.patientService.addPatient(result.patient);
         
         // Add the diagnoses as conditions
-        result.diagnoses.forEach(diagnosis => {
-          this.patientService.addPatientCondition(result.patient.id, diagnosis);
-        });
+        for (const diagnosis of result.diagnoses) {
+          await this.patientService.addPatientConditionEnriched(result.patient.id, diagnosis);
+        }
         
         // Select the patient and navigate to clinical record
         this.patientService.selectPatient(result.patient);
@@ -356,15 +356,15 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
                 })
               )
               .subscribe({
-                next: (result) => {
+                next: async (result) => {
                   if (result) {
                     // Add the patient to the service
                     this.patientService.addPatient(result.patient);
                     
                     // Add the diagnoses as conditions
-                    result.diagnoses.forEach(diagnosis => {
-                      this.patientService.addPatientCondition(result.patient.id, diagnosis);
-                    });
+                    for (const diagnosis of result.diagnoses) {
+                      await this.patientService.addPatientConditionEnriched(result.patient.id, diagnosis);
+                    }
                     
                     lastPatientId = result.patient.id;
                   }

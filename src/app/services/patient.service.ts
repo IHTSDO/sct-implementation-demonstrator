@@ -534,6 +534,12 @@ export interface Procedure {
     }>;
     text?: string;
   }>;
+  computedLocation?: string;
+  bodyStructure?: {
+    reference?: string;
+    display?: string;
+  };
+  snomedConceptId?: string;
 }
 
 export interface MedicationStatement {
@@ -719,9 +725,9 @@ export interface MedicationStatement {
         display?: string;
       }>;
       text?: string;
-    };
-    route?: {
-      coding?: Array<{
+      };
+      route?: {
+        coding?: Array<{
         system?: string;
         code?: string;
         display?: string;
@@ -820,13 +826,15 @@ export interface MedicationStatement {
       system?: string;
       code?: string;
     };
-    maxDosePerLifetime?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-  }>;
+      maxDosePerLifetime?: {
+        value: number;
+        unit: string;
+        system?: string;
+        code?: string;
+      };
+    }>;
+  computedLocation?: string;
+  snomedConceptId?: string;
 }
 
 export interface Encounter {
@@ -1195,6 +1203,36 @@ export interface PatientSimilarityResult {
 })
 export class PatientService {
   private readonly STORAGE_KEY = 'ehr_patients';
+  private readonly ANATOMICAL_ANCHOR_POINTS: Array<{ id: string; ancestors: string[] }> = [
+    {
+      id: 'head',
+      ancestors: ['406122000', '118690002', '384821006 |Mental state, behavior and/or psychosocial function finding (finding)|']
+    },
+    {
+      id: 'neck',
+      ancestors: ['298378000', '118693000']
+    },
+    {
+      id: 'thorax',
+      ancestors: ['298705000 |Finding of thoracic region (finding)|', '118695007 |Procedure on thorax (procedure)|', '106048009 |Respiratory finding (finding)|', '106063007 |Cardiovascular finding (finding)|', '118669005 |Procedure on respiratory system (procedure)|']
+    },
+    {
+      id: 'abdomen',
+      ancestors: ['609624008', '118698009', '386617003 |Digestive system finding (finding)|']
+    },
+    {
+      id: 'pelvis',
+      ancestors: ['609625009', '609637006']
+    },
+    {
+      id: 'arms',
+      ancestors: ['116307009', '118702008']
+    },
+    {
+      id: 'legs',
+      ancestors: ['116312005', '118710009']
+    }
+  ];
   private patientsSubject = new BehaviorSubject<Patient[]>([]);
   private selectedPatientSubject = new BehaviorSubject<Patient | null>(null);
   private observationsChangedSubject = new Subject<string>();
@@ -1592,23 +1630,12 @@ export class PatientService {
     
     conditions.push(condition);
     this.savePatientConditions(patientId, conditions);
+    this.enrichConditionInBackground(patientId, condition);
     return true; // Successfully added
   }
 
-  async addPatientConditionWithIcd10(patientId: string, condition: Condition): Promise<boolean> {
-    const snomedCode = this.extractSnomedCode(condition);
-
-    if (snomedCode) {
-      condition.snomedConceptId = condition.snomedConceptId || snomedCode;
-
-      if (!condition.icd10Code) {
-        const icd10Code = await this.resolveIcd10Code(snomedCode);
-        if (icd10Code) {
-          condition.icd10Code = icd10Code;
-        }
-      }
-    }
-
+  async addPatientConditionEnriched(patientId: string, condition: Condition): Promise<boolean> {
+    await this.enrichCondition(condition);
     return this.addPatientCondition(patientId, condition);
   }
 
@@ -1616,6 +1643,20 @@ export class PatientService {
     const conditions = this.getPatientConditions(patientId);
     conditions.push(condition);
     this.savePatientConditions(patientId, conditions);
+    this.enrichConditionInBackground(patientId, condition);
+  }
+
+  async addPatientConditionAllowDuplicatesEnriched(patientId: string, condition: Condition): Promise<void> {
+    await this.enrichCondition(condition);
+    this.addPatientConditionAllowDuplicates(patientId, condition);
+  }
+
+  async addPatientConditionWithIcd10(patientId: string, condition: Condition): Promise<boolean> {
+    return this.addPatientConditionEnriched(patientId, condition);
+  }
+
+  async addPatientConditionAllowDuplicatesWithIcd10(patientId: string, condition: Condition): Promise<void> {
+    await this.addPatientConditionAllowDuplicatesEnriched(patientId, condition);
   }
 
   updatePatientCondition(patientId: string, conditionId: string, updatedCondition: Condition): void {
@@ -1636,6 +1677,38 @@ export class PatientService {
   private savePatientConditions(patientId: string, conditions: Condition[]): void {
     const key = `ehr_conditions_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(conditions));
+  }
+
+  private async enrichConditionInBackground(patientId: string, condition: Condition): Promise<void> {
+    if (condition.icd10Code && condition.computedLocation) {
+      return;
+    }
+
+    try {
+      await this.enrichCondition(condition);
+      this.updatePatientCondition(patientId, condition.id, condition);
+    } catch (error) {
+      console.warn(`Failed to enrich condition ${condition.id}:`, error);
+    }
+  }
+
+  private async enrichCondition(condition: Condition): Promise<void> {
+    const snomedCode = this.extractSnomedCode(condition);
+
+    if (snomedCode) {
+      condition.snomedConceptId = condition.snomedConceptId || snomedCode;
+
+      if (!condition.icd10Code) {
+        const icd10Code = await this.resolveIcd10Code(snomedCode);
+        if (icd10Code) {
+          condition.icd10Code = icd10Code;
+        }
+      }
+
+      if (!condition.computedLocation) {
+        condition.computedLocation = await this.resolveComputedLocation(snomedCode);
+      }
+    }
   }
 
   private async resolveIcd10Code(snomedCode: string): Promise<string | undefined> {
@@ -1701,7 +1774,28 @@ export class PatientService {
     
     procedures.push(procedure);
     this.savePatientProcedures(patientId, procedures);
+    this.enrichProcedureInBackground(patientId, procedure);
     return true; // Successfully added
+  }
+
+  async addPatientProcedureEnriched(patientId: string, procedure: Procedure): Promise<boolean> {
+    await this.enrichProcedure(procedure);
+    return this.addPatientProcedure(patientId, procedure);
+  }
+
+  async addPatientProcedureAllowDuplicatesEnriched(patientId: string, procedure: Procedure): Promise<void> {
+    await this.enrichProcedure(procedure);
+    const procedures = this.getPatientProcedures(patientId);
+    procedures.push(procedure);
+    this.savePatientProcedures(patientId, procedures);
+  }
+
+  async addPatientProcedureWithLocation(patientId: string, procedure: Procedure): Promise<boolean> {
+    return this.addPatientProcedureEnriched(patientId, procedure);
+  }
+
+  async addPatientProcedureAllowDuplicatesWithLocation(patientId: string, procedure: Procedure): Promise<void> {
+    await this.addPatientProcedureAllowDuplicatesEnriched(patientId, procedure);
   }
 
   updatePatientProcedure(patientId: string, procedureId: string, updatedProcedure: Procedure): void {
@@ -1724,6 +1818,72 @@ export class PatientService {
     this.storageService.saveItem(key, JSON.stringify(procedures));
   }
 
+  private async enrichProcedureInBackground(patientId: string, procedure: Procedure): Promise<void> {
+    if (procedure.computedLocation) {
+      return;
+    }
+
+    try {
+      await this.enrichProcedure(procedure);
+      this.updatePatientProcedure(patientId, procedure.id, procedure);
+    } catch (error) {
+      console.warn(`Failed to enrich procedure ${procedure.id}:`, error);
+    }
+  }
+
+  private async enrichProcedure(procedure: Procedure): Promise<void> {
+    const snomedCode = this.extractSnomedCode(procedure);
+
+    if (snomedCode) {
+      procedure.snomedConceptId = procedure.snomedConceptId || snomedCode;
+
+      if (!procedure.computedLocation) {
+        procedure.computedLocation = await this.resolveComputedLocation(snomedCode);
+      }
+    }
+  }
+
+  private async resolveComputedLocation(snomedCode: string): Promise<string> {
+    try {
+      const response = await firstValueFrom(this.terminologyService.getAncestors(snomedCode));
+      const ancestorIds = this.extractConceptIdsFromExpansion(response);
+      return this.findBestComputedLocation(ancestorIds);
+    } catch (error) {
+      console.warn(`Failed to resolve anatomical location for SNOMED concept ${snomedCode}:`, error);
+      return 'systemic';
+    }
+  }
+
+  private extractConceptIdsFromExpansion(response: any): string[] {
+    const contains = response?.expansion?.contains;
+    if (!Array.isArray(contains)) {
+      return [];
+    }
+
+    return contains
+      .map((item: any) => String(item?.code || '').trim())
+      .filter((code: string) => code.length > 0);
+  }
+
+  private findBestComputedLocation(ancestorIds: string[]): string {
+    for (const anchorPoint of this.ANATOMICAL_ANCHOR_POINTS) {
+      const anchorPointConceptIds = anchorPoint.ancestors.map(ancestor => this.extractAnchorConceptId(ancestor));
+      if (anchorPointConceptIds.some(ancestorId => ancestorIds.includes(ancestorId))) {
+        return anchorPoint.id;
+      }
+    }
+
+    return 'systemic';
+  }
+
+  private extractAnchorConceptId(snomedString: string): string {
+    if (snomedString.includes('|')) {
+      return snomedString.split(' ')[0].trim();
+    }
+
+    return snomedString.trim();
+  }
+
   // Medications
   getPatientMedications(patientId: string): MedicationStatement[] {
     const key = `ehr_medications_${patientId}`;
@@ -1741,7 +1901,13 @@ export class PatientService {
     
     medications.push(medication);
     this.savePatientMedications(patientId, medications);
+    this.enrichMedicationInBackground(patientId, medication);
     return true; // Successfully added
+  }
+
+  async addPatientMedicationEnriched(patientId: string, medication: MedicationStatement): Promise<boolean> {
+    await this.enrichMedication(patientId, medication);
+    return this.addPatientMedication(patientId, medication);
   }
 
   updatePatientMedication(patientId: string, medicationId: string, updatedMedication: MedicationStatement): void {
@@ -1762,6 +1928,79 @@ export class PatientService {
   private savePatientMedications(patientId: string, medications: MedicationStatement[]): void {
     const key = `ehr_medications_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(medications));
+  }
+
+  private async enrichMedicationInBackground(patientId: string, medication: MedicationStatement): Promise<void> {
+    if (medication.computedLocation) {
+      return;
+    }
+
+    try {
+      await this.enrichMedication(patientId, medication);
+      this.updatePatientMedication(patientId, medication.id, medication);
+    } catch (error) {
+      console.warn(`Failed to enrich medication ${medication.id}:`, error);
+    }
+  }
+
+  private async enrichMedication(patientId: string, medication: MedicationStatement): Promise<void> {
+    const medicationSnomedCode = this.extractSnomedCode(medication);
+    if (medicationSnomedCode) {
+      medication.snomedConceptId = medication.snomedConceptId || medicationSnomedCode;
+    }
+
+    if (!medication.computedLocation) {
+      medication.computedLocation = await this.resolveMedicationComputedLocation(patientId, medication);
+    }
+  }
+
+  private async resolveMedicationComputedLocation(patientId: string, medication: MedicationStatement): Promise<string> {
+    const referencedLocation = await this.resolveMedicationReferencedLocation(patientId, medication);
+    if (referencedLocation) {
+      return referencedLocation;
+    }
+
+    const conceptId = this.extractSnomedCode(medication);
+    if (!conceptId) {
+      return 'systemic';
+    }
+
+    return this.resolveComputedLocation(conceptId);
+  }
+
+  private async resolveMedicationReferencedLocation(patientId: string, medication: MedicationStatement): Promise<string | undefined> {
+    const references = medication.reasonReference || [];
+
+    for (const reference of references) {
+      const [resourceType, resourceId] = (reference.reference || '').split('/');
+      if (!resourceType || !resourceId) {
+        continue;
+      }
+
+      if (resourceType === 'Condition') {
+        const condition = this.getPatientConditions(patientId).find(item => item.id === resourceId);
+        if (condition?.computedLocation) {
+          return condition.computedLocation;
+        }
+        const conditionConceptId = condition ? this.extractSnomedCode(condition) : null;
+        if (conditionConceptId) {
+          return this.resolveComputedLocation(conditionConceptId);
+        }
+      }
+
+      if (resourceType === 'Procedure') {
+        const procedure = this.getPatientProcedures(patientId).find(item => item.id === resourceId);
+        if (procedure?.computedLocation) {
+          return procedure.computedLocation;
+        }
+        const procedureConceptId = procedure ? this.extractSnomedCode(procedure) : null;
+        if (procedureConceptId) {
+          return this.resolveComputedLocation(procedureConceptId);
+        }
+      }
+    }
+
+    return undefined;
   }
 
   // Observations
@@ -2549,21 +2788,21 @@ export class PatientService {
           // Import conditions
           if (clinicalData.conditions && Array.isArray(clinicalData.conditions)) {
             for (const condition of clinicalData.conditions) {
-              this.addPatientCondition(patient.id, condition);
+              await this.addPatientConditionEnriched(patient.id, condition);
             }
           }
           
           // Import procedures
           if (clinicalData.procedures && Array.isArray(clinicalData.procedures)) {
             for (const procedure of clinicalData.procedures) {
-              this.addPatientProcedure(patient.id, procedure);
+              await this.addPatientProcedureEnriched(patient.id, procedure);
             }
           }
           
           // Import medications
           if (clinicalData.medications && Array.isArray(clinicalData.medications)) {
             for (const medication of clinicalData.medications) {
-              this.addPatientMedication(patient.id, medication);
+              await this.addPatientMedicationEnriched(patient.id, medication);
             }
           }
 

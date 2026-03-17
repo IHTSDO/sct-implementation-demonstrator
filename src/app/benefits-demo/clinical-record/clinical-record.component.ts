@@ -652,7 +652,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     
     try {
       // Centralized condition persistence also resolves ICD-10 when needed.
-      const wasAdded = await this.patientService.addPatientConditionWithIcd10(this.patient!.id, event);
+      const wasAdded = await this.patientService.addPatientConditionEnriched(this.patient!.id, event);
       
       if (!wasAdded) {
         // Duplicate detected - show warning and don't add to local array
@@ -695,8 +695,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // Save the procedure to PatientService first (now returns boolean)
-      const wasAdded = this.patientService.addPatientProcedure(this.patient!.id, event);
+      // Centralized procedure persistence also resolves anatomical location when needed.
+      const wasAdded = await this.patientService.addPatientProcedureEnriched(this.patient!.id, event);
       
       if (!wasAdded) {
         // Duplicate detected - show warning and don't add to local array
@@ -759,7 +759,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     
     try {
       // Save the medication to PatientService first (now returns boolean)
-      const wasAdded = this.patientService.addPatientMedication(this.patient!.id, event);
+      const wasAdded = await this.patientService.addPatientMedicationEnriched(this.patient!.id, event);
       
       if (!wasAdded) {
         // Duplicate detected - show warning and don't add to local array
@@ -1458,12 +1458,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       if (value.code && (value.display || value.text)) {
         const condition = this.createConditionFromCoding(value, questionnaireName);
         if (condition) {
-          const added = this.patientService.addPatientCondition(this.patient.id, condition);
+          const added = await this.patientService.addPatientConditionEnriched(this.patient.id, condition);
           if (added) {
             created++;
-            // Map to body location if applicable
             await this.mapSingleEventToAnchorPoint(condition);
-            this.patientService.updatePatientCondition(this.patient.id, condition.id, condition);
           }
         }
       }
@@ -1473,12 +1471,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         if (coding.code && (coding.display || coding.text)) {
           const condition = this.createConditionFromCoding(coding, questionnaireName);
           if (condition) {
-            const added = this.patientService.addPatientCondition(this.patient.id, condition);
+            const added = await this.patientService.addPatientConditionEnriched(this.patient.id, condition);
             if (added) {
               created++;
-              // Map to body location if applicable
               await this.mapSingleEventToAnchorPoint(condition);
-              this.patientService.updatePatientCondition(this.patient.id, condition.id, condition);
             }
           }
         }

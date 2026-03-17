@@ -1060,13 +1060,13 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Proceed with data import after verification
    */
-  proceedWithImport(): void {
+  async proceedWithImport(): Promise<void> {
     if (!this.linkedPatient || !this.patientData) {
       return;
     }
 
     // Import the data
-    this.importIPSToPatient(this.linkedPatient.id, this.patientData);
+    await this.importIPSToPatient(this.linkedPatient.id, this.patientData);
     
     // Close verification dialog
     this.showDataVerification = false;
@@ -1662,7 +1662,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
             computedLocation: computedLocation || 'systemic'
           };
 
-          const success = this.patientService.addPatientCondition(this.linkedPatient.id, convertedCondition);
+          const success = await this.patientService.addPatientConditionEnriched(this.linkedPatient.id, convertedCondition);
           if (success) {
             importedCount++;
           }
@@ -1675,11 +1675,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
           procedure => this.selectedProcedures.has(procedure.id)
         );
 
-        selectedProceduresData.forEach(procedure => {
+        for (const procedure of selectedProceduresData) {
           const convertedProcedure = this.toClinicalEntryProcedure(procedure, this.linkedPatient.id);
-          this.patientService.addPatientProcedure(this.linkedPatient.id, convertedProcedure);
+          await this.patientService.addPatientProcedureEnriched(this.linkedPatient.id, convertedProcedure);
           importedCount++;
-        });
+        }
       }
 
       // Import selected medications
@@ -1688,12 +1688,12 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
           medication => this.selectedMedications.has(medication.id)
         );
 
-        selectedMedicationsData.forEach(medication => {
+        for (const medication of selectedMedicationsData) {
           const convertedMedication = this.toClinicalEntryMedication(medication, this.linkedPatient.id);
           
-          this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
+          await this.patientService.addPatientMedicationEnriched(this.linkedPatient.id, convertedMedication);
           importedCount++;
-        });
+        }
       }
 
       // Import selected allergies
@@ -2092,31 +2092,24 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Import IPS data to patient (only selected items)
    */
-  private importIPSToPatient(patientId: string, ipsData: ProcessedPatientData): void {
+  private async importIPSToPatient(patientId: string, ipsData: ProcessedPatientData): Promise<void> {
     // Import selected conditions
-    ipsData.conditions
-      .filter(condition => this.selectedConditions.has(condition.id))
-      .forEach(condition => {
-        const convertedCondition = this.toClinicalEntryCondition(condition, patientId);
-        this.patientService.addPatientCondition(patientId, convertedCondition);
-      });
+    for (const condition of ipsData.conditions.filter(condition => this.selectedConditions.has(condition.id))) {
+      const convertedCondition = this.toClinicalEntryCondition(condition, patientId);
+      await this.patientService.addPatientConditionEnriched(patientId, convertedCondition);
+    }
     
     // Import selected procedures
-    ipsData.procedures
-      .filter(procedure => this.selectedProcedures.has(procedure.id))
-      .forEach(procedure => {
-        const convertedProcedure = this.toClinicalEntryProcedure(procedure, patientId);
-        this.patientService.addPatientProcedure(patientId, convertedProcedure);
-      });
+    for (const procedure of ipsData.procedures.filter(procedure => this.selectedProcedures.has(procedure.id))) {
+      const convertedProcedure = this.toClinicalEntryProcedure(procedure, patientId);
+      await this.patientService.addPatientProcedureEnriched(patientId, convertedProcedure);
+    }
     
     // Import selected medications
-    ipsData.medications
-      .filter(medication => this.selectedMedications.has(medication.id))
-      .forEach(medication => {
-        const convertedMedication = this.toClinicalEntryMedication(medication, patientId);
-        
-        this.patientService.addPatientMedication(patientId, convertedMedication);
-      });
+    for (const medication of ipsData.medications.filter(medication => this.selectedMedications.has(medication.id))) {
+      const convertedMedication = this.toClinicalEntryMedication(medication, patientId);
+      await this.patientService.addPatientMedicationEnriched(patientId, convertedMedication);
+    }
     
     // Import selected allergies
     ipsData.allergies
@@ -2130,7 +2123,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Import selected conditions only
    */
-  importSelectedConditions(): void {
+  async importSelectedConditions(): Promise<void> {
     if (!this.linkedPatient || !this.patientData) {
       return;
     }
@@ -2139,10 +2132,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       condition => this.selectedConditions.has(condition.id)
     );
 
-    selectedConditionsData.forEach(condition => {
+    for (const condition of selectedConditionsData) {
       const convertedCondition = this.toClinicalEntryCondition(condition, this.linkedPatient.id);
-      this.patientService.addPatientCondition(this.linkedPatient.id, convertedCondition);
-    });
+      await this.patientService.addPatientConditionEnriched(this.linkedPatient.id, convertedCondition);
+    }
 
     // Clear selections after import
     this.selectedConditions.clear();
@@ -2152,7 +2145,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Import selected procedures only
    */
-  importSelectedProcedures(): void {
+  async importSelectedProcedures(): Promise<void> {
     if (!this.linkedPatient || !this.patientData) {
       return;
     }
@@ -2161,10 +2154,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       procedure => this.selectedProcedures.has(procedure.id)
     );
 
-    selectedProceduresData.forEach(procedure => {
+    for (const procedure of selectedProceduresData) {
       const convertedProcedure = this.toClinicalEntryProcedure(procedure, this.linkedPatient.id);
-      this.patientService.addPatientProcedure(this.linkedPatient.id, convertedProcedure);
-    });
+      await this.patientService.addPatientProcedureEnriched(this.linkedPatient.id, convertedProcedure);
+    }
 
     // Clear selections after import
     this.selectedProcedures.clear();
@@ -2174,7 +2167,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Import selected medications only
    */
-  importSelectedMedications(): void {
+  async importSelectedMedications(): Promise<void> {
     if (!this.linkedPatient || !this.patientData) {
       return;
     }
@@ -2183,11 +2176,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       medication => this.selectedMedications.has(medication.id)
     );
 
-    selectedMedicationsData.forEach(medication => {
+    for (const medication of selectedMedicationsData) {
       const convertedMedication = this.toClinicalEntryMedication(medication, this.linkedPatient.id);
       
-      this.patientService.addPatientMedication(this.linkedPatient.id, convertedMedication);
-    });
+      await this.patientService.addPatientMedicationEnriched(this.linkedPatient.id, convertedMedication);
+    }
 
     // Clear selections after import
     this.selectedMedications.clear();

@@ -738,7 +738,7 @@ export class ClinicalFormsComponent implements OnInit {
     });
   }
 
-  onAllergySaved(allergyData: any): void {
+  async onAllergySaved(allergyData: any): Promise<void> {
     // Store the allergy in the PatientService if we have a selected patient
     if (this.patient && this.patient.id) {
       // Normalize criticality field (form sends it as array, FHIR expects string)
@@ -769,7 +769,7 @@ export class ClinicalFormsComponent implements OnInit {
       
       if (wasAdded) {
         // Create conditions from allergy reactions (manifestations)
-        const newConditionsAdded = this.createConditionsFromAllergyReactions(allergyToStore);
+        const newConditionsAdded = await this.createConditionsFromAllergyReactions(allergyToStore);
         
         // Show success message
         const message = newConditionsAdded > 0 
@@ -818,7 +818,7 @@ export class ClinicalFormsComponent implements OnInit {
 
   private newlyCreatedConditions: Condition[] = [];
 
-  private createConditionsFromAllergyReactions(allergy: AllergyIntolerance): number {
+  private async createConditionsFromAllergyReactions(allergy: AllergyIntolerance): Promise<number> {
     if (!this.patient || !allergy.reaction || allergy.reaction.length === 0) {
       return 0;
     }
@@ -900,7 +900,7 @@ export class ClinicalFormsComponent implements OnInit {
           };
 
           // Add the condition to the patient's record
-          const added = this.patientService.addPatientCondition(this.patient.id, newCondition);
+          const added = await this.patientService.addPatientConditionEnriched(this.patient.id, newCondition);
           if (added) {
             newConditionsCount++;
             // Also add to local conditions array so UI updates

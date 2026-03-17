@@ -491,7 +491,7 @@ export class DentistryRecordComponent implements OnChanges {
     return '';
   }
 
-  savePinnedFindingEntry(): void {
+  async savePinnedFindingEntry(): Promise<void> {
     if (!this.patient || !this.pinnedTooth || !this.canSavePinnedFindingEntry()) {
       return;
     }
@@ -508,14 +508,14 @@ export class DentistryRecordComponent implements OnChanges {
         return;
       }
       this.patientService.addPatientBodyStructure(this.patient.id, resources.bodyStructure);
-      this.patientService.addPatientProcedure(this.patient.id, resources.procedure);
+      await this.patientService.addPatientProcedureEnriched(this.patient.id, resources.procedure);
     } else {
       const resources = this.buildDentalConditionAndBodyStructure(this.patient.id, this.pinnedTooth, entry.siteCodes, entry.findingCode);
       if (!resources) {
         return;
       }
       this.patientService.addPatientBodyStructure(this.patient.id, resources.bodyStructure);
-      this.patientService.addPatientConditionAllowDuplicates(this.patient.id, resources.condition);
+      await this.patientService.addPatientConditionAllowDuplicatesEnriched(this.patient.id, resources.condition);
     }
 
     this.saveFeedbackByToothId[this.pinnedTooth.id] = true;
