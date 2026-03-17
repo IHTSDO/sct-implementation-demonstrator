@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AllergyIntolerance, Condition, MedicationStatement, Procedure } from '../../services/patient.service';
 
 type ProblemKind = 'Condition' | 'Procedure' | 'Medication' | 'Allergy';
@@ -23,6 +23,7 @@ export class ProblemsListSimplifiedComponent {
   @Input() procedures: Procedure[] = [];
   @Input() medications: MedicationStatement[] = [];
   @Input() allergies: AllergyIntolerance[] = [];
+  @Output() openProblemsList = new EventEmitter<void>();
 
   get problemItems(): ProblemItem[] {
     const conditionItems = this.conditions.map((condition) => ({
@@ -94,7 +95,7 @@ export class ProblemsListSimplifiedComponent {
   getKindIcon(kind: ProblemKind): string {
     switch (kind) {
       case 'Condition':
-        return 'medical_services';
+        return 'stethoscope';
       case 'Allergy':
         return 'warning';
       case 'Procedure':
@@ -104,6 +105,17 @@ export class ProblemsListSimplifiedComponent {
       default:
         return 'description';
     }
+  }
+
+  getKindFontSet(kind: ProblemKind): string {
+    if (kind === 'Condition') {
+      return 'material-symbols-outlined';
+    }
+    return 'material-icons';
+  }
+
+  onOpenProblemsList(): void {
+    this.openProblemsList.emit();
   }
 
   private toSortDate(value?: string): number {

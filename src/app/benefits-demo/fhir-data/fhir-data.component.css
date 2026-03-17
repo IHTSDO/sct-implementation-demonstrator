@@ -1,0 +1,269 @@
+.fhir-data-root {
+  display: grid;
+  grid-template-columns: minmax(270px, 30%) minmax(0, 1fr);
+  gap: 16px;
+  min-height: 0;
+  align-items: start;
+}
+
+.resource-browser {
+  border: 1px solid #dbe5f1;
+  border-radius: 10px;
+  background: #f9fbff;
+  padding: 10px;
+  height: auto;
+  overflow: visible;
+  max-height: none !important;
+}
+
+.browser-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #2f3b4a;
+  border-bottom: 1px solid #e5edf7;
+  padding: 6px 6px 10px;
+  margin-bottom: 8px;
+}
+
+.resource-group {
+  border: 1px solid #e5edf7;
+  border-radius: 8px;
+  background: #ffffff;
+  margin-bottom: 8px;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eef3fa;
+}
+
+.group-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.group-count {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #0d6efd;
+  background: #e9f2ff;
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.group-items {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+}
+
+.resource-item {
+  border: none;
+  text-align: left;
+  padding: 8px;
+  border-radius: 6px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.resource-item:hover {
+  background: #f4f8ff;
+}
+
+.resource-item.active {
+  background: #e9f2ff;
+}
+
+.resource-item-label {
+  font-size: 0.8rem;
+  color: #253648;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resource-item-subtitle {
+  font-size: 0.72rem;
+  color: #6c7f95;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty-group {
+  padding: 9px 10px 10px;
+  font-size: 0.76rem;
+  color: #8a97a8;
+  font-style: italic;
+}
+
+.browser-actions {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e5edf7;
+}
+
+.delete-all-events-button {
+  width: 100%;
+  justify-content: center;
+  gap: 6px;
+}
+
+.resource-viewer {
+  border: 1px solid #dbe5f1;
+  border-radius: 10px;
+  background: #ffffff;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+.viewer-header {
+  border-bottom: 1px solid #e5edf7;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.selected-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.selected-type {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1e3f66;
+}
+
+.selected-id {
+  font-size: 0.75rem;
+  color: #6e7f91;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.json-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.json-actions button {
+  color: #4f6176;
+}
+
+.json-container {
+  background: #1f2430;
+  border-radius: 0 0 10px 10px;
+  min-height: 0;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.json-viewer {
+  margin: 0;
+  padding: 12px;
+  width: 100%;
+  height: auto;
+  min-height: 520px;
+  overflow-y: hidden;
+  overflow-x: auto;
+  white-space: pre;
+  font-size: 0.7rem;
+  line-height: 1.32;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #5b6f86 #293243;
+}
+
+.json-viewer::-webkit-scrollbar {
+  height: 10px;
+}
+
+.json-viewer::-webkit-scrollbar-track {
+  background: #293243;
+  border-radius: 999px;
+}
+
+.json-viewer::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6c819a 0%, #5b6f86 100%);
+  border-radius: 999px;
+  border: 2px solid #293243;
+}
+
+.json-viewer::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #7b91ac 0%, #68809c 100%);
+}
+
+/* ngx-highlight-js can replace/apply styles on generated pre.hljs */
+:host ::ng-deep .json-container pre.hljs {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: pre !important;
+  scrollbar-width: thin;
+  scrollbar-color: #5b6f86 #293243;
+}
+
+:host ::ng-deep .json-container pre.hljs::-webkit-scrollbar {
+  height: 10px;
+}
+
+:host ::ng-deep .json-container pre.hljs::-webkit-scrollbar-track {
+  background: #293243;
+  border-radius: 999px;
+}
+
+:host ::ng-deep .json-container pre.hljs::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6c819a 0%, #5b6f86 100%);
+  border-radius: 999px;
+  border: 2px solid #293243;
+}
+
+:host ::ng-deep .json-container pre.hljs::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #7b91ac 0%, #68809c 100%);
+}
+
+.empty-viewer {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  color: #607286;
+}
+
+@media (max-width: 1024px) {
+  .fhir-data-root {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-browser {
+    max-height: none;
+  }
+
+  .json-viewer {
+    min-height: 360px;
+  }
+}

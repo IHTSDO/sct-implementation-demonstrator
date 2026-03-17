@@ -31,10 +31,11 @@ interface VitalSignObservationConfig {
   bloodPressureComponentSnomed?: string;
 }
 
-type ClinicalModule = 'clinical' | 'dentistry' | 'nursing';
+type ClinicalModule = 'clinical' | 'dentistry' | 'nursing' | 'data';
 type ClinicalView = 'summary' | 'encounters' | 'ai-entry' | 'problems' | 'forms' | 'alerts';
 type DentalView = 'odontogram';
 type NursingView = 'vitals' | 'nutrition';
+type DataView = 'fhir';
 
 @Component({
   selector: 'app-clinical-record',
@@ -61,10 +62,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   selectedClinicalView: ClinicalView = 'summary';
   selectedDentalView: DentalView = 'odontogram';
   selectedNursingView: NursingView = 'vitals';
+  selectedDataView: DataView = 'fhir';
   isClinicalNavExpanded = true;
   isDentalNavExpanded = true;
   isNursingNavExpanded = true;
+  isDataNavExpanded = true;
   isSidebarCollapsed = false;
+  dataVersion = 0;
   private subscriptions: Subscription[] = [];
   private readonly DENTAL_CATEGORY_SYSTEM = 'http://example.org/fhir/CodeSystem/condition-category';
   private readonly DENTAL_CONDITION_CATEGORY_CODE = 'dental';
@@ -247,6 +251,11 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     if (module === 'dentistry') {
       this.selectedDentalView = this.selectedDentalView || 'odontogram';
       this.isDentalNavExpanded = true;
+      return;
+    }
+    if (module === 'data') {
+      this.selectedDataView = this.selectedDataView || 'fhir';
+      this.isDataNavExpanded = true;
     }
   }
 
@@ -274,6 +283,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.setSelectedModule('dentistry');
   }
 
+  onDataRootClick(): void {
+    if (this.selectedModule === 'data') {
+      this.toggleDataNavGroup();
+      return;
+    }
+    this.setSelectedModule('data');
+  }
+
   toggleSidebarCollapsed(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
@@ -288,6 +305,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   toggleDentalNavGroup(): void {
     this.isDentalNavExpanded = !this.isDentalNavExpanded;
+  }
+
+  toggleDataNavGroup(): void {
+    this.isDataNavExpanded = !this.isDataNavExpanded;
   }
 
   selectClinicalView(view: ClinicalView): void {
@@ -308,6 +329,12 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isDentalNavExpanded = true;
   }
 
+  selectDataView(view: DataView): void {
+    this.selectedModule = 'data';
+    this.selectedDataView = view;
+    this.isDataNavExpanded = true;
+  }
+
   getActiveContentThemeClass(): string {
     if (this.selectedModule === 'dentistry') {
       return 'content-theme-dental';
@@ -317,6 +344,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return this.selectedNursingView === 'nutrition'
         ? 'content-theme-nursing-nutrition'
         : 'content-theme-nursing-vitals';
+    }
+
+    if (this.selectedModule === 'data') {
+      return 'content-theme-data';
     }
 
     switch (this.selectedClinicalView) {
@@ -408,6 +439,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.encounters = this.patientService.getPatientEncounters(patientId);
 
     // CDS panel component now handles CDS logic
+    this.touchDataVersion();
   }
 
   onCdsStateChange(state: CdsState): void {
@@ -782,6 +814,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // Add the new condition to the local array only if it was successfully added
       // Create new array reference to trigger Angular change detection
       this.conditions = [...this.conditions, event];
+      this.touchDataVersion();
       
       // Refresh timeline to show new condition
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
@@ -826,6 +859,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // Add the new procedure to the local array only if it was successfully added
       // Create new array reference to trigger Angular change detection
       this.procedures = [...this.procedures, event];
+      this.touchDataVersion();
       
       // Refresh timeline to show new procedure
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
@@ -898,6 +932,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // Add the new medication to the local array only if it was successfully added
       // Create new array reference to trigger Angular change detection
       this.medications = [...this.medications, event];
+      this.touchDataVersion();
       
       // Refresh timeline to show new medication
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
@@ -937,6 +972,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       
       // Add the new encounter to the local array only if it was successfully added
       this.encounters.push(event);
+      this.touchDataVersion();
       
       // Refresh timeline to show new encounter
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
@@ -996,6 +1032,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
           this.clinicalTimeline.refreshTimeline();
         }
+        this.touchDataVersion();
       } finally {
         this.isLoadingMapping = false;
       }
@@ -1052,6 +1089,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
             panelClass: ['success-snackbar']
           }
         );
+        this.touchDataVersion();
         
       } catch (error) {
         console.error('Error saving questionnaire response:', error);
@@ -1734,6 +1772,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       this.patientService.deletePatientCondition(this.patient.id, conditionId);
       // Reload conditions directly from service to ensure fresh data
       this.conditions = this.patientService.getPatientConditions(this.patient.id);
+      this.touchDataVersion();
     }
   }
 
@@ -1745,6 +1784,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       this.patientService.deletePatientProcedure(this.patient.id, procedureId);
       // Reload procedures directly from service to ensure fresh data
       this.procedures = this.patientService.getPatientProcedures(this.patient.id);
+      this.touchDataVersion();
     }
   }
 
@@ -1756,6 +1796,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       this.patientService.deletePatientMedication(this.patient.id, medicationId);
       // Reload medications directly from service to ensure fresh data
       this.medications = this.patientService.getPatientMedications(this.patient.id);
+      this.touchDataVersion();
     }
   }
 
@@ -1769,6 +1810,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         this.patientService.deletePatientAllergy(this.patient.id, allergyId);
         // Reload allergies directly from service to ensure fresh data
         this.allergies = this.patientService.getPatientAllergies(this.patient.id);
+        this.touchDataVersion();
       }
     }
   }
@@ -2303,6 +2345,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     
     // No cached data or parsing failed, get fresh data
     return getFreshData();
+  }
+
+  private touchDataVersion(): void {
+    this.dataVersion += 1;
   }
 
   /**

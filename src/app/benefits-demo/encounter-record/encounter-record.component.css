@@ -589,7 +589,6 @@
 .encounter-item {
   padding: 16px;
   border: 1px solid #e9ecef;
-  border-left: 4px solid #28a745;
   border-radius: 10px;
   background: #ffffff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -602,7 +601,7 @@
 }
 
 .encounter-item:hover {
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 

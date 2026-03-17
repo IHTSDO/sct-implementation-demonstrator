@@ -3,7 +3,23 @@
 }
 
 .careplan-section {
-  max-width: 720px;
+  max-width: none;
+}
+
+.careplan-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.vitals-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-column {
+  min-width: 0;
 }
 
 .careplan-section h3 {
@@ -28,9 +44,9 @@
 
 .anthropometry-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .anthro-card {
@@ -83,7 +99,7 @@
 }
 
 .save-assessment-button {
-  margin-top: 10px;
+  align-self: stretch;
 }
 
 .interventions-list {
@@ -121,11 +137,22 @@
   margin-right: 4px;
 }
 
-@media (max-width: 900px) {
-  .anthropometry-cards {
+/* Ensure form fields render in outlined style consistently */
+:host ::ng-deep .form-column .multi-prefix-select {
+  --mat-form-field-container-text-size: 14px;
+}
+
+@media (max-width: 1100px) {
+  .careplan-layout {
     grid-template-columns: 1fr;
   }
 
+  .vitals-column {
+    max-width: none;
+  }
+}
+
+@media (max-width: 900px) {
   .goals-row {
     grid-template-columns: 1fr;
   }

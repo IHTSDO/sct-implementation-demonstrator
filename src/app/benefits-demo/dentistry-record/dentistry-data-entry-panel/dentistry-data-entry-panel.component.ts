@@ -71,4 +71,8 @@ export class DentistryDataEntryPanelComponent {
   onCopyPostcoordinated(item: DentalFindingListItem): void {
     this.copyPostcoordinated.emit(item);
   }
+
+  normalizeWhitespace(value: string | null | undefined): string {
+    return (value || '').replace(/\s+/g, ' ').trim();
+  }
 }

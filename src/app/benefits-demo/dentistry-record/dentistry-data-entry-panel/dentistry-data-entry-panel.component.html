@@ -10,10 +10,12 @@
       Palmer: <strong>{{ pinnedTooth.notations.palmer }}</strong>
     </div>
     <div class="tooth-snomed-line">
-      SNOMED: <strong>{{ pinnedTooth.snomedStructure?.code || 'Not mapped' }}</strong>
-      <span class="meta-separator">|</span>
-      {{ pinnedTooth.snomedStructure?.display || 'Not mapped' }}
-      <span class="meta-separator">|</span>
+      SNOMED:
+      <ng-container *ngIf="pinnedTooth.snomedStructure as snomed; else snomedNotMapped">
+        <strong>{{ normalizeWhitespace(snomed.code) }}</strong>
+        {{ normalizeWhitespace(snomed.display) }}
+      </ng-container>
+      <ng-template #snomedNotMapped>Not mapped</ng-template>
     </div>
   </div>
 

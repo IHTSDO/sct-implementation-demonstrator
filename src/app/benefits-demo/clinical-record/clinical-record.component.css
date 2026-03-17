@@ -1,7 +1,11 @@
 .clinical-record-container {
-  min-height: 100vh;
+  height: calc(100vh - var(--app-top-toolbar-height, 64px));
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background-color: #f8f9fa;
   overflow-x: hidden;
+  overflow-y: hidden;
   --kind-condition: #8e44ad;
   --kind-allergy: #f39c12;
   --kind-procedure: #17a2b8;
@@ -166,7 +170,8 @@
   gap: 16px;
   align-items: start;
   padding: 14px 24px 24px;
-  height: calc(100vh - 110px);
+  flex: 1 1 auto;
+  height: auto;
   min-height: 0;
   overflow: hidden;
 }
@@ -439,6 +444,11 @@
 .record-section.content-theme-nursing-nutrition {
   border-left-color: #2e7d32;
   background: linear-gradient(180deg, #ffffff 0%, #f5fff6 100%);
+}
+
+.record-section.content-theme-data {
+  border-left-color: #1e88e5;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
 }
 
 .record-section h2 {
@@ -1116,6 +1126,12 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .clinical-record-container {
+    height: auto;
+    min-height: calc(100vh - var(--app-top-toolbar-height-mobile, 56px));
+    overflow-y: visible;
+  }
+
   .record-header {
     flex-direction: column;
     gap: 15px;
@@ -1899,7 +1915,7 @@
 /* Clinical Entry Section Styles */
 .clinical-entry-section {
   background-color: #f8f9fa;
-  border-left: 4px solid #28a745;
+  border-left: none !important;
 }
 
 .clinical-entry-controls {

@@ -266,4 +266,18 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges {
       default: return 'event';
     }
   }
+
+  isDentalCondition(condition: any): boolean {
+    const categories = condition?.category;
+    if (!Array.isArray(categories)) {
+      return false;
+    }
+
+    return categories.some((category: any) =>
+      Array.isArray(category?.coding) &&
+      category.coding.some((coding: any) =>
+        typeof coding?.code === 'string' && coding.code.toLowerCase() === 'dental'
+      )
+    );
+  }
 }

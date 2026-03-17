@@ -20,28 +20,19 @@
         <span class="patient-status" [class.active]="patient.active">
           {{ patient.active ? 'Active' : 'Inactive' }}
         </span>
-        <button
-          *ngIf="cdsState.hasRecommendations"
-          type="button"
-          class="patient-cds-alert-link"
-          (click)="onCdsNoticeClick()">
-          <mat-icon>shield</mat-icon>
-          <span>{{ cdsState.recommendationCount }} CDS alert{{ cdsState.recommendationCount === 1 ? '' : 's' }} - View</span>
-        </button>
       </div>
     </div>
     <div class="header-right">
       <div class="current-date">
         {{ currentDate | date:'longDate' }}
       </div>
-      <button mat-stroked-button 
-              color="warn" 
-              (click)="deleteAllEvents()"
-              [disabled]="isLoadingMapping"
-              title="Delete all clinical events for this patient"
-              class="delete-all-button">
-        <mat-icon>delete_sweep</mat-icon>
-        Delete All Events
+      <button
+        *ngIf="cdsState.hasRecommendations"
+        type="button"
+        class="patient-cds-alert-link"
+        (click)="onCdsNoticeClick()">
+        <mat-icon>shield</mat-icon>
+        <span>{{ cdsState.recommendationCount }} CDS alert{{ cdsState.recommendationCount === 1 ? '' : 's' }} - View</span>
       </button>
     </div>
   </div>
@@ -65,7 +56,7 @@
           class="sidebar-item module-root"
           [class.active]="selectedModule === 'clinical'"
           (click)="onClinicalRootClick()">
-          <mat-icon>monitor_heart</mat-icon>
+          <mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon>
           <span class="module-label">Clinical</span>
           <span class="group-caret-wrapper">
             <mat-icon class="group-caret" *ngIf="isClinicalNavExpanded">expand_less</mat-icon>
@@ -129,7 +120,7 @@
           class="sidebar-item module-root"
           [class.active]="selectedModule === 'dentistry'"
           (click)="onDentalRootClick()">
-          <mat-icon>medical_services</mat-icon>
+          <mat-icon fontSet="material-symbols-outlined">dentistry</mat-icon>
           <span class="module-label">Dental</span>
           <span class="group-caret-wrapper">
             <mat-icon class="group-caret" *ngIf="isDentalNavExpanded">expand_less</mat-icon>
@@ -178,6 +169,30 @@
             <span>Nutritional Careplan</span>
           </button>
         </div>
+
+        <button
+          mat-stroked-button
+          class="sidebar-item module-root"
+          [class.active]="selectedModule === 'data'"
+          (click)="onDataRootClick()">
+          <mat-icon>dataset</mat-icon>
+          <span class="module-label">Data</span>
+          <span class="group-caret-wrapper">
+            <mat-icon class="group-caret" *ngIf="isDataNavExpanded">expand_less</mat-icon>
+            <mat-icon class="group-caret" *ngIf="!isDataNavExpanded">expand_more</mat-icon>
+          </span>
+        </button>
+
+        <div class="clinical-group" *ngIf="isDataNavExpanded">
+          <button
+            mat-stroked-button
+            class="sidebar-item"
+            [class.active]="selectedModule === 'data' && selectedDataView === 'fhir'"
+            (click)="selectDataView('fhir')">
+            <mat-icon>data_object</mat-icon>
+            <span>FHIR</span>
+          </button>
+        </div>
       </ng-container>
 
       <div class="collapsed-nav" *ngIf="isSidebarCollapsed">
@@ -200,13 +215,16 @@
           <mat-icon>shield</mat-icon>
         </button>
         <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'" (click)="selectDentalView('odontogram')" matTooltip="Dental: Odontogram" matTooltipPosition="right">
-          <mat-icon>account_tree</mat-icon>
+          <mat-icon fontSet="material-symbols-outlined">dentistry</mat-icon>
         </button>
         <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'" (click)="selectNursingView('vitals')" matTooltip="Nursing: Vital Signs" matTooltipPosition="right">
           <mat-icon>monitor_heart</mat-icon>
         </button>
         <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'" (click)="selectNursingView('nutrition')" matTooltip="Nursing: Nutritional Careplan" matTooltipPosition="right">
           <mat-icon>restaurant</mat-icon>
+        </button>
+        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'data' && selectedDataView === 'fhir'" (click)="selectDataView('fhir')" matTooltip="Data: FHIR" matTooltipPosition="right">
+          <mat-icon>data_object</mat-icon>
         </button>
       </div>
     </aside>
@@ -239,14 +257,11 @@
                 <h5 class="summary-heading-conditions">Conditions</h5>
                 <div class="clinical-summary-list" *ngIf="getSortedSummaryConditions().length > 0; else noConditions">
                   <div class="clinical-summary-item hoverable-summary-condition" 
-                      *ngFor="let condition of getSortedSummaryConditions() | slice:0:6; let i = index"
+                      *ngFor="let condition of getSortedSummaryConditions(); let i = index"
                       [attr.data-condition-id]="condition.id"
                       (mouseenter)="onConditionHover(condition, $event)"
                       (mouseleave)="onConditionHoverEnd()">
                     <div class="item-name">{{ condition.code.text }}</div>
-                  </div>
-                  <div class="clinical-summary-item" *ngIf="getSortedSummaryConditions().length > 6" style="font-style: italic; color: #6c757d;">
-                    +{{ getSortedSummaryConditions().length - 6 }} more conditions
                   </div>
                 </div>
                 <ng-template #noConditions>
@@ -258,14 +273,11 @@
                 <h5 class="summary-heading-procedures">Procedures</h5>
                 <div class="clinical-summary-list" *ngIf="getSortedSummaryProcedures().length > 0; else noProcedures">
                   <div class="clinical-summary-item hoverable-summary-condition" 
-                      *ngFor="let procedure of getSortedSummaryProcedures() | slice:0:4"
+                      *ngFor="let procedure of getSortedSummaryProcedures()"
                       [attr.data-procedure-id]="procedure.id"
                       (mouseenter)="onProcedureHover(procedure, $event)"
                       (mouseleave)="onConditionHoverEnd()">
                     <div class="item-name">{{ procedure.code.text }}</div>
-                  </div>
-                  <div class="clinical-summary-item" *ngIf="getSortedSummaryProcedures().length > 4" style="font-style: italic; color: #6c757d;">
-                    +{{ getSortedSummaryProcedures().length - 4 }} more procedures
                   </div>
                 </div>
                 <ng-template #noProcedures>
@@ -319,14 +331,11 @@
                 <h5 class="summary-heading-medications">Medications</h5>
                 <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
                   <div class="clinical-summary-item hoverable-summary-condition" 
-                      *ngFor="let medication of getSortedMedications() | slice:0:6"
+                      *ngFor="let medication of getSortedMedications()"
                       [attr.data-medication-id]="medication.id"
                       (mouseenter)="onMedicationHover(medication, $event)"
                       (mouseleave)="onConditionHoverEnd()">
                     <div class="item-name">{{ medication.medicationCodeableConcept?.text }}</div>
-                  </div>
-                  <div class="clinical-summary-item" *ngIf="medications.length > 6" style="font-style: italic; color: #6c757d;">
-                    +{{ medications.length - 6 }} more medications
                   </div>
                 </div>
                 <ng-template #noMedications>
@@ -338,7 +347,7 @@
                 <h5 class="summary-heading-allergies">Allergic to:</h5>
                 <div class="clinical-summary-list" *ngIf="allergies.length > 0; else noAllergies">
                   <div class="clinical-summary-item hoverable-summary-condition" 
-                      *ngFor="let allergy of getSortedAllergies() | slice:0:4"
+                      *ngFor="let allergy of getSortedAllergies()"
                       (mouseenter)="onAllergyHover(allergy, $event)"
                       (mouseleave)="onConditionHoverEnd()">
                     <div class="item-name">
@@ -349,9 +358,6 @@
                     <div class="allergy-reactions" *ngIf="getAllergyReactions(allergy).length > 0">
                       <div class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy)">Reaction: {{ reaction }}</div>
                     </div>
-                  </div>
-                  <div class="clinical-summary-item" *ngIf="allergies.length > 4" style="font-style: italic; color: #6c757d;">
-                    +{{ allergies.length - 4 }} more allergies
                   </div>
                 </div>
                 <ng-template #noAllergies>
@@ -401,7 +407,8 @@
                   [conditions]="conditions"
                   [procedures]="procedures"
                   [medications]="medications"
-                  [allergies]="allergies">
+                  [allergies]="allergies"
+                  (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
               </aside>
             </div>
@@ -424,7 +431,8 @@
                   [conditions]="conditions"
                   [procedures]="procedures"
                   [medications]="medications"
-                  [allergies]="allergies">
+                  [allergies]="allergies"
+                  (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
               </aside>
             </div>
@@ -444,7 +452,7 @@
                                   [disabled]="isProcessingNewEvent"
                                   class="entry-toggle-button condition-button"
                                   [class.active]="conditionEntry?.showAddForm">
-                            <mat-icon>medical_services</mat-icon>
+                            <mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon>
                             Add Condition
                           </button>
                           <button mat-raised-button 
@@ -515,11 +523,11 @@
 	                    <!-- Multi-column Layout for Clinical Data -->
 	                    <div class="three-column-layout">
 	                      <!-- Conditions Column -->
-	                      <div class="clinical-column conditions-column">
-                        <div class="column-header">
-                          <h4><mat-icon>medical_services</mat-icon> Conditions</h4>
-                          <span class="item-count">{{ conditions.length }}</span>
-                        </div>
+		                      <div class="clinical-column conditions-column">
+	                        <div class="column-header">
+	                          <h4><mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon> Conditions</h4>
+	                          <span class="item-count">{{ conditions.length }}</span>
+	                        </div>
                         <div class="clinical-list compact" *ngIf="conditions.length > 0; else noConditionsList">
                           <div class="clinical-item compact" 
                               *ngFor="let condition of getSortedConditions()">
@@ -706,7 +714,8 @@
                   [conditions]="conditions"
                   [procedures]="procedures"
                   [medications]="medications"
-                  [allergies]="allergies">
+                  [allergies]="allergies"
+                  (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
               </aside>
             </div>
@@ -727,7 +736,8 @@
                   [conditions]="conditions"
                   [procedures]="procedures"
                   [medications]="medications"
-                  [allergies]="allergies">
+                  [allergies]="allergies"
+                  (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
               </aside>
             </div>
@@ -745,6 +755,16 @@
             [patient]="patient"
             [selectedView]="selectedNursingView">
           </app-nursing-record>
+
+          <ng-container *ngSwitchCase="'data'">
+            <app-fhir-data
+              *ngIf="selectedDataView === 'fhir'"
+              [patient]="patient"
+              [dataVersion]="dataVersion"
+              [isDeletingEvents]="isLoadingMapping"
+              (deleteAllEventsRequested)="deleteAllEvents()">
+            </app-fhir-data>
+          </ng-container>
         </ng-container>
       </div>
     </div>

@@ -23,6 +23,17 @@
   pointer-events: none;
 }
 
+.side-label {
+  fill: #5f6b7c;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  user-select: none;
+  pointer-events: none;
+}
+
 .tooth {
   color: #8a98be;
   cursor: pointer;

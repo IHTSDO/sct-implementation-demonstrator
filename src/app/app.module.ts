@@ -134,6 +134,7 @@ import { QuestionnaireFormComponent } from './benefits-demo/questionnaire-form/q
 import { OpenehrFormComponent } from './benefits-demo/openehr-form/openehr-form.component';
 import { AiAssistedEntryComponent } from './benefits-demo/ai-assisted-entry/ai-assisted-entry.component';
 import { ProblemsListSimplifiedComponent } from './benefits-demo/problems-list-simplified/problems-list-simplified.component';
+import { FhirDataComponent } from './benefits-demo/fhir-data/fhir-data.component';
 import { AllergyFormDialogComponent } from './benefits-demo/allergy-form-dialog/allergy-form-dialog.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { BatchPatientDialogComponent } from './benefits-demo/batch-patient-dialog/batch-patient-dialog.component';
@@ -261,6 +262,7 @@ const app = initializeApp(firebaseConfig);
         OpenehrFormComponent,
         AiAssistedEntryComponent,
         ProblemsListSimplifiedComponent,
+        FhirDataComponent,
         AllergyFormDialogComponent,
         ExpoQuiz2025Component,
         BatchPatientDialogComponent,

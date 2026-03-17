@@ -35,7 +35,15 @@
           <div class="event-card">
             <div class="card-header">
               <div class="event-marker">
-                <mat-icon class="event-icon">{{ getEventIcon(event.type) }}</mat-icon>
+                @if (event.type === 'condition') {
+                  @if (isDentalCondition(event.originalEvent)) {
+                    <mat-icon class="event-icon" fontSet="material-symbols-outlined">dentistry</mat-icon>
+                  } @else {
+                    <mat-icon class="event-icon" fontSet="material-symbols-outlined">stethoscope</mat-icon>
+                  }
+                } @else {
+                  <mat-icon class="event-icon">{{ getEventIcon(event.type) }}</mat-icon>
+                }
               </div>
               <div class="event-type-badge" [style.background-color]="event.color">
                 {{ getEventTypeLabel(event.type) }}
