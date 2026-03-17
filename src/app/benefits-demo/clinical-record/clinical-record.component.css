@@ -1,6 +1,7 @@
 .clinical-record-container {
   min-height: 100vh;
   background-color: #f8f9fa;
+  overflow-x: hidden;
   --kind-condition: #8e44ad;
   --kind-allergy: #f39c12;
   --kind-procedure: #17a2b8;
@@ -158,6 +159,8 @@
 
 /* Workspace Layout */
 .clinical-workspace {
+  box-sizing: border-box;
+  width: 100%;
   display: grid;
   grid-template-columns: 270px minmax(0, 1fr);
   gap: 16px;
@@ -187,8 +190,9 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 100%;
-  overflow: auto;
+  max-height: calc(100% - 2px);
+  overflow-y: auto;
+  overflow-x: hidden;
   transition: width 0.2s ease;
 }
 
@@ -331,6 +335,42 @@
 
 .clinical-sidebar.collapsed .clinical-group {
   margin-left: 0;
+}
+
+.collapsed-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-collapsed-icon-item {
+  width: 100%;
+  height: 48px;
+  min-width: 48px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #5c6f82;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-collapsed-icon-item mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+}
+
+.sidebar-collapsed-icon-item:hover {
+  background: #f1f5f9;
+}
+
+.sidebar-collapsed-icon-item.active {
+  background: #e9f2ff;
+  color: #0d6efd;
 }
 
 /* Main Content */
