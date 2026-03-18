@@ -6,6 +6,7 @@ import {
   Condition,
   Encounter,
   FhirObservation,
+  LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
   Procedure,
@@ -22,7 +23,10 @@ type SupportedResourceType =
   | 'AllergyIntolerance'
   | 'Observation'
   | 'Encounter'
-  | 'QuestionnaireResponse';
+  | 'QuestionnaireResponse'
+  | 'Bundle';
+
+type FhirBundleResource = LaboratoryOrderGroup['fhirBundle'];
 
 type SupportedResource =
   | Patient
@@ -32,7 +36,8 @@ type SupportedResource =
   | AllergyIntolerance
   | FhirObservation
   | Encounter
-  | QuestionnaireResponse;
+  | QuestionnaireResponse
+  | FhirBundleResource;
 
 interface ResourceListItem {
   resourceType: SupportedResourceType;
@@ -175,6 +180,12 @@ export class FhirDataComponent implements OnChanges {
         title: 'QuestionnaireResponse',
         icon: 'assignment',
         items: this.patientService.getPatientQuestionnaireResponses(patientId).map(resource => this.toQuestionnaireItem(resource))
+      },
+      {
+        resourceType: 'Bundle',
+        title: 'Bundle',
+        icon: 'folder_zip',
+        items: this.patientService.getPatientLabOrders(patientId).map(resource => this.toBundleItem(resource))
       }
     ];
 
@@ -309,6 +320,21 @@ export class FhirDataComponent implements OnChanges {
       label,
       subtitle: this.buildDateSubtitle(resource.authored),
       resource
+    };
+  }
+
+  private toBundleItem(labOrder: LaboratoryOrderGroup): ResourceListItem {
+    const determinationCount = labOrder.serviceRequests.length;
+    const label = determinationCount === 1
+      ? 'Laboratory order bundle - 1 determination'
+      : `Laboratory order bundle - ${determinationCount} determinations`;
+
+    return {
+      resourceType: 'Bundle',
+      id: labOrder.id,
+      label,
+      subtitle: this.buildDateSubtitle(labOrder.createdAt),
+      resource: labOrder.fhirBundle
     };
   }
 
