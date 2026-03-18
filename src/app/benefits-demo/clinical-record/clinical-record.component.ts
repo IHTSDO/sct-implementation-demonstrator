@@ -64,9 +64,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   selectedNursingView: NursingView = 'vitals';
   selectedDataView: DataView = 'fhir';
   isClinicalNavExpanded = true;
-  isDentalNavExpanded = true;
-  isNursingNavExpanded = true;
-  isDataNavExpanded = true;
+  isDentalNavExpanded = false;
+  isNursingNavExpanded = false;
+  isDataNavExpanded = false;
   isSidebarCollapsed = false;
   dataVersion = 0;
   private subscriptions: Subscription[] = [];
@@ -240,28 +240,28 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.selectedModule = module;
     if (module === 'clinical') {
       this.selectedClinicalView = 'summary';
-      this.isClinicalNavExpanded = true;
+      this.expandOnly(module);
       return;
     }
     if (module === 'nursing') {
       this.selectedNursingView = this.selectedNursingView || 'vitals';
-      this.isNursingNavExpanded = true;
+      this.expandOnly(module);
       return;
     }
     if (module === 'dentistry') {
       this.selectedDentalView = this.selectedDentalView || 'odontogram';
-      this.isDentalNavExpanded = true;
+      this.expandOnly(module);
       return;
     }
     if (module === 'data') {
       this.selectedDataView = this.selectedDataView || 'fhir';
-      this.isDataNavExpanded = true;
+      this.expandOnly(module);
     }
   }
 
   onClinicalRootClick(): void {
     if (this.selectedModule === 'clinical') {
-      this.toggleClinicalNavGroup();
+      this.expandOnly('clinical');
       return;
     }
     this.setSelectedModule('clinical');
@@ -269,7 +269,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   onNursingRootClick(): void {
     if (this.selectedModule === 'nursing') {
-      this.toggleNursingNavGroup();
+      this.expandOnly('nursing');
       return;
     }
     this.setSelectedModule('nursing');
@@ -277,7 +277,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   onDentalRootClick(): void {
     if (this.selectedModule === 'dentistry') {
-      this.toggleDentalNavGroup();
+      this.expandOnly('dentistry');
       return;
     }
     this.setSelectedModule('dentistry');
@@ -285,7 +285,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   onDataRootClick(): void {
     if (this.selectedModule === 'data') {
-      this.toggleDataNavGroup();
+      this.expandOnly('data');
       return;
     }
     this.setSelectedModule('data');
@@ -295,44 +295,35 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 
-  toggleClinicalNavGroup(): void {
-    this.isClinicalNavExpanded = !this.isClinicalNavExpanded;
-  }
-
-  toggleNursingNavGroup(): void {
-    this.isNursingNavExpanded = !this.isNursingNavExpanded;
-  }
-
-  toggleDentalNavGroup(): void {
-    this.isDentalNavExpanded = !this.isDentalNavExpanded;
-  }
-
-  toggleDataNavGroup(): void {
-    this.isDataNavExpanded = !this.isDataNavExpanded;
+  private expandOnly(module: ClinicalModule): void {
+    this.isClinicalNavExpanded = module === 'clinical';
+    this.isDentalNavExpanded = module === 'dentistry';
+    this.isNursingNavExpanded = module === 'nursing';
+    this.isDataNavExpanded = module === 'data';
   }
 
   selectClinicalView(view: ClinicalView): void {
     this.selectedModule = 'clinical';
     this.selectedClinicalView = view;
-    this.isClinicalNavExpanded = true;
+    this.expandOnly('clinical');
   }
 
   selectNursingView(view: NursingView): void {
     this.selectedModule = 'nursing';
     this.selectedNursingView = view;
-    this.isNursingNavExpanded = true;
+    this.expandOnly('nursing');
   }
 
   selectDentalView(view: DentalView): void {
     this.selectedModule = 'dentistry';
     this.selectedDentalView = view;
-    this.isDentalNavExpanded = true;
+    this.expandOnly('dentistry');
   }
 
   selectDataView(view: DataView): void {
     this.selectedModule = 'data';
     this.selectedDataView = view;
-    this.isDataNavExpanded = true;
+    this.expandOnly('data');
   }
 
   getActiveContentThemeClass(): string {

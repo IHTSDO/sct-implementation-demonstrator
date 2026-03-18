@@ -100,4 +100,67 @@
       </div>
     }
   </div>
+
+  <div class="cds-info-panel">
+    <p class="cds-info-intro">This demo uses this open source resource:</p>
+    <p class="cds-info-title">SNOMED FHIR Clinical Decision Support Service</p>
+    <a
+      class="cds-info-subtitle-link"
+      href="https://github.com/IHTSDO/snomed-fhir-cds-service"
+      target="_blank"
+      rel="noopener noreferrer">
+      https://github.com/IHTSDO/snomed-fhir-cds-service
+    </a>
+
+    <p class="cds-info-overview">
+      This demo showcases the SNOMED FHIR CDS Service and is intended for demonstration purposes only, not for
+      real-world clinical use. Built on FHIR standards and SNOMED CT, it analyzes medication orders to detect
+      contraindications, drug interactions, abnormal dosing, and validation errors.
+    </p>
+
+    <div class="cds-info-grid">
+      <div class="cds-info-section">
+        <h4>Key Components</h4>
+        <ul>
+          <li><strong>Rules Engine:</strong> Loads medication-condition and drug-drug interaction rules.</li>
+          <li><strong>FHIR Integration:</strong> Accepts MedicationRequest, Condition, AllergyIntolerance, and Patient resources.</li>
+          <li>
+            <strong>Knowledge bases:</strong>
+            <div class="cds-info-subpoints">
+              <p><strong>Interactions:</strong> A limited list of medication interaction risks created from publicly available resources for the demo.</p>
+              <p><strong>Contraindications:</strong> A limited list of medication-condition contraindications created from publicly available resources for the demo.</p>
+              <p><strong>DDD:</strong> Uses WHO ATC Defined Daily Doses to estimate excessive dosage alerts.</p>
+              <p><strong>Thresholds:</strong> Supports adjustable dosage alert limits.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="cds-info-section">
+        <h4>Alert Types</h4>
+        <ul>
+          <li><strong>Contraindication Alerts:</strong> Flags when a medication is unsafe for a patient's existing medical conditions. WARNING indicates a critical contraindication, while INFO suggests caution.</li>
+          <li><strong>Medication Allergy Alerts:</strong> Flags when a medication conflicts with recorded allergy information.</li>
+          <li>
+            <strong>High Dosage Alerts:</strong> Identifies when the prescribed daily dose exceeds the WHO Defined Daily Dose reference. INFO indicates 2-4x DDD and WARNING indicates 4x DDD or higher.
+            <div class="cds-info-subpoints">
+              <p><strong>Formula:</strong> Prescribed Daily Dose / DDD Reference = Alert Threshold</p>
+              <p><strong>Configuration:</strong> Acceptable threshold 2x DDD, maximum threshold 4x DDD.</p>
+            </div>
+          </li>
+          <li><strong>Drug-Drug Interaction Alerts:</strong> Detects risky medication combinations, with INFO, WARNING, and CRITICAL severities based on interaction strength.</li>
+          <li><strong>Validation Error Alerts:</strong> Flags incomplete or invalid prescription data such as invalid dose units, missing frequency, or incomplete information.</li>
+        </ul>
+      </div>
+
+      <div class="cds-info-section">
+        <h4>Alert Severity Indicators</h4>
+        <ul class="cds-indicator-list">
+          <li><strong>INFO</strong>: Informational</li>
+          <li><strong>WARNING</strong>: Important safety concern</li>
+          <li><strong>CRITICAL</strong>: Severe safety issue</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
