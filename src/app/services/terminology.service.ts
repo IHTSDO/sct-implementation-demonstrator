@@ -208,6 +208,42 @@ export class TerminologyService {
       );
   }
 
+  getCodeSystemsFromServer(fhirBase: string, editionUri?: string) {
+    let requestUrl = `${fhirBase}/CodeSystem`;
+    if (editionUri) {
+      requestUrl += `?system=${editionUri}`;
+    }
+    return this.http.get<any>(requestUrl)
+      .pipe(
+        catchError(this.handleError<any>('getCodeSystemsFromServer', {}))
+      );
+  }
+
+  getCodeSystemFromServer(fhirBase: string, versionedUri: string) {
+    const requestUrl = `${fhirBase}/CodeSystem?version=${versionedUri}`;
+    return this.http.get<any>(requestUrl)
+      .pipe(
+        catchError(this.handleError<any>('getCodeSystemFromServer', {}))
+      );
+  }
+
+  /**
+   * Resolve the latest versioned SNOMED CT URI for a specific edition-level URI.
+   * Example:
+   * - editionUri:  http://snomed.info/sct/11010000107
+   * - versionedUri: http://snomed.info/sct/11010000107/version/20250321
+   */
+  getLatestCodeSystemVersionFromServer(fhirBase: string, editionUri: string, fallbackVersion?: string): Observable<string> {
+    const knownVersionedUri = fallbackVersion || editionUri;
+    return this.getCodeSystemFromServer(fhirBase, knownVersionedUri).pipe(
+      map((response: any) => {
+        const firstVersion = response?.entry?.[0]?.resource?.version;
+        return firstVersion || knownVersionedUri;
+      }),
+      catchError(() => of(knownVersionedUri))
+    );
+  }
+
   getCodeSystem(version: string) {
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem?version=${version}`;
     const headers = new HttpHeaders({

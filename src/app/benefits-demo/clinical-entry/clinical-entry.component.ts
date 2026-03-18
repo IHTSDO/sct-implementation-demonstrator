@@ -23,8 +23,14 @@ export class ClinicalEntryComponent implements AfterViewInit {
   selectedConcept: any;
   selectedAssociation: {type: 'condition' | 'procedure', resource: Condition | Procedure} | null = null;
   term: string = '';
+  entryDate: Date = this.getDefaultEntryDate();
+  medicationDoseValue: number | null = null;
+  medicationDoseUnit: string = '';
+  medicationPeriod: number | null = null;
+  medicationPeriodUnit: 'h' | 'd' | 'wk' = 'h';
   loading = false;
   showAddForm = false;
+  readonly medicationDoseUnitOptions = ['tablet', 'capsule', 'drop', 'puff', 'mL', 'mg', 'g', 'unit'];
 
   // SNOMED ECL bindings for different clinical entry types
   readonly bindings = {
@@ -124,6 +130,9 @@ export class ClinicalEntryComponent implements AfterViewInit {
       {
         code: this.selectedConcept.code,
         display: this.selectedConcept.display
+      },
+      {
+        dateTime: this.getEntryDateValue()
       }
     );
 
@@ -138,6 +147,9 @@ export class ClinicalEntryComponent implements AfterViewInit {
       {
         code: this.selectedConcept.code,
         display: this.selectedConcept.display
+      },
+      {
+        dateTime: this.getEntryDateValue()
       }
     );
 
@@ -158,7 +170,11 @@ export class ClinicalEntryComponent implements AfterViewInit {
         code: this.selectedConcept.code,
         display: this.selectedConcept.display
       },
-      { reasonReference }
+      {
+        effectiveDateTime: this.getEntryDateValue(),
+        reasonReference,
+        dosage: this.buildMedicationDosage()
+      }
     );
 
     // Let the parent component handle adding to the service
@@ -170,7 +186,70 @@ export class ClinicalEntryComponent implements AfterViewInit {
     this.term = '';
     this.selectedConcept = null;
     this.selectedAssociation = null;
+    this.entryDate = this.getDefaultEntryDate();
+    this.medicationDoseValue = null;
+    this.medicationDoseUnit = '';
+    this.medicationPeriod = null;
+    this.medicationPeriodUnit = 'h';
     this.showAddForm = false;
+  }
+
+  private getDefaultEntryDate(): Date {
+    return new Date();
+  }
+
+  private getEntryDateValue(): string {
+    const date = this.entryDate || new Date();
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private buildMedicationDosage(): MedicationStatement['dosage'] {
+    const hasDoseQuantity = this.medicationDoseValue !== null && this.medicationDoseValue > 0 && !!this.medicationDoseUnit.trim();
+    const hasTiming = this.medicationPeriod !== null && this.medicationPeriod > 0;
+
+    if (!hasDoseQuantity && !hasTiming) {
+      return [{
+        text: 'Take as prescribed'
+      }];
+    }
+
+    const dosage: NonNullable<MedicationStatement['dosage']>[number] = {};
+
+    if (hasTiming) {
+      dosage.timing = {
+        repeat: {
+          frequency: 1,
+          period: this.medicationPeriod!,
+          periodUnit: this.medicationPeriodUnit
+        }
+      };
+    }
+
+    if (hasDoseQuantity) {
+      dosage.doseAndRate = [{
+        doseQuantity: {
+          value: this.medicationDoseValue!,
+          unit: this.medicationDoseUnit.trim()
+        }
+      }];
+    }
+
+    const textParts: string[] = [];
+
+    if (hasDoseQuantity) {
+      textParts.push(`${this.medicationDoseValue} ${this.medicationDoseUnit.trim()}`);
+    }
+
+    if (hasTiming) {
+      textParts.push(`every ${this.medicationPeriod} ${this.medicationPeriodUnit}`);
+    }
+
+    dosage.text = textParts.join(', ');
+
+    return [dosage];
   }
 
   compareAssociations(a1: any, a2: any): boolean {

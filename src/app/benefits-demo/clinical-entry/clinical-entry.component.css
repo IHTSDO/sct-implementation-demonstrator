@@ -135,12 +135,31 @@
   min-width: 200px;
 }
 
+.date-section {
+  flex: 0 0 220px;
+  min-width: 220px;
+}
+
 /* Association section uses standard Angular Material styling */
 .association-section {
   width: 100%;
 }
 
 .association-section mat-form-field {
+  width: 100%;
+}
+
+.date-section mat-form-field {
+  width: 100%;
+}
+
+.dosage-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dosage-row mat-form-field {
   width: 100%;
 }
 
@@ -167,6 +186,15 @@
   
   .association-section {
     min-width: unset;
+  }
+
+  .date-section {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .dosage-row {
+    grid-template-columns: 1fr;
   }
   
   .action-section {

@@ -834,6 +834,50 @@ export interface MedicationStatement {
   snomedConceptId?: string;
 }
 
+export interface ServiceRequest {
+  resourceType: 'ServiceRequest';
+  id: string;
+  status: 'draft' | 'active' | 'on-hold' | 'revoked' | 'completed' | 'entered-in-error' | 'unknown';
+  intent: 'proposal' | 'plan' | 'directive' | 'order' | 'original-order' | 'reflex-order' | 'filler-order' | 'instance-order' | 'option';
+  code: {
+    coding?: Array<{
+      system?: string;
+      version?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  subject: {
+    reference: string;
+    display?: string;
+  };
+  authoredOn?: string;
+  occurrenceDateTime?: string;
+  specimen?: Array<{
+    reference?: string;
+    display?: string;
+    identifier?: {
+      system?: string;
+      value?: string;
+    };
+  }>;
+  note?: Array<{
+    text: string;
+    time?: string;
+  }>;
+}
+
+export interface LaboratoryOrderGroup {
+  id: string;
+  patientId: string;
+  patientDisplay?: string;
+  createdAt: string;
+  serviceRequests: ServiceRequest[];
+  fhirBundle: any;
+  fhirBundleStr: string;
+}
+
 export interface Encounter {
   resourceType: 'Encounter';
   id: string;
@@ -1409,6 +1453,18 @@ export class PatientService {
     });
   }
 
+  private isDuplicateServiceRequest(existingRequests: ServiceRequest[], newRequest: ServiceRequest): boolean {
+    const newCode = this.extractSnomedCode(newRequest);
+    if (!newCode) return false;
+
+    return existingRequests.some(existing => {
+      const existingCode = this.extractSnomedCode(existing);
+      if (existingCode !== newCode) return false;
+
+      return (existing.occurrenceDateTime || existing.authoredOn || '') === (newRequest.occurrenceDateTime || newRequest.authoredOn || '');
+    });
+  }
+
   private loadPatients(): void {
     if (this.storageService.isLocalStorageSupported()) {
       const storedPatients = this.storageService.getItem(this.STORAGE_KEY);
@@ -1632,6 +1688,8 @@ export class PatientService {
       const conditionsKey = `ehr_conditions_${patient.id}`;
       const proceduresKey = `ehr_procedures_${patient.id}`;
       const medicationsKey = `ehr_medications_${patient.id}`;
+      const serviceRequestsKey = `ehr_service_requests_${patient.id}`;
+      const labOrdersKey = `ehr_lab_orders_${patient.id}`;
       const observationsKey = `ehr_observations_${patient.id}`;
       const bodyStructuresKey = `ehr_body_structures_${patient.id}`;
       const allergiesKey = `ehr_allergies_${patient.id}`;
@@ -1643,6 +1701,8 @@ export class PatientService {
       this.storageService.removeItem(conditionsKey);
       this.storageService.removeItem(proceduresKey);
       this.storageService.removeItem(medicationsKey);
+      this.storageService.removeItem(serviceRequestsKey);
+      this.storageService.removeItem(labOrdersKey);
       this.storageService.removeItem(observationsKey);
       this.storageService.removeItem(bodyStructuresKey);
       this.storageService.removeItem(allergiesKey);
@@ -1979,6 +2039,67 @@ export class PatientService {
     this.storageService.saveItem(key, JSON.stringify(medications));
   }
 
+  getPatientServiceRequests(patientId: string): ServiceRequest[] {
+    const key = `ehr_service_requests_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  addPatientServiceRequest(patientId: string, serviceRequest: ServiceRequest): boolean {
+    const requests = this.getPatientServiceRequests(patientId);
+
+    if (this.isDuplicateServiceRequest(requests, serviceRequest)) {
+      return false;
+    }
+
+    requests.push(serviceRequest);
+    this.savePatientServiceRequests(patientId, requests);
+    return true;
+  }
+
+  updatePatientServiceRequest(patientId: string, requestId: string, updatedServiceRequest: ServiceRequest): void {
+    const requests = this.getPatientServiceRequests(patientId);
+    const index = requests.findIndex(request => request.id === requestId);
+    if (index !== -1) {
+      requests[index] = updatedServiceRequest;
+      this.savePatientServiceRequests(patientId, requests);
+    }
+  }
+
+  deletePatientServiceRequest(patientId: string, requestId: string): void {
+    const requests = this.getPatientServiceRequests(patientId);
+    const filteredRequests = requests.filter(request => request.id !== requestId);
+    this.savePatientServiceRequests(patientId, filteredRequests);
+  }
+
+  private savePatientServiceRequests(patientId: string, requests: ServiceRequest[]): void {
+    const key = `ehr_service_requests_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(requests));
+  }
+
+  getPatientLabOrders(patientId: string): LaboratoryOrderGroup[] {
+    const key = `ehr_lab_orders_${patientId}`;
+    const stored = this.storageService.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  addPatientLabOrder(patientId: string, labOrder: LaboratoryOrderGroup): void {
+    const orders = this.getPatientLabOrders(patientId);
+    orders.push(labOrder);
+    this.savePatientLabOrders(patientId, orders);
+  }
+
+  deletePatientLabOrder(patientId: string, labOrderId: string): void {
+    const orders = this.getPatientLabOrders(patientId);
+    const filteredOrders = orders.filter(order => order.id !== labOrderId);
+    this.savePatientLabOrders(patientId, filteredOrders);
+  }
+
+  private savePatientLabOrders(patientId: string, labOrders: LaboratoryOrderGroup[]): void {
+    const key = `ehr_lab_orders_${patientId}`;
+    this.storageService.saveItem(key, JSON.stringify(labOrders));
+  }
+
   private async enrichMedicationInBackground(patientId: string, medication: MedicationStatement): Promise<void> {
     if (medication.computedLocation) {
       return;
@@ -2288,9 +2409,11 @@ export class PatientService {
   // Centralized FHIR resource creation methods for AI-detected entities
   createConditionFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string }
+    concept: { code?: string; display?: string; text?: string },
+    options?: { dateTime?: string }
   ): Condition {
     const display = concept.display || concept.text || concept.code || 'Unknown condition';
+    const conditionDateTime = options?.dateTime || new Date().toISOString();
 
     return {
       resourceType: 'Condition',
@@ -2323,16 +2446,18 @@ export class PatientService {
         reference: `Patient/${patientId}`,
         display: `Patient ${patientId}`
       },
-      onsetDateTime: new Date().toISOString(),
-      recordedDate: new Date().toISOString()
+      onsetDateTime: conditionDateTime,
+      recordedDate: conditionDateTime
     };
   }
 
   createProcedureFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string }
+    concept: { code?: string; display?: string; text?: string },
+    options?: { dateTime?: string }
   ): Procedure {
     const display = concept.display || concept.text || concept.code || 'Unknown procedure';
+    const procedureDateTime = options?.dateTime || new Date().toISOString();
 
     return {
       resourceType: 'Procedure',
@@ -2350,7 +2475,7 @@ export class PatientService {
         reference: `Patient/${patientId}`,
         display: `Patient ${patientId}`
       },
-      performedDateTime: new Date().toISOString()
+      performedDateTime: procedureDateTime
     };
   }
 
@@ -2360,6 +2485,7 @@ export class PatientService {
     options?: {
       effectiveDateTime?: string;
       reasonReference?: Array<{ reference: string; display?: string }>;
+      dosage?: MedicationStatement['dosage'];
     }
   ): MedicationStatement {
     const display = concept.display || concept.text || concept.code || 'Unknown medication';
@@ -2381,7 +2507,7 @@ export class PatientService {
         display: `Patient ${patientId}`
       },
       effectiveDateTime: options?.effectiveDateTime || new Date().toISOString(),
-      dosage: [{
+      dosage: options?.dosage?.length ? options.dosage : [{
         text: 'Take as prescribed'
       }]
     };
@@ -2643,6 +2769,8 @@ export class PatientService {
     this.storageService.removeItem(`ehr_conditions_${patientId}`);
     this.storageService.removeItem(`ehr_procedures_${patientId}`);
     this.storageService.removeItem(`ehr_medications_${patientId}`);
+    this.storageService.removeItem(`ehr_service_requests_${patientId}`);
+    this.storageService.removeItem(`ehr_lab_orders_${patientId}`);
     this.storageService.removeItem(`ehr_observations_${patientId}`);
     this.storageService.removeItem(`ehr_body_structures_${patientId}`);
     this.storageService.removeItem(`ehr_allergies_${patientId}`);
@@ -2672,6 +2800,8 @@ export class PatientService {
         const conditions = this.getPatientConditions(patient.id);
         const procedures = this.getPatientProcedures(patient.id);
         const medications = this.getPatientMedications(patient.id);
+        const serviceRequests = this.getPatientServiceRequests(patient.id);
+        const labOrders = this.getPatientLabOrders(patient.id);
         const observations = this.getPatientObservations(patient.id);
         const allergies = this.getPatientAllergies(patient.id);
         const encounters = this.getPatientEncounters(patient.id);
@@ -2685,6 +2815,8 @@ export class PatientService {
             conditions: conditions,
             procedures: procedures,
             medications: medications,
+            serviceRequests: serviceRequests,
+            labOrders: labOrders,
             observations: observations,
             allergies: allergies,
             encounters: encounters,
@@ -2695,6 +2827,8 @@ export class PatientService {
               conditions.length +
               procedures.length +
               medications.length +
+              serviceRequests.length +
+              labOrders.length +
               observations.length +
               allergies.length +
               encounters.length +

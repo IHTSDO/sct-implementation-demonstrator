@@ -1,0 +1,137 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.search-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 32fr) minmax(0, 68fr);
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+
+.column {
+  box-sizing: border-box;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #ccc;
+  background: #fff;
+  min-width: 0;
+}
+
+.filters-column {
+  min-width: 0;
+  height: 100%;
+}
+
+.results-column {
+  min-width: 0;
+  height: 100%;
+}
+
+.expansion-list {
+  width: 100%;
+  display: flex;
+  text-align: start;
+  flex-direction: column;
+}
+
+.my-chip-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.active-chip {
+  background-color: #a7beec;
+  font-weight: bold;
+}
+
+.filter-section {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background-color: #e0e0e0;
+}
+
+.row-skeleton-loader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #e7e7e7;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  background: linear-gradient(to right, #f0f0f0 8%, #e0e0e0 18%, #f0f0f0 33%);
+  background-size: 800px 104px;
+  animation: placeHolderShimmer 1.5s infinite;
+}
+
+@keyframes placeHolderShimmer {
+  0% {
+    background-position: -800px 0;
+  }
+  100% {
+    background-position: 800px 0;
+  }
+}
+
+.other-chip {
+  background-color: #d7e8ff;
+}
+
+.empty-copy {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-style: italic;
+}
+
+.results-empty-illustration {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+.results-empty-image {
+  width: 50%;
+}
+
+.result-count {
+  font-size: 0.75rem;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+.result-row {
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.load-more {
+  font-size: 0.75rem;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 1100px) {
+  .search-layout {
+    grid-template-columns: 1fr;
+  }
+}

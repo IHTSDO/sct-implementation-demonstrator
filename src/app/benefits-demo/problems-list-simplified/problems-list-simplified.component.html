@@ -16,6 +16,7 @@
       </span>
       <div class="problem-main">
         <div class="problem-name">{{ item.name }}</div>
+        <div class="problem-detail" *ngIf="item.detail">{{ item.detail }}</div>
         <div class="problem-meta">
           <span>{{ item.status }}</span>
           <span *ngIf="item.recordedOn">{{ item.recordedOn | date:'MMM d, y' }}</span>

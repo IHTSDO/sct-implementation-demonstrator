@@ -1,5 +1,31 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
 .container {
     padding: 1rem;
     width: 100%;
     min-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tab-group {
+    width: 100%;
+}
+
+.tab-group ::ng-deep .mat-mdc-tab-body-wrapper {
+    overflow: visible;
+}
+
+.tab-group ::ng-deep .mat-mdc-tab-body {
+    overflow: visible;
+}
+
+.tab-group ::ng-deep .mat-mdc-tab-body-content {
+    overflow: visible;
+    height: auto;
 }

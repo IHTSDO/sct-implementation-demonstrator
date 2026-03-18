@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } fr
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, FhirObservation } from '../../services/patient.service';
+import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, FhirObservation, LaboratoryOrderGroup } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
@@ -32,7 +32,7 @@ interface VitalSignObservationConfig {
 }
 
 type ClinicalModule = 'clinical' | 'dentistry' | 'nursing' | 'data';
-type ClinicalView = 'summary' | 'encounters' | 'ai-entry' | 'problems' | 'forms' | 'alerts';
+type ClinicalView = 'summary' | 'encounters' | 'ai-entry' | 'problems' | 'orders' | 'forms' | 'alerts';
 type DentalView = 'odontogram';
 type NursingView = 'vitals' | 'nutrition';
 type DataView = 'fhir';
@@ -55,6 +55,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   conditions: Condition[] = [];
   procedures: Procedure[] = [];
   medications: MedicationStatement[] = [];
+  labOrders: LaboratoryOrderGroup[] = [];
   allergies: AllergyIntolerance[] = [];
   encounters: any[] = [];
   currentDate = new Date();
@@ -424,6 +425,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.conditions = this.loadCachedOrFreshData('conditions', patientId, () => this.patientService.getPatientConditions(patientId));
     this.procedures = this.loadCachedOrFreshData('procedures', patientId, () => this.patientService.getPatientProcedures(patientId));
     this.medications = this.loadCachedOrFreshData('medications', patientId, () => this.patientService.getPatientMedications(patientId));
+    this.labOrders = this.loadCachedOrFreshData('labOrders', patientId, () => this.patientService.getPatientLabOrders(patientId));
     this.allergies = this.loadCachedOrFreshData('allergies', patientId, () => this.patientService.getPatientAllergies(patientId));
     
     // Load encounters using PatientService
@@ -601,6 +603,40 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
+  getSortedLabOrders(): LaboratoryOrderGroup[] {
+    return [...this.labOrders].sort((a, b) => {
+      const aDate = a.createdAt || '';
+      const bDate = b.createdAt || '';
+      return bDate.localeCompare(aDate);
+    });
+  }
+
+  getLabOrderDisplayName(labOrder: LaboratoryOrderGroup): string {
+    if (labOrder.serviceRequests.length === 1) {
+      const single = labOrder.serviceRequests[0];
+      return single.code?.text || single.code?.coding?.[0]?.display || 'Single determination';
+    }
+    return `${labOrder.serviceRequests.length} determinations`;
+  }
+
+  getLabOrderLoincCodes(labOrder: LaboratoryOrderGroup): string[] {
+    return labOrder.serviceRequests
+      .map((serviceRequest) => serviceRequest.code?.coding?.find(coding => coding.system === 'http://loinc.org')?.code)
+      .filter((code): code is string => !!code);
+  }
+
+  getLabOrderSpecimenLabels(labOrder: LaboratoryOrderGroup): string[] {
+    const specimens = new Set<string>();
+    labOrder.serviceRequests.forEach((serviceRequest) => {
+      serviceRequest.specimen?.forEach((specimen) => specimens.add(specimen.display || specimen.identifier?.value || 'Specimen'));
+    });
+    return Array.from(specimens);
+  }
+
+  getLabOrderDeterminationCount(labOrder: LaboratoryOrderGroup): number {
+    return labOrder.serviceRequests.length;
+  }
+
   getAllergyDisplayName(allergy: AllergyIntolerance): string {
     // Try to get display name from code first
     if (allergy.code?.coding?.[0]?.display) {
@@ -749,6 +785,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return medication.reasonReference[0].display || null;
     }
     return null;
+  }
+
+  getMedicationDosageText(medication: MedicationStatement): string | null {
+    return medication.dosage?.[0]?.text || null;
   }
 
   /**
@@ -937,6 +977,19 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     } finally {
       this.isProcessingNewEvent = false;
     }
+  }
+
+  onLabOrderSaved(labOrder: LaboratoryOrderGroup): void {
+    if (!this.patient) return;
+
+    this.patientService.addPatientLabOrder(this.patient.id, labOrder);
+    this.labOrders = [...this.labOrders, labOrder];
+    this.touchDataVersion();
+    this.snackBar.open('Order saved successfully.', 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
   }
 
   async onEncounterAdded(event: any): Promise<void> {
@@ -1797,6 +1850,17 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         this.allergies = this.patientService.getPatientAllergies(this.patient.id);
         this.touchDataVersion();
       }
+    }
+  }
+
+  deleteLabOrder(labOrderId: string): void {
+    if (!this.patient) return;
+
+    const labOrder = this.labOrders.find(order => order.id === labOrderId);
+    if (labOrder && confirm(`Are you sure you want to delete the order "${this.getLabOrderDisplayName(labOrder)}"?`)) {
+      this.patientService.deletePatientLabOrder(this.patient.id, labOrderId);
+      this.labOrders = this.patientService.getPatientLabOrders(this.patient.id);
+      this.touchDataVersion();
     }
   }
 

@@ -84,6 +84,14 @@
           <button
             mat-stroked-button
             class="sidebar-item"
+            [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'"
+            (click)="selectClinicalView('orders')">
+            <mat-icon>biotech</mat-icon>
+            <span>Clinical Orders</span>
+          </button>
+          <button
+            mat-stroked-button
+            class="sidebar-item"
             [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'"
             (click)="selectClinicalView('encounters')">
             <mat-icon>event_note</mat-icon>
@@ -201,6 +209,9 @@
         </button>
         <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'" (click)="selectClinicalView('problems')" matTooltip="Problems List" matTooltipPosition="right">
           <mat-icon>list_alt</mat-icon>
+        </button>
+        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'" (click)="selectClinicalView('orders')" matTooltip="Clinical Orders" matTooltipPosition="right">
+          <mat-icon>biotech</mat-icon>
         </button>
         <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'" (click)="selectClinicalView('encounters')" matTooltip="Encounters" matTooltipPosition="right">
           <mat-icon>event_note</mat-icon>
@@ -660,7 +671,7 @@
                           <h4><mat-icon>medication</mat-icon> Medications</h4>
                           <span class="item-count">{{ medications.length }}</span>
                         </div>
-                        <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
+                          <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
                           <div class="clinical-item compact" *ngFor="let medication of getSortedMedications()">
                             <div class="item-header compact">
                               <span class="item-title compact">{{ medication.medicationCodeableConcept?.text }}</span>
@@ -677,6 +688,9 @@
                                   <mat-icon>delete_outline</mat-icon>
                                 </button>
                               </div>
+                            </div>
+                            <div class="item-dosage compact" *ngIf="getMedicationDosageText(medication)">
+                              {{ getMedicationDosageText(medication) }}
                             </div>
                             <div class="item-details compact inline">
                               <span class="item-concept-id compact" *ngIf="getConceptId(medication)">
@@ -697,6 +711,67 @@
                         </ng-template>
                       </div>
                     </div>
+            </div>
+
+            <div *ngIf="selectedClinicalView === 'orders'" class="tab-content orders-tab-content">
+              <div class="orders-panel">
+                <div class="orders-header">
+                  <div>
+                    <h3>Clinical Orders</h3>
+                    <p>Build a multi-determination laboratory order, review it in the right-hand column, and save it as a bundle of ServiceRequest resources.</p>
+                  </div>
+                </div>
+
+                <app-loinc-order
+                  [patient]="patient"
+                  [showSaveAction]="true"
+                  (orderSaved)="onLabOrderSaved($event)">
+                </app-loinc-order>
+              </div>
+
+              <div class="orders-list-panel">
+                <div class="column-header">
+                  <h4><mat-icon>receipt_long</mat-icon> Saved Orders</h4>
+                  <span class="item-count">{{ labOrders.length }}</span>
+                </div>
+
+                <div class="clinical-list compact" *ngIf="labOrders.length > 0; else noLabOrders">
+                  <div class="clinical-item compact order-item" *ngFor="let labOrder of getSortedLabOrders()">
+                    <div class="item-header compact">
+                      <span class="item-title compact">{{ getLabOrderDisplayName(labOrder) }}</span>
+                      <div class="item-header-actions compact">
+                        <button mat-icon-button
+                                class="delete-button compact"
+                                (click)="deleteLabOrder(labOrder.id)"
+                                title="Delete order">
+                          <mat-icon>delete_outline</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="item-details compact inline">
+                      <span class="item-concept-id compact">
+                        {{ getLabOrderDeterminationCount(labOrder) }} determination{{ getLabOrderDeterminationCount(labOrder) === 1 ? '' : 's' }}
+                      </span>
+                      <span class="item-icd10-code compact" *ngIf="getLabOrderLoincCodes(labOrder).length">
+                        LOINC: {{ getLabOrderLoincCodes(labOrder).join(', ') }}
+                      </span>
+                      <span class="item-status compact">
+                        {{ labOrder.createdAt | date:'medium' }}
+                      </span>
+                    </div>
+                    <div class="allergy-reactions compact" *ngIf="getLabOrderSpecimenLabels(labOrder).length">
+                      <span class="reactions-label">Specimens:</span>
+                      <span class="reaction-item" *ngFor="let specimen of getLabOrderSpecimenLabels(labOrder); let last = last">
+                        {{ specimen }}<span *ngIf="!last">, </span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <ng-template #noLabOrders>
+                  <div class="no-clinical-data compact">No orders recorded</div>
+                </ng-template>
+              </div>
             </div>
 
             <div *ngIf="selectedClinicalView === 'forms'" class="tab-content with-problems-layout">

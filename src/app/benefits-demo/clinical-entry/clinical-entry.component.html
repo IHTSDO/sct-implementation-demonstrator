@@ -57,7 +57,74 @@
               </mat-form-field>
             </div>
           }
+          @if (entryType === 'condition' || entryType === 'procedure') {
+            <div class="date-section">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ entryType === 'condition' ? 'Condition date' : 'Procedure date' }}</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="clinicalDatePicker"
+                  [(ngModel)]="entryDate">
+                <mat-datepicker-toggle matSuffix [for]="clinicalDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #clinicalDatePicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          }
+          @if (entryType === 'medication') {
+            <div class="date-section">
+              <mat-form-field appearance="outline">
+                <mat-label>Medication start date</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="medicationDatePicker"
+                  [(ngModel)]="entryDate">
+                <mat-datepicker-toggle matSuffix [for]="medicationDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #medicationDatePicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          }
         </div>
+        @if (entryType === 'medication') {
+          <div class="dosage-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Dose value</mat-label>
+              <input
+                matInput
+                type="number"
+                min="0"
+                step="0.1"
+                [(ngModel)]="medicationDoseValue">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Dose unit</mat-label>
+              <mat-select [(ngModel)]="medicationDoseUnit">
+                @for (unit of medicationDoseUnitOptions; track unit) {
+                  <mat-option [value]="unit">{{ unit }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Every</mat-label>
+              <input
+                matInput
+                type="number"
+                min="1"
+                step="1"
+                [(ngModel)]="medicationPeriod">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Period unit</mat-label>
+              <mat-select [(ngModel)]="medicationPeriodUnit">
+                <mat-option value="h">Hours</mat-option>
+                <mat-option value="d">Days</mat-option>
+                <mat-option value="wk">Weeks</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
         <div class="action-section">
           <button mat-flat-button color="accent" (click)="addItem()" [disabled]="!selectedConcept || loading">
             @if (loading) {

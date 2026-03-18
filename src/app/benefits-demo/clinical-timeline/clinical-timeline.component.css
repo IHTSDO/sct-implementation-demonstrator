@@ -7,14 +7,11 @@
   --kind-encounter: #4e5d6c;
 }
 
-/* Container styling now handled by parent tab system */
-
-/* Timeline Header */
 .timeline-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
   padding-bottom: 15px;
   border-bottom: 1px solid #e0e0e0;
 }
@@ -28,6 +25,7 @@
 .timeline-legend {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 .legend-item {
@@ -43,13 +41,44 @@
   border-radius: 50%;
 }
 
-/* Vertical Timeline */
+.timeline-overview-section {
+  margin-bottom: 28px;
+  padding: 18px 18px 10px;
+  border: 1px solid #e3eaf2;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+}
+
+.timeline-overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.timeline-overview-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #243547;
+}
+
+.timeline-overview-header p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #66788a;
+}
+
+.timeline-overview-chart {
+  width: 100%;
+  min-height: 280px;
+}
+
 .vertical-timeline {
   position: relative;
   padding: 20px 0;
 }
 
-/* Central Timeline Line */
 .timeline-line {
   position: absolute;
   left: 50%;
@@ -61,7 +90,6 @@
   z-index: 1;
 }
 
-/* Timeline Items */
 .timeline-item {
   position: relative;
   margin-bottom: 40px;
@@ -74,7 +102,6 @@
   margin-bottom: 0;
 }
 
-/* Left Side Items */
 .timeline-item.left {
   justify-content: flex-end;
   padding-right: calc(50% + 30px);
@@ -88,7 +115,6 @@
   margin-right: 0;
 }
 
-/* Right Side Items */
 .timeline-item.right {
   justify-content: flex-start;
   padding-left: calc(50% + 30px);
@@ -102,13 +128,11 @@
   margin-left: 0;
 }
 
-/* Timeline Content */
 .timeline-content {
   flex: 1;
   max-width: 400px;
 }
 
-/* Event Cards */
 .event-card {
   background: #fff;
   border-radius: 12px;
@@ -124,7 +148,6 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Card Header */
 .card-header {
   padding: 16px 20px 12px;
   border-bottom: 1px solid #f0f0f0;
@@ -235,7 +258,6 @@
   flex-shrink: 0;
 }
 
-/* Card Body */
 .card-body {
   padding: 16px 20px 20px;
 }
@@ -255,7 +277,6 @@
   line-height: 1.4;
 }
 
-/* Event Meta */
 .event-meta {
   display: flex;
   flex-direction: column;
@@ -263,13 +284,15 @@
   font-size: 12px;
 }
 
-.status-info, .concept-info {
+.status-info,
+.concept-info {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.status-label, .concept-label {
+.status-label,
+.concept-label {
   color: #888;
   font-weight: 500;
 }
@@ -305,7 +328,6 @@
   font-weight: 500;
 }
 
-/* Timeline Connectors */
 .timeline-connector {
   position: absolute;
   left: 50%;
@@ -327,7 +349,6 @@
   z-index: 2;
 }
 
-/* Connector Lines to Cards */
 .timeline-item.left .timeline-connector::before {
   content: '';
   position: absolute;
@@ -352,16 +373,11 @@
   z-index: 1;
 }
 
-/* Empty State */
 .timeline-empty {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 120px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  border: 2px dashed #ddd;
-  margin: 20px 0;
 }
 
 .empty-content {
@@ -371,178 +387,82 @@
 
 .empty-icon {
   font-size: 48px;
+  width: 48px;
+  height: 48px;
   color: #ccc;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
-.empty-content h4 {
-  margin: 10px 0 5px 0;
-  color: #999;
+.empty-content h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-weight: 500;
 }
 
 .empty-content p {
   margin: 0;
-  font-size: 14px;
-  color: #aaa;
+  max-width: 400px;
+  line-height: 1.5;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .timeline-header {
     flex-direction: column;
-    gap: 15px;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .timeline-overview-header {
+    flex-direction: column;
     align-items: flex-start;
   }
 
-  .timeline-legend {
-    gap: 15px;
-    flex-wrap: wrap;
+  .timeline-overview-section {
+    padding: 14px 14px 8px;
   }
 
-  .legend-item {
-    font-size: 12px;
+  .timeline-line {
+    left: 24px;
+  }
+
+  .timeline-item {
+    min-height: 100px;
+    margin-bottom: 24px;
   }
 
   .timeline-item.left,
   .timeline-item.right {
-    padding-left: calc(50% + 20px);
-    padding-right: calc(50% + 20px);
-    justify-content: center;
+    justify-content: flex-start;
+    padding-left: 56px;
+    padding-right: 0;
   }
 
   .timeline-item.left .timeline-content,
   .timeline-item.right .timeline-content {
-    text-align: center;
-    max-width: 300px;
+    text-align: left;
   }
 
   .timeline-content {
-    max-width: 300px;
+    max-width: none;
+  }
+
+  .timeline-connector {
+    left: 24px;
+  }
+
+  .timeline-item.left .timeline-connector::before,
+  .timeline-item.right .timeline-connector::before {
+    left: 8px;
+    right: auto;
+    width: 24px;
   }
 
   .card-header {
-    padding: 12px 16px 8px;
-    gap: 8px;
+    flex-wrap: wrap;
   }
 
-  .event-marker {
-    width: 28px;
-    height: 28px;
+  .event-date {
+    margin-left: 0;
+    width: 100%;
   }
-
-  .event-icon {
-    font-size: 14px !important;
-  }
-
-  .card-body {
-    padding: 12px 16px 16px;
-  }
-
-  .event-title {
-    font-size: 15px;
-  }
-
-  .event-details {
-    font-size: 13px;
-  }
-}
-
-/* Animation */
-.timeline-item {
-  animation: slideIn 0.6s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.timeline-item.left {
-  animation: slideInLeft 0.6s ease-out;
-}
-
-.timeline-item.right {
-  animation: slideInRight 0.6s ease-out;
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Subtle pulse animation for markers */
-.event-marker {
-  animation: markerAppear 0.8s ease-out;
-}
-
-@keyframes markerAppear {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Add a subtle glow effect */
-.event-marker::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.timeline-item[data-event-type="condition"] .event-marker::before {
-  background: radial-gradient(circle, rgba(142, 68, 173, 0.28) 0%, transparent 70%);
-}
-
-.timeline-item[data-event-type="procedure"] .event-marker::before {
-  background: radial-gradient(circle, rgba(23, 162, 184, 0.28) 0%, transparent 70%);
-}
-
-.timeline-item[data-event-type="medication"] .event-marker::before {
-  background: radial-gradient(circle, rgba(40, 167, 69, 0.28) 0%, transparent 70%);
-}
-
-.timeline-item[data-event-type="encounter"] .event-marker::before {
-  background: radial-gradient(circle, rgba(155, 89, 182, 0.3) 0%, transparent 70%);
-}
-
-.event-marker:hover::before {
-  opacity: 1;
 }

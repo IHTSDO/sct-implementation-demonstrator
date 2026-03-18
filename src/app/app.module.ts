@@ -92,6 +92,7 @@ import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-
 import { TriageGameComponent } from './phaser-game/phaser-v2/triage-game.component';
 import { LoincMainComponent } from './loinc/loinc-main/loinc-main.component';
 import { LoincOrderComponent } from './loinc/loinc-order/loinc-order.component';
+import { LoincOrderSearchPanelComponent } from './loinc/loinc-order-search-panel/loinc-order-search-panel.component';
 import { LoincResultsComponent } from './loinc/loinc-results/loinc-results.component';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
 import { FlipCardComponent } from './util/flip-card/flip-card.component';
@@ -223,6 +224,7 @@ const app = initializeApp(firebaseConfig);
         TriageGameComponent,
         LoincMainComponent,
         LoincOrderComponent,
+        LoincOrderSearchPanelComponent,
         LoincResultsComponent,
         LanguageConfigComponent,
         FlipCardComponent,

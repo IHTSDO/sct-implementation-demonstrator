@@ -315,6 +315,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
       if (result) {
         this.generateMultiplePatients(
           result.numberOfPatients, 
+          result.timeframeYears,
           result.includeDiagnoses,
           result.minDiagnoses,
           result.maxDiagnoses,
@@ -327,6 +328,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
   private async generateMultiplePatients(
     count: number, 
+    timeframeYears: number = 2,
     includeDiagnoses: boolean, 
     minDiagnoses: number = 1, 
     maxDiagnoses: number = 4, 
@@ -348,7 +350,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         if (includeDiagnoses) {
           // Generate patient with diagnoses
           await new Promise<void>((resolve, reject) => {
-            this.patientSimulationService.generateRandomPatientWithDiagnoses(minDiagnoses, maxDiagnoses, genderDistribution, ageDistribution)
+            this.patientSimulationService.generateRandomPatientWithDiagnoses(minDiagnoses, maxDiagnoses, genderDistribution, ageDistribution, timeframeYears)
               .pipe(
                 catchError(error => {
                   console.error(`Error generating patient ${i + 1}:`, error);

@@ -8,6 +8,7 @@ interface ProblemItem {
   kind: ProblemKind;
   name: string;
   status: string;
+  detail?: string;
   recordedOn?: string;
   sortDate: number;
 }
@@ -49,6 +50,7 @@ export class ProblemsListSimplifiedComponent {
       kind: 'Medication' as const,
       name: medication.medicationCodeableConcept?.text || medication.medicationReference?.display || 'Medication',
       status: medication.status || 'Unknown',
+      detail: medication.dosage?.[0]?.text,
       recordedOn: medication.effectiveDateTime || medication.dateAsserted,
       sortDate: this.toSortDate(medication.effectiveDateTime || medication.dateAsserted)
     }));

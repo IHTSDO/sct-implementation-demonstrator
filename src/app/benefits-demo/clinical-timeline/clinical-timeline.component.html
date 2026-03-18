@@ -2,27 +2,23 @@
   <div class="timeline-header">
     <h3>Timeline</h3>
     <div class="timeline-legend">
-      <div class="legend-item">
-        <div class="legend-color" [style.background-color]="eventColors.condition"></div>
-        <span>Conditions</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" [style.background-color]="eventColors.procedure"></div>
-        <span>Procedures</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" [style.background-color]="eventColors.medication"></div>
-        <span>Medications</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" [style.background-color]="eventColors.allergy"></div>
-        <span>Allergies</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" [style.background-color]="eventColors.encounter"></div>
-        <span>Encounters</span>
-      </div>
+      @for (item of overviewTrackLegend; track item.type) {
+        <div class="legend-item">
+          <div class="legend-color" [style.background-color]="item.color"></div>
+          <span>{{ item.label }}</span>
+        </div>
+      }
     </div>
+  </div>
+}
+
+@if (sortedEvents.length > 0) {
+  <div class="timeline-overview-section">
+    <div class="timeline-overview-header">
+      <h4>Overview</h4>
+      <p>Zoom and pan to explore the chronology of recorded events.</p>
+    </div>
+    <div class="timeline-overview-chart" #overviewTimelineChart></div>
   </div>
 }
 
@@ -34,7 +30,6 @@
         [class.left]="i % 2 === 0"
         [class.right]="i % 2 === 1"
         [attr.data-event-type]="event.type">
-        <!-- Event content -->
         <div class="timeline-content">
           <div class="event-card">
             <div class="card-header">
@@ -76,7 +71,6 @@
             </div>
           </div>
         </div>
-        <!-- Timeline connector -->
         <div class="timeline-connector">
           <div class="connector-line"></div>
           <div class="connector-dot" [style.background-color]="event.color"></div>

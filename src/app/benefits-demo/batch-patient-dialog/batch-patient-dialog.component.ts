@@ -9,6 +9,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class BatchPatientDialogComponent {
   numberOfPatients: number = 10;
+  timeframeYears: number = 2;
   minDiagnoses: number = 1;
   maxDiagnoses: number = 4;
   genderDistribution: number = 0.5; // 0.0 = all female, 0.5 = 50/50, 1.0 = all male
@@ -62,6 +63,11 @@ export class BatchPatientDialogComponent {
       alert('Please enter a number between 1 and 500');
       return;
     }
+
+    if (this.timeframeYears < 1 || this.timeframeYears > 20) {
+      alert('Timeframe must be between 1 and 20 years');
+      return;
+    }
     
     if (this.minDiagnoses < 0 || this.minDiagnoses > 10) {
       alert('Minimum diagnoses must be between 0 and 10');
@@ -88,6 +94,7 @@ export class BatchPatientDialogComponent {
     
     this.dialogRef.close({
       numberOfPatients: this.numberOfPatients,
+      timeframeYears: this.timeframeYears,
       includeDiagnoses: includeDiagnoses,
       minDiagnoses: this.minDiagnoses,
       maxDiagnoses: this.maxDiagnoses,
@@ -96,4 +103,3 @@ export class BatchPatientDialogComponent {
     });
   }
 }
-

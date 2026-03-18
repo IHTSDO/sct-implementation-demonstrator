@@ -385,7 +385,7 @@ export class PatientSimulationService {
    * @param minDiagnoses Minimum number of diagnoses (default: 1, 0 means no diagnoses)
    * @param maxDiagnoses Maximum number of diagnoses (default: 4, 0 means no diagnoses)
    */
-  generateDiagnoses(patient: Patient, minDiagnoses: number = 1, maxDiagnoses: number = 4): Observable<Condition[]> {
+  generateDiagnoses(patient: Patient, minDiagnoses: number = 1, maxDiagnoses: number = 4, timeframeYears: number = 2): Observable<Condition[]> {
     return this.loadPatientGenerationSpec().pipe(
       map(spec => {
         // If both min and max are 0, return empty array (no diagnoses)
@@ -430,7 +430,7 @@ export class PatientSimulationService {
         }
 
         // Convert to FHIR Condition resources
-        return selectedDiagnoses.map(diagnosis => this.createConditionFromDiagnosis(patient, diagnosis));
+        return selectedDiagnoses.map(diagnosis => this.createConditionFromDiagnosis(patient, diagnosis, timeframeYears));
       })
     );
   }
@@ -451,9 +451,9 @@ export class PatientSimulationService {
    * Creates a FHIR Condition resource from a diagnosis specification
    * If descendants are available, randomly selects one to use instead of the main code
    */
-  private createConditionFromDiagnosis(patient: Patient, diagnosis: DiagnosisSpec): Condition {
+  private createConditionFromDiagnosis(patient: Patient, diagnosis: DiagnosisSpec, timeframeYears: number = 2): Condition {
     const conditionId = `condition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const currentTime = new Date().toISOString();
+    const randomizedTime = this.getRandomDateWithinTimeframe(timeframeYears).toISOString();
 
     // Select a random descendant if available, otherwise use the main diagnosis code
     let snomedCode: string;
@@ -517,10 +517,22 @@ export class PatientSimulationService {
         reference: `Patient/${patient.id}`,
         display: this.getPatientDisplayName(patient)
       },
-      onsetDateTime: currentTime,
-      recordedDate: currentTime,
+      onsetDateTime: randomizedTime,
+      recordedDate: randomizedTime,
       computedLocation: computedLocation
     } as Condition;
+  }
+
+  private getRandomDateWithinTimeframe(timeframeYears: number = 2): Date {
+    const now = new Date();
+    const safeYears = Math.max(1, timeframeYears);
+    const start = new Date(now);
+    start.setFullYear(now.getFullYear() - safeYears);
+
+    const startMs = start.getTime();
+    const endMs = now.getTime();
+    const randomMs = startMs + Math.random() * (endMs - startMs);
+    return new Date(randomMs);
   }
 
   /**
@@ -549,7 +561,8 @@ export class PatientSimulationService {
     minDiagnoses: number = 1, 
     maxDiagnoses: number = 4, 
     maleProbability: number = 0.5,
-    ageDistribution?: { children: number; adults: number; elderly: number }
+    ageDistribution?: { children: number; adults: number; elderly: number },
+    timeframeYears: number = 2
   ): Observable<{ patient: Patient; diagnoses: Condition[] }> {
     const gender = this.getRandomGenderWithDistribution(maleProbability);
     
@@ -569,7 +582,7 @@ export class PatientSimulationService {
       patient.name[0].given = [firstName];
     }
     
-    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses).pipe(
+    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses, timeframeYears).pipe(
       map(diagnoses => ({ patient, diagnoses }))
     );
   }
@@ -581,9 +594,9 @@ export class PatientSimulationService {
    * @param minDiagnoses Minimum number of diagnoses (default: 1)
    * @param maxDiagnoses Maximum number of diagnoses (default: 4)
    */
-  generateRandomPatientWithAgeRangeAndDiagnoses(minAge: number, maxAge: number, minDiagnoses: number = 1, maxDiagnoses: number = 4): Observable<{ patient: Patient; diagnoses: Condition[] }> {
+  generateRandomPatientWithAgeRangeAndDiagnoses(minAge: number, maxAge: number, minDiagnoses: number = 1, maxDiagnoses: number = 4, timeframeYears: number = 2): Observable<{ patient: Patient; diagnoses: Condition[] }> {
     const patient = this.generateRandomPatientWithAgeRange(minAge, maxAge);
-    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses).pipe(
+    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses, timeframeYears).pipe(
       map(diagnoses => ({ patient, diagnoses }))
     );
   }
@@ -594,9 +607,9 @@ export class PatientSimulationService {
    * @param minDiagnoses Minimum number of diagnoses (default: 1)
    * @param maxDiagnoses Maximum number of diagnoses (default: 4)
    */
-  generateRandomPatientWithGenderAndDiagnoses(gender: 'male' | 'female', minDiagnoses: number = 1, maxDiagnoses: number = 4): Observable<{ patient: Patient; diagnoses: Condition[] }> {
+  generateRandomPatientWithGenderAndDiagnoses(gender: 'male' | 'female', minDiagnoses: number = 1, maxDiagnoses: number = 4, timeframeYears: number = 2): Observable<{ patient: Patient; diagnoses: Condition[] }> {
     const patient = this.generateRandomPatientWithGender(gender);
-    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses).pipe(
+    return this.generateDiagnoses(patient, minDiagnoses, maxDiagnoses, timeframeYears).pipe(
       map(diagnoses => ({ patient, diagnoses }))
     );
   }

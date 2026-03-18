@@ -1,441 +1,272 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import saveAs from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { debounceTime, filter, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
-import { TerminologyService } from 'src/app/services/terminology.service';
-import { v3 as uuidv3, v3 } from 'uuid';
+import { v3 as uuidv3 } from 'uuid';
+import { LaboratoryOrderGroup, ServiceRequest } from 'src/app/services/patient.service';
 
 @Component({
-    selector: 'app-loinc-order',
-    templateUrl: './loinc-order.component.html',
-    styleUrl: './loinc-order.component.css',
-    standalone: false
+  selector: 'app-loinc-order',
+  templateUrl: './loinc-order.component.html',
+  styleUrl: './loinc-order.component.css',
+  standalone: false
 })
-export class LoincOrderComponent implements OnInit, OnDestroy {
+export class LoincOrderComponent {
+  @Input() patient: any = null;
+  @Input() showSaveAction = false;
+  @Output() orderSaved = new EventEmitter<LaboratoryOrderGroup>();
 
-    searchControl = new FormControl('');
-    private destroy$ = new Subject<void>();
-    loincOrderBinding = { ecl: '^ 635111010000100', title: 'Lab item for order' };
-    searchResults: any[] = [];
-    totalResults = 0;
-    searching = false;
-    extending = false;
-    offset = 0;
-    limit = 50;
-    resultsEcl = '';
-    initializing = true;
+  showLoincCodes = true;
+  showFhirView = false;
+  fhirBundle: any = {};
+  fhirBundleStr = '';
+  readonly uuidNamespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
-    filterOptions: any[] = [];
-    filters: any[] = [];
-    order: any[] = [];
-    specimens: any[] = [];
-    searchingSpecimens = false;
+  serviceRequests: ServiceRequest[] = [];
 
-    isFlipped = false;
-    fhirBundle: any = {};
-    fhirBundleStr = '';
+  readonly samplePatient = {
+    resourceType: 'Patient',
+    id: 'example-patient',
+    text: {
+      status: 'generated',
+      div: '<div xmlns="http://www.w3.org/1999/xhtml">Patient Jane Doe</div>'
+    },
+    identifier: [
+      {
+        system: 'http://hospital.org/mrn',
+        value: '1234567890'
+      }
+    ],
+    name: [
+      {
+        use: 'official',
+        family: 'Doe',
+        given: ['Jane']
+      }
+    ],
+    telecom: [
+      {
+        system: 'phone',
+        value: '123-456-7890',
+        use: 'home'
+      },
+      {
+        system: 'email',
+        value: 'jane@email.com',
+        use: 'home'
+      }
+    ],
+    birthDate: '1970-01-01',
+    address: [
+      {
+        use: 'home',
+        line: ['123 Main St'],
+        city: 'Anytown',
+        country: 'USA'
+      }
+    ]
+  };
 
-    showLoincCodes = true;
+  constructor(private clipboard: Clipboard) {
+    this.updateFHIRBundle();
+  }
 
-    skeletonLoaders = Array(10);
+  get activePatient() {
+    return this.patient || this.samplePatient;
+  }
 
-    uuid_namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+  handleServiceRequestCreated(serviceRequest: ServiceRequest) {
+    const alreadySelected = this.serviceRequests.some((existing) => this.getSnomedCode(existing) === this.getSnomedCode(serviceRequest));
+    if (alreadySelected) {
+      return;
+    }
 
-    patient = {
-        "resourceType": "Patient",
-        "id": "example-patient",
-        "text": {
-          "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Patient Jane Doe</div>"
-        },
-        "identifier": [
-          {
-            "system": "http://hospital.org/mrn",
-            "value": "1234567890"
-          }
-        ],
-        "name": [
-          {
-            "use": "official",
-            "family": "Doe",
-            "given": [
-              "Jane"
-            ]
-          }
-        ],
-        "telecom": [
-          {
-            "system": "phone",
-            "value": "123-456-7890",
-            "use": "home"
-          },
-          {
-            "system": "email",
-            "value": "jane@email.com",
-            "use": "home"
-          }
-        ],
-        "birthDate": "1970-01-01",
-        "address": [
-          {
-            "use": "home",
-            "line": [
-              "123 Main St"
-            ],
-            "city": "Anytown",
-            "country": "USA"
-          }
-        ]
+    this.serviceRequests = [...this.serviceRequests, serviceRequest];
+    this.updateFHIRBundle();
+  }
+
+  toggleLoincCodes() {
+    this.showLoincCodes = !this.showLoincCodes;
+  }
+
+  removeFromOrder(index: number) {
+    this.serviceRequests.splice(index, 1);
+    this.serviceRequests = [...this.serviceRequests];
+    this.updateFHIRBundle();
+  }
+
+  getCurrentDate() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  hasDraftOrder(): boolean {
+    return this.serviceRequests.length > 0;
+  }
+
+  flipCard() {
+    this.showFhirView = !this.showFhirView;
+  }
+
+  saveCurrentOrder() {
+    if (!this.hasDraftOrder()) {
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const labOrder: LaboratoryOrderGroup = {
+      id: `lab-order-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      patientId: this.activePatient.id,
+      patientDisplay: this.getPatientDisplayName(),
+      createdAt: now,
+      serviceRequests: JSON.parse(JSON.stringify(this.serviceRequests)),
+      fhirBundle: JSON.parse(JSON.stringify(this.fhirBundle)),
+      fhirBundleStr: this.fhirBundleStr
     };
-      
 
-    constructor(private terminologyService: TerminologyService, private clipboard: Clipboard) {
+    this.orderSaved.emit(labOrder);
+    this.serviceRequests = [];
+    this.showFhirView = false;
+    this.updateFHIRBundle();
+  }
+
+  saveFhirResource() {
+    const blob = new Blob([this.fhirBundleStr], { type: 'text/plain;charset=utf-8' });
+    saveAs(blob, 'request-bundle.json');
+  }
+
+  copyToClipboard(text: string) {
+    this.clipboard.copy(text);
+  }
+
+  getDisplayText(serviceRequest: ServiceRequest): string {
+    return serviceRequest.code?.text || serviceRequest.code?.coding?.[0]?.display || 'Unnamed order';
+  }
+
+  getDisplayedCode(serviceRequest: ServiceRequest): string {
+    if (this.showLoincCodes) {
+      return this.getLoincCode(serviceRequest) || '-------';
     }
 
-    ngOnInit() {
-        this.searchControl.disable();
-        setTimeout(() => {
-            this.terminologyService.setSnowstormFhirBase('https://browser.loincsnomed.org/fhir');
-            setTimeout(() => {
-                this.terminologyService.setFhirUrlParam('http://snomed.info/sct/11010000107/version/20250321');
-                this.searchControl.enable();
-                this.initializing = false;
-                this.updateFHIRBundle();
-            }, 1500);
-        }, 1500);
+    return this.getSnomedCode(serviceRequest) || '-------';
+  }
 
-        this.searchControl.valueChanges
-        .pipe(
-            debounceTime(300),
-            // distinctUntilChanged(),
-            filter((term): term is string => !!term && term.length >= 3),
-            // switchMap cancels previous in-flight requests when a new value is emitted
-            switchMap((term: string) => {
-            this.searching = true;
-            this.searchResults = [];
-            this.filterOptions = [];
-            this.totalResults = 0;
-            this.offset = 0;
-            this.limit = 50;
+  getSpecimens(): Array<{ code: string; display: string; version?: string; reference?: string }> {
+    const specimensMap = new Map<string, { code: string; display: string; version?: string; reference?: string }>();
 
-            // Build refinements filter
-            let refinements = '';
-            this.filters.forEach( (filter, index) => {
-                if (index == 0) {
-                    refinements = ': ';
-                }
-                refinements += `${filter.refinement} ${filter.selected.code}`;
-                if (index < this.filters.length - 1) {
-                refinements += ', ';
-                }
-            });
-
-            // Build the ECL strings
-            const ecl = `(^ 635111010000100 ${refinements}) {{ D term = "${term}" }}`;
-            this.resultsEcl = ecl;
-            const propertyEcl = `(${ecl}).370130000 |Property (attribute)|`;
-            const componentEcl = `(${ecl}).246093002 |Component (attribute)|`;
-            const scaleEcl = `(${ecl}).370132008 |Scale type (attribute)|`;
-            const siteEcl = `(${ecl}).704327008 |Direct site (attribute)|`;
-            const inheresEcl = `(${ecl}).704319004 |Inheres in (attribute)|`;
-            const techniqueEcl = `(${ecl}).246501002 |Technique (attribute)|`;
-
-            // Return a single combined Observable that includes both calls
-            return forkJoin({
-                mainResult: this.terminologyService.expandValueSet(ecl, '', 0, this.limit),
-                propertyResult: this.terminologyService.expandValueSet(propertyEcl, '', 0, 50),
-                componentResult: this.terminologyService.expandValueSet(componentEcl, '', 0, 50),
-                scaleResult: this.terminologyService.expandValueSet(scaleEcl, '', 0, 50),
-                siteResult: this.terminologyService.expandValueSet(siteEcl, '', 0, 50),
-                inheresResult: this.terminologyService.expandValueSet(inheresEcl, '', 0, 50),
-                techniqueResult: this.terminologyService.expandValueSet(techniqueEcl, '', 0, 50)
-            });
-            }),
-            takeUntil(this.destroy$)
-        ).subscribe({
-            next: ({ mainResult, propertyResult, componentResult, scaleResult, siteResult, inheresResult, techniqueResult }) => {
-                // Now both requests have completed
-                this.searchResults = mainResult?.expansion?.contains || [];
-                this.totalResults = mainResult?.expansion?.total || 0;
-
-                let propertyFilterOptions = {
-                    title: 'Property',
-                    options: propertyResult?.expansion?.contains || [],
-                    otherOptions: [],
-                    refinement: '370130000 |Property (attribute)| = '
-                }
-                propertyFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
-                propertyFilterOptions.otherOptions = propertyFilterOptions.options.slice(5);
-                propertyFilterOptions.options = propertyFilterOptions.options.slice(0, 5);
-                this.filterOptions.push(propertyFilterOptions);
-
-                let componentFilterOptions = {
-                    title: 'Component',
-                    options: componentResult?.expansion?.contains || [],
-                    otherOptions: [],
-                    refinement: '246093002 |Component (attribute)| = '
-                }
-                componentFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
-                componentFilterOptions.otherOptions = componentFilterOptions.options.slice(5);
-                componentFilterOptions.options = componentFilterOptions.options.slice(0, 5);
-
-                this.filterOptions.push(componentFilterOptions);
-
-                let scaleFilterOptions = {
-                    title: 'Scale',
-                    options: scaleResult?.expansion?.contains || [],
-                    otherOptions: [],
-                    refinement: '370132008 |Scale type (attribute)| = '
-                }
-                scaleFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
-                scaleFilterOptions.otherOptions = scaleFilterOptions.options.slice(5);
-                scaleFilterOptions.options = scaleFilterOptions.options.slice(0, 5);
-                this.filterOptions.push(scaleFilterOptions);
-
-                let siteFilterOptions = {
-                    title: 'Site',
-                    options: siteResult?.expansion?.contains || [],
-                    otherOptions: [],
-                    refinement: '704327008 |Direct site (attribute)| = '
-                }
-                siteFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
-                siteFilterOptions.otherOptions = siteFilterOptions.options.slice(5);
-                siteFilterOptions.options = siteFilterOptions.options.slice(0, 5);
-                this.filterOptions.push(siteFilterOptions);
-
-                let inheresFilterOptions = {
-                    title: 'Inheres in',
-                    options: inheresResult?.expansion?.contains || [],
-                    otherOptions: [],
-                    refinement: '704319004 |Inheres in (attribute)| = '
-                }
-                inheresFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
-                inheresFilterOptions.otherOptions = inheresFilterOptions.options.slice(5);
-                inheresFilterOptions.options = inheresFilterOptions.options.slice(0, 5);
-                this.filterOptions.push(inheresFilterOptions);
-
-                let techniqueFilterOptions = {
-                    title: 'Technique',
-                    options: techniqueResult?.expansion?.contains || [],
-                    otherOptions: [],
-                    refinement: '246501002 |Technique (attribute)| = '
-                }
-                techniqueFilterOptions.options.sort((a: any, b: any) => a.display.localeCompare(b.display));
-                techniqueFilterOptions.otherOptions = techniqueFilterOptions.options.slice(5);
-                techniqueFilterOptions.options = techniqueFilterOptions.options.slice(0, 5);
-                this.filterOptions.push(techniqueFilterOptions);
-
-
-                this.searching = false;
-            },
-            error: err => {
-                console.error('Search error:', err);
-                this.searching = false;
-            }
-        });
-    }
-
-    loadNextPage() {
-        this.offset = this.searchResults.length; // Increment the offset for pagination
-        this,this.extending = true;
-        this.terminologyService.expandValueSet(this.resultsEcl, '', this.offset, this.limit).subscribe({
-            next: (result) => {
-                // Append the new results to the existing searchResults array
-                const newResults = result?.expansion?.contains || [];
-                this.searchResults = [...this.searchResults, ...newResults];
-                this.extending = false;
-            },
-            error: (err) => {
-                console.error('Error loading next page:', err);
-                this.extending = false;
-            }
-        });
-    }
-
-    addFilter(filter: any, option: any) {
-        const existingFilter = this.filters.find( f => f.title === filter.title);
-        if (existingFilter) {
-            existingFilter.selected = option;
-        } else {
-            this.filters.push({ title: filter.title, selected: option, refinement: filter.refinement });
+    this.serviceRequests.forEach((request) => {
+      request.specimen?.forEach((specimenRef) => {
+        const code = specimenRef.identifier?.value;
+        if (!code || specimensMap.has(code)) {
+          return;
         }
-        this.searchControl.setValue(this.searchControl.value);
-    }
 
-    removeFilter(filter: any) {
-        const index = this.filters.findIndex( f => f.title === filter.title);
-        if (index >= 0) {
-            this.filters.splice(index, 1);
-            this.searchControl.setValue(this.searchControl.value);
+        specimensMap.set(code, {
+          code,
+          display: specimenRef.display || code,
+          version: this.getSnomedVersion(request),
+          reference: specimenRef.reference
+        });
+      });
+    });
+
+    return Array.from(specimensMap.values());
+  }
+
+  private getSnomedCoding(serviceRequest: ServiceRequest) {
+    return serviceRequest.code?.coding?.find((coding) => coding.system === 'http://snomed.info/sct');
+  }
+
+  private getLoincCoding(serviceRequest: ServiceRequest) {
+    return serviceRequest.code?.coding?.find((coding) => coding.system === 'http://loinc.org');
+  }
+
+  private getSnomedCode(serviceRequest: ServiceRequest): string {
+    return this.getSnomedCoding(serviceRequest)?.code || '';
+  }
+
+  private getLoincCode(serviceRequest: ServiceRequest): string {
+    return this.getLoincCoding(serviceRequest)?.code || '';
+  }
+
+  private getSnomedVersion(serviceRequest: ServiceRequest): string {
+    return this.getSnomedCoding(serviceRequest)?.version || 'http://snomed.info/sct';
+  }
+
+  updateFHIRBundle() {
+    this.fhirBundle = {
+      resourceType: 'Bundle',
+      type: 'collection',
+      entry: []
+    };
+
+    this.serviceRequests.forEach((serviceRequest) => {
+      this.fhirBundle.entry.push({
+        fullUrl: `urn:uuid:${uuidv3(serviceRequest.id, this.uuidNamespace)}`,
+        resource: serviceRequest
+      });
+    });
+
+    this.getSpecimens().forEach((specimen) => {
+      this.fhirBundle.entry.push({
+        fullUrl: specimen.reference || `urn:uuid:${uuidv3(specimen.code, this.uuidNamespace)}`,
+        resource: {
+          resourceType: 'Specimen',
+          id: specimen.code,
+          type: {
+            coding: [
+              {
+                system: 'http://snomed.info/sct',
+                version: specimen.version,
+                code: specimen.code,
+                display: specimen.display
+              }
+            ],
+            text: specimen.display
+          },
+          text: {
+            status: 'generated',
+            div: `<div xmlns="http://www.w3.org/1999/xhtml">Specimen for ${specimen.display}</div>`
+          }
         }
-    }
+      });
+    });
 
-    labItemSelected(event: any) {
-        console.log('labItemSelected', event);
-    }
+    this.fhirBundle.entry.push({
+      fullUrl: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+      resource: this.activePatient
+    });
 
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
+    this.fhirBundleStr = JSON.stringify(this.fhirBundle, null, 2);
+  }
 
-    toggleLoincCodes() {
-        this.showLoincCodes = !this.showLoincCodes;
-    }
+  getPatientDisplayName(): string {
+    const name = this.activePatient?.name?.[0];
+    if (name?.text) return name.text;
+    const parts = [...(name?.given || []), name?.family].filter(Boolean);
+    return parts.length ? parts.join(' ') : 'Jane Doe';
+  }
 
-    addToOrder(item: any) {
-        if (this.order.find( i => i.code === item.code)) {
-            return;
-        }
-        item.loincId = '-------';
-        this.order.push(item);
-        let ecl = item.code + '.(704327008 |Direct site (attribute)| OR 704319004 |Inheres in (attribute)|)';
-        this.terminologyService.expandValueSet(ecl, '', 0, 1)
-        .subscribe({
-            next: (result) => {
-                if (result?.expansion?.contains?.length > 0) {
-                    item.specimen = result?.expansion?.contains[0];
-                }
-                this.terminologyService.getAlternateIdentifiers(item.code).subscribe({
-                    next: (result2) => {
-                        item.loincId = this.getAlternateIdentifierByScheme(result2, '30051010000102');
-                        this.updateSpecimens();
-                        this.updateFHIRBundle();
-                    }
-                });
-            },
-            error: err => {
-                console.error('Search error:', err);
-            }
-        });
-    }
+  getPatientIdentifier(): string {
+    return this.activePatient?.identifier?.[0]?.value || '1234567890';
+  }
 
-    getAlternateIdentifierByScheme(alternateIdentifiers: any[], identifierSchemeConceptId: string): string | null {
-        // Find the alternate identifier that matches the given identifier scheme concept ID
-        const matchingIdentifier = alternateIdentifiers.find(
-            (identifier: any) => identifier.identifierScheme?.conceptId === identifierSchemeConceptId
-        );
-    
-        // Return the alternateIdentifier value if found, otherwise return null
-        return matchingIdentifier ? matchingIdentifier.alternateIdentifier : null;
-    }
+  getPatientBirthDate(): string {
+    return this.activePatient?.birthDate || '1970-01-01';
+  }
 
-    removeFromOrder(index: number) {
-        this.order.splice(index, 1);
-        this.updateSpecimens();
-        this.updateFHIRBundle();
-    }
+  getPatientAddressLine(): string {
+    return this.activePatient?.address?.[0]?.line?.[0] || '123 Main St';
+  }
 
-    getCurrentDate() {
-        // In format YYYY-MM-DD
-        return new Date().toISOString().split('T')[0];
-    }
+  getPatientAddressCity(): string {
+    const address = this.activePatient?.address?.[0];
+    return [address?.city, address?.country].filter(Boolean).join(', ') || 'Anytown, USA';
+  }
 
-    updateSpecimens() {
-        this.specimens = [];
-        // Collect all speciments in items if it is not already in the list
-        this.order.forEach( (item) => {
-            if (item.specimen && !this.specimens.find( s => s.code === item.specimen.code)) {
-                this.specimens.push(item.specimen);
-            }
-        });
-    }
+  getPatientPhone(): string {
+    return this.activePatient?.telecom?.find((item: any) => item.system === 'phone')?.value || '123-456-7890';
+  }
 
-    flipCard() {
-        this.isFlipped = !this.isFlipped;
-    }
-
-    saveFhirResource() {
-        var blob = new Blob([this.fhirBundleStr], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, "request-bundle.json");
-    }
-
-    copyToClipboard(text: string) {
-        this.clipboard.copy(text);
-    }
-
-    updateFHIRBundle() {
-        this.fhirBundle = {
-          resourceType: 'Bundle',
-          type: 'collection',
-          entry: []
-        };
-      
-        this.order.forEach((item) => {
-          const entry = {
-            fullUrl: 'urn:uuid:' + uuidv3(item.code, this.uuid_namespace),
-            resource: {
-              resourceType: 'ServiceRequest',
-              status: 'draft',
-              intent: 'order',
-              text: {
-                status: 'generated',
-                div: '<div xmlns="http://www.w3.org/1999/xhtml">Order for ' + item.display + '</div>'
-              },
-              code: {
-                coding: [
-                  {
-                    system: 'http://snomed.info/sct',
-                    version: this.terminologyService.getFhirUrlParam(),
-                    code: item.code,
-                    display: item.display
-                  },
-                  {
-                    system: 'http://loinc.org',
-                    code: item.loincId,
-                    display: item.display
-                  }
-                ],
-                text: item.display
-              },
-              specimen: [
-                {
-                  reference: 'urn:uuid:' + ((item?.specimen) ? uuidv3(item?.specimen?.code, this.uuid_namespace): 'no-specimen'),
-                }
-              ],
-              subject: {
-                // reference the patient's id
-                reference: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8'
-              },
-              occurrenceDateTime: this.getCurrentDate()
-            }
-          };
-          this.fhirBundle.entry.push(entry);
-        });
-
-        // Add specimens to the bundle
-        this.specimens.forEach((specimen) => {
-            this.fhirBundle.entry.push({
-                fullUrl: 'urn:uuid:' + uuidv3(specimen.code, this.uuid_namespace),
-                resource: {
-                    resourceType: 'Specimen',
-                    id: specimen.code,
-                    type: {
-                        coding: [
-                            {
-                                system: 'http://snomed.info/sct',
-                                version: this.terminologyService.getFhirUrlParam(),
-                                code: specimen.code,
-                                display: specimen.display
-                            }
-                        ],
-                        text: specimen.display
-                    },
-                    text: {
-                        status: 'generated',
-                        div: '<div xmlns="http://www.w3.org/1999/xhtml">Specimen for ' + specimen.display + '</div>'
-                    }
-                }
-            });
-        });
-
-        this.fhirBundle.entry.push({
-            fullUrl: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8',  // or some absolute URI if you have one
-            resource: this.patient
-        });
-      
-        this.fhirBundleStr = JSON.stringify(this.fhirBundle, null, 2);
-    }
-
+  getPatientEmail(): string {
+    return this.activePatient?.telecom?.find((item: any) => item.system === 'email')?.value || 'jane@email.com';
+  }
 }
