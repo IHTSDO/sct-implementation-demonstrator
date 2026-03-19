@@ -59,7 +59,7 @@
               <mat-icon>remove</mat-icon>
             </button>
           }
-          <mat-menu #substancePopoverMenu="matMenu">
+          <mat-menu #substancePopoverMenu="matMenu" xPosition="before">
             @if (binding.code) {
               <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()"
                 (click)="copyToClipboard(binding.code?.code + ' |' + binding.code?.display + '|')">
