@@ -51,192 +51,202 @@
       </div>
 
       <ng-container *ngIf="!isSidebarCollapsed">
-        <button
-          mat-stroked-button
-          class="sidebar-item module-root"
-          [class.active]="selectedModule === 'clinical'"
-          (click)="onClinicalRootClick()">
-          <mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon>
-          <span class="module-label">Clinical</span>
-          <span class="group-caret-wrapper">
-            <mat-icon class="group-caret" *ngIf="isClinicalNavExpanded">expand_less</mat-icon>
-            <mat-icon class="group-caret" *ngIf="!isClinicalNavExpanded">expand_more</mat-icon>
-          </span>
-        </button>
+        <div class="sidebar-main-section">
+          <button
+            mat-stroked-button
+            class="sidebar-item module-root"
+            [class.active]="selectedModule === 'clinical'"
+            (click)="onClinicalRootClick()">
+            <mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon>
+            <span class="module-label">Clinical</span>
+            <span class="group-caret-wrapper">
+              <mat-icon class="group-caret" *ngIf="isClinicalNavExpanded">expand_less</mat-icon>
+              <mat-icon class="group-caret" *ngIf="!isClinicalNavExpanded">expand_more</mat-icon>
+            </span>
+          </button>
 
-        <div class="clinical-group" *ngIf="isClinicalNavExpanded">
+          <div class="clinical-group" *ngIf="isClinicalNavExpanded">
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'summary'"
+              (click)="selectClinicalView('summary')">
+              <mat-icon>summarize</mat-icon>
+              <span>Summary</span>
+            </button>
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'"
+              (click)="selectClinicalView('problems')">
+              <mat-icon>list_alt</mat-icon>
+              <span>Problems List</span>
+            </button>
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'"
+              (click)="selectClinicalView('orders')">
+              <mat-icon>biotech</mat-icon>
+              <span>Clinical Orders</span>
+            </button>
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'"
+              (click)="selectClinicalView('encounters')">
+              <mat-icon>event_note</mat-icon>
+              <span>Encounters</span>
+            </button>
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'ai-entry'"
+              (click)="selectClinicalView('ai-entry')">
+              <mat-icon>smart_toy</mat-icon>
+              <span>AI Assisted Data Entry</span>
+            </button>
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'forms'"
+              (click)="selectClinicalView('forms')">
+              <mat-icon>description</mat-icon>
+              <span>Clinical Forms</span>
+            </button>
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'alerts'"
+              (click)="selectClinicalView('alerts')">
+              <mat-icon>shield</mat-icon>
+              <span>Alerts</span>
+            </button>
+          </div>
+
           <button
             mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'summary'"
-            (click)="selectClinicalView('summary')">
-            <mat-icon>summarize</mat-icon>
-            <span>Summary</span>
+            class="sidebar-item module-root"
+            [class.active]="selectedModule === 'dentistry'"
+            (click)="onDentalRootClick()">
+            <mat-icon fontSet="material-symbols-outlined">dentistry</mat-icon>
+            <span class="module-label">Dental</span>
+            <span class="group-caret-wrapper">
+              <mat-icon class="group-caret" *ngIf="isDentalNavExpanded">expand_less</mat-icon>
+              <mat-icon class="group-caret" *ngIf="!isDentalNavExpanded">expand_more</mat-icon>
+            </span>
           </button>
+
+          <div class="clinical-group" *ngIf="isDentalNavExpanded">
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'"
+              (click)="selectDentalView('odontogram')">
+              <mat-icon>account_tree</mat-icon>
+              <span>Odontogram</span>
+            </button>
+          </div>
+
           <button
             mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'"
-            (click)="selectClinicalView('problems')">
-            <mat-icon>list_alt</mat-icon>
-            <span>Problems List</span>
+            class="sidebar-item module-root"
+            [class.active]="selectedModule === 'nursing'"
+            (click)="onNursingRootClick()">
+            <mat-icon>healing</mat-icon>
+            <span class="module-label">Nursing</span>
+            <span class="group-caret-wrapper">
+              <mat-icon class="group-caret" *ngIf="isNursingNavExpanded">expand_less</mat-icon>
+              <mat-icon class="group-caret" *ngIf="!isNursingNavExpanded">expand_more</mat-icon>
+            </span>
           </button>
-          <button
-            mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'"
-            (click)="selectClinicalView('orders')">
-            <mat-icon>biotech</mat-icon>
-            <span>Clinical Orders</span>
-          </button>
-          <button
-            mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'"
-            (click)="selectClinicalView('encounters')">
-            <mat-icon>event_note</mat-icon>
-            <span>Encounters</span>
-          </button>
-          <button
-            mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'ai-entry'"
-            (click)="selectClinicalView('ai-entry')">
-            <mat-icon>smart_toy</mat-icon>
-            <span>AI Assisted Data Entry</span>
-          </button>
-          <button
-            mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'forms'"
-            (click)="selectClinicalView('forms')">
-            <mat-icon>description</mat-icon>
-            <span>Clinical Forms</span>
-          </button>
-          <button
-            mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'alerts'"
-            (click)="selectClinicalView('alerts')">
-            <mat-icon>shield</mat-icon>
-            <span>Alerts</span>
-          </button>
+
+          <div class="clinical-group" *ngIf="isNursingNavExpanded">
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'"
+              (click)="selectNursingView('vitals')">
+              <mat-icon>monitor_heart</mat-icon>
+              <span>Vital Signs</span>
+            </button>
+            <button
+              mat-stroked-button
+              class="sidebar-item"
+              [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'"
+              (click)="selectNursingView('nutrition')">
+              <mat-icon>restaurant</mat-icon>
+              <span>Nutritional Careplan</span>
+            </button>
+          </div>
         </div>
 
-        <button
-          mat-stroked-button
-          class="sidebar-item module-root"
-          [class.active]="selectedModule === 'dentistry'"
-          (click)="onDentalRootClick()">
-          <mat-icon fontSet="material-symbols-outlined">dentistry</mat-icon>
-          <span class="module-label">Dental</span>
-          <span class="group-caret-wrapper">
-            <mat-icon class="group-caret" *ngIf="isDentalNavExpanded">expand_less</mat-icon>
-            <mat-icon class="group-caret" *ngIf="!isDentalNavExpanded">expand_more</mat-icon>
-          </span>
-        </button>
-
-        <div class="clinical-group" *ngIf="isDentalNavExpanded">
+        <div class="sidebar-data-section">
+          <div class="sidebar-section-label">Data</div>
           <button
             mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'"
-            (click)="selectDentalView('odontogram')">
-            <mat-icon>account_tree</mat-icon>
-            <span>Odontogram</span>
+            class="sidebar-item module-root data-root"
+            [class.active]="selectedModule === 'data'"
+            (click)="onDataRootClick()">
+            <mat-icon>dataset</mat-icon>
+            <span class="module-label">Data</span>
+            <span class="group-caret-wrapper">
+              <mat-icon class="group-caret" *ngIf="isDataNavExpanded">expand_less</mat-icon>
+              <mat-icon class="group-caret" *ngIf="!isDataNavExpanded">expand_more</mat-icon>
+            </span>
           </button>
-        </div>
-        <button
-          mat-stroked-button
-          class="sidebar-item module-root"
-          [class.active]="selectedModule === 'nursing'"
-          (click)="onNursingRootClick()">
-          <mat-icon>healing</mat-icon>
-          <span class="module-label">Nursing</span>
-          <span class="group-caret-wrapper">
-            <mat-icon class="group-caret" *ngIf="isNursingNavExpanded">expand_less</mat-icon>
-            <mat-icon class="group-caret" *ngIf="!isNursingNavExpanded">expand_more</mat-icon>
-          </span>
-        </button>
 
-        <div class="clinical-group" *ngIf="isNursingNavExpanded">
-          <button
-            mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'"
-            (click)="selectNursingView('vitals')">
-            <mat-icon>monitor_heart</mat-icon>
-            <span>Vital Signs</span>
-          </button>
-          <button
-            mat-stroked-button
-            class="sidebar-item"
-            [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'"
-            (click)="selectNursingView('nutrition')">
-            <mat-icon>restaurant</mat-icon>
-            <span>Nutritional Careplan</span>
-          </button>
-        </div>
-
-        <button
-          mat-stroked-button
-          class="sidebar-item module-root"
-          [class.active]="selectedModule === 'data'"
-          (click)="onDataRootClick()">
-          <mat-icon>dataset</mat-icon>
-          <span class="module-label">Data</span>
-          <span class="group-caret-wrapper">
-            <mat-icon class="group-caret" *ngIf="isDataNavExpanded">expand_less</mat-icon>
-            <mat-icon class="group-caret" *ngIf="!isDataNavExpanded">expand_more</mat-icon>
-          </span>
-        </button>
-
-        <div class="clinical-group" *ngIf="isDataNavExpanded">
+          <div class="clinical-group" *ngIf="isDataNavExpanded">
           <button
             mat-stroked-button
             class="sidebar-item"
             [class.active]="selectedModule === 'data' && selectedDataView === 'fhir'"
             (click)="selectDataView('fhir')">
-            <mat-icon>data_object</mat-icon>
-            <span>FHIR</span>
+              <mat-icon>data_object</mat-icon>
+              <span>FHIR Repository</span>
           </button>
+        </div>
         </div>
       </ng-container>
 
       <div class="collapsed-nav" *ngIf="isSidebarCollapsed">
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'summary'" (click)="selectClinicalView('summary')" matTooltip="Summary" matTooltipPosition="right">
-          <mat-icon>summarize</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'" (click)="selectClinicalView('problems')" matTooltip="Problems List" matTooltipPosition="right">
-          <mat-icon>list_alt</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'" (click)="selectClinicalView('orders')" matTooltip="Clinical Orders" matTooltipPosition="right">
-          <mat-icon>biotech</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'" (click)="selectClinicalView('encounters')" matTooltip="Encounters" matTooltipPosition="right">
-          <mat-icon>event_note</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'ai-entry'" (click)="selectClinicalView('ai-entry')" matTooltip="AI Assisted Data Entry" matTooltipPosition="right">
-          <mat-icon>smart_toy</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'forms'" (click)="selectClinicalView('forms')" matTooltip="Clinical Forms" matTooltipPosition="right">
-          <mat-icon>description</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'alerts'" (click)="selectClinicalView('alerts')" matTooltip="Alerts" matTooltipPosition="right">
-          <mat-icon>shield</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'" (click)="selectDentalView('odontogram')" matTooltip="Dental: Odontogram" matTooltipPosition="right">
-          <mat-icon fontSet="material-symbols-outlined">dentistry</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'" (click)="selectNursingView('vitals')" matTooltip="Nursing: Vital Signs" matTooltipPosition="right">
-          <mat-icon>monitor_heart</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'" (click)="selectNursingView('nutrition')" matTooltip="Nursing: Nutritional Careplan" matTooltipPosition="right">
-          <mat-icon>restaurant</mat-icon>
-        </button>
-        <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'data' && selectedDataView === 'fhir'" (click)="selectDataView('fhir')" matTooltip="Data: FHIR" matTooltipPosition="right">
-          <mat-icon>data_object</mat-icon>
-        </button>
+        <div class="collapsed-nav-main">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'summary'" (click)="selectClinicalView('summary')" matTooltip="Summary" matTooltipPosition="right">
+            <mat-icon>summarize</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'" (click)="selectClinicalView('problems')" matTooltip="Problems List" matTooltipPosition="right">
+            <mat-icon>list_alt</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'" (click)="selectClinicalView('orders')" matTooltip="Clinical Orders" matTooltipPosition="right">
+            <mat-icon>biotech</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'" (click)="selectClinicalView('encounters')" matTooltip="Encounters" matTooltipPosition="right">
+            <mat-icon>event_note</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'ai-entry'" (click)="selectClinicalView('ai-entry')" matTooltip="AI Assisted Data Entry" matTooltipPosition="right">
+            <mat-icon>smart_toy</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'forms'" (click)="selectClinicalView('forms')" matTooltip="Clinical Forms" matTooltipPosition="right">
+            <mat-icon>description</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'alerts'" (click)="selectClinicalView('alerts')" matTooltip="Alerts" matTooltipPosition="right">
+            <mat-icon>shield</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'" (click)="selectDentalView('odontogram')" matTooltip="Dental: Odontogram" matTooltipPosition="right">
+            <mat-icon fontSet="material-symbols-outlined">dentistry</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'" (click)="selectNursingView('vitals')" matTooltip="Nursing: Vital Signs" matTooltipPosition="right">
+            <mat-icon>monitor_heart</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'" (click)="selectNursingView('nutrition')" matTooltip="Nursing: Nutritional Careplan" matTooltipPosition="right">
+            <mat-icon>restaurant</mat-icon>
+          </button>
+        </div>
+        <div class="collapsed-nav-data">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'data' && selectedDataView === 'fhir'" (click)="selectDataView('fhir')" matTooltip="Data: FHIR Repository" matTooltipPosition="right">
+            <mat-icon>data_object</mat-icon>
+          </button>
+        </div>
       </div>
     </aside>
 

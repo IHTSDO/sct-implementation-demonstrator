@@ -11,6 +11,7 @@ import {
   Patient,
   Procedure,
   QuestionnaireResponse,
+  ServiceRequest,
   PatientService
 } from '../../services/patient.service';
 import { saveAs } from 'file-saver';
@@ -24,6 +25,7 @@ type SupportedResourceType =
   | 'Observation'
   | 'Encounter'
   | 'QuestionnaireResponse'
+  | 'ServiceRequest'
   | 'Bundle';
 
 type FhirBundleResource = LaboratoryOrderGroup['fhirBundle'];
@@ -37,6 +39,7 @@ type SupportedResource =
   | FhirObservation
   | Encounter
   | QuestionnaireResponse
+  | ServiceRequest
   | FhirBundleResource;
 
 interface ResourceListItem {
@@ -180,6 +183,13 @@ export class FhirDataComponent implements OnChanges {
         title: 'QuestionnaireResponse',
         icon: 'assignment',
         items: this.patientService.getPatientQuestionnaireResponses(patientId).map(resource => this.toQuestionnaireItem(resource))
+      },
+      {
+        resourceType: 'ServiceRequest',
+        title: 'ServiceRequest',
+        icon: 'biotech',
+        items: this.patientService.getPatientLabOrders(patientId)
+          .flatMap(labOrder => labOrder.serviceRequests.map(resource => this.toServiceRequestItem(resource, labOrder)))
       },
       {
         resourceType: 'Bundle',
@@ -335,6 +345,21 @@ export class FhirDataComponent implements OnChanges {
       label,
       subtitle: this.buildDateSubtitle(labOrder.createdAt),
       resource: labOrder.fhirBundle
+    };
+  }
+
+  private toServiceRequestItem(resource: ServiceRequest, labOrder: LaboratoryOrderGroup): ResourceListItem {
+    const label = resource.code?.text || resource.code?.coding?.[0]?.display || resource.id;
+    const bundleLabel = labOrder.serviceRequests.length === 1
+      ? 'From laboratory order bundle'
+      : `From laboratory order bundle (${labOrder.serviceRequests.length} determinations)`;
+
+    return {
+      resourceType: 'ServiceRequest',
+      id: resource.id,
+      label,
+      subtitle: `${bundleLabel} • ${this.buildDateSubtitle(resource.authoredOn || labOrder.createdAt)}`,
+      resource
     };
   }
 
