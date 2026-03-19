@@ -127,7 +127,7 @@ export class CrsBatchGeneratorComponent implements OnInit {
       // Find header row by searching for column H header
       this.headerRowIndex = this.findHeaderRow(data);
       if (this.headerRowIndex === -1) {
-        throw new Error('Could not find header row. Expected column H header.');
+        throw new Error('Could not find the header row in the uploaded spreadsheet.');
       }
 
       // Filter rows
@@ -136,7 +136,7 @@ export class CrsBatchGeneratorComponent implements OnInit {
       // Deduplicate by substance name (column A)
       this.filteredRows = this.deduplicateRows(filtered);
 
-      this.snackBar.open(`Found ${this.filteredRows.length} unique rows matching criteria`, 'Close', { duration: 3000 });
+      this.snackBar.open(`Found ${this.filteredRows.length} unique rows in the selected date range`, 'Close', { duration: 3000 });
     } catch (error: any) {
       this.error = error.message || 'Error processing file';
       this.snackBar.open(this.error || 'Error processing file', 'Close', { duration: 5000 });
@@ -171,7 +171,6 @@ export class CrsBatchGeneratorComponent implements OnInit {
   applyFilters(data: any[][], startDate: Date, endDate: Date): FilteredRow[] {
     const filtered: FilteredRow[] = [];
     const startRow = this.headerRowIndex + 1;
-    let rowsWithN = 0;
     let rowsWithValidDates = 0;
 
     for (let i = startRow; i < data.length; i++) {
@@ -179,12 +178,6 @@ export class CrsBatchGeneratorComponent implements OnInit {
       if (!row || row.length < 12) continue;
 
       const colH = String(row[7] || '').trim().toUpperCase(); // Column H (0-indexed = 7)
-      
-      if (colH !== 'N') {
-        continue;
-      }
-      rowsWithN++;
-
       const colA = String(row[0] || '').trim(); // Column A (substance name)
       const colB = String(row[1] || '').trim(); // Column B (indication)
       const colC = String(row[2] || '').trim(); // Column C (substance type)
