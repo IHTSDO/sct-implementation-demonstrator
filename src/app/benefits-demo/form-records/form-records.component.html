@@ -31,8 +31,8 @@
               {{ getFormTypeIcon(response) }}
             </mat-icon>
             <mat-card-title>
-              <div class="title-with-badge">
-                <span>{{ getFormRecordName(response) }}</span>
+                <div class="title-with-badge">
+                  <span>{{ getFormRecordName(response) }}</span>
                 <span class="form-type-badge"
                   [class.badge-fhir]="getFormRecordType(response) === 'FHIR'"
                   [class.badge-openehr]="getFormRecordType(response) === 'openEHR'">
@@ -107,6 +107,11 @@
                 @if (isOpenEHRComposition(selectedResponse)) {
                   <div class="metadata-item">
                     <strong>Type:</strong> openEHR Composition
+                  </div>
+                }
+                @if (isDeathCertificateBundle(selectedResponse)) {
+                  <div class="metadata-item">
+                    <strong>Type:</strong> VRDR FHIR Document Bundle
                   </div>
                 }
                 <div class="metadata-item">
@@ -194,7 +199,7 @@
             <!-- Back: JSON -->
             <div class="flip-card-back">
               <div class="viewer-header">
-                <h2>{{ isOpenEHRComposition(selectedResponse) ? 'openEHR Composition' : 'FHIR QuestionnaireResponse' }} (JSON)</h2>
+                <h2>{{ isOpenEHRComposition(selectedResponse) ? 'openEHR Composition' : (isDeathCertificateBundle(selectedResponse) ? 'FHIR Death Certificate Bundle' : 'FHIR QuestionnaireResponse') }} (JSON)</h2>
                 <div class="header-actions">
                   <button mat-raised-button color="primary" (click)="flipCard()">
                     <mat-icon>article</mat-icon>

@@ -1,9 +1,9 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { PatientService, QuestionnaireResponse, OpenEHRComposition } from '../../services/patient.service';
+import { PatientService, QuestionnaireResponse, OpenEHRComposition, DeathRecord } from '../../services/patient.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
-export type FormRecord = QuestionnaireResponse | OpenEHRComposition;
+export type FormRecord = QuestionnaireResponse | OpenEHRComposition | DeathRecord;
 
 @Component({
   selector: 'app-form-records',
@@ -16,6 +16,7 @@ export class FormRecordsComponent implements OnChanges {
   
   questionnaireResponses: QuestionnaireResponse[] = [];
   openehrCompositions: OpenEHRComposition[] = [];
+  deathCertificateBundle: DeathRecord | null = null;
   allFormRecords: FormRecord[] = [];
   isLoading: boolean = false;
   selectedResponse: FormRecord | null = null;
@@ -51,11 +52,13 @@ export class FormRecordsComponent implements OnChanges {
       // Load both questionnaire responses and openEHR compositions
       this.questionnaireResponses = this.patientService.getPatientQuestionnaireResponses(this.patientId);
       this.openehrCompositions = this.patientService.getPatientOpenEHRCompositions(this.patientId);
+      this.deathCertificateBundle = this.patientService.getPatientDeathRecord(this.patientId);
       
       // Combine and sort by date, most recent first
       this.allFormRecords = [
         ...this.questionnaireResponses,
-        ...this.openehrCompositions
+        ...this.openehrCompositions,
+        ...(this.deathCertificateBundle ? [this.withBundleAuthored(this.deathCertificateBundle)] : [])
       ].sort((a, b) => {
         const dateA = new Date((a as any).authored || 0).getTime();
         const dateB = new Date((b as any).authored || 0).getTime();
@@ -94,6 +97,10 @@ export class FormRecordsComponent implements OnChanges {
     return record.resourceType === 'QuestionnaireResponse';
   }
 
+  isDeathCertificateBundle(record: FormRecord): record is DeathRecord {
+    return record.resourceType === 'Bundle';
+  }
+
   closeViewer(): void {
     this.selectedResponse = null;
     this.isFlipped = false;
@@ -110,7 +117,9 @@ export class FormRecordsComponent implements OnChanges {
 
     const recordName = this.isOpenEHRComposition(response) 
       ? (response.compositionName || 'openEHR composition')
-      : (response.questionnaireName || 'questionnaire');
+      : this.isDeathCertificateBundle(response)
+        ? 'death certificate document'
+        : (response.questionnaireName || 'questionnaire');
 
     const confirmDelete = confirm(
       `Are you sure you want to delete this "${recordName}"?`
@@ -119,6 +128,8 @@ export class FormRecordsComponent implements OnChanges {
     if (confirmDelete) {
       if (this.isOpenEHRComposition(response)) {
         this.patientService.deletePatientOpenEHRComposition(this.patientId, response.id);
+      } else if (this.isDeathCertificateBundle(response)) {
+        this.patientService.deletePatientDeathRecord(this.patientId);
       } else {
         this.patientService.deletePatientQuestionnaireResponse(this.patientId, response.id);
       }
@@ -149,7 +160,9 @@ export class FormRecordsComponent implements OnChanges {
       
       const filename = this.isOpenEHRComposition(response)
         ? `openehr-composition-${response.id}.json`
-        : `questionnaire-response-${response.id}.json`;
+        : this.isDeathCertificateBundle(response)
+          ? `death-certificate-document-${response.id}.json`
+          : `questionnaire-response-${response.id}.json`;
       
       const url = window.URL.createObjectURL(dataBlob);
       const link = document.createElement('a');
@@ -202,6 +215,9 @@ export class FormRecordsComponent implements OnChanges {
     if (this.isOpenEHRComposition(response)) {
       return 'storage';
     }
+    if (this.isDeathCertificateBundle(response)) {
+      return 'article';
+    }
     
     const name = (response.questionnaireName || '').toLowerCase();
     
@@ -220,6 +236,9 @@ export class FormRecordsComponent implements OnChanges {
     if (this.isOpenEHRComposition(response)) {
       return 'primary'; // Blue for openEHR
     }
+    if (this.isDeathCertificateBundle(response)) {
+      return 'warn';
+    }
     
     const name = (response.questionnaireName || '').toLowerCase();
     
@@ -237,6 +256,9 @@ export class FormRecordsComponent implements OnChanges {
   getFormRecordName(response: FormRecord): string {
     if (this.isOpenEHRComposition(response)) {
       return response.compositionName || response.templateName || 'openEHR Composition';
+    }
+    if (this.isDeathCertificateBundle(response)) {
+      return 'Death Certificate Document';
     }
     return response.questionnaireName || response.questionnaireTitle || 'Questionnaire';
   }
@@ -260,6 +282,11 @@ export class FormRecordsComponent implements OnChanges {
         return `${keys.length} field(s) completed`;
       }
       return 'openEHR Composition';
+    }
+    if (this.isDeathCertificateBundle(response)) {
+      const entryCount = response.entry?.length || 0;
+      const observationCount = response.entry?.filter(entry => entry.resource?.resourceType === 'Observation').length || 0;
+      return `${observationCount} cause observation(s), ${entryCount} bundle entr${entryCount === 1 ? 'y' : 'ies'}`;
     }
     
     try {
@@ -337,6 +364,76 @@ export class FormRecordsComponent implements OnChanges {
           }
         });
       }
+      return pairs;
+    }
+    if (this.isDeathCertificateBundle(response)) {
+      const composition = response.entry?.find(entry => entry.resource?.resourceType === 'Composition')?.resource;
+      const observations = response.entry?.filter(entry => entry.resource?.resourceType === 'Observation').map(entry => entry.resource) || [];
+
+      pairs.push({
+        question: 'Bundle Identifier',
+        answer: response.identifier?.value || response.id,
+        type: 'text',
+        level: 0,
+        isSection: false,
+        hasSubItems: false
+      });
+      pairs.push({
+        question: 'Document Date',
+        answer: this.formatDate((response as any).authored),
+        type: 'text',
+        level: 0,
+        isSection: false,
+        hasSubItems: false
+      });
+      if (composition?.title) {
+        pairs.push({
+          question: 'Composition Title',
+          answer: composition.title,
+          type: 'text',
+          level: 0,
+          isSection: false,
+          hasSubItems: false
+        });
+      }
+      observations.forEach((observation: any, index: number) => {
+        const lineNumber = observation.component?.find((component: any) =>
+          component?.code?.coding?.some((coding: any) => coding.code === 'lineNumber')
+        )?.valueInteger;
+        const interval = observation.component?.find((component: any) =>
+          component?.code?.coding?.some((coding: any) => coding.code === '69440-6')
+        )?.valueString;
+        const icd10 = observation.valueCodeableConcept?.coding?.find((coding: any) => coding.system === 'http://hl7.org/fhir/sid/icd-10')?.code;
+
+        pairs.push({
+          question: lineNumber ? `Part I line ${lineNumber}` : `Part II condition ${index + 1}`,
+          answer: observation.valueCodeableConcept?.text || 'No diagnosis text',
+          type: 'text',
+          level: 0,
+          isSection: false,
+          hasSubItems: false
+        });
+        if (interval) {
+          pairs.push({
+            question: 'Interval',
+            answer: interval,
+            type: 'text',
+            level: 1,
+            isSection: false,
+            hasSubItems: false
+          });
+        }
+        if (icd10) {
+          pairs.push({
+            question: 'ICD-10',
+            answer: icd10,
+            type: 'text',
+            level: 1,
+            isSection: false,
+            hasSubItems: false
+          });
+        }
+      });
       return pairs;
     }
     
@@ -584,6 +681,13 @@ export class FormRecordsComponent implements OnChanges {
 
   formatJSON(obj: any): string {
     return JSON.stringify(obj, null, 2);
+  }
+
+  private withBundleAuthored(bundle: DeathRecord): DeathRecord & { authored: string } {
+    return {
+      ...bundle,
+      authored: bundle.timestamp
+    };
   }
 
   copyToClipboard(response: FormRecord, event: Event): void {

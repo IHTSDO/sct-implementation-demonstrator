@@ -35,6 +35,22 @@ interface DeathRegistrationDialogData {
   standalone: false
 })
 export class DeathRegistrationDialogComponent {
+  private readonly VRDR_DOCUMENT_PROFILE =
+    'http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certificate-document';
+  private readonly VRDR_COMPOSITION_PROFILE =
+    'http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certificate';
+  private readonly VRDR_DEATH_CERTIFICATION_PROCEDURE_PROFILE =
+    'http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certification';
+  private readonly VRDR_CAUSE_OF_DEATH_PART1_PROFILE =
+    'http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part1';
+  private readonly VRDR_CAUSE_OF_DEATH_PART2_PROFILE =
+    'http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part2';
+  private readonly VRDR_DECEDENT_PROFILE =
+    'http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent';
+  private readonly UI_SOURCE_TYPE_EXTENSION = 'http://example.org/fhir/StructureDefinition/death-certificate-source-type';
+  private readonly UI_SOURCE_CONDITION_EXTENSION = 'http://example.org/fhir/StructureDefinition/death-certificate-source-condition-id';
+  private readonly UI_DERIVED_CONDITION_EXTENSION = 'http://example.org/fhir/StructureDefinition/death-certificate-derived-condition-id';
+
   readonly conditionBinding = {
     ecl: '< 404684003 |Clinical finding|',
     title: 'Search for condition...',
@@ -61,6 +77,9 @@ export class DeathRegistrationDialogComponent {
     private patientService: PatientService,
     private terminologyService: TerminologyService
   ) {
+    const now = new Date();
+    this.deceasedDate = now;
+    this.deceasedTime = now;
     this.initializeFromExistingRecord();
   }
 
@@ -180,19 +199,12 @@ export class DeathRegistrationDialogComponent {
         deceasedDateTime
       );
 
-      const deathRecord: DeathRecord = {
-        id: this.data.existingRecord?.id || `death-record-${Date.now()}`,
-        patientId: this.data.patient.id,
-        recordedAt: new Date().toISOString(),
-        deceasedDateTime: deceasedDateTime,
-        part1: enrichedPart1,
-        part2: enrichedPart2
-      };
+      const deathRecord = this.buildDeathCertificateBundle(enrichedPart1, enrichedPart2, deceasedDateTime);
 
       const updatedPatient: Patient = {
         ...this.data.patient,
         deceasedBoolean: true,
-        deceasedDateTime: deathRecord.deceasedDateTime
+        deceasedDateTime: deceasedDateTime
       };
 
       this.patientService.updatePatient(updatedPatient);
@@ -212,7 +224,7 @@ export class DeathRegistrationDialogComponent {
   }
 
   getDialogTitle(): string {
-    return this.data.existingRecord ? 'Update death registration' : 'Register death';
+    return this.data.existingRecord ? 'Update death registration' : 'Death registration';
   }
 
   getSourceFieldLabel(line: DeathDiagnosisFormLine): string {
@@ -232,18 +244,23 @@ export class DeathRegistrationDialogComponent {
       return;
     }
 
-    const existingDateTime = new Date(this.data.existingRecord.deceasedDateTime);
+    const existingDateTime = this.getBundleDeceasedDateTime(this.data.existingRecord);
+    if (!existingDateTime) {
+      return;
+    }
+
     this.deceasedDate = existingDateTime;
     this.deceasedTime = existingDateTime;
 
     const part1LineCodes: Part1LineCode[] = ['a', 'b', 'c', 'd'];
     this.part1Lines = part1LineCodes.map(lineCode => {
-      const existingLine = this.data.existingRecord?.part1.find(line => line.line === lineCode);
+      const existingLine = this.getBundleDiagnoses(this.data.existingRecord!, 'part1').find(line => line.line === lineCode);
       return existingLine ? this.mapDiagnosisToLine(existingLine, lineCode) : this.createPart1Line(lineCode);
     });
 
-    this.part2Lines = this.data.existingRecord.part2.length > 0
-      ? this.data.existingRecord.part2.map(line => this.mapDiagnosisToLine(line))
+    const part2Diagnoses = this.getBundleDiagnoses(this.data.existingRecord, 'part2');
+    this.part2Lines = part2Diagnoses.length > 0
+      ? part2Diagnoses.map(line => this.mapDiagnosisToLine(line))
       : [this.createPart2Line()];
   }
 
@@ -303,11 +320,15 @@ export class DeathRegistrationDialogComponent {
     const results: DeathRecordDiagnosis[] = [];
 
     for (const line of this.part2Lines) {
-      if (!this.hasMeaningfulContent(line)) {
+      if (!this.hasPart2MeaningfulContent(line)) {
         continue;
       }
 
-      results.push(await this.serializeDiagnosisLine(line));
+      const diagnosis = await this.serializeDiagnosisLine(line);
+      results.push({
+        ...diagnosis,
+        intervalText: ''
+      });
     }
 
     return results;
@@ -359,6 +380,11 @@ export class DeathRegistrationDialogComponent {
 
   private async createDerivedConditions<T extends DeathRecordDiagnosis>(diagnoses: T[], deceasedDateTime: string): Promise<T[]> {
     for (const diagnosis of diagnoses) {
+      if (diagnosis.sourceType !== 'snomed-search') {
+        diagnosis.derivedConditionId = undefined;
+        continue;
+      }
+
       const condition = this.patientService.createConditionFromClinicalEntryConcept(
         this.data.patient.id,
         {
@@ -410,8 +436,8 @@ export class DeathRegistrationDialogComponent {
     }
 
     const previousDiagnoses = [
-      ...this.data.existingRecord.part1,
-      ...this.data.existingRecord.part2
+      ...this.getBundleDiagnoses(this.data.existingRecord, 'part1'),
+      ...this.getBundleDiagnoses(this.data.existingRecord, 'part2')
     ];
 
     previousDiagnoses.forEach(diagnosis => {
@@ -459,12 +485,399 @@ export class DeathRegistrationDialogComponent {
     });
   }
 
+  private buildDeathCertificateBundle(
+    part1: Array<DeathRecordDiagnosis & { line: Part1LineCode }>,
+    part2: DeathRecordDiagnosis[],
+    deceasedDateTime: string
+  ): DeathRecord {
+    const bundleId = this.data.existingRecord?.id || `death-certificate-bundle-${Date.now()}`;
+    const bundleIdentifier = this.data.existingRecord?.identifier?.value || `${new Date(deceasedDateTime).getFullYear()}UY${this.data.patient.id.slice(-6).padStart(6, '0')}`;
+    const compositionId = `death-certificate-composition-${this.data.patient.id}`;
+    const practitionerId = `death-certifier-${this.data.patient.id}`;
+    const procedureId = `death-certification-procedure-${this.data.patient.id}`;
+    const patientResource = this.buildDecedentResource();
+    const practitionerResource = this.buildCertifierResource(practitionerId);
+    const procedureResource = this.buildDeathCertificationProcedure(procedureId, practitionerId, deceasedDateTime);
+    const part1Observations = part1.map(item => this.buildCauseOfDeathPart1Observation(item, practitionerId, deceasedDateTime));
+    const part2Observations = part2.map(item => this.buildCauseOfDeathPart2Observation(item, practitionerId, deceasedDateTime));
+    const compositionResource = this.buildCompositionResource(
+      compositionId,
+      practitionerId,
+      procedureId,
+      deceasedDateTime,
+      part1Observations,
+      part2Observations
+    );
+
+    const entries = [
+      { fullUrl: `urn:uuid:${compositionId}`, resource: compositionResource },
+      { fullUrl: `urn:uuid:${this.data.patient.id}`, resource: patientResource },
+      { fullUrl: `urn:uuid:${practitionerId}`, resource: practitionerResource },
+      { fullUrl: `urn:uuid:${procedureId}`, resource: procedureResource },
+      ...part1Observations.map(resource => ({ fullUrl: `urn:uuid:${resource.id}`, resource })),
+      ...part2Observations.map(resource => ({ fullUrl: `urn:uuid:${resource.id}`, resource }))
+    ];
+
+    return {
+      resourceType: 'Bundle',
+      id: bundleId,
+      authored: new Date().toISOString(),
+      meta: {
+        profile: [this.VRDR_DOCUMENT_PROFILE]
+      },
+      identifier: {
+        system: 'http://example.org/fhir/identifiers/death-certificate-document',
+        value: bundleIdentifier
+      },
+      type: 'document',
+      timestamp: new Date().toISOString(),
+      entry: entries
+    };
+  }
+
+  private buildDecedentResource(): any {
+    return {
+      ...this.data.patient,
+      meta: {
+        profile: [this.VRDR_DECEDENT_PROFILE]
+      }
+    };
+  }
+
+  private buildCertifierResource(practitionerId: string): any {
+    return {
+      resourceType: 'Practitioner',
+      id: practitionerId,
+      name: [
+        {
+          text: 'Unknown certifier'
+        }
+      ]
+    };
+  }
+
+  private buildDeathCertificationProcedure(procedureId: string, practitionerId: string, deceasedDateTime: string): any {
+    return {
+      resourceType: 'Procedure',
+      id: procedureId,
+      meta: {
+        profile: [this.VRDR_DEATH_CERTIFICATION_PROCEDURE_PROFILE]
+      },
+      status: 'completed',
+      code: {
+        coding: [
+          {
+            system: 'http://snomed.info/sct',
+            code: '308646001',
+            display: 'Death certification'
+          }
+        ],
+        text: 'Death certification'
+      },
+      subject: {
+        reference: `urn:uuid:${this.data.patient.id}`
+      },
+      performedDateTime: deceasedDateTime,
+      performer: [
+        {
+          actor: {
+            reference: `urn:uuid:${practitionerId}`
+          }
+        }
+      ]
+    };
+  }
+
+  private buildCompositionResource(
+    compositionId: string,
+    practitionerId: string,
+    procedureId: string,
+    deceasedDateTime: string,
+    part1Observations: any[],
+    part2Observations: any[]
+  ): any {
+    return {
+      resourceType: 'Composition',
+      id: compositionId,
+      meta: {
+        profile: [this.VRDR_COMPOSITION_PROFILE]
+      },
+      status: 'final',
+      type: {
+        coding: [
+          {
+            system: 'http://loinc.org',
+            code: '64297-5',
+            display: 'Death certificate'
+          }
+        ],
+        text: 'Death certificate'
+      },
+      subject: {
+        reference: `urn:uuid:${this.data.patient.id}`
+      },
+      date: deceasedDateTime,
+      author: [
+        {
+          reference: `urn:uuid:${practitionerId}`
+        }
+      ],
+      title: 'Death Certificate Document',
+      attester: [
+        {
+          mode: 'legal',
+          time: deceasedDateTime,
+          party: {
+            reference: `urn:uuid:${practitionerId}`
+          }
+        }
+      ],
+      event: [
+        {
+          detail: [
+            {
+              reference: `urn:uuid:${procedureId}`
+            }
+          ]
+        }
+      ],
+      section: [
+        {
+          title: 'Cause of Death Part I',
+          entry: part1Observations.map(observation => ({ reference: `urn:uuid:${observation.id}` }))
+        },
+        {
+          title: 'Other Significant Conditions',
+          entry: part2Observations.map(observation => ({ reference: `urn:uuid:${observation.id}` }))
+        }
+      ]
+    };
+  }
+
+  private buildCauseOfDeathPart1Observation(
+    diagnosis: DeathRecordDiagnosis & { line: Part1LineCode },
+    practitionerId: string,
+    deceasedDateTime: string
+  ): any {
+    const observationId = `cause-of-death-part1-${diagnosis.line}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    return {
+      resourceType: 'Observation',
+      id: observationId,
+      meta: {
+        profile: [this.VRDR_CAUSE_OF_DEATH_PART1_PROFILE]
+      },
+      status: 'final',
+      code: {
+        coding: [
+          {
+            system: 'http://loinc.org',
+            code: '69453-9',
+            display: 'Cause of death [US Standard Certificate of Death]'
+          }
+        ]
+      },
+      subject: {
+        reference: `urn:uuid:${this.data.patient.id}`
+      },
+      performer: [
+        {
+          reference: `urn:uuid:${practitionerId}`
+        }
+      ],
+      effectiveDateTime: deceasedDateTime,
+      valueCodeableConcept: {
+        coding: this.buildDiagnosisCodings(diagnosis),
+        text: diagnosis.text
+      },
+      component: [
+        {
+          code: {
+            coding: [
+              {
+                system: 'http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs',
+                code: 'lineNumber',
+                display: 'line number'
+              }
+            ]
+          },
+          valueInteger: this.part1LineToInteger(diagnosis.line)
+        },
+        {
+          code: {
+            coding: [
+              {
+                system: 'http://loinc.org',
+                code: '69440-6',
+                display: 'Disease onset to death interval'
+              }
+            ]
+          },
+          valueString: diagnosis.intervalText || ''
+        }
+      ],
+      extension: this.buildDiagnosisExtensions(diagnosis)
+    };
+  }
+
+  private buildCauseOfDeathPart2Observation(
+    diagnosis: DeathRecordDiagnosis,
+    practitionerId: string,
+    deceasedDateTime: string
+  ): any {
+    const observationId = `cause-of-death-part2-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    return {
+      resourceType: 'Observation',
+      id: observationId,
+      meta: {
+        profile: [this.VRDR_CAUSE_OF_DEATH_PART2_PROFILE]
+      },
+      status: 'final',
+      code: {
+        coding: [
+          {
+            system: 'http://loinc.org',
+            code: '69441-4',
+            display: 'Other significant causes or conditions of death'
+          }
+        ]
+      },
+      subject: {
+        reference: `urn:uuid:${this.data.patient.id}`
+      },
+      performer: [
+        {
+          reference: `urn:uuid:${practitionerId}`
+        }
+      ],
+      effectiveDateTime: deceasedDateTime,
+      valueCodeableConcept: {
+        coding: this.buildDiagnosisCodings(diagnosis),
+        text: diagnosis.text
+      },
+      component: diagnosis.intervalText ? [
+        {
+          code: {
+            coding: [
+              {
+                system: 'http://loinc.org',
+                code: '69440-6',
+                display: 'Disease onset to death interval'
+              }
+            ]
+          },
+          valueString: diagnosis.intervalText
+        }
+      ] : undefined,
+      extension: this.buildDiagnosisExtensions(diagnosis)
+    };
+  }
+
+  private buildDiagnosisCodings(diagnosis: DeathRecordDiagnosis): any[] {
+    const codings: any[] = [];
+    if (diagnosis.snomedConceptId) {
+      codings.push({
+        system: 'http://snomed.info/sct',
+        code: diagnosis.snomedConceptId,
+        display: diagnosis.snomedDisplay || diagnosis.text
+      });
+    }
+    if (diagnosis.icd10Code) {
+      codings.push({
+        system: 'http://hl7.org/fhir/sid/icd-10',
+        code: diagnosis.icd10Code
+      });
+    }
+    return codings;
+  }
+
+  private buildDiagnosisExtensions(diagnosis: DeathRecordDiagnosis): any[] {
+    const extensions: any[] = [
+      {
+        url: this.UI_SOURCE_TYPE_EXTENSION,
+        valueString: diagnosis.sourceType
+      }
+    ];
+
+    if (diagnosis.sourceConditionId) {
+      extensions.push({
+        url: this.UI_SOURCE_CONDITION_EXTENSION,
+        valueString: diagnosis.sourceConditionId
+      });
+    }
+
+    if (diagnosis.derivedConditionId) {
+      extensions.push({
+        url: this.UI_DERIVED_CONDITION_EXTENSION,
+        valueString: diagnosis.derivedConditionId
+      });
+    }
+
+    return extensions;
+  }
+
+  private getBundleDeceasedDateTime(bundle: DeathRecord): Date | null {
+    const composition = bundle.entry.find(entry => entry.resource?.resourceType === 'Composition')?.resource;
+    const procedure = bundle.entry.find(entry => entry.resource?.resourceType === 'Procedure')?.resource;
+    const candidate = composition?.date || composition?.attester?.[0]?.time || procedure?.performedDateTime || bundle.timestamp;
+    return candidate ? new Date(candidate) : null;
+  }
+
+  private getBundleDiagnoses(bundle: DeathRecord, section: 'part1' | 'part2'): Array<DeathRecordDiagnosis & { line?: Part1LineCode }> {
+    const targetProfile = section === 'part1' ? this.VRDR_CAUSE_OF_DEATH_PART1_PROFILE : this.VRDR_CAUSE_OF_DEATH_PART2_PROFILE;
+    return bundle.entry
+      .map(entry => entry.resource)
+      .filter(resource => resource?.resourceType === 'Observation' && resource?.meta?.profile?.includes(targetProfile))
+      .map(resource => this.mapObservationToDiagnosis(resource, section));
+  }
+
+  private mapObservationToDiagnosis(resource: any, section: 'part1' | 'part2'): DeathRecordDiagnosis & { line?: Part1LineCode } {
+    const valueCoding = resource?.valueCodeableConcept?.coding || [];
+    const snomedCoding = valueCoding.find((coding: any) => coding.system === 'http://snomed.info/sct');
+    const icd10Coding = valueCoding.find((coding: any) => coding.system === 'http://hl7.org/fhir/sid/icd-10');
+    const intervalComponent = resource?.component?.find((component: any) =>
+      component?.code?.coding?.some((coding: any) => coding.code === '69440-6')
+    );
+    const lineComponent = resource?.component?.find((component: any) =>
+      component?.code?.coding?.some((coding: any) => coding.code === 'lineNumber')
+    );
+
+    return {
+      sourceType: this.getExtensionString(resource, this.UI_SOURCE_TYPE_EXTENSION) === 'snomed-search' ? 'snomed-search' : 'existing-condition',
+      sourceConditionId: this.getExtensionString(resource, this.UI_SOURCE_CONDITION_EXTENSION) || undefined,
+      derivedConditionId: this.getExtensionString(resource, this.UI_DERIVED_CONDITION_EXTENSION) || undefined,
+      text: resource?.valueCodeableConcept?.text || snomedCoding?.display || '',
+      intervalText: intervalComponent?.valueString || '',
+      snomedConceptId: snomedCoding?.code,
+      snomedDisplay: snomedCoding?.display || resource?.valueCodeableConcept?.text,
+      icd10Code: icd10Coding?.code,
+      line: section === 'part1' ? this.integerToPart1Line(lineComponent?.valueInteger) : undefined
+    };
+  }
+
+  private getExtensionString(resource: any, url: string): string {
+    return resource?.extension?.find((extension: any) => extension.url === url)?.valueString || '';
+  }
+
+  private part1LineToInteger(line: Part1LineCode): number {
+    return { a: 1, b: 2, c: 3, d: 4 }[line];
+  }
+
+  private integerToPart1Line(value?: number): Part1LineCode | undefined {
+    return ({ 1: 'a', 2: 'b', 3: 'c', 4: 'd' } as Record<number, Part1LineCode | undefined>)[value || 0];
+  }
+
   private hasMeaningfulContent(line: DeathDiagnosisFormLine): boolean {
     return !!(
       line.selectedConditionId ||
       line.selectedConcept?.code ||
-      line.text.trim() ||
       line.intervalText.trim()
+    );
+  }
+
+  private hasPart2MeaningfulContent(line: DeathDiagnosisFormLine): boolean {
+    return !!(
+      line.selectedConditionId ||
+      line.selectedConcept?.code
     );
   }
 

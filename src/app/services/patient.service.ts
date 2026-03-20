@@ -1221,12 +1221,22 @@ export interface DeathRecordDiagnosis {
 }
 
 export interface DeathRecord {
+  resourceType: 'Bundle';
   id: string;
-  patientId: string;
-  recordedAt: string;
-  deceasedDateTime: string;
-  part1: Array<DeathRecordDiagnosis & { line: 'a' | 'b' | 'c' | 'd' }>;
-  part2: DeathRecordDiagnosis[];
+  type: 'document';
+  authored?: string;
+  identifier: {
+    system: string;
+    value: string;
+  };
+  timestamp: string;
+  meta?: {
+    profile?: string[];
+  };
+  entry: Array<{
+    fullUrl: string;
+    resource: any;
+  }>;
 }
 
 export interface PatientSimilarityResult {
@@ -1681,36 +1691,32 @@ export class PatientService {
   }
 
   clearAllPatientsAndClinicalData(): void {
-    const patients = this.patientsSubject.value;
-    
-    // Clear all clinical data for each patient
-    patients.forEach(patient => {
-      const conditionsKey = `ehr_conditions_${patient.id}`;
-      const proceduresKey = `ehr_procedures_${patient.id}`;
-      const medicationsKey = `ehr_medications_${patient.id}`;
-      const serviceRequestsKey = `ehr_service_requests_${patient.id}`;
-      const labOrdersKey = `ehr_lab_orders_${patient.id}`;
-      const observationsKey = `ehr_observations_${patient.id}`;
-      const bodyStructuresKey = `ehr_body_structures_${patient.id}`;
-      const allergiesKey = `ehr_allergies_${patient.id}`;
-      const encountersKey = `ehr_encounters_${patient.id}`;
-      const questionnaireResponsesKey = `ehr_questionnaire_responses_${patient.id}`;
-      const openEhrCompositionsKey = `ehr_openehr_compositions_${patient.id}`;
-      const deathRecordKey = `ehr_death_record_${patient.id}`;
-      
-      this.storageService.removeItem(conditionsKey);
-      this.storageService.removeItem(proceduresKey);
-      this.storageService.removeItem(medicationsKey);
-      this.storageService.removeItem(serviceRequestsKey);
-      this.storageService.removeItem(labOrdersKey);
-      this.storageService.removeItem(observationsKey);
-      this.storageService.removeItem(bodyStructuresKey);
-      this.storageService.removeItem(allergiesKey);
-      this.storageService.removeItem(encountersKey);
-      this.storageService.removeItem(questionnaireResponsesKey);
-      this.storageService.removeItem(openEhrCompositionsKey);
-      this.storageService.removeItem(deathRecordKey);
-    });
+    const storagePrefixesToClear = [
+      'ehr_conditions_',
+      'ehr_procedures_',
+      'ehr_medications_',
+      'ehr_service_requests_',
+      'ehr_lab_orders_',
+      'ehr_observations_',
+      'ehr_body_structures_',
+      'ehr_allergies_',
+      'ehr_encounters_',
+      'ehr_questionnaire_responses_',
+      'ehr_openehr_compositions_',
+      'ehr_death_record_',
+      'encounters_',
+    ];
+
+    // Sweep all matching localStorage keys so orphaned or legacy patient data is cleared too.
+    const matchingKeys: string[] = [];
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (key && storagePrefixesToClear.some(prefix => key.startsWith(prefix))) {
+        matchingKeys.push(key);
+      }
+    }
+
+    matchingKeys.forEach(key => this.storageService.removeItem(key));
     
     // Clear all patients
     this.clearAllPatients();

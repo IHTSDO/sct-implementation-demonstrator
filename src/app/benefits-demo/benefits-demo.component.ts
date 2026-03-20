@@ -523,7 +523,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
       width: '560px',
       data: {
         title: 'Clear All Patient Data',
-        message: 'Are you sure you want to permanently delete all patient records and all related clinical data (conditions, procedures, medications, allergies, and encounters)? This action cannot be undone.'
+        message: 'Are you sure you want to permanently delete all patient records and all related clinical data, including conditions, procedures, medications, allergies, encounters, observations, forms, openEHR compositions, service requests, lab orders, and death certificate bundles? This action cannot be undone.'
       }
     });
 

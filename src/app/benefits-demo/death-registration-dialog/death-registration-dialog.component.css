@@ -111,7 +111,7 @@
 
 .line-grid {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1.2fr) minmax(0, 1fr) minmax(140px, 180px);
+  grid-template-columns: 44px minmax(0, 1.4fr) minmax(140px, 180px);
   gap: 10px;
   align-items: start;
   margin-bottom: 10px;
@@ -120,7 +120,11 @@
 }
 
 .line-grid-with-actions {
-  grid-template-columns: 44px minmax(0, 1.2fr) minmax(0, 1fr) minmax(140px, 180px) 36px;
+  grid-template-columns: 44px minmax(0, 1.4fr) minmax(140px, 180px) 36px;
+}
+
+.part2-grid {
+  grid-template-columns: 44px minmax(0, 1fr) 36px;
 }
 
 .header-row {
@@ -137,7 +141,6 @@
 }
 
 .source-column,
-.diagnosis-column,
 .interval-column {
   display: flex;
   flex-direction: column;
@@ -167,7 +170,6 @@
 }
 
 .source-column mat-form-field,
-.diagnosis-column mat-form-field,
 .interval-column mat-form-field {
   width: 100%;
   --mat-form-field-container-height: 44px;
@@ -187,7 +189,17 @@
   color: #7b8794;
 }
 
+.part2-clear-button {
+  align-self: start;
+  margin-top: 18px;
+  color: #7b8794;
+}
+
 .line-reset-button:hover {
+  color: #243447;
+}
+
+.part2-clear-button:hover {
   color: #243447;
 }
 

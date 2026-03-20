@@ -12,6 +12,7 @@ import {
   Procedure,
   QuestionnaireResponse,
   ServiceRequest,
+  DeathRecord,
   PatientService
 } from '../../services/patient.service';
 import { saveAs } from 'file-saver';
@@ -28,7 +29,7 @@ type SupportedResourceType =
   | 'ServiceRequest'
   | 'Bundle';
 
-type FhirBundleResource = LaboratoryOrderGroup['fhirBundle'];
+type FhirBundleResource = LaboratoryOrderGroup['fhirBundle'] | DeathRecord;
 
 type SupportedResource =
   | Patient
@@ -133,6 +134,8 @@ export class FhirDataComponent implements OnChanges {
 
     const patientId = this.patient.id;
     const freshPatient = this.patientService.getPatientById(patientId) || this.patient;
+    const deathRecordBundle = this.patientService.getPatientDeathRecord(patientId);
+    const laboratoryBundles = this.patientService.getPatientLabOrders(patientId);
 
     const groups: ResourceGroup[] = [
       {
@@ -188,14 +191,17 @@ export class FhirDataComponent implements OnChanges {
         resourceType: 'ServiceRequest',
         title: 'ServiceRequest',
         icon: 'biotech',
-        items: this.patientService.getPatientLabOrders(patientId)
+        items: laboratoryBundles
           .flatMap(labOrder => labOrder.serviceRequests.map(resource => this.toServiceRequestItem(resource, labOrder)))
       },
       {
         resourceType: 'Bundle',
         title: 'Bundle',
         icon: 'folder_zip',
-        items: this.patientService.getPatientLabOrders(patientId).map(resource => this.toBundleItem(resource))
+        items: [
+          ...laboratoryBundles.map(resource => this.toBundleItem(resource)),
+          ...(deathRecordBundle ? [this.toDeathCertificateBundleItem(deathRecordBundle)] : [])
+        ]
       }
     ];
 
@@ -345,6 +351,21 @@ export class FhirDataComponent implements OnChanges {
       label,
       subtitle: this.buildDateSubtitle(labOrder.createdAt),
       resource: labOrder.fhirBundle
+    };
+  }
+
+  private toDeathCertificateBundleItem(resource: DeathRecord): ResourceListItem {
+    const entryCount = resource.entry?.length || 0;
+    const label = entryCount === 1
+      ? 'Death certificate document bundle - 1 entry'
+      : `Death certificate document bundle - ${entryCount} entries`;
+
+    return {
+      resourceType: 'Bundle',
+      id: resource.id,
+      label,
+      subtitle: this.buildDateSubtitle(resource.authored || resource.timestamp),
+      resource
     };
   }
 

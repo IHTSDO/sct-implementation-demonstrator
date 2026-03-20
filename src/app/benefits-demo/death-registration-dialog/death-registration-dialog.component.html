@@ -46,7 +46,6 @@
       <div class="line-grid header-row">
         <div>Line</div>
         <div>Cause/condition</div>
-        <div>Diagnosis text</div>
         <div>Approximate interval</div>
       </div>
 
@@ -80,13 +79,6 @@
           </app-autocomplete-binding>
         </div>
 
-        <div class="diagnosis-column aligned-column">
-          <mat-form-field appearance="outline">
-            <mat-label>Diagnosis text</mat-label>
-            <input matInput [(ngModel)]="line.text" placeholder="Immediate or underlying cause">
-          </mat-form-field>
-        </div>
-
         <div class="interval-column aligned-column">
           <mat-form-field appearance="outline">
             <mat-label>Interval</mat-label>
@@ -110,7 +102,7 @@
         <div class="subtitle">Part II. Other significant conditions contributing to death.</div>
       </div>
 
-      <div class="line-grid line-grid-with-actions part2-grid" *ngFor="let line of part2Lines; let i = index; trackBy: trackByIndex">
+      <div class="line-grid part2-grid" *ngFor="let line of part2Lines; let i = index; trackBy: trackByIndex">
         <div class="line-label">{{ i + 1 }}.</div>
 
         <div class="source-column">
@@ -140,30 +132,14 @@
           </app-autocomplete-binding>
         </div>
 
-        <div class="diagnosis-column aligned-column">
-          <mat-form-field appearance="outline">
-            <mat-label>Diagnosis text</mat-label>
-            <input matInput [(ngModel)]="line.text" placeholder="Contributing condition">
-          </mat-form-field>
-        </div>
-
-        <div class="interval-column interval-actions aligned-column">
-          <mat-form-field appearance="outline">
-            <mat-label>Interval</mat-label>
-            <input matInput [(ngModel)]="line.intervalText" placeholder="Optional">
-          </mat-form-field>
-          <button
-            type="button"
-            mat-icon-button
-            class="line-reset-button"
-            aria-label="Clear line"
-            (click)="resetPart2Line(i)">
-            <mat-icon>close</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="removePart2Line(i)" aria-label="Remove contributing condition">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
+        <button
+          type="button"
+          mat-icon-button
+          class="part2-clear-button"
+          aria-label="Clear line"
+          (click)="resetPart2Line(i)">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
 
       <div class="part2-actions">
