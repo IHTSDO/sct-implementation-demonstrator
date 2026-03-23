@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { PatientService, Patient } from '../services/patient.service';
 import { PatientDataTransformerService } from '../services/patient-data-transformer.service';
 import { PatientSimulationService } from '../services/patient-simulation.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -10,6 +10,7 @@ import { BatchPatientDialogComponent } from './batch-patient-dialog/batch-patien
 import { ConfirmationDialogComponent } from '../questionnaires/confirmation-dialog/confirmation-dialog.component';
 import { catchError, delay } from 'rxjs/operators';
 import { DeathRegistrationDialogComponent } from './death-registration-dialog/death-registration-dialog.component';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-benefits-demo',
@@ -33,11 +34,20 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     private patientDataTransformer: PatientDataTransformerService,
     private patientSimulationService: PatientSimulationService,
     private router: Router,
+    private route: ActivatedRoute,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
+    this.syncViewModeWithUrl();
+
+    this.subscriptions.push(
+      this.router.events
+        .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+        .subscribe(() => this.syncViewModeWithUrl())
+    );
+
     // Subscribe to patients list
     this.subscriptions.push(
       this.patientService.getPatients().subscribe(patients => {
@@ -464,8 +474,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   closeAnalytics(): void {
-    this.showAnalytics = false;
-    this.analyticsMode = 'regular';
+    this.router.navigate(['/ehr-lab']);
   }
 
   openInteroperability(): void {
@@ -474,6 +483,12 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
   openSmartHealthLinks(): void {
     this.router.navigate(['/ehr-lab/smart-health-links']);
+  }
+
+  private syncViewModeWithUrl(): void {
+    const currentPath = this.router.url.split('?')[0];
+    this.showAnalytics = currentPath.endsWith('/ehr-lab/analytics');
+    this.analyticsMode = this.route.snapshot.queryParamMap.get('mode') === 'icd10' ? 'icd10' : 'regular';
   }
 
   async downloadPatientsAsZip(): Promise<void> {

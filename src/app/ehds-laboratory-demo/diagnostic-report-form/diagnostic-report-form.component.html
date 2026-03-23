@@ -44,7 +44,7 @@
                       FHIR
                     </button>
                   </div>
-                  <mat-menu #subjectMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                  <mat-menu #subjectMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                     <div class="fhir-menu-content">
                       <div class="fhir-menu-header">
                         <h4>DiagnosticReport.subject</h4>
@@ -137,7 +137,7 @@
                         FHIR
                       </button>
                     </div>
-                    <mat-menu #performerMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                    <mat-menu #performerMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                       <div class="fhir-menu-content">
                         <div class="fhir-menu-header">
                           <h4>DiagnosticReport.performer</h4>
@@ -218,7 +218,7 @@
                         FHIR
                       </button>
                     </div>
-                    <mat-menu #resultsInterpreterMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                    <mat-menu #resultsInterpreterMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                       <div class="fhir-menu-content">
                         <div class="fhir-menu-header">
                           <h4>DiagnosticReport.resultsInterpreter</h4>
@@ -312,7 +312,7 @@
                   BINDING
                 </button>
               </div>
-              <mat-menu #statusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <mat-menu #statusMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                 <div class="fhir-menu-content">
                   <div class="fhir-menu-header">
                     <h4>Observation.status</h4>
@@ -389,7 +389,7 @@
               <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="effectiveMenu">
                 FHIR
               </button>
-              <mat-menu #effectiveMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <mat-menu #effectiveMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                 <div class="fhir-menu-content">
                   <div class="fhir-menu-header">
                     <h4>Observation.effective[x]</h4>
@@ -471,7 +471,7 @@
                   BINDING
                 </button>
               </div>
-              <mat-menu #languageMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <mat-menu #languageMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                 <div class="fhir-menu-content">
                   <div class="fhir-menu-header">
                     <h4>Observation.language</h4>
@@ -544,7 +544,7 @@
               <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="idMenu">
                 FHIR
               </button>
-              <mat-menu #idMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <mat-menu #idMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                 <div class="fhir-menu-content">
                   <div class="fhir-menu-header">
                     <h4>Observation.id</h4>
@@ -608,7 +608,7 @@
                   BINDING
                 </button>
               </div>
-              <mat-menu #codeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <mat-menu #codeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                 <div class="fhir-menu-content">
                   <div class="fhir-menu-header">
                     <h4>DiagnosticReport.code</h4>
@@ -680,7 +680,7 @@
                   BINDING
                 </button>
               </div>
-              <mat-menu #studyTypeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <mat-menu #studyTypeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                 <div class="fhir-menu-content">
                   <div class="fhir-menu-header">
                     <h4>DiagnosticReport.category:studyType</h4>
@@ -767,7 +767,7 @@
                   BINDING
                 </button>
               </div>
-              <mat-menu #specialtyMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <mat-menu #specialtyMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                 <div class="fhir-menu-content">
                   <div class="fhir-menu-header">
                     <h4>DiagnosticReport.category:specialty</h4>
@@ -851,7 +851,7 @@
                   FHIR
                 </button>
               </div>
-              <mat-menu #basedOnMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+              <mat-menu #basedOnMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                 <div class="fhir-menu-content">
                   <div class="fhir-menu-header">
                     <h4>DiagnosticReport.basedOn</h4>
@@ -1073,7 +1073,7 @@
                     FHIR
                   </button>
                 </div>
-                <mat-menu #conclusionMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                <mat-menu #conclusionMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                   <div class="fhir-menu-content">
                     <div class="fhir-menu-header">
                       <h4>DiagnosticReport.conclusion</h4>
@@ -1150,7 +1150,7 @@
                       BINDING (SCT)
                     </button>
                   </div>
-                  <mat-menu #conclusionCodeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" [panelClass]="'fhir-menu-panel'">
+                  <mat-menu #conclusionCodeMenu="matMenu" class="fhir-info-menu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
                     <div class="fhir-menu-content">
                       <div class="fhir-menu-header">
                         <h4>DiagnosticReport.conclusionCode</h4>

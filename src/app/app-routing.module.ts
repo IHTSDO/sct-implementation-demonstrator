@@ -2,101 +2,81 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AllergiesComponent } from './allergies/allergies.component';
 import { BindingsSandboxComponent } from './bindings-sandbox/bindings-sandbox.component';
-import { PrescriptionMainComponent } from './prescription/prescription-main/prescription-main.component';
-import { QuestionnairesMainComponent } from './questionnaires/questionnaires-main/questionnaires-main.component';
-import { SubsetValidatorComponent } from './implementation-course/subset-validator/subset-validator.component';
-import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.component';
 import { ContextMainComponent } from './context/context-main/context-main.component';
-import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
-import { MaturityMainComponent } from './maturity/maturity-main/maturity-main.component';
-import { MaturityAdminComponent } from './maturity/maturity-admin/maturity-admin.component';
-import { MaturityEditorComponent } from './maturity/maturity-editor/maturity-editor.component';
-import { HomeComponent } from './home/home.component';
-import { NcptComponent } from './ncpt/ncpt.component';
-import { FsnChangesComponent } from './reports/fsn-changes/fsn-changes.component';
-import { InactivationsReportComponent } from './reports/inactivations/inactivations-report.component';
-import { ReportsMainComponent } from './reports/reports-main/reports-main.component';
-import { NewConceptsReportComponent } from './reports/new-concepts/new-concepts-report.component';
-import { TriageGameComponent } from './phaser-game/phaser-v2/triage-game.component';
-import { LoincMainComponent } from './loinc/loinc-main/loinc-main.component';
-import { MaturityDashboardComponent } from './maturity/maturity-dashboard/maturity-dashboard.component';
-import { SvDemoComponent } from './sv-demo/sv-demo.component';
-import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
-import { ValuesetTranslatorComponent } from './valueset-translator/valueset-translator.component';
-import { SunburstChartComponent } from './descriptive-statistics/sunburst-chart/sunburst-chart.component';
-import { D3SunburstChartComponent } from './descriptive-statistics/d3-sunburst-chart/d3-sunburst-chart.component';
-import { PlotlyTreemapChartComponent } from './descriptive-statistics/plotly-treemap-chart/plotly-treemap-chart.component';
-import { BenefitsDemoComponent } from './benefits-demo/benefits-demo.component';
-import { ClinicalRecordComponent } from './benefits-demo/clinical-record/clinical-record.component';
-import { CreatePatientComponent } from './benefits-demo/create-patient/create-patient.component';
-import { EncounterRecordComponent } from './benefits-demo/encounter-record/encounter-record.component';
-import { InteroperabilityComponent } from './benefits-demo/interoperability/interoperability.component';
-import { SmartHealthLinksComponent } from './benefits-demo/smart-health-links/smart-health-links.component';
-import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
-import { PhaserGameComponent } from './phaser-game/phaser-v1/phaser-game.component';
-import { EhdsLaboratoryDemoComponent } from './ehds-laboratory-demo/ehds-laboratory-demo.component';
-import { MdrsViewerComponent } from './mdrs-viewer/mdrs-viewer.component';
 import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-generator.component';
 import { DrugStrengthRoundingComponent } from './drug-strength-rounding/drug-strength-rounding.component';
+import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { ExtensionsSearchComponent } from './extensions-search/extensions-search.component';
+import { AddToHomeComponent } from './game/add-to-home/add-to-home.component';
+import { KeyboardComponent } from './game/keyboard/keyboard.component';
+import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
+import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.component';
+import { HomeComponent } from './home/home.component';
+import { SubsetValidatorComponent } from './implementation-course/subset-validator/subset-validator.component';
+import { LoincMainComponent } from './loinc/loinc-main/loinc-main.component';
 import { MedicinalProductClassesComponent } from './medicinal-product-classes/medicinal-product-classes.component';
-import { CohortWorkspaceComponent } from './cohort-definition/cohort-workspace/cohort-workspace.component';
-import { ConceptSetEditorComponent } from './cohort-definition/concept-set-editor/concept-set-editor.component';
-import { CohortDefinitionEditorComponent } from './cohort-definition/cohort-definition-editor/cohort-definition-editor.component';
+import { NcptComponent } from './ncpt/ncpt.component';
+import { PrescriptionMainComponent } from './prescription/prescription-main/prescription-main.component';
+import { CreateRootModuleComponent } from './questionnaires/create-root-module/create-root-module.component';
+import { FhirServerSettingsModalComponent } from './questionnaires/fhir-server-settings-modal/fhir-server-settings-modal.component';
+import { ListQuestionnairesComponent } from './questionnaires/list-questionnaires/list-questionnaires.component';
+import { LoadQuestionnaireModalComponent } from './questionnaires/load-questionnaire-modal/load-questionnaire-modal.component';
+import { QuestionnaireHistoryComponent } from './questionnaires/questionnaire-history/questionnaire-history.component';
+import { QuestionnairesMainComponent } from './questionnaires/questionnaires-main/questionnaires-main.component';
+import { ValidateQuestionnaireComponent } from './questionnaires/validate-questionnaire/validate-questionnaire.component';
+import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
+import { SvDemoComponent } from './sv-demo/sv-demo.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'home', component: HomeComponent },
   { path: 'allergies', component: AllergiesComponent },
   { path: 'sandbox', component: BindingsSandboxComponent },
-  { path: 'prescription', component: PrescriptionMainComponent},
-  { path: 'questionnaires', component: QuestionnairesMainComponent},
-  { path: 'implementation-course/subset-validator', component: SubsetValidatorComponent},
-  { path: 'snoguess', component: SnoguessMainComponent},
-  { path: 'snoguess/scoreboard', component: ScoreboardComponent},
-  { path: 'context', component: ContextMainComponent},
-  { path: 'maturity', component: MaturityMainComponent},
-  { path: 'maturity/dashboard', component: MaturityDashboardComponent},
-  { path: 'maturity/admin', component: MaturityAdminComponent},
-  { path: 'maturity/editor', component: MaturityEditorComponent},
+  { path: 'prescription', component: PrescriptionMainComponent },
+  { path: 'questionnaires', component: QuestionnairesMainComponent },
+  { path: 'questionnaires/create-root-module', component: CreateRootModuleComponent },
+  { path: 'questionnaires/fhir-server-settings', component: FhirServerSettingsModalComponent },
+  { path: 'questionnaires/list', component: ListQuestionnairesComponent },
+  { path: 'questionnaires/load', component: LoadQuestionnaireModalComponent },
+  { path: 'questionnaires/history', component: QuestionnaireHistoryComponent },
+  { path: 'questionnaires/validate', component: ValidateQuestionnaireComponent },
+  { path: 'implementation-course/subset-validator', component: SubsetValidatorComponent },
+  { path: 'snoguess', component: SnoguessMainComponent },
+  { path: 'snoguess/keyboard', component: KeyboardComponent },
+  { path: 'snoguess/install', component: AddToHomeComponent },
+  { path: 'snoguess/scoreboard', component: ScoreboardComponent },
+  { path: 'context', component: ContextMainComponent },
   { path: 'ncpt', component: NcptComponent },
-  { path: 'phaser', component: PhaserGameComponent },
-  { path: 'triage', component: TriageGameComponent },
-  { path: 'fsn', component: FsnChangesComponent },
-  { path: 'reports/fsn', component: FsnChangesComponent },
-  { path: 'reports/inactivations', component: InactivationsReportComponent },
-  { path: 'reports/new-concepts', component: NewConceptsReportComponent },
-  { path: 'reports', component: ReportsMainComponent },
   { path: 'loinc', component: LoincMainComponent },
   { path: 'sv-demo', component: SvDemoComponent },
   { path: 'snomed-integrations', component: SnomedHubComponent },
-  { path: 'valueset-translator', component: ValuesetTranslatorComponent },
-  { path: 'sunburst-chart', component: SunburstChartComponent },
-  { path: 'd3-sunburst-chart', component: D3SunburstChartComponent },
-  { path: 'descriptive-analytics', component: PlotlyTreemapChartComponent },
-  { path: 'ehr-lab', component: BenefitsDemoComponent },
-  { path: 'ehr-lab/analytics', component: PlotlyTreemapChartComponent },
-  { path: 'clinical-record', component: ClinicalRecordComponent },
-  { path: 'clinical-record/:patientId', component: ClinicalRecordComponent },
-  { path: 'create-patient', component: CreatePatientComponent },
-  { path: 'encounter-record', component: EncounterRecordComponent },
-  { path: 'interoperability', component: InteroperabilityComponent },
-  { path: 'ehr-lab/smart-health-links', component: SmartHealthLinksComponent },
   { path: 'expo-quiz-2025', component: ExpoQuiz2025Component },
-  { path: 'ehds-laboratory-demo', component: EhdsLaboratoryDemoComponent },
-  { path: 'mdrs-viewer', component: MdrsViewerComponent },
   { path: 'crs-batch-generator', component: CrsBatchGeneratorComponent },
   { path: 'drug-strength-rounding', component: DrugStrengthRoundingComponent },
   { path: 'medicinal-product-classes', component: MedicinalProductClassesComponent },
   { path: 'extensions-search', component: ExtensionsSearchComponent },
-  { path: 'cohort-workspace', component: CohortWorkspaceComponent },
-  { path: 'cohort-workspace/concept-sets/:conceptSetId', component: ConceptSetEditorComponent },
-  { path: 'cohort-workspace/definitions/:definitionId', component: CohortDefinitionEditorComponent },
-  { path: '**', redirectTo: '' }
+  { path: 'sunburst-chart', loadChildren: () => import('./descriptive-statistics/sunburst-chart-entry.module').then((m) => m.SunburstChartEntryModule) },
+  { path: 'd3-sunburst-chart', loadChildren: () => import('./descriptive-statistics/d3-sunburst-entry.module').then((m) => m.D3SunburstEntryModule) },
+  { path: 'descriptive-analytics', loadChildren: () => import('./descriptive-statistics/plotly-treemap-entry.module').then((m) => m.PlotlyTreemapEntryModule) },
+  { path: 'phaser', loadChildren: () => import('./phaser-game/phaser-v1-entry.module').then((m) => m.PhaserV1EntryModule) },
+  { path: 'triage', loadChildren: () => import('./phaser-game/triage-entry.module').then((m) => m.TriageEntryModule) },
+  { path: 'maturity', loadChildren: () => import('./maturity/maturity.module').then((m) => m.MaturityModule) },
+  { path: 'fsn', redirectTo: 'reports/fsn', pathMatch: 'full' },
+  { path: 'reports', loadChildren: () => import('./reports/reports.module').then((m) => m.ReportsModule) },
+  { path: 'valueset-translator', loadChildren: () => import('./valueset-translator/valueset-translator.module').then((m) => m.ValuesetTranslatorModule) },
+  { path: 'ehr-lab', loadChildren: () => import('./benefits-demo/benefits-demo-entry.module').then((m) => m.BenefitsDemoEntryModule) },
+  { path: 'clinical-record', loadChildren: () => import('./benefits-demo/clinical-record-entry.module').then((m) => m.ClinicalRecordEntryModule) },
+  { path: 'create-patient', loadChildren: () => import('./benefits-demo/create-patient-entry.module').then((m) => m.CreatePatientEntryModule) },
+  { path: 'encounter-record', loadChildren: () => import('./benefits-demo/encounter-record-entry.module').then((m) => m.EncounterRecordEntryModule) },
+  { path: 'interoperability', loadChildren: () => import('./benefits-demo/interoperability-entry.module').then((m) => m.InteroperabilityEntryModule) },
+  { path: 'ehds-laboratory-demo', loadChildren: () => import('./ehds-laboratory-demo/ehds-laboratory-demo.module').then((m) => m.EhdsLaboratoryDemoModule) },
+  { path: 'mdrs-viewer', loadChildren: () => import('./mdrs-viewer/mdrs-viewer.module').then((m) => m.MdrsViewerModule) },
+  { path: 'cohort-workspace', loadChildren: () => import('./cohort-definition/cohort-definition.module').then((m) => m.CohortDefinitionModule) },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, { useHash: true })],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
