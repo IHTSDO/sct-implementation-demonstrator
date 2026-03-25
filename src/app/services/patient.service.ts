@@ -2881,15 +2881,16 @@ export class PatientService {
   }
 
   addPatientAllergy(patientId: string, allergy: AllergyIntolerance): boolean {
+    const normalizedAllergy = this.normalizeAllergyForPersistence(allergy);
     const allergies = this.getPatientAllergies(patientId);
     
     // Check for duplicates based on SNOMED CT code
-    if (this.isDuplicateAllergy(allergies, allergy)) {
+    if (this.isDuplicateAllergy(allergies, normalizedAllergy)) {
       return false; // Duplicate found, not added
     }
 
     if (this.getCurrentPersistenceMode() === 'fhir') {
-      this.patientFhirStorageService.createAllergy(patientId, allergy)
+      this.patientFhirStorageService.createAllergy(patientId, normalizedAllergy)
         .then((savedAllergy) => {
           this.setResourceCache(this.fhirCache.allergies, patientId, [...allergies, savedAllergy]);
         })
@@ -2897,17 +2898,18 @@ export class PatientService {
       return true;
     }
 
-    allergies.push(allergy);
+    allergies.push(normalizedAllergy);
     this.savePatientAllergies(patientId, allergies);
     return true; // Successfully added
   }
 
   updatePatientAllergy(patientId: string, allergyId: string, updatedAllergy: AllergyIntolerance): void {
+    const normalizedAllergy = this.normalizeAllergyForPersistence(updatedAllergy);
     const allergies = this.getPatientAllergies(patientId);
     const index = allergies.findIndex(a => a.id === allergyId);
     if (index !== -1) {
       if (this.getCurrentPersistenceMode() === 'fhir') {
-        this.patientFhirStorageService.updateAllergy(patientId, allergyId, updatedAllergy)
+        this.patientFhirStorageService.updateAllergy(patientId, allergyId, normalizedAllergy)
           .then((savedAllergy) => {
             const updatedAllergies = [...allergies];
             updatedAllergies[index] = savedAllergy;
@@ -2917,7 +2919,7 @@ export class PatientService {
         return;
       }
 
-      allergies[index] = updatedAllergy;
+      allergies[index] = normalizedAllergy;
       this.savePatientAllergies(patientId, allergies);
     }
   }
@@ -2944,6 +2946,41 @@ export class PatientService {
 
     const key = `ehr_allergies_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(allergies));
+  }
+
+  private normalizeAllergyForPersistence(allergy: AllergyIntolerance): AllergyIntolerance {
+    const normalizedCategories = Array.isArray(allergy.category)
+      ? allergy.category
+          .map((category) => this.normalizeAllergyCategoryCode(category))
+          .filter((category): category is 'food' | 'medication' | 'environment' | 'biologic' => !!category)
+      : allergy.category;
+
+    return {
+      ...allergy,
+      category: normalizedCategories
+    };
+  }
+
+  private normalizeAllergyCategoryCode(category: string | undefined): 'food' | 'medication' | 'environment' | 'biologic' | undefined {
+    if (!category) {
+      return undefined;
+    }
+
+    switch (String(category).trim().toLowerCase()) {
+      case 'food':
+        return 'food';
+      case 'medication':
+      case 'drug':
+        return 'medication';
+      case 'environment':
+      case 'environmental':
+        return 'environment';
+      case 'biologic':
+      case 'biological':
+        return 'biologic';
+      default:
+        return undefined;
+    }
   }
 
   // QuestionnaireResponses
@@ -3513,6 +3550,12 @@ export class PatientService {
       this.fhirCache.medications,
       patientId,
       this.mergeResourcesById(this.getPatientMedications(patientId), result.medications),
+      false
+    );
+    this.setResourceCache(
+      this.fhirCache.allergies,
+      patientId,
+      this.mergeResourcesById(this.getPatientAllergies(patientId), result.allergies),
       false
     );
 

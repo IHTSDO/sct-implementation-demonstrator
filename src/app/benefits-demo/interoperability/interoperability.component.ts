@@ -1613,6 +1613,143 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     });
   }
 
+  private async buildSelectedConditions(patientId: string, selectedConditionsData: any[]): Promise<any[]> {
+    const convertedConditions: any[] = [];
+
+    for (const condition of selectedConditionsData) {
+      const snomedCode = this.patientService.extractSnomedCode(condition);
+      let computedLocation: string | undefined;
+
+      if (snomedCode) {
+        try {
+          computedLocation = await this.calculateAnatomicLocation(snomedCode);
+        } catch (error) {
+          console.warn('Could not calculate anatomic location for SNOMED code:', snomedCode, error);
+          computedLocation = 'systemic';
+        }
+      }
+
+      convertedConditions.push({
+        ...this.toClinicalEntryCondition(condition, patientId),
+        computedLocation: computedLocation || 'systemic'
+      });
+    }
+
+    return convertedConditions;
+  }
+
+  private buildSelectedProcedures(patientId: string, selectedProceduresData: any[]): any[] {
+    return selectedProceduresData.map((procedure) => this.toClinicalEntryProcedure(procedure, patientId));
+  }
+
+  private buildSelectedMedications(patientId: string, selectedMedicationsData: any[]): any[] {
+    return selectedMedicationsData.map((medication) => this.toClinicalEntryMedication(medication, patientId));
+  }
+
+  private buildSelectedAllergies(patientId: string, selectedAllergiesData: any[]): any[] {
+    return selectedAllergiesData.map((allergy) => this.toClinicalEntryAllergy(allergy, patientId));
+  }
+
+  private async importSelectedClinicalItems(patientId: string): Promise<number> {
+    return this.importSelectedClinicalItemsBySection(patientId, {
+      conditions: true,
+      procedures: true,
+      medications: true,
+      allergies: true
+    });
+  }
+
+  private async importSelectedClinicalItemsBySection(
+    patientId: string,
+    options: { conditions?: boolean; procedures?: boolean; medications?: boolean; allergies?: boolean }
+  ): Promise<number> {
+    if (!this.patientData) {
+      return 0;
+    }
+
+    const selectedConditionsData = options.conditions
+      ? this.patientData.conditions.filter(
+          condition => this.selectedConditions.has(condition.id) && !this.isConditionAlreadyRecorded(condition)
+        )
+      : [];
+    const selectedProceduresData = options.procedures
+      ? this.patientData.procedures.filter(
+          procedure => this.selectedProcedures.has(procedure.id) && !this.isProcedureAlreadyRecorded(procedure)
+        )
+      : [];
+    const selectedMedicationsData = options.medications
+      ? this.patientData.medications.filter(
+          medication => this.selectedMedications.has(medication.id) && !this.isMedicationAlreadyRecorded(medication)
+        )
+      : [];
+    const selectedAllergiesData = options.allergies
+      ? this.patientData.allergies.filter(
+          allergy => this.selectedAllergies.has(allergy.id) && !this.isAllergyAlreadyRecorded(allergy)
+        )
+      : [];
+
+    if (
+      this.patientService.getCurrentPersistenceMode() === 'fhir' &&
+      (
+        selectedConditionsData.length > 0 ||
+        selectedProceduresData.length > 0 ||
+        selectedMedicationsData.length > 0 ||
+        selectedAllergiesData.length > 0
+      )
+    ) {
+      const conditions = await this.buildSelectedConditions(patientId, selectedConditionsData);
+      const procedures = this.buildSelectedProcedures(patientId, selectedProceduresData);
+      const medications = this.buildSelectedMedications(patientId, selectedMedicationsData);
+      const allergies = this.buildSelectedAllergies(patientId, selectedAllergiesData);
+
+      await this.patientService.saveAiAssistedEntryTransaction(patientId, {
+        encounter: null,
+        conditions,
+        procedures,
+        medications,
+        allergies
+      });
+
+      return conditions.length + procedures.length + medications.length + allergies.length;
+    }
+
+    let importedCount = 0;
+
+    for (const condition of selectedConditionsData) {
+      const [convertedCondition] = await this.buildSelectedConditions(patientId, [condition]);
+      const success = await this.patientService.addPatientConditionEnriched(patientId, convertedCondition);
+      if (success) {
+        importedCount++;
+      }
+    }
+
+    for (const procedure of selectedProceduresData) {
+      const convertedProcedure = this.toClinicalEntryProcedure(procedure, patientId);
+      const success = await this.patientService.addPatientProcedureEnriched(patientId, convertedProcedure);
+      if (success) {
+        importedCount++;
+      }
+    }
+
+    for (const medication of selectedMedicationsData) {
+      const convertedMedication = this.toClinicalEntryMedication(medication, patientId);
+      const success = await this.patientService.addPatientMedicationEnriched(patientId, convertedMedication);
+      if (success) {
+        importedCount++;
+      }
+    }
+
+    for (const allergy of selectedAllergiesData) {
+      const convertedAllergy = this.toClinicalEntryAllergy(allergy, patientId);
+      const success = this.patientService.addPatientAllergy(patientId, convertedAllergy as any);
+      if (success) {
+        importedCount++;
+      }
+    }
+
+    return importedCount;
+  }
+
   /**
    * Import all selected items at once
    */
@@ -1624,63 +1761,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.isImporting = true;
     let importedCount = 0;
     try {
-      // Import selected conditions
-      if (this.selectedConditions.size > 0) {
-        const selectedConditionsData = this.patientData.conditions.filter(
-          condition => this.selectedConditions.has(condition.id)
-        );
-
-        for (const condition of selectedConditionsData) {
-          const snomedCode = this.patientService.extractSnomedCode(condition);
-          let computedLocation: string | undefined = undefined;
-
-          if (snomedCode) {
-            try {
-              computedLocation = await this.calculateAnatomicLocation(snomedCode);
-            } catch (error) {
-              console.warn('Could not calculate anatomic location for SNOMED code:', snomedCode, error);
-              computedLocation = 'systemic'; // Default fallback
-            }
-          }
-
-          const convertedCondition = {
-            ...this.toClinicalEntryCondition(condition, this.linkedPatient.id),
-            computedLocation: computedLocation || 'systemic'
-          };
-
-          const success = await this.patientService.addPatientConditionEnriched(this.linkedPatient.id, convertedCondition);
-          if (success) {
-            importedCount++;
-          }
-        }
-      }
-
-      // Import selected procedures
-      if (this.selectedProcedures.size > 0) {
-        const selectedProceduresData = this.patientData.procedures.filter(
-          procedure => this.selectedProcedures.has(procedure.id)
-        );
-
-        for (const procedure of selectedProceduresData) {
-          const convertedProcedure = this.toClinicalEntryProcedure(procedure, this.linkedPatient.id);
-          await this.patientService.addPatientProcedureEnriched(this.linkedPatient.id, convertedProcedure);
-          importedCount++;
-        }
-      }
-
-      // Import selected medications
-      if (this.selectedMedications.size > 0) {
-        const selectedMedicationsData = this.patientData.medications.filter(
-          medication => this.selectedMedications.has(medication.id)
-        );
-
-        for (const medication of selectedMedicationsData) {
-          const convertedMedication = this.toClinicalEntryMedication(medication, this.linkedPatient.id);
-          
-          await this.patientService.addPatientMedicationEnriched(this.linkedPatient.id, convertedMedication);
-          importedCount++;
-        }
-      }
+      importedCount += await this.importSelectedClinicalItems(this.linkedPatient.id);
 
       // Import selected allergies
       if (this.selectedAllergies.size > 0) {
@@ -2078,32 +2159,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Import IPS data to patient (only selected items)
    */
-  private async importIPSToPatient(patientId: string, ipsData: ProcessedPatientData): Promise<void> {
-    // Import selected conditions
-    for (const condition of ipsData.conditions.filter(condition => this.selectedConditions.has(condition.id))) {
-      const convertedCondition = this.toClinicalEntryCondition(condition, patientId);
-      await this.patientService.addPatientConditionEnriched(patientId, convertedCondition);
-    }
-    
-    // Import selected procedures
-    for (const procedure of ipsData.procedures.filter(procedure => this.selectedProcedures.has(procedure.id))) {
-      const convertedProcedure = this.toClinicalEntryProcedure(procedure, patientId);
-      await this.patientService.addPatientProcedureEnriched(patientId, convertedProcedure);
-    }
-    
-    // Import selected medications
-    for (const medication of ipsData.medications.filter(medication => this.selectedMedications.has(medication.id))) {
-      const convertedMedication = this.toClinicalEntryMedication(medication, patientId);
-      await this.patientService.addPatientMedicationEnriched(patientId, convertedMedication);
-    }
-    
-    // Import selected allergies
-    ipsData.allergies
-      .filter(allergy => this.selectedAllergies.has(allergy.id))
-      .forEach(allergy => {
-        const convertedAllergy = this.toClinicalEntryAllergy(allergy, patientId);
-        this.patientService.addPatientAllergy(patientId, convertedAllergy as any);
-      });
+  private async importIPSToPatient(patientId: string, _ipsData: ProcessedPatientData): Promise<void> {
+    await this.importSelectedClinicalItems(patientId);
   }
 
   /**
@@ -2113,15 +2170,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (!this.linkedPatient || !this.patientData) {
       return;
     }
-
-    const selectedConditionsData = this.patientData.conditions.filter(
-      condition => this.selectedConditions.has(condition.id)
-    );
-
-    for (const condition of selectedConditionsData) {
-      const convertedCondition = this.toClinicalEntryCondition(condition, this.linkedPatient.id);
-      await this.patientService.addPatientConditionEnriched(this.linkedPatient.id, convertedCondition);
-    }
+    await this.importSelectedClinicalItemsBySection(this.linkedPatient.id, { conditions: true });
 
     // Clear selections after import
     this.selectedConditions.clear();
@@ -2135,15 +2184,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (!this.linkedPatient || !this.patientData) {
       return;
     }
-
-    const selectedProceduresData = this.patientData.procedures.filter(
-      procedure => this.selectedProcedures.has(procedure.id)
-    );
-
-    for (const procedure of selectedProceduresData) {
-      const convertedProcedure = this.toClinicalEntryProcedure(procedure, this.linkedPatient.id);
-      await this.patientService.addPatientProcedureEnriched(this.linkedPatient.id, convertedProcedure);
-    }
+    await this.importSelectedClinicalItemsBySection(this.linkedPatient.id, { procedures: true });
 
     // Clear selections after import
     this.selectedProcedures.clear();
@@ -2157,16 +2198,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (!this.linkedPatient || !this.patientData) {
       return;
     }
-
-    const selectedMedicationsData = this.patientData.medications.filter(
-      medication => this.selectedMedications.has(medication.id)
-    );
-
-    for (const medication of selectedMedicationsData) {
-      const convertedMedication = this.toClinicalEntryMedication(medication, this.linkedPatient.id);
-      
-      await this.patientService.addPatientMedicationEnriched(this.linkedPatient.id, convertedMedication);
-    }
+    await this.importSelectedClinicalItemsBySection(this.linkedPatient.id, { medications: true });
 
     // Clear selections after import
     this.selectedMedications.clear();
@@ -2176,19 +2208,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /**
    * Import selected allergies only
    */
-  importSelectedAllergies(): void {
+  async importSelectedAllergies(): Promise<void> {
     if (!this.linkedPatient || !this.patientData) {
       return;
     }
-
-    const selectedAllergiesData = this.patientData.allergies.filter(
-      allergy => this.selectedAllergies.has(allergy.id)
-    );
-
-    selectedAllergiesData.forEach(allergy => {
-      const convertedAllergy = this.toClinicalEntryAllergy(allergy, this.linkedPatient.id);
-      this.patientService.addPatientAllergy(this.linkedPatient.id, convertedAllergy as any);
-    });
+    await this.importSelectedClinicalItemsBySection(this.linkedPatient.id, { allergies: true });
 
     // Clear selections after import
     this.selectedAllergies.clear();

@@ -281,7 +281,8 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
           encounter,
           conditions: conditionsToSave,
           procedures: procedureToSave ? [procedureToSave] : [],
-          medications: medicationsToSave
+          medications: medicationsToSave,
+          allergies: []
         });
 
         if (existingProcedureToLink && transactionResult.encounter) {

@@ -37,6 +37,7 @@ export interface AiAssistedEntryTransactionPayload {
   conditions: Condition[];
   procedures: Procedure[];
   medications: MedicationStatement[];
+  allergies: AllergyIntolerance[];
 }
 
 export interface AiAssistedEntryTransactionResult {
@@ -44,6 +45,7 @@ export interface AiAssistedEntryTransactionResult {
   conditions: Condition[];
   procedures: Procedure[];
   medications: MedicationStatement[];
+  allergies: AllergyIntolerance[];
 }
 
 export interface PatientStorageBackend {

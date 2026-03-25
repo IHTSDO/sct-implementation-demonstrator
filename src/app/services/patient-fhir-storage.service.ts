@@ -160,7 +160,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   async updateObservation(patientId: string, observationId: string, observation: FhirObservation): Promise<FhirObservation> { return await firstValueFrom(this.fhirService.update('Observation', observationId, observation)); }
   async deleteObservation(patientId: string, observationId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Observation', observationId)); }
 
-  async getAllergies(patientId: string): Promise<AllergyIntolerance[]> { return this.fetchPatientResources('AllergyIntolerance', { patient: this.getPatientReference(patientId), _count: '200' }); }
+  async getAllergies(patientId: string): Promise<AllergyIntolerance[]> { return this.fetchPatientResources('AllergyIntolerance', { patient: patientId, _count: '200' }); }
   async createAllergy(patientId: string, allergy: AllergyIntolerance): Promise<AllergyIntolerance> { return await firstValueFrom(this.fhirService.create('AllergyIntolerance', allergy)); }
   async updateAllergy(patientId: string, allergyId: string, allergy: AllergyIntolerance): Promise<AllergyIntolerance> { return await firstValueFrom(this.fhirService.update('AllergyIntolerance', allergyId, allergy)); }
   async deleteAllergy(patientId: string, allergyId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('AllergyIntolerance', allergyId)); }
@@ -235,6 +235,12 @@ export class PatientFhirStorageService implements PatientStorageBackend {
             this.removeTemporaryId(this.prepareMedicationForFhir(medication), 'medication-'),
             'MedicationStatement'
           )
+        ),
+        ...payload.allergies.map((allergy) =>
+          this.createTransactionEntry(
+            this.removeTemporaryId(allergy, 'allergy-'),
+            'AllergyIntolerance'
+          )
         )
       ]
     };
@@ -253,12 +259,15 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const medications = resources
       .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
       .map((medication: any) => this.hydrateMedicationComputedLocation(medication));
+    const allergies = resources
+      .filter((resource: any) => resource?.resourceType === 'AllergyIntolerance');
 
     return {
       encounter,
       conditions,
       procedures,
-      medications
+      medications,
+      allergies
     };
   }
 
