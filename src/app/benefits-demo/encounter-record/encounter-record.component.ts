@@ -649,7 +649,11 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
   private saveEncounterToStorage(encounter: Encounter): void {
     // Use PatientService method to ensure consistent storage
-    const patientId = encounter.subject.reference.split('/')[1];
+    const patientId = encounter.subject?.reference?.split('/')[1];
+    if (!patientId) {
+      console.warn('Encounter is missing a patient reference and cannot be saved.', encounter);
+      return;
+    }
     this.patientService.addPatientEncounter(patientId, encounter);
   }
 
@@ -741,9 +745,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       
       // Sort encounters by date in descending order (newest first)
       this.previousEncounters.sort((a, b) => {
-        const dateA = new Date(a.period.start);
-        const dateB = new Date(b.period.start);
-        return dateB.getTime() - dateA.getTime();
+        return this.getEncounterSortTimestamp(b) - this.getEncounterSortTimestamp(a);
       });
       
       // Enhance encounters with linked procedures and diagnosis display terms
@@ -838,6 +840,10 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     });
   }
 
+  getEncounterDateLabel(encounter: Encounter): string {
+    return this.formatEncounterDate(this.getEncounterDisplayDate(encounter));
+  }
+
   getDiagnosisDisplay(diagnosis: any): string {
     // First try to get the display from the diagnosis condition
     if (diagnosis.condition?.display) {
@@ -846,7 +852,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     
     // If no display, try to get it from the use coding
     if (diagnosis.use?.coding?.[0]?.display) {
-      return diagnosis.use.coding[0].display;
+      return diagnosis.use?.coding?.[0]?.display;
     }
     
     // Fallback to reference if no display is available
@@ -861,7 +867,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     
     // If no text, try to get it from the coding display
     if (procedure.code?.coding?.[0]?.display) {
-      return procedure.code.coding[0].display;
+      return procedure.code?.coding?.[0]?.display;
     }
     
     // Fallback to a generic message if no display is available
@@ -887,7 +893,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
   viewEncounterDetails(encounter: Encounter): void {
     // TODO: Implement detailed view modal or navigation
-    alert(`Encounter Details:\nDate: ${this.formatEncounterDate(encounter.period.start)}\nStatus: ${encounter.status}\nReason: ${encounter.reasonCode?.[0]?.text || 'None'}`);
+    const encounterDate = this.getEncounterDisplayDate(encounter);
+    alert(`Encounter Details:\nDate: ${this.formatEncounterDate(encounterDate)}\nStatus: ${encounter.status}\nReason: ${encounter.reasonCode?.[0]?.text || 'None'}`);
   }
 
   deleteEncounter(encounterId: string): void {
@@ -899,13 +906,31 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         // Update local state and sort encounters by date
         this.previousEncounters = this.patientService.getPatientEncounters(this.patient.id);
         this.previousEncounters.sort((a, b) => {
-          const dateA = new Date(a.period.start);
-          const dateB = new Date(b.period.start);
-          return dateB.getTime() - dateA.getTime();
+          return this.getEncounterSortTimestamp(b) - this.getEncounterSortTimestamp(a);
         });
         
         alert('Encounter deleted successfully');
       }
     }
+  }
+
+  private getEncounterDisplayDate(encounter: Encounter): string {
+    const encounterMeta = (encounter as any).meta;
+    return encounter.period?.start
+      || encounter.period?.end
+      || (encounter as any).actualPeriod?.start
+      || (encounter as any).actualPeriod?.end
+      || encounterMeta?.lastUpdated
+      || '';
+  }
+
+  private getEncounterSortTimestamp(encounter: Encounter): number {
+    const encounterDate = this.getEncounterDisplayDate(encounter);
+    if (!encounterDate) {
+      return 0;
+    }
+
+    const parsedDate = new Date(encounterDate).getTime();
+    return Number.isNaN(parsedDate) ? 0 : parsedDate;
   }
 }

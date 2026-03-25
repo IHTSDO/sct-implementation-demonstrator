@@ -47,6 +47,15 @@
   color: #dc3545 !important;
 }
 
+.menu-server-hint {
+  max-width: 280px;
+  padding: 8px 16px 10px;
+  color: #5f6b7a;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  white-space: normal;
+}
+
 .ehr-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -74,6 +83,37 @@
 
 .search-section {
   margin-bottom: 15px;
+}
+
+.patient-list-shell {
+  position: relative;
+}
+
+.patient-list-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.patient-list-overlay-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid #d7e3f4;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 36px rgba(31, 64, 104, 0.12);
+  color: #35506b;
+  font-size: 0.92rem;
+  font-weight: 600;
 }
 
 .search-field {
@@ -143,9 +183,48 @@
   align-items: center;
 }
 
+.patients-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.backend-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e8f2ff;
+  color: #0f4c81;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.backend-status-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.backend-loading {
+  color: #5f6b7a;
+  font-size: 0.85rem;
+}
+
 .patient-list {
   max-height: 500px;
   overflow-y: auto;
+}
+
+.patient-pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .patient-card {
@@ -174,8 +253,70 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.patient-card.bookmarked {
+  border-color: #f3d58a;
+  background-color: #fffdf5;
+}
+
+.patient-card-skeleton {
+  cursor: default;
+  pointer-events: none;
+}
+
+.patient-card-skeleton:hover {
+  transform: none;
+  border-color: #f8f9fa;
+  background-color: #f8f9fa;
+  box-shadow: none;
+}
+
 .patient-info {
   flex: 1;
+}
+
+.skeleton-line,
+.skeleton-dot {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #eef2f7 0%, #f8fafc 50%, #eef2f7 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+.skeleton-line {
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.skeleton-name {
+  width: 58%;
+  height: 18px;
+}
+
+.skeleton-meta {
+  width: 72%;
+  height: 12px;
+}
+
+.skeleton-meta.short {
+  width: 44%;
+  margin-bottom: 0;
+}
+
+.skeleton-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .patient-name {
@@ -183,6 +324,19 @@
   color: #2c3e50;
   font-size: 1.1rem;
   margin-bottom: 5px;
+}
+
+.patient-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bookmarked-indicator {
+  color: #d4a017;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .death-status-badge {
@@ -233,6 +387,17 @@
 
 .patient-contact span {
   margin-right: 10px;
+}
+
+.patient-record-date {
+  margin-bottom: 6px;
+  color: #5f6b7a;
+  font-size: 0.82rem;
+}
+
+.detail-record-date {
+  margin-top: 8px;
+  margin-bottom: 0;
 }
 
 .patient-status {
@@ -341,20 +506,31 @@
 
 .patient-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 14px;
   margin-bottom: 20px;
   padding: 10px 0 15px 0;
   border-bottom: 1px solid #ecf0f1;
 }
 
+.patient-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
 .patient-name-section {
   flex: 1;
+  min-width: 0;
 }
 
 .patient-header-actions {
-  margin-left: 20px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .patient-header h3 {
@@ -369,6 +545,20 @@
   gap: 20px;
   font-size: 0.95rem;
   color: #7f8c8d;
+}
+
+.detail-patient-meta {
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px solid #eef2f5;
+  flex-wrap: wrap;
+}
+
+.detail-record-date {
+  margin-left: auto;
 }
 
 .patient-details-grid {

@@ -17,6 +17,24 @@
 
         </button>
         <mat-menu #dataMenu="matMenu">
+          <button mat-menu-item (click)="switchToLocalMode()">
+            <mat-icon>{{ persistenceMode === 'local' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+            <span>Use Local Storage</span>
+          </button>
+          <button mat-menu-item (click)="switchToFhirMode()">
+            <mat-icon>{{ persistenceMode === 'fhir' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+            <span>Use FHIR Server</span>
+          </button>
+          <button mat-menu-item (click)="openFhirServerSettings()">
+            <mat-icon>cloud_sync</mat-icon>
+            <span>FHIR Server Settings</span>
+          </button>
+          @if (currentFhirServer) {
+            <div class="menu-server-hint">
+              Connected server: {{ currentFhirServer }}
+            </div>
+          }
+          <mat-divider></mat-divider>
           <button mat-menu-item (click)="openSmartHealthLinks()">
             <mat-icon>qr_code_2</mat-icon>
             <span>Smart Health Links</span>
@@ -48,7 +66,20 @@
       <!-- Patient List Section -->
       <div class="patient-list-section">
         <div class="section-header">
-          <h2>Patients <span class="patient-count">{{ searchTerm ? filteredPatients.length + ' of ' + patients.length : patients.length }} patients</span></h2>
+          <div class="patients-title-block">
+            <h2>
+              Patients
+              <span class="patient-count">{{ getPatientCountLabel() }}</span>
+              @if (isFhirMode()) {
+                <span class="backend-status-inline">
+                  <span class="backend-chip">FHIR mode</span>
+                  @if (patientPagination.loading) {
+                    <span class="backend-loading">Loading...</span>
+                  }
+                </span>
+              }
+            </h2>
+          </div>
         </div>
         <div class="section-actions">
           <div class="patient-header-actions">
@@ -84,117 +115,163 @@
             <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
           </button>
           <mat-menu #createPatientMenu="matMenu">
-            <button mat-menu-item (click)="createNewPatient()">
+            <button mat-menu-item (click)="createNewPatient()" [disabled]="isCreatingPatient">
               <mat-icon>edit</mat-icon>
               <span>Manual Entry</span>
             </button>
-            <button mat-menu-item (click)="createRandomPatient()">
-              <mat-icon>auto_awesome</mat-icon>
-              <span>Generate Random</span>
+            <button mat-menu-item (click)="createRandomPatient()" [disabled]="isCreatingPatient">
+              <mat-icon>{{ isCreatingPatient ? 'hourglass_top' : 'auto_awesome' }}</mat-icon>
+              <span>{{ isCreatingPatient ? 'Creating Patient...' : 'Generate Random' }}</span>
             </button>
-            <button mat-menu-item (click)="createRandomPatientWithDiagnoses()">
-              <mat-icon>medical_services</mat-icon>
-              <span>Generate with Diagnoses</span>
+            <button mat-menu-item (click)="createRandomPatientWithDiagnoses()" [disabled]="isCreatingPatient">
+              <mat-icon>{{ isCreatingPatient ? 'hourglass_top' : 'medical_services' }}</mat-icon>
+              <span>{{ isCreatingPatient ? 'Creating With Diagnoses...' : 'Generate with Diagnoses' }}</span>
             </button>
             <mat-divider></mat-divider>
-            <button mat-menu-item (click)="createBatchPatients()">
+            <button mat-menu-item (click)="createBatchPatients()" [disabled]="isCreatingPatient">
               <mat-icon>group_add</mat-icon>
               <span>Generate Multiple Patients</span>
             </button>
           </mat-menu>
         </div>
       </div>
-      <div class="search-section">
-        <mat-form-field class="search-field">
-          <mat-label>Search patients</mat-label>
-          <input
-            matInput
-            [(ngModel)]="searchTerm"
-            (input)="onSearchChange()"
-            placeholder="Search by first or last name"
-            >
-          <mat-icon matPrefix>search</mat-icon>
-          @if (searchTerm) {
-            <button
-              mat-icon-button
-              matSuffix
-              (click)="clearSearch()"
-              aria-label="Clear search"
+      <div class="patient-list-shell">
+        @if (showPatientListOverlay()) {
+          <div class="patient-list-overlay">
+            <div class="patient-list-overlay-card">
+              <mat-spinner diameter="32"></mat-spinner>
+              <span>Refreshing patient list...</span>
+            </div>
+          </div>
+        }
+
+        <div class="search-section">
+          <mat-form-field class="search-field">
+            <mat-label>Search patients</mat-label>
+            <input
+              matInput
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"
+              placeholder="Search by first or last name"
               >
-              <mat-icon>clear</mat-icon>
-            </button>
-          }
-        </mat-form-field>
-      </div>
-      <div class="patient-list">
-        @for (patient of filteredPatients; track patient.id) {
-          <div
-            class="patient-card"
-            [class.selected]="selectedPatient?.id === patient.id"
-            (click)="selectPatient(patient)"
-            >
-            <div class="patient-info">
-              <div class="patient-name">{{ getPatientDisplayName(patient) }}</div>
-              @if (isPatientDeceased(patient)) {
-                <div class="death-status-badge list-badge">
-                  <mat-icon>bed</mat-icon>
-                  Deceased
+            <mat-icon matPrefix>search</mat-icon>
+            @if (searchTerm) {
+              <button
+                mat-icon-button
+                matSuffix
+                (click)="clearSearch()"
+                aria-label="Clear search"
+                >
+                <mat-icon>clear</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+        </div>
+        <div class="patient-list">
+          @if (showPatientListSkeleton()) {
+            @for (skeleton of patientSkeletonRows; track skeleton) {
+              <div class="patient-card patient-card-skeleton" aria-hidden="true">
+                <div class="patient-info">
+                  <div class="skeleton-line skeleton-name"></div>
+                  <div class="skeleton-line skeleton-meta"></div>
+                  <div class="skeleton-line skeleton-meta short"></div>
                 </div>
-              }
-              <div class="patient-details">
-                <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
-                @if (patient.birthDate) {
-                  <span class="patient-age">{{ getPatientAge(patient.birthDate) }}</span>
-                }
-                @if (patient.gender) {
-                  <span class="patient-gender">{{ patient.gender }}</span>
-                }
+                <div class="skeleton-dot"></div>
               </div>
-              @if (patient.telecom && patient.telecom.length > 0) {
-                <div class="patient-contact">
-                  @for (contact of patient.telecom; track contact) {
-                    <span>
-                      {{ contact.system }}: {{ contact.value }}
-                    </span>
+            }
+          }
+          @for (patient of filteredPatients; track patient.id) {
+            <div
+              class="patient-card"
+              [class.bookmarked]="isPatientBookmarked(patient)"
+              [class.selected]="selectedPatient?.id === patient.id"
+              (click)="selectPatient(patient)"
+              >
+              <div class="patient-info">
+                <div class="patient-name-row">
+                  <div class="patient-name">{{ getPatientDisplayName(patient) }}</div>
+                  @if (isPatientBookmarked(patient)) {
+                    <mat-icon class="bookmarked-indicator">bookmark</mat-icon>
                   }
                 </div>
-              }
+                @if (isPatientDeceased(patient)) {
+                  <div class="death-status-badge list-badge">
+                    <mat-icon>bed</mat-icon>
+                    Deceased
+                  </div>
+                }
+                <div class="patient-details">
+                  <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
+                  @if (patient.birthDate) {
+                    <span class="patient-age">{{ getPatientAge(patient.birthDate) }}</span>
+                  }
+                  @if (patient.gender) {
+                    <span class="patient-gender">{{ patient.gender }}</span>
+                  }
+                </div>
+                @if (getPatientRecordDate(patient); as recordDate) {
+                  <div class="patient-record-date">
+                    {{ getPatientRecordDateLabel(patient) }}: {{ recordDate }}
+                  </div>
+                }
+                @if (patient.telecom && patient.telecom.length > 0) {
+                  <div class="patient-contact">
+                    @for (contact of patient.telecom; track (contact.system || '') + ':' + (contact.value || '') + ':' + (contact.use || '')) {
+                      <span>
+                        {{ contact.system }}: {{ contact.value }}
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="patient-status">
+                <span class="status-indicator" [class.active]="patient.active !== false">●</span>
+              </div>
             </div>
-            <div class="patient-status">
-              <span class="status-indicator" [class.active]="patient.active">●</span>
-            </div>
-          </div>
-        }
-        @if (filteredPatients.length === 0 && patients.length > 0) {
-          <div class="no-results">
-            <mat-icon class="empty-icon">search_off</mat-icon>
-            <h3>No Patients Found</h3>
-            <p>No patients match your search criteria.</p>
-            <button mat-flat-button color="primary" (click)="clearSearch()">
-              <mat-icon>clear</mat-icon>
-              Clear Search
-            </button>
-          </div>
-        }
-        @if (patients.length === 0) {
-          <div class="no-patients">
-            <mat-icon class="empty-icon">people_outline</mat-icon>
-            <h3>No Patients Yet</h3>
-            <p>Get started by creating patient records for your EHR system.</p>
-            <div class="empty-state-actions">
-              <button mat-flat-button color="primary" (click)="createRandomPatientWithDiagnoses()">
-                <mat-icon>medical_services</mat-icon>
-                Create Single Patient
+          }
+          @if (filteredPatients.length === 0 && patients.length > 0) {
+            <div class="no-results">
+              <mat-icon class="empty-icon">search_off</mat-icon>
+              <h3>No Patients Found</h3>
+              <p>No patients match your search criteria.</p>
+              <button mat-flat-button color="primary" (click)="clearSearch()">
+                <mat-icon>clear</mat-icon>
+                Clear Search
               </button>
-              <button mat-flat-button color="primary" (click)="createBatchPatients()">
-                <mat-icon>group_add</mat-icon>
-                Generate Multiple Patients
-              </button>
             </div>
-            <p class="hint-text">Or upload existing patient data using the Data menu above</p>
-          </div>
-        }
+          }
+          @if (patients.length === 0 && !showPatientListSkeleton()) {
+            <div class="no-patients">
+              <mat-icon class="empty-icon">people_outline</mat-icon>
+              <h3>No Patients Yet</h3>
+              <p>Get started by creating patient records for your EHR system.</p>
+              <div class="empty-state-actions">
+                <button mat-flat-button color="primary" (click)="createRandomPatientWithDiagnoses()">
+                  <mat-icon>medical_services</mat-icon>
+                  Create Single Patient
+                </button>
+                <button mat-flat-button color="primary" (click)="createBatchPatients()">
+                  <mat-icon>group_add</mat-icon>
+                  Generate Multiple Patients
+                </button>
+              </div>
+              <p class="hint-text">Or upload existing patient data using the Data menu above</p>
+            </div>
+          }
+        </div>
       </div>
+      @if (isFhirMode()) {
+        <div class="patient-pagination">
+          <button mat-stroked-button color="primary" (click)="loadPreviousPatientsPage()" [disabled]="patientPagination.loading || !patientPagination.hasPrevious">
+            <mat-icon>chevron_left</mat-icon>
+            Previous
+          </button>
+          <button mat-stroked-button color="primary" (click)="loadNextPatientsPage()" [disabled]="patientPagination.loading || !patientPagination.hasNext">
+            Next
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      }
     </div>
     <!-- Selected Patient Details Section -->
     <div class="patient-details-section">
@@ -204,32 +281,44 @@
       @if (selectedPatient) {
         <div class="selected-patient-details">
           <div class="patient-header">
-            <div class="patient-name-section">
-              <h3>{{ getPatientDisplayName(selectedPatient) }}</h3>
-              @if (isPatientDeceased(selectedPatient)) {
-                <div class="death-status-badge">
-                  <mat-icon>bed</mat-icon>
-                  {{ getPatientDeceasedSummary(selectedPatient) }}
-                </div>
-              }
-              <div class="patient-meta">
-                <span class="patient-id">ID: {{ getPatientIdentifier(selectedPatient) }}</span>
-                @if (selectedPatient.birthDate) {
-                  <span class="patient-age">{{ getPatientAge(selectedPatient.birthDate) }}</span>
-                }
-                @if (selectedPatient.gender) {
-                  <span class="patient-gender">{{ selectedPatient.gender }}</span>
+            <div class="patient-header-top">
+              <div class="patient-name-section">
+                <h3>{{ getPatientDisplayName(selectedPatient) }}</h3>
+                @if (isPatientDeceased(selectedPatient)) {
+                  <div class="death-status-badge">
+                    <mat-icon>bed</mat-icon>
+                    {{ getPatientDeceasedSummary(selectedPatient) }}
+                  </div>
                 }
               </div>
+              <div class="patient-header-actions">
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="togglePatientBookmark(selectedPatient); $event.stopPropagation()"
+                  >
+                  <mat-icon>{{ isPatientBookmarked(selectedPatient) ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+                  {{ isPatientBookmarked(selectedPatient) ? 'Remove Bookmark' : 'Bookmark Patient' }}
+                </button>
+                <button
+                  mat-flat-button
+                  color="accent"
+                  (click)="openClinicalRecord()"
+                  >
+                  Open Clinical Record
+                </button>
+              </div>
             </div>
-            <div class="patient-header-actions">
-              <button
-                mat-flat-button
-                color="accent"
-                (click)="openClinicalRecord()"
-                >
-                Open Clinical Record
-              </button>
+            <div class="patient-meta detail-patient-meta">
+              <span class="patient-id">ID: {{ getPatientIdentifier(selectedPatient) }}</span>
+              @if (selectedPatient.birthDate) {
+                <span class="patient-age">Age: {{ getPatientAge(selectedPatient.birthDate) }}</span>
+              }
+              @if (getPatientRecordDate(selectedPatient); as recordDate) {
+                <div class="patient-record-date detail-record-date">
+                  {{ getPatientRecordDateLabel(selectedPatient) }}: {{ recordDate }}
+                </div>
+              }
             </div>
           </div>
           <div class="patient-details-grid">
@@ -237,7 +326,7 @@
               <div class="detail-group">
                 <h4>Contact Information</h4>
                 <div class="contact-list">
-                  @for (contact of selectedPatient.telecom; track contact) {
+                  @for (contact of selectedPatient.telecom; track (contact.system || '') + ':' + (contact.value || '') + ':' + (contact.use || '')) {
                     <div class="contact-item">
                       <span class="contact-type">{{ contact.system }}:</span>
                       <span class="contact-value">{{ contact.value }}</span>
@@ -253,9 +342,9 @@
               <div class="detail-group">
                 <h4>Address</h4>
                 <div class="address-list">
-                  @for (address of selectedPatient.address; track address) {
+                  @for (address of selectedPatient.address; track (address.use || '') + ':' + (address.text || '') + ':' + (address.city || '') + ':' + (address.state || '') + ':' + (address.postalCode || '')) {
                     <div class="address-item">
-                      @for (line of address.line; track line) {
+                      @for (line of address.line; track $index + ':' + line) {
                         <div>{{ line }}</div>
                       }
                       <div>{{ address.city }}, {{ address.state }} {{ address.postalCode }}</div>

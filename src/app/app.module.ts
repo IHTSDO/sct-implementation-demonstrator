@@ -1,4 +1,4 @@
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -40,6 +40,7 @@ import { BindingsModule } from './shared/bindings.module';
 import { LoincModule } from './shared/loinc.module';
 import { QuestionnairesSharedModule } from './shared/questionnaires-shared.module';
 import { UiSharedModule } from './shared/ui-shared.module';
+import { FhirRateLimitInterceptor } from './interceptors/fhir-rate-limit.interceptor';
 
 initializeApp(firebaseConfig);
 
@@ -86,7 +87,14 @@ initializeApp(firebaseConfig);
     QuestionnairesSharedModule,
     UiSharedModule,
   ],
-  providers: [provideHttpClient(withInterceptorsFromDi())],
+  providers: [
+    provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: FhirRateLimitInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

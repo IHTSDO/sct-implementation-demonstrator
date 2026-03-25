@@ -1,6 +1,6 @@
-import { Injectable, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, catchError, throwError } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
 import { StorageService } from './storage.service';
 
 @Injectable({
@@ -46,6 +46,60 @@ export class FhirService {
 
   getUserTag(): string {
     return this.userTagSubject.getValue();
+  }
+
+  private buildUrl(resourceType: string, id?: string): string {
+    const normalizedBase = this.baseUrlSubject.value.replace(/\/$/, '');
+    return id ? `${normalizedBase}/${resourceType}/${id}` : `${normalizedBase}/${resourceType}`;
+  }
+
+  private buildParams(params?: Record<string, string | number | boolean | undefined | null>): HttpParams {
+    let httpParams = new HttpParams();
+
+    Object.entries(params || {}).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+
+      httpParams = httpParams.set(key, String(value));
+    });
+
+    return httpParams;
+  }
+
+  search(resourceType: string, params?: Record<string, string | number | boolean | undefined | null>): Observable<any> {
+    return this.http.get(this.buildUrl(resourceType), {
+      params: this.buildParams(params)
+    });
+  }
+
+  searchByUrl(url: string): Observable<any> {
+    return this.http.get(url);
+  }
+
+  read(resourceType: string, id: string): Observable<any> {
+    return this.http.get(this.buildUrl(resourceType, id));
+  }
+
+  create(resourceType: string, resource: any): Observable<any> {
+    return this.http.post(this.buildUrl(resourceType), resource);
+  }
+
+  executeTransaction(bundle: any): Observable<any> {
+    const normalizedBase = this.baseUrlSubject.value.replace(/\/$/, '');
+    return this.http.post(normalizedBase, bundle, {
+      headers: new HttpHeaders({
+        Prefer: 'return=representation'
+      })
+    });
+  }
+
+  update(resourceType: string, id: string, resource: any): Observable<any> {
+    return this.http.put(this.buildUrl(resourceType, id), resource);
+  }
+
+  delete(resourceType: string, id: string): Observable<any> {
+    return this.http.delete(this.buildUrl(resourceType, id));
   }
 
   // POST a questionnaire

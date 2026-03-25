@@ -376,7 +376,7 @@
             @for (encounter of previousEncounters; track trackByEncounterId($index, encounter)) {
               <div class="encounter-item">
                 <div class="encounter-header">
-                  <span class="encounter-title">{{ formatEncounterDate(encounter.period.start) }}</span>
+                  <span class="encounter-title">{{ getEncounterDateLabel(encounter) }}</span>
                   <div class="encounter-header-actions">
                     <span class="encounter-status-badge" [class]="encounter.status">
                       {{ encounter.status }}

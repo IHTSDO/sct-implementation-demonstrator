@@ -163,6 +163,34 @@
   text-overflow: ellipsis;
 }
 
+.selected-id-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.resource-server-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: #1e64a8;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.resource-server-link:hover {
+  text-decoration: underline;
+}
+
+.resource-server-link mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
 .json-actions {
   display: inline-flex;
   align-items: center;

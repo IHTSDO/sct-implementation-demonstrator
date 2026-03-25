@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } fr
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, FhirObservation, LaboratoryOrderGroup } from '../../services/patient.service';
+import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, FhirObservation, LaboratoryOrderGroup, ClinicalDataLoadSummary } from '../../services/patient.service';
+import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
@@ -79,6 +80,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   
   // Loading state for ECL mapping
   isLoadingMapping = false;
+  isLoadingClinicalData = false;
   
   // Loading state for processing new events
   isProcessingNewEvent = false;
@@ -420,19 +422,39 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  loadClinicalData(patientId: string): void {
-    // Try to load cached data first, fallback to service if not found
+  async loadClinicalData(patientId: string): Promise<void> {
+    if (this.patientService.getCurrentPersistenceMode() === 'fhir') {
+      this.isLoadingClinicalData = true;
+
+      try {
+        const summary = await this.patientService.preloadClinicalRecordData(patientId);
+        this.populateClinicalDataFromService(patientId);
+        this.touchDataVersion();
+        this.showClinicalDataLoadedSnackBar(summary);
+      } catch (error) {
+        console.error('Error loading clinical data from FHIR server:', error);
+        this.snackBar.open('Failed to load clinical data from the FHIR server.', 'Close', {
+          duration: 3500,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
+        });
+      } finally {
+        this.isLoadingClinicalData = false;
+      }
+      return;
+    }
+
+    this.populateClinicalDataFromService(patientId);
+    this.touchDataVersion();
+  }
+
+  private populateClinicalDataFromService(patientId: string): void {
     this.conditions = this.loadCachedOrFreshData('conditions', patientId, () => this.patientService.getPatientConditions(patientId));
     this.procedures = this.loadCachedOrFreshData('procedures', patientId, () => this.patientService.getPatientProcedures(patientId));
     this.medications = this.loadCachedOrFreshData('medications', patientId, () => this.patientService.getPatientMedications(patientId));
     this.labOrders = this.loadCachedOrFreshData('labOrders', patientId, () => this.patientService.getPatientLabOrders(patientId));
     this.allergies = this.loadCachedOrFreshData('allergies', patientId, () => this.patientService.getPatientAllergies(patientId));
-    
-    // Load encounters using PatientService
     this.encounters = this.patientService.getPatientEncounters(patientId);
-
-    // CDS panel component now handles CDS logic
-    this.touchDataVersion();
   }
 
   onCdsStateChange(state: CdsState): void {
@@ -1031,6 +1053,26 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       console.error('Error processing new encounter:', error);
     } finally {
       this.isProcessingNewEvent = false;
+    }
+  }
+
+  onAiAssistedEntryTransactionSaved(_result: AiAssistedEntryTransactionResult): void {
+    if (!this.patient) {
+      return;
+    }
+
+    this.conditions = this.patientService.getPatientConditions(this.patient.id);
+    this.procedures = this.patientService.getPatientProcedures(this.patient.id);
+    this.medications = this.patientService.getPatientMedications(this.patient.id);
+    this.encounters = this.patientService.getPatientEncounters(this.patient.id);
+    this.touchDataVersion();
+
+    if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+      this.clinicalTimeline.refreshTimeline();
+    }
+
+    if (this.encounterRecord && this.encounterRecord.refreshEncounterDisplay) {
+      this.encounterRecord.refreshEncounterDisplay();
     }
   }
 
@@ -2380,20 +2422,23 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
    * Load cached data from localStorage or fallback to fresh data from service
    */
   private loadCachedOrFreshData<T>(dataType: string, patientId: string, getFreshData: () => T[]): T[] {
-    const cacheKey = `ehr_${dataType}_${patientId}`;
-    const cachedData = localStorage.getItem(cacheKey);
-    
-    if (cachedData) {
-      try {
-        const parsed = JSON.parse(cachedData);
-        return parsed;
-      } catch (error) {
-        // Parsing failed, fall through to fresh data
-      }
-    }
-    
-    // No cached data or parsing failed, get fresh data
     return getFreshData();
+  }
+
+  private showClinicalDataLoadedSnackBar(summary: ClinicalDataLoadSummary): void {
+    const nonZeroGroups = Object.values(summary.counts).filter((count) => count > 0).length;
+    const resourceLabel = summary.totalResources === 1 ? 'resource' : 'resources';
+    const groupLabel = nonZeroGroups === 1 ? 'group' : 'groups';
+
+    this.snackBar.open(
+      `FHIR data loaded: ${summary.totalResources} ${resourceLabel} across ${nonZeroGroups} ${groupLabel}.`,
+      'Close',
+      {
+        duration: 3200,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom'
+      }
+    );
   }
 
   private touchDataVersion(): void {

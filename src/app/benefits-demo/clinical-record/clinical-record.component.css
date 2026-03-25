@@ -135,6 +135,40 @@
   font-weight: 500;
 }
 
+.clinical-workspace-shell {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.clinical-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(248, 249, 250, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.clinical-loading-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid #d7e3f4;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 40px rgba(31, 64, 104, 0.12);
+  color: #35506b;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
 .summary-deceased-panel {
   display: flex;
   align-items: flex-start;
@@ -171,7 +205,7 @@
   align-items: start;
   padding: 14px 24px 24px;
   flex: 1 1 auto;
-  height: auto;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
@@ -1190,6 +1224,11 @@
     grid-template-columns: 1fr;
     gap: 12px;
     padding: 12px 12px 20px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .clinical-workspace-shell {
     height: auto;
     overflow: visible;
   }

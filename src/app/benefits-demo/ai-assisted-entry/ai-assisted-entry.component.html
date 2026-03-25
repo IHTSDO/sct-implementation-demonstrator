@@ -91,7 +91,7 @@
             <button mat-raised-button
               class="sample-text-button"
               (click)="addSampleText()"
-              [disabled]="isProcessing">
+              [disabled]="isProcessing || isSaving">
               <mat-icon>auto_awesome</mat-icon>
               Add Sample Text
             </button>
@@ -99,9 +99,9 @@
               color="primary"
               class="save-all-button"
               (click)="saveAllDetected()"
-              [disabled]="isProcessing || !hasDetectedEntities()">
-              <mat-icon>save</mat-icon>
-              Save All to Patient
+              [disabled]="isProcessing || isSaving || !hasDetectedEntities()">
+              <mat-icon>{{ isSaving ? 'sync' : 'save' }}</mat-icon>
+              {{ isSaving ? 'Saving to FHIR Server...' : 'Save All to Patient' }}
             </button>
           </div>
 
@@ -109,6 +109,12 @@
             <div class="ai-status">
               <mat-spinner diameter="20"></mat-spinner>
               <span>AI analyzing text...</span>
+            </div>
+          }
+          @if (isSaving) {
+            <div class="ai-status">
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Saving clinical resources...</span>
             </div>
           }
         </div>

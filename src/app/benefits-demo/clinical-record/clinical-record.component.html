@@ -17,8 +17,8 @@
         <span class="patient-dob" *ngIf="patient.birthDate">DOB: {{ patient.birthDate | date:'MMM dd, yyyy' }}</span>
         <span class="patient-age" *ngIf="patient.birthDate">Age: {{ getPatientAge(patient.birthDate) }}</span>
         <span class="patient-gender" *ngIf="patient.gender">{{ patient.gender }}</span>
-        <span class="patient-status" [class.active]="patient.active">
-          {{ patient.active ? 'Active' : 'Inactive' }}
+        <span class="patient-status" [class.active]="patient.active !== false">
+          {{ patient.active === false ? 'Inactive' : 'Active' }}
         </span>
       </div>
     </div>
@@ -37,7 +37,15 @@
     </div>
   </div>
 
-  <div class="clinical-workspace" *ngIf="patient" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <div class="clinical-workspace-shell" *ngIf="patient">
+    <div class="clinical-loading-overlay" *ngIf="isLoadingClinicalData">
+      <div class="clinical-loading-card">
+        <mat-spinner diameter="36"></mat-spinner>
+        <span>Loading clinical data from FHIR server...</span>
+      </div>
+    </div>
+
+    <div class="clinical-workspace" [class.sidebar-collapsed]="isSidebarCollapsed">
     <aside class="clinical-sidebar" [class.expanded]="isClinicalNavExpanded" [class.collapsed]="isSidebarCollapsed">
       <div class="sidebar-toggle-row">
         <span class="workspace-title">EHR Lab</span>
@@ -445,7 +453,8 @@
                   (conditionAdded)="onConditionAdded($event)"
                   (procedureAdded)="onProcedureAdded($event)"
                   (medicationAdded)="onMedicationAdded($event)"
-                  (encounterAdded)="onEncounterAdded($event)">
+                  (encounterAdded)="onEncounterAdded($event)"
+                  (transactionSaved)="onAiAssistedEntryTransactionSaved($event)">
                 </app-ai-assisted-entry>
               </div>
               <aside class="problems-pane">
@@ -864,6 +873,7 @@
       <button mat-flat-button color="primary" (click)="goBack()">
         Return to Patient List
       </button>
+    </div>
     </div>
   </div>
 </div>

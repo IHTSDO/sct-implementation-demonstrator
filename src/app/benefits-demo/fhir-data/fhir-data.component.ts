@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
@@ -16,6 +16,8 @@ import {
   PatientService
 } from '../../services/patient.service';
 import { saveAs } from 'file-saver';
+import { FhirService } from '../../services/fhir.service';
+import { Subscription } from 'rxjs';
 
 type SupportedResourceType =
   | 'Patient'
@@ -65,7 +67,7 @@ interface ResourceGroup {
   styleUrls: ['./fhir-data.component.css'],
   standalone: false
 })
-export class FhirDataComponent implements OnChanges {
+export class FhirDataComponent implements OnChanges, OnDestroy {
   @Input() patient: Patient | null = null;
   @Input() dataVersion = 0;
   @Input() isDeletingEvents = false;
@@ -74,17 +76,31 @@ export class FhirDataComponent implements OnChanges {
   resourceGroups: ResourceGroup[] = [];
   selectedItem: ResourceListItem | null = null;
   selectedResourceJson = '';
+  private currentFhirBaseUrl = '';
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private patientService: PatientService,
+    private fhirService: FhirService,
     private clipboard: Clipboard,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    this.currentFhirBaseUrl = this.fhirService.getBaseUrl();
+    this.subscriptions.push(
+      this.fhirService.baseUrl$.subscribe((url) => {
+        this.currentFhirBaseUrl = url;
+      })
+    );
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['patient'] || changes['dataVersion']) {
       this.refreshResources();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
   selectItem(item: ResourceListItem): void {
@@ -122,6 +138,19 @@ export class FhirDataComponent implements OnChanges {
 
   requestDeleteAllEvents(): void {
     this.deleteAllEventsRequested.emit();
+  }
+
+  isFhirMode(): boolean {
+    return this.patientService.getCurrentPersistenceMode() === 'fhir';
+  }
+
+  getSelectedResourceServerUrl(): string | null {
+    if (!this.isFhirMode() || !this.selectedItem) {
+      return null;
+    }
+
+    const normalizedBaseUrl = this.currentFhirBaseUrl.replace(/\/$/, '');
+    return `${normalizedBaseUrl}/${this.selectedItem.resourceType}/${this.selectedItem.id}`;
   }
 
   private refreshResources(): void {

@@ -2,7 +2,16 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, firstValueFrom } from 'rxjs';
 import { StorageService } from './storage.service';
 import { TerminologyService } from './terminology.service';
+import { PatientFhirStorageService } from './patient-fhir-storage.service';
+import { PatientLocalStorageService } from './patient-local-storage.service';
 import JSZip from 'jszip';
+import {
+  AiAssistedEntryTransactionPayload,
+  AiAssistedEntryTransactionResult,
+  PatientPaginationState,
+  PersistenceMode,
+  PatientStorageBackend
+} from './patient-storage.types';
 
 export interface Patient {
   resourceType: 'Patient';
@@ -116,6 +125,10 @@ export interface Patient {
   managingOrganization?: {
     reference?: string;
     display?: string;
+  };
+  meta?: {
+    versionId?: string;
+    lastUpdated?: string;
   };
   link?: Array<{
     other?: {
@@ -1239,6 +1252,23 @@ export interface DeathRecord {
   }>;
 }
 
+export interface ClinicalDataLoadSummary {
+  totalResources: number;
+  counts: {
+    conditions: number;
+    bodyStructures: number;
+    procedures: number;
+    medications: number;
+    serviceRequests: number;
+    labOrders: number;
+    observations: number;
+    allergies: number;
+    questionnaireResponses: number;
+    encounters: number;
+    deathRecords: number;
+  };
+}
+
 export interface PatientSimilarityResult {
   patient: Patient;
   score: number;
@@ -1249,6 +1279,8 @@ export interface PatientSimilarityResult {
   };
 }
 
+export type { PersistenceMode, PatientPaginationState } from './patient-storage.types';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -1256,7 +1288,7 @@ export class PatientService {
   public static readonly SNOMED_SYSTEM = 'http://snomed.info/sct';
   public static readonly SNOMED_EDITION_SYSTEM = 'http://snomed.info/sct/900000000000207008';
   public static readonly ICD10_SYSTEM = 'http://hl7.org/fhir/sid/icd-10';
-  private readonly STORAGE_KEY = 'ehr_patients';
+  private readonly FHIR_PATIENT_PAGE_SIZE = 20;
   private readonly ANATOMICAL_ANCHOR_POINTS: Array<{ id: string; ancestors: string[] }> = [
     {
       id: 'head',
@@ -1290,16 +1322,327 @@ export class PatientService {
   private patientsSubject = new BehaviorSubject<Patient[]>([]);
   private selectedPatientSubject = new BehaviorSubject<Patient | null>(null);
   private observationsChangedSubject = new Subject<string>();
+  private persistenceModeSubject = new BehaviorSubject<PersistenceMode>('local');
+  private patientPaginationSubject = new BehaviorSubject<PatientPaginationState>({
+    hasNext: false,
+    hasPrevious: false,
+    nextUrl: null,
+    previousUrl: null,
+    loading: false,
+    pageSize: this.FHIR_PATIENT_PAGE_SIZE,
+    total: null
+  });
+
+  private fhirCache = {
+    conditions: new Map<string, Condition[]>(),
+    bodyStructures: new Map<string, BodyStructure[]>(),
+    procedures: new Map<string, Procedure[]>(),
+    medications: new Map<string, MedicationStatement[]>(),
+    serviceRequests: new Map<string, ServiceRequest[]>(),
+    labOrders: new Map<string, LaboratoryOrderGroup[]>(),
+    observations: new Map<string, FhirObservation[]>(),
+    allergies: new Map<string, AllergyIntolerance[]>(),
+    questionnaireResponses: new Map<string, QuestionnaireResponse[]>(),
+    encounters: new Map<string, Encounter[]>(),
+    deathRecords: new Map<string, DeathRecord | null>(),
+  };
+  private loadingResourceKeys = new Set<string>();
 
   public patients$ = this.patientsSubject.asObservable();
   public selectedPatient$ = this.selectedPatientSubject.asObservable();
+  public persistenceMode$ = this.persistenceModeSubject.asObservable();
+  public patientPagination$ = this.patientPaginationSubject.asObservable();
 
   constructor(
     private storageService: StorageService,
-    private terminologyService: TerminologyService
+    private terminologyService: TerminologyService,
+    private patientLocalStorageService: PatientLocalStorageService,
+    private patientFhirStorageService: PatientFhirStorageService
   ) {
-    this.loadPatients();
+    this.loadPatientsForCurrentMode();
     // this.initializeSamplePatients(); // Deactivated - start with empty patient list
+  }
+
+  private getActiveStorageBackend(): PatientStorageBackend {
+    return this.getCurrentPersistenceMode() === 'fhir'
+      ? this.patientFhirStorageService
+      : this.patientLocalStorageService;
+  }
+
+  getPersistenceMode(): Observable<PersistenceMode> {
+    return this.persistenceMode$;
+  }
+
+  getCurrentPersistenceMode(): PersistenceMode {
+    return this.persistenceModeSubject.value;
+  }
+
+  getPatientPagination(): Observable<PatientPaginationState> {
+    return this.patientPagination$;
+  }
+
+  async refreshPatients(): Promise<void> {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.clearFhirCaches();
+    }
+
+    await this.loadPatientsForCurrentMode();
+  }
+
+  addOrUpdatePatientInMemory(patient: Patient): void {
+    const existingIndex = this.patientsSubject.value.findIndex((item) => item.id === patient.id);
+    if (existingIndex >= 0) {
+      const updatedPatients = [...this.patientsSubject.value];
+      updatedPatients[existingIndex] = patient;
+      this.patientsSubject.next(updatedPatients);
+      return;
+    }
+
+    this.patientsSubject.next([patient, ...this.patientsSubject.value]);
+  }
+
+  async refreshPatient(patientId: string): Promise<Patient | null> {
+    const patient = await this.getActiveStorageBackend().readPatient(patientId);
+    if (!patient) {
+      return null;
+    }
+
+    this.addOrUpdatePatientInMemory(patient);
+    if (this.selectedPatientSubject.value?.id === patientId) {
+      this.selectedPatientSubject.next(patient);
+    }
+
+    return patient;
+  }
+
+  async setPersistenceMode(mode: PersistenceMode): Promise<void> {
+    if (this.persistenceModeSubject.value === mode) {
+      return;
+    }
+
+    this.persistenceModeSubject.next(mode);
+    this.selectedPatientSubject.next(null);
+    this.clearFhirCaches();
+    await this.loadPatientsForCurrentMode();
+  }
+
+  async loadNextPatientsPage(): Promise<void> {
+    const nextUrl = this.patientPaginationSubject.value.nextUrl;
+    if (this.getCurrentPersistenceMode() !== 'fhir' || !nextUrl) {
+      return;
+    }
+
+    await this.loadPatientsPage(nextUrl);
+  }
+
+  async loadPreviousPatientsPage(): Promise<void> {
+    const previousUrl = this.patientPaginationSubject.value.previousUrl;
+    if (this.getCurrentPersistenceMode() !== 'fhir' || !previousUrl) {
+      return;
+    }
+
+    await this.loadPatientsPage(previousUrl);
+  }
+
+  private async loadPatientsForCurrentMode(): Promise<void> {
+    await this.loadPatientsPage();
+  }
+
+  private async loadPatientsPage(url?: string): Promise<void> {
+    this.patientPaginationSubject.next({
+      ...this.patientPaginationSubject.value,
+      loading: true
+    });
+
+    try {
+      const page = await this.getActiveStorageBackend().listPatientsPage(url);
+      this.patientsSubject.next(page.patients);
+      this.patientPaginationSubject.next({
+        hasNext: !!page.nextUrl,
+        hasPrevious: !!page.previousUrl,
+        nextUrl: page.nextUrl,
+        previousUrl: page.previousUrl,
+        loading: false,
+        pageSize: this.FHIR_PATIENT_PAGE_SIZE,
+        total: page.total
+      });
+
+      const selectedPatient = this.selectedPatientSubject.value;
+      if (selectedPatient) {
+        const refreshedPatient = page.patients.find(patient => patient.id === selectedPatient.id) || null;
+        this.selectedPatientSubject.next(refreshedPatient);
+      }
+    } catch (error) {
+      console.error('Error loading patients from active storage backend:', error);
+      this.patientsSubject.next([]);
+      this.patientPaginationSubject.next({
+        ...this.patientPaginationSubject.value,
+        hasNext: false,
+        hasPrevious: false,
+        nextUrl: null,
+        previousUrl: null,
+        loading: false,
+        total: null
+      });
+    }
+  }
+
+  private clearFhirCaches(): void {
+    Object.values(this.fhirCache).forEach((cache) => {
+      if (cache instanceof Map) {
+        cache.clear();
+      }
+    });
+    this.loadingResourceKeys.clear();
+  }
+
+  private getResourceCache<T>(cache: Map<string, T>, patientId: string, fallback: T): T {
+    if (!cache.has(patientId)) {
+      cache.set(patientId, fallback);
+    }
+
+    return cache.get(patientId) as T;
+  }
+
+  private setResourceCache<T>(cache: Map<string, T>, patientId: string, value: T, notify = true): void {
+    cache.set(patientId, value);
+    if (notify) {
+      this.notifyPatientDataChanged(patientId);
+    }
+  }
+
+  async preloadClinicalRecordData(patientId: string): Promise<ClinicalDataLoadSummary> {
+    if (this.getCurrentPersistenceMode() !== 'fhir') {
+      const summary: ClinicalDataLoadSummary = {
+        totalResources: 0,
+        counts: {
+          conditions: this.getPatientConditions(patientId).length,
+          bodyStructures: this.getPatientBodyStructures(patientId).length,
+          procedures: this.getPatientProcedures(patientId).length,
+          medications: this.getPatientMedications(patientId).length,
+          serviceRequests: this.getPatientServiceRequests(patientId).length,
+          labOrders: this.getPatientLabOrders(patientId).length,
+          observations: this.getPatientObservations(patientId).length,
+          allergies: this.getPatientAllergies(patientId).length,
+          questionnaireResponses: this.getPatientQuestionnaireResponses(patientId).length,
+          encounters: this.getPatientEncounters(patientId).length,
+          deathRecords: this.getPatientDeathRecord(patientId) ? 1 : 0
+        }
+      };
+      summary.totalResources = Object.values(summary.counts).reduce((sum, count) => sum + count, 0);
+      return summary;
+    }
+
+    const [
+      conditions,
+      bodyStructures,
+      procedures,
+      medications,
+      serviceRequests,
+      labOrders,
+      observations,
+      allergies,
+      questionnaireResponses,
+      deathRecord,
+      encounters
+    ] = await Promise.all([
+      this.patientFhirStorageService.getConditions(patientId),
+      this.patientFhirStorageService.getBodyStructures(patientId),
+      this.patientFhirStorageService.getProcedures(patientId),
+      this.patientFhirStorageService.getMedications(patientId),
+      this.patientFhirStorageService.getServiceRequests(patientId),
+      this.patientFhirStorageService.getLabOrders(patientId),
+      this.patientFhirStorageService.getObservations(patientId),
+      this.patientFhirStorageService.getAllergies(patientId),
+      this.patientFhirStorageService.getQuestionnaireResponses(patientId),
+      this.patientFhirStorageService.getDeathRecord(patientId),
+      this.patientFhirStorageService.getEncounters(patientId)
+    ]);
+
+    this.setResourceCache(this.fhirCache.conditions, patientId, conditions, false);
+    this.setResourceCache(this.fhirCache.bodyStructures, patientId, bodyStructures, false);
+    this.setResourceCache(this.fhirCache.procedures, patientId, procedures, false);
+    this.setResourceCache(this.fhirCache.medications, patientId, medications, false);
+    this.setResourceCache(this.fhirCache.serviceRequests, patientId, serviceRequests, false);
+    this.setResourceCache(this.fhirCache.labOrders, patientId, labOrders, false);
+    this.setResourceCache(this.fhirCache.observations, patientId, observations, false);
+    this.setResourceCache(this.fhirCache.allergies, patientId, allergies, false);
+    this.setResourceCache(this.fhirCache.questionnaireResponses, patientId, questionnaireResponses, false);
+    this.setResourceCache(this.fhirCache.deathRecords, patientId, deathRecord, false);
+    this.setResourceCache(this.fhirCache.encounters, patientId, encounters, false);
+
+    return {
+      totalResources: [
+        conditions.length,
+        bodyStructures.length,
+        procedures.length,
+        medications.length,
+        serviceRequests.length,
+        labOrders.length,
+        observations.length,
+        allergies.length,
+        questionnaireResponses.length,
+        encounters.length,
+        deathRecord ? 1 : 0
+      ].reduce((sum, count) => sum + count, 0),
+      counts: {
+        conditions: conditions.length,
+        bodyStructures: bodyStructures.length,
+        procedures: procedures.length,
+        medications: medications.length,
+        serviceRequests: serviceRequests.length,
+        labOrders: labOrders.length,
+        observations: observations.length,
+        allergies: allergies.length,
+        questionnaireResponses: questionnaireResponses.length,
+        encounters: encounters.length,
+        deathRecords: deathRecord ? 1 : 0
+      }
+    };
+  }
+
+  private notifyPatientDataChanged(patientId: string): void {
+    const currentPatient = this.selectedPatientSubject.value;
+    if (currentPatient && currentPatient.id === patientId) {
+      this.selectedPatientSubject.next({ ...currentPatient });
+    }
+  }
+
+  private ensureFhirResourceLoaded<T>(
+    cache: Map<string, T>,
+    patientId: string,
+    loader: () => Promise<T>,
+    fallback: T
+  ): T {
+    if (cache.has(patientId)) {
+      return cache.get(patientId) as T;
+    }
+
+    cache.set(patientId, fallback);
+    const loadingKey = `${patientId}:${String(loader)}`;
+    if (!this.loadingResourceKeys.has(loadingKey)) {
+      this.loadingResourceKeys.add(loadingKey);
+      loader()
+        .then((value) => this.setResourceCache(cache, patientId, value))
+        .catch((error) => console.error(`Error loading FHIR resources for patient ${patientId}:`, error))
+        .finally(() => this.loadingResourceKeys.delete(loadingKey));
+    }
+
+    return fallback;
+  }
+
+  private clearFhirPatientCaches(patientId: string): void {
+    this.fhirCache.conditions.delete(patientId);
+    this.fhirCache.bodyStructures.delete(patientId);
+    this.fhirCache.procedures.delete(patientId);
+    this.fhirCache.medications.delete(patientId);
+    this.fhirCache.serviceRequests.delete(patientId);
+    this.fhirCache.labOrders.delete(patientId);
+    this.fhirCache.observations.delete(patientId);
+    this.fhirCache.allergies.delete(patientId);
+    this.fhirCache.questionnaireResponses.delete(patientId);
+    this.fhirCache.encounters.delete(patientId);
+    this.fhirCache.deathRecords.delete(patientId);
   }
 
   // Helper methods for duplicate detection
@@ -1476,24 +1819,14 @@ export class PatientService {
   }
 
   private loadPatients(): void {
-    if (this.storageService.isLocalStorageSupported()) {
-      const storedPatients = this.storageService.getItem(this.STORAGE_KEY);
-      if (storedPatients) {
-        try {
-          const patients = JSON.parse(storedPatients);
-          this.patientsSubject.next(patients);
-        } catch (error) {
-          this.patientsSubject.next([]);
-        }
-      }
-    }
+    this.patientLocalStorageService.listPatientsPage()
+      .then((page) => this.patientsSubject.next(page.patients))
+      .catch(() => this.patientsSubject.next([]));
   }
 
 
   private savePatients(patients: Patient[]): void {
-    if (this.storageService.isLocalStorageSupported()) {
-      this.storageService.saveItem(this.STORAGE_KEY, JSON.stringify(patients));
-    }
+    this.patientsSubject.next(patients);
   }
 
   private initializeSamplePatients(): void {
@@ -1651,33 +1984,44 @@ export class PatientService {
     this.selectedPatientSubject.next(patient);
   }
 
-  addPatient(patient: Patient): void {
-    const currentPatients = this.patientsSubject.value;
-    const updatedPatients = [...currentPatients, patient];
-    this.patientsSubject.next(updatedPatients);
-    this.savePatients(updatedPatients);
+  async addPatient(patient: Patient): Promise<Patient> {
+    try {
+      const savedPatient = await this.getActiveStorageBackend().createPatient(patient);
+      await this.loadPatientsForCurrentMode();
+      const resolvedPatient = this.getPatientById(savedPatient.id) || savedPatient;
+      this.selectedPatientSubject.next(resolvedPatient);
+      return resolvedPatient;
+    } catch (error) {
+      console.error('Error creating patient in storage backend:', error);
+      throw error;
+    }
   }
 
   updatePatient(updatedPatient: Patient): void {
-    const currentPatients = this.patientsSubject.value;
-    const updatedPatients = currentPatients.map(patient => 
-      patient.id === updatedPatient.id ? updatedPatient : patient
-    );
-    this.patientsSubject.next(updatedPatients);
-    this.savePatients(updatedPatients);
+    this.getActiveStorageBackend().updatePatient(updatedPatient)
+      .then((savedPatient) => {
+        const updatedPatients = this.patientsSubject.value.map(patient =>
+          patient.id === updatedPatient.id ? savedPatient : patient
+        );
+        this.patientsSubject.next(updatedPatients);
+        if (this.selectedPatientSubject.value?.id === updatedPatient.id) {
+          this.selectedPatientSubject.next(savedPatient);
+        }
+      })
+      .catch((error) => console.error('Error updating patient in storage backend:', error));
   }
 
   deletePatient(patientId: string): void {
-    const currentPatients = this.patientsSubject.value;
-    const updatedPatients = currentPatients.filter(patient => patient.id !== patientId);
-    this.patientsSubject.next(updatedPatients);
-    this.savePatients(updatedPatients);
-    
-    // If the deleted patient was selected, clear the selection
-    const selectedPatient = this.selectedPatientSubject.value;
-    if (selectedPatient && selectedPatient.id === patientId) {
-      this.selectPatient(null);
-    }
+    this.getActiveStorageBackend().deletePatient(patientId)
+      .then(async () => {
+        const updatedPatients = this.patientsSubject.value.filter(patient => patient.id !== patientId);
+        this.patientsSubject.next(updatedPatients);
+        this.clearFhirPatientCaches(patientId);
+        if (this.selectedPatientSubject.value?.id === patientId) {
+          this.selectPatient(null);
+        }
+      })
+      .catch((error) => console.error('Error deleting patient from storage backend:', error));
   }
 
   getPatientById(patientId: string): Patient | undefined {
@@ -1685,50 +2029,53 @@ export class PatientService {
   }
 
   clearAllPatients(): void {
-    this.patientsSubject.next([]);
-    this.selectedPatientSubject.next(null);
-    this.savePatients([]);
+    const patients = [...this.patientsSubject.value];
+    this.getActiveStorageBackend().deleteAllPatients(patients)
+      .then(async () => {
+        this.clearFhirCaches();
+        this.patientsSubject.next([]);
+        this.selectedPatientSubject.next(null);
+        await this.loadPatientsForCurrentMode();
+      })
+      .catch((error) => console.error('Error clearing patients from storage backend:', error));
   }
 
   clearAllPatientsAndClinicalData(): void {
-    const storagePrefixesToClear = [
-      'ehr_conditions_',
-      'ehr_procedures_',
-      'ehr_medications_',
-      'ehr_service_requests_',
-      'ehr_lab_orders_',
-      'ehr_observations_',
-      'ehr_body_structures_',
-      'ehr_allergies_',
-      'ehr_encounters_',
-      'ehr_questionnaire_responses_',
-      'ehr_openehr_compositions_',
-      'ehr_death_record_',
-      'encounters_',
-    ];
+    const patients = [...this.patientsSubject.value];
 
-    // Sweep all matching localStorage keys so orphaned or legacy patient data is cleared too.
-    const matchingKeys: string[] = [];
-    for (let index = 0; index < localStorage.length; index += 1) {
-      const key = localStorage.key(index);
-      if (key && storagePrefixesToClear.some(prefix => key.startsWith(prefix))) {
-        matchingKeys.push(key);
-      }
+    if (this.getCurrentPersistenceMode() === 'local') {
+      this.patientLocalStorageService.clearAllPatientsAndClinicalData?.()
+        .then(() => {
+          this.clearFhirCaches();
+          this.patientsSubject.next([]);
+          this.selectedPatientSubject.next(null);
+        })
+        .catch((error) => console.error('Error clearing local patient data:', error));
+      return;
     }
 
-    matchingKeys.forEach(key => this.storageService.removeItem(key));
-    
-    // Clear all patients
-    this.clearAllPatients();
+    Promise.all(patients.map((patient) => this.getActiveStorageBackend().clearAllPatientEvents(patient.id)))
+      .then(() => this.clearAllPatients())
+      .catch((error) => console.error('Error clearing clinical data from storage backend:', error));
   }
 
   // Clinical Data Management Methods
 
   // Conditions
   getPatientConditions(patientId: string): Condition[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.conditions,
+        patientId,
+        () => this.patientFhirStorageService.getConditions(patientId),
+        []
+      );
+    }
+
     const key = `ehr_conditions_${patientId}`;
     const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    const conditions = stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.hydrateConditionsFromStorage(conditions);
   }
 
   addPatientCondition(patientId: string, condition: Condition): boolean {
@@ -1738,7 +2085,18 @@ export class PatientService {
     if (this.isDuplicateCondition(conditions, condition)) {
       return false; // Duplicate found, not added
     }
-    
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createCondition(patientId, condition)
+        .then((savedCondition) => {
+          const updatedConditions = [...this.getPatientConditions(patientId), savedCondition];
+          this.setResourceCache(this.fhirCache.conditions, patientId, updatedConditions);
+          this.enrichConditionInBackground(patientId, savedCondition);
+        })
+        .catch((error) => console.error('Error creating condition in FHIR storage service:', error));
+      return true;
+    }
+
     conditions.push(condition);
     this.savePatientConditions(patientId, conditions);
     this.enrichConditionInBackground(patientId, condition);
@@ -1774,6 +2132,17 @@ export class PatientService {
     const conditions = this.getPatientConditions(patientId);
     const index = conditions.findIndex(c => c.id === conditionId);
     if (index !== -1) {
+      if (this.getCurrentPersistenceMode() === 'fhir') {
+        this.patientFhirStorageService.updateCondition(patientId, conditionId, updatedCondition)
+          .then((savedCondition) => {
+            const updatedConditions = [...conditions];
+            updatedConditions[index] = savedCondition;
+            this.setResourceCache(this.fhirCache.conditions, patientId, updatedConditions);
+          })
+          .catch((error) => console.error('Error updating condition in FHIR storage service:', error));
+        return;
+      }
+
       conditions[index] = updatedCondition;
       this.savePatientConditions(patientId, conditions);
     }
@@ -1782,12 +2151,28 @@ export class PatientService {
   deletePatientCondition(patientId: string, conditionId: string): void {
     const conditions = this.getPatientConditions(patientId);
     const filteredConditions = conditions.filter(c => c.id !== conditionId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteCondition(patientId, conditionId)
+        .then(() => this.setResourceCache(this.fhirCache.conditions, patientId, filteredConditions))
+        .catch((error) => console.error('Error deleting condition from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientConditions(patientId, filteredConditions);
   }
 
   private savePatientConditions(patientId: string, conditions: Condition[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.conditions, patientId, conditions);
+      return;
+    }
+
     const key = `ehr_conditions_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(conditions));
+    this.storageService.saveItem(
+      key,
+      JSON.stringify(this.patientLocalStorageService.normalizeConditionsForStorage(conditions))
+    );
   }
 
   private async enrichConditionInBackground(patientId: string, condition: Condition): Promise<void> {
@@ -1840,6 +2225,15 @@ export class PatientService {
 
   // BodyStructures
   getPatientBodyStructures(patientId: string): BodyStructure[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.bodyStructures,
+        patientId,
+        () => this.patientFhirStorageService.getBodyStructures(patientId),
+        []
+      );
+    }
+
     const key = `ehr_body_structures_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : [];
@@ -1847,6 +2241,16 @@ export class PatientService {
 
   addPatientBodyStructure(patientId: string, bodyStructure: BodyStructure): void {
     const bodyStructures = this.getPatientBodyStructures(patientId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createBodyStructure(patientId, bodyStructure)
+        .then((savedBodyStructure) => {
+          this.setResourceCache(this.fhirCache.bodyStructures, patientId, [...bodyStructures, savedBodyStructure]);
+        })
+        .catch((error) => console.error('Error creating body structure in FHIR storage service:', error));
+      return;
+    }
+
     bodyStructures.push(bodyStructure);
     this.savePatientBodyStructures(patientId, bodyStructures);
   }
@@ -1855,6 +2259,17 @@ export class PatientService {
     const bodyStructures = this.getPatientBodyStructures(patientId);
     const index = bodyStructures.findIndex((item) => item.id === bodyStructureId);
     if (index !== -1) {
+      if (this.getCurrentPersistenceMode() === 'fhir') {
+        this.patientFhirStorageService.updateBodyStructure(patientId, bodyStructureId, updatedBodyStructure)
+          .then((savedBodyStructure) => {
+            const updatedBodyStructures = [...bodyStructures];
+            updatedBodyStructures[index] = savedBodyStructure;
+            this.setResourceCache(this.fhirCache.bodyStructures, patientId, updatedBodyStructures);
+          })
+          .catch((error) => console.error('Error updating body structure in FHIR storage service:', error));
+        return;
+      }
+
       bodyStructures[index] = updatedBodyStructure;
       this.savePatientBodyStructures(patientId, bodyStructures);
     }
@@ -1863,19 +2278,42 @@ export class PatientService {
   deletePatientBodyStructure(patientId: string, bodyStructureId: string): void {
     const bodyStructures = this.getPatientBodyStructures(patientId);
     const filtered = bodyStructures.filter((item) => item.id !== bodyStructureId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteBodyStructure(patientId, bodyStructureId)
+        .then(() => this.setResourceCache(this.fhirCache.bodyStructures, patientId, filtered))
+        .catch((error) => console.error('Error deleting body structure from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientBodyStructures(patientId, filtered);
   }
 
   private savePatientBodyStructures(patientId: string, bodyStructures: BodyStructure[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.bodyStructures, patientId, bodyStructures);
+      return;
+    }
+
     const key = `ehr_body_structures_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(bodyStructures));
   }
 
   // Procedures
   getPatientProcedures(patientId: string): Procedure[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.procedures,
+        patientId,
+        () => this.patientFhirStorageService.getProcedures(patientId),
+        []
+      );
+    }
+
     const key = `ehr_procedures_${patientId}`;
     const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    const procedures = stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.hydrateProceduresFromStorage(procedures);
   }
 
   addPatientProcedure(patientId: string, procedure: Procedure): boolean {
@@ -1886,7 +2324,17 @@ export class PatientService {
     if (this.isDuplicateProcedure(procedures, procedure)) {
       return false; // Duplicate found, not added
     }
-    
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createProcedure(patientId, procedure)
+        .then((savedProcedure) => {
+          this.setResourceCache(this.fhirCache.procedures, patientId, [...procedures, savedProcedure]);
+          this.enrichProcedureInBackground(patientId, savedProcedure);
+        })
+        .catch((error) => console.error('Error creating procedure in FHIR storage service:', error));
+      return true;
+    }
+
     procedures.push(procedure);
     this.savePatientProcedures(patientId, procedures);
     this.enrichProcedureInBackground(patientId, procedure);
@@ -1917,6 +2365,17 @@ export class PatientService {
     const procedures = this.getPatientProcedures(patientId);
     const index = procedures.findIndex(p => p.id === procedureId);
     if (index !== -1) {
+      if (this.getCurrentPersistenceMode() === 'fhir') {
+        this.patientFhirStorageService.updateProcedure(patientId, procedureId, updatedProcedure)
+          .then((savedProcedure) => {
+            const updatedProcedures = [...procedures];
+            updatedProcedures[index] = savedProcedure;
+            this.setResourceCache(this.fhirCache.procedures, patientId, updatedProcedures);
+          })
+          .catch((error) => console.error('Error updating procedure in FHIR storage service:', error));
+        return;
+      }
+
       procedures[index] = updatedProcedure;
       this.savePatientProcedures(patientId, procedures);
     }
@@ -1925,12 +2384,28 @@ export class PatientService {
   deletePatientProcedure(patientId: string, procedureId: string): void {
     const procedures = this.getPatientProcedures(patientId);
     const filteredProcedures = procedures.filter(p => p.id !== procedureId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteProcedure(patientId, procedureId)
+        .then(() => this.setResourceCache(this.fhirCache.procedures, patientId, filteredProcedures))
+        .catch((error) => console.error('Error deleting procedure from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientProcedures(patientId, filteredProcedures);
   }
 
   private savePatientProcedures(patientId: string, procedures: Procedure[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.procedures, patientId, procedures);
+      return;
+    }
+
     const key = `ehr_procedures_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(procedures));
+    this.storageService.saveItem(
+      key,
+      JSON.stringify(this.patientLocalStorageService.normalizeProceduresForStorage(procedures))
+    );
   }
 
   private async enrichProcedureInBackground(patientId: string, procedure: Procedure): Promise<void> {
@@ -2001,9 +2476,19 @@ export class PatientService {
 
   // Medications
   getPatientMedications(patientId: string): MedicationStatement[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.medications,
+        patientId,
+        () => this.patientFhirStorageService.getMedications(patientId),
+        []
+      );
+    }
+
     const key = `ehr_medications_${patientId}`;
     const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    const medications = stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.hydrateMedicationsFromStorage(medications);
   }
 
   addPatientMedication(patientId: string, medication: MedicationStatement): boolean {
@@ -2013,7 +2498,17 @@ export class PatientService {
     if (this.isDuplicateMedication(medications, medication)) {
       return false; // Duplicate found, not added
     }
-    
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createMedication(patientId, medication)
+        .then((savedMedication) => {
+          this.setResourceCache(this.fhirCache.medications, patientId, [...medications, savedMedication]);
+          this.enrichMedicationInBackground(patientId, savedMedication);
+        })
+        .catch((error) => console.error('Error creating medication in FHIR storage service:', error));
+      return true;
+    }
+
     medications.push(medication);
     this.savePatientMedications(patientId, medications);
     this.enrichMedicationInBackground(patientId, medication);
@@ -2029,6 +2524,17 @@ export class PatientService {
     const medications = this.getPatientMedications(patientId);
     const index = medications.findIndex(m => m.id === medicationId);
     if (index !== -1) {
+      if (this.getCurrentPersistenceMode() === 'fhir') {
+        this.patientFhirStorageService.updateMedication(patientId, medicationId, updatedMedication)
+          .then((savedMedication) => {
+            const updatedMedications = [...medications];
+            updatedMedications[index] = savedMedication;
+            this.setResourceCache(this.fhirCache.medications, patientId, updatedMedications);
+          })
+          .catch((error) => console.error('Error updating medication in FHIR storage service:', error));
+        return;
+      }
+
       medications[index] = updatedMedication;
       this.savePatientMedications(patientId, medications);
     }
@@ -2037,15 +2543,40 @@ export class PatientService {
   deletePatientMedication(patientId: string, medicationId: string): void {
     const medications = this.getPatientMedications(patientId);
     const filteredMedications = medications.filter(m => m.id !== medicationId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteMedication(patientId, medicationId)
+        .then(() => this.setResourceCache(this.fhirCache.medications, patientId, filteredMedications))
+        .catch((error) => console.error('Error deleting medication from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientMedications(patientId, filteredMedications);
   }
 
   private savePatientMedications(patientId: string, medications: MedicationStatement[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.medications, patientId, medications);
+      return;
+    }
+
     const key = `ehr_medications_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(medications));
+    this.storageService.saveItem(
+      key,
+      JSON.stringify(this.patientLocalStorageService.normalizeMedicationsForStorage(medications))
+    );
   }
 
   getPatientServiceRequests(patientId: string): ServiceRequest[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.serviceRequests,
+        patientId,
+        () => this.patientFhirStorageService.getServiceRequests(patientId),
+        []
+      );
+    }
+
     const key = `ehr_service_requests_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : [];
@@ -2058,6 +2589,15 @@ export class PatientService {
       return false;
     }
 
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createServiceRequest(patientId, serviceRequest)
+        .then((savedRequest) => {
+          this.setResourceCache(this.fhirCache.serviceRequests, patientId, [...requests, savedRequest]);
+        })
+        .catch((error) => console.error('Error creating service request in FHIR storage service:', error));
+      return true;
+    }
+
     requests.push(serviceRequest);
     this.savePatientServiceRequests(patientId, requests);
     return true;
@@ -2067,6 +2607,17 @@ export class PatientService {
     const requests = this.getPatientServiceRequests(patientId);
     const index = requests.findIndex(request => request.id === requestId);
     if (index !== -1) {
+      if (this.getCurrentPersistenceMode() === 'fhir') {
+        this.patientFhirStorageService.updateServiceRequest(patientId, requestId, updatedServiceRequest)
+          .then((savedRequest) => {
+            const updatedRequests = [...requests];
+            updatedRequests[index] = savedRequest;
+            this.setResourceCache(this.fhirCache.serviceRequests, patientId, updatedRequests);
+          })
+          .catch((error) => console.error('Error updating service request in FHIR storage service:', error));
+        return;
+      }
+
       requests[index] = updatedServiceRequest;
       this.savePatientServiceRequests(patientId, requests);
     }
@@ -2075,15 +2626,37 @@ export class PatientService {
   deletePatientServiceRequest(patientId: string, requestId: string): void {
     const requests = this.getPatientServiceRequests(patientId);
     const filteredRequests = requests.filter(request => request.id !== requestId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteServiceRequest(patientId, requestId)
+        .then(() => this.setResourceCache(this.fhirCache.serviceRequests, patientId, filteredRequests))
+        .catch((error) => console.error('Error deleting service request from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientServiceRequests(patientId, filteredRequests);
   }
 
   private savePatientServiceRequests(patientId: string, requests: ServiceRequest[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.serviceRequests, patientId, requests);
+      return;
+    }
+
     const key = `ehr_service_requests_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(requests));
   }
 
   getPatientLabOrders(patientId: string): LaboratoryOrderGroup[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.labOrders,
+        patientId,
+        () => this.patientFhirStorageService.getLabOrders(patientId),
+        []
+      );
+    }
+
     const key = `ehr_lab_orders_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : [];
@@ -2091,6 +2664,16 @@ export class PatientService {
 
   addPatientLabOrder(patientId: string, labOrder: LaboratoryOrderGroup): void {
     const orders = this.getPatientLabOrders(patientId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createLabOrder(patientId, labOrder)
+        .then((savedBundle) => {
+          this.setResourceCache(this.fhirCache.labOrders, patientId, [...orders, savedBundle]);
+        })
+        .catch((error) => console.error('Error creating laboratory bundle in FHIR storage service:', error));
+      return;
+    }
+
     orders.push(labOrder);
     this.savePatientLabOrders(patientId, orders);
   }
@@ -2098,10 +2681,23 @@ export class PatientService {
   deletePatientLabOrder(patientId: string, labOrderId: string): void {
     const orders = this.getPatientLabOrders(patientId);
     const filteredOrders = orders.filter(order => order.id !== labOrderId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteLabOrder(patientId, labOrderId)
+        .then(() => this.setResourceCache(this.fhirCache.labOrders, patientId, filteredOrders))
+        .catch((error) => console.error('Error deleting laboratory bundle from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientLabOrders(patientId, filteredOrders);
   }
 
   private savePatientLabOrders(patientId: string, labOrders: LaboratoryOrderGroup[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.labOrders, patientId, labOrders);
+      return;
+    }
+
     const key = `ehr_lab_orders_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(labOrders));
   }
@@ -2181,6 +2777,15 @@ export class PatientService {
 
   // Observations
   getPatientObservations(patientId: string): FhirObservation[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.observations,
+        patientId,
+        () => this.patientFhirStorageService.getObservations(patientId),
+        []
+      );
+    }
+
     const key = `ehr_observations_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : [];
@@ -2193,6 +2798,16 @@ export class PatientService {
       return false;
     }
 
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createObservation(patientId, observation)
+        .then((savedObservation) => {
+          this.setResourceCache(this.fhirCache.observations, patientId, [...observations, savedObservation]);
+          this.observationsChangedSubject.next(patientId);
+        })
+        .catch((error) => console.error('Error creating observation in FHIR storage service:', error));
+      return true;
+    }
+
     observations.push(observation);
     this.savePatientObservations(patientId, observations);
     this.observationsChangedSubject.next(patientId);
@@ -2203,6 +2818,18 @@ export class PatientService {
     const observations = this.getPatientObservations(patientId);
     const index = observations.findIndex((observation) => observation.id === observationId);
     if (index !== -1) {
+      if (this.getCurrentPersistenceMode() === 'fhir') {
+        this.patientFhirStorageService.updateObservation(patientId, observationId, updatedObservation)
+          .then((savedObservation) => {
+            const updatedObservations = [...observations];
+            updatedObservations[index] = savedObservation;
+            this.setResourceCache(this.fhirCache.observations, patientId, updatedObservations);
+            this.observationsChangedSubject.next(patientId);
+          })
+          .catch((error) => console.error('Error updating observation in FHIR storage service:', error));
+        return;
+      }
+
       observations[index] = updatedObservation;
       this.savePatientObservations(patientId, observations);
       this.observationsChangedSubject.next(patientId);
@@ -2212,17 +2839,42 @@ export class PatientService {
   deletePatientObservation(patientId: string, observationId: string): void {
     const observations = this.getPatientObservations(patientId);
     const filteredObservations = observations.filter((observation) => observation.id !== observationId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteObservation(patientId, observationId)
+        .then(() => {
+          this.setResourceCache(this.fhirCache.observations, patientId, filteredObservations);
+          this.observationsChangedSubject.next(patientId);
+        })
+        .catch((error) => console.error('Error deleting observation from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientObservations(patientId, filteredObservations);
     this.observationsChangedSubject.next(patientId);
   }
 
   private savePatientObservations(patientId: string, observations: FhirObservation[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.observations, patientId, observations);
+      return;
+    }
+
     const key = `ehr_observations_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(observations));
   }
 
   // Allergies
   getPatientAllergies(patientId: string): AllergyIntolerance[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.allergies,
+        patientId,
+        () => this.patientFhirStorageService.getAllergies(patientId),
+        []
+      );
+    }
+
     const key = `ehr_allergies_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : [];
@@ -2235,7 +2887,16 @@ export class PatientService {
     if (this.isDuplicateAllergy(allergies, allergy)) {
       return false; // Duplicate found, not added
     }
-    
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createAllergy(patientId, allergy)
+        .then((savedAllergy) => {
+          this.setResourceCache(this.fhirCache.allergies, patientId, [...allergies, savedAllergy]);
+        })
+        .catch((error) => console.error('Error creating allergy in FHIR storage service:', error));
+      return true;
+    }
+
     allergies.push(allergy);
     this.savePatientAllergies(patientId, allergies);
     return true; // Successfully added
@@ -2245,6 +2906,17 @@ export class PatientService {
     const allergies = this.getPatientAllergies(patientId);
     const index = allergies.findIndex(a => a.id === allergyId);
     if (index !== -1) {
+      if (this.getCurrentPersistenceMode() === 'fhir') {
+        this.patientFhirStorageService.updateAllergy(patientId, allergyId, updatedAllergy)
+          .then((savedAllergy) => {
+            const updatedAllergies = [...allergies];
+            updatedAllergies[index] = savedAllergy;
+            this.setResourceCache(this.fhirCache.allergies, patientId, updatedAllergies);
+          })
+          .catch((error) => console.error('Error updating allergy in FHIR storage service:', error));
+        return;
+      }
+
       allergies[index] = updatedAllergy;
       this.savePatientAllergies(patientId, allergies);
     }
@@ -2253,16 +2925,38 @@ export class PatientService {
   deletePatientAllergy(patientId: string, allergyId: string): void {
     const allergies = this.getPatientAllergies(patientId);
     const filteredAllergies = allergies.filter(a => a.id !== allergyId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteAllergy(patientId, allergyId)
+        .then(() => this.setResourceCache(this.fhirCache.allergies, patientId, filteredAllergies))
+        .catch((error) => console.error('Error deleting allergy from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientAllergies(patientId, filteredAllergies);
   }
 
   private savePatientAllergies(patientId: string, allergies: AllergyIntolerance[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.allergies, patientId, allergies);
+      return;
+    }
+
     const key = `ehr_allergies_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(allergies));
   }
 
   // QuestionnaireResponses
   getPatientQuestionnaireResponses(patientId: string): QuestionnaireResponse[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.questionnaireResponses,
+        patientId,
+        () => this.patientFhirStorageService.getQuestionnaireResponses(patientId),
+        []
+      );
+    }
+
     const key = `ehr_questionnaire_responses_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : [];
@@ -2270,6 +2964,16 @@ export class PatientService {
 
   addPatientQuestionnaireResponse(patientId: string, response: QuestionnaireResponse): boolean {
     const responses = this.getPatientQuestionnaireResponses(patientId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createQuestionnaireResponse(patientId, response)
+        .then((savedResponse) => {
+          this.setResourceCache(this.fhirCache.questionnaireResponses, patientId, [...responses, savedResponse]);
+        })
+        .catch((error) => console.error('Error creating questionnaire response in FHIR storage service:', error));
+      return true;
+    }
+
     responses.push(response);
     this.savePatientQuestionnaireResponses(patientId, responses);
     return true; // Successfully added
@@ -2279,6 +2983,17 @@ export class PatientService {
     const responses = this.getPatientQuestionnaireResponses(patientId);
     const index = responses.findIndex(r => r.id === responseId);
     if (index !== -1) {
+      if (this.getCurrentPersistenceMode() === 'fhir') {
+        this.patientFhirStorageService.updateQuestionnaireResponse(patientId, responseId, updatedResponse)
+          .then((savedResponse) => {
+            const updatedResponses = [...responses];
+            updatedResponses[index] = savedResponse;
+            this.setResourceCache(this.fhirCache.questionnaireResponses, patientId, updatedResponses);
+          })
+          .catch((error) => console.error('Error updating questionnaire response in FHIR storage service:', error));
+        return;
+      }
+
       responses[index] = updatedResponse;
       this.savePatientQuestionnaireResponses(patientId, responses);
     }
@@ -2287,10 +3002,23 @@ export class PatientService {
   deletePatientQuestionnaireResponse(patientId: string, responseId: string): void {
     const responses = this.getPatientQuestionnaireResponses(patientId);
     const filteredResponses = responses.filter(r => r.id !== responseId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteQuestionnaireResponse(patientId, responseId)
+        .then(() => this.setResourceCache(this.fhirCache.questionnaireResponses, patientId, filteredResponses))
+        .catch((error) => console.error('Error deleting questionnaire response from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientQuestionnaireResponses(patientId, filteredResponses);
   }
 
   private savePatientQuestionnaireResponses(patientId: string, responses: QuestionnaireResponse[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.questionnaireResponses, patientId, responses);
+      return;
+    }
+
     const key = `ehr_questionnaire_responses_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(responses));
   }
@@ -2330,17 +3058,46 @@ export class PatientService {
   }
 
   getPatientDeathRecord(patientId: string): DeathRecord | null {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.deathRecords,
+        patientId,
+        () => this.patientFhirStorageService.getDeathRecord(patientId),
+        null
+      );
+    }
+
     const key = `ehr_death_record_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : null;
   }
 
   savePatientDeathRecord(patientId: string, record: DeathRecord): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.saveDeathRecord(patientId, record)
+        .then((savedBundle) => this.setResourceCache(this.fhirCache.deathRecords, patientId, savedBundle))
+        .catch((error) => console.error('Error saving death record bundle in FHIR storage service:', error));
+      return;
+    }
+
     const key = `ehr_death_record_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(record));
   }
 
   deletePatientDeathRecord(patientId: string): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      const currentRecord = this.getPatientDeathRecord(patientId);
+      if (!currentRecord?.id) {
+        this.setResourceCache(this.fhirCache.deathRecords, patientId, null);
+        return;
+      }
+
+      this.patientFhirStorageService.deleteDeathRecord(patientId)
+        .then(() => this.setResourceCache(this.fhirCache.deathRecords, patientId, null))
+        .catch((error) => console.error('Error deleting death record bundle from FHIR storage service:', error));
+      return;
+    }
+
     this.storageService.removeItem(`ehr_death_record_${patientId}`);
   }
 
@@ -2664,7 +3421,7 @@ export class PatientService {
     patientId: string, 
     clinicalText: string, 
     reasonForEncounter: { name: string; conceptId?: string } | null,
-    diagnosis: { name: string; conceptId?: string } | null
+    diagnosis: { name: string; conceptId?: string; conditionId?: string } | null
   ): Encounter {
     const encounterId = `encounter-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const currentTime = new Date().toISOString();
@@ -2680,9 +3437,9 @@ export class PatientService {
     }] : undefined;
 
     // Create diagnosis from diagnosis parameter
-    const diagnosisArray = diagnosis ? [{
+    const diagnosisArray = diagnosis?.conditionId ? [{
       condition: {
-        reference: `Condition/${diagnosis.conceptId || 'unknown'}`,
+        reference: `Condition/${diagnosis.conditionId}`,
         display: diagnosis.name
       },
       use: {
@@ -2724,8 +3481,85 @@ export class PatientService {
     };
   }
 
+  async saveAiAssistedEntryTransaction(
+    patientId: string,
+    payload: AiAssistedEntryTransactionPayload
+  ): Promise<AiAssistedEntryTransactionResult> {
+    if (this.getCurrentPersistenceMode() !== 'fhir') {
+      throw new Error('AI-assisted entry transactions are only available in FHIR mode.');
+    }
+
+    await Promise.all([
+      ...payload.conditions.map((condition) => this.enrichCondition(condition)),
+      ...payload.procedures.map((procedure) => this.enrichProcedure(procedure)),
+      ...payload.medications.map((medication) => this.enrichMedication(patientId, medication))
+    ]);
+
+    const result = await this.patientFhirStorageService.saveAiAssistedEntryTransaction(patientId, payload);
+
+    this.setResourceCache(
+      this.fhirCache.conditions,
+      patientId,
+      this.mergeResourcesById(this.getPatientConditions(patientId), result.conditions),
+      false
+    );
+    this.setResourceCache(
+      this.fhirCache.procedures,
+      patientId,
+      this.mergeResourcesById(this.getPatientProcedures(patientId), result.procedures),
+      false
+    );
+    this.setResourceCache(
+      this.fhirCache.medications,
+      patientId,
+      this.mergeResourcesById(this.getPatientMedications(patientId), result.medications),
+      false
+    );
+
+    if (result.encounter) {
+      this.setResourceCache(
+        this.fhirCache.encounters,
+        patientId,
+        this.mergeResourcesById(this.getPatientEncounters(patientId), [result.encounter]),
+        false
+      );
+    }
+
+    this.notifyPatientDataChanged(patientId);
+    return result;
+  }
+
+  private mergeResourcesById<T extends { id?: string }>(existing: T[], incoming: T[]): T[] {
+    const merged = new Map<string, T>();
+
+    existing.forEach((resource) => {
+      const key = resource.id || this.createEphemeralResourceKey();
+      merged.set(key, resource);
+    });
+
+    incoming.forEach((resource) => {
+      const key = resource.id || this.createEphemeralResourceKey();
+      merged.set(key, resource);
+    });
+
+    return Array.from(merged.values());
+  }
+
+  private createEphemeralResourceKey(): string {
+    return `ephemeral-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  }
+
   // Encounter management methods
   getPatientEncounters(patientId: string): Encounter[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.encounters,
+        patientId,
+        () => this.patientFhirStorageService.getEncounters(patientId),
+        []
+      );
+    }
+
     const key = `ehr_encounters_${patientId}`;
     const stored = this.storageService.getItem(key);
     return stored ? JSON.parse(stored) : [];
@@ -2738,7 +3572,16 @@ export class PatientService {
     if (this.isDuplicateEncounter(encounters, encounter)) {
       return false; // Duplicate found, not added
     }
-    
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createEncounter(patientId, encounter)
+        .then((savedEncounter) => {
+          this.setResourceCache(this.fhirCache.encounters, patientId, [...encounters, savedEncounter]);
+        })
+        .catch((error) => console.error('Error creating encounter in FHIR storage service:', error));
+      return true;
+    }
+
     encounters.push(encounter);
     this.savePatientEncounters(patientId, encounters);
     
@@ -2752,6 +3595,11 @@ export class PatientService {
   }
 
   private savePatientEncounters(patientId: string, encounters: Encounter[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.encounters, patientId, encounters);
+      return;
+    }
+
     const key = `ehr_encounters_${patientId}`;
     this.storageService.saveItem(key, JSON.stringify(encounters));
   }
@@ -2760,6 +3608,14 @@ export class PatientService {
   deletePatientEncounter(patientId: string, encounterId: string): void {
     const encounters = this.getPatientEncounters(patientId);
     const updatedEncounters = encounters.filter(enc => enc.id !== encounterId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteEncounter(patientId, encounterId)
+        .then(() => this.setResourceCache(this.fhirCache.encounters, patientId, updatedEncounters))
+        .catch((error) => console.error('Error deleting encounter from FHIR storage service:', error));
+      return;
+    }
+
     this.savePatientEncounters(patientId, updatedEncounters);
     
     // Notify subscribers by updating the selected patient
@@ -2770,6 +3626,16 @@ export class PatientService {
   }
 
   clearAllPatientEvents(patientId: string): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.clearAllPatientEvents(patientId)
+        .then(() => {
+        this.clearFhirPatientCaches(patientId);
+        this.notifyPatientDataChanged(patientId);
+        })
+        .catch((error) => console.error('Error clearing patient events from FHIR storage service:', error));
+      return;
+    }
+
     
     // Clear all clinical events for a patient
     this.storageService.removeItem(`ehr_conditions_${patientId}`);

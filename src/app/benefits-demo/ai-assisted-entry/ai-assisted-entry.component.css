@@ -138,6 +138,8 @@
   margin-top: 15px;
   display: flex;
   justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .sample-text-button {

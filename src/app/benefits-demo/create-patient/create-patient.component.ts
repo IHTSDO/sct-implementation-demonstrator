@@ -42,7 +42,7 @@ export class CreatePatientComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.patientForm.valid) {
       this.isSubmitting = true;
       
@@ -96,14 +96,14 @@ export class CreatePatientComponent implements OnInit, OnDestroy {
         ]
       };
 
-      // Add the patient to the service
-      this.patientService.addPatient(newPatient);
-      
-      // Select the new patient
-      this.patientService.selectPatient(newPatient);
-      
-      // Navigate to clinical record
-      this.router.navigate(['/clinical-record']);
+      try {
+        const savedPatient = await this.patientService.addPatient(newPatient);
+        this.patientService.selectPatient(savedPatient);
+        this.router.navigate(['/clinical-record', savedPatient.id]);
+      } catch (error) {
+        console.error('Error creating patient:', error);
+        this.isSubmitting = false;
+      }
     } else {
       this.markFormGroupTouched();
     }

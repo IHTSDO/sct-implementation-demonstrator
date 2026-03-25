@@ -52,7 +52,19 @@
     <div class="viewer-header" *ngIf="selectedItem; else noSelection">
       <div class="selected-info">
         <div class="selected-type">{{ selectedItem.resourceType }}</div>
-        <div class="selected-id">id: {{ selectedItem.id }}</div>
+        <div class="selected-id-row">
+          <div class="selected-id">id: {{ selectedItem.id }}</div>
+          <a
+            *ngIf="getSelectedResourceServerUrl() as resourceUrl"
+            class="resource-server-link"
+            [href]="resourceUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            matTooltip="Open this resource on the FHIR server">
+            <mat-icon>open_in_new</mat-icon>
+            <span>Open on server</span>
+          </a>
+        </div>
       </div>
       <div class="json-actions">
         <button mat-icon-button (click)="downloadSelectedResource()" matTooltip="Download JSON">

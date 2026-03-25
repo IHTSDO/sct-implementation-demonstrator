@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { PatientService, Patient } from '../services/patient.service';
+import { PatientService, Patient, PatientPaginationState, PersistenceMode } from '../services/patient.service';
 import { PatientDataTransformerService } from '../services/patient-data-transformer.service';
 import { PatientSimulationService } from '../services/patient-simulation.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -11,6 +11,9 @@ import { ConfirmationDialogComponent } from '../questionnaires/confirmation-dial
 import { catchError, delay } from 'rxjs/operators';
 import { DeathRegistrationDialogComponent } from './death-registration-dialog/death-registration-dialog.component';
 import { filter } from 'rxjs/operators';
+import { FhirService } from '../services/fhir.service';
+import { FhirServerDialogComponent } from './fhir-server-dialog/fhir-server-dialog.component';
+import { PatientBookmarkService } from '../services/patient-bookmark.service';
 
 @Component({
   selector: 'app-benefits-demo',
@@ -27,6 +30,20 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   selectedPatient: Patient | null = null;
   showAnalytics = false;
   analyticsMode: 'regular' | 'icd10' = 'regular';
+  persistenceMode: PersistenceMode = 'local';
+  patientPagination: PatientPaginationState = {
+    hasNext: false,
+    hasPrevious: false,
+    nextUrl: null,
+    previousUrl: null,
+    loading: false,
+    pageSize: 20,
+    total: null
+  };
+  readonly patientSkeletonRows = Array.from({ length: 6 }, (_, index) => index);
+  currentFhirServer = '';
+  bookmarkedPatientIds = new Set<string>();
+  isCreatingPatient = false;
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -36,7 +53,9 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private fhirService: FhirService,
+    private patientBookmarkService: PatientBookmarkService
   ) { }
 
   ngOnInit(): void {
@@ -51,7 +70,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     // Subscribe to patients list
     this.subscriptions.push(
       this.patientService.getPatients().subscribe(patients => {
-        this.patients = this.sortPatientsByCreationDate(patients);
+        this.patients = this.sortPatientsByRecency(this.mergeBookmarkedPatients(patients));
         this.filterPatients();
       })
     );
@@ -62,6 +81,28 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         this.selectedPatient = patient;
       })
     );
+
+    this.subscriptions.push(
+      this.patientService.getPersistenceMode().subscribe(mode => {
+        this.persistenceMode = mode;
+        this.loadBookmarkedPatients();
+      })
+    );
+
+    this.subscriptions.push(
+      this.patientService.getPatientPagination().subscribe(state => {
+        this.patientPagination = state;
+      })
+    );
+
+    this.subscriptions.push(
+      this.fhirService.baseUrl$.subscribe(url => {
+        this.currentFhirServer = url;
+        this.loadBookmarkedPatients();
+      })
+    );
+
+    this.loadBookmarkedPatients();
   }
 
   filterPatients(): void {
@@ -114,11 +155,99 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   selectPatient(patient: Patient): void {
+    this.patientService.addOrUpdatePatientInMemory(patient);
     this.patientService.selectPatient(patient);
   }
 
   clearSelection(): void {
     this.patientService.selectPatient(null);
+  }
+
+  async onPersistenceModeChange(mode: PersistenceMode): Promise<void> {
+    if (this.persistenceMode === mode) {
+      return;
+    }
+
+    await this.patientService.setPersistenceMode(mode);
+    this.loadBookmarkedPatients();
+    this.searchTerm = '';
+    this.filterPatients();
+  }
+
+  async loadNextPatientsPage(): Promise<void> {
+    await this.patientService.loadNextPatientsPage();
+  }
+
+  async loadPreviousPatientsPage(): Promise<void> {
+    await this.patientService.loadPreviousPatientsPage();
+  }
+
+  isFhirMode(): boolean {
+    return this.persistenceMode === 'fhir';
+  }
+
+  async switchToLocalMode(): Promise<void> {
+    await this.onPersistenceModeChange('local');
+  }
+
+  async switchToFhirMode(): Promise<void> {
+    await this.onPersistenceModeChange('fhir');
+  }
+
+  openFhirServerSettings(): void {
+    const dialogRef = this.dialog.open(FhirServerDialogComponent, {
+      width: '540px',
+      maxWidth: '95vw'
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result === 'save' && this.isFhirMode()) {
+        await this.patientService.refreshPatients();
+      }
+    });
+  }
+
+  showPatientListSkeleton(): boolean {
+    return this.isFhirMode() && this.patientPagination.loading && this.patients.length === 0;
+  }
+
+  showPatientListOverlay(): boolean {
+    return this.isFhirMode() && this.patientPagination.loading && this.patients.length > 0;
+  }
+
+  getPatientCountLabel(): string {
+    if (this.searchTerm.trim()) {
+      const total = this.patientPagination.total ?? this.patients.length;
+      return `${this.filteredPatients.length} of ${total} patients`;
+    }
+
+    if (this.isFhirMode() && this.patientPagination.total !== null) {
+      return `${this.patients.length} of ${this.patientPagination.total} patients`;
+    }
+
+    return `${this.patients.length} patients`;
+  }
+
+  isPatientBookmarked(patient: Patient | null): boolean {
+    return !!patient && this.bookmarkedPatientIds.has(patient.id);
+  }
+
+  togglePatientBookmark(patient: Patient): void {
+    const isBookmarked = this.patientBookmarkService.toggleBookmark(
+      patient,
+      this.persistenceMode,
+      this.currentFhirServer
+    );
+    this.patientBookmarkService.upsertBookmarkSnapshot(patient, this.persistenceMode, this.currentFhirServer);
+    this.loadBookmarkedPatients();
+    this.patients = this.sortPatientsByRecency(this.mergeBookmarkedPatients(this.patients));
+    this.filterPatients();
+
+    this.snackBar.open(
+      isBookmarked ? 'Patient bookmarked at the top of this list.' : 'Patient removed from bookmarks.',
+      undefined,
+      { duration: 2500, horizontalPosition: 'center', verticalPosition: 'top' }
+    );
   }
 
   getPatientDisplayName(patient: Patient): string {
@@ -158,30 +287,131 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     return patient.id;
   }
 
-  private sortPatientsByCreationDate(patients: Patient[]): Patient[] {
-    return patients.sort((a, b) => {
-      // Extract timestamp from patient ID (format: patient-timestamp-random)
-      const getTimestampFromId = (id: string): number => {
-        const parts = id.split('-');
-        if (parts.length >= 2) {
-          const timestamp = parseInt(parts[1], 10);
-          return isNaN(timestamp) ? 0 : timestamp;
-        }
-        return 0;
-      };
+  private sortPatientsByRecency(patients: Patient[]): Patient[] {
+    const bookmarkedOrder = this.getBookmarkedOrderMap();
 
-      const timestampA = getTimestampFromId(a.id);
-      const timestampB = getTimestampFromId(b.id);
-      
-      // Sort in descending order (newest first)
+    return patients.sort((a, b) => {
+      const bookmarkedIndexA = bookmarkedOrder.get(a.id);
+      const bookmarkedIndexB = bookmarkedOrder.get(b.id);
+      const isBookmarkedA = bookmarkedIndexA !== undefined;
+      const isBookmarkedB = bookmarkedIndexB !== undefined;
+
+      if (isBookmarkedA && isBookmarkedB) {
+        return bookmarkedIndexA - bookmarkedIndexB;
+      }
+
+      if (isBookmarkedA) {
+        return -1;
+      }
+
+      if (isBookmarkedB) {
+        return 1;
+      }
+
+      const timestampA = this.getPatientSortTimestamp(a);
+      const timestampB = this.getPatientSortTimestamp(b);
       return timestampB - timestampA;
     });
   }
 
-  openClinicalRecord(): void {
-    if (this.selectedPatient) {
-      this.router.navigate(['/clinical-record', this.selectedPatient.id]);
+  private getPatientSortTimestamp(patient: Patient): number {
+    const metaTimestamp = patient.meta?.lastUpdated ? new Date(patient.meta.lastUpdated).getTime() : 0;
+    if (!Number.isNaN(metaTimestamp) && metaTimestamp > 0) {
+      return metaTimestamp;
     }
+
+    return this.getTimestampFromPatientId(patient.id);
+  }
+
+  private getTimestampFromPatientId(id: string): number {
+    const parts = id.split('-');
+    if (parts.length >= 2) {
+      const timestamp = parseInt(parts[1], 10);
+      return isNaN(timestamp) ? 0 : timestamp;
+    }
+
+    return 0;
+  }
+
+  getPatientRecordDateLabel(patient: Patient): string {
+    return patient.meta?.lastUpdated ? 'Updated' : 'Created';
+  }
+
+  getPatientRecordDate(patient: Patient): string | null {
+    if (patient.meta?.lastUpdated) {
+      return this.formatPatientDateTime(patient.meta.lastUpdated);
+    }
+
+    const timestamp = this.getTimestampFromPatientId(patient.id);
+    if (timestamp > 0) {
+      return this.formatPatientDateTime(new Date(timestamp).toISOString());
+    }
+
+    return null;
+  }
+
+  private formatPatientDateTime(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleString();
+  }
+
+  private loadBookmarkedPatients(): void {
+    const bookmarkedSnapshots = this.patientBookmarkService.getBookmarkedPatients(this.persistenceMode, this.currentFhirServer);
+    this.bookmarkedPatientIds = new Set(bookmarkedSnapshots.map((item) => item.id));
+    this.patients = this.sortPatientsByRecency(this.mergeBookmarkedPatients(this.patients));
+    this.filterPatients();
+  }
+
+  private mergeBookmarkedPatients(patients: Patient[]): Patient[] {
+    const bookmarkedSnapshots = this.patientBookmarkService.getBookmarkedPatients(this.persistenceMode, this.currentFhirServer);
+    const patientsById = new Map<string, Patient>();
+    const mergedPatients: Patient[] = [];
+
+    patients.forEach((patient) => {
+      patientsById.set(patient.id, patient);
+      this.patientBookmarkService.upsertBookmarkSnapshot(patient, this.persistenceMode, this.currentFhirServer);
+    });
+
+    bookmarkedSnapshots.forEach((snapshot) => {
+      const patient = patientsById.get(snapshot.id) || snapshot.patient;
+      if (!mergedPatients.some((item) => item.id === patient.id)) {
+        mergedPatients.push(patient);
+      }
+      patientsById.delete(snapshot.id);
+    });
+
+    patients.forEach((patient) => {
+      if (patientsById.has(patient.id)) {
+        mergedPatients.push(patient);
+      }
+    });
+
+    return mergedPatients;
+  }
+
+  private getBookmarkedOrderMap(): Map<string, number> {
+    const bookmarkedSnapshots = this.patientBookmarkService.getBookmarkedPatients(this.persistenceMode, this.currentFhirServer);
+    return new Map(bookmarkedSnapshots.map((snapshot, index) => [snapshot.id, index]));
+  }
+
+  async openClinicalRecord(): Promise<void> {
+    if (!this.selectedPatient) {
+      return;
+    }
+
+    if (this.isFhirMode()) {
+      const refreshedPatient = await this.patientService.refreshPatient(this.selectedPatient.id);
+      if (refreshedPatient) {
+        this.patientService.selectPatient(refreshedPatient);
+        this.patientBookmarkService.upsertBookmarkSnapshot(refreshedPatient, this.persistenceMode, this.currentFhirServer);
+      }
+    }
+
+    this.router.navigate(['/clinical-record', this.selectedPatient.id]);
   }
 
   openDeathRegistration(): void {
@@ -285,27 +515,50 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.router.navigate(['/create-patient']);
   }
 
-  createRandomPatient(): void {
+  async createRandomPatient(): Promise<void> {
     const randomPatient = this.patientSimulationService.generateRandomPatient();
-    this.patientService.addPatient(randomPatient);
-    this.patientService.selectPatient(randomPatient);
-    this.router.navigate(['/clinical-record', randomPatient.id]);
+    this.isCreatingPatient = true;
+
+    try {
+      const savedPatient = await this.patientService.addPatient(randomPatient);
+      this.patientService.selectPatient(savedPatient);
+      this.router.navigate(['/clinical-record', savedPatient.id]);
+    } catch (error) {
+      console.error('Error creating random patient:', error);
+      this.snackBar.open('Unable to create patient right now.', 'Close', {
+        duration: 3500,
+        horizontalPosition: 'center',
+        verticalPosition: 'top'
+      });
+    } finally {
+      this.isCreatingPatient = false;
+    }
   }
 
   createRandomPatientWithDiagnoses(): void {
     this.patientSimulationService.generateRandomPatientWithDiagnoses().subscribe({
       next: async (result) => {
-        // Add the patient to the service
-        this.patientService.addPatient(result.patient);
+        this.isCreatingPatient = true;
         
-        // Add the diagnoses as conditions
-        for (const diagnosis of result.diagnoses) {
-          await this.patientService.addPatientConditionEnriched(result.patient.id, diagnosis);
+        try {
+          const savedPatient = await this.patientService.addPatient(result.patient);
+
+          for (const diagnosis of result.diagnoses) {
+            diagnosis.subject = {
+              ...diagnosis.subject,
+              reference: `Patient/${savedPatient.id}`
+            };
+            await this.patientService.addPatientConditionEnriched(savedPatient.id, diagnosis);
+          }
+
+          this.patientService.selectPatient(savedPatient);
+          this.router.navigate(['/clinical-record', savedPatient.id]);
+        } catch (error) {
+          console.error('Error creating patient with diagnoses:', error);
+          alert('Error generating patient with diagnoses. Please try again.');
+        } finally {
+          this.isCreatingPatient = false;
         }
-        
-        // Select the patient and navigate to clinical record
-        this.patientService.selectPatient(result.patient);
-        this.router.navigate(['/clinical-record', result.patient.id]);
       },
       error: (error) => {
         console.error('Error generating patient with diagnoses:', error);
@@ -458,18 +711,34 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   hasAnalyticsData(): boolean {
+    if (this.isFhirMode()) {
+      return false;
+    }
+
     return this.patientDataTransformer.hasPatientData(false);
   }
 
   hasIcd10AnalyticsData(): boolean {
+    if (this.isFhirMode()) {
+      return false;
+    }
+
     return this.patientDataTransformer.hasPatientData(true);
   }
 
   getAnalyticsDataSummary(): { patients: number, conditions: number, procedures: number, medications: number } {
+    if (this.isFhirMode()) {
+      return { patients: this.patients.length, conditions: 0, procedures: 0, medications: 0 };
+    }
+
     return this.patientDataTransformer.getDataSummary(false);
   }
 
   getIcd10AnalyticsDataSummary(): { patients: number, conditions: number, procedures: number, medications: number } {
+    if (this.isFhirMode()) {
+      return { patients: this.patients.length, conditions: 0, procedures: 0, medications: 0 };
+    }
+
     return this.patientDataTransformer.getDataSummary(true);
   }
 
