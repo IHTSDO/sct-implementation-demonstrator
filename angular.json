@@ -30,7 +30,7 @@
             "styles": [
               "src/custom-theme.scss",
               "src/styles.css",
-              "node_modules/leaflet/dist/leaflet.css"
+              "leaflet/dist/leaflet.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
