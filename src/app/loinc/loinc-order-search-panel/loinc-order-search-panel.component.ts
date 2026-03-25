@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { FormControl } from '@angular/forms';
 import { debounceTime, filter, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
 import { TerminologyService } from 'src/app/services/terminology.service';
-import { ServiceRequest } from 'src/app/services/patient.service';
+import type { ServiceRequest } from 'src/app/model';
 
 @Component({
   selector: 'app-loinc-order-search-panel',

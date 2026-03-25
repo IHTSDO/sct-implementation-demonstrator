@@ -4,8 +4,9 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
-import { PatientService, Patient, PatientSimilarityResult } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
+import type { Patient, PatientSimilarityResult } from '../../model';
 import {
   ConceptHierarchyValidationService,
   HierarchyMatch,

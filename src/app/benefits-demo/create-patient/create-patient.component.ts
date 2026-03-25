@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { PatientService, Patient } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { Subscription } from 'rxjs';
+import type { Patient } from '../../model';
 
 @Component({
   selector: 'app-create-patient',

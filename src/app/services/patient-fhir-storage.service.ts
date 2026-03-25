@@ -14,7 +14,7 @@ import type {
   Procedure,
   QuestionnaireResponse,
   ServiceRequest,
-} from './patient.service';
+} from '../model';
 import {
   AiAssistedEntryTransactionPayload,
   AiAssistedEntryTransactionResult,

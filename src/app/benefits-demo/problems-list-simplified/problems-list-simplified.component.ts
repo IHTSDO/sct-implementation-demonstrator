@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AllergyIntolerance, Condition, MedicationStatement, Procedure } from '../../services/patient.service';
+import type { AllergyIntolerance, Condition, MedicationStatement, Procedure } from '../../model';
 
 type ProblemKind = 'Condition' | 'Procedure' | 'Medication' | 'Allergy';
 

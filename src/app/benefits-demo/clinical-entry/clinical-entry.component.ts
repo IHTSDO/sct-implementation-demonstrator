@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { PatientService, Condition, Procedure, MedicationStatement } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
+import type { Condition, MedicationStatement, Procedure } from '../../model';
 
 export type ClinicalEntryType = 'condition' | 'procedure' | 'medication';
 

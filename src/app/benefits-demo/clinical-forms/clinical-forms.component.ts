@@ -2,10 +2,18 @@ import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angu
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
-import { Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, PatientService, OpenEHRComposition } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { AdverseReactionReport } from './adverse-reaction-form/adverse-reaction-form.component';
 import { FormRecordsComponent } from '../form-records/form-records.component';
 import { CustomQuestionnaireService, CustomQuestionnaire } from '../../services/custom-questionnaire.service';
+import type {
+  AllergyIntolerance,
+  Condition,
+  MedicationStatement,
+  OpenEHRComposition,
+  Patient,
+  Procedure
+} from '../../model';
 
 export interface ClinicalForm {
   id: string;

@@ -1,7 +1,8 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { PatientService, QuestionnaireResponse, OpenEHRComposition, DeathRecord } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import type { DeathRecord, OpenEHRComposition, QuestionnaireResponse } from '../../model';
 
 export type FormRecord = QuestionnaireResponse | OpenEHRComposition | DeathRecord;
 

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { PatientService, Patient, Condition, Procedure, MedicationStatement } from './patient.service';
+import { PatientService } from './patient.service';
 import { DataAnalyticsService } from './data-analytics.service';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import type { Condition, MedicationStatement, Patient, Procedure } from '../model';
 
 export interface TransformedPatient {
   id: string;

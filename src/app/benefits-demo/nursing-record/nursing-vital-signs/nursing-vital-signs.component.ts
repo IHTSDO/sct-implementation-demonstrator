@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FhirObservation, Patient, PatientService } from '../../../services/patient.service';
+import { PatientService } from '../../../services/patient.service';
+import type { FhirObservation, Patient } from '../../../model';
 import { DentistryFhirDialogComponent, DentistryFhirDialogData } from '../../dentistry-record/dentistry-fhir-dialog/dentistry-fhir-dialog.component';
 
 type VitalSignKey = 'heartRate' | 'bloodPressure' | 'temperature' | 'respiratoryRate' | 'oxygenSaturation' | 'weight';

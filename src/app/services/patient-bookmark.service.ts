@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
-import type { Patient } from './patient.service';
+import type { Patient } from '../model';
 import type { PersistenceMode } from './patient-storage.types';
 
 interface PatientBookmarkSnapshot {

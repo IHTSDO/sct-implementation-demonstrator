@@ -13,1273 +13,24 @@ import {
   PatientStorageBackend
 } from './patient-storage.types';
 
-export interface Patient {
-  resourceType: 'Patient';
-  id: string;
-  identifier?: Array<{
-    system: string;
-    value: string;
-  }>;
-  active?: boolean;
-  name?: Array<{
-    use?: string;
-    text?: string;
-    family?: string;
-    given?: string[];
-  }>;
-  telecom?: Array<{
-    system?: string;
-    value?: string;
-    use?: string;
-  }>;
-  gender?: string;
-  birthDate?: string;
-  deceasedBoolean?: boolean;
-  deceasedDateTime?: string;
-  address?: Array<{
-    use?: string;
-    type?: string;
-    text?: string;
-    line?: string[];
-    city?: string;
-    district?: string;
-    state?: string;
-    postalCode?: string;
-    country?: string;
-  }>;
-  maritalStatus?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  multipleBirthBoolean?: boolean;
-  multipleBirthInteger?: number;
-  photo?: Array<{
-    contentType?: string;
-    language?: string;
-    data?: string;
-    url?: string;
-    size?: number;
-    hash?: string;
-    title?: string;
-  }>;
-  contact?: Array<{
-    relationship?: Array<{
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    }>;
-    name?: {
-      use?: string;
-      text?: string;
-      family?: string;
-      given?: string[];
-    };
-    telecom?: Array<{
-      system?: string;
-      value?: string;
-      use?: string;
-    }>;
-    address?: {
-      use?: string;
-      type?: string;
-      text?: string;
-      line?: string[];
-      city?: string;
-      district?: string;
-      state?: string;
-      postalCode?: string;
-      country?: string;
-    };
-    gender?: string;
-    organization?: {
-      reference?: string;
-      display?: string;
-    };
-    period?: {
-      start?: string;
-      end?: string;
-    };
-  }>;
-  communication?: Array<{
-    language: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    preferred?: boolean;
-  }>;
-  generalPractitioner?: Array<{
-    reference?: string;
-    display?: string;
-  }>;
-  managingOrganization?: {
-    reference?: string;
-    display?: string;
-  };
-  meta?: {
-    versionId?: string;
-    lastUpdated?: string;
-  };
-  link?: Array<{
-    other?: {
-      reference?: string;
-      display?: string;
-    };
-    type?: string;
-  }>;
-}
-
-export interface Condition {
-  resourceType: 'Condition';
-  id: string;
-  clinicalStatus?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  verificationStatus?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  category?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  severity?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  code: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text: string;
-  };
-  bodySite?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  subject: {
-    reference: string;
-    display?: string;
-  };
-  encounter?: {
-    reference: string;
-    display?: string;
-  };
-  onsetDateTime?: string;
-  onsetAge?: {
-    value: number;
-    unit: string;
-    system?: string;
-    code?: string;
-  };
-  onsetPeriod?: {
-    start?: string;
-    end?: string;
-  };
-  onsetRange?: {
-    low?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-    high?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-  };
-  onsetString?: string;
-  abatementDateTime?: string;
-  abatementAge?: {
-    value: number;
-    unit: string;
-    system?: string;
-    code?: string;
-  };
-  abatementPeriod?: {
-    start?: string;
-    end?: string;
-  };
-  abatementRange?: {
-    low?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-    high?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-  };
-  abatementString?: string;
-  recordedDate?: string;
-  recorder?: {
-    reference: string;
-    display?: string;
-  };
-  asserter?: {
-    reference: string;
-    display?: string;
-  };
-  stage?: Array<{
-    summary?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    assessment?: Array<{
-      reference: string;
-      display?: string;
-    }>;
-    type?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-  }>;
-  evidence?: Array<{
-    code?: Array<{
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    }>;
-    detail?: Array<{
-      reference: string;
-      display?: string;
-    }>;
-  }>;
-  note?: Array<{
-    authorReference?: {
-      reference: string;
-      display?: string;
-    };
-    authorString?: string;
-    time?: string;
-    text: string;
-  }>;
-  computedLocation?: string;
-  bodyStructure?: {
-    reference?: string;
-    display?: string;
-  };
-}
-
-export interface BodyStructure {
-  resourceType: 'BodyStructure';
-  id: string;
-  patient: {
-    reference: string;
-    display?: string;
-  };
-  includedStructure?: Array<{
-    structure: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-  }>;
-  note?: Array<{
-    text: string;
-    time?: string;
-  }>;
-}
-
-export interface Procedure {
-  resourceType: 'Procedure';
-  id: string;
-  identifier?: Array<{
-    use?: string;
-    type?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    system?: string;
-    value?: string;
-    period?: {
-      start?: string;
-      end?: string;
-    };
-    assigner?: {
-      reference: string;
-      display?: string;
-    };
-  }>;
-  instantiatesCanonical?: string[];
-  instantiatesUri?: string[];
-  basedOn?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  partOf?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  status: 'preparation' | 'in-progress' | 'not-done' | 'on-hold' | 'stopped' | 'completed' | 'entered-in-error' | 'unknown';
-  statusReason?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  category?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  code: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text: string;
-  };
-  subject: {
-    reference: string;
-    display?: string;
-  };
-  encounter?: {
-    reference: string;
-    display?: string;
-  };
-  performedDateTime?: string;
-  performedPeriod?: {
-    start?: string;
-    end?: string;
-  };
-  performedString?: string;
-  performedAge?: {
-    value: number;
-    unit: string;
-    system?: string;
-    code?: string;
-  };
-  performedRange?: {
-    low?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-    high?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-  };
-  recorder?: {
-    reference: string;
-    display?: string;
-  };
-  asserter?: {
-    reference: string;
-    display?: string;
-  };
-  performer?: Array<{
-    function?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    actor: {
-      reference: string;
-      display?: string;
-    };
-    onBehalfOf?: {
-      reference: string;
-      display?: string;
-    };
-  }>;
-  location?: {
-    reference: string;
-    display?: string;
-  };
-  reasonCode?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  reasonReference?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  bodySite?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  outcome?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  report?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  complication?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  complicationDetail?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  followUp?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  note?: Array<{
-    authorReference?: {
-      reference: string;
-      display?: string;
-    };
-    authorString?: string;
-    time?: string;
-    text: string;
-  }>;
-  focalDevice?: Array<{
-    action?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    manipulated: {
-      reference: string;
-      display?: string;
-    };
-  }>;
-  usedReference?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  usedCode?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  computedLocation?: string;
-  bodyStructure?: {
-    reference?: string;
-    display?: string;
-  };
-  snomedConceptId?: string;
-}
-
-export interface MedicationStatement {
-  resourceType: 'MedicationStatement';
-  id: string;
-  identifier?: Array<{
-    use?: string;
-    type?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    system?: string;
-    value?: string;
-    period?: {
-      start?: string;
-      end?: string;
-    };
-    assigner?: {
-      reference: string;
-      display?: string;
-    };
-  }>;
-  basedOn?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  partOf?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  status: 'active' | 'completed' | 'entered-in-error' | 'intended' | 'stopped' | 'on-hold' | 'unknown' | 'not-taken';
-  statusReason?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  category?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  medicationCodeableConcept?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text: string;
-  };
-  medicationReference?: {
-    reference: string;
-    display?: string;
-  };
-  subject: {
-    reference: string;
-    display?: string;
-  };
-  context?: {
-    reference: string;
-    display?: string;
-  };
-  effectiveDateTime?: string;
-  effectivePeriod?: {
-    start?: string;
-    end?: string;
-  };
-  dateAsserted?: string;
-  informationSource?: {
-    reference: string;
-    display?: string;
-  };
-  derivedFrom?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  reasonCode?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  reasonReference?: Array<{
-    reference: string;
-    display?: string;
-  }>;
-  note?: Array<{
-    authorReference?: {
-      reference: string;
-      display?: string;
-    };
-    authorString?: string;
-    time?: string;
-    text: string;
-  }>;
-  dosage?: Array<{
-    sequence?: number;
-    text?: string;
-    additionalInstruction?: Array<{
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    }>;
-    patientInstruction?: string;
-    timing?: {
-      event?: string[];
-      repeat?: {
-        boundsDuration?: {
-          value: number;
-          unit: string;
-          system?: string;
-          code?: string;
-        };
-        boundsRange?: {
-          low?: {
-            value: number;
-            unit: string;
-            system?: string;
-            code?: string;
-          };
-          high?: {
-            value: number;
-            unit: string;
-            system?: string;
-            code?: string;
-          };
-        };
-        boundsPeriod?: {
-          start?: string;
-          end?: string;
-        };
-        count?: number;
-        countMax?: number;
-        duration?: number;
-        durationMax?: number;
-        durationUnit?: string;
-        frequency?: number;
-        frequencyMax?: number;
-        period?: number;
-        periodMax?: number;
-        periodUnit?: string;
-        dayOfWeek?: string[];
-        timeOfDay?: string[];
-        when?: string[];
-        offset?: number;
-      };
-      code?: {
-        coding?: Array<{
-          system?: string;
-          code?: string;
-          display?: string;
-        }>;
-        text?: string;
-      };
-    };
-    asNeededBoolean?: boolean;
-    asNeededCodeableConcept?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    site?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-      };
-      route?: {
-        coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    method?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    doseAndRate?: Array<{
-      type?: {
-        coding?: Array<{
-          system?: string;
-          code?: string;
-          display?: string;
-        }>;
-        text?: string;
-      };
-      doseRange?: {
-        low?: {
-          value: number;
-          unit: string;
-          system?: string;
-          code?: string;
-        };
-        high?: {
-          value: number;
-          unit: string;
-          system?: string;
-          code?: string;
-        };
-      };
-      doseQuantity?: {
-        value: number;
-        unit: string;
-        system?: string;
-        code?: string;
-      };
-      rateRatio?: {
-        numerator: {
-          value: number;
-          unit: string;
-          system?: string;
-          code?: string;
-        };
-        denominator: {
-          value: number;
-          unit: string;
-          system?: string;
-          code?: string;
-        };
-      };
-      rateRange?: {
-        low?: {
-          value: number;
-          unit: string;
-          system?: string;
-          code?: string;
-        };
-        high?: {
-          value: number;
-          unit: string;
-          system?: string;
-          code?: string;
-        };
-      };
-      rateQuantity?: {
-        value: number;
-        unit: string;
-        system?: string;
-        code?: string;
-      };
-    }>;
-    maxDosePerPeriod?: {
-      numerator: {
-        value: number;
-        unit: string;
-        system?: string;
-        code?: string;
-      };
-      denominator: {
-        value: number;
-        unit: string;
-        system?: string;
-        code?: string;
-      };
-    };
-    maxDosePerAdministration?: {
-      value: number;
-      unit: string;
-      system?: string;
-      code?: string;
-    };
-      maxDosePerLifetime?: {
-        value: number;
-        unit: string;
-        system?: string;
-        code?: string;
-      };
-    }>;
-  computedLocation?: string;
-  snomedConceptId?: string;
-}
-
-export interface ServiceRequest {
-  resourceType: 'ServiceRequest';
-  id: string;
-  status: 'draft' | 'active' | 'on-hold' | 'revoked' | 'completed' | 'entered-in-error' | 'unknown';
-  intent: 'proposal' | 'plan' | 'directive' | 'order' | 'original-order' | 'reflex-order' | 'filler-order' | 'instance-order' | 'option';
-  code: {
-    coding?: Array<{
-      system?: string;
-      version?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  subject: {
-    reference: string;
-    display?: string;
-  };
-  authoredOn?: string;
-  occurrenceDateTime?: string;
-  specimen?: Array<{
-    reference?: string;
-    display?: string;
-    identifier?: {
-      system?: string;
-      value?: string;
-    };
-  }>;
-  note?: Array<{
-    text: string;
-    time?: string;
-  }>;
-}
-
-export interface LaboratoryOrderGroup {
-  id: string;
-  patientId: string;
-  patientDisplay?: string;
-  createdAt: string;
-  serviceRequests: ServiceRequest[];
-  fhirBundle: any;
-  fhirBundleStr: string;
-}
-
-export interface Encounter {
-  resourceType: 'Encounter';
-  id: string;
-  status: 'planned' | 'arrived' | 'triaged' | 'in-progress' | 'onleave' | 'finished' | 'cancelled' | 'entered-in-error' | 'unknown';
-  class: {
-    system: string;
-    code: string;
-    display: string;
-  };
-  type?: Array<{
-    coding: Array<{
-      system: string;
-      code: string;
-      display: string;
-    }>;
-    text: string;
-  }>;
-  subject: {
-    reference: string;
-    display?: string;
-  };
-  period: {
-    start: string;
-    end?: string;
-  };
-  reasonCode?: Array<{
-    coding: Array<{
-      system: string;
-      code: string;
-      display: string;
-    }>;
-    text: string;
-  }>;
-  diagnosis?: Array<{
-    condition: {
-      reference: string;
-      display?: string;
-    };
-    use?: {
-      coding: Array<{
-        system: string;
-        code: string;
-        display: string;
-      }>;
-    };
-    rank?: number;
-  }>;
-  note?: Array<{
-    text: string;
-    time?: string;
-    authorReference?: {
-      reference: string;
-    };
-  }>;
-}
-
-export interface FhirObservation {
-  resourceType: 'Observation';
-  id: string;
-  status: 'registered' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'cancelled' | 'entered-in-error' | 'unknown';
-  category?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  code: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  subject: {
-    reference: string;
-    display?: string;
-  };
-  effectiveDateTime?: string;
-  issued?: string;
-  valueQuantity?: {
-    value?: number;
-    unit?: string;
-    system?: string;
-    code?: string;
-  };
-  valueCodeableConcept?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  bodySite?: Array<{
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  }>;
-  method?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  component?: Array<{
-    code: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    valueQuantity?: {
-      value?: number;
-      unit?: string;
-      system?: string;
-      code?: string;
-    };
-  }>;
-  note?: Array<{
-    text: string;
-    time?: string;
-    authorReference?: {
-      reference: string;
-      display?: string;
-    };
-  }>;
-}
-
-export interface AllergyIntolerance {
-  resourceType: 'AllergyIntolerance';
-  id: string;
-  identifier?: Array<{
-    use?: string;
-    type?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    system?: string;
-    value?: string;
-    period?: {
-      start?: string;
-      end?: string;
-    };
-    assigner?: {
-      reference: string;
-      display?: string;
-    };
-  }>;
-  clinicalStatus?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  verificationStatus?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  type?: 'allergy' | 'intolerance';
-  category?: Array<'food' | 'medication' | 'environment' | 'biologic'>;
-  criticality?: 'low' | 'high' | 'unable-to-assess';
-  code?: {
-    coding?: Array<{
-      system?: string;
-      code?: string;
-      display?: string;
-    }>;
-    text?: string;
-  };
-  patient?: {
-    reference: string;
-    display?: string;
-  };
-  encounter?: {
-    reference: string;
-    display?: string;
-  };
-  onsetDateTime?: string;
-  onsetAge?: {
-    value?: number;
-    unit?: string;
-    system?: string;
-    code?: string;
-  };
-  onsetPeriod?: {
-    start?: string;
-    end?: string;
-  };
-  onsetRange?: {
-    low?: {
-      value?: number;
-      unit?: string;
-      system?: string;
-      code?: string;
-    };
-    high?: {
-      value?: number;
-      unit?: string;
-      system?: string;
-      code?: string;
-    };
-  };
-  onsetString?: string;
-  recordedDate?: string;
-  recorder?: {
-    reference: string;
-    display?: string;
-  };
-  asserter?: {
-    reference: string;
-    display?: string;
-  };
-  lastOccurrence?: string;
-  note?: Array<{
-    authorReference?: {
-      reference: string;
-      display?: string;
-    };
-    authorString?: string;
-    time?: string;
-    text: string;
-  }>;
-  reaction?: Array<{
-    substance?: Array<{
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    }>;
-    manifestation?: Array<{
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    }>;
-    description?: string;
-    onset?: string;
-    severity?: 'mild' | 'moderate' | 'severe';
-    exposureRoute?: {
-      coding?: Array<{
-        system?: string;
-        code?: string;
-        display?: string;
-      }>;
-      text?: string;
-    };
-    note?: Array<{
-      authorReference?: {
-        reference: string;
-        display?: string;
-      };
-      authorString?: string;
-      time?: string;
-      text: string;
-    }>;
-  }>;
-}
-
-export interface QuestionnaireResponse {
-  resourceType: 'QuestionnaireResponse';
-  id: string;
-  identifier?: {
-    system?: string;
-    value?: string;
-  };
-  questionnaire?: string; // Canonical URL of the Questionnaire
-  status: 'in-progress' | 'completed' | 'amended' | 'entered-in-error' | 'stopped';
-  subject?: {
-    reference: string;
-    display?: string;
-  };
-  encounter?: {
-    reference: string;
-    display?: string;
-  };
-  authored?: string; // DateTime when completed
-  author?: {
-    reference: string;
-    display?: string;
-  };
-  source?: {
-    reference: string;
-    display?: string;
-  };
-  item?: Array<any>; // QuestionnaireResponse items (answers)
-  // Custom metadata for display
-  questionnaireTitle?: string;
-  questionnaireId?: string; // Our internal ID (like 'questionnaire-phq9')
-  questionnaireName?: string; // Display name
-}
-
-export interface OpenEHRComposition {
-  resourceType: 'OpenEHRComposition';
-  id: string;
-  templateId: string;
-  templateName?: string;
-  composition: any; // The actual openEHR composition in FLAT format
-  webTemplate?: any; // The web template used
-  authored?: string; // DateTime when completed
-  subject?: {
-    reference: string;
-    display?: string;
-  };
-  // Custom metadata for display
-  compositionName?: string;
-}
-
-export interface DeathRecordDiagnosis {
-  sourceType: 'existing-condition' | 'snomed-search';
-  sourceConditionId?: string;
-  text: string;
-  intervalText?: string;
-  snomedConceptId?: string;
-  snomedDisplay?: string;
-  icd10Code?: string;
-  derivedConditionId?: string;
-}
-
-export interface DeathRecord {
-  resourceType: 'Bundle';
-  id: string;
-  type: 'document';
-  authored?: string;
-  identifier: {
-    system: string;
-    value: string;
-  };
-  timestamp: string;
-  meta?: {
-    profile?: string[];
-  };
-  entry: Array<{
-    fullUrl: string;
-    resource: any;
-  }>;
-}
-
-export interface ClinicalDataLoadSummary {
-  totalResources: number;
-  counts: {
-    conditions: number;
-    bodyStructures: number;
-    procedures: number;
-    medications: number;
-    serviceRequests: number;
-    labOrders: number;
-    observations: number;
-    allergies: number;
-    questionnaireResponses: number;
-    encounters: number;
-    deathRecords: number;
-  };
-}
-
-export interface PatientSimilarityResult {
-  patient: Patient;
-  score: number;
-  breakdown?: {
-    nameScore: number;
-    birthDateScore: number;
-    genderScore: number;
-  };
-}
-
-export type { PersistenceMode, PatientPaginationState } from './patient-storage.types';
+import type {
+  AllergyIntolerance,
+  BodyStructure,
+  ClinicalDataLoadSummary,
+  Condition,
+  DeathRecord,
+  DeathRecordDiagnosis,
+  Encounter,
+  FhirObservation,
+  LaboratoryOrderGroup,
+  MedicationStatement,
+  OpenEHRComposition,
+  Patient,
+  PatientSimilarityResult,
+  Procedure,
+  QuestionnaireResponse,
+  ServiceRequest
+} from '../model';
 
 @Injectable({
   providedIn: 'root'
@@ -2072,9 +823,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_conditions_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    const conditions = stored ? JSON.parse(stored) : [];
+    const conditions = this.patientLocalStorageService.readStoredArray<Condition>(`ehr_conditions_${patientId}`);
     return this.patientLocalStorageService.hydrateConditionsFromStorage(conditions);
   }
 
@@ -2168,10 +917,9 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_conditions_${patientId}`;
-    this.storageService.saveItem(
-      key,
-      JSON.stringify(this.patientLocalStorageService.normalizeConditionsForStorage(conditions))
+    this.patientLocalStorageService.writeStoredArray(
+      `ehr_conditions_${patientId}`,
+      this.patientLocalStorageService.normalizeConditionsForStorage(conditions)
     );
   }
 
@@ -2234,9 +982,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_body_structures_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.readStoredArray<BodyStructure>(`ehr_body_structures_${patientId}`);
   }
 
   addPatientBodyStructure(patientId: string, bodyStructure: BodyStructure): void {
@@ -2295,8 +1041,7 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_body_structures_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(bodyStructures));
+    this.patientLocalStorageService.writeStoredArray(`ehr_body_structures_${patientId}`, bodyStructures);
   }
 
   // Procedures
@@ -2310,9 +1055,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_procedures_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    const procedures = stored ? JSON.parse(stored) : [];
+    const procedures = this.patientLocalStorageService.readStoredArray<Procedure>(`ehr_procedures_${patientId}`);
     return this.patientLocalStorageService.hydrateProceduresFromStorage(procedures);
   }
 
@@ -2401,10 +1144,9 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_procedures_${patientId}`;
-    this.storageService.saveItem(
-      key,
-      JSON.stringify(this.patientLocalStorageService.normalizeProceduresForStorage(procedures))
+    this.patientLocalStorageService.writeStoredArray(
+      `ehr_procedures_${patientId}`,
+      this.patientLocalStorageService.normalizeProceduresForStorage(procedures)
     );
   }
 
@@ -2485,9 +1227,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_medications_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    const medications = stored ? JSON.parse(stored) : [];
+    const medications = this.patientLocalStorageService.readStoredArray<MedicationStatement>(`ehr_medications_${patientId}`);
     return this.patientLocalStorageService.hydrateMedicationsFromStorage(medications);
   }
 
@@ -2560,10 +1300,9 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_medications_${patientId}`;
-    this.storageService.saveItem(
-      key,
-      JSON.stringify(this.patientLocalStorageService.normalizeMedicationsForStorage(medications))
+    this.patientLocalStorageService.writeStoredArray(
+      `ehr_medications_${patientId}`,
+      this.patientLocalStorageService.normalizeMedicationsForStorage(medications)
     );
   }
 
@@ -2577,9 +1316,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_service_requests_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.readStoredArray<ServiceRequest>(`ehr_service_requests_${patientId}`);
   }
 
   addPatientServiceRequest(patientId: string, serviceRequest: ServiceRequest): boolean {
@@ -2643,8 +1380,7 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_service_requests_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(requests));
+    this.patientLocalStorageService.writeStoredArray(`ehr_service_requests_${patientId}`, requests);
   }
 
   getPatientLabOrders(patientId: string): LaboratoryOrderGroup[] {
@@ -2657,9 +1393,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_lab_orders_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.readStoredArray<LaboratoryOrderGroup>(`ehr_lab_orders_${patientId}`);
   }
 
   addPatientLabOrder(patientId: string, labOrder: LaboratoryOrderGroup): void {
@@ -2698,8 +1432,7 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_lab_orders_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(labOrders));
+    this.patientLocalStorageService.writeStoredArray(`ehr_lab_orders_${patientId}`, labOrders);
   }
 
   private async enrichMedicationInBackground(patientId: string, medication: MedicationStatement): Promise<void> {
@@ -2786,9 +1519,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_observations_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.readStoredArray<FhirObservation>(`ehr_observations_${patientId}`);
   }
 
   addPatientObservation(patientId: string, observation: FhirObservation): boolean {
@@ -2860,8 +1591,7 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_observations_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(observations));
+    this.patientLocalStorageService.writeStoredArray(`ehr_observations_${patientId}`, observations);
   }
 
   // Allergies
@@ -2875,9 +1605,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_allergies_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.readStoredArray<AllergyIntolerance>(`ehr_allergies_${patientId}`);
   }
 
   addPatientAllergy(patientId: string, allergy: AllergyIntolerance): boolean {
@@ -2944,8 +1672,7 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_allergies_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(allergies));
+    this.patientLocalStorageService.writeStoredArray(`ehr_allergies_${patientId}`, allergies);
   }
 
   private normalizeAllergyForPersistence(allergy: AllergyIntolerance): AllergyIntolerance {
@@ -2994,9 +1721,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_questionnaire_responses_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.readStoredArray<QuestionnaireResponse>(`ehr_questionnaire_responses_${patientId}`);
   }
 
   addPatientQuestionnaireResponse(patientId: string, response: QuestionnaireResponse): boolean {
@@ -3056,15 +1781,12 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_questionnaire_responses_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(responses));
+    this.patientLocalStorageService.writeStoredArray(`ehr_questionnaire_responses_${patientId}`, responses);
   }
 
   // OpenEHR Compositions
   getPatientOpenEHRCompositions(patientId: string): OpenEHRComposition[] {
-    const key = `ehr_openehr_compositions_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.readStoredArray<OpenEHRComposition>(`ehr_openehr_compositions_${patientId}`);
   }
 
   addPatientOpenEHRComposition(patientId: string, composition: OpenEHRComposition): boolean {
@@ -3090,8 +1812,7 @@ export class PatientService {
   }
 
   private savePatientOpenEHRCompositions(patientId: string, compositions: OpenEHRComposition[]): void {
-    const key = `ehr_openehr_compositions_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(compositions));
+    this.patientLocalStorageService.writeStoredArray(`ehr_openehr_compositions_${patientId}`, compositions);
   }
 
   getPatientDeathRecord(patientId: string): DeathRecord | null {
@@ -3104,9 +1825,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_death_record_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : null;
+    return this.patientLocalStorageService.readStoredValue<DeathRecord | null>(`ehr_death_record_${patientId}`, null);
   }
 
   savePatientDeathRecord(patientId: string, record: DeathRecord): void {
@@ -3117,8 +1836,7 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_death_record_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(record));
+    this.patientLocalStorageService.writeStoredValue(`ehr_death_record_${patientId}`, record);
   }
 
   deletePatientDeathRecord(patientId: string): void {
@@ -3135,7 +1853,7 @@ export class PatientService {
       return;
     }
 
-    this.storageService.removeItem(`ehr_death_record_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_death_record_${patientId}`);
   }
 
   // Utility methods for creating sample clinical data
@@ -3603,9 +2321,7 @@ export class PatientService {
       );
     }
 
-    const key = `ehr_encounters_${patientId}`;
-    const stored = this.storageService.getItem(key);
-    return stored ? JSON.parse(stored) : [];
+    return this.patientLocalStorageService.readStoredArray<Encounter>(`ehr_encounters_${patientId}`);
   }
 
   addPatientEncounter(patientId: string, encounter: Encounter): boolean {
@@ -3643,8 +2359,7 @@ export class PatientService {
       return;
     }
 
-    const key = `ehr_encounters_${patientId}`;
-    this.storageService.saveItem(key, JSON.stringify(encounters));
+    this.patientLocalStorageService.writeStoredArray(`ehr_encounters_${patientId}`, encounters);
   }
 
   // Public method to delete an encounter
@@ -3681,21 +2396,21 @@ export class PatientService {
 
     
     // Clear all clinical events for a patient
-    this.storageService.removeItem(`ehr_conditions_${patientId}`);
-    this.storageService.removeItem(`ehr_procedures_${patientId}`);
-    this.storageService.removeItem(`ehr_medications_${patientId}`);
-    this.storageService.removeItem(`ehr_service_requests_${patientId}`);
-    this.storageService.removeItem(`ehr_lab_orders_${patientId}`);
-    this.storageService.removeItem(`ehr_observations_${patientId}`);
-    this.storageService.removeItem(`ehr_body_structures_${patientId}`);
-    this.storageService.removeItem(`ehr_allergies_${patientId}`);
-    this.storageService.removeItem(`ehr_encounters_${patientId}`);
-    this.storageService.removeItem(`ehr_questionnaire_responses_${patientId}`);
-    this.storageService.removeItem(`ehr_openehr_compositions_${patientId}`);
-    this.storageService.removeItem(`ehr_death_record_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_conditions_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_procedures_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_medications_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_service_requests_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_lab_orders_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_observations_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_body_structures_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_allergies_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_encounters_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_questionnaire_responses_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_openehr_compositions_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`ehr_death_record_${patientId}`);
     
     // Also clear old storage key format for encounters (for backwards compatibility)
-    this.storageService.removeItem(`encounters_${patientId}`);
+    this.patientLocalStorageService.removeStoredKey(`encounters_${patientId}`);
     
     
     // Notify subscribers by updating the selected patient

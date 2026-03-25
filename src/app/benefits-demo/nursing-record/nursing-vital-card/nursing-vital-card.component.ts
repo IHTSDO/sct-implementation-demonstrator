@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { FhirObservation, Patient, PatientService } from '../../../services/patient.service';
+import { PatientService } from '../../../services/patient.service';
+import type { FhirObservation, Patient } from '../../../model';
 
 @Component({
   selector: 'app-nursing-vital-card',

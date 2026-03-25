@@ -2,13 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
-import {
-  Condition,
-  DeathRecord,
-  DeathRecordDiagnosis,
-  Patient,
-  PatientService
-} from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
+import type { Condition, DeathRecord, DeathRecordDiagnosis, Patient } from '../../model';
 
 type Part1LineCode = 'a' | 'b' | 'c' | 'd';
 

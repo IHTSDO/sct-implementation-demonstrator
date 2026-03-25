@@ -11,7 +11,7 @@ import type {
   Procedure,
   QuestionnaireResponse,
   ServiceRequest,
-} from './patient.service';
+} from '../model';
 
 export type PersistenceMode = 'local' | 'fhir';
 

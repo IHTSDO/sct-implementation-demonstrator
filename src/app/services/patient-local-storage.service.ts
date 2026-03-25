@@ -13,7 +13,7 @@ import type {
   Procedure,
   QuestionnaireResponse,
   ServiceRequest,
-} from './patient.service';
+} from '../model';
 import { PatientStorageBackend, PatientPage } from './patient-storage.types';
 
 @Injectable({
@@ -215,6 +215,26 @@ export class PatientLocalStorageService implements PatientStorageBackend {
 
   normalizeMedicationsForStorage(medications: MedicationStatement[]): MedicationStatement[] {
     return medications.map((medication) => this.prepareMedicationForStorage(medication));
+  }
+
+  readStoredArray<T>(key: string): T[] {
+    return this.readValue<T[]>(key, []);
+  }
+
+  readStoredValue<T>(key: string, fallback: T): T {
+    return this.readValue<T>(key, fallback);
+  }
+
+  writeStoredArray<T>(key: string, value: T[]): void {
+    this.writeArray(key, value);
+  }
+
+  writeStoredValue<T>(key: string, value: T): void {
+    this.writeValue(key, value);
+  }
+
+  removeStoredKey(key: string): void {
+    this.storageService.removeItem(key);
   }
 
   private readArray<T>(key: string): T[] {

@@ -11,7 +11,7 @@ import {
   ViewChild
 } from '@angular/core';
 import Plotly from 'plotly.js-dist';
-import { AllergyIntolerance, Condition, Procedure, MedicationStatement } from '../../services/patient.service';
+import type { AllergyIntolerance, Condition, MedicationStatement, Procedure } from '../../model';
 
 export interface TimelineEvent {
   id: string;

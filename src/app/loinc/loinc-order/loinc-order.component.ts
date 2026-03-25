@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import saveAs from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { v3 as uuidv3 } from 'uuid';
-import { LaboratoryOrderGroup, ServiceRequest } from 'src/app/services/patient.service';
+import type { LaboratoryOrderGroup, ServiceRequest } from 'src/app/model';
 
 @Component({
   selector: 'app-loinc-order',

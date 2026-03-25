@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Patient, Condition, Procedure, MedicationStatement, PatientService } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { AiCodingService, DetectedEntity, EntityDetectionResult } from '../../services/ai-coding.service';
 import { Subscription } from 'rxjs';
 import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
+import type { Condition, MedicationStatement, Patient, Procedure } from '../../model';
 
 @Component({
   selector: 'app-ai-assisted-entry',

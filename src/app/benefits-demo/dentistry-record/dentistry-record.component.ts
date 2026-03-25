@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { BodyStructure, Condition, Patient, PatientService, Procedure } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,6 +12,7 @@ import { DENTAL_FINDING_OPTIONS } from './data/dental-finding-options';
 import { DENTAL_PROCEDURE_OPTIONS } from './data/dental-procedure-options';
 import { DentalFindingListItem } from './models/dental-finding-list-item.model';
 import { DentistryFhirDialogComponent, DentistryFhirDialogData } from './dentistry-fhir-dialog/dentistry-fhir-dialog.component';
+import type { BodyStructure, Condition, Patient, Procedure } from '../../model';
 
 interface QuadrantConfig {
   key: string;

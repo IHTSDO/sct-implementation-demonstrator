@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, Inject, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Patient, Condition, Procedure, MedicationStatement } from '../../services/patient.service';
 import { ClinicalFormsComponent } from '../clinical-forms/clinical-forms.component';
+import type { Condition, MedicationStatement, Patient, Procedure } from '../../model';
 
 export interface AllergyFormDialogData {
   patient: Patient | null;

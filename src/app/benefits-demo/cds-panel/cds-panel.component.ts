@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Patient, Condition, MedicationStatement, AllergyIntolerance } from '../../services/patient.service';
 import { CdsService, CDSResponse } from '../../services/cds.service';
+import type { AllergyIntolerance, Condition, MedicationStatement, Patient } from '../../model';
 
 export interface CdsState {
   isLoading: boolean;

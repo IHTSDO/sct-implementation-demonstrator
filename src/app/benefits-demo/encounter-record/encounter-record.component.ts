@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
-import { PatientService, Patient } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { Subscription } from 'rxjs';
+import type { Patient } from '../../model';
 
 // FHIR Encounter Resource Interface
 export interface Encounter {

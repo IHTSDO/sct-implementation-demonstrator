@@ -1,9 +1,14 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {
+import { PatientService } from '../../services/patient.service';
+import { saveAs } from 'file-saver';
+import { FhirService } from '../../services/fhir.service';
+import { Subscription } from 'rxjs';
+import type {
   AllergyIntolerance,
   Condition,
+  DeathRecord,
   Encounter,
   FhirObservation,
   LaboratoryOrderGroup,
@@ -11,13 +16,8 @@ import {
   Patient,
   Procedure,
   QuestionnaireResponse,
-  ServiceRequest,
-  DeathRecord,
-  PatientService
-} from '../../services/patient.service';
-import { saveAs } from 'file-saver';
-import { FhirService } from '../../services/fhir.service';
-import { Subscription } from 'rxjs';
+  ServiceRequest
+} from '../../model';
 
 type SupportedResourceType =
   | 'Patient'

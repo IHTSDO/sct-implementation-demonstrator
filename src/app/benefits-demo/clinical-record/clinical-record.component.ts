@@ -2,13 +2,23 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } fr
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PatientService, Patient, Condition, Procedure, MedicationStatement, AllergyIntolerance, FhirObservation, LaboratoryOrderGroup, ClinicalDataLoadSummary } from '../../services/patient.service';
+import { PatientService } from '../../services/patient.service';
 import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
 import { Subscription, forkJoin, of, delay } from 'rxjs';
 import { AllergyFormDialogComponent } from '../allergy-form-dialog/allergy-form-dialog.component';
+import type {
+  AllergyIntolerance,
+  ClinicalDataLoadSummary,
+  Condition,
+  FhirObservation,
+  LaboratoryOrderGroup,
+  MedicationStatement,
+  Patient,
+  Procedure
+} from '../../model';
 
 export interface AnchorPoint {
   id: string;

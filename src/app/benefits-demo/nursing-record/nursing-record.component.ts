@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Patient } from '../../services/patient.service';
+import type { Patient } from '../../model';
 
 type NursingView = 'vitals' | 'nutrition';
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { PatientService, Patient, PatientPaginationState, PersistenceMode } from '../services/patient.service';
+import { PatientService } from '../services/patient.service';
 import { PatientDataTransformerService } from '../services/patient-data-transformer.service';
 import { PatientSimulationService } from '../services/patient-simulation.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -14,6 +14,8 @@ import { filter } from 'rxjs/operators';
 import { FhirService } from '../services/fhir.service';
 import { FhirServerDialogComponent } from './fhir-server-dialog/fhir-server-dialog.component';
 import { PatientBookmarkService } from '../services/patient-bookmark.service';
+import type { Patient } from '../model';
+import type { PatientPaginationState, PersistenceMode } from '../services/patient-storage.types';
 
 @Component({
   selector: 'app-benefits-demo',

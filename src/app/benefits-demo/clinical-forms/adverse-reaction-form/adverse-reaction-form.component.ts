@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { Patient, Condition, MedicationStatement } from '../../../services/patient.service';
+import type { Condition, MedicationStatement, Patient } from '../../../model';
 import { TerminologyService } from '../../../services/terminology.service';
 
 export interface AdverseReactionReport {
