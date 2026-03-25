@@ -48,6 +48,20 @@ export interface AiAssistedEntryTransactionResult {
   allergies: AllergyIntolerance[];
 }
 
+export interface PatientClinicalRecordData {
+  conditions: Condition[];
+  bodyStructures: BodyStructure[];
+  procedures: Procedure[];
+  medications: MedicationStatement[];
+  serviceRequests: ServiceRequest[];
+  labOrders: LaboratoryOrderGroup[];
+  observations: FhirObservation[];
+  allergies: AllergyIntolerance[];
+  questionnaireResponses: QuestionnaireResponse[];
+  encounters: Encounter[];
+  deathRecord: DeathRecord | null;
+}
+
 export interface PatientStorageBackend {
   listPatientsPage(url?: string): Promise<PatientPage>;
   readPatient(patientId: string): Promise<Patient | null>;

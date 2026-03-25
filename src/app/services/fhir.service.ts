@@ -53,6 +53,10 @@ export class FhirService {
     return id ? `${normalizedBase}/${resourceType}/${id}` : `${normalizedBase}/${resourceType}`;
   }
 
+  private buildOperationUrl(resourceType: string, id: string, operationName: string): string {
+    return `${this.buildUrl(resourceType, id)}/${operationName}`;
+  }
+
   private buildParams(params?: Record<string, string | number | boolean | undefined | null>): HttpParams {
     let httpParams = new HttpParams();
 
@@ -79,6 +83,24 @@ export class FhirService {
 
   read(resourceType: string, id: string): Observable<any> {
     return this.http.get(this.buildUrl(resourceType, id));
+  }
+
+  operation(
+    resourceType: string,
+    id: string,
+    operationName: string,
+    params?: Record<string, string | number | boolean | undefined | null>
+  ): Observable<any> {
+    return this.http.get(this.buildOperationUrl(resourceType, id, operationName), {
+      params: this.buildParams(params)
+    });
+  }
+
+  patientEverything(
+    patientId: string,
+    params?: Record<string, string | number | boolean | undefined | null>
+  ): Observable<any> {
+    return this.operation('Patient', patientId, '$everything', params);
   }
 
   create(resourceType: string, resource: any): Observable<any> {

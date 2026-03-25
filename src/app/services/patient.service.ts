@@ -8,6 +8,7 @@ import JSZip from 'jszip';
 import {
   AiAssistedEntryTransactionPayload,
   AiAssistedEntryTransactionResult,
+  PatientClinicalRecordData,
   PatientPaginationState,
   PersistenceMode,
   PatientStorageBackend
@@ -284,6 +285,20 @@ export class PatientService {
       return summary;
     }
 
+    let clinicalData: PatientClinicalRecordData;
+
+    try {
+      clinicalData = await this.patientFhirStorageService.getClinicalRecordData(patientId);
+    } catch (error) {
+      console.warn('FHIR $everything preload failed, falling back to per-resource fetch.', error);
+      clinicalData = await this.loadClinicalRecordDataByResource(patientId);
+    }
+
+    this.applyClinicalRecordDataToFhirCache(patientId, clinicalData);
+    return this.buildClinicalDataLoadSummary(clinicalData);
+  }
+
+  private async loadClinicalRecordDataByResource(patientId: string): Promise<PatientClinicalRecordData> {
     const [
       conditions,
       bodyStructures,
@@ -310,45 +325,53 @@ export class PatientService {
       this.patientFhirStorageService.getEncounters(patientId)
     ]);
 
-    this.setResourceCache(this.fhirCache.conditions, patientId, conditions, false);
-    this.setResourceCache(this.fhirCache.bodyStructures, patientId, bodyStructures, false);
-    this.setResourceCache(this.fhirCache.procedures, patientId, procedures, false);
-    this.setResourceCache(this.fhirCache.medications, patientId, medications, false);
-    this.setResourceCache(this.fhirCache.serviceRequests, patientId, serviceRequests, false);
-    this.setResourceCache(this.fhirCache.labOrders, patientId, labOrders, false);
-    this.setResourceCache(this.fhirCache.observations, patientId, observations, false);
-    this.setResourceCache(this.fhirCache.allergies, patientId, allergies, false);
-    this.setResourceCache(this.fhirCache.questionnaireResponses, patientId, questionnaireResponses, false);
-    this.setResourceCache(this.fhirCache.deathRecords, patientId, deathRecord, false);
-    this.setResourceCache(this.fhirCache.encounters, patientId, encounters, false);
+    return {
+      conditions,
+      bodyStructures,
+      procedures,
+      medications,
+      serviceRequests,
+      labOrders,
+      observations,
+      allergies,
+      questionnaireResponses,
+      encounters,
+      deathRecord
+    };
+  }
+
+  private applyClinicalRecordDataToFhirCache(patientId: string, clinicalData: PatientClinicalRecordData): void {
+    this.setResourceCache(this.fhirCache.conditions, patientId, clinicalData.conditions, false);
+    this.setResourceCache(this.fhirCache.bodyStructures, patientId, clinicalData.bodyStructures, false);
+    this.setResourceCache(this.fhirCache.procedures, patientId, clinicalData.procedures, false);
+    this.setResourceCache(this.fhirCache.medications, patientId, clinicalData.medications, false);
+    this.setResourceCache(this.fhirCache.serviceRequests, patientId, clinicalData.serviceRequests, false);
+    this.setResourceCache(this.fhirCache.labOrders, patientId, clinicalData.labOrders, false);
+    this.setResourceCache(this.fhirCache.observations, patientId, clinicalData.observations, false);
+    this.setResourceCache(this.fhirCache.allergies, patientId, clinicalData.allergies, false);
+    this.setResourceCache(this.fhirCache.questionnaireResponses, patientId, clinicalData.questionnaireResponses, false);
+    this.setResourceCache(this.fhirCache.deathRecords, patientId, clinicalData.deathRecord, false);
+    this.setResourceCache(this.fhirCache.encounters, patientId, clinicalData.encounters, false);
+  }
+
+  private buildClinicalDataLoadSummary(clinicalData: PatientClinicalRecordData): ClinicalDataLoadSummary {
+    const counts = {
+      conditions: clinicalData.conditions.length,
+      bodyStructures: clinicalData.bodyStructures.length,
+      procedures: clinicalData.procedures.length,
+      medications: clinicalData.medications.length,
+      serviceRequests: clinicalData.serviceRequests.length,
+      labOrders: clinicalData.labOrders.length,
+      observations: clinicalData.observations.length,
+      allergies: clinicalData.allergies.length,
+      questionnaireResponses: clinicalData.questionnaireResponses.length,
+      encounters: clinicalData.encounters.length,
+      deathRecords: clinicalData.deathRecord ? 1 : 0
+    };
 
     return {
-      totalResources: [
-        conditions.length,
-        bodyStructures.length,
-        procedures.length,
-        medications.length,
-        serviceRequests.length,
-        labOrders.length,
-        observations.length,
-        allergies.length,
-        questionnaireResponses.length,
-        encounters.length,
-        deathRecord ? 1 : 0
-      ].reduce((sum, count) => sum + count, 0),
-      counts: {
-        conditions: conditions.length,
-        bodyStructures: bodyStructures.length,
-        procedures: procedures.length,
-        medications: medications.length,
-        serviceRequests: serviceRequests.length,
-        labOrders: labOrders.length,
-        observations: observations.length,
-        allergies: allergies.length,
-        questionnaireResponses: questionnaireResponses.length,
-        encounters: encounters.length,
-        deathRecords: deathRecord ? 1 : 0
-      }
+      totalResources: Object.values(counts).reduce((sum, count) => sum + count, 0),
+      counts
     };
   }
 

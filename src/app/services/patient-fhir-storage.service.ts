@@ -18,6 +18,7 @@ import type {
 import {
   AiAssistedEntryTransactionPayload,
   AiAssistedEntryTransactionResult,
+  PatientClinicalRecordData,
   PatientPage,
   PatientStorageBackend
 } from './patient-storage.types';
@@ -195,6 +196,46 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   async createEncounter(patientId: string, encounter: Encounter): Promise<Encounter> { return await firstValueFrom(this.fhirService.create('Encounter', encounter)); }
   async deleteEncounter(patientId: string, encounterId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Encounter', encounterId)); }
 
+  async getClinicalRecordData(patientId: string): Promise<PatientClinicalRecordData> {
+    const everythingBundle = await this.fetchPatientEverythingBundle(patientId);
+    const resources = this.extractBundleResources<any>(everythingBundle);
+
+    const conditions = resources
+      .filter((resource: any) => resource?.resourceType === 'Condition')
+      .map((condition: Condition) => this.hydrateConditionComputedLocation(condition));
+    const bodyStructures = resources.filter((resource: any) => resource?.resourceType === 'BodyStructure') as BodyStructure[];
+    const procedures = resources
+      .filter((resource: any) => resource?.resourceType === 'Procedure')
+      .map((procedure: Procedure) => this.hydrateProcedureComputedLocation(procedure));
+    const medications = resources
+      .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
+      .map((medication: MedicationStatement) => this.hydrateMedicationComputedLocation(medication));
+    const serviceRequests = resources.filter((resource: any) => resource?.resourceType === 'ServiceRequest') as ServiceRequest[];
+    const observations = resources.filter((resource: any) => resource?.resourceType === 'Observation') as FhirObservation[];
+    const allergies = resources.filter((resource: any) => resource?.resourceType === 'AllergyIntolerance') as AllergyIntolerance[];
+    const questionnaireResponses = resources.filter((resource: any) => resource?.resourceType === 'QuestionnaireResponse') as QuestionnaireResponse[];
+    const encounters = resources.filter((resource: any) => resource?.resourceType === 'Encounter') as Encounter[];
+
+    const [labOrders, deathRecord] = await Promise.all([
+      this.getLabOrders(patientId),
+      this.getDeathRecord(patientId)
+    ]);
+
+    return {
+      conditions,
+      bodyStructures,
+      procedures,
+      medications,
+      serviceRequests,
+      labOrders,
+      observations,
+      allergies,
+      questionnaireResponses,
+      encounters,
+      deathRecord
+    };
+  }
+
   async saveAiAssistedEntryTransaction(
     patientId: string,
     payload: AiAssistedEntryTransactionPayload
@@ -317,6 +358,38 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   private async fetchPatientResources<T>(resourceType: string, params: Record<string, string>): Promise<T[]> {
     const bundle = await firstValueFrom(this.fhirService.search(resourceType, params));
     return this.extractBundleResources<T>(bundle, resourceType);
+  }
+
+  private async fetchPatientEverythingBundle(patientId: string): Promise<any> {
+    const initialBundle = await firstValueFrom(this.fhirService.patientEverything(patientId, {
+      _count: 200
+    }));
+
+    return await this.collectPagedBundle(initialBundle);
+  }
+
+  private async collectPagedBundle(initialBundle: any, maxPages: number = 10): Promise<any> {
+    const combinedEntries = Array.isArray(initialBundle?.entry) ? [...initialBundle.entry] : [];
+    let currentBundle = initialBundle;
+    let pageCount = 1;
+
+    while (pageCount < maxPages) {
+      const nextUrl = this.getBundleLink(currentBundle, 'next');
+      if (!nextUrl) {
+        break;
+      }
+
+      currentBundle = await firstValueFrom(this.fhirService.searchByUrl(nextUrl));
+      if (Array.isArray(currentBundle?.entry)) {
+        combinedEntries.push(...currentBundle.entry);
+      }
+      pageCount += 1;
+    }
+
+    return {
+      ...initialBundle,
+      entry: combinedEntries
+    };
   }
 
   private async fetchPatientBundles(patientId: string, bundleType?: string): Promise<any[]> {
