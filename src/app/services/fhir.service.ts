@@ -7,7 +7,12 @@ import { StorageService } from './storage.service';
   providedIn: 'root'
 })
 export class FhirService {
-  private baseUrlSubject = new BehaviorSubject<string>('https://hapi.fhir.org/baseR4');
+  static readonly DEFAULT_BASE_URL = 'http://hapi.fhir.org/baseR4';
+  private static readonly BASE_URL_STORAGE_KEY = 'baseUrl';
+  private static readonly RECENT_BASE_URLS_STORAGE_KEY = 'recentBaseUrls';
+  private static readonly MAX_RECENT_BASE_URLS = 6;
+
+  private baseUrlSubject = new BehaviorSubject<string>(FhirService.DEFAULT_BASE_URL);
   baseUrl$ = this.baseUrlSubject.asObservable();
 
   private userTagSubject = new BehaviorSubject<string>('');
@@ -19,24 +24,32 @@ export class FhirService {
   
   private initialize(): void {
     if (this.storageService.isLocalStorageSupported()) {
-      const baseUrl = this.storageService.getItem('baseUrl');
+      const baseUrl = this.storageService.getItem(FhirService.BASE_URL_STORAGE_KEY);
       if (baseUrl) {
-        this.baseUrlSubject.next(baseUrl);
+        this.baseUrlSubject.next(this.normalizeBaseUrl(baseUrl));
       }
       const userTag = this.storageService.getItem('userTag');
       if (userTag) {
         this.userTagSubject.next(userTag);
       }
+
+      this.saveRecentBaseUrls(this.buildRecentBaseUrls(this.baseUrlSubject.value, this.readStoredRecentBaseUrls()));
     }
   }
 
   setBaseUrl(url: string): void {
-    this.baseUrlSubject.next(url);
-    this.storageService.saveItem('baseUrl', url);
+    const normalizedUrl = this.normalizeBaseUrl(url);
+    this.baseUrlSubject.next(normalizedUrl);
+    this.storageService.saveItem(FhirService.BASE_URL_STORAGE_KEY, normalizedUrl);
+    this.saveRecentBaseUrls(this.buildRecentBaseUrls(normalizedUrl, this.readStoredRecentBaseUrls()));
   }
 
   getBaseUrl(): string {
     return this.baseUrlSubject.getValue();
+  }
+
+  getRecentBaseUrls(): string[] {
+    return this.buildRecentBaseUrls(this.getBaseUrl(), this.readStoredRecentBaseUrls());
   }
 
   setUserTag(tag: string): void {
@@ -185,6 +198,46 @@ export class FhirService {
 
   getSpecificQuestionnaireVersion(questionnaireId: string, versionId: string) {
     return this.http.get(`${this.getBaseUrl()}/Questionnaire/${questionnaireId}/_history/${versionId}`);
+  }
+
+  private normalizeBaseUrl(url: string): string {
+    return url.trim().replace(/\/$/, '');
+  }
+
+  private readStoredRecentBaseUrls(): string[] {
+    const rawValue = this.storageService.getItem(FhirService.RECENT_BASE_URLS_STORAGE_KEY);
+    if (!rawValue) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(rawValue);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+        .map((value) => this.normalizeBaseUrl(value));
+    } catch {
+      return [];
+    }
+  }
+
+  private saveRecentBaseUrls(urls: string[]): void {
+    this.storageService.saveItem(FhirService.RECENT_BASE_URLS_STORAGE_KEY, JSON.stringify(urls));
+  }
+
+  private buildRecentBaseUrls(currentUrl: string, recentUrls: string[]): string[] {
+    const normalizedCurrentUrl = this.normalizeBaseUrl(currentUrl || FhirService.DEFAULT_BASE_URL);
+    const normalizedDefaultUrl = this.normalizeBaseUrl(FhirService.DEFAULT_BASE_URL);
+    const uniqueUrls = [normalizedCurrentUrl, ...recentUrls]
+      .map((url) => this.normalizeBaseUrl(url))
+      .filter((url, index, allUrls) => !!url && allUrls.indexOf(url) === index)
+      .filter((url) => url !== normalizedDefaultUrl)
+      .slice(0, FhirService.MAX_RECENT_BASE_URLS);
+
+    return [...uniqueUrls, normalizedDefaultUrl];
   }
 
 }
