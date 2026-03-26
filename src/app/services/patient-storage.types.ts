@@ -53,6 +53,21 @@ export interface PatientConditionPackageResult {
   conditions: Condition[];
 }
 
+export interface PatientClinicalPackagePayload {
+  conditions: Condition[];
+  procedures: Procedure[];
+  medications: MedicationStatement[];
+  allergies: AllergyIntolerance[];
+}
+
+export interface PatientClinicalPackageResult {
+  patient: Patient;
+  conditions: Condition[];
+  procedures: Procedure[];
+  medications: MedicationStatement[];
+  allergies: AllergyIntolerance[];
+}
+
 export interface PatientClinicalRecordData {
   conditions: Condition[];
   bodyStructures: BodyStructure[];
@@ -135,6 +150,10 @@ export interface PatientStorageBackend {
     patient: Patient,
     conditions: Condition[]
   ): Promise<PatientConditionPackageResult>;
+  savePatientClinicalPackage?(
+    patient: Patient,
+    payload: PatientClinicalPackagePayload
+  ): Promise<PatientClinicalPackageResult>;
 
   clearAllPatientEvents(patientId: string): Promise<void>;
 }

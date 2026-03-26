@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { firstValueFrom, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
 import { PatientService } from '../../services/patient.service';
@@ -41,7 +42,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   
   // Patient linking properties
   selectedPatientId: string = '';
-  linkedPatient: any = null;
+  linkedPatient: Patient | null = null;
+  linkedPatientIsDraft = false;
   suggestedPatient: any = null;
   availablePatients: Patient[] = [];
   sortedPatientsWithScores: PatientSimilarityResult[] = [];
@@ -83,6 +85,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     private router: Router,
     private terminologyService: TerminologyService,
     private dialog: MatDialog,
+    private snackBar: MatSnackBar,
     private conceptHierarchyValidationService: ConceptHierarchyValidationService
   ) { }
 
@@ -230,6 +233,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.selectedPatientId = event.value;
     if (!this.selectedPatientId) {
       this.linkedPatient = null;
+      this.linkedPatientIsDraft = false;
       this.loadExistingPatientData();
       this.clearSelections();
       return;
@@ -276,6 +280,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   private resetWizard(): void {
     this.currentStepIndex = 0;
     this.linkedPatient = null;
+    this.linkedPatientIsDraft = false;
     this.selectedPatientId = '';
     this.suggestedPatient = null;
     this.loadExistingPatientData();
@@ -404,6 +409,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (this.suggestedPatient) {
       this.selectedPatientId = this.suggestedPatient.id;
       this.linkedPatient = this.suggestedPatient;
+      this.linkedPatientIsDraft = false;
       this.suggestedPatient = null;
 
       this.loadExistingPatientData();
@@ -490,6 +496,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     const selectedPatient = this.availablePatients.find(p => p.id === this.selectedPatientId);
     if (selectedPatient) {
       this.linkedPatient = selectedPatient;
+      this.linkedPatientIsDraft = false;
       this.suggestedPatient = null; // Clear suggestion after linking
       
       // Load existing data for this patient
@@ -504,7 +511,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
    * Load existing data for the linked patient
    */
   private loadExistingPatientData(): void {
-    if (!this.linkedPatient) {
+    if (!this.linkedPatient || this.linkedPatientIsDraft) {
       this.existingConditions = [];
       this.existingProcedures = [];
       this.existingMedications = [];
@@ -539,18 +546,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       active: ipsPatient.active !== undefined ? ipsPatient.active : true
     };
 
-    // Add the new patient to the service
-    this.patientService.addPatient(newPatient);
-    
-    // Link to the newly created patient
     this.linkedPatient = newPatient;
-    this.selectedPatientId = newPatientId;
+    this.linkedPatientIsDraft = true;
+    this.selectedPatientId = '';
     this.suggestedPatient = null;
-    
-    // Load existing data (will be empty for new patient)
     this.loadExistingPatientData();
-    
-    // Initialize selections for the wizard
     this.initializeSelections();
   }
 
@@ -1079,6 +1079,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   cancelImport(): void {
     this.showDataVerification = false;
     this.linkedPatient = null;
+    this.linkedPatientIsDraft = false;
     this.selectedPatientId = '';
     this.clearSelections();
   }
@@ -1573,6 +1574,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       return 'Link a patient to review the final import summary.';
     }
 
+    if (this.linkedPatientIsDraft && !this.hasSelectedItems()) {
+      return `Ready to create a new patient record for ${this.getPatientDisplayName(this.linkedPatient)}.`;
+    }
+
+    if (this.linkedPatientIsDraft) {
+      return `Ready to create a new patient record and import ${this.getTotalSelectedCount()} selected IPS items into ${this.getPatientDisplayName(this.linkedPatient)}.`;
+    }
+
     return `Ready to import ${this.getTotalSelectedCount()} selected IPS items into ${this.getPatientDisplayName(this.linkedPatient)}.`;
   }
 
@@ -1762,19 +1771,53 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.isImporting = true;
     let importedCount = 0;
     try {
-      importedCount += await this.importSelectedClinicalItems(this.linkedPatient.id);
+      if (this.linkedPatientIsDraft) {
+        if (this.hasSelectedItems()) {
+          const patientId = this.linkedPatient.id;
+          const conditions = await this.buildSelectedConditions(
+            patientId,
+            this.patientData.conditions.filter(
+              condition => this.selectedConditions.has(condition.id) && !this.isConditionAlreadyRecorded(condition)
+            )
+          );
+          const procedures = this.buildSelectedProcedures(
+            patientId,
+            this.patientData.procedures.filter(
+              procedure => this.selectedProcedures.has(procedure.id) && !this.isProcedureAlreadyRecorded(procedure)
+            )
+          );
+          const medications = this.buildSelectedMedications(
+            patientId,
+            this.patientData.medications.filter(
+              medication => this.selectedMedications.has(medication.id) && !this.isMedicationAlreadyRecorded(medication)
+            )
+          );
+          const allergies = this.buildSelectedAllergies(
+            patientId,
+            this.patientData.allergies.filter(
+              allergy => this.selectedAllergies.has(allergy.id) && !this.isAllergyAlreadyRecorded(allergy)
+            )
+          );
 
-      // Import selected allergies
-      if (this.selectedAllergies.size > 0) {
-        const selectedAllergiesData = this.patientData.allergies.filter(
-          allergy => this.selectedAllergies.has(allergy.id)
-        );
+          const savedPackage = await this.patientService.addPatientClinicalPackage(this.linkedPatient, {
+            conditions,
+            procedures,
+            medications,
+            allergies
+          });
 
-        selectedAllergiesData.forEach(allergy => {
-          const convertedAllergy = this.toClinicalEntryAllergy(allergy, this.linkedPatient.id);
-          this.patientService.addPatientAllergy(this.linkedPatient.id, convertedAllergy as any);
-          importedCount++;
-        });
+          this.linkedPatient = savedPackage.patient;
+          this.linkedPatientIsDraft = false;
+          this.selectedPatientId = savedPackage.patient.id;
+          importedCount = savedPackage.conditions.length + savedPackage.procedures.length + savedPackage.medications.length + savedPackage.allergies.length;
+        } else {
+          const savedPatient = await this.patientService.addPatient(this.linkedPatient);
+          this.linkedPatient = savedPatient;
+          this.linkedPatientIsDraft = false;
+          this.selectedPatientId = savedPatient.id;
+        }
+      } else {
+        importedCount += await this.importSelectedClinicalItems(this.linkedPatient.id);
       }
 
       // Clear all selections after import
@@ -1787,12 +1830,21 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error('Error importing selected items:', error);
+      this.snackBar.open(
+        error instanceof Error ? `Import failed: ${error.message}` : 'Import failed. Please try again.',
+        'Close',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        }
+      );
       this.isImporting = false;
     }
   }
 
   async openLinkedPatientRecord(): Promise<void> {
-    if (!this.linkedPatient || this.isImporting) {
+    if (!this.linkedPatient || this.linkedPatientIsDraft || this.isImporting) {
       return;
     }
 

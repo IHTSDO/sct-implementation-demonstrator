@@ -14,7 +14,13 @@ import type {
   QuestionnaireResponse,
   ServiceRequest,
 } from '../model';
-import { PatientConditionPackageResult, PatientStorageBackend, PatientPage } from './patient-storage.types';
+import {
+  PatientClinicalPackagePayload,
+  PatientClinicalPackageResult,
+  PatientConditionPackageResult,
+  PatientStorageBackend,
+  PatientPage
+} from './patient-storage.types';
 
 @Injectable({
   providedIn: 'root'
@@ -67,6 +73,78 @@ export class PatientLocalStorageService implements PatientStorageBackend {
     return {
       patient: savedPatient,
       conditions: savedConditions
+    };
+  }
+
+  async savePatientClinicalPackage(
+    patient: Patient,
+    payload: PatientClinicalPackagePayload
+  ): Promise<PatientClinicalPackageResult> {
+    const savedPatient = await this.createPatient(patient);
+    const patientReference = `Patient/${savedPatient.id}`;
+    const patientDisplay = this.getPatientDisplayName(savedPatient);
+
+    const savedConditions = payload.conditions
+      .map((condition) => this.pushItem(
+        `ehr_conditions_${savedPatient.id}`,
+        this.prepareConditionForStorage({
+          ...condition,
+          subject: {
+            ...condition.subject,
+            reference: patientReference,
+            display: condition.subject?.display || patientDisplay
+          }
+        })
+      ))
+      .map((condition) => this.hydrateConditionComputedLocation(condition));
+
+    const savedProcedures = payload.procedures
+      .map((procedure) => this.pushItem(
+        `ehr_procedures_${savedPatient.id}`,
+        this.prepareProcedureForStorage({
+          ...procedure,
+          subject: {
+            ...procedure.subject,
+            reference: patientReference,
+            display: procedure.subject?.display || patientDisplay
+          }
+        })
+      ))
+      .map((procedure) => this.hydrateProcedureComputedLocation(procedure));
+
+    const savedMedications = payload.medications
+      .map((medication) => this.pushItem(
+        `ehr_medications_${savedPatient.id}`,
+        this.prepareMedicationForStorage({
+          ...medication,
+          subject: {
+            ...medication.subject,
+            reference: patientReference,
+            display: medication.subject?.display || patientDisplay
+          }
+        })
+      ))
+      .map((medication) => this.hydrateMedicationComputedLocation(medication));
+
+    const savedAllergies = payload.allergies
+      .map((allergy) => this.pushItem(
+        `ehr_allergies_${savedPatient.id}`,
+        {
+          ...allergy,
+          patient: {
+            ...allergy.patient,
+            reference: patientReference,
+            display: allergy.patient?.display || patientDisplay
+          }
+        }
+      ));
+
+    return {
+      patient: savedPatient,
+      conditions: savedConditions,
+      procedures: savedProcedures,
+      medications: savedMedications,
+      allergies: savedAllergies
     };
   }
 

@@ -46,6 +46,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   currentFhirServer = '';
   bookmarkedPatientIds = new Set<string>();
   isCreatingPatient = false;
+  isDeletingPatient = false;
   isSearchingPatients = false;
   remoteSearchTotal: number | null = null;
   private subscriptions: Subscription[] = [];
@@ -254,7 +255,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   showPatientListOverlay(): boolean {
-    return this.isFhirMode() && ((this.patientPagination.loading && this.patients.length > 0) || this.isSearchingPatients);
+    return this.isCreatingPatient || (this.isFhirMode() && ((this.patientPagination.loading && this.patients.length > 0) || this.isSearchingPatients));
   }
 
   getPatientCountLabel(): string {
@@ -317,6 +318,10 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   getPatientListOverlayLabel(): string {
+    if (this.isCreatingPatient) {
+      return 'Creating patient...';
+    }
+
     return this.isSearchingPatients ? 'Searching FHIR server...' : 'Refreshing patient list...';
   }
 
@@ -564,7 +569,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteSelectedPatient(): void {
+  async deleteSelectedPatient(): Promise<void> {
     if (!this.selectedPatient) {
       return;
     }
@@ -583,19 +588,23 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
     if (confirmation) {
       try {
-        // Clear all clinical data for this patient
-        this.patientService.clearAllPatientEvents(this.selectedPatient.id);
-        
-        // Delete the patient
-        this.patientService.deletePatient(this.selectedPatient.id);
-        
-        // Clear selection
+        this.isDeletingPatient = true;
+        await this.patientService.deletePatientRecord(this.selectedPatient.id);
         this.patientService.selectPatient(null);
-        
-        alert(`Patient "${patientName}" has been deleted successfully.`);
+        this.snackBar.open(`Patient "${patientName}" has been deleted successfully.`, 'Close', {
+          duration: 3500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        });
       } catch (error) {
         console.error('Error deleting patient:', error);
-        alert('Error deleting patient. Please try again.');
+        this.snackBar.open('Error deleting patient. Please try again.', 'Close', {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        });
+      } finally {
+        this.isDeletingPatient = false;
       }
     }
   }

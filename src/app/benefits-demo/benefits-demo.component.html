@@ -248,11 +248,11 @@
               <h3>No Patients Yet</h3>
               <p>Get started by creating patient records for your EHR system.</p>
               <div class="empty-state-actions">
-                <button mat-flat-button color="primary" (click)="createRandomPatientWithDiagnoses()">
+                <button mat-flat-button color="primary" (click)="createRandomPatientWithDiagnoses()" [disabled]="isCreatingPatient">
                   <mat-icon>medical_services</mat-icon>
-                  Create Single Patient
+                  {{ isCreatingPatient ? 'Creating...' : 'Create Single Patient' }}
                 </button>
-                <button mat-flat-button color="primary" (click)="createBatchPatients()">
+                <button mat-flat-button color="primary" (click)="createBatchPatients()" [disabled]="isCreatingPatient">
                   <mat-icon>group_add</mat-icon>
                   Generate Multiple Patients
                 </button>
@@ -298,6 +298,7 @@
                   mat-stroked-button
                   color="primary"
                   (click)="togglePatientBookmark(selectedPatient); $event.stopPropagation()"
+                  [disabled]="isDeletingPatient"
                   >
                   <mat-icon>{{ isPatientBookmarked(selectedPatient) ? 'bookmark' : 'bookmark_border' }}</mat-icon>
                   {{ isPatientBookmarked(selectedPatient) ? 'Remove Bookmark' : 'Bookmark Patient' }}
@@ -306,6 +307,7 @@
                   mat-flat-button
                   color="accent"
                   (click)="openClinicalRecord()"
+                  [disabled]="isDeletingPatient"
                   >
                   Open Clinical Record
                 </button>
@@ -380,6 +382,7 @@
                 color="primary"
                 (click)="openDeathRegistration()"
                 class="death-button"
+                [disabled]="isDeletingPatient"
                 >
                 <mat-icon>bed</mat-icon>
                 {{ getDeathActionLabel(selectedPatient) }}
@@ -389,9 +392,14 @@
                 color="warn"
                 (click)="deleteSelectedPatient()"
                 class="delete-button"
+                [disabled]="isDeletingPatient"
                 >
-                <mat-icon>delete</mat-icon>
-                Delete Patient
+                @if (isDeletingPatient) {
+                  <span class="inline-button-spinner delete-inline-spinner" aria-hidden="true"></span>
+                } @else {
+                  <mat-icon>delete</mat-icon>
+                }
+                <span>{{ isDeletingPatient ? 'Deleting...' : 'Delete Patient' }}</span>
               </button>
             </div>
           }

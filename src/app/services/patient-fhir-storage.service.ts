@@ -19,6 +19,8 @@ import {
   AiAssistedEntryTransactionPayload,
   AiAssistedEntryTransactionResult,
   PatientClinicalRecordData,
+  PatientClinicalPackagePayload,
+  PatientClinicalPackageResult,
   PatientConditionPackageResult,
   PatientPage,
   PatientStorageBackend
@@ -156,6 +158,118 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     return {
       patient: savedPatient,
       conditions: savedConditions
+    };
+  }
+
+  async savePatientClinicalPackage(
+    patient: Patient,
+    payload: PatientClinicalPackagePayload
+  ): Promise<PatientClinicalPackageResult> {
+    const patientFullUrl = this.createTransactionFullUrl('patient');
+    const patientDisplay = this.getPatientDisplayName(patient);
+
+    const bundle = {
+      resourceType: 'Bundle',
+      type: 'transaction',
+      entry: [
+        this.createTransactionEntry(
+          this.preparePatientForFhirCreate(patient),
+          'Patient',
+          patientFullUrl
+        ),
+        ...payload.conditions.map((condition) =>
+          this.createTransactionEntry(
+            this.removeTemporaryId(
+              this.prepareConditionForFhir({
+                ...condition,
+                subject: {
+                  ...condition.subject,
+                  reference: patientFullUrl,
+                  display: condition.subject?.display || patientDisplay
+                }
+              }),
+              'condition-'
+            ),
+            'Condition',
+            this.createTransactionFullUrl('condition')
+          )
+        ),
+        ...payload.procedures.map((procedure) =>
+          this.createTransactionEntry(
+            this.removeTemporaryId(
+              this.prepareProcedureForFhir({
+                ...procedure,
+                subject: {
+                  ...procedure.subject,
+                  reference: patientFullUrl,
+                  display: procedure.subject?.display || patientDisplay
+                }
+              }),
+              'procedure-'
+            ),
+            'Procedure',
+            this.createTransactionFullUrl('procedure')
+          )
+        ),
+        ...payload.medications.map((medication) =>
+          this.createTransactionEntry(
+            this.removeTemporaryId(
+              this.prepareMedicationForFhir({
+                ...medication,
+                subject: {
+                  ...medication.subject,
+                  reference: patientFullUrl,
+                  display: medication.subject?.display || patientDisplay
+                }
+              }),
+              'medication-'
+            ),
+            'MedicationStatement',
+            this.createTransactionFullUrl('medication')
+          )
+        ),
+        ...payload.allergies.map((allergy) =>
+          this.createTransactionEntry(
+            this.removeTemporaryId(
+              {
+                ...allergy,
+                patient: {
+                  ...allergy.patient,
+                  reference: patientFullUrl,
+                  display: allergy.patient?.display || patientDisplay
+                }
+              },
+              'allergy-'
+            ),
+            'AllergyIntolerance',
+            this.createTransactionFullUrl('allergy')
+          )
+        )
+      ]
+    };
+
+    const responseBundle = await firstValueFrom(this.fhirService.executeTransaction(bundle));
+    const responseEntries = Array.isArray(responseBundle?.entry) ? responseBundle.entry : [];
+    const resources = await Promise.all(responseEntries.map((entry: any) => this.resolveTransactionResponseResource(entry)));
+
+    const savedPatient = resources.find((resource: any) => resource?.resourceType === 'Patient') as Patient | undefined;
+    if (!savedPatient) {
+      throw new Error('FHIR transaction did not return the created patient resource.');
+    }
+
+    return {
+      patient: savedPatient,
+      conditions: resources
+        .filter((resource: any) => resource?.resourceType === 'Condition')
+        .map((condition: any) => this.hydrateConditionComputedLocation(condition)),
+      procedures: resources
+        .filter((resource: any) => resource?.resourceType === 'Procedure')
+        .map((procedure: any) => this.hydrateProcedureComputedLocation(procedure)),
+      medications: resources
+        .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
+        .map((medication: any) => this.hydrateMedicationComputedLocation(medication)),
+      allergies: resources
+        .filter((resource: any) => resource?.resourceType === 'AllergyIntolerance')
     };
   }
 

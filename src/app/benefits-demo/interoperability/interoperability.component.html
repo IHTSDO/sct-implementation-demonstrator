@@ -242,11 +242,11 @@
                   @if (linkedPatient) {
                     <div class="linked-patient-card">
                       <div>
-                        <span class="eyebrow">Linked target record</span>
+                        <span class="eyebrow">{{ linkedPatientIsDraft ? 'New patient draft' : 'Linked target record' }}</span>
                         <strong>{{ getPatientDisplayName(linkedPatient) }}</strong>
                         <span>{{ linkedPatient.birthDate | date:'mediumDate' }} · {{ linkedPatient.gender | titlecase }}</span>
                       </div>
-                      <span class="success-pill">Ready</span>
+                      <span class="success-pill">{{ linkedPatientIsDraft ? 'Will be created on import' : 'Ready' }}</span>
                     </div>
                   }
                 </mat-card-content>
@@ -472,10 +472,17 @@
               } @else {
                 <div class="wizard-actions-inline-note">
                   <span class="wizard-actions-note">Nothing to add</span>
-                  <button mat-flat-button color="primary" (click)="openLinkedPatientRecord()" [disabled]="!linkedPatient || isImporting">
-                    <mat-icon>open_in_new</mat-icon>
-                    Open record
-                  </button>
+                  @if (linkedPatientIsDraft) {
+                    <button mat-flat-button color="primary" (click)="importAllSelectedItems()" [disabled]="!linkedPatient || isImporting">
+                      <mat-icon>person_add</mat-icon>
+                      Create Patient Only
+                    </button>
+                  } @else {
+                    <button mat-flat-button color="primary" (click)="openLinkedPatientRecord()" [disabled]="!linkedPatient || isImporting">
+                      <mat-icon>open_in_new</mat-icon>
+                      Open record
+                    </button>
+                  }
                 </div>
               }
             }

@@ -9,6 +9,8 @@ import {
   AiAssistedEntryTransactionPayload,
   AiAssistedEntryTransactionResult,
   PatientClinicalRecordData,
+  PatientClinicalPackagePayload,
+  PatientClinicalPackageResult,
   PatientConditionPackageResult,
   PatientPage,
   PatientPaginationState,
@@ -155,6 +157,12 @@ export class PatientService {
     }
 
     this.patientsSubject.next([patient, ...this.patientsSubject.value]);
+    this.patientPaginationSubject.next({
+      ...this.patientPaginationSubject.value,
+      total: this.patientPaginationSubject.value.total !== null
+        ? this.patientPaginationSubject.value.total + 1
+        : this.patientPaginationSubject.value.total
+    });
   }
 
   async refreshPatient(patientId: string): Promise<Patient | null> {
@@ -802,6 +810,7 @@ export class PatientService {
       const savedPatient = await this.getActiveStorageBackend().createPatient(patient);
       await this.loadPatientsForCurrentMode();
       const resolvedPatient = this.getPatientById(savedPatient.id) || savedPatient;
+      this.addOrUpdatePatientInMemory(resolvedPatient);
       this.selectedPatientSubject.next(resolvedPatient);
       return resolvedPatient;
     } catch (error) {
@@ -858,6 +867,7 @@ export class PatientService {
     await this.loadPatientsForCurrentMode();
 
     const resolvedPatient = this.getPatientById(result.patient.id) || result.patient;
+    this.addOrUpdatePatientInMemory(resolvedPatient);
     this.selectedPatientSubject.next(resolvedPatient);
 
     if (this.getCurrentPersistenceMode() === 'fhir') {
@@ -868,6 +878,114 @@ export class PatientService {
     return {
       patient: resolvedPatient,
       conditions: result.conditions
+    };
+  }
+
+  async addPatientClinicalPackage(
+    patient: Patient,
+    payload: PatientClinicalPackagePayload
+  ): Promise<PatientClinicalPackageResult> {
+    const enrichedConditions = await Promise.all(
+      payload.conditions.map(async (condition) => {
+        const clonedCondition: Condition = JSON.parse(JSON.stringify(condition));
+        await this.enrichCondition(clonedCondition);
+        return clonedCondition;
+      })
+    );
+
+    const normalizedPayload: PatientClinicalPackagePayload = {
+      conditions: enrichedConditions.map((condition) => ({
+        ...condition,
+        subject: {
+          ...condition.subject,
+          reference: `Patient/${patient.id}`,
+          display: condition.subject?.display || this.getPatientDisplayName(patient)
+        }
+      })),
+      procedures: payload.procedures.map((procedure) => ({
+        ...procedure,
+        subject: {
+          ...procedure.subject,
+          reference: `Patient/${patient.id}`,
+          display: procedure.subject?.display || this.getPatientDisplayName(patient)
+        }
+      })),
+      medications: payload.medications.map((medication) => ({
+        ...medication,
+        subject: {
+          ...medication.subject,
+          reference: `Patient/${patient.id}`,
+          display: medication.subject?.display || this.getPatientDisplayName(patient)
+        }
+      })),
+      allergies: payload.allergies.map((allergy) => ({
+        ...allergy,
+        patient: {
+          ...allergy.patient,
+          reference: `Patient/${patient.id}`,
+          display: allergy.patient?.display || this.getPatientDisplayName(patient)
+        }
+      }))
+    };
+
+    const backend = this.getActiveStorageBackend();
+    if (!backend.savePatientClinicalPackage) {
+      const savedPatient = await this.addPatient(patient);
+      for (const condition of normalizedPayload.conditions) {
+        await this.addPatientConditionEnriched(savedPatient.id, {
+          ...condition,
+          subject: { ...condition.subject, reference: `Patient/${savedPatient.id}` }
+        });
+      }
+      for (const procedure of normalizedPayload.procedures) {
+        await this.addPatientProcedureEnriched(savedPatient.id, {
+          ...procedure,
+          subject: { ...procedure.subject, reference: `Patient/${savedPatient.id}` }
+        });
+      }
+      for (const medication of normalizedPayload.medications) {
+        await this.addPatientMedicationEnriched(savedPatient.id, {
+          ...medication,
+          subject: { ...medication.subject, reference: `Patient/${savedPatient.id}` }
+        });
+      }
+      for (const allergy of normalizedPayload.allergies) {
+        this.addPatientAllergy(savedPatient.id, {
+          ...allergy,
+          patient: { ...allergy.patient, reference: `Patient/${savedPatient.id}` }
+        });
+      }
+
+      return {
+        patient: savedPatient,
+        conditions: this.getPatientConditions(savedPatient.id),
+        procedures: this.getPatientProcedures(savedPatient.id),
+        medications: this.getPatientMedications(savedPatient.id),
+        allergies: this.getPatientAllergies(savedPatient.id)
+      };
+    }
+
+    const result = await backend.savePatientClinicalPackage(patient, normalizedPayload);
+    await this.loadPatientsForCurrentMode();
+
+    const resolvedPatient = this.getPatientById(result.patient.id) || result.patient;
+    this.addOrUpdatePatientInMemory(resolvedPatient);
+    this.selectedPatientSubject.next(resolvedPatient);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.conditions, resolvedPatient.id, result.conditions, false);
+      this.setResourceCache(this.fhirCache.procedures, resolvedPatient.id, result.procedures, false);
+      this.setResourceCache(this.fhirCache.medications, resolvedPatient.id, result.medications, false);
+      this.setResourceCache(this.fhirCache.allergies, resolvedPatient.id, result.allergies, false);
+      this.notifyPatientDataChanged(resolvedPatient.id);
+    }
+
+    return {
+      patient: resolvedPatient,
+      conditions: result.conditions,
+      procedures: result.procedures,
+      medications: result.medications,
+      allergies: result.allergies
     };
   }
 
@@ -885,17 +1003,30 @@ export class PatientService {
       .catch((error) => console.error('Error updating patient in storage backend:', error));
   }
 
-  deletePatient(patientId: string): void {
-    this.getActiveStorageBackend().deletePatient(patientId)
-      .then(async () => {
-        const updatedPatients = this.patientsSubject.value.filter(patient => patient.id !== patientId);
-        this.patientsSubject.next(updatedPatients);
-        this.clearFhirPatientCaches(patientId);
-        if (this.selectedPatientSubject.value?.id === patientId) {
-          this.selectPatient(null);
-        }
-      })
-      .catch((error) => console.error('Error deleting patient from storage backend:', error));
+  async deletePatient(patientId: string): Promise<void> {
+    try {
+      await this.getActiveStorageBackend().deletePatient(patientId);
+      const updatedPatients = this.patientsSubject.value.filter(patient => patient.id !== patientId);
+      this.patientsSubject.next(updatedPatients);
+      this.patientPaginationSubject.next({
+        ...this.patientPaginationSubject.value,
+        total: this.patientPaginationSubject.value.total !== null
+          ? Math.max(0, this.patientPaginationSubject.value.total - 1)
+          : this.patientPaginationSubject.value.total
+      });
+      this.clearFhirPatientCaches(patientId);
+      if (this.selectedPatientSubject.value?.id === patientId) {
+        this.selectPatient(null);
+      }
+    } catch (error) {
+      console.error('Error deleting patient from storage backend:', error);
+      throw error;
+    }
+  }
+
+  async deletePatientRecord(patientId: string): Promise<void> {
+    await this.clearAllPatientEventsAsync(patientId);
+    await this.deletePatient(patientId);
   }
 
   getPatientById(patientId: string): Patient | undefined {
@@ -2507,13 +2638,15 @@ export class PatientService {
   }
 
   clearAllPatientEvents(patientId: string): void {
+    this.clearAllPatientEventsAsync(patientId)
+      .catch((error) => console.error('Error clearing patient events:', error));
+  }
+
+  private async clearAllPatientEventsAsync(patientId: string): Promise<void> {
     if (this.getCurrentPersistenceMode() === 'fhir') {
-      this.patientFhirStorageService.clearAllPatientEvents(patientId)
-        .then(() => {
+      await this.patientFhirStorageService.clearAllPatientEvents(patientId);
         this.clearFhirPatientCaches(patientId);
         this.notifyPatientDataChanged(patientId);
-        })
-        .catch((error) => console.error('Error clearing patient events from FHIR storage service:', error));
       return;
     }
 
