@@ -20,6 +20,12 @@ import { AppMaterialModule } from '../../shared/app-material.module';
           <mat-label>FHIR Server Base URL</mat-label>
           <input matInput [(ngModel)]="baseUrl" name="baseUrl" placeholder="https://hapi.fhir.org/baseR4" />
         </mat-form-field>
+
+        @if (shouldShowPublicDemoShortcut()) {
+          <button class="demo-server-link" mat-button type="button" (click)="usePublicDemoServer()">
+            Use public demo server
+          </button>
+        }
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
@@ -44,9 +50,17 @@ import { AppMaterialModule } from '../../shared/app-material.module';
     mat-form-field {
       width: 100%;
     }
+
+    .demo-server-link {
+      margin-top: 4px;
+      padding-left: 0;
+      min-width: 0;
+      color: #546e7a;
+    }
   `]
 })
 export class FhirServerDialogComponent {
+  private readonly publicDemoServerUrl = 'http://hapi.fhir.org/baseR4';
   baseUrl = '';
 
   constructor(
@@ -54,6 +68,14 @@ export class FhirServerDialogComponent {
     private dialogRef: MatDialogRef<FhirServerDialogComponent>
   ) {
     this.baseUrl = this.fhirService.getBaseUrl();
+  }
+
+  shouldShowPublicDemoShortcut(): boolean {
+    return this.baseUrl.trim().replace(/\/$/, '') !== this.publicDemoServerUrl;
+  }
+
+  usePublicDemoServer(): void {
+    this.baseUrl = this.publicDemoServerUrl;
   }
 
   close(): void {

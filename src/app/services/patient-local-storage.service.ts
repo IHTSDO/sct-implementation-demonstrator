@@ -14,7 +14,7 @@ import type {
   QuestionnaireResponse,
   ServiceRequest,
 } from '../model';
-import { PatientStorageBackend, PatientPage } from './patient-storage.types';
+import { PatientConditionPackageResult, PatientStorageBackend, PatientPage } from './patient-storage.types';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +45,29 @@ export class PatientLocalStorageService implements PatientStorageBackend {
     patients.push(patient);
     this.writeArray(this.STORAGE_KEY, patients);
     return patient;
+  }
+
+  async savePatientWithConditions(patient: Patient, conditions: Condition[]): Promise<PatientConditionPackageResult> {
+    const savedPatient = await this.createPatient(patient);
+    const savedConditions = conditions
+      .map((condition) => {
+        const normalizedCondition: Condition = {
+          ...condition,
+          subject: {
+            ...condition.subject,
+            reference: `Patient/${savedPatient.id}`,
+            display: condition.subject?.display || this.getPatientDisplayName(savedPatient)
+          }
+        };
+
+        return this.pushItem(`ehr_conditions_${savedPatient.id}`, this.prepareConditionForStorage(normalizedCondition));
+      })
+      .map((condition) => this.hydrateConditionComputedLocation(condition));
+
+    return {
+      patient: savedPatient,
+      conditions: savedConditions
+    };
   }
 
   async updatePatient(patient: Patient): Promise<Patient> {
@@ -415,5 +438,17 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       .filter((segment) => segment.length > 0)
       .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
       .join(' ');
+  }
+
+  private getPatientDisplayName(patient: Patient): string {
+    if (patient.name && patient.name.length > 0) {
+      const name = patient.name[0];
+      if (name.text) {
+        return name.text;
+      }
+      return [...(name.given || []), name.family].filter(Boolean).join(' ') || `Patient ${patient.id}`;
+    }
+
+    return `Patient ${patient.id}`;
   }
 }

@@ -202,6 +202,11 @@
   letter-spacing: 0.04em;
 }
 
+.backend-chip-local {
+  background: #e4f6ea;
+  color: #1f6a3a;
+}
+
 .backend-status-inline {
   display: inline-flex;
   align-items: center;

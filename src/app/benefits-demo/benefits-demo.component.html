@@ -70,14 +70,16 @@
             <h2>
               Patients
               <span class="patient-count">{{ getPatientCountLabel() }}</span>
-              @if (isFhirMode()) {
-                <span class="backend-status-inline">
+              <span class="backend-status-inline">
+                @if (isFhirMode()) {
                   <span class="backend-chip">FHIR mode</span>
                   @if (patientPagination.loading) {
                     <span class="backend-loading">Loading...</span>
                   }
-                </span>
-              }
+                } @else {
+                  <span class="backend-chip backend-chip-local">Local storage mode</span>
+                }
+              </span>
             </h2>
           </div>
         </div>

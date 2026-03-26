@@ -48,6 +48,11 @@ export interface AiAssistedEntryTransactionResult {
   allergies: AllergyIntolerance[];
 }
 
+export interface PatientConditionPackageResult {
+  patient: Patient;
+  conditions: Condition[];
+}
+
 export interface PatientClinicalRecordData {
   conditions: Condition[];
   bodyStructures: BodyStructure[];
@@ -126,6 +131,10 @@ export interface PatientStorageBackend {
     patientId: string,
     payload: AiAssistedEntryTransactionPayload
   ): Promise<AiAssistedEntryTransactionResult>;
+  savePatientWithConditions?(
+    patient: Patient,
+    conditions: Condition[]
+  ): Promise<PatientConditionPackageResult>;
 
   clearAllPatientEvents(patientId: string): Promise<void>;
 }

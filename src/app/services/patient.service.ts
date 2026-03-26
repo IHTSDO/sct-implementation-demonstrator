@@ -9,6 +9,7 @@ import {
   AiAssistedEntryTransactionPayload,
   AiAssistedEntryTransactionResult,
   PatientClinicalRecordData,
+  PatientConditionPackageResult,
   PatientPage,
   PatientPaginationState,
   PersistenceMode,
@@ -41,6 +42,7 @@ export class PatientService {
   public static readonly SNOMED_SYSTEM = 'http://snomed.info/sct';
   public static readonly SNOMED_EDITION_SYSTEM = 'http://snomed.info/sct/900000000000207008';
   public static readonly ICD10_SYSTEM = 'http://hl7.org/fhir/sid/icd-10';
+  private static readonly PERSISTENCE_MODE_STORAGE_KEY = 'ehr_persistence_mode';
   private readonly FHIR_PATIENT_PAGE_SIZE = 20;
   private readonly ANATOMICAL_ANCHOR_POINTS: Array<{ id: string; ancestors: string[] }> = [
     {
@@ -112,6 +114,7 @@ export class PatientService {
     private patientLocalStorageService: PatientLocalStorageService,
     private patientFhirStorageService: PatientFhirStorageService
   ) {
+    this.restorePersistenceMode();
     this.loadPatientsForCurrentMode();
     // this.initializeSamplePatients(); // Deactivated - start with empty patient list
   }
@@ -197,9 +200,21 @@ export class PatientService {
     }
 
     this.persistenceModeSubject.next(mode);
+    this.persistPersistenceMode(mode);
     this.selectedPatientSubject.next(null);
     this.clearFhirCaches();
     await this.loadPatientsForCurrentMode();
+  }
+
+  private restorePersistenceMode(): void {
+    const storedMode = this.storageService.getItem(PatientService.PERSISTENCE_MODE_STORAGE_KEY);
+    if (storedMode === 'local' || storedMode === 'fhir') {
+      this.persistenceModeSubject.next(storedMode);
+    }
+  }
+
+  private persistPersistenceMode(mode: PersistenceMode): void {
+    this.storageService.saveItem(PatientService.PERSISTENCE_MODE_STORAGE_KEY, mode);
   }
 
   async loadNextPatientsPage(): Promise<void> {
@@ -793,6 +808,67 @@ export class PatientService {
       console.error('Error creating patient in storage backend:', error);
       throw error;
     }
+  }
+
+  async addPatientWithConditions(patient: Patient, conditions: Condition[]): Promise<PatientConditionPackageResult> {
+    const enrichedConditions = await Promise.all(
+      conditions.map(async (condition) => {
+        const clonedCondition: Condition = JSON.parse(JSON.stringify(condition));
+        await this.enrichCondition(clonedCondition);
+        return clonedCondition;
+      })
+    );
+
+    const normalizedConditions = enrichedConditions.map((condition) => ({
+      ...condition,
+      subject: {
+        ...condition.subject,
+        reference: `Patient/${patient.id}`,
+        display: condition.subject?.display || this.getPatientDisplayName(patient)
+      }
+    }));
+
+    const backend = this.getActiveStorageBackend();
+    if (!backend.savePatientWithConditions) {
+      const savedPatient = await this.addPatient(patient);
+      const savedConditions: Condition[] = [];
+
+      for (const condition of normalizedConditions) {
+        condition.subject = {
+          ...condition.subject,
+          reference: `Patient/${savedPatient.id}`,
+          display: condition.subject?.display || this.getPatientDisplayName(savedPatient)
+        };
+        const wasAdded = await this.addPatientConditionEnriched(savedPatient.id, condition);
+        if (wasAdded) {
+          const savedCondition = this.getPatientConditions(savedPatient.id).find((existing) => existing.id === condition.id);
+          if (savedCondition) {
+            savedConditions.push(savedCondition);
+          }
+        }
+      }
+
+      return {
+        patient: savedPatient,
+        conditions: savedConditions
+      };
+    }
+
+    const result = await backend.savePatientWithConditions(patient, normalizedConditions);
+    await this.loadPatientsForCurrentMode();
+
+    const resolvedPatient = this.getPatientById(result.patient.id) || result.patient;
+    this.selectedPatientSubject.next(resolvedPatient);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.conditions, resolvedPatient.id, result.conditions, false);
+      this.notifyPatientDataChanged(resolvedPatient.id);
+    }
+
+    return {
+      patient: resolvedPatient,
+      conditions: result.conditions
+    };
   }
 
   updatePatient(updatedPatient: Patient): void {

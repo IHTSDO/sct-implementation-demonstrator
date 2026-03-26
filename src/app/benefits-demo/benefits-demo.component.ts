@@ -646,18 +646,9 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         this.isCreatingPatient = true;
         
         try {
-          const savedPatient = await this.patientService.addPatient(result.patient);
-
-          for (const diagnosis of result.diagnoses) {
-            diagnosis.subject = {
-              ...diagnosis.subject,
-              reference: `Patient/${savedPatient.id}`
-            };
-            await this.patientService.addPatientConditionEnriched(savedPatient.id, diagnosis);
-          }
-
-          this.patientService.selectPatient(savedPatient);
-          this.router.navigate(['/clinical-record', savedPatient.id]);
+          const savedPackage = await this.patientService.addPatientWithConditions(result.patient, result.diagnoses);
+          this.patientService.selectPatient(savedPackage.patient);
+          this.router.navigate(['/clinical-record', savedPackage.patient.id]);
         } catch (error) {
           console.error('Error creating patient with diagnoses:', error);
           alert('Error generating patient with diagnoses. Please try again.');
@@ -728,15 +719,8 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
               .subscribe({
                 next: async (result) => {
                   if (result) {
-                    // Add the patient to the service
-                    this.patientService.addPatient(result.patient);
-                    
-                    // Add the diagnoses as conditions
-                    for (const diagnosis of result.diagnoses) {
-                      await this.patientService.addPatientConditionEnriched(result.patient.id, diagnosis);
-                    }
-                    
-                    lastPatientId = result.patient.id;
+                    const savedPackage = await this.patientService.addPatientWithConditions(result.patient, result.diagnoses);
+                    lastPatientId = savedPackage.patient.id;
                   }
                   completed++;
                   snackBarRef.instance.data.message = `Generated ${completed} of ${count} patients...`;
@@ -764,8 +748,8 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
             randomPatient = this.patientSimulationService.generateRandomPatientWithGender(gender as 'male' | 'female');
           }
           
-          this.patientService.addPatient(randomPatient);
-          lastPatientId = randomPatient.id;
+          const savedPatient = await this.patientService.addPatient(randomPatient);
+          lastPatientId = savedPatient.id;
           completed++;
           snackBarRef.instance.data.message = `Generated ${completed} of ${count} patients...`;
         }

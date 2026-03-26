@@ -19,6 +19,7 @@ import {
   AiAssistedEntryTransactionPayload,
   AiAssistedEntryTransactionResult,
   PatientClinicalRecordData,
+  PatientConditionPackageResult,
   PatientPage,
   PatientStorageBackend
 } from './patient-storage.types';
@@ -104,6 +105,58 @@ export class PatientFhirStorageService implements PatientStorageBackend {
 
   async createPatient(patient: Patient): Promise<Patient> {
     return await firstValueFrom(this.fhirService.create('Patient', this.preparePatientForFhirCreate(patient)));
+  }
+
+  async savePatientWithConditions(patient: Patient, conditions: Condition[]): Promise<PatientConditionPackageResult> {
+    const patientFullUrl = this.createTransactionFullUrl('patient');
+    const patientDisplay = this.getPatientDisplayName(patient);
+
+    const bundle = {
+      resourceType: 'Bundle',
+      type: 'transaction',
+      entry: [
+        this.createTransactionEntry(
+          this.preparePatientForFhirCreate(patient),
+          'Patient',
+          patientFullUrl
+        ),
+        ...conditions.map((condition) =>
+          this.createTransactionEntry(
+            this.removeTemporaryId(
+              this.prepareConditionForFhir({
+                ...condition,
+                subject: {
+                  ...condition.subject,
+                  reference: patientFullUrl,
+                  display: condition.subject?.display || patientDisplay
+                }
+              }),
+              'condition-'
+            ),
+            'Condition',
+            this.createTransactionFullUrl('condition')
+          )
+        )
+      ]
+    };
+
+    const responseBundle = await firstValueFrom(this.fhirService.executeTransaction(bundle));
+    const responseEntries = Array.isArray(responseBundle?.entry) ? responseBundle.entry : [];
+    const resources = await Promise.all(responseEntries.map((entry: any) => this.resolveTransactionResponseResource(entry)));
+
+    const savedPatient = resources.find((resource: any) => resource?.resourceType === 'Patient') as Patient | undefined;
+    const savedConditions = resources
+      .filter((resource: any) => resource?.resourceType === 'Condition')
+      .map((condition: any) => this.hydrateConditionComputedLocation(condition));
+
+    if (!savedPatient) {
+      throw new Error('FHIR transaction did not return the created patient resource.');
+    }
+
+    return {
+      patient: savedPatient,
+      conditions: savedConditions
+    };
   }
 
   async updatePatient(patient: Patient): Promise<Patient> {
@@ -734,5 +787,18 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       .filter((segment) => segment.length > 0)
       .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
       .join(' ');
+  }
+
+  private getPatientDisplayName(patient: Patient): string {
+    if (patient.name && patient.name.length > 0) {
+      const name = patient.name[0];
+      if (name.text) {
+        return name.text;
+      }
+
+      return [...(name.given || []), name.family].filter(Boolean).join(' ') || `Patient ${patient.id}`;
+    }
+
+    return `Patient ${patient.id}`;
   }
 }
