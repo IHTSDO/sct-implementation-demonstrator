@@ -126,15 +126,21 @@
           </div>
         }
         <div class="action-section">
-          <button mat-flat-button color="accent" (click)="addItem()" [disabled]="!selectedConcept || loading">
-            @if (loading) {
-              <mat-spinner diameter="20"></mat-spinner>
-            }
-            @if (!loading) {
-              <span>Add {{ entryType === 'medication' && selectedAssociation ? 'Associated ' : '' }}{{ sectionTitle.replace('Add ', '') }}</span>
-            }
+          <button mat-flat-button color="accent" (click)="addItem()" [disabled]="!selectedConcept || loading || saving">
+            <span class="entry-button-label">
+              @if (loading || saving) {
+                <span class="inline-button-spinner entry-inline-spinner" aria-hidden="true"></span>
+              }
+              <span>
+                @if (saving) {
+                  Saving...
+                } @else {
+                  Add {{ entryType === 'medication' && selectedAssociation ? 'Associated ' : '' }}{{ sectionTitle.replace('Add ', '') }}
+                }
+              </span>
+            </span>
           </button>
-          <button mat-flat-button color="warn" (click)="toggleAddForm()" [disabled]="loading">
+          <button mat-flat-button color="warn" (click)="toggleAddForm()" [disabled]="loading || saving">
             Cancel
           </button>
         </div>

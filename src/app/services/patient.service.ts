@@ -44,6 +44,7 @@ export class PatientService {
   public static readonly SNOMED_SYSTEM = 'http://snomed.info/sct';
   public static readonly SNOMED_EDITION_SYSTEM = 'http://snomed.info/sct/900000000000207008';
   public static readonly ICD10_SYSTEM = 'http://hl7.org/fhir/sid/icd-10';
+  private static readonly EHR_LAB_LOCATION_SYSTEM = 'http://ehr-lab.demo/location';
   private static readonly PERSISTENCE_MODE_STORAGE_KEY = 'ehr_persistence_mode';
   private readonly FHIR_PATIENT_PAGE_SIZE = 20;
   private readonly ANATOMICAL_ANCHOR_POINTS: Array<{ id: string; ancestors: string[] }> = [
@@ -1187,7 +1188,7 @@ export class PatientService {
   }
 
   private async enrichConditionInBackground(patientId: string, condition: Condition): Promise<void> {
-    if (this.getConditionIcd10Code(condition) && condition.computedLocation) {
+    if (this.getConditionIcd10Code(condition) && this.getConditionStoredLocation(condition)) {
       return;
     }
 
@@ -1216,8 +1217,8 @@ export class PatientService {
         }
       }
 
-      if (!condition.computedLocation) {
-        condition.computedLocation = await this.resolveComputedLocation(snomedCode);
+      if (!this.getConditionStoredLocation(condition)) {
+        this.setConditionStoredLocation(condition, await this.resolveComputedLocation(snomedCode));
       }
     }
   }
@@ -1414,7 +1415,7 @@ export class PatientService {
   }
 
   private async enrichProcedureInBackground(patientId: string, procedure: Procedure): Promise<void> {
-    if (procedure.computedLocation) {
+    if (this.getProcedureStoredLocation(procedure)) {
       return;
     }
 
@@ -1432,8 +1433,8 @@ export class PatientService {
     if (snomedCode) {
       procedure.snomedConceptId = procedure.snomedConceptId || snomedCode;
 
-      if (!procedure.computedLocation) {
-        procedure.computedLocation = await this.resolveComputedLocation(snomedCode);
+      if (!this.getProcedureStoredLocation(procedure)) {
+        this.setProcedureStoredLocation(procedure, await this.resolveComputedLocation(snomedCode));
       }
     }
   }
@@ -1469,6 +1470,72 @@ export class PatientService {
     }
 
     return 'systemic';
+  }
+
+  private getConditionStoredLocation(condition: Condition): string | undefined {
+    return (condition.bodySite || [])
+      .flatMap((site) => Array.isArray(site?.coding) ? site.coding : [])
+      .find((coding) => coding?.system === PatientService.EHR_LAB_LOCATION_SYSTEM)
+      ?.code;
+  }
+
+  private setConditionStoredLocation(condition: Condition, locationCode: string): void {
+    const bodySite = Array.isArray(condition.bodySite) ? [...condition.bodySite] : [];
+    const filteredBodySite = bodySite.filter((site) => {
+      const codings = Array.isArray(site?.coding) ? site.coding : [];
+      return !codings.some((coding) => coding?.system === PatientService.EHR_LAB_LOCATION_SYSTEM);
+    });
+
+    condition.bodySite = [
+      ...filteredBodySite,
+      {
+        coding: [
+          {
+            system: PatientService.EHR_LAB_LOCATION_SYSTEM,
+            code: locationCode,
+            display: this.toLocationDisplay(locationCode)
+          }
+        ],
+        text: this.toLocationDisplay(locationCode)
+      }
+    ];
+  }
+
+  private getProcedureStoredLocation(procedure: Procedure): string | undefined {
+    return (procedure.bodySite || [])
+      .flatMap((site) => Array.isArray(site?.coding) ? site.coding : [])
+      .find((coding) => coding?.system === PatientService.EHR_LAB_LOCATION_SYSTEM)
+      ?.code;
+  }
+
+  private setProcedureStoredLocation(procedure: Procedure, locationCode: string): void {
+    const bodySite = Array.isArray(procedure.bodySite) ? [...procedure.bodySite] : [];
+    const filteredBodySite = bodySite.filter((site) => {
+      const codings = Array.isArray(site?.coding) ? site.coding : [];
+      return !codings.some((coding) => coding?.system === PatientService.EHR_LAB_LOCATION_SYSTEM);
+    });
+
+    procedure.bodySite = [
+      ...filteredBodySite,
+      {
+        coding: [
+          {
+            system: PatientService.EHR_LAB_LOCATION_SYSTEM,
+            code: locationCode,
+            display: this.toLocationDisplay(locationCode)
+          }
+        ],
+        text: this.toLocationDisplay(locationCode)
+      }
+    ];
+  }
+
+  private toLocationDisplay(locationCode: string): string {
+    return locationCode
+      .split(/[-_]/g)
+      .filter((segment) => segment.length > 0)
+      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join(' ');
   }
 
   private extractAnchorConceptId(snomedString: string): string {
@@ -1747,8 +1814,9 @@ export class PatientService {
 
       if (resourceType === 'Condition') {
         const condition = this.getPatientConditions(patientId).find(item => item.id === resourceId);
-        if (condition?.computedLocation) {
-          return condition.computedLocation;
+        const conditionLocation = condition ? this.getConditionStoredLocation(condition) : undefined;
+        if (conditionLocation) {
+          return conditionLocation;
         }
         const conditionConceptId = condition ? this.extractSnomedCode(condition) : null;
         if (conditionConceptId) {
@@ -1758,8 +1826,9 @@ export class PatientService {
 
       if (resourceType === 'Procedure') {
         const procedure = this.getPatientProcedures(patientId).find(item => item.id === resourceId);
-        if (procedure?.computedLocation) {
-          return procedure.computedLocation;
+        const procedureLocation = procedure ? this.getProcedureStoredLocation(procedure) : undefined;
+        if (procedureLocation) {
+          return procedureLocation;
         }
         const procedureConceptId = procedure ? this.extractSnomedCode(procedure) : null;
         if (procedureConceptId) {

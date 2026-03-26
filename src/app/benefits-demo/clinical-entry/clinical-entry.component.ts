@@ -15,6 +15,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
   @Input() patientId: string = '';
   @Input() entryType: ClinicalEntryType = 'condition';
   @Input() hideButton: boolean = false;
+  @Input() saving: boolean = false;
   @Input() availableConditions: Condition[] = [];
   @Input() availableProcedures: Procedure[] = [];
   @Output() itemAdded = new EventEmitter<any>();
@@ -120,7 +121,9 @@ export class ClinicalEntryComponent implements AfterViewInit {
             break;
         }
       } finally {
-        this.loading = false;
+        setTimeout(() => {
+          this.loading = false;
+        }, 0);
       }
     }
   }
@@ -139,7 +142,6 @@ export class ClinicalEntryComponent implements AfterViewInit {
 
     // Let the parent component handle adding to the service
     this.itemAdded.emit(newCondition);
-    this.resetForm();
   }
 
   private async addProcedure() {
@@ -156,7 +158,6 @@ export class ClinicalEntryComponent implements AfterViewInit {
 
     // Let the parent component handle adding to the service
     this.itemAdded.emit(newProcedure);
-    this.resetForm();
   }
 
   private async addMedication() {
@@ -180,6 +181,9 @@ export class ClinicalEntryComponent implements AfterViewInit {
 
     // Let the parent component handle adding to the service
     this.itemAdded.emit(newMedication);
+  }
+
+  resetAndCloseForm(): void {
     this.resetForm();
   }
 

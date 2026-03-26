@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService } from '../../services/patient.service';
 import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
 import { TerminologyService } from '../../services/terminology.service';
-import { ClinicalEntryComponent } from '../clinical-entry/clinical-entry.component';
+import { ClinicalEntryComponent, ClinicalEntryType } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
 import { Subscription, forkJoin, of, delay } from 'rxjs';
 import { AllergyFormDialogComponent } from '../allergy-form-dialog/allergy-form-dialog.component';
@@ -85,6 +85,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   private readonly DENTAL_CATEGORY_SYSTEM = 'http://example.org/fhir/CodeSystem/condition-category';
   private readonly DENTAL_CONDITION_CATEGORY_CODE = 'dental';
   private readonly DENTAL_PROCEDURE_CATEGORY_CODE = 'dental-procedure';
+  private readonly EHR_LAB_LOCATION_SYSTEM = 'http://ehr-lab.demo/location';
+  private readonly EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL = 'http://ehr-lab.demo/fhir/StructureDefinition/computed-location';
   
 
   
@@ -94,6 +96,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   
   // Loading state for processing new events
   isProcessingNewEvent = false;
+  savingEntryType: ClinicalEntryType | null = null;
 
   // CDS state from CDS panel component
   cdsState: CdsState = {
@@ -319,6 +322,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.selectedModule = 'clinical';
     this.selectedClinicalView = view;
     this.expandOnly('clinical');
+    if (view === 'summary') {
+      this.refreshSummaryVisualizations();
+    }
   }
 
   selectNursingView(view: NursingView): void {
@@ -440,6 +446,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         const summary = await this.patientService.preloadClinicalRecordData(patientId);
         this.populateClinicalDataFromService(patientId);
         this.touchDataVersion();
+        this.refreshSummaryVisualizations();
         this.showClinicalDataLoadedSnackBar(summary);
       } catch (error) {
         console.error('Error loading clinical data from FHIR server:', error);
@@ -456,6 +463,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
     this.populateClinicalDataFromService(patientId);
     this.touchDataVersion();
+    this.refreshSummaryVisualizations();
   }
 
   private populateClinicalDataFromService(patientId: string): void {
@@ -854,6 +862,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   async onConditionAdded(event: any): Promise<void> {
     this.isProcessingNewEvent = true;
+    this.savingEntryType = 'condition';
     
     try {
       // Centralized condition persistence also resolves ICD-10 when needed.
@@ -877,6 +886,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // Add the new condition to the local array only if it was successfully added
       // Create new array reference to trigger Angular change detection
       this.conditions = [...this.conditions, event];
+      this.conditionEntry?.resetAndCloseForm();
       this.touchDataVersion();
       
       // Refresh timeline to show new condition
@@ -890,6 +900,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       console.error('Error processing new condition:', error);
     } finally {
       this.isProcessingNewEvent = false;
+      this.savingEntryType = null;
     }
   }
 
@@ -899,6 +910,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   async onProcedureAdded(event: any): Promise<void> {
     this.isProcessingNewEvent = true;
+    this.savingEntryType = 'procedure';
     
     try {
       // Centralized procedure persistence also resolves anatomical location when needed.
@@ -922,6 +934,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // Add the new procedure to the local array only if it was successfully added
       // Create new array reference to trigger Angular change detection
       this.procedures = [...this.procedures, event];
+      this.procedureEntry?.resetAndCloseForm();
       this.touchDataVersion();
       
       // Refresh timeline to show new procedure
@@ -940,6 +953,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       console.error('Error processing new procedure:', error);
     } finally {
       this.isProcessingNewEvent = false;
+      this.savingEntryType = null;
     }
   }
 
@@ -972,6 +986,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   async onMedicationAdded(event: any): Promise<void> {
     this.isProcessingNewEvent = true;
+    this.savingEntryType = 'medication';
     
     try {
       // Save the medication to PatientService first (now returns boolean)
@@ -995,6 +1010,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // Add the new medication to the local array only if it was successfully added
       // Create new array reference to trigger Angular change detection
       this.medications = [...this.medications, event];
+      this.medicationEntry?.resetAndCloseForm();
       this.touchDataVersion();
       
       // Refresh timeline to show new medication
@@ -1008,6 +1024,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       console.error('Error processing new medication:', error);
     } finally {
       this.isProcessingNewEvent = false;
+      this.savingEntryType = null;
     }
   }
 
@@ -2455,21 +2472,53 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.dataVersion += 1;
   }
 
+  private refreshSummaryVisualizations(): void {
+    setTimeout(() => {
+      if (this.selectedClinicalView !== 'summary') {
+        return;
+      }
+
+      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+        this.clinicalTimeline.refreshTimeline();
+      }
+
+      if (this.encounterRecord && this.encounterRecord.refreshEncounterDisplay) {
+        this.encounterRecord.refreshEncounterDisplay();
+      }
+    }, 0);
+
+    setTimeout(() => {
+      if (this.selectedClinicalView !== 'summary') {
+        return;
+      }
+
+      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+        this.clinicalTimeline.refreshTimeline();
+      }
+    }, 180);
+  }
+
   /**
    * Get cached location for a concept from existing clinical events
    */
   private getCachedLocationForConcept(conceptId: string): string | null {
     // Check conditions
     for (const condition of this.conditions) {
-      if (this.getConceptId(condition) === conceptId && (condition as any).computedLocation) {
-        return (condition as any).computedLocation;
+      if (this.getConceptId(condition) === conceptId) {
+        const conditionLocation = this.getStoredLocationForEvent(condition);
+        if (conditionLocation) {
+          return conditionLocation;
+        }
       }
     }
     
     // Check procedures
     for (const procedure of this.procedures) {
-      if (this.getConceptId(procedure) === conceptId && (procedure as any).computedLocation) {
-        return (procedure as any).computedLocation;
+      if (this.getConceptId(procedure) === conceptId) {
+        const procedureLocation = this.getStoredLocationForEvent(procedure);
+        if (procedureLocation) {
+          return procedureLocation;
+        }
       }
     }
     
@@ -2477,8 +2526,11 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     for (const medication of this.medications) {
       const indicationConceptId = this.getIndicationConceptId(medication);
       const medicationConceptId = indicationConceptId || this.getConceptId(medication);
-      if (medicationConceptId === conceptId && (medication as any).computedLocation) {
-        return (medication as any).computedLocation;
+      if (medicationConceptId === conceptId) {
+        const medicationLocation = this.getStoredLocationForEvent(medication);
+        if (medicationLocation) {
+          return medicationLocation;
+        }
       }
     }
     
@@ -2529,25 +2581,21 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
             const bestAnchorPoint = this.findBestAnchorPointForAncestors(ancestorIds);
             
             if (bestAnchorPoint) {
-              // Store the mapping
-              (event as any).computedLocation = bestAnchorPoint.id;
+              this.setStoredLocationForEvent(event, bestAnchorPoint.id);
             } else {
-              // Default to systemic if no match found
-              (event as any).computedLocation = 'systemic';
+              this.setStoredLocationForEvent(event, 'systemic');
             }
             
             resolve();
           } catch (error) {
             console.error(`Error processing ancestors for concept ${conceptId}:`, error);
-            // Default to systemic on error
-            (event as any).computedLocation = 'systemic';
+            this.setStoredLocationForEvent(event, 'systemic');
             resolve();
           }
         },
         error: (error) => {
           console.error(`Failed to get ancestors for concept ${conceptId}:`, error);
-          // Default to systemic on error
-          (event as any).computedLocation = 'systemic';
+          this.setStoredLocationForEvent(event, 'systemic');
           resolve();
         }
       });
@@ -2618,13 +2666,12 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
     
     if (!conceptId) {
-      // Default to systemic if no concept ID
-      (event as any).computedLocation = 'systemic';
+      this.setStoredLocationForEvent(event, 'systemic');
       return;
     }
 
     // Skip if already mapped
-    if ((event as any).computedLocation) {
+    if (this.getStoredLocationForEvent(event)) {
       return;
     }
 
@@ -2635,8 +2682,112 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // No need to save again here
     } catch (error) {
       console.error(`Error mapping single event with concept ${conceptId}:`, error);
-      // Default to systemic on error
-      (event as any).computedLocation = 'systemic';
+      this.setStoredLocationForEvent(event, 'systemic');
     }
+  }
+
+  private getStoredLocationForEvent(event: any): string | null {
+    if (Array.isArray(event?.bodySite)) {
+      const locationCode = event.bodySite
+        .flatMap((site: any) => Array.isArray(site?.coding) ? site.coding : [])
+        .find((coding: any) => coding?.system === this.EHR_LAB_LOCATION_SYSTEM)
+        ?.code;
+
+      if (locationCode) {
+        return locationCode;
+      }
+    }
+
+    if (event?.resourceType === 'MedicationStatement') {
+      const extensions = Array.isArray(event?.extension) ? event.extension : [];
+      const extensionLocation = extensions.find(
+        (extension: any) => extension?.url === this.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL
+      )?.valueCode;
+
+      if (extensionLocation) {
+        return extensionLocation;
+      }
+
+      const dosageSiteLocation = event?.dosage?.[0]?.site?.coding?.find(
+        (coding: any) => coding?.system === this.EHR_LAB_LOCATION_SYSTEM
+      )?.code;
+
+      if (dosageSiteLocation) {
+        return dosageSiteLocation;
+      }
+    }
+
+    return null;
+  }
+
+  private setStoredLocationForEvent(event: any, locationCode: string): void {
+    if (event?.resourceType === 'Condition' || Array.isArray(event?.bodySite)) {
+      const bodySite = Array.isArray(event?.bodySite) ? [...event.bodySite] : [];
+      const filteredBodySite = bodySite.filter((site: any) => {
+        const codings = Array.isArray(site?.coding) ? site.coding : [];
+        return !codings.some((coding: any) => coding?.system === this.EHR_LAB_LOCATION_SYSTEM);
+      });
+
+      event.bodySite = [
+        ...filteredBodySite,
+        {
+          coding: [
+            {
+              system: this.EHR_LAB_LOCATION_SYSTEM,
+              code: locationCode,
+              display: this.toLocationDisplay(locationCode)
+            }
+          ],
+          text: this.toLocationDisplay(locationCode)
+        }
+      ];
+      return;
+    }
+
+    if (event?.resourceType === 'Procedure') {
+      const bodySite = Array.isArray(event?.bodySite) ? [...event.bodySite] : [];
+      const filteredBodySite = bodySite.filter((site: any) => {
+        const codings = Array.isArray(site?.coding) ? site.coding : [];
+        return !codings.some((coding: any) => coding?.system === this.EHR_LAB_LOCATION_SYSTEM);
+      });
+
+      event.bodySite = [
+        ...filteredBodySite,
+        {
+          coding: [
+            {
+              system: this.EHR_LAB_LOCATION_SYSTEM,
+              code: locationCode,
+              display: this.toLocationDisplay(locationCode)
+            }
+          ],
+          text: this.toLocationDisplay(locationCode)
+        }
+      ];
+      return;
+    }
+
+    if (event?.resourceType === 'MedicationStatement') {
+      const extensions = Array.isArray(event?.extension) ? [...event.extension] : [];
+      const filteredExtensions = extensions.filter(
+        (extension: any) => extension?.url !== this.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL
+      );
+
+      event.extension = [
+        ...filteredExtensions,
+        {
+          url: this.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL,
+          valueCode: locationCode
+        }
+      ];
+    }
+  }
+
+  private toLocationDisplay(locationCode: string): string {
+    return locationCode
+      .split(/[-_]/g)
+      .filter((segment) => segment.length > 0)
+      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join(' ');
   }
 }

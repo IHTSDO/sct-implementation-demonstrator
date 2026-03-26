@@ -177,6 +177,32 @@
   opacity: 0.6;
 }
 
+.entry-button-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-button-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(90, 102, 115, 0.24);
+  border-top-color: #7b8794;
+  animation: clinical-entry-spin 0.85s linear infinite;
+  flex: 0 0 auto;
+}
+
+.entry-inline-spinner {
+  margin-right: 2px;
+}
+
+@keyframes clinical-entry-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .input-row {

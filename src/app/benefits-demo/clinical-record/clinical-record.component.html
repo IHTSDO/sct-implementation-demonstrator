@@ -512,10 +512,6 @@
                             Add Medication
                           </button>
                         </div>
-                        <div class="processing-indicator" *ngIf="isProcessingNewEvent">
-                          <mat-spinner diameter="20"></mat-spinner>
-                          <span>Processing...</span>
-                        </div>
                       </div>
                       
                       <!-- Clinical Entry Forms -->
@@ -525,6 +521,7 @@
                           [patientId]="patient.id" 
                           entryType="condition"
                           [hideButton]="true"
+                          [saving]="savingEntryType === 'condition'"
                           (itemAdded)="onConditionAdded($event)"
                           (formOpened)="onClinicalEntryFormOpened($event)">
                         </app-clinical-entry>
@@ -534,6 +531,7 @@
                           [patientId]="patient.id" 
                           entryType="procedure"
                           [hideButton]="true"
+                          [saving]="savingEntryType === 'procedure'"
                           (itemAdded)="onProcedureAdded($event)"
                           (formOpened)="onClinicalEntryFormOpened($event)">
                         </app-clinical-entry>
@@ -545,6 +543,7 @@
                           [availableConditions]="conditions"
                           [availableProcedures]="procedures"
                           [hideButton]="true"
+                          [saving]="savingEntryType === 'medication'"
                           (itemAdded)="onMedicationAdded($event)"
                           (formOpened)="onClinicalEntryFormOpened($event)">
                         </app-clinical-entry>

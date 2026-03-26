@@ -148,8 +148,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
 
     const savedPatient = resources.find((resource: any) => resource?.resourceType === 'Patient') as Patient | undefined;
     const savedConditions = resources
-      .filter((resource: any) => resource?.resourceType === 'Condition')
-      .map((condition: any) => this.hydrateConditionComputedLocation(condition));
+      .filter((resource: any) => resource?.resourceType === 'Condition');
 
     if (!savedPatient) {
       throw new Error('FHIR transaction did not return the created patient resource.');
@@ -260,11 +259,9 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     return {
       patient: savedPatient,
       conditions: resources
-        .filter((resource: any) => resource?.resourceType === 'Condition')
-        .map((condition: any) => this.hydrateConditionComputedLocation(condition)),
+        .filter((resource: any) => resource?.resourceType === 'Condition'),
       procedures: resources
-        .filter((resource: any) => resource?.resourceType === 'Procedure')
-        .map((procedure: any) => this.hydrateProcedureComputedLocation(procedure)),
+        .filter((resource: any) => resource?.resourceType === 'Procedure'),
       medications: resources
         .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
         .map((medication: any) => this.hydrateMedicationComputedLocation(medication)),
@@ -286,16 +283,13 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   }
 
   async getConditions(patientId: string): Promise<Condition[]> {
-    const conditions = await this.fetchPatientResources<Condition>('Condition', { subject: this.getPatientReference(patientId), _count: '200' });
-    return conditions.map((condition) => this.hydrateConditionComputedLocation(condition));
+    return this.fetchPatientResources<Condition>('Condition', { subject: this.getPatientReference(patientId), _count: '200' });
   }
   async createCondition(patientId: string, condition: Condition): Promise<Condition> {
-    const savedCondition = await firstValueFrom(this.fhirService.create('Condition', this.prepareConditionForFhir(condition)));
-    return this.hydrateConditionComputedLocation(savedCondition);
+    return await firstValueFrom(this.fhirService.create('Condition', this.prepareConditionForFhir(condition)));
   }
   async updateCondition(patientId: string, conditionId: string, condition: Condition): Promise<Condition> {
-    const savedCondition = await firstValueFrom(this.fhirService.update('Condition', conditionId, this.prepareConditionForFhir(condition)));
-    return this.hydrateConditionComputedLocation(savedCondition);
+    return await firstValueFrom(this.fhirService.update('Condition', conditionId, this.prepareConditionForFhir(condition)));
   }
   async deleteCondition(patientId: string, conditionId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Condition', conditionId)); }
 
@@ -305,16 +299,13 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   async deleteBodyStructure(patientId: string, bodyStructureId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('BodyStructure', bodyStructureId)); }
 
   async getProcedures(patientId: string): Promise<Procedure[]> {
-    const procedures = await this.fetchPatientResources<Procedure>('Procedure', { subject: this.getPatientReference(patientId), _count: '200' });
-    return procedures.map((procedure) => this.hydrateProcedureComputedLocation(procedure));
+    return this.fetchPatientResources<Procedure>('Procedure', { subject: this.getPatientReference(patientId), _count: '200' });
   }
   async createProcedure(patientId: string, procedure: Procedure): Promise<Procedure> {
-    const savedProcedure = await firstValueFrom(this.fhirService.create('Procedure', this.prepareProcedureForFhir(procedure)));
-    return this.hydrateProcedureComputedLocation(savedProcedure);
+    return await firstValueFrom(this.fhirService.create('Procedure', this.prepareProcedureForFhir(procedure)));
   }
   async updateProcedure(patientId: string, procedureId: string, procedure: Procedure): Promise<Procedure> {
-    const savedProcedure = await firstValueFrom(this.fhirService.update('Procedure', procedureId, this.prepareProcedureForFhir(procedure)));
-    return this.hydrateProcedureComputedLocation(savedProcedure);
+    return await firstValueFrom(this.fhirService.update('Procedure', procedureId, this.prepareProcedureForFhir(procedure)));
   }
   async deleteProcedure(patientId: string, procedureId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Procedure', procedureId)); }
 
@@ -412,12 +403,10 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const resources = this.extractBundleResources<any>(everythingBundle);
 
     const conditions = resources
-      .filter((resource: any) => resource?.resourceType === 'Condition')
-      .map((condition: Condition) => this.hydrateConditionComputedLocation(condition));
+      .filter((resource: any) => resource?.resourceType === 'Condition') as Condition[];
     const bodyStructures = resources.filter((resource: any) => resource?.resourceType === 'BodyStructure') as BodyStructure[];
     const procedures = resources
-      .filter((resource: any) => resource?.resourceType === 'Procedure')
-      .map((procedure: Procedure) => this.hydrateProcedureComputedLocation(procedure));
+      .filter((resource: any) => resource?.resourceType === 'Procedure') as Procedure[];
     const medications = resources
       .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
       .map((medication: MedicationStatement) => this.hydrateMedicationComputedLocation(medication));
@@ -503,11 +492,9 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const resources = await Promise.all(responseEntries.map((entry: any) => this.resolveTransactionResponseResource(entry)));
     const encounter = resources.find((resource: any) => resource?.resourceType === 'Encounter') || null;
     const conditions = resources
-      .filter((resource: any) => resource?.resourceType === 'Condition')
-      .map((condition: any) => this.hydrateConditionComputedLocation(condition));
+      .filter((resource: any) => resource?.resourceType === 'Condition');
     const procedures = resources
-      .filter((resource: any) => resource?.resourceType === 'Procedure')
-      .map((procedure: any) => this.hydrateProcedureComputedLocation(procedure));
+      .filter((resource: any) => resource?.resourceType === 'Procedure');
     const medications = resources
       .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
       .map((medication: any) => this.hydrateMedicationComputedLocation(medication));

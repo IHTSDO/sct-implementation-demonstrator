@@ -67,8 +67,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
         };
 
         return this.pushItem(`ehr_conditions_${savedPatient.id}`, this.prepareConditionForStorage(normalizedCondition));
-      })
-      .map((condition) => this.hydrateConditionComputedLocation(condition));
+      });
 
     return {
       patient: savedPatient,
@@ -95,8 +94,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
             display: condition.subject?.display || patientDisplay
           }
         })
-      ))
-      .map((condition) => this.hydrateConditionComputedLocation(condition));
+      ));
 
     const savedProcedures = payload.procedures
       .map((procedure) => this.pushItem(
@@ -109,8 +107,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
             display: procedure.subject?.display || patientDisplay
           }
         })
-      ))
-      .map((procedure) => this.hydrateProcedureComputedLocation(procedure));
+      ));
 
     const savedMedications = payload.medications
       .map((medication) => this.pushItem(
@@ -193,15 +190,13 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   }
 
   async getConditions(patientId: string): Promise<Condition[]> {
-    return this.readArray<Condition>(`ehr_conditions_${patientId}`).map((condition) => this.hydrateConditionComputedLocation(condition));
+    return this.readArray<Condition>(`ehr_conditions_${patientId}`);
   }
   async createCondition(patientId: string, condition: Condition): Promise<Condition> {
-    const savedCondition = this.pushItem(`ehr_conditions_${patientId}`, this.prepareConditionForStorage(condition));
-    return this.hydrateConditionComputedLocation(savedCondition);
+    return this.pushItem(`ehr_conditions_${patientId}`, this.prepareConditionForStorage(condition));
   }
   async updateCondition(patientId: string, conditionId: string, condition: Condition): Promise<Condition> {
-    const savedCondition = this.replaceItem(`ehr_conditions_${patientId}`, conditionId, this.prepareConditionForStorage(condition));
-    return this.hydrateConditionComputedLocation(savedCondition);
+    return this.replaceItem(`ehr_conditions_${patientId}`, conditionId, this.prepareConditionForStorage(condition));
   }
   async deleteCondition(patientId: string, conditionId: string): Promise<void> { this.removeItem(`ehr_conditions_${patientId}`, conditionId); }
 
@@ -211,15 +206,13 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   async deleteBodyStructure(patientId: string, bodyStructureId: string): Promise<void> { this.removeItem(`ehr_body_structures_${patientId}`, bodyStructureId); }
 
   async getProcedures(patientId: string): Promise<Procedure[]> {
-    return this.readArray<Procedure>(`ehr_procedures_${patientId}`).map((procedure) => this.hydrateProcedureComputedLocation(procedure));
+    return this.readArray<Procedure>(`ehr_procedures_${patientId}`);
   }
   async createProcedure(patientId: string, procedure: Procedure): Promise<Procedure> {
-    const savedProcedure = this.pushItem(`ehr_procedures_${patientId}`, this.prepareProcedureForStorage(procedure));
-    return this.hydrateProcedureComputedLocation(savedProcedure);
+    return this.pushItem(`ehr_procedures_${patientId}`, this.prepareProcedureForStorage(procedure));
   }
   async updateProcedure(patientId: string, procedureId: string, procedure: Procedure): Promise<Procedure> {
-    const savedProcedure = this.replaceItem(`ehr_procedures_${patientId}`, procedureId, this.prepareProcedureForStorage(procedure));
-    return this.hydrateProcedureComputedLocation(savedProcedure);
+    return this.replaceItem(`ehr_procedures_${patientId}`, procedureId, this.prepareProcedureForStorage(procedure));
   }
   async deleteProcedure(patientId: string, procedureId: string): Promise<void> { this.removeItem(`ehr_procedures_${patientId}`, procedureId); }
 
@@ -295,7 +288,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   }
 
   hydrateConditionsFromStorage(conditions: Condition[]): Condition[] {
-    return conditions.map((condition) => this.hydrateConditionComputedLocation(condition));
+    return conditions;
   }
 
   normalizeConditionsForStorage(conditions: Condition[]): Condition[] {
@@ -303,7 +296,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   }
 
   hydrateProceduresFromStorage(procedures: Procedure[]): Procedure[] {
-    return procedures.map((procedure) => this.hydrateProcedureComputedLocation(procedure));
+    return procedures;
   }
 
   normalizeProceduresForStorage(procedures: Procedure[]): Procedure[] {

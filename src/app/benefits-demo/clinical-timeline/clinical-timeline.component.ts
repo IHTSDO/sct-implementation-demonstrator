@@ -43,6 +43,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
   sortedEvents: TimelineEvent[] = [];
   readonly timelineTrackOrder: TimelineEvent['type'][] = ['encounter', 'allergy', 'medication', 'procedure', 'condition'];
   private plotlyInitialized = false;
+  private renderRetryHandle: ReturnType<typeof setTimeout> | null = null;
 
   readonly eventColors = {
     condition: '#8e44ad',
@@ -72,6 +73,10 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
   }
 
   ngOnDestroy(): void {
+    if (this.renderRetryHandle) {
+      clearTimeout(this.renderRetryHandle);
+      this.renderRetryHandle = null;
+    }
     this.purgeOverviewTimeline();
   }
 
@@ -197,6 +202,17 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
     }
 
     const chartElement = this.overviewTimelineChart.nativeElement;
+    if (chartElement.offsetWidth === 0 || chartElement.offsetHeight === 0) {
+      if (this.renderRetryHandle) {
+        clearTimeout(this.renderRetryHandle);
+      }
+      this.renderRetryHandle = setTimeout(() => {
+        this.renderRetryHandle = null;
+        this.renderOverviewTimeline();
+      }, 150);
+      return;
+    }
+
     const data = this.buildOverviewTimelineData();
     const layout = this.buildOverviewTimelineLayout();
     const config = {
@@ -209,6 +225,16 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
     Plotly.react(chartElement, data, layout, config)
       .then(() => {
         this.plotlyInitialized = true;
+        requestAnimationFrame(() => {
+          if (this.overviewTimelineChart?.nativeElement) {
+            Plotly.Plots.resize(this.overviewTimelineChart.nativeElement);
+          }
+        });
+        setTimeout(() => {
+          if (this.overviewTimelineChart?.nativeElement) {
+            Plotly.Plots.resize(this.overviewTimelineChart.nativeElement);
+          }
+        }, 120);
       })
       .catch(() => {
         this.plotlyInitialized = false;
