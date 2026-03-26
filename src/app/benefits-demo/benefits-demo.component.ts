@@ -46,7 +46,11 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   currentFhirServer = '';
   bookmarkedPatientIds = new Set<string>();
   isCreatingPatient = false;
+  isSearchingPatients = false;
+  remoteSearchTotal: number | null = null;
   private subscriptions: Subscription[] = [];
+  private searchDebounceHandle: ReturnType<typeof setTimeout> | null = null;
+  private activeSearchRequestId = 0;
 
   constructor(
     private patientService: PatientService,
@@ -73,6 +77,9 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.patientService.getPatients().subscribe(patients => {
         this.patients = this.sortPatientsByRecency(this.mergeBookmarkedPatients(patients));
+        if (this.isRemoteSearchActive()) {
+          return;
+        }
         this.filterPatients();
       })
     );
@@ -101,6 +108,9 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
       this.fhirService.baseUrl$.subscribe(url => {
         this.currentFhirServer = url;
         this.loadBookmarkedPatients();
+        if (this.isRemoteSearchActive()) {
+          this.onSearchChange();
+        }
       })
     );
 
@@ -108,6 +118,10 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   filterPatients(): void {
+    if (this.isRemoteSearchActive()) {
+      return;
+    }
+
     if (!this.searchTerm.trim()) {
       this.filteredPatients = this.patients;
       return;
@@ -144,15 +158,40 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange(): void {
-    this.filterPatients();
+    if (this.searchDebounceHandle) {
+      clearTimeout(this.searchDebounceHandle);
+      this.searchDebounceHandle = null;
+    }
+
+    if (!this.isFhirMode()) {
+      this.resetRemoteSearchState();
+      this.filterPatients();
+      return;
+    }
+
+    if (!this.searchTerm.trim()) {
+      this.resetRemoteSearchState();
+      this.filterPatients();
+      return;
+    }
+
+    const requestId = ++this.activeSearchRequestId;
+    this.isSearchingPatients = true;
+    this.searchDebounceHandle = setTimeout(() => {
+      void this.runRemotePatientSearch(this.searchTerm.trim(), requestId);
+    }, 300);
   }
 
   clearSearch(): void {
     this.searchTerm = '';
+    this.resetRemoteSearchState();
     this.filterPatients();
   }
 
   ngOnDestroy(): void {
+    if (this.searchDebounceHandle) {
+      clearTimeout(this.searchDebounceHandle);
+    }
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
@@ -173,6 +212,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     await this.patientService.setPersistenceMode(mode);
     this.loadBookmarkedPatients();
     this.searchTerm = '';
+    this.resetRemoteSearchState();
     this.filterPatients();
   }
 
@@ -214,12 +254,14 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   showPatientListOverlay(): boolean {
-    return this.isFhirMode() && this.patientPagination.loading && this.patients.length > 0;
+    return this.isFhirMode() && ((this.patientPagination.loading && this.patients.length > 0) || this.isSearchingPatients);
   }
 
   getPatientCountLabel(): string {
     if (this.searchTerm.trim()) {
-      const total = this.patientPagination.total ?? this.patients.length;
+      const total = this.isFhirMode()
+        ? (this.remoteSearchTotal ?? this.filteredPatients.length)
+        : (this.patientPagination.total ?? this.patients.length);
       return `${this.filteredPatients.length} of ${total} patients`;
     }
 
@@ -228,6 +270,58 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     }
 
     return `${this.patients.length} patients`;
+  }
+
+  private async runRemotePatientSearch(term: string, requestId: number): Promise<void> {
+    try {
+      const page = await this.patientService.searchPatients(term);
+      if (requestId !== this.activeSearchRequestId) {
+        return;
+      }
+
+      page.patients.forEach((patient) => {
+        this.patientBookmarkService.upsertBookmarkSnapshot(patient, this.persistenceMode, this.currentFhirServer);
+      });
+
+      this.remoteSearchTotal = page.total;
+      this.filteredPatients = this.sortPatientsByRecency([...page.patients]);
+    } catch (error) {
+      if (requestId !== this.activeSearchRequestId) {
+        return;
+      }
+
+      console.error('Error searching patients on FHIR server:', error);
+      this.remoteSearchTotal = 0;
+      this.filteredPatients = [];
+      this.snackBar.open('Unable to search patients on the FHIR server right now.', 'Close', {
+        duration: 3500,
+        horizontalPosition: 'center',
+        verticalPosition: 'top'
+      });
+    } finally {
+      if (requestId === this.activeSearchRequestId) {
+        this.isSearchingPatients = false;
+      }
+    }
+  }
+
+  private resetRemoteSearchState(): void {
+    this.activeSearchRequestId += 1;
+    this.isSearchingPatients = false;
+    this.remoteSearchTotal = null;
+
+    if (this.searchDebounceHandle) {
+      clearTimeout(this.searchDebounceHandle);
+      this.searchDebounceHandle = null;
+    }
+  }
+
+  getPatientListOverlayLabel(): string {
+    return this.isSearchingPatients ? 'Searching FHIR server...' : 'Refreshing patient list...';
+  }
+
+  isRemoteSearchActive(): boolean {
+    return this.isFhirMode() && !!this.searchTerm.trim();
   }
 
   isPatientBookmarked(patient: Patient | null): boolean {
@@ -243,7 +337,11 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.patientBookmarkService.upsertBookmarkSnapshot(patient, this.persistenceMode, this.currentFhirServer);
     this.loadBookmarkedPatients();
     this.patients = this.sortPatientsByRecency(this.mergeBookmarkedPatients(this.patients));
-    this.filterPatients();
+    if (this.isRemoteSearchActive()) {
+      this.filteredPatients = this.sortPatientsByRecency([...this.filteredPatients]);
+    } else {
+      this.filterPatients();
+    }
 
     this.snackBar.open(
       isBookmarked ? 'Patient bookmarked at the top of this list.' : 'Patient removed from bookmarks.',
@@ -365,6 +463,11 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     const bookmarkedSnapshots = this.patientBookmarkService.getBookmarkedPatients(this.persistenceMode, this.currentFhirServer);
     this.bookmarkedPatientIds = new Set(bookmarkedSnapshots.map((item) => item.id));
     this.patients = this.sortPatientsByRecency(this.mergeBookmarkedPatients(this.patients));
+    if (this.isRemoteSearchActive()) {
+      this.filteredPatients = this.sortPatientsByRecency([...this.filteredPatients]);
+      return;
+    }
+
     this.filterPatients();
   }
 

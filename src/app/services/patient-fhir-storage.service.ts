@@ -50,6 +50,50 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     };
   }
 
+  async searchPatients(term: string): Promise<PatientPage> {
+    const normalizedTerm = term.trim();
+    if (!normalizedTerm) {
+      return this.listPatientsPage();
+    }
+
+    const searchParams = {
+      'name:contains': normalizedTerm,
+      _count: this.patientPageSize,
+      _sort: '-_lastUpdated'
+    };
+
+    let bundle: any;
+
+    try {
+      bundle = await firstValueFrom(this.fhirService.search('Patient', searchParams));
+    } catch {
+      bundle = await firstValueFrom(this.fhirService.search('Patient', {
+        name: normalizedTerm,
+        _count: this.patientPageSize,
+        _sort: '-_lastUpdated'
+      }));
+    }
+
+    let patients = this.extractBundleResources<Patient>(bundle, 'Patient');
+
+    if (patients.length === 0 && !normalizedTerm.includes(' ')) {
+      const identifierBundle = await firstValueFrom(this.fhirService.search('Patient', {
+        identifier: normalizedTerm,
+        _count: this.patientPageSize,
+        _sort: '-_lastUpdated'
+      }));
+      patients = this.extractBundleResources<Patient>(identifierBundle, 'Patient');
+      bundle = identifierBundle;
+    }
+
+    return {
+      patients,
+      nextUrl: this.getBundleLink(bundle, 'next'),
+      previousUrl: this.getBundleLink(bundle, 'previous'),
+      total: typeof bundle?.total === 'number' ? bundle.total : patients.length
+    };
+  }
+
   async readPatient(patientId: string): Promise<Patient | null> {
     try {
       return await firstValueFrom(this.fhirService.read('Patient', patientId));

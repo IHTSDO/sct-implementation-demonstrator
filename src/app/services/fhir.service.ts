@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
 import { StorageService } from './storage.service';
 
@@ -109,11 +109,7 @@ export class FhirService {
 
   executeTransaction(bundle: any): Observable<any> {
     const normalizedBase = this.baseUrlSubject.value.replace(/\/$/, '');
-    return this.http.post(normalizedBase, bundle, {
-      headers: new HttpHeaders({
-        Prefer: 'return=representation'
-      })
-    });
+    return this.http.post(normalizedBase, bundle);
   }
 
   update(resourceType: string, id: string, resource: any): Observable<any> {

@@ -140,7 +140,7 @@
           <div class="patient-list-overlay">
             <div class="patient-list-overlay-card">
               <mat-spinner diameter="32"></mat-spinner>
-              <span>Refreshing patient list...</span>
+              <span>{{ getPatientListOverlayLabel() }}</span>
             </div>
           </div>
         }
@@ -262,11 +262,11 @@
       </div>
       @if (isFhirMode()) {
         <div class="patient-pagination">
-          <button mat-stroked-button color="primary" (click)="loadPreviousPatientsPage()" [disabled]="patientPagination.loading || !patientPagination.hasPrevious">
+          <button mat-stroked-button color="primary" (click)="loadPreviousPatientsPage()" [disabled]="patientPagination.loading || !patientPagination.hasPrevious || isRemoteSearchActive()">
             <mat-icon>chevron_left</mat-icon>
             Previous
           </button>
-          <button mat-stroked-button color="primary" (click)="loadNextPatientsPage()" [disabled]="patientPagination.loading || !patientPagination.hasNext">
+          <button mat-stroked-button color="primary" (click)="loadNextPatientsPage()" [disabled]="patientPagination.loading || !patientPagination.hasNext || isRemoteSearchActive()">
             Next
             <mat-icon>chevron_right</mat-icon>
           </button>

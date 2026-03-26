@@ -9,6 +9,7 @@ import {
   AiAssistedEntryTransactionPayload,
   AiAssistedEntryTransactionResult,
   PatientClinicalRecordData,
+  PatientPage,
   PatientPaginationState,
   PersistenceMode,
   PatientStorageBackend
@@ -165,6 +166,29 @@ export class PatientService {
     }
 
     return patient;
+  }
+
+  async searchPatients(term: string): Promise<PatientPage> {
+    if (this.getCurrentPersistenceMode() !== 'fhir') {
+      const normalizedTerm = term.trim().toLowerCase();
+      const patients = this.patientsSubject.value.filter((patient) => {
+        if (!normalizedTerm) {
+          return true;
+        }
+
+        const patientName = this.getPatientDisplayName(patient).toLowerCase();
+        return patientName.includes(normalizedTerm);
+      });
+
+      return {
+        patients,
+        nextUrl: null,
+        previousUrl: null,
+        total: patients.length
+      };
+    }
+
+    return this.patientFhirStorageService.searchPatients(term);
   }
 
   async setPersistenceMode(mode: PersistenceMode): Promise<void> {
