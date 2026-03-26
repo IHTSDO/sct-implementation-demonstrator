@@ -5,4 +5,9 @@
     gap: 1rem;
     margin-right: 2rem;
     align-items: center;
-  }
+}
+
+.confirmation-message {
+  margin: 0;
+  white-space: pre-line;
+}

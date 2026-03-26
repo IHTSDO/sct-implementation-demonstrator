@@ -157,12 +157,6 @@ export class PatientService {
     }
 
     this.patientsSubject.next([patient, ...this.patientsSubject.value]);
-    this.patientPaginationSubject.next({
-      ...this.patientPaginationSubject.value,
-      total: this.patientPaginationSubject.value.total !== null
-        ? this.patientPaginationSubject.value.total + 1
-        : this.patientPaginationSubject.value.total
-    });
   }
 
   async refreshPatient(patientId: string): Promise<Patient | null> {
@@ -805,12 +799,18 @@ export class PatientService {
     this.selectedPatientSubject.next(patient);
   }
 
-  async addPatient(patient: Patient): Promise<Patient> {
+  async addPatient(patient: Patient, options?: { refreshPatients?: boolean }): Promise<Patient> {
+    const shouldRefreshPatients = options?.refreshPatients !== false;
+
     try {
       const savedPatient = await this.getActiveStorageBackend().createPatient(patient);
-      await this.loadPatientsForCurrentMode();
-      const resolvedPatient = this.getPatientById(savedPatient.id) || savedPatient;
-      this.addOrUpdatePatientInMemory(resolvedPatient);
+      if (shouldRefreshPatients) {
+        await this.loadPatientsForCurrentMode();
+      }
+      const resolvedPatient = (shouldRefreshPatients ? this.getPatientById(savedPatient.id) : undefined) || savedPatient;
+      if (shouldRefreshPatients) {
+        this.addOrUpdatePatientInMemory(resolvedPatient);
+      }
       this.selectedPatientSubject.next(resolvedPatient);
       return resolvedPatient;
     } catch (error) {
@@ -819,7 +819,12 @@ export class PatientService {
     }
   }
 
-  async addPatientWithConditions(patient: Patient, conditions: Condition[]): Promise<PatientConditionPackageResult> {
+  async addPatientWithConditions(
+    patient: Patient,
+    conditions: Condition[],
+    options?: { refreshPatients?: boolean }
+  ): Promise<PatientConditionPackageResult> {
+    const shouldRefreshPatients = options?.refreshPatients !== false;
     const enrichedConditions = await Promise.all(
       conditions.map(async (condition) => {
         const clonedCondition: Condition = JSON.parse(JSON.stringify(condition));
@@ -839,7 +844,7 @@ export class PatientService {
 
     const backend = this.getActiveStorageBackend();
     if (!backend.savePatientWithConditions) {
-      const savedPatient = await this.addPatient(patient);
+      const savedPatient = await this.addPatient(patient, { refreshPatients: shouldRefreshPatients });
       const savedConditions: Condition[] = [];
 
       for (const condition of normalizedConditions) {
@@ -864,10 +869,14 @@ export class PatientService {
     }
 
     const result = await backend.savePatientWithConditions(patient, normalizedConditions);
-    await this.loadPatientsForCurrentMode();
+    if (shouldRefreshPatients) {
+      await this.loadPatientsForCurrentMode();
+    }
 
-    const resolvedPatient = this.getPatientById(result.patient.id) || result.patient;
-    this.addOrUpdatePatientInMemory(resolvedPatient);
+    const resolvedPatient = (shouldRefreshPatients ? this.getPatientById(result.patient.id) : undefined) || result.patient;
+    if (shouldRefreshPatients) {
+      this.addOrUpdatePatientInMemory(resolvedPatient);
+    }
     this.selectedPatientSubject.next(resolvedPatient);
 
     if (this.getCurrentPersistenceMode() === 'fhir') {
@@ -883,8 +892,10 @@ export class PatientService {
 
   async addPatientClinicalPackage(
     patient: Patient,
-    payload: PatientClinicalPackagePayload
+    payload: PatientClinicalPackagePayload,
+    options?: { refreshPatients?: boolean }
   ): Promise<PatientClinicalPackageResult> {
+    const shouldRefreshPatients = options?.refreshPatients !== false;
     const enrichedConditions = await Promise.all(
       payload.conditions.map(async (condition) => {
         const clonedCondition: Condition = JSON.parse(JSON.stringify(condition));
@@ -930,7 +941,7 @@ export class PatientService {
 
     const backend = this.getActiveStorageBackend();
     if (!backend.savePatientClinicalPackage) {
-      const savedPatient = await this.addPatient(patient);
+      const savedPatient = await this.addPatient(patient, { refreshPatients: shouldRefreshPatients });
       for (const condition of normalizedPayload.conditions) {
         await this.addPatientConditionEnriched(savedPatient.id, {
           ...condition,
@@ -966,10 +977,14 @@ export class PatientService {
     }
 
     const result = await backend.savePatientClinicalPackage(patient, normalizedPayload);
-    await this.loadPatientsForCurrentMode();
+    if (shouldRefreshPatients) {
+      await this.loadPatientsForCurrentMode();
+    }
 
-    const resolvedPatient = this.getPatientById(result.patient.id) || result.patient;
-    this.addOrUpdatePatientInMemory(resolvedPatient);
+    const resolvedPatient = (shouldRefreshPatients ? this.getPatientById(result.patient.id) : undefined) || result.patient;
+    if (shouldRefreshPatients) {
+      this.addOrUpdatePatientInMemory(resolvedPatient);
+    }
     this.selectedPatientSubject.next(resolvedPatient);
 
     if (this.getCurrentPersistenceMode() === 'fhir') {
@@ -1008,12 +1023,6 @@ export class PatientService {
       await this.getActiveStorageBackend().deletePatient(patientId);
       const updatedPatients = this.patientsSubject.value.filter(patient => patient.id !== patientId);
       this.patientsSubject.next(updatedPatients);
-      this.patientPaginationSubject.next({
-        ...this.patientPaginationSubject.value,
-        total: this.patientPaginationSubject.value.total !== null
-          ? Math.max(0, this.patientPaginationSubject.value.total - 1)
-          : this.patientPaginationSubject.value.total
-      });
       this.clearFhirPatientCaches(patientId);
       if (this.selectedPatientSubject.value?.id === patientId) {
         this.selectPatient(null);

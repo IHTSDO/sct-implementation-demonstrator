@@ -69,10 +69,26 @@
           <div class="patients-title-block">
             <h2>
               Patients
-              <span class="patient-count">{{ getPatientCountLabel() }}</span>
+              <span class="patient-count">
+                {{ getPatientCountLabel() }}
+                @if (isPatientTotalLoading()) {
+                  <span class="patient-count-spinner" aria-hidden="true"></span>
+                }
+              </span>
               <span class="backend-status-inline">
                 @if (isFhirMode()) {
                   <span class="backend-chip">FHIR mode</span>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    class="backend-refresh-button"
+                    aria-label="Refresh patients from FHIR server"
+                    matTooltip="Refresh patients from FHIR server"
+                    (click)="refreshPatientList()"
+                    [disabled]="patientPagination.loading || isSearchingPatients || isCreatingPatient || isDeletingPatient"
+                  >
+                    <mat-icon>refresh</mat-icon>
+                  </button>
                   @if (patientPagination.loading) {
                     <span class="backend-loading">Loading...</span>
                   }

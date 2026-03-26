@@ -3,7 +3,7 @@ import { PatientService } from '../services/patient.service';
 import { PatientDataTransformerService } from '../services/patient-data-transformer.service';
 import { PatientSimulationService } from '../services/patient-simulation.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { Subscription, forkJoin, of } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BatchPatientDialogComponent } from './batch-patient-dialog/batch-patient-dialog.component';
@@ -46,6 +46,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   currentFhirServer = '';
   bookmarkedPatientIds = new Set<string>();
   isCreatingPatient = false;
+  creatingPatientMessage = 'Creating patient...';
   isDeletingPatient = false;
   isSearchingPatients = false;
   remoteSearchTotal: number | null = null;
@@ -225,6 +226,14 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     await this.patientService.loadPreviousPatientsPage();
   }
 
+  async refreshPatientList(): Promise<void> {
+    if (!this.isFhirMode() || this.patientPagination.loading || this.isSearchingPatients || this.isCreatingPatient || this.isDeletingPatient) {
+      return;
+    }
+
+    await this.patientService.refreshPatients();
+  }
+
   isFhirMode(): boolean {
     return this.persistenceMode === 'fhir';
   }
@@ -273,6 +282,10 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     return `${this.patients.length} patients`;
   }
 
+  isPatientTotalLoading(): boolean {
+    return this.isFhirMode() && this.patientPagination.total === null;
+  }
+
   private async runRemotePatientSearch(term: string, requestId: number): Promise<void> {
     try {
       const page = await this.patientService.searchPatients(term);
@@ -319,7 +332,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
   getPatientListOverlayLabel(): string {
     if (this.isCreatingPatient) {
-      return 'Creating patient...';
+      return this.creatingPatientMessage;
     }
 
     return this.isSearchingPatients ? 'Searching FHIR server...' : 'Refreshing patient list...';
@@ -575,22 +588,33 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     }
 
     const patientName = this.getPatientDisplayName(this.selectedPatient);
-    const confirmation = confirm(
-      `Are you sure you want to delete patient "${patientName}"?\n\n` +
-      'This will permanently delete:\n' +
-      '• Patient record\n' +
-      '• All clinical conditions\n' +
-      '• All procedures\n' +
-      '• All medications\n' +
-      '• All allergies\n\n' +
-      'This action cannot be undone.'
-    );
+    const confirmation = await firstValueFrom(this.dialog.open(ConfirmationDialogComponent, {
+      width: '520px',
+      data: {
+        title: 'Delete Patient',
+        message:
+          `Are you sure you want to permanently delete "${patientName}"?\n\n` +
+          'This will remove the patient record and all related clinical data, including conditions, procedures, medications, allergies, encounters, observations, forms, and other linked records.\n\n' +
+          'This action cannot be undone.',
+        confirmLabel: 'Delete Patient',
+        cancelLabel: 'Cancel',
+        confirmColor: 'warn'
+      }
+    }).afterClosed());
 
     if (confirmation) {
       try {
         this.isDeletingPatient = true;
         await this.patientService.deletePatientRecord(this.selectedPatient.id);
         this.patientService.selectPatient(null);
+        if (this.isFhirMode()) {
+          if (this.patientPagination.total !== null) {
+            this.patientPagination = {
+              ...this.patientPagination,
+              total: Math.max(0, this.patientPagination.total - 1)
+            };
+          }
+        }
         this.snackBar.open(`Patient "${patientName}" has been deleted successfully.`, 'Close', {
           duration: 3500,
           horizontalPosition: 'center',
@@ -632,6 +656,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   async createRandomPatient(): Promise<void> {
     const randomPatient = this.patientSimulationService.generateRandomPatient();
     this.isCreatingPatient = true;
+    this.creatingPatientMessage = 'Creating patient...';
 
     try {
       const savedPatient = await this.patientService.addPatient(randomPatient);
@@ -646,6 +671,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
       });
     } finally {
       this.isCreatingPatient = false;
+      this.creatingPatientMessage = 'Creating patient...';
     }
   }
 
@@ -653,6 +679,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.patientSimulationService.generateRandomPatientWithDiagnoses().subscribe({
       next: async (result) => {
         this.isCreatingPatient = true;
+        this.creatingPatientMessage = 'Creating patient with diagnoses...';
         
         try {
           const savedPackage = await this.patientService.addPatientWithConditions(result.patient, result.diagnoses);
@@ -663,6 +690,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
           alert('Error generating patient with diagnoses. Please try again.');
         } finally {
           this.isCreatingPatient = false;
+          this.creatingPatientMessage = 'Creating patient...';
         }
       },
       error: (error) => {
@@ -703,18 +731,13 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     genderDistribution: number = 0.5,
     ageDistribution?: { children: number; adults: number; elderly: number }
   ): Promise<void> {
-    const snackBarRef = this.snackBar.open(`Generating ${count} patients...`, 'Cancel', {
-      duration: undefined
-    });
-
+    this.isCreatingPatient = true;
+    this.creatingPatientMessage = `Generating 0 of ${count} patients...`;
     let completed = 0;
     let lastPatientId: string | null = null;
 
     try {
       for (let i = 0; i < count; i++) {
-        // Check if user cancelled
-        if (!snackBarRef) break;
-
         if (includeDiagnoses) {
           // Generate patient with diagnoses
           await new Promise<void>((resolve, reject) => {
@@ -728,11 +751,15 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
               .subscribe({
                 next: async (result) => {
                   if (result) {
-                    const savedPackage = await this.patientService.addPatientWithConditions(result.patient, result.diagnoses);
+                    this.creatingPatientMessage = `Generating ${completed + 1} of ${count} patients...`;
+                    const savedPackage = await this.patientService.addPatientWithConditions(
+                      result.patient,
+                      result.diagnoses,
+                      { refreshPatients: false }
+                    );
                     lastPatientId = savedPackage.patient.id;
                   }
                   completed++;
-                  snackBarRef.instance.data.message = `Generated ${completed} of ${count} patients...`;
                   resolve();
                 },
                 error: reject
@@ -757,18 +784,20 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
             randomPatient = this.patientSimulationService.generateRandomPatientWithGender(gender as 'male' | 'female');
           }
           
-          const savedPatient = await this.patientService.addPatient(randomPatient);
+          this.creatingPatientMessage = `Generating ${completed + 1} of ${count} patients...`;
+          const savedPatient = await this.patientService.addPatient(randomPatient, { refreshPatients: false });
           lastPatientId = savedPatient.id;
           completed++;
-          snackBarRef.instance.data.message = `Generated ${completed} of ${count} patients...`;
         }
 
         // Small delay to prevent UI freezing
         await new Promise(resolve => setTimeout(resolve, 10));
       }
 
-      snackBarRef.dismiss();
-      
+      this.creatingPatientMessage = `Finishing generation and refreshing patient list...`;
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await this.patientService.refreshPatients();
+
       // Show success message
       this.snackBar.open(`Successfully generated ${completed} patients!`, 'Close', {
         duration: 5000,
@@ -784,20 +813,14 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error('Error in batch patient generation:', error);
-      snackBarRef.dismiss();
       this.snackBar.open('Error generating patients. Some patients may not have been created.', 'Close', {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
+    } finally {
+      this.isCreatingPatient = false;
+      this.creatingPatientMessage = 'Creating patient...';
     }
-
-    // Handle cancel button
-    snackBarRef.onAction().subscribe(() => {
-      snackBarRef.dismiss();
-      this.snackBar.open(`Cancelled. Generated ${completed} of ${count} patients.`, 'Close', {
-        duration: 3000
-      });
-    });
   }
 
   openAnalytics(): void {
