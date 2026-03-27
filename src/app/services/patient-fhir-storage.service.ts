@@ -394,8 +394,14 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     await firstValueFrom(this.fhirService.delete('Bundle', deathRecord.id));
   }
 
-  async getEncounters(patientId: string): Promise<Encounter[]> { return this.fetchPatientResources('Encounter', { subject: this.getPatientReference(patientId), _count: '200' }); }
-  async createEncounter(patientId: string, encounter: Encounter): Promise<Encounter> { return await firstValueFrom(this.fhirService.create('Encounter', encounter)); }
+  async getEncounters(patientId: string): Promise<Encounter[]> {
+    const encounters = await this.fetchPatientResources<Encounter>('Encounter', { subject: this.getPatientReference(patientId), _count: '200' });
+    return encounters.map((encounter) => this.hydrateEncounterFreeText(encounter));
+  }
+  async createEncounter(patientId: string, encounter: Encounter): Promise<Encounter> {
+    const savedEncounter = await firstValueFrom(this.fhirService.create('Encounter', this.prepareEncounterForFhir(encounter)));
+    return this.hydrateEncounterFreeText(savedEncounter);
+  }
   async deleteEncounter(patientId: string, encounterId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Encounter', encounterId)); }
 
   async getClinicalRecordData(patientId: string): Promise<PatientClinicalRecordData> {
@@ -414,7 +420,9 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const observations = resources.filter((resource: any) => resource?.resourceType === 'Observation') as FhirObservation[];
     const allergies = resources.filter((resource: any) => resource?.resourceType === 'AllergyIntolerance') as AllergyIntolerance[];
     const questionnaireResponses = resources.filter((resource: any) => resource?.resourceType === 'QuestionnaireResponse') as QuestionnaireResponse[];
-    const encounters = resources.filter((resource: any) => resource?.resourceType === 'Encounter') as Encounter[];
+    const encounters = resources
+      .filter((resource: any) => resource?.resourceType === 'Encounter')
+      .map((encounter: any) => this.hydrateEncounterFreeText(encounter)) as Encounter[];
 
     const [labOrders, deathRecord] = await Promise.all([
       this.getLabOrders(patientId),
@@ -449,7 +457,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       }
 
       return this.createTransactionEntry(
-        this.removeTemporaryId(this.prepareConditionForFhir(condition), 'condition-'),
+        this.prepareConditionForTransaction(condition, encounterFullUrl),
         'Condition',
         fullUrl
       );
@@ -490,7 +498,8 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const responseEntries = Array.isArray(responseBundle?.entry) ? responseBundle.entry : [];
 
     const resources = await Promise.all(responseEntries.map((entry: any) => this.resolveTransactionResponseResource(entry)));
-    const encounter = resources.find((resource: any) => resource?.resourceType === 'Encounter') || null;
+    const encounterResource = resources.find((resource: any) => resource?.resourceType === 'Encounter') || null;
+    const encounter = encounterResource ? this.hydrateEncounterFreeText(encounterResource) : null;
     const conditions = resources
       .filter((resource: any) => resource?.resourceType === 'Condition');
     const procedures = resources
@@ -648,7 +657,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     encounter: Encounter,
     conditionReferenceMap: Map<string, string>
   ): Encounter {
-    const encounterWithoutId = this.removeTemporaryId(encounter, 'encounter-');
+    const encounterWithoutId = this.prepareEncounterForFhir(this.removeTemporaryId(encounter, 'encounter-'));
     const diagnosis = Array.isArray(encounterWithoutId.diagnosis)
       ? encounterWithoutId.diagnosis.map((diagnosisItem: any) => {
           const reference = diagnosisItem?.condition?.reference;
@@ -672,6 +681,105 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       ...encounterWithoutId,
       diagnosis
     };
+  }
+
+  private prepareConditionForTransaction(condition: Condition, encounterFullUrl: string | null): Condition {
+    const preparedCondition = this.prepareConditionForFhir(condition);
+    const conditionWithoutId = this.removeTemporaryId(preparedCondition, 'condition-');
+
+    if (!encounterFullUrl || !conditionWithoutId.encounter?.reference) {
+      return conditionWithoutId;
+    }
+
+    return {
+      ...conditionWithoutId,
+      encounter: {
+        ...conditionWithoutId.encounter,
+        reference: encounterFullUrl
+      }
+    };
+  }
+
+  private prepareEncounterForFhir(encounter: Encounter): Encounter {
+    const encounterAny = encounter as any;
+    const freeText = this.extractEncounterFreeText(encounterAny);
+    const preparedEncounter: any = {
+      ...encounterAny
+    };
+
+    delete preparedEncounter.linkedProcedures;
+    delete preparedEncounter.note;
+
+    if (freeText) {
+      preparedEncounter.text = {
+        status: 'generated',
+        div: this.buildEncounterNarrative(freeText)
+      };
+    }
+
+    return preparedEncounter as Encounter;
+  }
+
+  private hydrateEncounterFreeText(encounter: Encounter): Encounter {
+    const encounterAny = encounter as any;
+    const existingNotes = Array.isArray(encounterAny.note) ? encounterAny.note : [];
+    if (existingNotes.length > 0) {
+      return encounter;
+    }
+
+    const freeText = this.extractEncounterFreeText(encounterAny);
+    if (!freeText) {
+      return encounter;
+    }
+
+    return {
+      ...encounter,
+      note: [
+        {
+          text: freeText
+        }
+      ]
+    };
+  }
+
+  private extractEncounterFreeText(encounter: any): string {
+    const noteText = encounter?.note?.find?.((note: any) => typeof note?.text === 'string' && note.text.trim().length > 0)?.text;
+    if (typeof noteText === 'string' && noteText.trim().length > 0) {
+      return noteText.trim();
+    }
+
+    const narrativeDiv = encounter?.text?.div;
+    if (typeof narrativeDiv !== 'string' || !narrativeDiv.trim()) {
+      return '';
+    }
+
+    return this.stripHtml(narrativeDiv).trim();
+  }
+
+  private buildEncounterNarrative(text: string): string {
+    return `<div xmlns="http://www.w3.org/1999/xhtml"><p>${this.escapeHtml(text)}</p></div>`;
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private stripHtml(value: string): string {
+    return value
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, '\'')
+      .replace(/&amp;/g, '&');
   }
 
   private prepareProcedureForTransaction(procedure: Procedure, encounterFullUrl: string | null): Procedure {

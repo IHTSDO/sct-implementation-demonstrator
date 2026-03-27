@@ -425,11 +425,12 @@
           <ng-container *ngSwitchCase="'clinical'">
             <div *ngIf="selectedClinicalView === 'encounters'" class="tab-content with-problems-layout">
               <div class="main-pane">
-                <app-encounter-record 
+                <app-encounter-record
                   #encounterRecord
                   [patient]="patient"
                   (conditionAdded)="onConditionAdded($event)"
-                  (procedureAdded)="onProcedureAdded($event)">
+                  (procedureAdded)="onProcedureAdded($event)"
+                  (encounterAdded)="onEncounterAdded($event)">
                 </app-encounter-record>
               </div>
               <aside class="problems-pane">
@@ -855,7 +856,7 @@
               *ngIf="selectedDataView === 'fhir'"
               [patient]="patient"
               [dataVersion]="dataVersion"
-              [isDeletingEvents]="isLoadingMapping"
+              [isDeletingEvents]="isDeletingAllEvents"
               (deleteAllEventsRequested)="deleteAllEvents()">
             </app-fhir-data>
           </ng-container>

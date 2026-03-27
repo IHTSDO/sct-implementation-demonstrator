@@ -4,6 +4,52 @@
   gap: 16px;
   min-height: 0;
   align-items: start;
+  position: relative;
+}
+
+.fhir-data-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(248, 250, 252, 0.82);
+  backdrop-filter: blur(2px);
+  border-radius: 10px;
+}
+
+.fhir-data-overlay-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: min(320px, 100%);
+  padding: 18px 20px;
+  border: 1px solid #dbe5f1;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  text-align: center;
+}
+
+.overlay-spinner {
+  width: 22px;
+  height: 22px;
+  border-width: 2px;
+}
+
+.overlay-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #253648;
+}
+
+.overlay-subtitle {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #6c7f95;
 }
 
 .resource-browser {

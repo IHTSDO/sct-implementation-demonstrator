@@ -220,6 +220,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   @Input() patient: Patient | null = null;
   @Output() conditionAdded = new EventEmitter<Condition>();
   @Output() procedureAdded = new EventEmitter<Procedure>();
+  @Output() encounterAdded = new EventEmitter<any>();
   
   currentDate = new Date();
   private subscriptions: Subscription[] = [];
@@ -554,33 +555,23 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         }] : undefined
       };
 
-      // Save to localStorage for persistence
-      this.saveEncounterToStorage(encounterRecord);
-
-      // Persist reason for encounter and diagnosis entries as Condition resources.
-      for (const reasonCondition of reasonConditions) {
-        this.conditionAdded.emit(reasonCondition);
-      }
-
-      for (const diagnosisCondition of diagnosisConditions) {
-        this.conditionAdded.emit(diagnosisCondition);
-      }
-
-      for (const procedure of encounterProcedures) {
-        this.procedureAdded.emit(procedure);
-      }
-
-      // Reset form
-      this.resetForm();
-
-      // Reload encounters to reflect the new encounter
-      // The subscription will handle updating previousEncounters
+      this.encounterAdded.emit({
+        encounter: encounterRecord,
+        conditions: [...reasonConditions, ...diagnosisConditions],
+        procedures: encounterProcedures
+      });
 
     } catch (error) {
-      alert('Error saving encounter record. Please try again.');
-    } finally {
       this.isSaving = false;
+      alert('Error saving encounter record. Please try again.');
     }
+  }
+
+  finishSaving(success = true): void {
+    if (success) {
+      this.resetForm();
+    }
+    this.isSaving = false;
   }
 
   private buildEncounterCondition(concept: any, note: string): Condition {
@@ -647,18 +638,6 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       }] : undefined
     };
   }
-
-  private saveEncounterToStorage(encounter: Encounter): void {
-    // Use PatientService method to ensure consistent storage
-    const patientId = encounter.subject?.reference?.split('/')[1];
-    if (!patientId) {
-      console.warn('Encounter is missing a patient reference and cannot be saved.', encounter);
-      return;
-    }
-    this.patientService.addPatientEncounter(patientId, encounter);
-  }
-
-
 
   private getEncountersFromStorage(patientId: string): Encounter[] {
     // Use the same storage key format as PatientService

@@ -345,13 +345,14 @@
                   (click)="saveEncounter()"
                   [disabled]="!isFormValid() || isSaving"
                   class="save-button">
-                  @if (isSaving) {
-                    <mat-spinner diameter="20"></mat-spinner>
-                  }
-                  @if (!isSaving) {
-                    <mat-icon>save</mat-icon>
-                  }
-                  {{ isSaving ? 'Saving...' : 'Save encounter' }}
+                  <span class="save-button-content">
+                    @if (isSaving) {
+                      <span class="inline-button-spinner encounter-inline-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <mat-icon>save</mat-icon>
+                    }
+                    <span>{{ isSaving ? 'Saving...' : 'Save encounter' }}</span>
+                  </span>
                 </button>
                 <button mat-stroked-button
                   color="warn"
@@ -446,7 +447,15 @@
                   <!-- Notes -->
                   @if (encounter.note && encounter.note.length > 0) {
                     <div class="encounter-detail-item">
-                      <strong>Notes:</strong> {{ encounter.note[0].text }}
+                      <strong>Notes:</strong>
+                      <div class="encounter-notes-list">
+                        @for (note of encounter.note; track note.text + ($index || 0)) {
+                          <div class="encounter-note-card">
+                            <mat-icon class="encounter-note-icon">notes</mat-icon>
+                            <div class="encounter-note-content">{{ note.text }}</div>
+                          </div>
+                        }
+                      </div>
                     </div>
                   }
                 </div>

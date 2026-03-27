@@ -1035,7 +1035,7 @@ export class PatientService {
   }
 
   async deletePatientRecord(patientId: string): Promise<void> {
-    await this.clearAllPatientEventsAsync(patientId);
+    await this.clearAllPatientEvents(patientId);
     await this.deletePatient(patientId);
   }
 
@@ -2622,6 +2622,56 @@ export class PatientService {
     return result;
   }
 
+  async saveEncounterClinicalPackage(
+    patientId: string,
+    payload: { encounter: Encounter; conditions: Condition[]; procedures: Procedure[] }
+  ): Promise<AiAssistedEntryTransactionResult> {
+    const existingEncounters = this.getPatientEncounters(patientId);
+    if (this.isDuplicateEncounter(existingEncounters, payload.encounter)) {
+      const duplicateError = new Error('This encounter already exists for this patient.');
+      (duplicateError as any).code = 'duplicate-encounter';
+      throw duplicateError;
+    }
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.saveAiAssistedEntryTransaction(patientId, {
+        encounter: payload.encounter,
+        conditions: payload.conditions,
+        procedures: payload.procedures,
+        medications: [],
+        allergies: []
+      });
+    }
+
+    const savedEncounter = this.addPatientEncounter(patientId, payload.encounter) ? payload.encounter : null;
+    const savedConditions: Condition[] = [];
+    const savedProcedures: Procedure[] = [];
+
+    for (const condition of payload.conditions) {
+      await this.enrichCondition(condition);
+      if (this.addPatientCondition(patientId, condition)) {
+        savedConditions.push(condition);
+      }
+    }
+
+    for (const procedure of payload.procedures) {
+      await this.enrichProcedure(procedure);
+      if (this.addPatientProcedure(patientId, procedure)) {
+        savedProcedures.push(procedure);
+      }
+    }
+
+    this.notifyPatientDataChanged(patientId);
+
+    return {
+      encounter: savedEncounter,
+      conditions: savedConditions,
+      procedures: savedProcedures,
+      medications: [],
+      allergies: []
+    };
+  }
+
   private mergeResourcesById<T extends { id?: string }>(existing: T[], incoming: T[]): T[] {
     const merged = new Map<string, T>();
 
@@ -2715,16 +2765,11 @@ export class PatientService {
     }
   }
 
-  clearAllPatientEvents(patientId: string): void {
-    this.clearAllPatientEventsAsync(patientId)
-      .catch((error) => console.error('Error clearing patient events:', error));
-  }
-
-  private async clearAllPatientEventsAsync(patientId: string): Promise<void> {
+  async clearAllPatientEvents(patientId: string): Promise<void> {
     if (this.getCurrentPersistenceMode() === 'fhir') {
       await this.patientFhirStorageService.clearAllPatientEvents(patientId);
-        this.clearFhirPatientCaches(patientId);
-        this.notifyPatientDataChanged(patientId);
+      this.clearFhirPatientCaches(patientId);
+      this.notifyPatientDataChanged(patientId);
       return;
     }
 

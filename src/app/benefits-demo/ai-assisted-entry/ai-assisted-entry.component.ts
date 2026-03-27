@@ -228,8 +228,10 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
         ...this.detectedMedications.filter(m => this.canSaveEntity(m)).map(m => ({ name: m.name, type: 'medication', conceptId: m.conceptId }))
       ];
 
+      const shouldCreateEncounter = this.clinicalText.trim().length > 0;
+
       let encounter: any = null;
-      if (selectedEntities.length > 0) {
+      if (shouldCreateEncounter) {
         const reasonForEncounter = this.selectedReasonForEncounter ? {
           name: this.selectedReasonForEncounter.name,
           conceptId: this.selectedReasonForEncounter.conceptId

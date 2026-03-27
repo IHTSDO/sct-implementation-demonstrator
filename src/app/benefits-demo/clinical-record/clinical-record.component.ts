@@ -7,8 +7,9 @@ import { AiAssistedEntryTransactionResult } from '../../services/patient-storage
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent, ClinicalEntryType } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
-import { Subscription, forkJoin, of, delay } from 'rxjs';
+import { Subscription, forkJoin, of, delay, firstValueFrom } from 'rxjs';
 import { AllergyFormDialogComponent } from '../allergy-form-dialog/allergy-form-dialog.component';
+import { ConfirmationDialogComponent } from '../../questionnaires/confirmation-dialog/confirmation-dialog.component';
 import type {
   AllergyIntolerance,
   ClinicalDataLoadSummary,
@@ -92,6 +93,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   
   // Loading state for ECL mapping
   isLoadingMapping = false;
+  isDeletingAllEvents = false;
   isLoadingClinicalData = false;
   
   // Loading state for processing new events
@@ -1045,13 +1047,32 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isProcessingNewEvent = true;
     
     try {
-      // Save encounter to storage using PatientService first (now returns boolean)
-      const wasAdded = this.patientService.addPatientEncounter(this.patient!.id, event);
+      const encounterPackage = event?.encounter
+        ? event
+        : {
+            encounter: event,
+            conditions: [],
+            procedures: []
+          };
+
+      await this.patientService.saveEncounterClinicalPackage(this.patient!.id, encounterPackage);
+
+      this.conditions = this.patientService.getPatientConditions(this.patient!.id);
+      this.procedures = this.patientService.getPatientProcedures(this.patient!.id);
+      this.encounters = this.patientService.getPatientEncounters(this.patient!.id);
+      this.touchDataVersion();
       
-      if (!wasAdded) {
-        // Duplicate detected - show warning and don't add to local array
+      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+        this.clinicalTimeline.refreshTimeline();
+      }
+      
+      if (this.encounterRecord && this.encounterRecord.refreshEncounterDisplay) {
+        this.encounterRecord.refreshEncounterDisplay();
+      }
+    } catch (error) {
+      if ((error as any)?.code === 'duplicate-encounter') {
         this.snackBar.open(
-          'This encounter already exists for this patient (duplicate SNOMED CT code detected).',
+          'This encounter already exists for this patient.',
           'Close',
           {
             duration: 4000,
@@ -1060,25 +1081,15 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
             panelClass: ['warning-snackbar']
           }
         );
+        this.encounterRecord?.finishSaving(false);
         return;
       }
-      
-      // Add the new encounter to the local array only if it was successfully added
-      this.encounters.push(event);
-      this.touchDataVersion();
-      
-      // Refresh timeline to show new encounter
-      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
-        this.clinicalTimeline.refreshTimeline();
-      }
-      
-      // Refresh encounter display to show newly linked procedures
-      if (this.encounterRecord && this.encounterRecord.refreshEncounterDisplay) {
-        this.encounterRecord.refreshEncounterDisplay();
-      }
-    } catch (error) {
       console.error('Error processing new encounter:', error);
+      this.encounterRecord?.finishSaving(false);
     } finally {
+      if (!(this.encounterRecord?.isSaving === false)) {
+        this.encounterRecord?.finishSaving(true);
+      }
       this.isProcessingNewEvent = false;
     }
   }
@@ -2387,7 +2398,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   /**
    * Delete all clinical events for current patient
    */
-  deleteAllEvents(): void {
+  async deleteAllEvents(): Promise<void> {
     if (!this.patient) return;
     
     const patientId = this.patient.id;
@@ -2411,38 +2422,59 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return;
     }
     
-    const confirmed = confirm(`Are you sure you want to delete all ${eventCount} clinical events (including conditions, procedures, medications, allergies, and encounters) for ${this.getPatientDisplayName(this.patient)}? This action cannot be undone.`);
-    if (!confirmed) return;
-    
-    // Clear all clinical data using PatientService
-    this.patientService.clearAllPatientEvents(patientId);
-    
-    // Clear the arrays
-    this.conditions = [];
-    this.procedures = [];
-    this.medications = [];
-    this.allergies = [];
-    this.encounters = [];
-    
-    // CDS panel component will reset its own state when data changes
-    
-    // Reload clinical data to ensure all components are updated
-    this.loadClinicalData(patientId);
-    
-    // Notify other components by updating the selected patient
-    const currentPatient = this.patientService.getSelectedPatient();
-    this.patientService.selectPatient({ ...this.patient });
-    
-    this.snackBar.open(
-      'All clinical events have been deleted successfully.',
-      undefined,
-      {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-        panelClass: ['success-snackbar']
+    const confirmation = await firstValueFrom(this.dialog.open(ConfirmationDialogComponent, {
+      width: '460px',
+      data: {
+        title: 'Delete All Clinical Events',
+        message: `This will permanently delete ${eventCount} clinical events for ${this.getPatientDisplayName(this.patient)}.\n\nThis includes conditions, procedures, medications, allergies, encounters, observations, questionnaires, and related bundles.\n\nThis action cannot be undone.`,
+        confirmText: 'Delete All Events',
+        cancelText: 'Cancel',
+        confirmColor: 'warn'
       }
-    );
+    }).afterClosed());
+
+    if (!confirmation) return;
+    
+    this.isDeletingAllEvents = true;
+
+    try {
+      await this.patientService.clearAllPatientEvents(patientId);
+
+      this.conditions = [];
+      this.procedures = [];
+      this.medications = [];
+      this.labOrders = [];
+      this.allergies = [];
+      this.encounters = [];
+      this.touchDataVersion();
+
+      this.patientService.selectPatient({ ...this.patient });
+
+      this.snackBar.open(
+        'All clinical events have been deleted successfully.',
+        undefined,
+        {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        }
+      );
+    } catch (error) {
+      console.error('Error deleting all clinical events:', error);
+      this.snackBar.open(
+        'Unable to delete all clinical events.',
+        'Close',
+        {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        }
+      );
+    } finally {
+      this.isDeletingAllEvents = false;
+    }
   }
 
   /**

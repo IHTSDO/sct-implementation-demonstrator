@@ -1,4 +1,11 @@
 <div class="fhir-data-root" *ngIf="patient; else noPatient">
+  <div class="fhir-data-overlay" *ngIf="isDeletingEvents">
+    <div class="fhir-data-overlay-card">
+      <span class="inline-button-spinner fhir-action-spinner overlay-spinner" aria-hidden="true"></span>
+      <div class="overlay-title">Deleting clinical events...</div>
+      <div class="overlay-subtitle">Removing patient resources from memory and the active FHIR server.</div>
+    </div>
+  </div>
   <aside class="resource-browser">
     <div class="browser-title">
       <mat-icon>data_object</mat-icon>

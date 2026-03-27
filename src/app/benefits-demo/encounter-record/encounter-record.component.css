@@ -303,6 +303,37 @@
   color: #666;
 }
 
+.save-button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.save-button .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.encounter-inline-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(90, 102, 115, 0.24);
+  border-top-color: #7b8794;
+  animation: encounter-button-spin 0.85s linear infinite;
+  flex: 0 0 auto;
+}
+
+@keyframes encounter-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .reset-button {
   border: 2px solid #f44336;
   color: #f44336;
@@ -680,6 +711,38 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
+}
+
+.encounter-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.encounter-note-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.encounter-note-icon {
+  flex: 0 0 auto;
+  color: #64748b;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+.encounter-note-content {
+  color: #475569;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
 }
 
 .encounter-detail-badge {
