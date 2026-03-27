@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, shareReplay, throwError } from 'rxjs';
 import { StorageService } from './storage.service';
 
 @Injectable({
@@ -14,6 +14,8 @@ export class FhirService {
 
   private baseUrlSubject = new BehaviorSubject<string>(FhirService.DEFAULT_BASE_URL);
   baseUrl$ = this.baseUrlSubject.asObservable();
+  private capabilityStatementCache = new Map<string, Observable<any>>();
+  private patientSummarySupportCache = new Map<string, Observable<boolean>>();
 
   private userTagSubject = new BehaviorSubject<string>('');
   userTag$ = this.userTagSubject.asObservable();
@@ -70,6 +72,11 @@ export class FhirService {
     return `${this.buildUrl(resourceType, id)}/${operationName}`;
   }
 
+  private buildMetadataUrl(): string {
+    const normalizedBase = this.baseUrlSubject.value.replace(/\/$/, '');
+    return `${normalizedBase}/metadata`;
+  }
+
   private buildParams(params?: Record<string, string | number | boolean | undefined | null>): HttpParams {
     let httpParams = new HttpParams();
 
@@ -114,6 +121,58 @@ export class FhirService {
     params?: Record<string, string | number | boolean | undefined | null>
   ): Observable<any> {
     return this.operation('Patient', patientId, '$everything', params);
+  }
+
+  getCapabilityStatement(forceRefresh = false): Observable<any> {
+    const baseUrl = this.getBaseUrl();
+    if (forceRefresh) {
+      this.capabilityStatementCache.delete(baseUrl);
+      this.patientSummarySupportCache.delete(baseUrl);
+    }
+
+    const cached = this.capabilityStatementCache.get(baseUrl);
+    if (cached) {
+      return cached;
+    }
+
+    const request$ = this.http.get(this.buildMetadataUrl()).pipe(
+      shareReplay(1)
+    );
+
+    this.capabilityStatementCache.set(baseUrl, request$);
+    return request$;
+  }
+
+  supportsPatientSummary(forceRefresh = false): Observable<boolean> {
+    const baseUrl = this.getBaseUrl();
+    if (forceRefresh) {
+      this.patientSummarySupportCache.delete(baseUrl);
+    }
+
+    const cached = this.patientSummarySupportCache.get(baseUrl);
+    if (cached) {
+      return cached;
+    }
+
+    const support$ = this.getCapabilityStatement(forceRefresh).pipe(
+      map((statement) => {
+        const resources = statement?.rest?.flatMap((restBlock: any) => restBlock?.resource || []) || [];
+        const patientResource = resources.find((resource: any) => resource?.type === 'Patient');
+        const operations = patientResource?.operation || [];
+        return operations.some((operation: any) => {
+          const operationName = String(operation?.name || '').toLowerCase();
+          const operationDefinition = String(operation?.definition || '').toLowerCase();
+          return operationName === 'summary'
+            || operationName === '$summary'
+            || operationDefinition.includes('summary');
+        });
+      }),
+      catchError(() => of(false)),
+      shareReplay(1)
+    );
+
+    this.patientSummarySupportCache.set(baseUrl, support$);
+    return support$;
   }
 
   create(resourceType: string, resource: any): Observable<any> {

@@ -525,24 +525,29 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       this.getDeathRecord(patientId),
     ]);
 
-    const deletions: Promise<void>[] = [
-      ...conditions.map((item) => this.deleteCondition(patientId, item.id)),
-      ...bodyStructures.map((item) => this.deleteBodyStructure(patientId, item.id)),
-      ...procedures.map((item) => this.deleteProcedure(patientId, item.id)),
-      ...medications.map((item) => this.deleteMedication(patientId, item.id)),
-      ...serviceRequests.map((item) => this.deleteServiceRequest(patientId, item.id)),
-      ...observations.map((item) => this.deleteObservation(patientId, item.id)),
-      ...allergies.map((item) => this.deleteAllergy(patientId, item.id)),
-      ...questionnaireResponses.map((item) => this.deleteQuestionnaireResponse(patientId, item.id)),
-      ...encounters.map((item) => this.deleteEncounter(patientId, item.id)),
-      ...labOrders.map((item) => this.deleteLabOrder(patientId, item.id)),
+    const transactionEntries = [
+      ...conditions.map((item) => this.createDeleteTransactionEntry('Condition', item.id)),
+      ...bodyStructures.map((item) => this.createDeleteTransactionEntry('BodyStructure', item.id)),
+      ...procedures.map((item) => this.createDeleteTransactionEntry('Procedure', item.id)),
+      ...medications.map((item) => this.createDeleteTransactionEntry('MedicationStatement', item.id)),
+      ...serviceRequests.map((item) => this.createDeleteTransactionEntry('ServiceRequest', item.id)),
+      ...observations.map((item) => this.createDeleteTransactionEntry('Observation', item.id)),
+      ...allergies.map((item) => this.createDeleteTransactionEntry('AllergyIntolerance', item.id)),
+      ...questionnaireResponses.map((item) => this.createDeleteTransactionEntry('QuestionnaireResponse', item.id)),
+      ...encounters.map((item) => this.createDeleteTransactionEntry('Encounter', item.id)),
+      ...labOrders.map((item) => this.createDeleteTransactionEntry('Bundle', item.id)),
+      ...(deathRecord?.id ? [this.createDeleteTransactionEntry('Bundle', deathRecord.id)] : []),
     ];
 
-    if (deathRecord?.id) {
-      deletions.push(this.deleteDeathRecord(patientId));
+    if (transactionEntries.length === 0) {
+      return;
     }
 
-    await Promise.all(deletions);
+    await firstValueFrom(this.fhirService.executeTransaction({
+      resourceType: 'Bundle',
+      type: 'transaction',
+      entry: transactionEntries
+    }));
   }
 
   getPatientPageSize(): number {
@@ -626,6 +631,15 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       request: {
         method: 'POST',
         url: resourceType
+      }
+    };
+  }
+
+  private createDeleteTransactionEntry(resourceType: string, id: string): any {
+    return {
+      request: {
+        method: 'DELETE',
+        url: `${resourceType}/${id}`
       }
     };
   }

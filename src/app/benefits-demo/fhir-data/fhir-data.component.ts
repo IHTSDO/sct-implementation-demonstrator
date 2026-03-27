@@ -4,7 +4,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { PatientService } from '../../services/patient.service';
 import { saveAs } from 'file-saver';
 import { FhirService } from '../../services/fhir.service';
-import { Subscription } from 'rxjs';
+import { IpsService } from '../../services/ips.service';
+import { Subscription, firstValueFrom } from 'rxjs';
 import type {
   AllergyIntolerance,
   Condition,
@@ -76,12 +77,19 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
   resourceGroups: ResourceGroup[] = [];
   selectedItem: ResourceListItem | null = null;
   selectedResourceJson = '';
+  isGeneratingLocalIps = false;
+  isLoadingServerSummary = false;
+  isCheckingIpsSupport = false;
+  ipsSummarySupported: boolean | null = null;
+  private localIpsItem: ResourceListItem | null = null;
+  private serverSummaryItem: ResourceListItem | null = null;
   private currentFhirBaseUrl = '';
   private subscriptions: Subscription[] = [];
 
   constructor(
     private patientService: PatientService,
     private fhirService: FhirService,
+    private ipsService: IpsService,
     private clipboard: Clipboard,
     private snackBar: MatSnackBar
   ) {
@@ -89,13 +97,26 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     this.subscriptions.push(
       this.fhirService.baseUrl$.subscribe((url) => {
         this.currentFhirBaseUrl = url;
+        this.updateIpsSupportState();
       })
     );
+    this.updateIpsSupportState();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['patient'] || changes['dataVersion']) {
+      if (changes['patient']) {
+        const previousPatientId = changes['patient'].previousValue?.id;
+        const currentPatientId = changes['patient'].currentValue?.id;
+        if (previousPatientId !== currentPatientId) {
+          this.localIpsItem = null;
+          this.serverSummaryItem = null;
+        }
+      }
       this.refreshResources();
+      if (changes['patient']) {
+        this.updateIpsSupportState();
+      }
     }
   }
 
@@ -112,6 +133,18 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     return !!this.selectedItem
       && this.selectedItem.resourceType === item.resourceType
       && this.selectedItem.id === item.id;
+  }
+
+  isIpsSummaryItem(item: ResourceListItem): boolean {
+    return this.isLocalIpsItem(item) || this.isServerSummaryItem(item);
+  }
+
+  isLocalIpsItem(item: ResourceListItem): boolean {
+    return !!this.patient && item.id === `${this.patient.id}-local-ips`;
+  }
+
+  isServerSummaryItem(item: ResourceListItem): boolean {
+    return !!this.patient && item.id === `${this.patient.id}-$summary`;
   }
 
   hasAnyResources(): boolean {
@@ -140,8 +173,124 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     this.deleteAllEventsRequested.emit();
   }
 
+  async requestLocalIps(): Promise<void> {
+    if (!this.patient || this.isGeneratingLocalIps) {
+      return;
+    }
+
+    this.isGeneratingLocalIps = true;
+
+    try {
+      const patientId = this.patient.id;
+      const ipsBundle = this.ipsService.generateIpsBundle({
+        patient: this.patientService.getPatientById(patientId) || this.patient,
+        conditions: this.patientService.getPatientConditions(patientId),
+        procedures: this.patientService.getPatientProcedures(patientId),
+        medications: this.patientService.getPatientMedications(patientId),
+        allergies: this.patientService.getPatientAllergies(patientId),
+        observations: this.patientService.getPatientObservations(patientId),
+        encounters: this.patientService.getPatientEncounters(patientId),
+        serviceRequests: this.patientService.getPatientServiceRequests(patientId),
+      });
+
+      this.localIpsItem = {
+        resourceType: 'Bundle',
+        id: `${this.patient.id}-local-ips`,
+        label: 'Local IPS',
+        subtitle: 'Locally generated IPS document',
+        resource: ipsBundle as SupportedResource
+      };
+      this.refreshResources();
+      if (this.localIpsItem) {
+        this.selectItem(this.localIpsItem);
+      }
+
+      this.snackBar.open('IPS document generated from local clinical data.', 'Close', { duration: 2500 });
+    } finally {
+      this.isGeneratingLocalIps = false;
+    }
+  }
+
+  async requestServerIpsSummary(): Promise<void> {
+    if (!this.patient || this.isLoadingServerSummary || !this.isFhirMode() || this.ipsSummarySupported === false) {
+      return;
+    }
+
+    this.isLoadingServerSummary = true;
+
+    try {
+
+      const summaryResponse = await firstValueFrom(
+        this.fhirService.operation('Patient', this.patient.id, '$summary')
+      );
+
+      this.serverSummaryItem = {
+        resourceType: 'Bundle',
+        id: `${this.patient.id}-$summary`,
+        label: '$summary',
+        subtitle: 'Server-generated IPS document',
+        resource: summaryResponse as SupportedResource
+      };
+      this.refreshResources();
+      if (this.serverSummaryItem) {
+        this.selectItem(this.serverSummaryItem);
+      }
+
+      this.snackBar.open('Patient summary loaded from FHIR server.', 'Close', { duration: 2500 });
+    } catch (error: any) {
+      console.error('Error loading patient summary from FHIR server:', error);
+      const diagnostics = error?.error?.issue?.[0]?.diagnostics || '';
+      const isNotSupported = error?.error?.issue?.[0]?.code === 'not-supported'
+        || diagnostics.includes('does not know how to handle')
+        || diagnostics.includes('$summary');
+
+      this.snackBar.open(
+        isNotSupported
+          ? 'This FHIR server does not support Patient/$summary.'
+          : 'Unable to load patient summary from the FHIR server.',
+        'Close',
+        { duration: 3500 }
+      );
+    } finally {
+      this.isLoadingServerSummary = false;
+    }
+  }
+
   isFhirMode(): boolean {
     return this.patientService.getCurrentPersistenceMode() === 'fhir';
+  }
+
+  isLocalIpsActionDisabled(): boolean {
+    return this.isDeletingEvents || this.isGeneratingLocalIps || this.isLoadingServerSummary;
+  }
+
+  isServerIpsActionDisabled(): boolean {
+    return this.isDeletingEvents
+      || this.isGeneratingLocalIps
+      || this.isLoadingServerSummary
+      || !this.isFhirMode()
+      || this.isCheckingIpsSupport
+      || this.ipsSummarySupported === false;
+  }
+
+  getLocalIpsButtonTooltip(): string {
+    return 'Generate a local IPS document from the current clinical data';
+  }
+
+  getServerIpsButtonTooltip(): string {
+    if (!this.isFhirMode()) {
+      return '$summary is only available in FHIR mode';
+    }
+
+    if (this.isCheckingIpsSupport) {
+      return 'Checking FHIR server capabilities...';
+    }
+
+    if (this.ipsSummarySupported === false) {
+      return 'IPS generation not supported in server';
+    }
+
+    return 'Request IPS generation to server using Patient/$summary';
   }
 
   getSelectedResourceServerUrl(): string | null {
@@ -150,6 +299,9 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     }
 
     const normalizedBaseUrl = this.currentFhirBaseUrl.replace(/\/$/, '');
+    if (this.isServerSummaryItem(this.selectedItem) && this.patient?.id) {
+      return `${normalizedBaseUrl}/Patient/${this.patient.id}/$summary`;
+    }
     return `${normalizedBaseUrl}/${this.selectedItem.resourceType}/${this.selectedItem.id}`;
   }
 
@@ -229,13 +381,39 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
         icon: 'folder_zip',
         items: [
           ...laboratoryBundles.map(resource => this.toBundleItem(resource)),
-          ...(deathRecordBundle ? [this.toDeathCertificateBundleItem(deathRecordBundle)] : [])
+          ...(deathRecordBundle ? [this.toDeathCertificateBundleItem(deathRecordBundle)] : []),
+          ...(this.localIpsItem && this.localIpsItem.id === `${patientId}-local-ips` ? [this.localIpsItem] : []),
+          ...(this.serverSummaryItem && this.serverSummaryItem.id === `${patientId}-$summary` ? [this.serverSummaryItem] : [])
         ]
       }
     ];
 
     this.resourceGroups = groups;
     this.syncSelection();
+  }
+
+  private updateIpsSupportState(): void {
+    if (!this.isFhirMode()) {
+      this.ipsSummarySupported = true;
+      this.isCheckingIpsSupport = false;
+      return;
+    }
+
+    if (!this.patient) {
+      this.ipsSummarySupported = null;
+      this.isCheckingIpsSupport = true;
+      return;
+    }
+
+    this.isCheckingIpsSupport = true;
+    this.ipsSummarySupported = null;
+
+    const supportSubscription = this.fhirService.supportsPatientSummary().subscribe((supported) => {
+      this.ipsSummarySupported = supported;
+      this.isCheckingIpsSupport = false;
+    });
+
+    this.subscriptions.push(supportSubscription);
   }
 
   private syncSelection(): void {

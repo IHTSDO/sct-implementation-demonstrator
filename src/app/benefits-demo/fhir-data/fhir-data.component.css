@@ -87,6 +87,15 @@
   background: #e9f2ff;
 }
 
+.resource-item-ips {
+  background: linear-gradient(180deg, #f7fbff 0%, #edf6ff 100%);
+  box-shadow: inset 0 0 0 1px #d7e7fb;
+}
+
+.resource-item-ips:hover {
+  background: linear-gradient(180deg, #f2f8ff 0%, #e6f2ff 100%);
+}
+
 .resource-item-label {
   font-size: 0.8rem;
   color: #253648;
@@ -94,6 +103,22 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resource-item-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #d7ecff;
+  color: #15558b;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .resource-item-subtitle {
@@ -115,12 +140,57 @@
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid #e5edf7;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
+.browser-action-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+.ips-summary-button,
 .delete-all-events-button {
   width: 100%;
   justify-content: center;
-  gap: 6px;
+}
+
+.action-button-tooltip-wrapper {
+  display: block;
+  width: 100%;
+}
+
+.ips-summary-button .mdc-button__label,
+.delete-all-events-button .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.browser-action-label mat-icon {
+  flex: 0 0 auto;
+}
+
+.fhir-action-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(90, 102, 115, 0.24);
+  border-top-color: #7b8794;
+  animation: fhir-action-spin 0.85s linear infinite;
+  flex: 0 0 auto;
+}
+
+@keyframes fhir-action-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .resource-viewer {

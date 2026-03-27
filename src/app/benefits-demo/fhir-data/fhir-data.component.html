@@ -22,8 +22,12 @@
             class="resource-item"
             *ngFor="let item of group.items"
             [class.active]="isSelected(item)"
+            [class.resource-item-ips]="isIpsSummaryItem(item)"
             (click)="selectItem(item)">
-            <span class="resource-item-label">{{ item.label }}</span>
+            <span class="resource-item-label">
+              {{ item.label }}
+              <span *ngIf="isIpsSummaryItem(item)" class="resource-item-badge">IPS</span>
+            </span>
             <span class="resource-item-subtitle">{{ item.subtitle }}</span>
           </button>
         </div>
@@ -37,9 +41,50 @@
     <div class="browser-actions">
       <button
         mat-stroked-button
+        color="primary"
+        (click)="requestLocalIps()"
+        [disabled]="isLocalIpsActionDisabled()"
+        [matTooltip]="getLocalIpsButtonTooltip()"
+        class="ips-summary-button">
+        <span class="browser-action-label">
+          @if (isGeneratingLocalIps) {
+            <span class="inline-button-spinner fhir-action-spinner" aria-hidden="true"></span>
+          } @else {
+            <mat-icon>description</mat-icon>
+          }
+          <span>{{ isGeneratingLocalIps ? 'Generating local IPS...' : 'Generate Local IPS' }}</span>
+        </span>
+      </button>
+      <span
+        class="action-button-tooltip-wrapper"
+        [matTooltip]="getServerIpsButtonTooltip()">
+        <button
+          mat-stroked-button
+          color="accent"
+          (click)="requestServerIpsSummary()"
+          [disabled]="isServerIpsActionDisabled()"
+          class="ips-summary-button">
+          <span class="browser-action-label">
+            @if (isLoadingServerSummary || (isFhirMode() && isCheckingIpsSupport)) {
+              <span class="inline-button-spinner fhir-action-spinner" aria-hidden="true"></span>
+            } @else {
+              <mat-icon>cloud_sync</mat-icon>
+            }
+            <span>{{
+              isLoadingServerSummary
+                ? 'Requesting IPS from Server...'
+                : (isFhirMode() && isCheckingIpsSupport)
+                  ? 'Checking IPS support...'
+                  : 'Request IPS Generation to Server'
+            }}</span>
+          </span>
+        </button>
+      </span>
+      <button
+        mat-stroked-button
         color="warn"
         (click)="requestDeleteAllEvents()"
-        [disabled]="isDeletingEvents"
+        [disabled]="isDeletingEvents || isGeneratingLocalIps || isLoadingServerSummary"
         title="Delete all clinical events for this patient"
         class="delete-all-events-button">
         <mat-icon>delete_sweep</mat-icon>

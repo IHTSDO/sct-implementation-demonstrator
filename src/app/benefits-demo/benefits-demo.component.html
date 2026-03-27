@@ -77,7 +77,12 @@
               </span>
               <span class="backend-status-inline">
                 @if (isFhirMode()) {
-                  <span class="backend-chip">FHIR mode</span>
+                  <span
+                    class="backend-chip"
+                    [matTooltip]="currentFhirServer"
+                    matTooltipPosition="above">
+                    FHIR mode
+                  </span>
                   <button
                     mat-icon-button
                     type="button"

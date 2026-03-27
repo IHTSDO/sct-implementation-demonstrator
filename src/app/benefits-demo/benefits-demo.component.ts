@@ -283,7 +283,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   isPatientTotalLoading(): boolean {
-    return this.isFhirMode() && this.patientPagination.total === null;
+    return this.isFhirMode() && this.patientPagination.loading && this.patientPagination.total === null;
   }
 
   private async runRemotePatientSearch(term: string, requestId: number): Promise<void> {
