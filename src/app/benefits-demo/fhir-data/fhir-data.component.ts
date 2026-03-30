@@ -79,6 +79,7 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
   selectedResourceJson = '';
   isGeneratingLocalIps = false;
   isLoadingServerSummary = false;
+  isExportingBundle = false;
   isCheckingIpsSupport = false;
   ipsSummarySupported: boolean | null = null;
   private localIpsItem: ResourceListItem | null = null;
@@ -173,6 +174,25 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     this.deleteAllEventsRequested.emit();
   }
 
+  exportAllAsBundle(): void {
+    if (!this.patient || this.isExportingBundle) {
+      return;
+    }
+
+    this.isExportingBundle = true;
+
+    try {
+      const exportBundle = this.buildTransactionExportBundle(this.patient.id);
+      const blob = new Blob([JSON.stringify(exportBundle, null, 2)], {
+        type: 'application/fhir+json;charset=utf-8'
+      });
+      saveAs(blob, `patient-${this.patient.id}-transaction-bundle.json`);
+      this.snackBar.open('Patient record exported as a transaction bundle.', 'Close', { duration: 2500 });
+    } finally {
+      this.isExportingBundle = false;
+    }
+  }
+
   async requestLocalIps(): Promise<void> {
     if (!this.patient || this.isGeneratingLocalIps) {
       return;
@@ -261,13 +281,14 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
   }
 
   isLocalIpsActionDisabled(): boolean {
-    return this.isDeletingEvents || this.isGeneratingLocalIps || this.isLoadingServerSummary;
+    return this.isDeletingEvents || this.isGeneratingLocalIps || this.isLoadingServerSummary || this.isExportingBundle;
   }
 
   isServerIpsActionDisabled(): boolean {
     return this.isDeletingEvents
       || this.isGeneratingLocalIps
       || this.isLoadingServerSummary
+      || this.isExportingBundle
       || !this.isFhirMode()
       || this.isCheckingIpsSupport
       || this.ipsSummarySupported === false;
@@ -614,5 +635,106 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
       return value;
     }
     return date.toLocaleString();
+  }
+
+  private buildTransactionExportBundle(patientId: string): any {
+    const patient = this.patientService.getPatientById(patientId) || this.patient;
+    if (!patient) {
+      throw new Error('No patient selected');
+    }
+
+    const conditions = this.patientService.getPatientConditions(patientId);
+    const procedures = this.patientService.getPatientProcedures(patientId);
+    const medications = this.patientService.getPatientMedications(patientId);
+    const allergies = this.patientService.getPatientAllergies(patientId);
+    const observations = this.patientService.getPatientObservations(patientId);
+    const encounters = this.patientService.getPatientEncounters(patientId);
+    const questionnaireResponses = this.patientService.getPatientQuestionnaireResponses(patientId);
+    const serviceRequests = this.patientService.getPatientLabOrders(patientId)
+      .flatMap((labOrder) => labOrder.serviceRequests);
+    const bundles = [
+      ...this.patientService.getPatientLabOrders(patientId).map((labOrder) => labOrder.fhirBundle),
+      ...(this.patientService.getPatientDeathRecord(patientId) ? [this.patientService.getPatientDeathRecord(patientId)] : [])
+    ].filter(Boolean);
+
+    const patientFullUrl = this.createTransactionFullUrl('patient');
+    const referenceMap = new Map<string, string>([
+      [`Patient/${patient.id}`, patientFullUrl]
+    ]);
+
+    conditions.forEach((resource) => referenceMap.set(`Condition/${resource.id}`, this.createTransactionFullUrl(`condition-${resource.id}`)));
+    encounters.forEach((resource) => referenceMap.set(`Encounter/${resource.id}`, this.createTransactionFullUrl(`encounter-${resource.id}`)));
+    procedures.forEach((resource) => referenceMap.set(`Procedure/${resource.id}`, this.createTransactionFullUrl(`procedure-${resource.id}`)));
+    medications.forEach((resource) => referenceMap.set(`MedicationStatement/${resource.id}`, this.createTransactionFullUrl(`medication-${resource.id}`)));
+    allergies.forEach((resource) => referenceMap.set(`AllergyIntolerance/${resource.id}`, this.createTransactionFullUrl(`allergy-${resource.id}`)));
+    observations.forEach((resource) => referenceMap.set(`Observation/${resource.id}`, this.createTransactionFullUrl(`observation-${resource.id}`)));
+    questionnaireResponses.forEach((resource) => referenceMap.set(`QuestionnaireResponse/${resource.id}`, this.createTransactionFullUrl(`questionnaire-${resource.id}`)));
+    serviceRequests.forEach((resource) => referenceMap.set(`ServiceRequest/${resource.id}`, this.createTransactionFullUrl(`service-request-${resource.id}`)));
+
+    const entries = [
+      this.createExportTransactionEntry(patient, 'Patient', patientFullUrl, referenceMap),
+      ...conditions.map((resource) => this.createExportTransactionEntry(resource, 'Condition', referenceMap.get(`Condition/${resource.id}`)!, referenceMap)),
+      ...procedures.map((resource) => this.createExportTransactionEntry(resource, 'Procedure', referenceMap.get(`Procedure/${resource.id}`)!, referenceMap)),
+      ...medications.map((resource) => this.createExportTransactionEntry(resource, 'MedicationStatement', referenceMap.get(`MedicationStatement/${resource.id}`)!, referenceMap)),
+      ...allergies.map((resource) => this.createExportTransactionEntry(resource, 'AllergyIntolerance', referenceMap.get(`AllergyIntolerance/${resource.id}`)!, referenceMap)),
+      ...observations.map((resource) => this.createExportTransactionEntry(resource, 'Observation', referenceMap.get(`Observation/${resource.id}`)!, referenceMap)),
+      ...encounters.map((resource) => this.createExportTransactionEntry(resource, 'Encounter', referenceMap.get(`Encounter/${resource.id}`)!, referenceMap)),
+      ...questionnaireResponses.map((resource) => this.createExportTransactionEntry(resource, 'QuestionnaireResponse', referenceMap.get(`QuestionnaireResponse/${resource.id}`)!, referenceMap)),
+      ...serviceRequests.map((resource) => this.createExportTransactionEntry(resource, 'ServiceRequest', referenceMap.get(`ServiceRequest/${resource.id}`)!, referenceMap)),
+      ...bundles.map((resource: any, index: number) => this.createExportTransactionEntry(resource, 'Bundle', this.createTransactionFullUrl(`bundle-${index + 1}`), referenceMap))
+    ];
+
+    return {
+      resourceType: 'Bundle',
+      type: 'transaction',
+      timestamp: new Date().toISOString(),
+      entry: entries
+    };
+  }
+
+  private createExportTransactionEntry(resource: any, resourceType: SupportedResourceType | 'Bundle', fullUrl: string, referenceMap: Map<string, string>): any {
+    return {
+      fullUrl,
+      resource: this.prepareResourceForBundleExport(resource, referenceMap),
+      request: {
+        method: 'POST',
+        url: resourceType
+      }
+    };
+  }
+
+  private prepareResourceForBundleExport(resource: any, referenceMap: Map<string, string>): any {
+    const clone = JSON.parse(JSON.stringify(resource));
+    delete clone.id;
+    delete clone.linkedProcedures;
+    delete clone.fhirBundleStr;
+    return this.remapReferences(clone, referenceMap);
+  }
+
+  private remapReferences(value: any, referenceMap: Map<string, string>): any {
+    if (Array.isArray(value)) {
+      return value.map((item) => this.remapReferences(item, referenceMap));
+    }
+
+    if (!value || typeof value !== 'object') {
+      return value;
+    }
+
+    const remappedObject: any = {};
+    Object.entries(value).forEach(([key, childValue]) => {
+      if (key === 'reference' && typeof childValue === 'string' && referenceMap.has(childValue)) {
+        remappedObject[key] = referenceMap.get(childValue);
+        return;
+      }
+
+      remappedObject[key] = this.remapReferences(childValue, referenceMap);
+    });
+
+    return remappedObject;
+  }
+
+  private createTransactionFullUrl(seed: string): string {
+    const safeSeed = seed.replace(/[^a-zA-Z0-9-]/g, '-');
+    return `urn:uuid:${safeSeed}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   }
 }

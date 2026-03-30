@@ -49,6 +49,22 @@
       <button
         mat-stroked-button
         color="primary"
+        (click)="exportAllAsBundle()"
+        [disabled]="isDeletingEvents || isGeneratingLocalIps || isLoadingServerSummary || isExportingBundle"
+        matTooltip="Download the full patient record as a transaction bundle for import into another FHIR server"
+        class="ips-summary-button">
+        <span class="browser-action-label">
+          @if (isExportingBundle) {
+            <span class="inline-button-spinner fhir-action-spinner" aria-hidden="true"></span>
+          } @else {
+            <mat-icon>download</mat-icon>
+          }
+          <span>{{ isExportingBundle ? 'Exporting Bundle...' : 'Export All as Bundle' }}</span>
+        </span>
+      </button>
+      <button
+        mat-stroked-button
+        color="primary"
         (click)="requestLocalIps()"
         [disabled]="isLocalIpsActionDisabled()"
         [matTooltip]="getLocalIpsButtonTooltip()"

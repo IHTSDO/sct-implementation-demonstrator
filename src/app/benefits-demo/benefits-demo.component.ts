@@ -790,13 +790,17 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
           completed++;
         }
 
-        // Small delay to prevent UI freezing
-        await new Promise(resolve => setTimeout(resolve, 10));
+        if (this.isFhirMode()) {
+          // In FHIR mode we keep a tiny pause so the progress overlay remains readable.
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
       }
 
-      this.creatingPatientMessage = `Finishing generation and refreshing patient list...`;
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      await this.patientService.refreshPatients();
+      if (this.isFhirMode()) {
+        this.creatingPatientMessage = 'Finishing generation and refreshing patient list...';
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        await this.patientService.refreshPatients();
+      }
 
       // Show success message
       this.snackBar.open(`Successfully generated ${completed} patients!`, 'Close', {
