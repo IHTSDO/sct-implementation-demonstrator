@@ -503,6 +503,9 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const encounterFullUrl = payload.encounter ? this.createTransactionFullUrl('encounter') : null;
     const conditionReferenceMap = new Map<string, string>();
     const resourceReferenceMap = new Map<string, string>();
+    if (payload.encounter?.id && encounterFullUrl) {
+      resourceReferenceMap.set(`Encounter/${payload.encounter.id}`, encounterFullUrl);
+    }
     const conditionEntries = payload.conditions.map((condition) => {
       const fullUrl = this.createTransactionFullUrl('condition');
       if (condition.id) {
@@ -790,6 +793,13 @@ export class PatientFhirStorageService implements PatientStorageBackend {
         reference: targetReferenceMap.get(target.reference) || (target.reference === provenanceWithoutId.patient?.reference
           ? patientReference
           : target.reference)
+      })),
+      entity: (provenanceWithoutId.entity || []).map((entity) => ({
+        ...entity,
+        what: {
+          ...entity.what,
+          reference: entity.what.reference ? (targetReferenceMap.get(entity.what.reference) || entity.what.reference) : entity.what.reference
+        }
       }))
     };
   }

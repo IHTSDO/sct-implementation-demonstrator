@@ -278,90 +278,66 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
           }) || null;
         }
       }
-
-      if (this.patientService.getCurrentPersistenceMode() === 'fhir') {
-        const transactionResult = await this.patientService.saveAiAssistedEntryTransaction(this.patient.id, {
-          encounter,
-          conditions: conditionsToSave,
-          procedures: procedureToSave ? [procedureToSave] : [],
-          medications: medicationsToSave,
-          allergies: []
-        });
-
-        if (existingProcedureToLink && transactionResult.encounter) {
-          existingProcedureToLink.encounter = {
-            reference: `Encounter/${transactionResult.encounter.id}`,
-            display: `Encounter ${transactionResult.encounter.id}`
-          };
-          this.patientService.updatePatientProcedure(this.patient.id, existingProcedureToLink.id, existingProcedureToLink);
-
-          this.snackBar.open(
-            `Procedure "${this.selectedProcedure?.name}" already existed and was linked to the new encounter.`,
-            'Close',
+      const aiDerivedProvenance = encounter
+        ? [
+            ...conditionsToSave,
+            ...(procedureToSave ? [procedureToSave] : []),
+            ...medicationsToSave
+          ].map((resource: any) => this.patientService.createAiDerivedProvenance(
+            this.patient!.id,
+            resource,
             {
-              duration: 4000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top',
-              panelClass: ['info-snackbar']
+              reference: `Encounter/${encounter.id}`,
+              display: encounter.reasonCode?.[0]?.text || `Encounter ${encounter.id}`
             }
-          );
-        } else if (this.selectedProcedure && !procedureToSave && !existingProcedureToLink) {
-          this.snackBar.open(
-            `Procedure "${this.selectedProcedure.name}" already exists for this patient.`,
-            'Close',
-            {
-              duration: 4000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top',
-              panelClass: ['warning-snackbar']
-            }
-          );
-        }
+          ))
+        : [];
 
-        this.transactionSaved.emit(transactionResult);
-      } else {
-        conditionsToSave.forEach(condition => this.conditionAdded.emit(condition));
+      const transactionResult = await this.patientService.saveAiAssistedEntryTransaction(this.patient.id, {
+        encounter,
+        conditions: conditionsToSave,
+        procedures: procedureToSave ? [procedureToSave] : [],
+        medications: medicationsToSave,
+        allergies: [],
+        provenance: aiDerivedProvenance
+      });
 
-        if (procedureToSave) {
-          this.procedureAdded.emit(procedureToSave);
-        } else if (existingProcedureToLink && encounter) {
-          existingProcedureToLink.encounter = {
-            reference: `Encounter/${encounter.id}`,
-            display: `Encounter ${encounter.id}`
-          };
-          this.patientService.updatePatientProcedure(this.patient!.id, existingProcedureToLink.id, existingProcedureToLink);
+      if (existingProcedureToLink && transactionResult.encounter) {
+        existingProcedureToLink.encounter = {
+          reference: `Encounter/${transactionResult.encounter.id}`,
+          display: `Encounter ${transactionResult.encounter.id}`
+        };
+        this.patientService.updatePatientProcedure(this.patient.id, existingProcedureToLink.id, existingProcedureToLink);
 
-          this.snackBar.open(
-            `Procedure "${this.selectedProcedure?.name}" already exists and has been linked to this encounter.`,
-            'Close',
-            {
-              duration: 4000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top',
-              panelClass: ['info-snackbar']
-            }
-          );
-        } else if (this.selectedProcedure) {
-          this.snackBar.open(
-            `Procedure "${this.selectedProcedure.name}" already exists for this patient (duplicate SNOMED CT code detected).`,
-            'Close',
-            {
-              duration: 4000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top',
-              panelClass: ['warning-snackbar']
-            }
-          );
-        }
-
-        medicationsToSave.forEach(medication => this.medicationAdded.emit(medication));
-
-        if (encounter) {
-          this.encounterAdded.emit(encounter);
-        }
+        this.snackBar.open(
+          `Procedure "${this.selectedProcedure?.name}" already existed and was linked to the new encounter.`,
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['info-snackbar']
+          }
+        );
+      } else if (this.selectedProcedure && !procedureToSave && !existingProcedureToLink) {
+        this.snackBar.open(
+          `Procedure "${this.selectedProcedure.name}" already exists for this patient.`,
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['warning-snackbar']
+          }
+        );
       }
 
-      const totalSaved = conditionsToSave.length + medicationsToSave.length + (procedureToSave ? 1 : 0) + (encounter ? 1 : 0);
+      this.transactionSaved.emit(transactionResult);
+
+      const totalSaved = transactionResult.conditions.length
+        + transactionResult.medications.length
+        + transactionResult.procedures.length
+        + (transactionResult.encounter ? 1 : 0);
       if (totalSaved > 0) {
         this.snackBar.open(
           `Successfully saved ${totalSaved} clinical resources.`,

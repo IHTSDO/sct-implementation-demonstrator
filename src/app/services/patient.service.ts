@@ -47,6 +47,8 @@ export class PatientService {
   public static readonly ICD10_SYSTEM = 'http://hl7.org/fhir/sid/icd-10';
   private static readonly EHR_LAB_LOCATION_SYSTEM = 'http://ehr-lab.demo/location';
   private static readonly PERSISTENCE_MODE_STORAGE_KEY = 'ehr_persistence_mode';
+  private static readonly AI_PROVENANCE_TECHNICAL_AGENT_DISPLAY = 'AI/NLP pipeline';
+  private static readonly AI_PROVENANCE_HUMAN_REVIEWER_DISPLAY = 'Human reviewer';
   private readonly FHIR_PATIENT_PAGE_SIZE = 20;
   private readonly ANATOMICAL_ANCHOR_POINTS: Array<{ id: string; ancestors: string[] }> = [
     {
@@ -2121,6 +2123,81 @@ export class PatientService {
     };
   }
 
+  createAiDerivedProvenance(
+    patientId: string,
+    targetResource: { resourceType: string; id: string; code?: { text?: string }; medicationCodeableConcept?: { text?: string } },
+    sourceReference: { reference: string; display?: string },
+    recorded: string = new Date().toISOString()
+  ): Provenance {
+    const targetDisplay = targetResource.code?.text
+      || targetResource.medicationCodeableConcept?.text
+      || `${targetResource.resourceType} ${targetResource.id}`;
+
+    return {
+      resourceType: 'Provenance',
+      id: `provenance-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+      recorded,
+      patient: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      activity: {
+        text: 'AI-derived clinical entity under active human review'
+      },
+      target: [
+        {
+          reference: `${targetResource.resourceType}/${targetResource.id}`,
+          display: targetDisplay
+        },
+        {
+          reference: `Patient/${patientId}`,
+          display: `Patient ${patientId}`
+        }
+      ],
+      agent: [
+        {
+          type: {
+            text: 'assembler'
+          },
+          role: [
+            {
+              text: 'technical agent'
+            }
+          ],
+          who: {
+            display: PatientService.AI_PROVENANCE_TECHNICAL_AGENT_DISPLAY
+          }
+        },
+        {
+          type: {
+            text: 'author'
+          },
+          role: [
+            {
+              text: 'human reviewer'
+            }
+          ],
+          who: {
+            display: PatientService.AI_PROVENANCE_HUMAN_REVIEWER_DISPLAY
+          }
+        }
+      ],
+      entity: [
+        {
+          role: 'derivation',
+          what: {
+            reference: sourceReference.reference,
+            display: sourceReference.display
+          }
+        }
+      ],
+      text: {
+        status: 'generated',
+        div: '<div xmlns="http://www.w3.org/1999/xhtml"><p>Derived by AI from persisted source text and approved under active human supervision.</p></div>'
+      }
+    };
+  }
+
   private normalizeAllergyForPersistence(allergy: AllergyIntolerance): AllergyIntolerance {
     const normalizedCategories = Array.isArray(allergy.category)
       ? allergy.category
@@ -2687,15 +2764,71 @@ export class PatientService {
     patientId: string,
     payload: AiAssistedEntryTransactionPayload
   ): Promise<AiAssistedEntryTransactionResult> {
-    if (this.getCurrentPersistenceMode() !== 'fhir') {
-      throw new Error('AI-assisted entry transactions are only available in FHIR mode.');
-    }
-
     await Promise.all([
       ...payload.conditions.map((condition) => this.enrichCondition(condition)),
       ...payload.procedures.map((procedure) => this.enrichProcedure(procedure)),
       ...payload.medications.map((medication) => this.enrichMedication(patientId, medication))
     ]);
+
+    if (this.getCurrentPersistenceMode() !== 'fhir') {
+      const savedEncounter = payload.encounter && this.addPatientEncounter(patientId, payload.encounter)
+        ? payload.encounter
+        : null;
+      const savedConditions: Condition[] = [];
+      const savedProcedures: Procedure[] = [];
+      const savedMedications: MedicationStatement[] = [];
+      const savedAllergies: AllergyIntolerance[] = [];
+
+      for (const condition of payload.conditions) {
+        if (this.addPatientCondition(patientId, condition)) {
+          savedConditions.push(condition);
+        }
+      }
+
+      for (const procedure of payload.procedures) {
+        if (this.addPatientProcedure(patientId, procedure)) {
+          savedProcedures.push(procedure);
+        }
+      }
+
+      for (const medication of payload.medications) {
+        if (this.addPatientMedication(patientId, medication)) {
+          savedMedications.push(medication);
+        }
+      }
+
+      for (const allergy of payload.allergies) {
+        if (this.addPatientAllergy(patientId, allergy)) {
+          savedAllergies.push(allergy);
+        }
+      }
+
+      const savedTargetReferences = new Set<string>([
+        ...savedConditions.map((resource) => `Condition/${resource.id}`),
+        ...savedProcedures.map((resource) => `Procedure/${resource.id}`),
+        ...savedMedications.map((resource) => `MedicationStatement/${resource.id}`),
+        ...savedAllergies.map((resource) => `AllergyIntolerance/${resource.id}`)
+      ]);
+
+      const savedProvenance: Provenance[] = [];
+      for (const provenance of payload.provenance || []) {
+        const hasSavedTarget = (provenance.target || []).some((target) => savedTargetReferences.has(target.reference));
+        if (!hasSavedTarget) {
+          continue;
+        }
+        savedProvenance.push(await this.createPatientProvenance(patientId, provenance));
+      }
+
+      this.notifyPatientDataChanged(patientId);
+      return {
+        encounter: savedEncounter,
+        conditions: savedConditions,
+        procedures: savedProcedures,
+        medications: savedMedications,
+        allergies: savedAllergies,
+        provenance: savedProvenance
+      };
+    }
 
     const result = await this.patientFhirStorageService.saveAiAssistedEntryTransaction(patientId, payload);
 

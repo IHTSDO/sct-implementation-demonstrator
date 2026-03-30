@@ -25,7 +25,7 @@
 @if (sortedEvents.length > 0) {
   <div class="vertical-timeline">
     <div class="timeline-line"></div>
-    @for (event of sortedEvents; track event; let i = $index) {
+    @for (event of sortedEvents; track event.type + ':' + event.id; let i = $index) {
       <div class="timeline-item"
         [class.left]="i % 2 === 0"
         [class.right]="i % 2 === 1"
