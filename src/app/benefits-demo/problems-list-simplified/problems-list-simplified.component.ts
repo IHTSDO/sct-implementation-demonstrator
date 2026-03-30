@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { AllergyIntolerance, Condition, MedicationStatement, Procedure } from '../../model';
+import type { AllergyIntolerance, Condition, Immunization, MedicationStatement, Procedure } from '../../model';
 
-type ProblemKind = 'Condition' | 'Procedure' | 'Medication' | 'Allergy';
+type ProblemKind = 'Condition' | 'Procedure' | 'Medication' | 'Immunization' | 'Allergy';
 
 interface ProblemItem {
   id: string;
@@ -23,6 +23,7 @@ export class ProblemsListSimplifiedComponent {
   @Input() conditions: Condition[] = [];
   @Input() procedures: Procedure[] = [];
   @Input() medications: MedicationStatement[] = [];
+  @Input() immunizations: Immunization[] = [];
   @Input() allergies: AllergyIntolerance[] = [];
   @Output() openProblemsList = new EventEmitter<void>();
 
@@ -55,6 +56,15 @@ export class ProblemsListSimplifiedComponent {
       sortDate: this.toSortDate(medication.effectiveDateTime || medication.dateAsserted)
     }));
 
+    const immunizationItems = this.immunizations.map((immunization) => ({
+      id: immunization.id,
+      kind: 'Immunization' as const,
+      name: immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display || 'Immunization',
+      status: immunization.status || 'Unknown',
+      recordedOn: immunization.occurrenceDateTime || immunization.recorded,
+      sortDate: this.toSortDate(immunization.occurrenceDateTime || immunization.recorded)
+    }));
+
     const allergyItems = this.allergies.map((allergy) => ({
       id: allergy.id,
       kind: 'Allergy' as const,
@@ -64,7 +74,7 @@ export class ProblemsListSimplifiedComponent {
       sortDate: this.toSortDate(allergy.recordedDate || allergy.onsetDateTime)
     }));
 
-    return [...conditionItems, ...allergyItems, ...procedureItems, ...medicationItems]
+    return [...conditionItems, ...allergyItems, ...procedureItems, ...medicationItems, ...immunizationItems]
       .sort((a, b) => {
         const kindOrder = this.kindRank(a.kind) - this.kindRank(b.kind);
         if (kindOrder !== 0) {
@@ -89,6 +99,8 @@ export class ProblemsListSimplifiedComponent {
         return 'kind-procedure';
       case 'Medication':
         return 'kind-medication';
+      case 'Immunization':
+        return 'kind-immunization';
       default:
         return '';
     }
@@ -104,6 +116,8 @@ export class ProblemsListSimplifiedComponent {
         return 'healing';
       case 'Medication':
         return 'medication';
+      case 'Immunization':
+        return 'vaccines';
       default:
         return 'description';
     }
@@ -139,6 +153,8 @@ export class ProblemsListSimplifiedComponent {
         return 2;
       case 'Medication':
         return 3;
+      case 'Immunization':
+        return 4;
       default:
         return 99;
     }

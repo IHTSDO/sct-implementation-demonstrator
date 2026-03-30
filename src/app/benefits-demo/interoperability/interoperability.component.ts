@@ -7,7 +7,7 @@ import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
 import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
-import type { Patient, PatientSimilarityResult, Provenance } from '../../model';
+import type { Immunization, Patient, PatientSimilarityResult, Provenance } from '../../model';
 import {
   ConceptHierarchyValidationService,
   HierarchyMatch,
@@ -19,7 +19,7 @@ import {
   ConceptValidationDialogState
 } from './concept-validation-dialog/concept-validation-dialog.component';
 
-type MergeSectionId = 'conditions' | 'procedures' | 'medications' | 'allergies';
+type MergeSectionId = 'conditions' | 'procedures' | 'medications' | 'immunizations' | 'allergies';
 type WizardStepId = 'patient' | MergeSectionId | 'summary';
 
 interface WizardStep {
@@ -59,12 +59,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   selectedConditions: Set<string> = new Set();
   selectedProcedures: Set<string> = new Set();
   selectedMedications: Set<string> = new Set();
+  selectedImmunizations: Set<string> = new Set();
   selectedAllergies: Set<string> = new Set();
   
   // Current patient data
   existingConditions: any[] = [];
   existingProcedures: any[] = [];
   existingMedications: any[] = [];
+  existingImmunizations: any[] = [];
   existingAllergies: any[] = [];
 
   wizardSteps: WizardStep[] = [];
@@ -219,6 +221,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return this.patientData !== null && this.patientData.medications.length > 0;
   }
 
+  hasImmunizations(): boolean {
+    return this.patientData !== null && this.patientData.immunizations.length > 0;
+  }
+
   /**
    * Check if there are any allergies
    */
@@ -334,6 +340,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         id: 'medications',
         title: 'Merge Medications',
         description: 'Review IPS medications against the current clinical record.'
+      });
+    }
+
+    if (this.hasImmunizations()) {
+      steps.push({
+        id: 'immunizations',
+        title: 'Merge Immunizations',
+        description: 'Review IPS immunizations against the current clinical record.'
       });
     }
 
@@ -521,6 +535,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       this.existingConditions = [];
       this.existingProcedures = [];
       this.existingMedications = [];
+      this.existingImmunizations = [];
       this.existingAllergies = [];
       return;
     }
@@ -528,6 +543,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.existingConditions = this.patientService.getPatientConditions(this.linkedPatient.id);
     this.existingProcedures = this.patientService.getPatientProcedures(this.linkedPatient.id);
     this.existingMedications = this.patientService.getPatientMedications(this.linkedPatient.id);
+    this.existingImmunizations = this.patientService.getPatientImmunizations(this.linkedPatient.id);
     this.existingAllergies = this.patientService.getPatientAllergies(this.linkedPatient.id);
   }
 
@@ -807,6 +823,46 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     );
   }
 
+  isImmunizationAlreadyRecorded(immunization: any): boolean {
+    if (!this.linkedPatient || this.existingImmunizations.length === 0) {
+      return false;
+    }
+
+    return this.patientService.isDuplicateImmunization(this.existingImmunizations, this.toClinicalEntryImmunization(immunization, this.linkedPatient.id));
+  }
+
+  async addImmunizationFromIPS(immunizationId: string): Promise<void> {
+    if (!this.linkedPatient) {
+      return;
+    }
+
+    const immunization = this.patientData?.immunizations.find((item) => item.id === immunizationId);
+    if (!immunization || this.isImmunizationAlreadyRecorded(immunization)) {
+      return;
+    }
+
+    if (this.selectedImmunizations.has(immunizationId)) {
+      this.selectedImmunizations.delete(immunizationId);
+    } else {
+      const canAdd = await this.confirmConceptSelection('immunizations', immunization);
+      if (canAdd) {
+        this.selectedImmunizations.add(immunizationId);
+      }
+    }
+  }
+
+  isImmunizationAdded(immunizationId: string): boolean {
+    return this.selectedImmunizations.has(immunizationId);
+  }
+
+  hasAvailableImmunizations(): boolean {
+    if (!this.patientData?.immunizations || !this.linkedPatient) {
+      return false;
+    }
+
+    return this.patientData.immunizations.some((immunization) => !this.isImmunizationAlreadyRecorded(immunization));
+  }
+
   // ========================================
   // Allergies Methods
   // ========================================
@@ -909,11 +965,13 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     const existingConditions = this.patientService.getPatientConditions(patientId);
     const existingProcedures = this.patientService.getPatientProcedures(patientId);
     const existingMedications = this.patientService.getPatientMedications(patientId);
+    const existingImmunizations = this.patientService.getPatientImmunizations(patientId);
 
     this.existingPatientData = {
       conditions: existingConditions,
       procedures: existingProcedures,
-      medications: existingMedications
+      medications: existingMedications,
+      immunizations: existingImmunizations
     };
 
     // Create import summary
@@ -922,12 +980,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         conditions: this.patientData.conditions.length,
         procedures: this.patientData.procedures.length,
         medications: this.patientData.medications.length,
+        immunizations: this.patientData.immunizations.length,
         allergies: this.patientData.allergies.length
       },
       existingData: {
         conditions: existingConditions.length,
         procedures: existingProcedures.length,
-        medications: existingMedications.length
+        medications: existingMedications.length,
+        immunizations: existingImmunizations.length
       },
       potentialDuplicates: this.findPotentialDuplicates(patientId)
     };
@@ -943,17 +1003,19 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
    */
   private findPotentialDuplicates(patientId: string): any {
     if (!this.patientData) {
-      return { conditions: [], procedures: [], medications: [] };
+      return { conditions: [], procedures: [], medications: [], immunizations: [] };
     }
 
     const existingConditions = this.patientService.getPatientConditions(patientId);
     const existingProcedures = this.patientService.getPatientProcedures(patientId);
     const existingMedications = this.patientService.getPatientMedications(patientId);
+    const existingImmunizations = this.patientService.getPatientImmunizations(patientId);
 
     return {
       conditions: this.findDuplicateConditions(this.patientData.conditions, existingConditions),
       procedures: this.findDuplicateProcedures(this.patientData.procedures, existingProcedures),
-      medications: this.findDuplicateMedications(this.patientData.medications, existingMedications)
+      medications: this.findDuplicateMedications(this.patientData.medications, existingMedications),
+      immunizations: this.findDuplicateImmunizations(this.patientData.immunizations, existingImmunizations)
     };
   }
 
@@ -1064,6 +1126,25 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return duplicates;
   }
 
+  private findDuplicateImmunizations(ipsImmunizations: any[], existingImmunizations: any[]): any[] {
+    const duplicates: any[] = [];
+
+    ipsImmunizations.forEach((ipsImmunization) => {
+      const candidate = this.toClinicalEntryImmunization(ipsImmunization, this.linkedPatient?.id || 'patient');
+      const existingMatch = existingImmunizations.find((existing) => this.patientService.isDuplicateImmunization([existing], candidate));
+
+      if (existingMatch) {
+        duplicates.push({
+          ips: ipsImmunization,
+          existing: existingMatch,
+          similarity: 1
+        });
+      }
+    });
+
+    return duplicates;
+  }
+
   /**
    * Proceed with data import after verification
    */
@@ -1097,6 +1178,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.selectedConditions.clear();
     this.selectedProcedures.clear();
     this.selectedMedications.clear();
+    this.selectedImmunizations.clear();
     this.selectedAllergies.clear();
   }
 
@@ -1107,6 +1189,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.selectedConditions.clear();
     this.selectedProcedures.clear();
     this.selectedMedications.clear();
+    this.selectedImmunizations.clear();
     this.selectedAllergies.clear();
   }
 
@@ -1140,6 +1223,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       this.selectedMedications.delete(medicationId);
     } else {
       this.selectedMedications.add(medicationId);
+    }
+  }
+
+  toggleImmunizationSelection(immunizationId: string): void {
+    if (this.selectedImmunizations.has(immunizationId)) {
+      this.selectedImmunizations.delete(immunizationId);
+    } else {
+      this.selectedImmunizations.add(immunizationId);
     }
   }
 
@@ -1183,6 +1274,16 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     }
   }
 
+  selectAllImmunizations(): void {
+    if (this.patientData) {
+      this.patientData.immunizations.forEach(immunization => {
+        if (!this.isImmunizationAlreadyRecorded(immunization)) {
+          this.selectedImmunizations.add(immunization.id);
+        }
+      });
+    }
+  }
+
   selectAllAllergies(): void {
     if (this.patientData) {
       this.patientData.allergies.forEach(allergy => {
@@ -1206,6 +1307,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     this.selectedMedications.clear();
   }
 
+  deselectAllImmunizations(): void {
+    this.selectedImmunizations.clear();
+  }
+
   deselectAllAllergies(): void {
     this.selectedAllergies.clear();
   }
@@ -1217,6 +1322,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return this.selectedConditions.size > 0 || 
            this.selectedProcedures.size > 0 || 
            this.selectedMedications.size > 0 || 
+           this.selectedImmunizations.size > 0 || 
            this.selectedAllergies.size > 0;
   }
 
@@ -1227,11 +1333,12 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return this.selectedConditions.size + 
            this.selectedProcedures.size + 
            this.selectedMedications.size + 
+           this.selectedImmunizations.size + 
            this.selectedAllergies.size;
   }
 
   isMergeSectionStep(stepId: WizardStepId | undefined): stepId is MergeSectionId {
-    return stepId === 'conditions' || stepId === 'procedures' || stepId === 'medications' || stepId === 'allergies';
+    return stepId === 'conditions' || stepId === 'procedures' || stepId === 'medications' || stepId === 'immunizations' || stepId === 'allergies';
   }
 
   getCurrentMergeSection(): MergeSectionId | null {
@@ -1253,6 +1360,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return 'Procedures';
       case 'medications':
         return 'Medications';
+      case 'immunizations':
+        return 'Immunizations';
       case 'allergies':
         return 'Allergies';
     }
@@ -1294,6 +1403,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return this.patientData.procedures;
       case 'medications':
         return this.patientData.medications;
+      case 'immunizations':
+        return this.patientData.immunizations;
       case 'allergies':
         return this.patientData.allergies;
     }
@@ -1307,6 +1418,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return this.existingProcedures;
       case 'medications':
         return this.existingMedications;
+      case 'immunizations':
+        return this.existingImmunizations;
       case 'allergies':
         return this.existingAllergies;
     }
@@ -1324,6 +1437,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return this.selectedProcedures.size;
       case 'medications':
         return this.selectedMedications.size;
+      case 'immunizations':
+        return this.selectedImmunizations.size;
       case 'allergies':
         return this.selectedAllergies.size;
     }
@@ -1341,6 +1456,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return this.isProcedureAdded(itemId);
       case 'medications':
         return this.isMedicationAdded(itemId);
+      case 'immunizations':
+        return this.isImmunizationAdded(itemId);
       case 'allergies':
         return this.isAllergyAdded(itemId);
     }
@@ -1354,6 +1471,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return this.isProcedureAlreadyRecorded(item);
       case 'medications':
         return this.isMedicationAlreadyRecorded(item);
+      case 'immunizations':
+        return this.isImmunizationAlreadyRecorded(item);
       case 'allergies':
         return this.isAllergyAlreadyRecorded(item);
     }
@@ -1370,6 +1489,9 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       case 'medications':
         await this.addMedicationFromIPS(itemId);
         break;
+      case 'immunizations':
+        await this.addImmunizationFromIPS(itemId);
+        break;
       case 'allergies':
         await this.addAllergyFromIPS(itemId);
         break;
@@ -1384,6 +1506,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return this.hasAvailableProcedures();
       case 'medications':
         return this.hasAvailableMedications();
+      case 'immunizations':
+        return this.hasAvailableImmunizations();
       case 'allergies':
         return this.hasAvailableAllergies();
     }
@@ -1517,6 +1641,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return this.ipsReaderService.getProcedureDisplay(item);
       case 'medications':
         return this.ipsReaderService.getMedicationDisplay(item);
+      case 'immunizations':
+        return item.vaccineCode?.text || item.vaccineCode?.coding?.[0]?.display || 'Immunization';
       case 'allergies':
         return this.ipsReaderService.getAllergyDisplay(item);
     }
@@ -1530,6 +1656,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return item.status || 'Unknown status';
       case 'medications':
         return this.ipsReaderService.getMedicationStatus(item);
+      case 'immunizations':
+        return item.status || 'Unknown status';
       case 'allergies':
         return this.ipsReaderService.getAllergySeverity(item);
     }
@@ -1544,6 +1672,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     switch (section) {
       case 'medications':
         return item.medicationCodeableConcept?.coding?.[0]?.code || 'No code';
+      case 'immunizations':
+        return item.vaccineCode?.coding?.[0]?.code || 'No code';
       default:
         return item.code?.coding?.[0]?.code || 'No code';
     }
@@ -1557,6 +1687,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return item.performedDateTime || null;
       case 'medications':
         return item.effectiveDateTime || null;
+      case 'immunizations':
+        return item.occurrenceDateTime || item.recorded || null;
       case 'allergies':
         return item.recordedDate || item.onsetDateTime || null;
     }
@@ -1570,6 +1702,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         return 'Performed';
       case 'medications':
         return 'Effective';
+      case 'immunizations':
+        return 'Occurrence';
       case 'allergies':
         return 'Recorded';
     }
@@ -1625,6 +1759,18 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     });
   }
 
+  private toClinicalEntryImmunization(immunization: any, patientId: string): Immunization {
+    const snomedCode = this.patientService.extractSnomedCode(immunization);
+    const display = immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display || 'Immunization';
+    return this.patientService.createImmunizationFromClinicalEntryConcept(patientId, {
+      code: snomedCode || undefined,
+      display
+    }, {
+      occurrenceDateTime: immunization.occurrenceDateTime || immunization.recorded,
+      status: this.convertImmunizationStatus(immunization.status)
+    });
+  }
+
   private toClinicalEntryAllergy(allergy: any, patientId: string): any {
     const snomedCode = this.patientService.extractSnomedCode(allergy);
     const display = this.ipsReaderService.getAllergyDisplay(allergy) || allergy.code?.text || 'Allergy';
@@ -1669,17 +1815,22 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return selectedMedicationsData.map((medication) => this.toClinicalEntryMedication(medication, patientId));
   }
 
+  private buildSelectedImmunizations(patientId: string, selectedImmunizationsData: any[]): Immunization[] {
+    return selectedImmunizationsData.map((immunization) => this.toClinicalEntryImmunization(immunization, patientId));
+  }
+
   private buildSelectedAllergies(patientId: string, selectedAllergiesData: any[]): any[] {
     return selectedAllergiesData.map((allergy) => this.toClinicalEntryAllergy(allergy, patientId));
   }
 
   private async buildSelectedImportPayload(
     patientId: string,
-    options: { conditions?: boolean; procedures?: boolean; medications?: boolean; allergies?: boolean }
+    options: { conditions?: boolean; procedures?: boolean; medications?: boolean; immunizations?: boolean; allergies?: boolean }
   ): Promise<{
     conditions: any[];
     procedures: any[];
     medications: any[];
+    immunizations: Immunization[];
     allergies: any[];
     provenance: Provenance[];
   }> {
@@ -1688,6 +1839,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         conditions: [],
         procedures: [],
         medications: [],
+        immunizations: [],
         allergies: [],
         provenance: []
       };
@@ -1708,6 +1860,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
           medication => this.selectedMedications.has(medication.id) && !this.isMedicationAlreadyRecorded(medication)
         )
       : [];
+    const selectedImmunizationsData = options.immunizations
+      ? this.patientData.immunizations.filter(
+          immunization => this.selectedImmunizations.has(immunization.id) && !this.isImmunizationAlreadyRecorded(immunization)
+        )
+      : [];
     const selectedAllergiesData = options.allergies
       ? this.patientData.allergies.filter(
           allergy => this.selectedAllergies.has(allergy.id) && !this.isAllergyAlreadyRecorded(allergy)
@@ -1717,12 +1874,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     const conditions = await this.buildSelectedConditions(patientId, selectedConditionsData);
     const procedures = this.buildSelectedProcedures(patientId, selectedProceduresData);
     const medications = this.buildSelectedMedications(patientId, selectedMedicationsData);
+    const immunizations = this.buildSelectedImmunizations(patientId, selectedImmunizationsData);
     const allergies = this.buildSelectedAllergies(patientId, selectedAllergiesData);
     const sourceBundle = this.patientData.sourceBundle;
     const provenance = [
       ...conditions,
       ...procedures,
       ...medications,
+      ...immunizations,
       ...allergies
     ].map((resource: any) => this.patientService.buildIpsImportProvenance(patientId, resource, sourceBundle));
 
@@ -1730,6 +1889,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       conditions,
       procedures,
       medications,
+      immunizations,
       allergies,
       provenance
     };
@@ -1740,13 +1900,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       conditions: true,
       procedures: true,
       medications: true,
+      immunizations: true,
       allergies: true
     });
   }
 
   private async importSelectedClinicalItemsBySection(
     patientId: string,
-    options: { conditions?: boolean; procedures?: boolean; medications?: boolean; allergies?: boolean }
+    options: { conditions?: boolean; procedures?: boolean; medications?: boolean; immunizations?: boolean; allergies?: boolean }
   ): Promise<number> {
     if (!this.patientData) {
       return 0;
@@ -1760,6 +1921,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         payload.conditions.length > 0 ||
         payload.procedures.length > 0 ||
         payload.medications.length > 0 ||
+        payload.immunizations.length > 0 ||
         payload.allergies.length > 0
       )
     ) {
@@ -1768,11 +1930,12 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         conditions: payload.conditions,
         procedures: payload.procedures,
         medications: payload.medications,
+        immunizations: payload.immunizations,
         allergies: payload.allergies,
         provenance: payload.provenance
       });
 
-      return payload.conditions.length + payload.procedures.length + payload.medications.length + payload.allergies.length;
+      return payload.conditions.length + payload.procedures.length + payload.medications.length + payload.immunizations.length + payload.allergies.length;
     }
 
     let importedCount = 0;
@@ -1810,6 +1973,17 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       }
     }
 
+    for (const immunization of payload.immunizations) {
+      const success = this.patientService.addPatientImmunization(patientId, immunization);
+      if (success) {
+        await this.patientService.createPatientProvenance(
+          patientId,
+          this.patientService.buildIpsImportProvenance(patientId, immunization, this.patientData.sourceBundle)
+        );
+        importedCount++;
+      }
+    }
+
     for (const allergy of payload.allergies) {
       const success = this.patientService.addPatientAllergy(patientId, allergy as any);
       if (success) {
@@ -1842,6 +2016,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
             conditions: true,
             procedures: true,
             medications: true,
+            immunizations: true,
             allergies: true
           });
 
@@ -1849,6 +2024,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
             conditions: importPayload.conditions,
             procedures: importPayload.procedures,
             medications: importPayload.medications,
+            immunizations: importPayload.immunizations,
             allergies: importPayload.allergies,
             provenance: importPayload.provenance
           });
@@ -1856,7 +2032,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
           this.linkedPatient = savedPackage.patient;
           this.linkedPatientIsDraft = false;
           this.selectedPatientId = savedPackage.patient.id;
-          importedCount = savedPackage.conditions.length + savedPackage.procedures.length + savedPackage.medications.length + savedPackage.allergies.length;
+          importedCount = savedPackage.conditions.length + savedPackage.procedures.length + savedPackage.medications.length + savedPackage.immunizations.length + savedPackage.allergies.length;
         } else {
           const savedPatient = await this.patientService.addPatient(this.linkedPatient);
           this.linkedPatient = savedPatient;
@@ -2305,6 +2481,15 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     
   }
 
+  async importSelectedImmunizations(): Promise<void> {
+    if (!this.linkedPatient || !this.patientData) {
+      return;
+    }
+    await this.importSelectedClinicalItemsBySection(this.linkedPatient.id, { immunizations: true });
+
+    this.selectedImmunizations.clear();
+  }
+
   /**
    * Import selected allergies only
    */
@@ -2333,6 +2518,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   private convertMedicationStatus(status: string): "on-hold" | "stopped" | "completed" | "entered-in-error" | "unknown" | "active" | "intended" | "not-taken" {
     const validStatuses = ["on-hold", "stopped", "completed", "entered-in-error", "unknown", "active", "intended", "not-taken"];
     return validStatuses.includes(status) ? status as any : "unknown";
+  }
+
+  private convertImmunizationStatus(status: string | undefined): "completed" | "entered-in-error" | "not-done" {
+    if (status === 'entered-in-error' || status === 'not-done') {
+      return status;
+    }
+
+    return 'completed';
   }
 
   /**

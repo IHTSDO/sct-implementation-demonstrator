@@ -373,6 +373,19 @@
               </div>
 
               <div class="clinical-summary-section">
+                <h5 class="summary-heading-medications">Immunizations</h5>
+                <div class="clinical-summary-list" *ngIf="immunizations.length > 0; else noImmunizations">
+                  <div class="clinical-summary-item"
+                      *ngFor="let immunization of getSortedImmunizations()">
+                    <div class="item-name">{{ immunization.vaccineCode.text || immunization.vaccineCode.coding?.[0]?.display }}</div>
+                  </div>
+                </div>
+                <ng-template #noImmunizations>
+                  <div class="no-clinical-data">No immunizations recorded</div>
+                </ng-template>
+              </div>
+
+              <div class="clinical-summary-section">
                 <h5 class="summary-heading-allergies">Allergic to:</h5>
                 <div class="clinical-summary-list" *ngIf="allergies.length > 0; else noAllergies">
                   <div class="clinical-summary-item hoverable-summary-condition" 
@@ -414,6 +427,7 @@
             [conditions]="conditions"
             [procedures]="procedures" 
             [medications]="medications"
+            [immunizations]="immunizations"
             [allergies]="allergies"
             [encounters]="encounters">
           </app-clinical-timeline>
@@ -438,6 +452,7 @@
                   [conditions]="conditions"
                   [procedures]="procedures"
                   [medications]="medications"
+                  [immunizations]="immunizations"
                   [allergies]="allergies"
                   (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
@@ -463,6 +478,7 @@
                   [conditions]="conditions"
                   [procedures]="procedures"
                   [medications]="medications"
+                  [immunizations]="immunizations"
                   [allergies]="allergies"
                   (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
@@ -512,6 +528,15 @@
                             <mat-icon>medication</mat-icon>
                             Add Medication
                           </button>
+                          <button mat-raised-button
+                                  color="primary"
+                                  (click)="toggleImmunizationEntry()"
+                                  [disabled]="isProcessingNewEvent"
+                                  class="entry-toggle-button medication-button"
+                                  [class.active]="immunizationEntry?.showAddForm">
+                            <mat-icon>vaccines</mat-icon>
+                            Add Immunization
+                          </button>
                         </div>
                       </div>
                       
@@ -546,6 +571,16 @@
                           [hideButton]="true"
                           [saving]="savingEntryType === 'medication'"
                           (itemAdded)="onMedicationAdded($event)"
+                          (formOpened)="onClinicalEntryFormOpened($event)">
+                        </app-clinical-entry>
+
+                        <app-clinical-entry
+                          #immunizationEntry
+                          [patientId]="patient.id"
+                          entryType="immunization"
+                          [hideButton]="true"
+                          [saving]="savingEntryType === 'immunization'"
+                          (itemAdded)="onImmunizationAdded($event)"
                           (formOpened)="onClinicalEntryFormOpened($event)">
                         </app-clinical-entry>
                       </div>
@@ -690,7 +725,7 @@
                           <h4><mat-icon>medication</mat-icon> Medications</h4>
                           <span class="item-count">{{ medications.length }}</span>
                         </div>
-                          <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
+                        <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
                           <div class="clinical-item compact" *ngFor="let medication of getSortedMedications()">
                             <div class="item-header compact">
                               <span class="item-title compact">{{ medication.medicationCodeableConcept?.text }}</span>
@@ -727,6 +762,38 @@
                         </div>
                         <ng-template #noMedications>
                           <div class="no-clinical-data compact">No medications recorded</div>
+                        </ng-template>
+
+                        <div class="column-header secondary-column-header">
+                          <h4><mat-icon>vaccines</mat-icon> Immunizations</h4>
+                          <span class="item-count">{{ immunizations.length }}</span>
+                        </div>
+                        <div class="clinical-list compact" *ngIf="immunizations.length > 0; else noImmunizationsList">
+                          <div class="clinical-item compact" *ngFor="let immunization of getSortedImmunizations()">
+                            <div class="item-header compact">
+                              <span class="item-title compact">{{ immunization.vaccineCode.text || immunization.vaccineCode.coding?.[0]?.display }}</span>
+                              <div class="item-header-actions compact">
+                                <button mat-icon-button
+                                        class="delete-button compact"
+                                        (click)="deleteImmunization(immunization.id)"
+                                        title="Delete immunization">
+                                  <mat-icon>delete_outline</mat-icon>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="item-details compact inline">
+                              <span class="item-concept-id compact" *ngIf="immunization.vaccineCode.coding?.[0]?.code">
+                                {{ immunization.vaccineCode.coding?.[0]?.code }}
+                              </span>
+                              <span class="item-status compact">{{ immunization.status }}</span>
+                              <span class="item-status compact" *ngIf="immunization.occurrenceDateTime">
+                                {{ immunization.occurrenceDateTime | date:'MMM d, y' }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <ng-template #noImmunizationsList>
+                          <div class="no-clinical-data compact">No immunizations recorded</div>
                         </ng-template>
                       </div>
                     </div>
@@ -809,6 +876,7 @@
                   [conditions]="conditions"
                   [procedures]="procedures"
                   [medications]="medications"
+                  [immunizations]="immunizations"
                   [allergies]="allergies"
                   (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
@@ -831,6 +899,7 @@
                   [conditions]="conditions"
                   [procedures]="procedures"
                   [medications]="medications"
+                  [immunizations]="immunizations"
                   [allergies]="allergies"
                   (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>

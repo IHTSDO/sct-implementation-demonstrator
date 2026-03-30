@@ -27,6 +27,7 @@ import type {
   DeathRecordDiagnosis,
   Encounter,
   FhirObservation,
+  Immunization,
   LaboratoryOrderGroup,
   MedicationStatement,
   OpenEHRComposition,
@@ -99,6 +100,7 @@ export class PatientService {
     bodyStructures: new Map<string, BodyStructure[]>(),
     procedures: new Map<string, Procedure[]>(),
     medications: new Map<string, MedicationStatement[]>(),
+    immunizations: new Map<string, Immunization[]>(),
     serviceRequests: new Map<string, ServiceRequest[]>(),
     labOrders: new Map<string, LaboratoryOrderGroup[]>(),
     observations: new Map<string, FhirObservation[]>(),
@@ -318,6 +320,7 @@ export class PatientService {
           bodyStructures: this.getPatientBodyStructures(patientId).length,
           procedures: this.getPatientProcedures(patientId).length,
           medications: this.getPatientMedications(patientId).length,
+          immunizations: this.getPatientImmunizations(patientId).length,
           serviceRequests: this.getPatientServiceRequests(patientId).length,
           labOrders: this.getPatientLabOrders(patientId).length,
           observations: this.getPatientObservations(patientId).length,
@@ -350,6 +353,7 @@ export class PatientService {
       bodyStructures,
       procedures,
       medications,
+      immunizations,
       serviceRequests,
       labOrders,
       observations,
@@ -363,6 +367,7 @@ export class PatientService {
       this.patientFhirStorageService.getBodyStructures(patientId),
       this.patientFhirStorageService.getProcedures(patientId),
       this.patientFhirStorageService.getMedications(patientId),
+      this.patientFhirStorageService.getImmunizations(patientId),
       this.patientFhirStorageService.getServiceRequests(patientId),
       this.patientFhirStorageService.getLabOrders(patientId),
       this.patientFhirStorageService.getObservations(patientId),
@@ -378,6 +383,7 @@ export class PatientService {
       bodyStructures,
       procedures,
       medications,
+      immunizations,
       serviceRequests,
       labOrders,
       observations,
@@ -394,6 +400,7 @@ export class PatientService {
     this.setResourceCache(this.fhirCache.bodyStructures, patientId, clinicalData.bodyStructures, false);
     this.setResourceCache(this.fhirCache.procedures, patientId, clinicalData.procedures, false);
     this.setResourceCache(this.fhirCache.medications, patientId, clinicalData.medications, false);
+    this.setResourceCache(this.fhirCache.immunizations, patientId, clinicalData.immunizations, false);
     this.setResourceCache(this.fhirCache.serviceRequests, patientId, clinicalData.serviceRequests, false);
     this.setResourceCache(this.fhirCache.labOrders, patientId, clinicalData.labOrders, false);
     this.setResourceCache(this.fhirCache.observations, patientId, clinicalData.observations, false);
@@ -410,6 +417,7 @@ export class PatientService {
       bodyStructures: clinicalData.bodyStructures.length,
       procedures: clinicalData.procedures.length,
       medications: clinicalData.medications.length,
+      immunizations: clinicalData.immunizations.length,
       serviceRequests: clinicalData.serviceRequests.length,
       labOrders: clinicalData.labOrders.length,
       observations: clinicalData.observations.length,
@@ -460,6 +468,7 @@ export class PatientService {
     this.fhirCache.bodyStructures.delete(patientId);
     this.fhirCache.procedures.delete(patientId);
     this.fhirCache.medications.delete(patientId);
+    this.fhirCache.immunizations.delete(patientId);
     this.fhirCache.serviceRequests.delete(patientId);
     this.fhirCache.labOrders.delete(patientId);
     this.fhirCache.observations.delete(patientId);
@@ -483,6 +492,14 @@ export class PatientService {
     
     if (resource.medicationCodeableConcept?.coding) {
       const snomedCoding = resource.medicationCodeableConcept.coding.find((coding: any) =>
+        coding.system === PatientService.SNOMED_SYSTEM ||
+        coding.system === PatientService.SNOMED_EDITION_SYSTEM
+      );
+      return snomedCoding?.code || null;
+    }
+
+    if (resource.vaccineCode?.coding) {
+      const snomedCoding = resource.vaccineCode.coding.find((coding: any) =>
         coding.system === PatientService.SNOMED_SYSTEM ||
         coding.system === PatientService.SNOMED_EDITION_SYSTEM
       );
@@ -588,6 +605,21 @@ export class PatientService {
     return existingMedications.some(existing => {
       const existingCode = this.extractSnomedCode(existing);
       return existingCode === newCode;
+    });
+  }
+
+  public isDuplicateImmunization(existingImmunizations: Immunization[], newImmunization: Immunization): boolean {
+    const newCode = this.extractSnomedCode(newImmunization);
+    const newOccurrence = newImmunization.occurrenceDateTime || newImmunization.recorded;
+
+    if (!newCode || !newOccurrence) {
+      return false;
+    }
+
+    return existingImmunizations.some((existing) => {
+      const existingCode = this.extractSnomedCode(existing);
+      const existingOccurrence = existing.occurrenceDateTime || existing.recorded;
+      return existingCode === newCode && existingOccurrence === newOccurrence;
     });
   }
 
@@ -939,6 +971,14 @@ export class PatientService {
           display: medication.subject?.display || this.getPatientDisplayName(patient)
         }
       })),
+      immunizations: payload.immunizations.map((immunization) => ({
+        ...immunization,
+        patient: {
+          ...immunization.patient,
+          reference: `Patient/${patient.id}`,
+          display: immunization.patient?.display || this.getPatientDisplayName(patient)
+        }
+      })),
       allergies: payload.allergies.map((allergy) => ({
         ...allergy,
         patient: {
@@ -972,6 +1012,12 @@ export class PatientService {
           subject: { ...medication.subject, reference: `Patient/${savedPatient.id}` }
         });
       }
+      for (const immunization of normalizedPayload.immunizations) {
+        this.addPatientImmunization(savedPatient.id, {
+          ...immunization,
+          patient: { ...immunization.patient, reference: `Patient/${savedPatient.id}` }
+        });
+      }
       for (const allergy of normalizedPayload.allergies) {
         this.addPatientAllergy(savedPatient.id, {
           ...allergy,
@@ -988,6 +1034,7 @@ export class PatientService {
         conditions: this.getPatientConditions(savedPatient.id),
         procedures: this.getPatientProcedures(savedPatient.id),
         medications: this.getPatientMedications(savedPatient.id),
+        immunizations: this.getPatientImmunizations(savedPatient.id),
         allergies: this.getPatientAllergies(savedPatient.id),
         provenance: savedProvenance
       };
@@ -1008,6 +1055,7 @@ export class PatientService {
       this.setResourceCache(this.fhirCache.conditions, resolvedPatient.id, result.conditions, false);
       this.setResourceCache(this.fhirCache.procedures, resolvedPatient.id, result.procedures, false);
       this.setResourceCache(this.fhirCache.medications, resolvedPatient.id, result.medications, false);
+      this.setResourceCache(this.fhirCache.immunizations, resolvedPatient.id, result.immunizations, false);
       this.setResourceCache(this.fhirCache.allergies, resolvedPatient.id, result.allergies, false);
       this.setResourceCache(this.fhirCache.provenance, resolvedPatient.id, result.provenance, false);
       this.notifyPatientDataChanged(resolvedPatient.id);
@@ -1018,6 +1066,7 @@ export class PatientService {
       conditions: result.conditions,
       procedures: result.procedures,
       medications: result.medications,
+      immunizations: result.immunizations,
       allergies: result.allergies,
       provenance: result.provenance
     };
@@ -1654,6 +1703,85 @@ export class PatientService {
     );
   }
 
+  getPatientImmunizations(patientId: string): Immunization[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.immunizations,
+        patientId,
+        () => this.patientFhirStorageService.getImmunizations(patientId),
+        []
+      );
+    }
+
+    return this.patientLocalStorageService.readStoredArray<Immunization>(`ehr_immunizations_${patientId}`);
+  }
+
+  addPatientImmunization(patientId: string, immunization: Immunization): boolean {
+    const immunizations = this.getPatientImmunizations(patientId);
+
+    if (this.isDuplicateImmunization(immunizations, immunization)) {
+      return false;
+    }
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createImmunization(patientId, immunization)
+        .then((savedImmunization) => {
+          this.setResourceCache(this.fhirCache.immunizations, patientId, [...immunizations, savedImmunization]);
+        })
+        .catch((error) => console.error('Error creating immunization in FHIR storage service:', error));
+      return true;
+    }
+
+    immunizations.push(immunization);
+    this.savePatientImmunizations(patientId, immunizations);
+    return true;
+  }
+
+  updatePatientImmunization(patientId: string, immunizationId: string, updatedImmunization: Immunization): void {
+    const immunizations = this.getPatientImmunizations(patientId);
+    const index = immunizations.findIndex((item) => item.id === immunizationId);
+    if (index === -1) {
+      return;
+    }
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.updateImmunization(patientId, immunizationId, updatedImmunization)
+        .then((savedImmunization) => {
+          const updatedImmunizations = [...immunizations];
+          updatedImmunizations[index] = savedImmunization;
+          this.setResourceCache(this.fhirCache.immunizations, patientId, updatedImmunizations);
+        })
+        .catch((error) => console.error('Error updating immunization in FHIR storage service:', error));
+      return;
+    }
+
+    immunizations[index] = updatedImmunization;
+    this.savePatientImmunizations(patientId, immunizations);
+  }
+
+  deletePatientImmunization(patientId: string, immunizationId: string): void {
+    const immunizations = this.getPatientImmunizations(patientId);
+    const filteredImmunizations = immunizations.filter((item) => item.id !== immunizationId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.deleteImmunization(patientId, immunizationId)
+        .then(() => this.setResourceCache(this.fhirCache.immunizations, patientId, filteredImmunizations))
+        .catch((error) => console.error('Error deleting immunization from FHIR storage service:', error));
+      return;
+    }
+
+    this.savePatientImmunizations(patientId, filteredImmunizations);
+  }
+
+  private savePatientImmunizations(patientId: string, immunizations: Immunization[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.immunizations, patientId, immunizations);
+      return;
+    }
+
+    this.patientLocalStorageService.writeStoredArray(`ehr_immunizations_${patientId}`, immunizations);
+  }
+
   getPatientServiceRequests(patientId: string): ServiceRequest[] {
     if (this.getCurrentPersistenceMode() === 'fhir') {
       return this.ensureFhirResourceLoaded(
@@ -2054,7 +2182,7 @@ export class PatientService {
 
   buildIpsImportProvenance(
     patientId: string,
-    targetResource: { resourceType: string; id: string; code?: { text?: string }; medicationCodeableConcept?: { text?: string }; },
+    targetResource: { resourceType: string; id: string; code?: { text?: string }; medicationCodeableConcept?: { text?: string }; vaccineCode?: { text?: string }; },
     sourceBundle?: {
       bundleId?: string;
       bundleIdentifier?: { system?: string; value?: string };
@@ -2065,6 +2193,7 @@ export class PatientService {
     const recorded = new Date().toISOString();
     const targetDisplay = targetResource.code?.text
       || targetResource.medicationCodeableConcept?.text
+      || targetResource.vaccineCode?.text
       || `${targetResource.resourceType} ${targetResource.id}`;
     const sourceDisplay = sourceBundle?.bundleIdentifier?.value
       ? `IPS ${sourceBundle.bundleIdentifier.value}`
@@ -2560,6 +2689,36 @@ export class PatientService {
     return medication;
   }
 
+  createImmunizationFromClinicalEntryConcept(
+    patientId: string,
+    concept: { code?: string; display?: string; text?: string },
+    options?: { occurrenceDateTime?: string; status?: Immunization['status'] }
+  ): Immunization {
+    const display = concept.display || concept.text || concept.code || 'Unknown vaccine';
+    const occurrenceDateTime = options?.occurrenceDateTime || new Date().toISOString();
+
+    return {
+      resourceType: 'Immunization',
+      id: `immunization-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      status: options?.status || 'completed',
+      vaccineCode: {
+        coding: concept.code ? [{
+          system: PatientService.SNOMED_SYSTEM,
+          code: concept.code,
+          display
+        }] : undefined,
+        text: display
+      },
+      patient: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      occurrenceDateTime,
+      recorded: occurrenceDateTime,
+      primarySource: true
+    };
+  }
+
   createAllergyFromClinicalEntryConcept(
     patientId: string,
     concept: { code?: string; display?: string; text?: string },
@@ -2777,6 +2936,7 @@ export class PatientService {
       const savedConditions: Condition[] = [];
       const savedProcedures: Procedure[] = [];
       const savedMedications: MedicationStatement[] = [];
+      const savedImmunizations: Immunization[] = [];
       const savedAllergies: AllergyIntolerance[] = [];
 
       for (const condition of payload.conditions) {
@@ -2797,6 +2957,12 @@ export class PatientService {
         }
       }
 
+      for (const immunization of payload.immunizations) {
+        if (this.addPatientImmunization(patientId, immunization)) {
+          savedImmunizations.push(immunization);
+        }
+      }
+
       for (const allergy of payload.allergies) {
         if (this.addPatientAllergy(patientId, allergy)) {
           savedAllergies.push(allergy);
@@ -2807,6 +2973,7 @@ export class PatientService {
         ...savedConditions.map((resource) => `Condition/${resource.id}`),
         ...savedProcedures.map((resource) => `Procedure/${resource.id}`),
         ...savedMedications.map((resource) => `MedicationStatement/${resource.id}`),
+        ...savedImmunizations.map((resource) => `Immunization/${resource.id}`),
         ...savedAllergies.map((resource) => `AllergyIntolerance/${resource.id}`)
       ]);
 
@@ -2825,6 +2992,7 @@ export class PatientService {
         conditions: savedConditions,
         procedures: savedProcedures,
         medications: savedMedications,
+        immunizations: savedImmunizations,
         allergies: savedAllergies,
         provenance: savedProvenance
       };
@@ -2848,6 +3016,12 @@ export class PatientService {
       this.fhirCache.medications,
       patientId,
       this.mergeResourcesById(this.getPatientMedications(patientId), result.medications),
+      false
+    );
+    this.setResourceCache(
+      this.fhirCache.immunizations,
+      patientId,
+      this.mergeResourcesById(this.getPatientImmunizations(patientId), result.immunizations),
       false
     );
     this.setResourceCache(
@@ -2893,6 +3067,7 @@ export class PatientService {
         conditions: payload.conditions,
         procedures: payload.procedures,
         medications: [],
+        immunizations: [],
         allergies: []
       });
     }
@@ -2922,6 +3097,7 @@ export class PatientService {
       conditions: savedConditions,
       procedures: savedProcedures,
       medications: [],
+      immunizations: [],
       allergies: [],
       provenance: []
     };
@@ -3048,6 +3224,7 @@ export class PatientService {
         const conditions = this.getPatientConditions(patient.id);
         const procedures = this.getPatientProcedures(patient.id);
         const medications = this.getPatientMedications(patient.id);
+        const immunizations = this.getPatientImmunizations(patient.id);
         const serviceRequests = this.getPatientServiceRequests(patient.id);
         const labOrders = this.getPatientLabOrders(patient.id);
         const observations = this.getPatientObservations(patient.id);
@@ -3063,6 +3240,7 @@ export class PatientService {
             conditions: conditions,
             procedures: procedures,
             medications: medications,
+            immunizations: immunizations,
             serviceRequests: serviceRequests,
             labOrders: labOrders,
             observations: observations,

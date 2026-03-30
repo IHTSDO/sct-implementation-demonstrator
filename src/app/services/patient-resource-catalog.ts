@@ -3,6 +3,7 @@ export type FlatPatientResourceType =
   | 'Condition'
   | 'Procedure'
   | 'MedicationStatement'
+  | 'Immunization'
   | 'AllergyIntolerance'
   | 'Provenance'
   | 'Observation'
@@ -54,6 +55,14 @@ export const FLAT_PATIENT_RESOURCE_CATALOG: FlatPatientResourceCatalogEntry[] = 
     patientServiceGetter: 'getPatientMedications',
     fhirStorageGetter: 'getMedications',
     exportFullUrlPrefix: 'medication'
+  },
+  {
+    resourceType: 'Immunization',
+    title: 'Immunization',
+    icon: 'vaccines',
+    patientServiceGetter: 'getPatientImmunizations',
+    fhirStorageGetter: 'getImmunizations',
+    exportFullUrlPrefix: 'immunization'
   },
   {
     resourceType: 'AllergyIntolerance',

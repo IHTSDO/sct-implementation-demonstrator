@@ -298,6 +298,7 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
         conditions: conditionsToSave,
         procedures: procedureToSave ? [procedureToSave] : [],
         medications: medicationsToSave,
+        immunizations: [],
         allergies: [],
         provenance: aiDerivedProvenance
       });

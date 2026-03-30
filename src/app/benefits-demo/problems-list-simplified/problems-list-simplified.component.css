@@ -5,6 +5,7 @@
   --kind-allergy: #f39c12;
   --kind-procedure: #17a2b8;
   --kind-medication: #28a745;
+  --kind-immunization: #0d6efd;
 }
 
 .problems-list-panel {
@@ -137,6 +138,15 @@
 .problem-kind.kind-medication {
   background: #e9f8ef;
   color: #1d7a3b;
+}
+
+.problem-item.kind-immunization {
+  border-left-color: var(--kind-immunization);
+}
+
+.problem-kind.kind-immunization {
+  background: #e9f2ff;
+  color: #0d6efd;
 }
 
 .problem-main {

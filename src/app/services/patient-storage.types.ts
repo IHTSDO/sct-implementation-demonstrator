@@ -5,6 +5,7 @@ import type {
   DeathRecord,
   Encounter,
   FhirObservation,
+  Immunization,
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
@@ -38,6 +39,7 @@ export interface AiAssistedEntryTransactionPayload {
   conditions: Condition[];
   procedures: Procedure[];
   medications: MedicationStatement[];
+  immunizations: Immunization[];
   allergies: AllergyIntolerance[];
   provenance?: Provenance[];
 }
@@ -47,6 +49,7 @@ export interface AiAssistedEntryTransactionResult {
   conditions: Condition[];
   procedures: Procedure[];
   medications: MedicationStatement[];
+  immunizations: Immunization[];
   allergies: AllergyIntolerance[];
   provenance: Provenance[];
 }
@@ -60,6 +63,7 @@ export interface PatientClinicalPackagePayload {
   conditions: Condition[];
   procedures: Procedure[];
   medications: MedicationStatement[];
+  immunizations: Immunization[];
   allergies: AllergyIntolerance[];
   provenance?: Provenance[];
 }
@@ -69,6 +73,7 @@ export interface PatientClinicalPackageResult {
   conditions: Condition[];
   procedures: Procedure[];
   medications: MedicationStatement[];
+  immunizations: Immunization[];
   allergies: AllergyIntolerance[];
   provenance: Provenance[];
 }
@@ -78,6 +83,7 @@ export interface PatientClinicalRecordData {
   bodyStructures: BodyStructure[];
   procedures: Procedure[];
   medications: MedicationStatement[];
+  immunizations: Immunization[];
   serviceRequests: ServiceRequest[];
   labOrders: LaboratoryOrderGroup[];
   observations: FhirObservation[];
@@ -116,6 +122,11 @@ export interface PatientStorageBackend {
   createMedication(patientId: string, medication: MedicationStatement): Promise<MedicationStatement>;
   updateMedication(patientId: string, medicationId: string, medication: MedicationStatement): Promise<MedicationStatement>;
   deleteMedication(patientId: string, medicationId: string): Promise<void>;
+
+  getImmunizations(patientId: string): Promise<Immunization[]>;
+  createImmunization(patientId: string, immunization: Immunization): Promise<Immunization>;
+  updateImmunization(patientId: string, immunizationId: string, immunization: Immunization): Promise<Immunization>;
+  deleteImmunization(patientId: string, immunizationId: string): Promise<void>;
 
   getServiceRequests(patientId: string): Promise<ServiceRequest[]>;
   createServiceRequest(patientId: string, serviceRequest: ServiceRequest): Promise<ServiceRequest>;

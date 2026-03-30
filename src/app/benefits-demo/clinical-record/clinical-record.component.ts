@@ -15,6 +15,7 @@ import type {
   ClinicalDataLoadSummary,
   Condition,
   FhirObservation,
+  Immunization,
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
@@ -59,6 +60,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   @ViewChild('conditionEntry') conditionEntry!: ClinicalEntryComponent;
   @ViewChild('procedureEntry') procedureEntry!: ClinicalEntryComponent;
   @ViewChild('medicationEntry') medicationEntry!: ClinicalEntryComponent;
+  @ViewChild('immunizationEntry') immunizationEntry!: ClinicalEntryComponent;
   @ViewChild('encounterRecord') encounterRecord!: any;
   @ViewChild('clinicalTimeline') clinicalTimeline!: any;
   @ViewChild('clinicalForms') clinicalForms!: any;
@@ -67,6 +69,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   conditions: Condition[] = [];
   procedures: Procedure[] = [];
   medications: MedicationStatement[] = [];
+  immunizations: Immunization[] = [];
   labOrders: LaboratoryOrderGroup[] = [];
   allergies: AllergyIntolerance[] = [];
   encounters: any[] = [];
@@ -472,6 +475,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.conditions = this.loadCachedOrFreshData('conditions', patientId, () => this.patientService.getPatientConditions(patientId));
     this.procedures = this.loadCachedOrFreshData('procedures', patientId, () => this.patientService.getPatientProcedures(patientId));
     this.medications = this.loadCachedOrFreshData('medications', patientId, () => this.patientService.getPatientMedications(patientId));
+    this.immunizations = this.loadCachedOrFreshData('immunizations', patientId, () => this.patientService.getPatientImmunizations(patientId));
     this.labOrders = this.loadCachedOrFreshData('labOrders', patientId, () => this.patientService.getPatientLabOrders(patientId));
     this.allergies = this.loadCachedOrFreshData('allergies', patientId, () => this.patientService.getPatientAllergies(patientId));
     this.encounters = this.patientService.getPatientEncounters(patientId);
@@ -624,6 +628,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       const indexA = this.medications.indexOf(a);
       const indexB = this.medications.indexOf(b);
       return indexB - indexA; // Most recent (higher index) first
+    });
+  }
+
+  getSortedImmunizations(): Immunization[] {
+    return [...this.immunizations].sort((a, b) => {
+      const aDate = a.occurrenceDateTime || a.recorded || '';
+      const bDate = b.occurrenceDateTime || b.recorded || '';
+      return bDate.localeCompare(aDate);
     });
   }
 
@@ -849,7 +861,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.conditionEntry.toggleAddForm();
   }
 
-  onClinicalEntryFormOpened(entryType: 'condition' | 'procedure' | 'medication'): void {
+  onClinicalEntryFormOpened(entryType: 'condition' | 'procedure' | 'medication' | 'immunization'): void {
     // Close all other forms when one is opened
     if (entryType !== 'condition' && this.conditionEntry) {
       this.conditionEntry.closeForm();
@@ -859,6 +871,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
     if (entryType !== 'medication' && this.medicationEntry) {
       this.medicationEntry.closeForm();
+    }
+    if (entryType !== 'immunization' && this.immunizationEntry) {
+      this.immunizationEntry.closeForm();
     }
   }
 
@@ -963,6 +978,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.medicationEntry.toggleAddForm();
   }
 
+  toggleImmunizationEntry(): void {
+    this.immunizationEntry.toggleAddForm();
+  }
+
   openAllergyForm(): void {
     const dialogRef = this.dialog.open(AllergyFormDialogComponent, {
       width: '1100px',
@@ -1024,6 +1043,42 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       await this.mapSingleEventToAnchorPoint(event);
     } catch (error) {
       console.error('Error processing new medication:', error);
+    } finally {
+      this.isProcessingNewEvent = false;
+      this.savingEntryType = null;
+    }
+  }
+
+  async onImmunizationAdded(event: Immunization): Promise<void> {
+    this.isProcessingNewEvent = true;
+    this.savingEntryType = 'immunization';
+
+    try {
+      const wasAdded = this.patientService.addPatientImmunization(this.patient!.id, event);
+
+      if (!wasAdded) {
+        this.snackBar.open(
+          'This immunization already exists for this patient (same vaccine and date).',
+          'Close',
+          {
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['warning-snackbar']
+          }
+        );
+        return;
+      }
+
+      this.immunizations = [...this.immunizations, event];
+      this.immunizationEntry?.resetAndCloseForm();
+      this.touchDataVersion();
+
+      if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
+        this.clinicalTimeline.refreshTimeline();
+      }
+    } catch (error) {
+      console.error('Error processing new immunization:', error);
     } finally {
       this.isProcessingNewEvent = false;
       this.savingEntryType = null;
@@ -1918,6 +1973,17 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  deleteImmunization(immunizationId: string): void {
+    if (!this.patient) return;
+
+    const immunization = this.immunizations.find(i => i.id === immunizationId);
+    if (immunization && confirm(`Are you sure you want to delete the immunization "${immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display}"?`)) {
+      this.patientService.deletePatientImmunization(this.patient.id, immunizationId);
+      this.immunizations = this.patientService.getPatientImmunizations(this.patient.id);
+      this.touchDataVersion();
+    }
+  }
+
   deleteAllergy(allergyId: string): void {
     if (!this.patient) return;
     
@@ -2407,7 +2473,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const encounters = this.patientService.getPatientEncounters(patientId);
     
     // Confirm deletion
-    const eventCount = this.conditions.length + this.procedures.length + this.medications.length + this.allergies.length + encounters.length;
+    const eventCount = this.conditions.length + this.procedures.length + this.medications.length + this.immunizations.length + this.allergies.length + encounters.length;
     if (eventCount === 0) {
       this.snackBar.open(
         'No clinical events to delete.',
@@ -2426,7 +2492,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       width: '460px',
       data: {
         title: 'Delete All Clinical Events',
-        message: `This will permanently delete ${eventCount} clinical events for ${this.getPatientDisplayName(this.patient)}.\n\nThis includes conditions, procedures, medications, allergies, encounters, observations, questionnaires, and related bundles.\n\nThis action cannot be undone.`,
+        message: `This will permanently delete ${eventCount} clinical events for ${this.getPatientDisplayName(this.patient)}.\n\nThis includes conditions, procedures, medications, immunizations, allergies, encounters, observations, questionnaires, and related bundles.\n\nThis action cannot be undone.`,
         confirmText: 'Delete All Events',
         cancelText: 'Cancel',
         confirmColor: 'warn'
@@ -2443,6 +2509,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       this.conditions = [];
       this.procedures = [];
       this.medications = [];
+      this.immunizations = [];
       this.labOrders = [];
       this.allergies = [];
       this.encounters = [];

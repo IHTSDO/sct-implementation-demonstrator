@@ -2201,6 +2201,18 @@
   background-color: var(--kind-medication);
 }
 
+.secondary-column-header {
+  margin-top: 12px;
+}
+
+.secondary-column-header h4 mat-icon {
+  color: #0d6efd;
+}
+
+.secondary-column-header .item-count {
+  background-color: #0d6efd;
+}
+
 /* Compact Clinical List Styles */
 .clinical-list.compact {
   padding: 0;

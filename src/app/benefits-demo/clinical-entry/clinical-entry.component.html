@@ -57,10 +57,18 @@
               </mat-form-field>
             </div>
           }
-          @if (entryType === 'condition' || entryType === 'procedure') {
+          @if (entryType === 'condition' || entryType === 'procedure' || entryType === 'immunization') {
             <div class="date-section">
               <mat-form-field appearance="outline">
-                <mat-label>{{ entryType === 'condition' ? 'Condition date' : 'Procedure date' }}</mat-label>
+                <mat-label>
+                  @if (entryType === 'condition') {
+                    Condition date
+                  } @else if (entryType === 'procedure') {
+                    Procedure date
+                  } @else {
+                    Immunization date
+                  }
+                </mat-label>
                 <input
                   matInput
                   [matDatepicker]="clinicalDatePicker"
@@ -121,6 +129,18 @@
                 <mat-option value="h">Hours</mat-option>
                 <mat-option value="d">Days</mat-option>
                 <mat-option value="wk">Weeks</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+        @if (entryType === 'immunization') {
+          <div class="dosage-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Immunization status</mat-label>
+              <mat-select [(ngModel)]="immunizationStatus">
+                <mat-option value="completed">Completed</mat-option>
+                <mat-option value="not-done">Not done</mat-option>
+                <mat-option value="entered-in-error">Entered in error</mat-option>
               </mat-select>
             </mat-form-field>
           </div>

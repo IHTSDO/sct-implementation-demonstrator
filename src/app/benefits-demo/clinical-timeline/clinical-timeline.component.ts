@@ -11,11 +11,11 @@ import {
   ViewChild
 } from '@angular/core';
 import Plotly from 'plotly.js-dist';
-import type { AllergyIntolerance, Condition, MedicationStatement, Procedure } from '../../model';
+import type { AllergyIntolerance, Condition, Immunization, MedicationStatement, Procedure } from '../../model';
 
 export interface TimelineEvent {
   id: string;
-  type: 'condition' | 'procedure' | 'medication' | 'allergy' | 'encounter';
+  type: 'condition' | 'procedure' | 'medication' | 'immunization' | 'allergy' | 'encounter';
   title: string;
   date: Date;
   conceptId: string;
@@ -36,12 +36,13 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
   @Input() conditions: Condition[] = [];
   @Input() procedures: Procedure[] = [];
   @Input() medications: MedicationStatement[] = [];
+  @Input() immunizations: Immunization[] = [];
   @Input() allergies: AllergyIntolerance[] = [];
   @Input() encounters: any[] = [];
 
   timelineEvents: TimelineEvent[] = [];
   sortedEvents: TimelineEvent[] = [];
-  readonly timelineTrackOrder: TimelineEvent['type'][] = ['encounter', 'allergy', 'medication', 'procedure', 'condition'];
+  readonly timelineTrackOrder: TimelineEvent['type'][] = ['encounter', 'allergy', 'immunization', 'medication', 'procedure', 'condition'];
   private plotlyInitialized = false;
   private renderRetryHandle: ReturnType<typeof setTimeout> | null = null;
 
@@ -49,6 +50,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
     condition: '#8e44ad',
     procedure: '#17a2b8',
     medication: '#28a745',
+    immunization: '#0d6efd',
     allergy: '#f39c12',
     encounter: '#4e5d6c'
   };
@@ -66,7 +68,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['conditions'] || changes['procedures'] || changes['medications'] || changes['allergies'] || changes['encounters']) {
+    if (changes['conditions'] || changes['procedures'] || changes['medications'] || changes['immunizations'] || changes['allergies'] || changes['encounters']) {
       this.processEvents();
       this.renderOverviewTimeline();
     }
@@ -150,6 +152,23 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
           details: this.getMedicationDetails(medication),
           originalEvent: medication,
           color: this.eventColors.medication
+        });
+      }
+    });
+
+    this.immunizations.forEach((immunization) => {
+      const date = this.getBestDate(immunization, 'immunization');
+      if (date) {
+        this.timelineEvents.push({
+          id: immunization.id,
+          type: 'immunization',
+          title: immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display || 'Unknown Immunization',
+          date,
+          conceptId: this.getConceptId(immunization),
+          status: immunization.status || 'Unknown',
+          details: this.getImmunizationDetails(immunization),
+          originalEvent: immunization,
+          color: this.eventColors.immunization
         });
       }
     });
@@ -399,6 +418,8 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
         return 'diamond';
       case 'medication':
         return 'square';
+      case 'immunization':
+        return 'cross';
       case 'allergy':
         return 'triangle-up';
       case 'encounter':
@@ -421,6 +442,9 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
       case 'medication':
         dateString = event.effectiveDateTime || event.recordedDate;
         break;
+      case 'immunization':
+        dateString = event.occurrenceDateTime || event.recorded;
+        break;
       case 'allergy':
         dateString = event.recordedDate || event.onsetDateTime;
         break;
@@ -438,6 +462,9 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
     }
     if (resource.medicationCodeableConcept?.coding && resource.medicationCodeableConcept.coding.length > 0) {
       return resource.medicationCodeableConcept.coding[0].code;
+    }
+    if (resource.vaccineCode?.coding && resource.vaccineCode.coding.length > 0) {
+      return resource.vaccineCode.coding[0].code;
     }
     return '';
   }
@@ -488,6 +515,17 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
     }
     if (medication.dosage && medication.dosage.length > 0) {
       details.push(`Dosage: ${medication.dosage[0].text}`);
+    }
+    return details.join(' • ');
+  }
+
+  private getImmunizationDetails(immunization: Immunization): string {
+    const details = [];
+    if (immunization.occurrenceDateTime) {
+      details.push(`Occurred: ${this.formatDate(immunization.occurrenceDateTime)}`);
+    }
+    if (immunization.recorded) {
+      details.push(`Recorded: ${this.formatDate(immunization.recorded)}`);
     }
     return details.join(' • ');
   }
@@ -573,6 +611,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
       case 'condition': return 'Condition';
       case 'procedure': return 'Procedure';
       case 'medication': return 'Medication';
+      case 'immunization': return 'Immunization';
       case 'allergy': return 'Allergy';
       case 'encounter': return 'Encounter';
       default: return 'Event';
@@ -584,6 +623,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
       case 'condition': return 'Conditions';
       case 'procedure': return 'Procedures';
       case 'medication': return 'Medications';
+      case 'immunization': return 'Immunizations';
       case 'allergy': return 'Allergies';
       case 'encounter': return 'Encounters';
       default: return 'Events';
@@ -595,6 +635,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
       case 'condition': return 'medical_services';
       case 'procedure': return 'healing';
       case 'medication': return 'medication';
+      case 'immunization': return 'vaccines';
       case 'allergy': return 'warning';
       case 'encounter': return 'person_pin';
       default: return 'event';

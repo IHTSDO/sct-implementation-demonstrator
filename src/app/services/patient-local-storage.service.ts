@@ -7,6 +7,7 @@ import type {
   DeathRecord,
   Encounter,
   FhirObservation,
+  Immunization,
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
@@ -124,6 +125,19 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       ))
       .map((medication) => this.hydrateMedicationComputedLocation(medication));
 
+    const savedImmunizations = payload.immunizations
+      .map((immunization) => this.pushItem(
+        `ehr_immunizations_${savedPatient.id}`,
+        {
+          ...immunization,
+          patient: {
+            ...immunization.patient,
+            reference: patientReference,
+            display: immunization.patient?.display || patientDisplay
+          }
+        }
+      ));
+
     const savedAllergies = payload.allergies
       .map((allergy) => this.pushItem(
         `ehr_allergies_${savedPatient.id}`,
@@ -155,6 +169,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       conditions: savedConditions,
       procedures: savedProcedures,
       medications: savedMedications,
+      immunizations: savedImmunizations,
       allergies: savedAllergies,
       provenance: savedProvenance
     };
@@ -180,6 +195,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       'ehr_conditions_',
       'ehr_procedures_',
       'ehr_medications_',
+      'ehr_immunizations_',
       'ehr_service_requests_',
       'ehr_lab_orders_',
       'ehr_observations_',
@@ -245,6 +261,11 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   }
   async deleteMedication(patientId: string, medicationId: string): Promise<void> { this.removeItem(`ehr_medications_${patientId}`, medicationId); }
 
+  async getImmunizations(patientId: string): Promise<Immunization[]> { return this.readArray(`ehr_immunizations_${patientId}`); }
+  async createImmunization(patientId: string, immunization: Immunization): Promise<Immunization> { return this.pushItem(`ehr_immunizations_${patientId}`, immunization); }
+  async updateImmunization(patientId: string, immunizationId: string, immunization: Immunization): Promise<Immunization> { return this.replaceItem(`ehr_immunizations_${patientId}`, immunizationId, immunization); }
+  async deleteImmunization(patientId: string, immunizationId: string): Promise<void> { this.removeItem(`ehr_immunizations_${patientId}`, immunizationId); }
+
   async getServiceRequests(patientId: string): Promise<ServiceRequest[]> { return this.readArray(`ehr_service_requests_${patientId}`); }
   async createServiceRequest(patientId: string, serviceRequest: ServiceRequest): Promise<ServiceRequest> { return this.pushItem(`ehr_service_requests_${patientId}`, serviceRequest); }
   async updateServiceRequest(patientId: string, requestId: string, serviceRequest: ServiceRequest): Promise<ServiceRequest> { return this.replaceItem(`ehr_service_requests_${patientId}`, requestId, serviceRequest); }
@@ -297,6 +318,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       `ehr_conditions_${patientId}`,
       `ehr_procedures_${patientId}`,
       `ehr_medications_${patientId}`,
+      `ehr_immunizations_${patientId}`,
       `ehr_service_requests_${patientId}`,
       `ehr_lab_orders_${patientId}`,
       `ehr_observations_${patientId}`,

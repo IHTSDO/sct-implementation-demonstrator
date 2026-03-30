@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
-import type { Condition, MedicationStatement, Procedure } from '../../model';
+import type { Condition, Immunization, MedicationStatement, Procedure } from '../../model';
 
-export type ClinicalEntryType = 'condition' | 'procedure' | 'medication';
+export type ClinicalEntryType = 'condition' | 'procedure' | 'medication' | 'immunization';
 
 @Component({
   selector: 'app-clinical-entry',
@@ -30,6 +30,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
   medicationDoseUnit: string = '';
   medicationPeriod: number | null = null;
   medicationPeriodUnit: 'h' | 'd' | 'wk' = 'h';
+  immunizationStatus: Immunization['status'] = 'completed';
   loading = false;
   showAddForm = false;
   readonly medicationDoseUnitOptions = ['tablet', 'capsule', 'drop', 'puff', 'mL', 'mg', 'g', 'unit'];
@@ -50,6 +51,11 @@ export class ClinicalEntryComponent implements AfterViewInit {
       ecl: '< 373873005 |Pharmaceutical / biologic product| : 762949000 |Has precise active ingredient (attribute)| = *', 
       title: 'Search for medication...',
       placeholder: 'Enter medication name...'
+    },
+    immunization: {
+      ecl: '< 787859002 |Vaccine product (medicinal product)|',
+      title: 'Search for vaccine...',
+      placeholder: 'Enter vaccine name...'
     }
   };
 
@@ -66,7 +72,8 @@ export class ClinicalEntryComponent implements AfterViewInit {
     const titles = {
       condition: 'Add Condition',
       procedure: 'Add Procedure', 
-      medication: 'Add Medication'
+      medication: 'Add Medication',
+      immunization: 'Add Immunization'
     };
     return titles[this.entryType];
   }
@@ -118,6 +125,9 @@ export class ClinicalEntryComponent implements AfterViewInit {
             break;
           case 'medication':
             await this.addMedication();
+            break;
+          case 'immunization':
+            await this.addImmunization();
             break;
         }
       } finally {
@@ -183,6 +193,22 @@ export class ClinicalEntryComponent implements AfterViewInit {
     this.itemAdded.emit(newMedication);
   }
 
+  private async addImmunization() {
+    const newImmunization: Immunization = this.patientService.createImmunizationFromClinicalEntryConcept(
+      this.patientId,
+      {
+        code: this.selectedConcept.code,
+        display: this.selectedConcept.display
+      },
+      {
+        occurrenceDateTime: this.getEntryDateValue(),
+        status: this.immunizationStatus
+      }
+    );
+
+    this.itemAdded.emit(newImmunization);
+  }
+
   resetAndCloseForm(): void {
     this.resetForm();
   }
@@ -196,6 +222,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
     this.medicationDoseUnit = '';
     this.medicationPeriod = null;
     this.medicationPeriodUnit = 'h';
+    this.immunizationStatus = 'completed';
     this.showAddForm = false;
   }
 

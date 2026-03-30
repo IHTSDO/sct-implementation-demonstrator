@@ -14,6 +14,7 @@ import type {
   DeathRecord,
   Encounter,
   FhirObservation,
+  Immunization,
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
@@ -36,6 +37,7 @@ type SupportedResource =
   | Condition
   | Procedure
   | MedicationStatement
+  | Immunization
   | AllergyIntolerance
   | Provenance
   | FhirObservation
@@ -203,9 +205,10 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
       const ipsBundle = this.ipsService.generateIpsBundle({
         patient: this.patientService.getPatientById(patientId) || this.patient,
         conditions: this.patientService.getPatientConditions(patientId),
-        procedures: this.patientService.getPatientProcedures(patientId),
-        medications: this.patientService.getPatientMedications(patientId),
-        allergies: this.patientService.getPatientAllergies(patientId),
+      procedures: this.patientService.getPatientProcedures(patientId),
+      medications: this.patientService.getPatientMedications(patientId),
+      immunizations: this.patientService.getPatientImmunizations(patientId),
+      allergies: this.patientService.getPatientAllergies(patientId),
         observations: this.patientService.getPatientObservations(patientId),
         encounters: this.patientService.getPatientEncounters(patientId),
         serviceRequests: this.patientService.getPatientServiceRequests(patientId),
@@ -454,6 +457,8 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
         return this.toProcedureItem(resource as Procedure);
       case 'MedicationStatement':
         return this.toMedicationItem(resource as MedicationStatement);
+      case 'Immunization':
+        return this.toImmunizationItem(resource as Immunization);
       case 'AllergyIntolerance':
         return this.toAllergyItem(resource as AllergyIntolerance);
       case 'Provenance':
@@ -515,6 +520,19 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
       id: resource.id,
       label,
       subtitle: this.buildDateSubtitle(resource.effectiveDateTime),
+      resource
+    };
+  }
+
+  private toImmunizationItem(resource: Immunization): ResourceListItem {
+    const label = resource.vaccineCode?.text
+      || resource.vaccineCode?.coding?.[0]?.display
+      || resource.id;
+    return {
+      resourceType: 'Immunization',
+      id: resource.id,
+      label,
+      subtitle: this.buildDateSubtitle(resource.occurrenceDateTime || resource.recorded),
       resource
     };
   }

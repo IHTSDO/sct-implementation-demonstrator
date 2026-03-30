@@ -23,6 +23,7 @@ export type IPSResource =
   | Condition
   | Procedure
   | MedicationStatement
+  | Immunization
   | AllergyIntolerance
   | Medication
   | Composition;
@@ -220,6 +221,26 @@ export interface MedicationStatement {
   }>;
 }
 
+export interface Immunization {
+  resourceType: 'Immunization';
+  id: string;
+  status: string;
+  vaccineCode?: {
+    coding?: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text?: string;
+  };
+  patient?: {
+    reference: string;
+  };
+  occurrenceDateTime?: string;
+  occurrenceString?: string;
+  recorded?: string;
+}
+
 export interface AllergyIntolerance {
   resourceType: 'AllergyIntolerance';
   id: string;
@@ -379,6 +400,7 @@ export interface ProcessedPatientData {
   conditions: Condition[];
   procedures: Procedure[];
   medications: MedicationStatement[];
+  immunizations: Immunization[];
   allergies: AllergyIntolerance[];
   sourceBundle?: IPSSourceMetadata;
 }

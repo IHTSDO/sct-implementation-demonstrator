@@ -4,6 +4,7 @@ import type {
   Condition,
   Encounter,
   FhirObservation,
+  Immunization,
   MedicationStatement,
   Patient,
   Procedure,
@@ -27,6 +28,7 @@ interface IpsSectionEntries {
   conditions: Array<{ reference: string }>;
   allergies: Array<{ reference: string }>;
   medications: Array<{ reference: string }>;
+  immunizations: Array<{ reference: string }>;
   procedures: Array<{ reference: string }>;
   observations: Array<{ reference: string }>;
   encounters: Array<{ reference: string }>;
@@ -46,6 +48,7 @@ export class IpsService {
     conditions: Condition[];
     procedures: Procedure[];
     medications: MedicationStatement[];
+    immunizations?: Immunization[];
     allergies: AllergyIntolerance[];
     observations?: FhirObservation[];
     encounters?: Encounter[];
@@ -65,6 +68,7 @@ export class IpsService {
       conditions: [] as Array<{ reference: string }>,
       allergies: [] as Array<{ reference: string }>,
       medications: [] as Array<{ reference: string }>,
+      immunizations: [] as Array<{ reference: string }>,
       procedures: [] as Array<{ reference: string }>,
       observations: [] as Array<{ reference: string }>,
       encounters: [] as Array<{ reference: string }>,
@@ -107,6 +111,17 @@ export class IpsService {
           resource: this.withNarrativeLink(medication, compositionFullUrl, `MedicationStatement-${fullUrl}`)
         });
         sectionEntries.medications.push({ reference: fullUrl });
+      });
+
+    (input.immunizations || [])
+      .filter((immunization) => immunization.status !== 'entered-in-error')
+      .forEach((immunization) => {
+        const fullUrl = `urn:uuid:immunization-${immunization.id}`;
+        entries.push({
+          fullUrl,
+          resource: this.withNarrativeLink(immunization, compositionFullUrl, `Immunization-${fullUrl}`)
+        });
+        sectionEntries.immunizations.push({ reference: fullUrl });
       });
 
     input.procedures
@@ -161,6 +176,12 @@ export class IpsService {
         code: '10160-0',
         display: 'History of Medication use Narrative',
         placeholder: () => this.createNoMedicationInfoResource(patientFullUrl, compositionFullUrl),
+      },
+      {
+        key: 'immunizations',
+        title: 'Immunizations',
+        code: '11369-6',
+        display: 'History of immunizations Narrative',
       },
       {
         key: 'conditions',

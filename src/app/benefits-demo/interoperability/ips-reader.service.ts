@@ -135,6 +135,7 @@ export class IPSReaderService {
       conditions: [],
       procedures: [],
       medications: [],
+      immunizations: [],
       allergies: [],
       sourceBundle: {
         bundleId: bundle?.id,
@@ -250,6 +251,9 @@ export class IPSReaderService {
         } else {
           result.medications.push(medicationStatement);
         }
+        break;
+      case 'Immunization':
+        result.immunizations.push(resource as any);
         break;
       case 'AllergyIntolerance':
         const allergyIntolerance = resource as AllergyIntolerance;
@@ -518,6 +522,7 @@ export class IPSReaderService {
       conditions: [],
       procedures: [],
       medications: [],
+      immunizations: [],
       allergies: [],
       sourceBundle: undefined
     };

@@ -7,6 +7,7 @@ export type {
   DeathRecordDiagnosis,
   Encounter,
   FhirObservation,
+  Immunization,
   LaboratoryOrderGroup,
   MedicationStatement,
   OpenEHRComposition,

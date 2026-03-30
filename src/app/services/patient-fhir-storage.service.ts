@@ -9,6 +9,7 @@ import type {
   DeathRecord,
   Encounter,
   FhirObservation,
+  Immunization,
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
@@ -239,6 +240,25 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       );
     });
 
+    const immunizationEntries = payload.immunizations.map((immunization) => {
+      const fullUrl = this.createTransactionFullUrl('immunization');
+      if (immunization.id) {
+        resourceReferenceMap.set(`Immunization/${immunization.id}`, fullUrl);
+      }
+      return this.createTransactionEntry(
+        this.removeTemporaryId({
+          ...immunization,
+          patient: {
+            ...immunization.patient,
+            reference: patientFullUrl,
+            display: immunization.patient?.display || patientDisplay
+          }
+        }, 'immunization-'),
+        'Immunization',
+        fullUrl
+      );
+    });
+
     const allergyEntries = payload.allergies.map((allergy) => {
       const fullUrl = this.createTransactionFullUrl('allergy');
       if (allergy.id) {
@@ -273,6 +293,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
         ...conditionEntries,
         ...procedureEntries,
         ...medicationEntries,
+        ...immunizationEntries,
         ...allergyEntries,
         ...(payload.provenance || []).map((provenance) =>
           this.createTransactionEntry(
@@ -302,6 +323,8 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       medications: resources
         .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
         .map((medication: any) => this.hydrateMedicationComputedLocation(medication)),
+      immunizations: resources
+        .filter((resource: any) => resource?.resourceType === 'Immunization'),
       allergies: resources
         .filter((resource: any) => resource?.resourceType === 'AllergyIntolerance'),
       provenance: resources
@@ -361,6 +384,17 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     return this.hydrateMedicationComputedLocation(savedMedication);
   }
   async deleteMedication(patientId: string, medicationId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('MedicationStatement', medicationId)); }
+
+  async getImmunizations(patientId: string): Promise<Immunization[]> {
+    return this.fetchPatientResources<Immunization>('Immunization', { patient: patientId, _count: '200' });
+  }
+  async createImmunization(patientId: string, immunization: Immunization): Promise<Immunization> {
+    return await firstValueFrom(this.fhirService.create('Immunization', immunization));
+  }
+  async updateImmunization(patientId: string, immunizationId: string, immunization: Immunization): Promise<Immunization> {
+    return await firstValueFrom(this.fhirService.update('Immunization', immunizationId, immunization));
+  }
+  async deleteImmunization(patientId: string, immunizationId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Immunization', immunizationId)); }
 
   async getServiceRequests(patientId: string): Promise<ServiceRequest[]> { return this.fetchPatientResources('ServiceRequest', { subject: this.getPatientReference(patientId), _count: '200' }); }
   async createServiceRequest(patientId: string, serviceRequest: ServiceRequest): Promise<ServiceRequest> { return await firstValueFrom(this.fhirService.create('ServiceRequest', serviceRequest)); }
@@ -466,6 +500,8 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const medications = resources
       .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
       .map((medication: MedicationStatement) => this.hydrateMedicationComputedLocation(medication));
+    const immunizations = resources
+      .filter((resource: any) => resource?.resourceType === 'Immunization') as Immunization[];
     const serviceRequests = resources.filter((resource: any) => resource?.resourceType === 'ServiceRequest') as ServiceRequest[];
     const observations = resources.filter((resource: any) => resource?.resourceType === 'Observation') as FhirObservation[];
     const allergies = resources.filter((resource: any) => resource?.resourceType === 'AllergyIntolerance') as AllergyIntolerance[];
@@ -485,6 +521,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       bodyStructures,
       procedures,
       medications,
+      immunizations,
       serviceRequests,
       labOrders,
       observations,
@@ -552,6 +589,17 @@ export class PatientFhirStorageService implements PatientStorageBackend {
             fullUrl
           );
         }),
+        ...payload.immunizations.map((immunization) => {
+          const fullUrl = this.createTransactionFullUrl('immunization');
+          if (immunization.id) {
+            resourceReferenceMap.set(`Immunization/${immunization.id}`, fullUrl);
+          }
+          return this.createTransactionEntry(
+            this.removeTemporaryId(immunization, 'immunization-'),
+            'Immunization',
+            fullUrl
+          );
+        }),
         ...payload.allergies.map((allergy) => {
           const fullUrl = this.createTransactionFullUrl('allergy');
           if (allergy.id) {
@@ -586,6 +634,8 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const medications = resources
       .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
       .map((medication: any) => this.hydrateMedicationComputedLocation(medication));
+    const immunizations = resources
+      .filter((resource: any) => resource?.resourceType === 'Immunization');
     const allergies = resources
       .filter((resource: any) => resource?.resourceType === 'AllergyIntolerance');
     const provenance = resources
@@ -596,6 +646,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       conditions,
       procedures,
       medications,
+      immunizations,
       allergies,
       provenance
     };

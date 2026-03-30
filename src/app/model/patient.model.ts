@@ -832,6 +832,52 @@ export interface MedicationStatement {
   snomedConceptId?: string;
 }
 
+export interface Immunization {
+  resourceType: 'Immunization';
+  id: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+  }>;
+  status: 'completed' | 'entered-in-error' | 'not-done';
+  statusReason?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  vaccineCode: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  patient: {
+    reference: string;
+    display?: string;
+  };
+  encounter?: {
+    reference?: string;
+    display?: string;
+  };
+  occurrenceDateTime?: string;
+  occurrenceString?: string;
+  recorded?: string;
+  primarySource?: boolean;
+  note?: Array<{
+    text: string;
+    time?: string;
+    authorReference?: {
+      reference?: string;
+      display?: string;
+    };
+  }>;
+}
+
 export interface ServiceRequest {
   resourceType: 'ServiceRequest';
   id: string;
@@ -1305,6 +1351,7 @@ export interface ClinicalDataLoadSummary {
     bodyStructures: number;
     procedures: number;
     medications: number;
+    immunizations: number;
     serviceRequests: number;
     labOrders: number;
     observations: number;
