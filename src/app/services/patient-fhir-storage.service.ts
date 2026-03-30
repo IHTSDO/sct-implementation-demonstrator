@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { FhirService } from './fhir.service';
+import { FLAT_PATIENT_RESOURCE_CATALOG } from './patient-resource-catalog';
 import type {
   AllergyIntolerance,
   BodyStructure,
@@ -11,6 +12,7 @@ import type {
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
+  Provenance,
   Procedure,
   QuestionnaireResponse,
   ServiceRequest,
@@ -166,6 +168,98 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   ): Promise<PatientClinicalPackageResult> {
     const patientFullUrl = this.createTransactionFullUrl('patient');
     const patientDisplay = this.getPatientDisplayName(patient);
+    const resourceReferenceMap = new Map<string, string>();
+    if (patient.id) {
+      resourceReferenceMap.set(`Patient/${patient.id}`, patientFullUrl);
+    }
+
+    const conditionEntries = payload.conditions.map((condition) => {
+      const fullUrl = this.createTransactionFullUrl('condition');
+      if (condition.id) {
+        resourceReferenceMap.set(`Condition/${condition.id}`, fullUrl);
+      }
+      return this.createTransactionEntry(
+        this.removeTemporaryId(
+          this.prepareConditionForFhir({
+            ...condition,
+            subject: {
+              ...condition.subject,
+              reference: patientFullUrl,
+              display: condition.subject?.display || patientDisplay
+            }
+          }),
+          'condition-'
+        ),
+        'Condition',
+        fullUrl
+      );
+    });
+
+    const procedureEntries = payload.procedures.map((procedure) => {
+      const fullUrl = this.createTransactionFullUrl('procedure');
+      if (procedure.id) {
+        resourceReferenceMap.set(`Procedure/${procedure.id}`, fullUrl);
+      }
+      return this.createTransactionEntry(
+        this.removeTemporaryId(
+          this.prepareProcedureForFhir({
+            ...procedure,
+            subject: {
+              ...procedure.subject,
+              reference: patientFullUrl,
+              display: procedure.subject?.display || patientDisplay
+            }
+          }),
+          'procedure-'
+        ),
+        'Procedure',
+        fullUrl
+      );
+    });
+
+    const medicationEntries = payload.medications.map((medication) => {
+      const fullUrl = this.createTransactionFullUrl('medication');
+      if (medication.id) {
+        resourceReferenceMap.set(`MedicationStatement/${medication.id}`, fullUrl);
+      }
+      return this.createTransactionEntry(
+        this.removeTemporaryId(
+          this.prepareMedicationForFhir({
+            ...medication,
+            subject: {
+              ...medication.subject,
+              reference: patientFullUrl,
+              display: medication.subject?.display || patientDisplay
+            }
+          }),
+          'medication-'
+        ),
+        'MedicationStatement',
+        fullUrl
+      );
+    });
+
+    const allergyEntries = payload.allergies.map((allergy) => {
+      const fullUrl = this.createTransactionFullUrl('allergy');
+      if (allergy.id) {
+        resourceReferenceMap.set(`AllergyIntolerance/${allergy.id}`, fullUrl);
+      }
+      return this.createTransactionEntry(
+        this.removeTemporaryId(
+          {
+            ...allergy,
+            patient: {
+              ...allergy.patient,
+              reference: patientFullUrl,
+              display: allergy.patient?.display || patientDisplay
+            }
+          },
+          'allergy-'
+        ),
+        'AllergyIntolerance',
+        fullUrl
+      );
+    });
 
     const bundle = {
       resourceType: 'Bundle',
@@ -176,72 +270,15 @@ export class PatientFhirStorageService implements PatientStorageBackend {
           'Patient',
           patientFullUrl
         ),
-        ...payload.conditions.map((condition) =>
+        ...conditionEntries,
+        ...procedureEntries,
+        ...medicationEntries,
+        ...allergyEntries,
+        ...(payload.provenance || []).map((provenance) =>
           this.createTransactionEntry(
-            this.removeTemporaryId(
-              this.prepareConditionForFhir({
-                ...condition,
-                subject: {
-                  ...condition.subject,
-                  reference: patientFullUrl,
-                  display: condition.subject?.display || patientDisplay
-                }
-              }),
-              'condition-'
-            ),
-            'Condition',
-            this.createTransactionFullUrl('condition')
-          )
-        ),
-        ...payload.procedures.map((procedure) =>
-          this.createTransactionEntry(
-            this.removeTemporaryId(
-              this.prepareProcedureForFhir({
-                ...procedure,
-                subject: {
-                  ...procedure.subject,
-                  reference: patientFullUrl,
-                  display: procedure.subject?.display || patientDisplay
-                }
-              }),
-              'procedure-'
-            ),
-            'Procedure',
-            this.createTransactionFullUrl('procedure')
-          )
-        ),
-        ...payload.medications.map((medication) =>
-          this.createTransactionEntry(
-            this.removeTemporaryId(
-              this.prepareMedicationForFhir({
-                ...medication,
-                subject: {
-                  ...medication.subject,
-                  reference: patientFullUrl,
-                  display: medication.subject?.display || patientDisplay
-                }
-              }),
-              'medication-'
-            ),
-            'MedicationStatement',
-            this.createTransactionFullUrl('medication')
-          )
-        ),
-        ...payload.allergies.map((allergy) =>
-          this.createTransactionEntry(
-            this.removeTemporaryId(
-              {
-                ...allergy,
-                patient: {
-                  ...allergy.patient,
-                  reference: patientFullUrl,
-                  display: allergy.patient?.display || patientDisplay
-                }
-              },
-              'allergy-'
-            ),
-            'AllergyIntolerance',
-            this.createTransactionFullUrl('allergy')
+            this.prepareProvenanceForTransaction(provenance, patientFullUrl, resourceReferenceMap),
+            'Provenance',
+            this.createTransactionFullUrl('provenance')
           )
         )
       ]
@@ -266,7 +303,9 @@ export class PatientFhirStorageService implements PatientStorageBackend {
         .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
         .map((medication: any) => this.hydrateMedicationComputedLocation(medication)),
       allergies: resources
-        .filter((resource: any) => resource?.resourceType === 'AllergyIntolerance')
+        .filter((resource: any) => resource?.resourceType === 'AllergyIntolerance'),
+      provenance: resources
+        .filter((resource: any) => resource?.resourceType === 'Provenance')
     };
   }
 
@@ -404,6 +443,17 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   }
   async deleteEncounter(patientId: string, encounterId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Encounter', encounterId)); }
 
+  async getProvenance(patientId: string): Promise<Provenance[]> {
+    return await this.fetchPatientResources<Provenance>('Provenance', {
+      target: this.getPatientReference(patientId),
+      _count: '200'
+    });
+  }
+  async createProvenance(patientId: string, provenance: Provenance): Promise<Provenance> {
+    return await firstValueFrom(this.fhirService.create('Provenance', this.prepareProvenanceForFhir(provenance, patientId)));
+  }
+  async deleteProvenance(patientId: string, provenanceId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Provenance', provenanceId)); }
+
   async getClinicalRecordData(patientId: string): Promise<PatientClinicalRecordData> {
     const everythingBundle = await this.fetchPatientEverythingBundle(patientId);
     const resources = this.extractBundleResources<any>(everythingBundle);
@@ -424,8 +474,9 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       .filter((resource: any) => resource?.resourceType === 'Encounter')
       .map((encounter: any) => this.hydrateEncounterFreeText(encounter)) as Encounter[];
 
-    const [labOrders, deathRecord] = await Promise.all([
+    const [labOrders, provenance, deathRecord] = await Promise.all([
       this.getLabOrders(patientId),
+      this.getProvenance(patientId),
       this.getDeathRecord(patientId)
     ]);
 
@@ -440,6 +491,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       allergies,
       questionnaireResponses,
       encounters,
+      provenance,
       deathRecord
     };
   }
@@ -450,10 +502,12 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   ): Promise<AiAssistedEntryTransactionResult> {
     const encounterFullUrl = payload.encounter ? this.createTransactionFullUrl('encounter') : null;
     const conditionReferenceMap = new Map<string, string>();
+    const resourceReferenceMap = new Map<string, string>();
     const conditionEntries = payload.conditions.map((condition) => {
       const fullUrl = this.createTransactionFullUrl('condition');
       if (condition.id) {
         conditionReferenceMap.set(`Condition/${condition.id}`, fullUrl);
+        resourceReferenceMap.set(`Condition/${condition.id}`, fullUrl);
       }
 
       return this.createTransactionEntry(
@@ -473,22 +527,44 @@ export class PatientFhirStorageService implements PatientStorageBackend {
           encounterFullUrl || undefined
         )] : []),
         ...conditionEntries,
-        ...payload.procedures.map((procedure) =>
-          this.createTransactionEntry(
+        ...payload.procedures.map((procedure) => {
+          const fullUrl = this.createTransactionFullUrl('procedure');
+          if (procedure.id) {
+            resourceReferenceMap.set(`Procedure/${procedure.id}`, fullUrl);
+          }
+          return this.createTransactionEntry(
             this.prepareProcedureForTransaction(procedure, encounterFullUrl),
-            'Procedure'
-          )
-        ),
-        ...payload.medications.map((medication) =>
-          this.createTransactionEntry(
+            'Procedure',
+            fullUrl
+          );
+        }),
+        ...payload.medications.map((medication) => {
+          const fullUrl = this.createTransactionFullUrl('medication');
+          if (medication.id) {
+            resourceReferenceMap.set(`MedicationStatement/${medication.id}`, fullUrl);
+          }
+          return this.createTransactionEntry(
             this.removeTemporaryId(this.prepareMedicationForFhir(medication), 'medication-'),
-            'MedicationStatement'
-          )
-        ),
-        ...payload.allergies.map((allergy) =>
-          this.createTransactionEntry(
+            'MedicationStatement',
+            fullUrl
+          );
+        }),
+        ...payload.allergies.map((allergy) => {
+          const fullUrl = this.createTransactionFullUrl('allergy');
+          if (allergy.id) {
+            resourceReferenceMap.set(`AllergyIntolerance/${allergy.id}`, fullUrl);
+          }
+          return this.createTransactionEntry(
             this.removeTemporaryId(allergy, 'allergy-'),
-            'AllergyIntolerance'
+            'AllergyIntolerance',
+            fullUrl
+          );
+        }),
+        ...(payload.provenance || []).map((provenance) =>
+          this.createTransactionEntry(
+            this.prepareProvenanceForTransaction(provenance, this.getPatientReference(patientId), resourceReferenceMap),
+            'Provenance',
+            this.createTransactionFullUrl('provenance')
           )
         )
       ]
@@ -509,41 +585,36 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       .map((medication: any) => this.hydrateMedicationComputedLocation(medication));
     const allergies = resources
       .filter((resource: any) => resource?.resourceType === 'AllergyIntolerance');
+    const provenance = resources
+      .filter((resource: any) => resource?.resourceType === 'Provenance');
 
     return {
       encounter,
       conditions,
       procedures,
       medications,
-      allergies
+      allergies,
+      provenance
     };
   }
 
   async clearAllPatientEvents(patientId: string): Promise<void> {
-    const [conditions, bodyStructures, procedures, medications, serviceRequests, observations, allergies, questionnaireResponses, encounters, labOrders, deathRecord] = await Promise.all([
-      this.getConditions(patientId),
-      this.getBodyStructures(patientId),
-      this.getProcedures(patientId),
-      this.getMedications(patientId),
-      this.getServiceRequests(patientId),
-      this.getObservations(patientId),
-      this.getAllergies(patientId),
-      this.getQuestionnaireResponses(patientId),
-      this.getEncounters(patientId),
+    const flatResourceCollections = await Promise.all(
+      FLAT_PATIENT_RESOURCE_CATALOG.map(async (entry) => {
+        const getter = (this as any)[entry.fhirStorageGetter];
+        const resources = typeof getter === 'function' ? await getter.call(this, patientId) : [];
+        return { entry, resources };
+      })
+    );
+    const [labOrders, deathRecord] = await Promise.all([
       this.getLabOrders(patientId),
       this.getDeathRecord(patientId),
     ]);
 
     const transactionEntries = [
-      ...conditions.map((item) => this.createDeleteTransactionEntry('Condition', item.id)),
-      ...bodyStructures.map((item) => this.createDeleteTransactionEntry('BodyStructure', item.id)),
-      ...procedures.map((item) => this.createDeleteTransactionEntry('Procedure', item.id)),
-      ...medications.map((item) => this.createDeleteTransactionEntry('MedicationStatement', item.id)),
-      ...serviceRequests.map((item) => this.createDeleteTransactionEntry('ServiceRequest', item.id)),
-      ...observations.map((item) => this.createDeleteTransactionEntry('Observation', item.id)),
-      ...allergies.map((item) => this.createDeleteTransactionEntry('AllergyIntolerance', item.id)),
-      ...questionnaireResponses.map((item) => this.createDeleteTransactionEntry('QuestionnaireResponse', item.id)),
-      ...encounters.map((item) => this.createDeleteTransactionEntry('Encounter', item.id)),
+      ...flatResourceCollections.flatMap(({ entry, resources }) =>
+        resources.map((item: any) => this.createDeleteTransactionEntry(entry.resourceType, item.id))
+      ),
       ...labOrders.map((item) => this.createDeleteTransactionEntry('Bundle', item.id)),
       ...(deathRecord?.id ? [this.createDeleteTransactionEntry('Bundle', deathRecord.id)] : []),
     ];
@@ -697,6 +768,29 @@ export class PatientFhirStorageService implements PatientStorageBackend {
         ...conditionWithoutId.encounter,
         reference: encounterFullUrl
       }
+    };
+  }
+
+  private prepareProvenanceForTransaction(
+    provenance: Provenance,
+    patientReference: string,
+    targetReferenceMap: Map<string, string>
+  ): Provenance {
+    const preparedProvenance = this.prepareProvenanceForFhir(provenance, patientReference);
+    const provenanceWithoutId = this.removeTemporaryId(preparedProvenance, 'provenance-');
+
+    return {
+      ...provenanceWithoutId,
+      patient: {
+        ...provenanceWithoutId.patient,
+        reference: patientReference
+      },
+      target: (provenanceWithoutId.target || []).map((target) => ({
+        ...target,
+        reference: targetReferenceMap.get(target.reference) || (target.reference === provenanceWithoutId.patient?.reference
+          ? patientReference
+          : target.reference)
+      }))
     };
   }
 
@@ -895,6 +989,31 @@ export class PatientFhirStorageService implements PatientStorageBackend {
           text: this.toLocationDisplay(condition.computedLocation)
         }
       ]
+    };
+  }
+
+  private prepareProvenanceForFhir(provenance: Provenance, patientIdOrReference: string): Provenance {
+    const patientReference = patientIdOrReference.startsWith('Patient/')
+      ? patientIdOrReference
+      : this.getPatientReference(patientIdOrReference);
+    const patientTargetExists = Array.isArray(provenance.target)
+      && provenance.target.some((target) => target.reference === patientReference);
+    const targets = Array.isArray(provenance.target) ? [...provenance.target] : [];
+
+    if (!patientTargetExists) {
+      targets.push({
+        reference: patientReference,
+        display: provenance.patient?.display
+      });
+    }
+
+    return {
+      ...provenance,
+      patient: {
+        ...provenance.patient,
+        reference: patientReference
+      },
+      target: targets
     };
   }
 

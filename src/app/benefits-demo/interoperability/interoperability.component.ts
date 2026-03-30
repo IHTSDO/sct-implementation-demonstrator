@@ -7,7 +7,7 @@ import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
 import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
-import type { Patient, PatientSimilarityResult } from '../../model';
+import type { Patient, PatientSimilarityResult, Provenance } from '../../model';
 import {
   ConceptHierarchyValidationService,
   HierarchyMatch,
@@ -35,6 +35,7 @@ interface WizardStep {
   standalone: false
 })
 export class InteroperabilityComponent implements OnInit, OnDestroy {
+  private static readonly AUTO_SELECT_MATCH_THRESHOLD = 0.95;
   patientData: ProcessedPatientData | null = null;
   isLoading = false;
   isImporting = false;
@@ -255,7 +256,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     // Get the top match from our sorted list
     const topMatch = this.sortedPatientsWithScores[0];
     
-    if (!topMatch || topMatch.score < 0.5) {
+    if (!topMatch || topMatch.score < InteroperabilityComponent.AUTO_SELECT_MATCH_THRESHOLD) {
       // No good matches found
       return;
     }
@@ -271,6 +272,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     }
 
     this.suggestedPatient = { ...topMatch.patient, matchType: matchType, score: topMatch.score };
+    this.selectedPatientId = topMatch.patient.id;
+    this.linkedPatient = topMatch.patient;
+    this.linkedPatientIsDraft = false;
+    this.loadExistingPatientData();
+    this.initializeSelections();
   }
 
   needsManualPatientEntry(): boolean {
@@ -1591,6 +1597,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return this.patientService.createConditionFromClinicalEntryConcept(patientId, {
       code: snomedCode || undefined,
       display
+    }, {
+      dateTime: condition.onsetDateTime || condition.recordedDate
     });
   }
 
@@ -1600,6 +1608,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return this.patientService.createProcedureFromClinicalEntryConcept(patientId, {
       code: snomedCode || undefined,
       display
+    }, {
+      dateTime: procedure.performedDateTime || procedure.performedPeriod?.start
     });
   }
 
@@ -1610,6 +1620,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       code: snomedCode || undefined,
       display
     }, {
+      effectiveDateTime: medication.effectiveDateTime || medication.effectivePeriod?.start,
       reasonReference: medication.reasonReference
     });
   }
@@ -1620,6 +1631,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return this.patientService.createAllergyFromClinicalEntryConcept(patientId, {
       code: snomedCode || undefined,
       display
+    }, {
+      recordedDate: allergy.recordedDate || allergy.onsetDateTime
     });
   }
 
@@ -1660,21 +1673,24 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return selectedAllergiesData.map((allergy) => this.toClinicalEntryAllergy(allergy, patientId));
   }
 
-  private async importSelectedClinicalItems(patientId: string): Promise<number> {
-    return this.importSelectedClinicalItemsBySection(patientId, {
-      conditions: true,
-      procedures: true,
-      medications: true,
-      allergies: true
-    });
-  }
-
-  private async importSelectedClinicalItemsBySection(
+  private async buildSelectedImportPayload(
     patientId: string,
     options: { conditions?: boolean; procedures?: boolean; medications?: boolean; allergies?: boolean }
-  ): Promise<number> {
+  ): Promise<{
+    conditions: any[];
+    procedures: any[];
+    medications: any[];
+    allergies: any[];
+    provenance: Provenance[];
+  }> {
     if (!this.patientData) {
-      return 0;
+      return {
+        conditions: [],
+        procedures: [],
+        medications: [],
+        allergies: [],
+        provenance: []
+      };
     }
 
     const selectedConditionsData = options.conditions
@@ -1698,61 +1714,109 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         )
       : [];
 
+    const conditions = await this.buildSelectedConditions(patientId, selectedConditionsData);
+    const procedures = this.buildSelectedProcedures(patientId, selectedProceduresData);
+    const medications = this.buildSelectedMedications(patientId, selectedMedicationsData);
+    const allergies = this.buildSelectedAllergies(patientId, selectedAllergiesData);
+    const sourceBundle = this.patientData.sourceBundle;
+    const provenance = [
+      ...conditions,
+      ...procedures,
+      ...medications,
+      ...allergies
+    ].map((resource: any) => this.patientService.buildIpsImportProvenance(patientId, resource, sourceBundle));
+
+    return {
+      conditions,
+      procedures,
+      medications,
+      allergies,
+      provenance
+    };
+  }
+
+  private async importSelectedClinicalItems(patientId: string): Promise<number> {
+    return this.importSelectedClinicalItemsBySection(patientId, {
+      conditions: true,
+      procedures: true,
+      medications: true,
+      allergies: true
+    });
+  }
+
+  private async importSelectedClinicalItemsBySection(
+    patientId: string,
+    options: { conditions?: boolean; procedures?: boolean; medications?: boolean; allergies?: boolean }
+  ): Promise<number> {
+    if (!this.patientData) {
+      return 0;
+    }
+
+    const payload = await this.buildSelectedImportPayload(patientId, options);
+
     if (
       this.patientService.getCurrentPersistenceMode() === 'fhir' &&
       (
-        selectedConditionsData.length > 0 ||
-        selectedProceduresData.length > 0 ||
-        selectedMedicationsData.length > 0 ||
-        selectedAllergiesData.length > 0
+        payload.conditions.length > 0 ||
+        payload.procedures.length > 0 ||
+        payload.medications.length > 0 ||
+        payload.allergies.length > 0
       )
     ) {
-      const conditions = await this.buildSelectedConditions(patientId, selectedConditionsData);
-      const procedures = this.buildSelectedProcedures(patientId, selectedProceduresData);
-      const medications = this.buildSelectedMedications(patientId, selectedMedicationsData);
-      const allergies = this.buildSelectedAllergies(patientId, selectedAllergiesData);
-
       await this.patientService.saveAiAssistedEntryTransaction(patientId, {
         encounter: null,
-        conditions,
-        procedures,
-        medications,
-        allergies
+        conditions: payload.conditions,
+        procedures: payload.procedures,
+        medications: payload.medications,
+        allergies: payload.allergies,
+        provenance: payload.provenance
       });
 
-      return conditions.length + procedures.length + medications.length + allergies.length;
+      return payload.conditions.length + payload.procedures.length + payload.medications.length + payload.allergies.length;
     }
 
     let importedCount = 0;
 
-    for (const condition of selectedConditionsData) {
-      const [convertedCondition] = await this.buildSelectedConditions(patientId, [condition]);
-      const success = await this.patientService.addPatientConditionEnriched(patientId, convertedCondition);
+    for (const condition of payload.conditions) {
+      const success = await this.patientService.addPatientConditionEnriched(patientId, condition);
       if (success) {
+        await this.patientService.createPatientProvenance(
+          patientId,
+          this.patientService.buildIpsImportProvenance(patientId, condition, this.patientData.sourceBundle)
+        );
         importedCount++;
       }
     }
 
-    for (const procedure of selectedProceduresData) {
-      const convertedProcedure = this.toClinicalEntryProcedure(procedure, patientId);
-      const success = await this.patientService.addPatientProcedureEnriched(patientId, convertedProcedure);
+    for (const procedure of payload.procedures) {
+      const success = await this.patientService.addPatientProcedureEnriched(patientId, procedure);
       if (success) {
+        await this.patientService.createPatientProvenance(
+          patientId,
+          this.patientService.buildIpsImportProvenance(patientId, procedure, this.patientData.sourceBundle)
+        );
         importedCount++;
       }
     }
 
-    for (const medication of selectedMedicationsData) {
-      const convertedMedication = this.toClinicalEntryMedication(medication, patientId);
-      const success = await this.patientService.addPatientMedicationEnriched(patientId, convertedMedication);
+    for (const medication of payload.medications) {
+      const success = await this.patientService.addPatientMedicationEnriched(patientId, medication);
       if (success) {
+        await this.patientService.createPatientProvenance(
+          patientId,
+          this.patientService.buildIpsImportProvenance(patientId, medication, this.patientData.sourceBundle)
+        );
         importedCount++;
       }
     }
 
-    for (const allergy of selectedAllergiesData) {
-      const convertedAllergy = this.toClinicalEntryAllergy(allergy, patientId);
-      const success = this.patientService.addPatientAllergy(patientId, convertedAllergy as any);
+    for (const allergy of payload.allergies) {
+      const success = this.patientService.addPatientAllergy(patientId, allergy as any);
       if (success) {
+        await this.patientService.createPatientProvenance(
+          patientId,
+          this.patientService.buildIpsImportProvenance(patientId, allergy, this.patientData.sourceBundle)
+        );
         importedCount++;
       }
     }
@@ -1774,36 +1838,19 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       if (this.linkedPatientIsDraft) {
         if (this.hasSelectedItems()) {
           const patientId = this.linkedPatient.id;
-          const conditions = await this.buildSelectedConditions(
-            patientId,
-            this.patientData.conditions.filter(
-              condition => this.selectedConditions.has(condition.id) && !this.isConditionAlreadyRecorded(condition)
-            )
-          );
-          const procedures = this.buildSelectedProcedures(
-            patientId,
-            this.patientData.procedures.filter(
-              procedure => this.selectedProcedures.has(procedure.id) && !this.isProcedureAlreadyRecorded(procedure)
-            )
-          );
-          const medications = this.buildSelectedMedications(
-            patientId,
-            this.patientData.medications.filter(
-              medication => this.selectedMedications.has(medication.id) && !this.isMedicationAlreadyRecorded(medication)
-            )
-          );
-          const allergies = this.buildSelectedAllergies(
-            patientId,
-            this.patientData.allergies.filter(
-              allergy => this.selectedAllergies.has(allergy.id) && !this.isAllergyAlreadyRecorded(allergy)
-            )
-          );
+          const importPayload = await this.buildSelectedImportPayload(patientId, {
+            conditions: true,
+            procedures: true,
+            medications: true,
+            allergies: true
+          });
 
           const savedPackage = await this.patientService.addPatientClinicalPackage(this.linkedPatient, {
-            conditions,
-            procedures,
-            medications,
-            allergies
+            conditions: importPayload.conditions,
+            procedures: importPayload.procedures,
+            medications: importPayload.medications,
+            allergies: importPayload.allergies,
+            provenance: importPayload.provenance
           });
 
           this.linkedPatient = savedPackage.patient;

@@ -32,6 +32,7 @@ import type {
   OpenEHRComposition,
   Patient,
   PatientSimilarityResult,
+  Provenance,
   Procedure,
   QuestionnaireResponse,
   ServiceRequest
@@ -100,6 +101,7 @@ export class PatientService {
     labOrders: new Map<string, LaboratoryOrderGroup[]>(),
     observations: new Map<string, FhirObservation[]>(),
     allergies: new Map<string, AllergyIntolerance[]>(),
+    provenance: new Map<string, Provenance[]>(),
     questionnaireResponses: new Map<string, QuestionnaireResponse[]>(),
     encounters: new Map<string, Encounter[]>(),
     deathRecords: new Map<string, DeathRecord | null>(),
@@ -350,6 +352,7 @@ export class PatientService {
       labOrders,
       observations,
       allergies,
+      provenance,
       questionnaireResponses,
       deathRecord,
       encounters
@@ -362,6 +365,7 @@ export class PatientService {
       this.patientFhirStorageService.getLabOrders(patientId),
       this.patientFhirStorageService.getObservations(patientId),
       this.patientFhirStorageService.getAllergies(patientId),
+      this.patientFhirStorageService.getProvenance(patientId),
       this.patientFhirStorageService.getQuestionnaireResponses(patientId),
       this.patientFhirStorageService.getDeathRecord(patientId),
       this.patientFhirStorageService.getEncounters(patientId)
@@ -376,6 +380,7 @@ export class PatientService {
       labOrders,
       observations,
       allergies,
+      provenance,
       questionnaireResponses,
       encounters,
       deathRecord
@@ -391,6 +396,7 @@ export class PatientService {
     this.setResourceCache(this.fhirCache.labOrders, patientId, clinicalData.labOrders, false);
     this.setResourceCache(this.fhirCache.observations, patientId, clinicalData.observations, false);
     this.setResourceCache(this.fhirCache.allergies, patientId, clinicalData.allergies, false);
+    this.setResourceCache(this.fhirCache.provenance, patientId, clinicalData.provenance, false);
     this.setResourceCache(this.fhirCache.questionnaireResponses, patientId, clinicalData.questionnaireResponses, false);
     this.setResourceCache(this.fhirCache.deathRecords, patientId, clinicalData.deathRecord, false);
     this.setResourceCache(this.fhirCache.encounters, patientId, clinicalData.encounters, false);
@@ -456,6 +462,7 @@ export class PatientService {
     this.fhirCache.labOrders.delete(patientId);
     this.fhirCache.observations.delete(patientId);
     this.fhirCache.allergies.delete(patientId);
+    this.fhirCache.provenance.delete(patientId);
     this.fhirCache.questionnaireResponses.delete(patientId);
     this.fhirCache.encounters.delete(patientId);
     this.fhirCache.deathRecords.delete(patientId);
@@ -937,12 +944,14 @@ export class PatientService {
           reference: `Patient/${patient.id}`,
           display: allergy.patient?.display || this.getPatientDisplayName(patient)
         }
-      }))
+      })),
+      provenance: payload.provenance
     };
 
     const backend = this.getActiveStorageBackend();
     if (!backend.savePatientClinicalPackage) {
       const savedPatient = await this.addPatient(patient, { refreshPatients: shouldRefreshPatients });
+      const savedProvenance: Provenance[] = [];
       for (const condition of normalizedPayload.conditions) {
         await this.addPatientConditionEnriched(savedPatient.id, {
           ...condition,
@@ -968,12 +977,17 @@ export class PatientService {
         });
       }
 
+      for (const provenance of normalizedPayload.provenance || []) {
+        savedProvenance.push(await this.createPatientProvenance(savedPatient.id, provenance));
+      }
+
       return {
         patient: savedPatient,
         conditions: this.getPatientConditions(savedPatient.id),
         procedures: this.getPatientProcedures(savedPatient.id),
         medications: this.getPatientMedications(savedPatient.id),
-        allergies: this.getPatientAllergies(savedPatient.id)
+        allergies: this.getPatientAllergies(savedPatient.id),
+        provenance: savedProvenance
       };
     }
 
@@ -993,6 +1007,7 @@ export class PatientService {
       this.setResourceCache(this.fhirCache.procedures, resolvedPatient.id, result.procedures, false);
       this.setResourceCache(this.fhirCache.medications, resolvedPatient.id, result.medications, false);
       this.setResourceCache(this.fhirCache.allergies, resolvedPatient.id, result.allergies, false);
+      this.setResourceCache(this.fhirCache.provenance, resolvedPatient.id, result.provenance, false);
       this.notifyPatientDataChanged(resolvedPatient.id);
     }
 
@@ -1001,7 +1016,8 @@ export class PatientService {
       conditions: result.conditions,
       procedures: result.procedures,
       medications: result.medications,
-      allergies: result.allergies
+      allergies: result.allergies,
+      provenance: result.provenance
     };
   }
 
@@ -2007,6 +2023,104 @@ export class PatientService {
     this.patientLocalStorageService.writeStoredArray(`ehr_allergies_${patientId}`, allergies);
   }
 
+  getPatientProvenance(patientId: string): Provenance[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.provenance,
+        patientId,
+        () => this.patientFhirStorageService.getProvenance(patientId),
+        []
+      );
+    }
+
+    return this.patientLocalStorageService.readStoredArray<Provenance>(`ehr_provenance_${patientId}`);
+  }
+
+  async createPatientProvenance(patientId: string, provenance: Provenance): Promise<Provenance> {
+    const savedProvenance = await this.getActiveStorageBackend().createProvenance(patientId, provenance);
+    const updatedProvenance = this.mergeResourcesById(this.getPatientProvenance(patientId), [savedProvenance]);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.provenance, patientId, updatedProvenance, false);
+    } else {
+      this.patientLocalStorageService.writeStoredArray(`ehr_provenance_${patientId}`, updatedProvenance);
+    }
+
+    this.notifyPatientDataChanged(patientId);
+    return savedProvenance;
+  }
+
+  buildIpsImportProvenance(
+    patientId: string,
+    targetResource: { resourceType: string; id: string; code?: { text?: string }; medicationCodeableConcept?: { text?: string }; },
+    sourceBundle?: {
+      bundleId?: string;
+      bundleIdentifier?: { system?: string; value?: string };
+      bundleType?: string;
+      bundleTimestamp?: string;
+    }
+  ): Provenance {
+    const recorded = new Date().toISOString();
+    const targetDisplay = targetResource.code?.text
+      || targetResource.medicationCodeableConcept?.text
+      || `${targetResource.resourceType} ${targetResource.id}`;
+    const sourceDisplay = sourceBundle?.bundleIdentifier?.value
+      ? `IPS ${sourceBundle.bundleIdentifier.value}`
+      : (sourceBundle?.bundleId ? `IPS Bundle ${sourceBundle.bundleId}` : 'Imported IPS document');
+    const narrative = `Imported from an IPS document and reviewed under active human supervision.`;
+
+    return {
+      resourceType: 'Provenance',
+      id: `provenance-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+      recorded,
+      patient: {
+        reference: `Patient/${patientId}`,
+        display: `Patient ${patientId}`
+      },
+      activity: {
+        text: 'IPS import under active human review'
+      },
+      target: [
+        {
+          reference: `${targetResource.resourceType}/${targetResource.id}`,
+          display: targetDisplay
+        },
+        {
+          reference: `Patient/${patientId}`,
+          display: `Patient ${patientId}`
+        }
+      ],
+      agent: [
+        {
+          type: {
+            text: 'assembler'
+          },
+          role: [
+            {
+              text: 'human reviewer'
+            }
+          ],
+          who: {
+            display: 'Human-reviewed IPS import'
+          }
+        }
+      ],
+      entity: [
+        {
+          role: 'source',
+          what: {
+            ...(sourceBundle?.bundleIdentifier ? { identifier: sourceBundle.bundleIdentifier } : {}),
+            display: sourceDisplay
+          }
+        }
+      ],
+      text: {
+        status: 'generated',
+        div: `<div xmlns="http://www.w3.org/1999/xhtml"><p>${narrative}</p></div>`
+      }
+    };
+  }
+
   private normalizeAllergyForPersistence(allergy: AllergyIntolerance): AllergyIntolerance {
     const normalizedCategories = Array.isArray(allergy.category)
       ? allergy.category
@@ -2371,7 +2485,8 @@ export class PatientService {
 
   createAllergyFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string }
+    concept: { code?: string; display?: string; text?: string },
+    options?: { recordedDate?: string }
   ): AllergyIntolerance {
     const display = concept.display || concept.text || concept.code || 'Allergy';
 
@@ -2409,7 +2524,7 @@ export class PatientService {
         reference: `Patient/${patientId}`,
         display: `Patient ${patientId}`
       },
-      recordedDate: new Date().toISOString(),
+      recordedDate: options?.recordedDate || new Date().toISOString(),
       reaction: []
     };
   }
@@ -2608,6 +2723,12 @@ export class PatientService {
       this.mergeResourcesById(this.getPatientAllergies(patientId), result.allergies),
       false
     );
+    this.setResourceCache(
+      this.fhirCache.provenance,
+      patientId,
+      this.mergeResourcesById(this.getPatientProvenance(patientId), result.provenance),
+      false
+    );
 
     if (result.encounter) {
       this.setResourceCache(
@@ -2668,7 +2789,8 @@ export class PatientService {
       conditions: savedConditions,
       procedures: savedProcedures,
       medications: [],
-      allergies: []
+      allergies: [],
+      provenance: []
     };
   }
 
@@ -2773,23 +2895,7 @@ export class PatientService {
       return;
     }
 
-    
-    // Clear all clinical events for a patient
-    this.patientLocalStorageService.removeStoredKey(`ehr_conditions_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_procedures_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_medications_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_service_requests_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_lab_orders_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_observations_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_body_structures_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_allergies_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_encounters_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_questionnaire_responses_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_openehr_compositions_${patientId}`);
-    this.patientLocalStorageService.removeStoredKey(`ehr_death_record_${patientId}`);
-    
-    // Also clear old storage key format for encounters (for backwards compatibility)
-    this.patientLocalStorageService.removeStoredKey(`encounters_${patientId}`);
+    await this.patientLocalStorageService.clearAllPatientEvents(patientId);
     
     
     // Notify subscribers by updating the selected patient

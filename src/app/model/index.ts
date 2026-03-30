@@ -12,6 +12,7 @@ export type {
   OpenEHRComposition,
   Patient,
   PatientSimilarityResult,
+  Provenance,
   Procedure,
   QuestionnaireResponse,
   ServiceRequest

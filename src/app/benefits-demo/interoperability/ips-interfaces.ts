@@ -363,6 +363,16 @@ export interface Composition {
   }>;
 }
 
+export interface IPSSourceMetadata {
+  bundleId?: string;
+  bundleIdentifier?: {
+    system?: string;
+    value?: string;
+  };
+  bundleType?: string;
+  bundleTimestamp?: string;
+}
+
 // Processed data interfaces for display
 export interface ProcessedPatientData {
   patient: Patient | null;
@@ -370,4 +380,5 @@ export interface ProcessedPatientData {
   procedures: Procedure[];
   medications: MedicationStatement[];
   allergies: AllergyIntolerance[];
+  sourceBundle?: IPSSourceMetadata;
 }

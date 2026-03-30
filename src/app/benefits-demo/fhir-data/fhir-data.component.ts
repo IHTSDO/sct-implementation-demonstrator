@@ -5,9 +5,11 @@ import { PatientService } from '../../services/patient.service';
 import { saveAs } from 'file-saver';
 import { FhirService } from '../../services/fhir.service';
 import { IpsService } from '../../services/ips.service';
+import { FLAT_PATIENT_RESOURCE_CATALOG, FlatPatientResourceType } from '../../services/patient-resource-catalog';
 import { Subscription, firstValueFrom } from 'rxjs';
 import type {
   AllergyIntolerance,
+  BodyStructure,
   Condition,
   DeathRecord,
   Encounter,
@@ -15,6 +17,7 @@ import type {
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
+  Provenance,
   Procedure,
   QuestionnaireResponse,
   ServiceRequest
@@ -22,24 +25,19 @@ import type {
 
 type SupportedResourceType =
   | 'Patient'
-  | 'Condition'
-  | 'Procedure'
-  | 'MedicationStatement'
-  | 'AllergyIntolerance'
-  | 'Observation'
-  | 'Encounter'
-  | 'QuestionnaireResponse'
-  | 'ServiceRequest'
+  | FlatPatientResourceType
   | 'Bundle';
 
 type FhirBundleResource = LaboratoryOrderGroup['fhirBundle'] | DeathRecord;
 
 type SupportedResource =
   | Patient
+  | BodyStructure
   | Condition
   | Procedure
   | MedicationStatement
   | AllergyIntolerance
+  | Provenance
   | FhirObservation
   | Encounter
   | QuestionnaireResponse
@@ -337,8 +335,6 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     const patientId = this.patient.id;
     const freshPatient = this.patientService.getPatientById(patientId) || this.patient;
     const deathRecordBundle = this.patientService.getPatientDeathRecord(patientId);
-    const laboratoryBundles = this.patientService.getPatientLabOrders(patientId);
-
     const groups: ResourceGroup[] = [
       {
         resourceType: 'Patient',
@@ -346,62 +342,20 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
         icon: 'person',
         items: [this.toPatientItem(freshPatient)]
       },
-      {
-        resourceType: 'Condition',
-        title: 'Condition',
-        icon: 'stethoscope',
-        iconFontSet: 'material-symbols-outlined',
-        items: this.patientService.getPatientConditions(patientId).map(resource => this.toConditionItem(resource))
-      },
-      {
-        resourceType: 'Procedure',
-        title: 'Procedure',
-        icon: 'healing',
-        items: this.patientService.getPatientProcedures(patientId).map(resource => this.toProcedureItem(resource))
-      },
-      {
-        resourceType: 'MedicationStatement',
-        title: 'MedicationStatement',
-        icon: 'medication',
-        items: this.patientService.getPatientMedications(patientId).map(resource => this.toMedicationItem(resource))
-      },
-      {
-        resourceType: 'AllergyIntolerance',
-        title: 'AllergyIntolerance',
-        icon: 'warning',
-        items: this.patientService.getPatientAllergies(patientId).map(resource => this.toAllergyItem(resource))
-      },
-      {
-        resourceType: 'Observation',
-        title: 'Observation',
-        icon: 'monitor_heart',
-        items: this.patientService.getPatientObservations(patientId).map(resource => this.toObservationItem(resource))
-      },
-      {
-        resourceType: 'Encounter',
-        title: 'Encounter',
-        icon: 'event_note',
-        items: this.patientService.getPatientEncounters(patientId).map(resource => this.toEncounterItem(resource))
-      },
-      {
-        resourceType: 'QuestionnaireResponse',
-        title: 'QuestionnaireResponse',
-        icon: 'assignment',
-        items: this.patientService.getPatientQuestionnaireResponses(patientId).map(resource => this.toQuestionnaireItem(resource))
-      },
-      {
-        resourceType: 'ServiceRequest',
-        title: 'ServiceRequest',
-        icon: 'biotech',
-        items: laboratoryBundles
-          .flatMap(labOrder => labOrder.serviceRequests.map(resource => this.toServiceRequestItem(resource, labOrder)))
-      },
+      ...FLAT_PATIENT_RESOURCE_CATALOG.map((entry) => ({
+        resourceType: entry.resourceType,
+        title: entry.title,
+        icon: entry.icon,
+        iconFontSet: entry.iconFontSet,
+        items: this.getFlatResources(patientId, entry.patientServiceGetter)
+          .map((resource) => this.toResourceListItem(entry.resourceType, resource))
+      })),
       {
         resourceType: 'Bundle',
         title: 'Bundle',
         icon: 'folder_zip',
         items: [
-          ...laboratoryBundles.map(resource => this.toBundleItem(resource)),
+          ...this.patientService.getPatientLabOrders(patientId).map(resource => this.toBundleItem(resource)),
           ...(deathRecordBundle ? [this.toDeathCertificateBundleItem(deathRecordBundle)] : []),
           ...(this.localIpsItem && this.localIpsItem.id === `${patientId}-local-ips` ? [this.localIpsItem] : []),
           ...(this.serverSummaryItem && this.serverSummaryItem.id === `${patientId}-$summary` ? [this.serverSummaryItem] : [])
@@ -485,6 +439,50 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     };
   }
 
+  private getFlatResources(patientId: string, getterName: string): any[] {
+    const getter = (this.patientService as any)[getterName];
+    return typeof getter === 'function' ? getter.call(this.patientService, patientId) : [];
+  }
+
+  private toResourceListItem(resourceType: FlatPatientResourceType, resource: any): ResourceListItem {
+    switch (resourceType) {
+      case 'BodyStructure':
+        return this.toBodyStructureItem(resource as BodyStructure);
+      case 'Condition':
+        return this.toConditionItem(resource as Condition);
+      case 'Procedure':
+        return this.toProcedureItem(resource as Procedure);
+      case 'MedicationStatement':
+        return this.toMedicationItem(resource as MedicationStatement);
+      case 'AllergyIntolerance':
+        return this.toAllergyItem(resource as AllergyIntolerance);
+      case 'Provenance':
+        return this.toProvenanceItem(resource as Provenance);
+      case 'Observation':
+        return this.toObservationItem(resource as FhirObservation);
+      case 'Encounter':
+        return this.toEncounterItem(resource as Encounter);
+      case 'QuestionnaireResponse':
+        return this.toQuestionnaireItem(resource as QuestionnaireResponse);
+      case 'ServiceRequest':
+        return this.toServiceRequestItem(resource as ServiceRequest);
+    }
+  }
+
+  private toBodyStructureItem(resource: BodyStructure): ResourceListItem {
+    const label = resource.includedStructure?.[0]?.structure?.text
+      || resource.includedStructure?.[0]?.structure?.coding?.[0]?.display
+      || resource.note?.[0]?.text
+      || resource.id;
+    return {
+      resourceType: 'BodyStructure',
+      id: resource.id,
+      label,
+      subtitle: 'Body structure resource',
+      resource
+    };
+  }
+
   private toConditionItem(resource: Condition): ResourceListItem {
     const label = resource.code?.text || resource.code?.coding?.[0]?.display || resource.id;
     return {
@@ -544,6 +542,23 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     };
   }
 
+  private toProvenanceItem(resource: Provenance): ResourceListItem {
+    const targetLabel = resource.target?.find(target => !target.reference.startsWith('Patient/'))?.display
+      || resource.target?.find(target => !target.reference.startsWith('Patient/'))?.reference
+      || resource.id;
+    const sourceLabel = resource.entity?.[0]?.what?.display
+      || resource.entity?.[0]?.what?.identifier?.value
+      || 'IPS import';
+
+    return {
+      resourceType: 'Provenance',
+      id: resource.id,
+      label: `Import provenance for ${targetLabel}`,
+      subtitle: `${sourceLabel} • ${this.buildDateSubtitle(resource.recorded)}`,
+      resource
+    };
+  }
+
   private toEncounterItem(resource: Encounter): ResourceListItem {
     const label = resource.type?.[0]?.text || resource.type?.[0]?.coding?.[0]?.display || resource.id;
     const dateValue = resource.period?.start;
@@ -597,17 +612,13 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
     };
   }
 
-  private toServiceRequestItem(resource: ServiceRequest, labOrder: LaboratoryOrderGroup): ResourceListItem {
+  private toServiceRequestItem(resource: ServiceRequest): ResourceListItem {
     const label = resource.code?.text || resource.code?.coding?.[0]?.display || resource.id;
-    const bundleLabel = labOrder.serviceRequests.length === 1
-      ? 'From laboratory order bundle'
-      : `From laboratory order bundle (${labOrder.serviceRequests.length} determinations)`;
-
     return {
       resourceType: 'ServiceRequest',
       id: resource.id,
       label,
-      subtitle: `${bundleLabel} • ${this.buildDateSubtitle(resource.authoredOn || labOrder.createdAt)}`,
+      subtitle: this.buildDateSubtitle(resource.authoredOn || resource.occurrenceDateTime),
       resource
     };
   }
@@ -643,15 +654,10 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
       throw new Error('No patient selected');
     }
 
-    const conditions = this.patientService.getPatientConditions(patientId);
-    const procedures = this.patientService.getPatientProcedures(patientId);
-    const medications = this.patientService.getPatientMedications(patientId);
-    const allergies = this.patientService.getPatientAllergies(patientId);
-    const observations = this.patientService.getPatientObservations(patientId);
-    const encounters = this.patientService.getPatientEncounters(patientId);
-    const questionnaireResponses = this.patientService.getPatientQuestionnaireResponses(patientId);
-    const serviceRequests = this.patientService.getPatientLabOrders(patientId)
-      .flatMap((labOrder) => labOrder.serviceRequests);
+    const flatResourceCollections = FLAT_PATIENT_RESOURCE_CATALOG.map((entry) => ({
+      entry,
+      resources: this.getFlatResources(patientId, entry.patientServiceGetter)
+    }));
     const bundles = [
       ...this.patientService.getPatientLabOrders(patientId).map((labOrder) => labOrder.fhirBundle),
       ...(this.patientService.getPatientDeathRecord(patientId) ? [this.patientService.getPatientDeathRecord(patientId)] : [])
@@ -662,25 +668,27 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
       [`Patient/${patient.id}`, patientFullUrl]
     ]);
 
-    conditions.forEach((resource) => referenceMap.set(`Condition/${resource.id}`, this.createTransactionFullUrl(`condition-${resource.id}`)));
-    encounters.forEach((resource) => referenceMap.set(`Encounter/${resource.id}`, this.createTransactionFullUrl(`encounter-${resource.id}`)));
-    procedures.forEach((resource) => referenceMap.set(`Procedure/${resource.id}`, this.createTransactionFullUrl(`procedure-${resource.id}`)));
-    medications.forEach((resource) => referenceMap.set(`MedicationStatement/${resource.id}`, this.createTransactionFullUrl(`medication-${resource.id}`)));
-    allergies.forEach((resource) => referenceMap.set(`AllergyIntolerance/${resource.id}`, this.createTransactionFullUrl(`allergy-${resource.id}`)));
-    observations.forEach((resource) => referenceMap.set(`Observation/${resource.id}`, this.createTransactionFullUrl(`observation-${resource.id}`)));
-    questionnaireResponses.forEach((resource) => referenceMap.set(`QuestionnaireResponse/${resource.id}`, this.createTransactionFullUrl(`questionnaire-${resource.id}`)));
-    serviceRequests.forEach((resource) => referenceMap.set(`ServiceRequest/${resource.id}`, this.createTransactionFullUrl(`service-request-${resource.id}`)));
+    flatResourceCollections.forEach(({ entry, resources }) => {
+      resources.forEach((resource: any) => {
+        referenceMap.set(
+          `${entry.resourceType}/${resource.id}`,
+          this.createTransactionFullUrl(`${entry.exportFullUrlPrefix}-${resource.id}`)
+        );
+      });
+    });
 
     const entries = [
       this.createExportTransactionEntry(patient, 'Patient', patientFullUrl, referenceMap),
-      ...conditions.map((resource) => this.createExportTransactionEntry(resource, 'Condition', referenceMap.get(`Condition/${resource.id}`)!, referenceMap)),
-      ...procedures.map((resource) => this.createExportTransactionEntry(resource, 'Procedure', referenceMap.get(`Procedure/${resource.id}`)!, referenceMap)),
-      ...medications.map((resource) => this.createExportTransactionEntry(resource, 'MedicationStatement', referenceMap.get(`MedicationStatement/${resource.id}`)!, referenceMap)),
-      ...allergies.map((resource) => this.createExportTransactionEntry(resource, 'AllergyIntolerance', referenceMap.get(`AllergyIntolerance/${resource.id}`)!, referenceMap)),
-      ...observations.map((resource) => this.createExportTransactionEntry(resource, 'Observation', referenceMap.get(`Observation/${resource.id}`)!, referenceMap)),
-      ...encounters.map((resource) => this.createExportTransactionEntry(resource, 'Encounter', referenceMap.get(`Encounter/${resource.id}`)!, referenceMap)),
-      ...questionnaireResponses.map((resource) => this.createExportTransactionEntry(resource, 'QuestionnaireResponse', referenceMap.get(`QuestionnaireResponse/${resource.id}`)!, referenceMap)),
-      ...serviceRequests.map((resource) => this.createExportTransactionEntry(resource, 'ServiceRequest', referenceMap.get(`ServiceRequest/${resource.id}`)!, referenceMap)),
+      ...flatResourceCollections.flatMap(({ entry, resources }) =>
+        resources.map((resource: any) =>
+          this.createExportTransactionEntry(
+            resource,
+            entry.resourceType,
+            referenceMap.get(`${entry.resourceType}/${resource.id}`)!,
+            referenceMap
+          )
+        )
+      ),
       ...bundles.map((resource: any, index: number) => this.createExportTransactionEntry(resource, 'Bundle', this.createTransactionFullUrl(`bundle-${index + 1}`), referenceMap))
     ];
 

@@ -10,6 +10,7 @@ import type {
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
+  Provenance,
   Procedure,
   QuestionnaireResponse,
   ServiceRequest,
@@ -136,12 +137,26 @@ export class PatientLocalStorageService implements PatientStorageBackend {
         }
       ));
 
+    const savedProvenance = (payload.provenance || [])
+      .map((provenance) => this.pushItem(
+        `ehr_provenance_${savedPatient.id}`,
+        this.prepareProvenanceForStorage({
+          ...provenance,
+          patient: {
+            ...provenance.patient,
+            reference: patientReference,
+            display: provenance.patient?.display || patientDisplay
+          }
+        })
+      ));
+
     return {
       patient: savedPatient,
       conditions: savedConditions,
       procedures: savedProcedures,
       medications: savedMedications,
-      allergies: savedAllergies
+      allergies: savedAllergies,
+      provenance: savedProvenance
     };
   }
 
@@ -170,6 +185,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       'ehr_observations_',
       'ehr_body_structures_',
       'ehr_allergies_',
+      'ehr_provenance_',
       'ehr_encounters_',
       'ehr_questionnaire_responses_',
       'ehr_openehr_compositions_',
@@ -248,6 +264,12 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   async updateAllergy(patientId: string, allergyId: string, allergy: AllergyIntolerance): Promise<AllergyIntolerance> { return this.replaceItem(`ehr_allergies_${patientId}`, allergyId, allergy); }
   async deleteAllergy(patientId: string, allergyId: string): Promise<void> { this.removeItem(`ehr_allergies_${patientId}`, allergyId); }
 
+  async getProvenance(patientId: string): Promise<Provenance[]> { return this.readArray(`ehr_provenance_${patientId}`); }
+  async createProvenance(patientId: string, provenance: Provenance): Promise<Provenance> {
+    return this.pushItem(`ehr_provenance_${patientId}`, this.prepareProvenanceForStorage(provenance));
+  }
+  async deleteProvenance(patientId: string, provenanceId: string): Promise<void> { this.removeItem(`ehr_provenance_${patientId}`, provenanceId); }
+
   async getQuestionnaireResponses(patientId: string): Promise<QuestionnaireResponse[]> { return this.readArray(`ehr_questionnaire_responses_${patientId}`); }
   async createQuestionnaireResponse(patientId: string, response: QuestionnaireResponse): Promise<QuestionnaireResponse> { return this.pushItem(`ehr_questionnaire_responses_${patientId}`, response); }
   async updateQuestionnaireResponse(patientId: string, responseId: string, response: QuestionnaireResponse): Promise<QuestionnaireResponse> { return this.replaceItem(`ehr_questionnaire_responses_${patientId}`, responseId, response); }
@@ -280,8 +302,10 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       `ehr_observations_${patientId}`,
       `ehr_body_structures_${patientId}`,
       `ehr_allergies_${patientId}`,
+      `ehr_provenance_${patientId}`,
       `ehr_encounters_${patientId}`,
       `ehr_questionnaire_responses_${patientId}`,
+      `ehr_openehr_compositions_${patientId}`,
       `ehr_death_record_${patientId}`,
       `encounters_${patientId}`,
     ].forEach((key) => this.storageService.removeItem(key));
@@ -501,6 +525,10 @@ export class PatientLocalStorageService implements PatientStorageBackend {
     )?.valueCode;
 
     return computedLocation ? { ...medication, computedLocation } : medication;
+  }
+
+  private prepareProvenanceForStorage(provenance: Provenance): Provenance {
+    return provenance;
   }
 
   private toLocationDisplay(locationCode: string): string {

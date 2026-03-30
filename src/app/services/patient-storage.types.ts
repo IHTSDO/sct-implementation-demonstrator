@@ -8,6 +8,7 @@ import type {
   LaboratoryOrderGroup,
   MedicationStatement,
   Patient,
+  Provenance,
   Procedure,
   QuestionnaireResponse,
   ServiceRequest,
@@ -38,6 +39,7 @@ export interface AiAssistedEntryTransactionPayload {
   procedures: Procedure[];
   medications: MedicationStatement[];
   allergies: AllergyIntolerance[];
+  provenance?: Provenance[];
 }
 
 export interface AiAssistedEntryTransactionResult {
@@ -46,6 +48,7 @@ export interface AiAssistedEntryTransactionResult {
   procedures: Procedure[];
   medications: MedicationStatement[];
   allergies: AllergyIntolerance[];
+  provenance: Provenance[];
 }
 
 export interface PatientConditionPackageResult {
@@ -58,6 +61,7 @@ export interface PatientClinicalPackagePayload {
   procedures: Procedure[];
   medications: MedicationStatement[];
   allergies: AllergyIntolerance[];
+  provenance?: Provenance[];
 }
 
 export interface PatientClinicalPackageResult {
@@ -66,6 +70,7 @@ export interface PatientClinicalPackageResult {
   procedures: Procedure[];
   medications: MedicationStatement[];
   allergies: AllergyIntolerance[];
+  provenance: Provenance[];
 }
 
 export interface PatientClinicalRecordData {
@@ -79,6 +84,7 @@ export interface PatientClinicalRecordData {
   allergies: AllergyIntolerance[];
   questionnaireResponses: QuestionnaireResponse[];
   encounters: Encounter[];
+  provenance: Provenance[];
   deathRecord: DeathRecord | null;
 }
 
@@ -129,6 +135,10 @@ export interface PatientStorageBackend {
   createAllergy(patientId: string, allergy: AllergyIntolerance): Promise<AllergyIntolerance>;
   updateAllergy(patientId: string, allergyId: string, allergy: AllergyIntolerance): Promise<AllergyIntolerance>;
   deleteAllergy(patientId: string, allergyId: string): Promise<void>;
+
+  getProvenance(patientId: string): Promise<Provenance[]>;
+  createProvenance(patientId: string, provenance: Provenance): Promise<Provenance>;
+  deleteProvenance(patientId: string, provenanceId: string): Promise<void>;
 
   getQuestionnaireResponses(patientId: string): Promise<QuestionnaireResponse[]>;
   createQuestionnaireResponse(patientId: string, response: QuestionnaireResponse): Promise<QuestionnaireResponse>;

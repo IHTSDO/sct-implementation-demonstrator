@@ -1190,6 +1190,69 @@ export interface QuestionnaireResponse {
   questionnaireName?: string;
 }
 
+export interface Provenance {
+  resourceType: 'Provenance';
+  id: string;
+  recorded?: string;
+  target: Array<{
+    reference: string;
+    display?: string;
+  }>;
+  patient?: {
+    reference: string;
+    display?: string;
+  };
+  activity?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  agent?: Array<{
+    type?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+    role?: Array<{
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    }>;
+    who?: {
+      reference?: string;
+      display?: string;
+    };
+    onBehalfOf?: {
+      reference?: string;
+      display?: string;
+    };
+  }>;
+  entity?: Array<{
+    role?: 'source' | 'derivation' | 'revision' | 'quotation' | 'remove';
+    what: {
+      reference?: string;
+      display?: string;
+      identifier?: {
+        system?: string;
+        value?: string;
+      };
+    };
+  }>;
+  text?: {
+    status?: 'generated' | 'extensions' | 'additional' | 'empty';
+    div?: string;
+  };
+}
+
 export interface OpenEHRComposition {
   resourceType: 'OpenEHRComposition';
   id: string;

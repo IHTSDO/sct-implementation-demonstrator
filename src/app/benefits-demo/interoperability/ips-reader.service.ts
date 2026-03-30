@@ -135,7 +135,16 @@ export class IPSReaderService {
       conditions: [],
       procedures: [],
       medications: [],
-      allergies: []
+      allergies: [],
+      sourceBundle: {
+        bundleId: bundle?.id,
+        bundleIdentifier: bundle?.identifier ? {
+          system: bundle.identifier.system,
+          value: bundle.identifier.value
+        } : undefined,
+        bundleType: bundle?.type,
+        bundleTimestamp: bundle?.timestamp
+      }
     };
 
     if (!bundle) {
@@ -509,7 +518,8 @@ export class IPSReaderService {
       conditions: [],
       procedures: [],
       medications: [],
-      allergies: []
+      allergies: [],
+      sourceBundle: undefined
     };
   }
 }
