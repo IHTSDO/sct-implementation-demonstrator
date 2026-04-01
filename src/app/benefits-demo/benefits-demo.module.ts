@@ -32,6 +32,7 @@ import { ProblemsListSimplifiedComponent } from './problems-list-simplified/prob
 import { QuestionnaireFormComponent } from './questionnaire-form/questionnaire-form.component';
 import { SmartHealthLinksComponent } from './smart-health-links/smart-health-links.component';
 import { AllergiesModule } from '../shared/allergies.module';
+import { AppMaterialModule } from '../shared/app-material.module';
 import { BindingsModule } from '../shared/bindings.module';
 import { LoincModule } from '../shared/loinc.module';
 import { QuestionnairesSharedModule } from '../shared/questionnaires-shared.module';
@@ -75,6 +76,7 @@ import { DescriptiveStatisticsModule } from '../descriptive-statistics/descripti
   ],
   imports: [
     AllergiesModule,
+    AppMaterialModule,
     BindingsModule,
     DescriptiveStatisticsModule,
     LoincModule,

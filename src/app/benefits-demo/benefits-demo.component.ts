@@ -14,6 +14,8 @@ import { filter } from 'rxjs/operators';
 import { FhirService } from '../services/fhir.service';
 import { FhirServerDialogComponent } from './fhir-server-dialog/fhir-server-dialog.component';
 import { PatientBookmarkService } from '../services/patient-bookmark.service';
+import { CdsHooksServersDialogComponent } from './cds-hooks-servers-dialog/cds-hooks-servers-dialog.component';
+import { CdsHooksServerConfigService } from '../services/cds-hooks-server-config.service';
 import type { Patient } from '../model';
 import type { PatientPaginationState, PersistenceMode } from '../services/patient-storage.types';
 
@@ -44,6 +46,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   };
   readonly patientSkeletonRows = Array.from({ length: 6 }, (_, index) => index);
   currentFhirServer = '';
+  activeCdsServerCount = 0;
   bookmarkedPatientIds = new Set<string>();
   isCreatingPatient = false;
   creatingPatientMessage = 'Creating patient...';
@@ -63,7 +66,8 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fhirService: FhirService,
-    private patientBookmarkService: PatientBookmarkService
+    private patientBookmarkService: PatientBookmarkService,
+    private cdsHooksServerConfigService: CdsHooksServerConfigService
   ) { }
 
   ngOnInit(): void {
@@ -113,6 +117,12 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         if (this.isRemoteSearchActive()) {
           this.onSearchChange();
         }
+      })
+    );
+
+    this.subscriptions.push(
+      this.cdsHooksServerConfigService.servers$.subscribe((servers) => {
+        this.activeCdsServerCount = servers.filter((server) => server.active).length;
       })
     );
 
@@ -257,6 +267,21 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
         await this.patientService.refreshPatients();
       }
     });
+  }
+
+  openCdsHooksServersSettings(): void {
+    this.dialog.open(CdsHooksServersDialogComponent, {
+      width: '680px',
+      maxWidth: '95vw'
+    });
+  }
+
+  getActiveCdsServerLabel(): string {
+    if (this.activeCdsServerCount === 0) {
+      return 'No active CDS servers configured';
+    }
+
+    return `${this.activeCdsServerCount} active CDS server${this.activeCdsServerCount === 1 ? '' : 's'}`;
   }
 
   showPatientListSkeleton(): boolean {

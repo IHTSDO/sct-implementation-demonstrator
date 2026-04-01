@@ -35,6 +35,13 @@
           <div class="menu-server-hint" *ngIf="currentFhirServer">
             Connected server: {{ currentFhirServer }}
           </div>
+          <button mat-menu-item (click)="openCdsHooksServersSettings()">
+            <mat-icon>hub</mat-icon>
+            <span>CDS Hooks Servers</span>
+          </button>
+          <div class="menu-server-hint">
+            {{ getActiveCdsServerLabel() }}
+          </div>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="openSmartHealthLinks()">
             <mat-icon>qr_code_2</mat-icon>

@@ -6,7 +6,7 @@
 
   <!-- CDS Status -->
   <div class="cds-status">
-    @if (!isCdsLoading && !cdsResponse && !cdsError && !cdsNoDataMessage) {
+    @if (!isCdsLoading && !hasAnyServerResponse() && !cdsError && !cdsNoDataMessage) {
       <div style="text-align: center; padding: 20px;">
         <button mat-raised-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading">
           Request Recommendations
@@ -17,7 +17,7 @@
     @if (isCdsLoading) {
       <div class="cds-loading">
         <mat-spinner diameter="24"></mat-spinner>
-        <span>Requesting medication recommendations from CDS service...</span>
+        <span>Requesting medication recommendations from active CDS servers...</span>
       </div>
     }
 
@@ -28,7 +28,7 @@
       </div>
     }
 
-    @if (cdsError) {
+    @if (cdsError && !showGroupedResults()) {
       <div class="cds-error">
         <mat-icon color="warn">error</mat-icon>
         <div class="error-content">
@@ -41,58 +41,94 @@
       </div>
     }
 
-    @if (cdsResponse && cdsResponse.cards && cdsResponse.cards.length > 0) {
+    @if (showGroupedResults()) {
       <div class="cds-recommendations">
         <div class="recommendations-header">
           <mat-icon color="primary">lightbulb</mat-icon>
-          <span>{{ cdsResponse.cards.length }} recommendation(s) received</span>
+          <span>{{ getTotalRecommendationCount() }} recommendation(s) received</span>
           <button mat-stroked-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading">
             Refresh
           </button>
         </div>
-        <div class="cds-cards">
-          @for (card of cdsResponse.cards; track card; let i = $index) {
-            <mat-card class="cds-card" [ngClass]="'indicator-' + card.indicator">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon [color]="getCardIconColor(card.indicator)">{{ getCardIcon(card.indicator) }}</mat-icon>
-                  {{ card.summary }}
-                </mat-card-title>
-                <mat-card-subtitle>{{ card.source.label }}</mat-card-subtitle>
-              </mat-card-header>
-              @if (card.detail) {
-                <mat-card-content>
-                  <p>{{ card.detail }}</p>
-                </mat-card-content>
+        <div class="cds-server-groups">
+          @for (result of getServerResultsWithCards(); track result.server.id) {
+            <div class="cds-server-group">
+              <div class="cds-server-group-header">
+                <div>
+                  <strong>{{ getServerDisplayName(result) }}</strong>
+                  <span class="cds-server-group-url">{{ result.server.baseUrl }}</span>
+                </div>
+                <span class="cds-server-group-mode">{{ getServerStatusLabel(result) }}</span>
+              </div>
+
+              <div class="cds-cards">
+                @for (card of result.response?.cards || []; track card; let i = $index) {
+                  <mat-card class="cds-card" [ngClass]="'indicator-' + card.indicator">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon [color]="getCardIconColor(card.indicator)">{{ getCardIcon(card.indicator) }}</mat-icon>
+                        {{ card.summary }}
+                      </mat-card-title>
+                      <mat-card-subtitle>{{ card.source.label }}</mat-card-subtitle>
+                    </mat-card-header>
+                    @if (card.detail) {
+                      <mat-card-content>
+                        <p>{{ card.detail }}</p>
+                      </mat-card-content>
+                    }
+                    <mat-card-actions>
+                      @for (suggestion of card.suggestions; track suggestion) {
+                        <button mat-button color="primary">
+                          {{ suggestion.label }}
+                        </button>
+                      }
+                      @if (card.source.url) {
+                        <button mat-button
+                          color="accent"
+                          (click)="openSourceUrl(card.source.url)"
+                          title="View source">
+                          <mat-icon>open_in_new</mat-icon>
+                          View Source
+                        </button>
+                      }
+                    </mat-card-actions>
+                  </mat-card>
+                }
+              </div>
+            </div>
+          }
+
+          @if (getServerResultsWithoutCards().length > 0) {
+            <div class="cds-server-muted-list">
+              @for (result of getServerResultsWithoutCards(); track result.server.id) {
+                <div class="cds-server-muted-item">
+                  <strong>{{ getServerDisplayName(result) }}</strong>
+                  <span>No recommendations returned.</span>
+                </div>
               }
-              <mat-card-actions>
-                @for (suggestion of card.suggestions; track suggestion) {
-                  <button mat-button color="primary">
-                    {{ suggestion.label }}
-                  </button>
-                }
-                @if (card.source.url) {
-                  <button mat-button
-                    color="accent"
-                    (click)="openSourceUrl(card.source.url)"
-                    title="View source">
-                    <mat-icon>open_in_new</mat-icon>
-                    View Source
-                  </button>
-                }
-              </mat-card-actions>
-            </mat-card>
+            </div>
+          }
+
+          @if (getErroredServerResults().length > 0) {
+            <div class="cds-server-errors">
+              @for (result of getErroredServerResults(); track result.server.id) {
+                <div class="cds-server-error-item">
+                  <strong>{{ getServerDisplayName(result) }}</strong>
+                  <span>{{ result.error }}</span>
+                </div>
+              }
+            </div>
           }
         </div>
       </div>
     }
 
-    @if (cdsResponse && (!cdsResponse.cards || cdsResponse.cards.length === 0)) {
+    @if (showNoRecommendations()) {
       <div class="cds-no-recommendations">
         <mat-icon color="accent">check_circle</mat-icon>
         <div class="no-recommendations-content">
           <strong>No specific recommendations</strong>
-          <span>No medication order recommendations at this time based on current conditions and medications.</span>
+          <span>No medication order recommendations were returned by the active CDS servers for the current conditions and medications.</span>
           <button mat-stroked-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading" style="margin-top: 8px;">
             Refresh
           </button>

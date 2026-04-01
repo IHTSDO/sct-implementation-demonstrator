@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { CdsService, CDSResponse } from '../../services/cds.service';
+import { CdsService, CDSServerExecutionResult } from '../../services/cds.service';
 import type { AllergyIntolerance, Condition, MedicationStatement, Patient } from '../../model';
 
 export interface CdsState {
@@ -8,7 +8,7 @@ export interface CdsState {
   hasError: boolean;
   hasNoData: boolean;
   hasRecommendations: boolean;
-  hasExecuted: boolean; // New flag to track if CDS has been executed at least once
+  hasExecuted: boolean;
   recommendationCount: number;
   errorMessage: string | null;
   noDataMessage: string | null;
@@ -29,9 +29,9 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   @Output() stateChange = new EventEmitter<CdsState>();
 
   isCdsLoading = false;
-  cdsResponse: CDSResponse | null = null;
   cdsError: string | null = null;
   cdsNoDataMessage: string | null = null;
+  serverResults: CDSServerExecutionResult[] = [];
 
   private subscriptions: Subscription[] = [];
   private triggerTimeout: any = null;
@@ -39,9 +39,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   constructor(private cdsService: CdsService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Auto-trigger CDS when data changes and autoTrigger is enabled
     if (this.autoTrigger && this.patient) {
-      // Trigger when patient changes (including first load) or when clinical data changes
       if (changes['patient'] || changes['conditions'] || changes['medications'] || changes['allergies']) {
         this.triggerAutomaticCdsRequest();
       }
@@ -49,7 +47,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
     if (this.triggerTimeout) {
       clearTimeout(this.triggerTimeout);
     }
@@ -61,45 +59,53 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
       return;
     }
 
-    // Check if we have clinical data to send
+    if (this.cdsService.getActiveServers().length === 0) {
+      this.resetTransientState();
+      this.cdsNoDataMessage = 'No active CDS Hooks servers configured. Use Data > CDS Hooks Servers to activate at least one server.';
+      this.emitStateChange();
+      return;
+    }
+
     if (this.conditions.length === 0 && this.medications.length === 0) {
+      this.resetTransientState();
       this.cdsNoDataMessage = 'No clinical data available yet. Add conditions or medications to receive decision support recommendations.';
       console.info('No clinical data available for CDS submission');
       this.emitStateChange();
       return;
     }
 
-    // Reset CDS state
-    this.cdsError = null;
-    this.cdsNoDataMessage = null;
-    this.cdsResponse = null;
+    this.resetTransientState();
     this.isCdsLoading = true;
     this.emitStateChange();
 
     try {
-      // Convert patient data to CDS format
       const cdsPatient = this.convertPatientToCdsFormat(this.patient);
       const encounterId = this.resolveEncounterId(this.conditions, this.medications);
       const cdsConditions = this.convertConditionsToCdsFormat(this.conditions, encounterId);
       const cdsMedications = this.convertMedicationsToCdsFormat(this.medications, encounterId);
       const cdsAllergies = this.convertAllergiesToCdsFormat(this.allergies);
 
-      // Build CDS request
-      const cdsRequest = this.cdsService.buildCDSRequest(
-        cdsPatient,
-        cdsConditions,
-        cdsMedications,
-        cdsAllergies,
-        { encounterId }
-      );
-
-      // Submit to CDS service
       this.subscriptions.push(
-        this.cdsService.postMedicationOrderSelect(cdsRequest).subscribe({
-          next: (response: CDSResponse) => {
+        this.cdsService.evaluateMedicationOrderSelect(
+          cdsPatient,
+          cdsConditions,
+          cdsMedications,
+          cdsAllergies,
+          { encounterId }
+        ).subscribe({
+          next: (results) => {
             this.isCdsLoading = false;
-            this.cdsResponse = response;
-            this.processCdsRecommendations(response);
+            this.serverResults = results;
+
+            const successfulResults = this.getSuccessfulServerResults();
+            const totalRecommendationCount = this.getTotalRecommendationCount();
+
+            if (results.length > 0 && successfulResults.length === 0) {
+              this.cdsError = 'All active CDS servers failed to return recommendations.';
+            } else if (successfulResults.length > 0 && totalRecommendationCount === 0) {
+              // handled by the dedicated empty-state UI
+            }
+
             this.emitStateChange();
           },
           error: (error) => {
@@ -118,14 +124,64 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
     }
   }
 
+  getTotalRecommendationCount(): number {
+    return this.serverResults.reduce((total, result) => total + (result.response?.cards?.length || 0), 0);
+  }
+
+  getSuccessfulServerResults(): CDSServerExecutionResult[] {
+    return this.serverResults.filter((result) => !result.error && !!result.response);
+  }
+
+  getServerResultsWithCards(): CDSServerExecutionResult[] {
+    return this.getSuccessfulServerResults().filter((result) => (result.response?.cards?.length || 0) > 0);
+  }
+
+  getServerResultsWithoutCards(): CDSServerExecutionResult[] {
+    return this.getSuccessfulServerResults().filter((result) => (result.response?.cards?.length || 0) === 0);
+  }
+
+  getErroredServerResults(): CDSServerExecutionResult[] {
+    return this.serverResults.filter((result) => !!result.error);
+  }
+
+  hasAnyServerResponse(): boolean {
+    return this.serverResults.length > 0;
+  }
+
+  showGroupedResults(): boolean {
+    return this.hasAnyServerResponse() && (this.getServerResultsWithCards().length > 0 || this.getErroredServerResults().length > 0);
+  }
+
+  showNoRecommendations(): boolean {
+    return this.hasAnyServerResponse()
+      && this.getSuccessfulServerResults().length > 0
+      && this.getErroredServerResults().length === 0
+      && this.getTotalRecommendationCount() === 0;
+  }
+
+  getServerDisplayName(result: CDSServerExecutionResult): string {
+    return result.server.name || result.server.baseUrl;
+  }
+
+  getServerStatusLabel(result: CDSServerExecutionResult): string {
+    return result.mode === 'modern' ? 'order-select' : 'legacy fallback';
+  }
+
+  private resetTransientState(): void {
+    this.cdsError = null;
+    this.cdsNoDataMessage = null;
+    this.serverResults = [];
+  }
+
   private emitStateChange(): void {
+    const recommendationCount = this.getTotalRecommendationCount();
     const state: CdsState = {
       isLoading: this.isCdsLoading,
       hasError: !!this.cdsError,
       hasNoData: !!this.cdsNoDataMessage,
-      hasRecommendations: !!(this.cdsResponse && this.cdsResponse.cards && this.cdsResponse.cards.length > 0),
-      hasExecuted: !!this.cdsResponse || !!this.cdsError, // Executed if we have a response or an error
-      recommendationCount: this.cdsResponse?.cards?.length || 0,
+      hasRecommendations: recommendationCount > 0,
+      hasExecuted: this.hasAnyServerResponse() || !!this.cdsError,
+      recommendationCount,
       errorMessage: this.cdsError,
       noDataMessage: this.cdsNoDataMessage
     };
@@ -166,7 +222,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   }
 
   private convertConditionsToCdsFormat(conditions: Condition[], fallbackEncounterId: string): any[] {
-    return conditions.map(condition => ({
+    return conditions.map((condition) => ({
       resourceType: 'Condition',
       id: condition.id || this.generateId(),
       clinicalStatus: {
@@ -207,67 +263,47 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   }
 
   private convertMedicationsToCdsFormat(medications: MedicationStatement[], fallbackEncounterId: string): any[] {
-    return medications.map(medication => {
-      const medicationText = medication.medicationCodeableConcept?.text || 
-                            medication.medicationCodeableConcept?.coding?.[0]?.display || 
-                            'Unknown medication';
-      
+    return medications.map((medication) => {
+      const medicationText = medication.medicationCodeableConcept?.text
+        || medication.medicationCodeableConcept?.coding?.[0]?.display
+        || 'Unknown medication';
+
       const textLower = medicationText.toLowerCase();
       const medicationCode = medication.medicationCodeableConcept?.coding?.[0]?.code;
       const isTablet = textLower.includes('tablet');
       const isOral = textLower.includes('oral');
-      
-      // Known tablet medications by SNOMED CT code
-      const knownTabletCodes = [
-        '108774000',  // Product containing anastrozole (medicinal product) - typically 1mg tablet
-        '318352004',  // Propranolol hydrochloride 10 mg oral tablet
-        '327373002'   // Anastrozole 1 mg oral tablet
-      ];
-      
-      // Check if it's likely an oral medication based on various indicators
-      const likelyOral = isOral || isTablet || 
-                        textLower.includes('capsule') ||
-                        textLower.includes('suspension') ||
-                        textLower.includes('solution') ||
-                        textLower.includes('pill') ||
-                        textLower.includes('extract') ||  // herbal extracts are typically oral
-                        (medicationCode === '108774000') || // anastrozole is typically oral
-                        (medicationCode === '412588001');   // black cohosh extract
-      
-      const doseQuantity: any = { value: 1 };
-      if (isTablet || knownTabletCodes.includes(medicationCode || '')) {
-        doseQuantity.unit = 'Tablet';
-      }
-      if (!doseQuantity.unit) {
-        doseQuantity.unit = likelyOral ? 'Tablet' : 'Dose';
-      }
-      
-      // Include route if it's oral or likely oral
-      // Use simple format that works with dummy CDS service
-      const existingRoute = medication.dosage?.[0]?.route;
-      const hasValidExistingRoute = !!existingRoute?.coding?.some(coding => !!coding?.code);
-      const existingRouteLooksOral = (existingRoute?.text || '').toLowerCase().includes('oral') ||
-        !!existingRoute?.coding?.some(coding => coding?.code === '26643006');
 
-      // Compatibility with snomed-fhir-cds-service branch "allergy-detection":
-      // it compares dosage.route.text against ATC route code and expects "O" for oral.
-      const route = (likelyOral || existingRouteLooksOral) ? {
-        coding: [{ code: '', display: 'O' }],
-        text: 'O'
-      } : (hasValidExistingRoute ? existingRoute : undefined);
+      let category: 'tablet' | 'liquid' | 'other' = 'other';
+      if (isTablet) {
+        category = 'tablet';
+      } else if (textLower.includes('syrup') || textLower.includes('solution') || textLower.includes('suspension')) {
+        category = 'liquid';
+      }
+
+      const dosageRoute = medication.dosage?.[0]?.route;
+      const routeCoding = (dosageRoute?.coding || [])
+        .filter((coding: any) => coding?.code || coding?.display)
+        .map((coding: any) => ({
+          ...(coding.system ? { system: coding.system } : {}),
+          ...(coding.code ? { code: coding.code } : {}),
+          ...(coding.display ? { display: coding.display } : {})
+        }));
+      const route = dosageRoute ? {
+        ...(dosageRoute.text ? { text: dosageRoute.text } : {}),
+        ...(routeCoding.length > 0 ? { coding: routeCoding } : {})
+      } : undefined;
 
       return {
         resourceType: 'MedicationRequest',
         id: medication.id || this.generateId(),
-        status: 'active',
+        status: 'draft',
         intent: 'order',
         medicationCodeableConcept: {
           coding: [
             {
               system: 'http://snomed.info/sct',
-              code: medication.medicationCodeableConcept?.coding?.[0]?.code || '387207008',
-              display: medication.medicationCodeableConcept?.coding?.[0]?.display || 
-                       medication.medicationCodeableConcept?.text || 'Unknown medication'
+              code: medicationCode || 'dummyCode',
+              display: medication.medicationCodeableConcept?.coding?.[0]?.display || medicationText
             }
           ],
           text: medicationText
@@ -280,20 +316,20 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
         },
         authoredOn: medication.effectiveDateTime || new Date().toISOString(),
         requester: {
-          reference: `Practitioner/${this.generateId()}`
+          reference: 'Practitioner/demo-practitioner'
         },
         dosageInstruction: [
           {
             sequence: 1,
             timing: {
               repeat: {
-                frequency: 1,
-                period: 1,
-                periodUnit: 'd'
+                frequency: medication.dosage?.[0]?.timing?.repeat?.frequency || 1,
+                period: medication.dosage?.[0]?.timing?.repeat?.period || 1,
+                periodUnit: medication.dosage?.[0]?.timing?.repeat?.periodUnit || 'd'
               }
             },
             asNeededBoolean: false,
-            ...(route && { route }),
+            ...(route && (route.text || route.coding?.length) ? { route } : {}),
             doseAndRate: [
               {
                 type: {
@@ -305,7 +341,10 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
                     }
                   ]
                 },
-                doseQuantity: doseQuantity
+                doseQuantity: {
+                  value: medication.dosage?.[0]?.doseAndRate?.[0]?.doseQuantity?.value || (category === 'tablet' ? 1 : 5),
+                  unit: medication.dosage?.[0]?.doseAndRate?.[0]?.doseQuantity?.unit || (category === 'tablet' ? 'tablet' : 'mg')
+                }
               }
             ]
           }
@@ -316,16 +355,16 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
 
   private resolveEncounterId(conditions: Condition[], medications: MedicationStatement[]): string {
     const medicationEncounter = medications
-      .map(medication => this.extractEncounterId(medication.context?.reference))
-      .find(encounterId => !!encounterId);
+      .map((medication) => this.extractEncounterId(medication.context?.reference))
+      .find((encounterId) => !!encounterId);
 
     if (medicationEncounter) {
       return medicationEncounter;
     }
 
     const conditionEncounter = conditions
-      .map(condition => this.extractEncounterId(condition.encounter?.reference))
-      .find(encounterId => !!encounterId);
+      .map((condition) => this.extractEncounterId(condition.encounter?.reference))
+      .find((encounterId) => !!encounterId);
 
     if (conditionEncounter) {
       return conditionEncounter;
@@ -348,34 +387,30 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   }
 
   private convertAllergiesToCdsFormat(allergies: AllergyIntolerance[]): any[] {
-    return allergies.map(allergy => {
-      // Clean up reaction array - remove empty coding objects
+    return allergies.map((allergy) => {
       const cleanedReactions = (allergy.reaction || []).map((reaction: any) => {
         const cleanedReaction: any = {};
-        
-        // Only include substance if it has valid coding
+
         if (reaction.substance && reaction.substance.length > 0) {
-          const validSubstance = reaction.substance.filter((s: any) => 
-            s.coding && s.coding.length > 0 && s.coding.some((c: any) => c.code)
+          const validSubstance = reaction.substance.filter((substance: any) =>
+            substance.coding && substance.coding.length > 0 && substance.coding.some((coding: any) => coding.code)
           );
           if (validSubstance.length > 0) {
             cleanedReaction.substance = validSubstance;
           }
         }
-        
-        // Only include manifestation if it has valid coding
+
         if (reaction.manifestation && reaction.manifestation.length > 0) {
-          const validManifestation = reaction.manifestation.filter((m: any) => 
-            m.coding && m.coding.length > 0 && m.coding.some((c: any) => c.code)
+          const validManifestation = reaction.manifestation.filter((manifestation: any) =>
+            manifestation.coding && manifestation.coding.length > 0 && manifestation.coding.some((coding: any) => coding.code)
           );
           if (validManifestation.length > 0) {
             cleanedReaction.manifestation = validManifestation;
           }
         }
-        
-        // Only include exposureRoute if it has valid coding
+
         if (reaction.exposureRoute?.coding && reaction.exposureRoute.coding.length > 0) {
-          const validCoding = reaction.exposureRoute.coding.filter((c: any) => c.code);
+          const validCoding = reaction.exposureRoute.coding.filter((coding: any) => coding.code);
           if (validCoding.length > 0) {
             cleanedReaction.exposureRoute = {
               ...reaction.exposureRoute,
@@ -383,9 +418,9 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
             };
           }
         }
-        
+
         return Object.keys(cleanedReaction).length > 0 ? cleanedReaction : undefined;
-      }).filter((r: any) => r !== undefined);
+      }).filter((reaction: any) => reaction !== undefined);
 
       return {
         resourceType: 'AllergyIntolerance',
@@ -430,39 +465,30 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
     if (!category || !Array.isArray(category)) {
       return ['medication'];
     }
-    // Normalize to lowercase to ensure consistency
-    return category.map((c: string) => c.toLowerCase());
-  }
 
-  private processCdsRecommendations(response: CDSResponse): void {
-    if (response.cards && response.cards.length > 0) {
-      // Recommendations processed and displayed in template
-    }
+    return category.map((value: string) => value.toLowerCase());
   }
 
   private generateId(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+      const random = Math.random() * 16 | 0;
+      const value = char === 'x' ? random : (random & 0x3 | 0x8);
+      return value.toString(16);
     });
   }
 
   private triggerAutomaticCdsRequest(): void {
-    // Clear any pending trigger to avoid duplicate requests (debounce)
     if (this.triggerTimeout) {
       clearTimeout(this.triggerTimeout);
     }
 
-    // Only trigger if we have clinical data to analyze
     if (this.conditions.length > 0 || this.medications.length > 0) {
-      // Add a small delay to ensure the UI is ready and avoid duplicate requests
       this.triggerTimeout = setTimeout(() => {
         this.submitToCdsService();
         this.triggerTimeout = null;
       }, 500);
     } else {
-      // If no data, set the no-data message and emit state
+      this.resetTransientState();
       this.cdsNoDataMessage = 'No clinical data available yet. Add conditions or medications to receive decision support recommendations.';
       this.emitStateChange();
     }

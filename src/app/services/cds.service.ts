@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, forkJoin, of, throwError } from 'rxjs';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { CdsHooksServerConfig, CdsHooksServerConfigService } from './cds-hooks-server-config.service';
 
-// TypeScript interfaces for CDS request/response structures
 export interface CDSPatient {
   resourceType: 'Patient';
   id: string;
@@ -98,6 +99,14 @@ export interface CDSMedicationRequest {
       };
     };
     asNeededBoolean: boolean;
+    route?: {
+      text?: string;
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+    };
     doseAndRate: Array<{
       type: {
         coding: Array<{
@@ -139,23 +148,6 @@ export interface CDSBundle<T> {
   }>;
 }
 
-export interface CDSRequest {
-  hook: string;
-  hookInstance?: string;
-  fhirServer?: string;
-  context?: {
-    patientId?: string;
-    encounterId?: string;
-    userId?: string;
-  };
-  prefetch: {
-    patient: CDSPatient;
-    conditions: CDSBundle<CDSCondition>;
-    draftMedicationRequests: CDSBundle<CDSMedicationRequest>;
-    allergies: CDSBundle<any>;
-  };
-}
-
 export interface CDSCard {
   summary: string;
   detail?: string;
@@ -170,7 +162,7 @@ export interface CDSCard {
     actions?: Array<{
       type: string;
       description: string;
-      resource?: any;
+      resource?: unknown;
     }>;
   }>;
 }
@@ -179,41 +171,83 @@ export interface CDSResponse {
   cards: CDSCard[];
 }
 
+export interface CDSDiscoveryService {
+  id: string;
+  hook?: string;
+  title?: string;
+  description?: string;
+}
+
+interface CDSDiscoveryResponse {
+  services?: CDSDiscoveryService[];
+}
+
+interface LegacyCDSRequest {
+  hook: 'order-page';
+  hookInstance: string;
+  fhirServer: string;
+  context: {
+    patientId: string;
+    encounterId: string;
+    userId: string;
+  };
+  prefetch: {
+    patient: CDSPatient;
+    conditions: CDSBundle<CDSCondition>;
+    draftMedicationRequests: CDSBundle<CDSMedicationRequest>;
+    allergies: CDSBundle<any>;
+  };
+}
+
+interface ModernCDSRequest {
+  hook: 'order-select';
+  hookInstance: string;
+  fhirServer: string;
+  context: {
+    patientId: string;
+    encounterId: string;
+    userId: string;
+    selections: string[];
+    draftOrders: CDSBundle<CDSMedicationRequest>;
+  };
+  prefetch: {
+    patient: CDSPatient;
+    conditions: CDSBundle<CDSCondition>;
+    allergies: CDSBundle<any>;
+  };
+}
+
+export interface CDSServerExecutionResult {
+  server: CdsHooksServerConfig;
+  mode: 'modern' | 'legacy';
+  response: CDSResponse | null;
+  error: string | null;
+}
+
+type ServerCapability = 'modern' | 'legacy' | 'ambiguous';
+
 @Injectable({
   providedIn: 'root'
 })
 export class CdsService {
-  private readonly baseUrl = 'https://implementation-demo.snomedtools.org';
   private readonly fhirBaseUrl = 'https://r4.smarthealthit.org';
   private readonly cdsEndpoint = '/cds-services/medication-order-select';
+  private readonly capabilityCache = new Map<string, Observable<ServerCapability>>();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cdsServerConfigService: CdsHooksServerConfigService
+  ) {}
 
-  /**
-   * Makes a POST request to the CDS medication order select endpoint
-   * @param request The CDS request payload
-   * @returns Observable of the CDS response
-   */
-  postMedicationOrderSelect(request: CDSRequest): Observable<CDSResponse> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.post<CDSResponse>(
-      `${this.baseUrl}${this.cdsEndpoint}`,
-      request,
-      { headers }
-    );
+  getConfiguredServers(): CdsHooksServerConfig[] {
+    return this.cdsServerConfigService.getServers();
   }
 
-  /**
-   * Builds a CDS request from patient data, conditions, and medications
-   * @param patient Patient information
-   * @param conditions Array of conditions
-   * @param medications Array of medication requests
-   * @returns Formatted CDS request
-   */
-  buildCDSRequest(
+  getActiveServers(): CdsHooksServerConfig[] {
+    return this.cdsServerConfigService.getActiveServers();
+  }
+
+  evaluateMedicationOrderSelect(
     patient: CDSPatient,
     conditions: CDSCondition[],
     medications: CDSMedicationRequest[],
@@ -223,102 +257,271 @@ export class CdsService {
       userId?: string;
       hookInstance?: string;
     }
-  ): CDSRequest {
+  ): Observable<CDSServerExecutionResult[]> {
     const encounterId = contextOverrides?.encounterId ||
       this.extractEncounterIdFromResources(medications) ||
       this.extractEncounterIdFromResources(conditions) ||
       this.generateId();
+    const userId = contextOverrides?.userId || `Practitioner/${this.generateId()}`;
+    const hookInstance = contextOverrides?.hookInstance || this.generateId();
+    const activeServers = this.getActiveServers();
 
-    return {
+    if (activeServers.length === 0) {
+      return of([]);
+    }
+
+    const patientBundle = patient;
+    const conditionsBundle = this.createConditionsBundle(patient.id, conditions);
+    const medicationsBundle = this.createMedicationBundle(patient.id, medications);
+    const allergiesBundle = this.createAllergyBundle(patient.id, allergies);
+
+    const legacyRequest: LegacyCDSRequest = {
       hook: 'order-page',
-      hookInstance: contextOverrides?.hookInstance || this.generateId(),
+      hookInstance,
       fhirServer: this.fhirBaseUrl,
       context: {
         patientId: patient.id,
-        encounterId: encounterId,
-        userId: contextOverrides?.userId || ('practitioner-' + this.generateId())
+        encounterId,
+        userId
       },
       prefetch: {
-        patient: patient,
-        conditions: {
-          resourceType: 'Bundle',
-          id: this.generateId(),
-          meta: {
-            lastUpdated: new Date().toISOString()
-          },
-          type: 'searchset',
-          total: conditions.length,
-          link: [
-            {
-              relation: 'self',
-              url: `${this.fhirBaseUrl}/Condition?patient=${patient.id}`
-            }
-          ],
-          entry: conditions.map(condition => ({
-            fullUrl: `${this.fhirBaseUrl}/Condition/${condition.id}`,
-            resource: condition,
-            search: {
-              mode: 'match'
-            },
-            response: {
-              status: '200 OK',
-              etag: 'W/"3"'
-            }
-          }))
-        },
-        draftMedicationRequests: {
-          resourceType: 'Bundle',
-          id: this.generateId(),
-          meta: {
-            lastUpdated: new Date().toISOString()
-          },
-          type: 'searchset',
-          total: medications.length,
-          link: [
-            {
-              relation: 'self',
-              url: `${this.fhirBaseUrl}/MedicationRequest?patient=${patient.id}`
-            }
-          ],
-          entry: medications.map(medication => ({
-            fullUrl: `${this.fhirBaseUrl}/MedicationRequest/${medication.id}`,
-            resource: medication,
-            search: {
-              mode: 'match'
-            },
-            response: {
-              status: '200 OK',
-              etag: 'W/"4"'
-            }
-          }))
-        },
-        allergies: {
-          resourceType: 'Bundle',
-          id: this.generateId(),
-          meta: {
-            lastUpdated: new Date().toISOString()
-          },
-          type: 'searchset',
-          total: allergies.length,
-          link: [
-            {
-              relation: 'self',
-              url: `${this.fhirBaseUrl}/AllergyIntolerance?patient=${patient.id}`
-            }
-          ],
-          entry: allergies.map(allergy => ({
-            fullUrl: `${this.fhirBaseUrl}/AllergyIntolerance/${allergy.id}`,
-            resource: allergy,
-            search: {
-              mode: 'match'
-            },
-            response: {
-              status: '200 OK',
-              etag: 'W/"5"'
-            }
-          }))
-        }
+        patient: patientBundle,
+        conditions: conditionsBundle,
+        draftMedicationRequests: medicationsBundle,
+        allergies: allergiesBundle
       }
+    };
+
+    const modernRequest: ModernCDSRequest = {
+      hook: 'order-select',
+      hookInstance,
+      fhirServer: this.fhirBaseUrl,
+      context: {
+        patientId: patient.id,
+        encounterId,
+        userId,
+        selections: medicationsBundle.entry.map((entry) => `MedicationRequest/${entry.resource.id}`),
+        draftOrders: medicationsBundle
+      },
+      prefetch: {
+        patient: patientBundle,
+        conditions: conditionsBundle,
+        allergies: allergiesBundle
+      }
+    };
+
+    return forkJoin(
+      activeServers.map((server) => this.callServer(server, modernRequest, legacyRequest))
+    );
+  }
+
+  private callServer(
+    server: CdsHooksServerConfig,
+    modernRequest: ModernCDSRequest,
+    legacyRequest: LegacyCDSRequest
+  ): Observable<CDSServerExecutionResult> {
+    return this.detectServerCapability(server.baseUrl).pipe(
+      switchMap((capability) => {
+        if (capability === 'modern') {
+          return this.postRequest(server.baseUrl, modernRequest).pipe(
+            map((response) => this.createSuccessResult(server, 'modern', response))
+          );
+        }
+
+        if (capability === 'legacy') {
+          return this.postRequest(server.baseUrl, legacyRequest).pipe(
+            map((response) => this.createSuccessResult(server, 'legacy', response))
+          );
+        }
+
+        return this.postRequest(server.baseUrl, modernRequest).pipe(
+          map((response) => this.createSuccessResult(server, 'modern', response)),
+          catchError((error) => {
+            if (!this.isContractError(error)) {
+              return throwError(() => error);
+            }
+
+            return this.postRequest(server.baseUrl, legacyRequest).pipe(
+              map((response) => this.createSuccessResult(server, 'legacy', response))
+            );
+          })
+        );
+      }),
+      catchError((error) => of(this.createErrorResult(server, error)))
+    );
+  }
+
+  private detectServerCapability(baseUrl: string): Observable<ServerCapability> {
+    const normalizedBaseUrl = this.normalizeBaseUrl(baseUrl);
+    const cached = this.capabilityCache.get(normalizedBaseUrl);
+    if (cached) {
+      return cached;
+    }
+
+    const capability$ = this.http.get<CDSDiscoveryResponse>(`${normalizedBaseUrl}/cds-services`).pipe(
+      map((response) => {
+        const service = response?.services?.find((candidate) => candidate.id === 'medication-order-select');
+        if (!service) {
+          return 'ambiguous' as ServerCapability;
+        }
+
+        if (service.hook === 'order-select') {
+          return 'modern' as ServerCapability;
+        }
+
+        if (typeof service.hook === 'string' && service.hook.trim().length > 0) {
+          return 'legacy' as ServerCapability;
+        }
+
+        return 'ambiguous' as ServerCapability;
+      }),
+      catchError(() => of('ambiguous' as ServerCapability)),
+      shareReplay(1)
+    );
+
+    this.capabilityCache.set(normalizedBaseUrl, capability$);
+    return capability$;
+  }
+
+  private postRequest(baseUrl: string, request: LegacyCDSRequest | ModernCDSRequest): Observable<CDSResponse> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.post<CDSResponse>(
+      `${this.normalizeBaseUrl(baseUrl)}${this.cdsEndpoint}`,
+      request,
+      { headers }
+    );
+  }
+
+  private createSuccessResult(
+    server: CdsHooksServerConfig,
+    mode: 'modern' | 'legacy',
+    response: CDSResponse
+  ): CDSServerExecutionResult {
+    return {
+      server,
+      mode,
+      response,
+      error: null
+    };
+  }
+
+  private createErrorResult(server: CdsHooksServerConfig, error: unknown): CDSServerExecutionResult {
+    return {
+      server,
+      mode: 'modern',
+      response: null,
+      error: this.getErrorMessage(error)
+    };
+  }
+
+  private isContractError(error: unknown): boolean {
+    return error instanceof HttpErrorResponse
+      && error.status >= 400
+      && error.status < 500;
+  }
+
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const serverMessage = typeof error.error === 'string'
+        ? error.error
+        : error.error?.message || error.error?.error;
+      return serverMessage || error.message || `HTTP ${error.status}`;
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return 'Unknown error';
+  }
+
+  private createConditionsBundle(patientId: string, conditions: CDSCondition[]): CDSBundle<CDSCondition> {
+    return {
+      resourceType: 'Bundle',
+      id: this.generateId(),
+      meta: {
+        lastUpdated: new Date().toISOString()
+      },
+      type: 'searchset',
+      total: conditions.length,
+      link: [
+        {
+          relation: 'self',
+          url: `${this.fhirBaseUrl}/Condition?patient=${patientId}`
+        }
+      ],
+      entry: conditions.map((condition) => ({
+        fullUrl: `${this.fhirBaseUrl}/Condition/${condition.id}`,
+        resource: condition,
+        search: {
+          mode: 'match'
+        },
+        response: {
+          status: '200 OK',
+          etag: 'W/"3"'
+        }
+      }))
+    };
+  }
+
+  private createMedicationBundle(patientId: string, medications: CDSMedicationRequest[]): CDSBundle<CDSMedicationRequest> {
+    return {
+      resourceType: 'Bundle',
+      id: this.generateId(),
+      meta: {
+        lastUpdated: new Date().toISOString()
+      },
+      type: 'collection',
+      total: medications.length,
+      link: [
+        {
+          relation: 'self',
+          url: `${this.fhirBaseUrl}/MedicationRequest?patient=${patientId}`
+        }
+      ],
+      entry: medications.map((medication) => ({
+        fullUrl: `${this.fhirBaseUrl}/MedicationRequest/${medication.id}`,
+        resource: medication,
+        search: {
+          mode: 'match'
+        },
+        response: {
+          status: '200 OK',
+          etag: 'W/"4"'
+        }
+      }))
+    };
+  }
+
+  private createAllergyBundle(patientId: string, allergies: any[]): CDSBundle<any> {
+    return {
+      resourceType: 'Bundle',
+      id: this.generateId(),
+      meta: {
+        lastUpdated: new Date().toISOString()
+      },
+      type: 'searchset',
+      total: allergies.length,
+      link: [
+        {
+          relation: 'self',
+          url: `${this.fhirBaseUrl}/AllergyIntolerance?patient=${patientId}`
+        }
+      ],
+      entry: allergies.map((allergy) => ({
+        fullUrl: `${this.fhirBaseUrl}/AllergyIntolerance/${allergy.id}`,
+        resource: allergy,
+        search: {
+          mode: 'match'
+        },
+        response: {
+          status: '200 OK',
+          etag: 'W/"5"'
+        }
+      }))
     };
   }
 
@@ -340,175 +543,15 @@ export class CdsService {
     return null;
   }
 
-  /**
-   * Creates a sample patient for testing
-   * @param patientId Optional patient ID
-   * @returns Sample patient object
-   */
-  createSamplePatient(patientId: string = this.generateId()): CDSPatient {
-    return {
-      resourceType: 'Patient',
-      id: patientId,
-      gender: 'male',
-      birthDate: '1974-12-25',
-      identifier: [
-        {
-          type: {
-            coding: [
-              {
-                system: 'http://terminology.hl7.org/CodeSystem/v2-0203',
-                code: 'MR',
-                display: 'Medical Record Number'
-              }
-            ],
-            text: 'Medical Record Number'
-          },
-          system: 'http://hospital.smarthealthit.org',
-          value: this.generateId()
-        }
-      ],
-      name: [
-        {
-          use: 'official',
-          family: 'Montañez',
-          given: ['Clara'],
-          prefix: ['Ms.']
-        }
-      ]
-    };
+  private normalizeBaseUrl(url: string): string {
+    return String(url || '').trim().replace(/\/$/, '');
   }
 
-  /**
-   * Creates a sample condition
-   * @param patientId Patient reference ID
-   * @param snomedCode SNOMED CT code
-   * @param display Display name for the condition
-   * @returns Sample condition object
-   */
-  createSampleCondition(
-    patientId: string,
-    snomedCode: string,
-    display: string,
-    clinicalStatus: string = 'active'
-  ): CDSCondition {
-    return {
-      resourceType: 'Condition',
-      id: this.generateId(),
-      clinicalStatus: {
-        coding: [
-          {
-            system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
-            code: clinicalStatus
-          }
-        ]
-      },
-      verificationStatus: {
-        coding: [
-          {
-            system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
-            code: 'confirmed'
-          }
-        ]
-      },
-      code: {
-        coding: [
-          {
-            system: 'http://snomed.info/sct',
-            code: snomedCode,
-            display: display
-          }
-        ],
-        text: display
-      },
-      subject: {
-        reference: `Patient/${patientId}`
-      },
-      encounter: {
-        reference: `Encounter/${this.generateId()}`
-      },
-      onsetDateTime: new Date().toISOString(),
-      recordedDate: new Date().toISOString()
-    };
-  }
-
-  /**
-   * Creates a sample medication request
-   * @param patientId Patient reference ID
-   * @param snomedCode SNOMED CT code for medication
-   * @param display Display name for the medication
-   * @returns Sample medication request object
-   */
-  createSampleMedicationRequest(
-    patientId: string,
-    snomedCode: string,
-    display: string
-  ): CDSMedicationRequest {
-    return {
-      resourceType: 'MedicationRequest',
-      id: this.generateId(),
-      status: 'active',
-      intent: 'order',
-      medicationCodeableConcept: {
-        coding: [
-          {
-            system: 'http://snomed.info/sct',
-            code: snomedCode,
-            display: display
-          }
-        ],
-        text: display
-      },
-      subject: {
-        reference: `Patient/${patientId}`
-      },
-      encounter: {
-        reference: `Encounter/${this.generateId()}`
-      },
-      authoredOn: new Date().toISOString(),
-      requester: {
-        reference: `Practitioner/${this.generateId()}`
-      },
-      dosageInstruction: [
-        {
-          sequence: 1,
-          timing: {
-            repeat: {
-              frequency: 1,
-              period: 1,
-              periodUnit: 'd'
-            }
-          },
-          asNeededBoolean: false,
-          doseAndRate: [
-            {
-              type: {
-                coding: [
-                  {
-                    system: 'http://terminology.hl7.org/CodeSystem/dose-rate-type',
-                    code: 'ordered',
-                    display: 'Ordered'
-                  }
-                ]
-              },
-              doseQuantity: {
-                value: 1
-              }
-            }
-          ]
-        }
-      ]
-    };
-  }
-
-  /**
-   * Generates a UUID-like identifier
-   * @returns Generated UUID string
-   */
   private generateId(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+      const random = Math.random() * 16 | 0;
+      const value = char === 'x' ? random : (random & 0x3 | 0x8);
+      return value.toString(16);
     });
   }
 }
