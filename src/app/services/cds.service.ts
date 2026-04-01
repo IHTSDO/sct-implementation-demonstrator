@@ -354,6 +354,18 @@ export interface HookExecutionSnapshot {
   context: HookExecutionContextSnapshot | null;
 }
 
+export type ClinicalCdsEvent =
+  | { type: 'patient-view'; context: HookExecutionContextSnapshot }
+  | { type: 'condition-added'; context: HookExecutionContextSnapshot; newCondition: Condition }
+  | { type: 'condition-deleted'; context: HookExecutionContextSnapshot }
+  | { type: 'allergy-added'; context: HookExecutionContextSnapshot; newAllergy: AllergyIntolerance }
+  | { type: 'allergy-deleted'; context: HookExecutionContextSnapshot }
+  | { type: 'medication-draft-changed'; context: HookExecutionContextSnapshot; draftMedication: MedicationStatement }
+  | { type: 'medication-signed'; context: HookExecutionContextSnapshot; draftMedication: MedicationStatement }
+  | { type: 'medication-deleted'; context: HookExecutionContextSnapshot }
+  | { type: 'immunization-added'; context: HookExecutionContextSnapshot }
+  | { type: 'immunization-deleted'; context: HookExecutionContextSnapshot };
+
 type PatientHookStore = Record<StandardCdsHook, HookExecutionSnapshot>;
 
 const STANDARD_HOOKS: StandardCdsHook[] = ['patient-view', 'order-select', 'order-sign', 'problem-list-item-create', 'allergyintolerance-create'];
@@ -425,6 +437,38 @@ export class CdsService {
 
   invokeAllergyIntoleranceCreate(context: HookExecutionContextSnapshot): Observable<HookExecutionSnapshot> {
     return this.invokeHook('allergyintolerance-create', context);
+  }
+
+  handleClinicalEvent(event: ClinicalCdsEvent): Observable<HookExecutionSnapshot> {
+    switch (event.type) {
+      case 'patient-view':
+      case 'condition-deleted':
+      case 'allergy-deleted':
+      case 'medication-deleted':
+      case 'immunization-added':
+      case 'immunization-deleted':
+        return this.invokePatientView(event.context);
+      case 'condition-added':
+        return this.invokeProblemListItemCreate({
+          ...event.context,
+          newConditions: [event.newCondition]
+        });
+      case 'allergy-added':
+        return this.invokeAllergyIntoleranceCreate({
+          ...event.context,
+          allergies: [...event.context.allergies.filter((allergy) => allergy.id !== event.newAllergy.id), event.newAllergy]
+        });
+      case 'medication-draft-changed':
+        return this.invokeOrderSelect({
+          ...event.context,
+          selectedMedications: [event.draftMedication]
+        });
+      case 'medication-signed':
+        return this.invokeOrderSign({
+          ...event.context,
+          draftMedications: [event.draftMedication]
+        });
+    }
   }
 
   rerunHook(patientId: string, hook: StandardCdsHook): Observable<HookExecutionSnapshot> {
@@ -570,7 +614,7 @@ export class CdsService {
           return this.callHookOnServer(server, hook, standardRequest, legacyRequest, true);
         }
 
-        if (hook === 'order-select' && legacyRequest) {
+        if (legacyRequest) {
           const legacyService = discovery.services.find((service) => service.id === 'medication-order-select' && (!service.hook || service.hook.trim().length === 0));
           if (legacyService || discovery.failed) {
             return this.http.post<CDSResponse>(this.buildServiceUrl(server.baseUrl, 'medication-order-select'), legacyRequest, {
@@ -647,6 +691,22 @@ export class CdsService {
     const conditionsBundle = this.createConditionsBundle(context.patient.id, conditions);
     const medicationsBundle = this.createMedicationBundle(context.patient.id, medications);
     const allergiesBundle = this.createAllergyBundle(context.patient.id, allergies);
+    const createLegacyCompatibilityRequest = (draftMedicationRequests: CDSBundle<CDSMedicationRequest>): LegacyOrderSelectRequest => ({
+      hook: 'order-page',
+      hookInstance,
+      fhirServer: this.fhirBaseUrl,
+      context: {
+        patientId: context.patient.id,
+        encounterId,
+        userId
+      },
+      prefetch: {
+        patient,
+        conditions: conditionsBundle,
+        draftMedicationRequests,
+        allergies: allergiesBundle
+      }
+    });
 
     if (hook === 'patient-view') {
       return {
@@ -665,7 +725,8 @@ export class CdsService {
             medications: medicationsBundle,
             allergies: allergiesBundle
           }
-        }
+        },
+        legacyRequest: createLegacyCompatibilityRequest(medicationsBundle)
       };
     }
 
@@ -696,7 +757,8 @@ export class CdsService {
             patient,
             medications: medicationsBundle
           }
-        }
+        },
+        legacyRequest: createLegacyCompatibilityRequest(medicationsBundle)
       };
     }
 
@@ -723,7 +785,8 @@ export class CdsService {
             patient,
             medications: medicationsBundle
           }
-        }
+        },
+        legacyRequest: createLegacyCompatibilityRequest(medicationsBundle)
       };
     }
 
@@ -758,22 +821,7 @@ export class CdsService {
             allergies: allergiesBundle
           }
         },
-        legacyRequest: {
-          hook: 'order-page',
-          hookInstance,
-          fhirServer: this.fhirBaseUrl,
-          context: {
-            patientId: context.patient.id,
-            encounterId,
-            userId
-          },
-          prefetch: {
-            patient,
-            conditions: conditionsBundle,
-            draftMedicationRequests: draftOrders,
-            allergies: allergiesBundle
-          }
-        }
+        legacyRequest: createLegacyCompatibilityRequest(draftOrders)
       };
     }
 
@@ -804,7 +852,13 @@ export class CdsService {
           medications: medicationsBundle,
           allergies: allergiesBundle
         }
-      }
+      },
+      legacyRequest: createLegacyCompatibilityRequest(
+        this.createMedicationBundle(
+          context.patient.id,
+          this.convertMedicationsToCdsFormat(draftMedications, encounterId)
+        )
+      )
     };
   }
 

@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService } from '../../services/patient.service';
 import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
-import { CdsService, STANDARD_CDS_HOOK_LABELS, StandardCdsHook } from '../../services/cds.service';
+import { CdsService } from '../../services/cds.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent, ClinicalEntryType } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
@@ -459,7 +459,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         this.populateClinicalDataFromService(patientId);
         this.touchDataVersion();
         this.refreshSummaryVisualizations();
-        this.triggerPatientViewHook();
+        this.dispatchCdsEvent({ type: 'patient-view' });
         this.showClinicalDataLoadedSnackBar(summary);
       } catch (error) {
         console.error('Error loading clinical data from FHIR server:', error);
@@ -477,7 +477,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.populateClinicalDataFromService(patientId);
     this.touchDataVersion();
     this.refreshSummaryVisualizations();
-    this.triggerPatientViewHook();
+    this.dispatchCdsEvent({ type: 'patient-view' });
   }
 
   private populateClinicalDataFromService(patientId: string): void {
@@ -913,7 +913,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // and use the updated snapshot as the source of truth for hook execution.
       const createdCondition = event as Condition;
       this.conditions = [...this.conditions, createdCondition];
-      this.triggerProblemListItemCreateHook(createdCondition, this.conditions);
+      this.dispatchCdsEvent({ type: 'condition-added', newCondition: createdCondition, conditionsSnapshot: this.conditions });
       this.conditionEntry?.resetAndCloseForm();
       this.touchDataVersion();
       
@@ -1041,7 +1041,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       
       // Add the new medication to the local array only if it was successfully added
       // Create new array reference to trigger Angular change detection
-      this.triggerOrderSignHook(event);
+      this.dispatchCdsEvent({ type: 'medication-signed', draftMedication: event });
       this.medications = [...this.medications, event];
       this.medicationEntry?.resetAndCloseForm();
       this.touchDataVersion();
@@ -1076,7 +1076,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
 
     this.medicationOrderSelectPreviewTimeout = setTimeout(() => {
-      this.triggerOrderSelectHook(draftMedication);
+      this.dispatchCdsEvent({ type: 'medication-draft-changed', draftMedication });
       this.medicationOrderSelectPreviewTimeout = null;
     }, 350);
   }
@@ -1104,7 +1104,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
       this.immunizations = [...this.immunizations, event];
       this.immunizationEntry?.resetAndCloseForm();
-      this.triggerPatientViewHook();
+      this.dispatchCdsEvent({ type: 'immunization-added' });
       this.touchDataVersion();
 
       if (this.clinicalTimeline && this.clinicalTimeline.refreshTimeline) {
@@ -1227,7 +1227,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         // Reload conditions after mapping to get the updated computedLocation
         this.conditions = this.patientService.getPatientConditions(this.patient.id);
         if (newestAllergy) {
-          this.triggerAllergyIntoleranceCreateHook(newestAllergy);
+          this.dispatchCdsEvent({ type: 'allergy-added', newAllergy: newestAllergy });
         }
         
         // Show success notification (already shown in clinical-forms component, but update here if needed)
@@ -1984,7 +1984,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       this.patientService.deletePatientCondition(this.patient.id, conditionId);
       // Reload conditions directly from service to ensure fresh data
       this.conditions = this.patientService.getPatientConditions(this.patient.id);
-      this.triggerPatientViewHook();
+      this.dispatchCdsEvent({ type: 'condition-deleted' });
       this.touchDataVersion();
     }
   }
@@ -2009,7 +2009,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       this.patientService.deletePatientMedication(this.patient.id, medicationId);
       // Reload medications directly from service to ensure fresh data
       this.medications = this.patientService.getPatientMedications(this.patient.id);
-      this.triggerPatientViewHook();
+      this.dispatchCdsEvent({ type: 'medication-deleted' });
       this.touchDataVersion();
     }
   }
@@ -2021,7 +2021,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     if (immunization && confirm(`Are you sure you want to delete the immunization "${immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display}"?`)) {
       this.patientService.deletePatientImmunization(this.patient.id, immunizationId);
       this.immunizations = this.patientService.getPatientImmunizations(this.patient.id);
-      this.triggerPatientViewHook();
+      this.dispatchCdsEvent({ type: 'immunization-deleted' });
       this.touchDataVersion();
     }
   }
@@ -2036,7 +2036,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         this.patientService.deletePatientAllergy(this.patient.id, allergyId);
         // Reload allergies directly from service to ensure fresh data
         this.allergies = this.patientService.getPatientAllergies(this.patient.id);
-        this.triggerPatientViewHook();
+        this.dispatchCdsEvent({ type: 'allergy-deleted' });
         this.touchDataVersion();
       }
     }
@@ -2614,72 +2614,59 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.dataVersion += 1;
   }
 
-  private triggerPatientViewHook(): void {
+  private dispatchCdsEvent(
+    event:
+      | { type: 'patient-view' | 'condition-deleted' | 'allergy-deleted' | 'medication-deleted' | 'immunization-added' | 'immunization-deleted' }
+      | { type: 'condition-added'; newCondition: Condition; conditionsSnapshot?: Condition[] }
+      | { type: 'allergy-added'; newAllergy: AllergyIntolerance }
+      | { type: 'medication-draft-changed' | 'medication-signed'; draftMedication: MedicationStatement }
+  ): void {
     if (!this.patient) {
       return;
     }
 
-    void firstValueFrom(this.cdsService.invokePatientView({
+    const baseContext = {
       patient: this.patient,
-      conditions: this.conditions,
+      conditions: 'conditionsSnapshot' in event && event.conditionsSnapshot ? event.conditionsSnapshot : this.conditions,
       medications: this.medications,
       allergies: this.allergies
-    }));
-  }
+    };
 
-  private triggerProblemListItemCreateHook(newCondition: Condition, conditionsSnapshot?: Condition[]): void {
-    if (!this.patient) {
-      return;
+    switch (event.type) {
+      case 'patient-view':
+      case 'condition-deleted':
+      case 'allergy-deleted':
+      case 'medication-deleted':
+      case 'immunization-added':
+      case 'immunization-deleted':
+        void firstValueFrom(this.cdsService.handleClinicalEvent({
+          type: event.type,
+          context: baseContext
+        }));
+        break;
+      case 'condition-added':
+        void firstValueFrom(this.cdsService.handleClinicalEvent({
+          type: 'condition-added',
+          context: baseContext,
+          newCondition: event.newCondition
+        }));
+        break;
+      case 'allergy-added':
+        void firstValueFrom(this.cdsService.handleClinicalEvent({
+          type: 'allergy-added',
+          context: baseContext,
+          newAllergy: event.newAllergy
+        }));
+        break;
+      case 'medication-draft-changed':
+      case 'medication-signed':
+        void firstValueFrom(this.cdsService.handleClinicalEvent({
+          type: event.type,
+          context: baseContext,
+          draftMedication: event.draftMedication
+        }));
+        break;
     }
-
-    void firstValueFrom(this.cdsService.invokeProblemListItemCreate({
-      patient: this.patient,
-      conditions: conditionsSnapshot || this.conditions,
-      medications: this.medications,
-      allergies: this.allergies,
-      newConditions: [newCondition]
-    }));
-  }
-
-  private triggerAllergyIntoleranceCreateHook(newAllergy: AllergyIntolerance): void {
-    if (!this.patient) {
-      return;
-    }
-
-    void firstValueFrom(this.cdsService.invokeAllergyIntoleranceCreate({
-      patient: this.patient,
-      conditions: this.conditions,
-      medications: this.medications,
-      allergies: [...this.allergies.filter((allergy) => allergy.id !== newAllergy.id), newAllergy]
-    }));
-  }
-
-  private triggerOrderSelectHook(draftMedication: MedicationStatement): void {
-    if (!this.patient) {
-      return;
-    }
-
-    void firstValueFrom(this.cdsService.invokeOrderSelect({
-      patient: this.patient,
-      conditions: this.conditions,
-      medications: this.medications,
-      allergies: this.allergies,
-      selectedMedications: [draftMedication]
-    }));
-  }
-
-  private triggerOrderSignHook(draftMedication: MedicationStatement): void {
-    if (!this.patient) {
-      return;
-    }
-
-    void firstValueFrom(this.cdsService.invokeOrderSign({
-      patient: this.patient,
-      conditions: this.conditions,
-      medications: this.medications,
-      allergies: this.allergies,
-      draftMedications: [draftMedication]
-    }));
   }
 
   private refreshSummaryVisualizations(): void {
