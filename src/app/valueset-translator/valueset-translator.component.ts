@@ -98,7 +98,7 @@ interface ConceptRow {
   standalone: false
 })
 export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterViewInit {
-  private static readonly MAX_ECL_RESULTS = 1000;
+  private static readonly MAX_ECL_RESULTS = 10000;
 
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('workflowProgressAnchor') workflowProgressAnchor!: ElementRef<HTMLElement>;
