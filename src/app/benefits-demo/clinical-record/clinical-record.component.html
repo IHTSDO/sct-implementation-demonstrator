@@ -265,7 +265,8 @@
         [conditions]="conditions"
         [medications]="medications"
         [allergies]="allergies"
-        [autoTrigger]="selectedModule !== 'clinical' || selectedClinicalView !== 'alerts'"
+        [showHookSelector]="false"
+        stateMode="latest"
         (stateChange)="onCdsStateChange($event)">
       </app-cds-panel>
 
@@ -571,6 +572,7 @@
                           [hideButton]="true"
                           [saving]="savingEntryType === 'medication'"
                           (itemAdded)="onMedicationAdded($event)"
+                          (draftMedicationChanged)="onMedicationDraftChanged($event)"
                           (formOpened)="onClinicalEntryFormOpened($event)">
                         </app-clinical-entry>
 
@@ -890,8 +892,8 @@
                   [conditions]="conditions"
                   [medications]="medications"
                   [allergies]="allergies"
-                  [autoTrigger]="true"
-                  (stateChange)="onCdsStateChange($event)">
+                  [showHookSelector]="true"
+                  stateMode="selected">
                 </app-cds-panel>
               </div>
               <aside class="problems-pane">

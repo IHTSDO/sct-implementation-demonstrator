@@ -33,7 +33,7 @@
             <div class="association-section">
               <mat-form-field appearance="outline">
                 <mat-label>Select the reason for the indication</mat-label>
-                <mat-select [(value)]="selectedAssociation" [compareWith]="compareAssociations">
+                <mat-select [(value)]="selectedAssociation" [compareWith]="compareAssociations" (valueChange)="onMedicationDraftInputChanged()">
                   <mat-option [value]="null">None - General medication</mat-option>
                   @if (availableConditions.length > 0) {
                     <mat-optgroup label="Conditions">
@@ -85,7 +85,8 @@
                 <input
                   matInput
                   [matDatepicker]="medicationDatePicker"
-                  [(ngModel)]="entryDate">
+                  [(ngModel)]="entryDate"
+                  (ngModelChange)="onMedicationDraftInputChanged()">
                 <mat-datepicker-toggle matSuffix [for]="medicationDatePicker"></mat-datepicker-toggle>
                 <mat-datepicker #medicationDatePicker></mat-datepicker>
               </mat-form-field>
@@ -101,12 +102,13 @@
                 type="number"
                 min="0"
                 step="0.1"
-                [(ngModel)]="medicationDoseValue">
+                [(ngModel)]="medicationDoseValue"
+                (ngModelChange)="onMedicationDraftInputChanged()">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Dose unit</mat-label>
-              <mat-select [(ngModel)]="medicationDoseUnit">
+              <mat-select [(ngModel)]="medicationDoseUnit" (ngModelChange)="onMedicationDraftInputChanged()">
                 @for (unit of medicationDoseUnitOptions; track unit) {
                   <mat-option [value]="unit">{{ unit }}</mat-option>
                 }
@@ -120,12 +122,13 @@
                 type="number"
                 min="1"
                 step="1"
-                [(ngModel)]="medicationPeriod">
+                [(ngModel)]="medicationPeriod"
+                (ngModelChange)="onMedicationDraftInputChanged()">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Period unit</mat-label>
-              <mat-select [(ngModel)]="medicationPeriodUnit">
+              <mat-select [(ngModel)]="medicationPeriodUnit" (ngModelChange)="onMedicationDraftInputChanged()">
                 <mat-option value="h">Hours</mat-option>
                 <mat-option value="d">Days</mat-option>
                 <mat-option value="wk">Weeks</mat-option>

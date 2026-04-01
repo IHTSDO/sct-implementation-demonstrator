@@ -38,6 +38,8 @@ import { LoincModule } from '../shared/loinc.module';
 import { QuestionnairesSharedModule } from '../shared/questionnaires-shared.module';
 import { UiSharedModule } from '../shared/ui-shared.module';
 import { DescriptiveStatisticsModule } from '../descriptive-statistics/descriptive-statistics.module';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -80,6 +82,8 @@ import { DescriptiveStatisticsModule } from '../descriptive-statistics/descripti
     BindingsModule,
     DescriptiveStatisticsModule,
     LoincModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     QuestionnairesSharedModule,
     UiSharedModule,
   ],

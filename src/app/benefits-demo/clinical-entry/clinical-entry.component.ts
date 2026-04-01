@@ -19,6 +19,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
   @Input() availableConditions: Condition[] = [];
   @Input() availableProcedures: Procedure[] = [];
   @Output() itemAdded = new EventEmitter<any>();
+  @Output() draftMedicationChanged = new EventEmitter<MedicationStatement | null>();
   @Output() formOpened = new EventEmitter<ClinicalEntryType>();
   @ViewChild('autocompleteBinding') autocompleteBinding: any;
 
@@ -33,6 +34,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
   immunizationStatus: Immunization['status'] = 'completed';
   loading = false;
   showAddForm = false;
+  private medicationDraftId = '';
   readonly medicationDoseUnitOptions = ['tablet', 'capsule', 'drop', 'puff', 'mL', 'mg', 'g', 'unit'];
 
   // SNOMED ECL bindings for different clinical entry types
@@ -84,6 +86,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
 
   updateConcept(event: any) {
     this.selectedConcept = event;
+    this.emitDraftMedicationIfNeeded();
   }
 
   toggleAddForm() {
@@ -91,6 +94,9 @@ export class ClinicalEntryComponent implements AfterViewInit {
     if (!this.showAddForm) {
       this.resetForm();
     } else {
+      if (this.entryType === 'medication') {
+        this.medicationDraftId = `draft-medication-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      }
       // Notify parent that this form was opened
       this.formOpened.emit(this.entryType);
       
@@ -191,6 +197,7 @@ export class ClinicalEntryComponent implements AfterViewInit {
 
     // Let the parent component handle adding to the service
     this.itemAdded.emit(newMedication);
+    this.draftMedicationChanged.emit(null);
   }
 
   private async addImmunization() {
@@ -224,6 +231,8 @@ export class ClinicalEntryComponent implements AfterViewInit {
     this.medicationPeriodUnit = 'h';
     this.immunizationStatus = 'completed';
     this.showAddForm = false;
+    this.medicationDraftId = '';
+    this.draftMedicationChanged.emit(null);
   }
 
   private getDefaultEntryDate(): Date {
@@ -287,5 +296,45 @@ export class ClinicalEntryComponent implements AfterViewInit {
   compareAssociations(a1: any, a2: any): boolean {
     if (!a1 || !a2) return a1 === a2;
     return a1.type === a2.type && a1.resource?.id === a2.resource?.id;
+  }
+
+  onMedicationDraftInputChanged(): void {
+    this.emitDraftMedicationIfNeeded();
+  }
+
+  private emitDraftMedicationIfNeeded(): void {
+    if (this.entryType !== 'medication') {
+      return;
+    }
+
+    if (!this.showAddForm || !this.selectedConcept || !this.patientId) {
+      this.draftMedicationChanged.emit(null);
+      return;
+    }
+
+    if (!this.medicationDraftId) {
+      this.medicationDraftId = `draft-medication-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    }
+
+    const reasonReference = this.selectedAssociation ? [{
+      reference: `${this.selectedAssociation.resource.resourceType}/${this.selectedAssociation.resource.id}`,
+      display: this.selectedAssociation.resource.code.text
+    }] : undefined;
+
+    const draftMedication = this.patientService.createMedicationFromClinicalEntryConcept(
+      this.patientId,
+      {
+        code: this.selectedConcept.code,
+        display: this.selectedConcept.display
+      },
+      {
+        effectiveDateTime: this.getEntryDateValue(),
+        reasonReference,
+        dosage: this.buildMedicationDosage()
+      }
+    );
+
+    draftMedication.id = this.medicationDraftId;
+    this.draftMedicationChanged.emit(draftMedication);
   }
 }

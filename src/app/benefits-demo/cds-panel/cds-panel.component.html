@@ -1,42 +1,60 @@
 <div class="cds-tab-container">
   <h3>Decision Support</h3>
   <p class="cds-description">
-    Get medication order recommendations based on current patient conditions and medications using SNOMED CT Clinical Decision Support services.
+    This panel shows the latest standardized CDS Hooks results returned by the active CDS servers for the current
+    clinical workflow.
   </p>
 
-  <!-- CDS Status -->
   <div class="cds-status">
-    @if (!isCdsLoading && !hasAnyServerResponse() && !cdsError && !cdsNoDataMessage) {
-      <div style="text-align: center; padding: 20px;">
-        <button mat-raised-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading">
-          Request Recommendations
-        </button>
+    @if (showHookSelector) {
+      <div class="cds-hook-selector">
+        @for (hook of hookOptions; track hook) {
+          <button
+            mat-stroked-button
+            type="button"
+            [color]="getDisplayedHook() === hook ? 'primary' : undefined"
+            [class.is-selected]="getDisplayedHook() === hook"
+            (click)="selectHook(hook)">
+            <span>{{ STANDARD_CDS_HOOK_LABELS[hook] }}</span>
+            <small>{{ getHookLastUpdatedLabel(hook) }}</small>
+          </button>
+        }
       </div>
     }
 
-    @if (isCdsLoading) {
+    <div class="cds-status-header">
+      <div>
+        <strong>{{ getDisplayedHookLabel() }}</strong>
+        <span>{{ getHookLastUpdatedLabel(getDisplayedHook()) }}</span>
+      </div>
+      <button mat-stroked-button color="primary" (click)="refreshSelectedHook()" [disabled]="isCdsLoading() || !patient">
+        Refresh
+      </button>
+    </div>
+
+    @if (isCdsLoading()) {
       <div class="cds-loading">
         <mat-spinner diameter="24"></mat-spinner>
-        <span>Requesting medication recommendations from active CDS servers...</span>
+        <span>Requesting {{ getDisplayedHookLabel().toLowerCase() }} results from active CDS servers...</span>
       </div>
     }
 
-    @if (cdsNoDataMessage) {
-      <div style="text-align: center; padding: 30px; color: #666;">
-        <mat-icon color="accent" style="font-size: 48px; width: 48px; height: 48px; margin-bottom: 16px;">info</mat-icon>
-        <p style="margin: 0; font-size: 14px; line-height: 1.5;">{{ cdsNoDataMessage }}</p>
+    @if (getCdsNoDataMessage()) {
+      <div class="cds-empty-state">
+        <mat-icon color="accent">info</mat-icon>
+        <div class="cds-empty-copy">
+          <strong>No CDS request available</strong>
+          <span>{{ getCdsNoDataMessage() }}</span>
+        </div>
       </div>
     }
 
-    @if (cdsError && !showGroupedResults()) {
+    @if (getCdsError() && !showGroupedResults()) {
       <div class="cds-error">
         <mat-icon color="warn">error</mat-icon>
         <div class="error-content">
-          <strong>Error:</strong>
-          <span>{{ cdsError }}</span>
-          <button mat-stroked-button color="primary" (click)="submitToCdsService()" style="margin-top: 8px;">
-            Retry
-          </button>
+          <strong>Error</strong>
+          <span>{{ getCdsError() }}</span>
         </div>
       </div>
     }
@@ -45,24 +63,25 @@
       <div class="cds-recommendations">
         <div class="recommendations-header">
           <mat-icon color="primary">lightbulb</mat-icon>
-          <span>{{ getTotalRecommendationCount() }} recommendation(s) received</span>
-          <button mat-stroked-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading">
-            Refresh
-          </button>
+          <span>{{ getTotalRecommendationCount() }} recommendation(s) for {{ getDisplayedHookLabel().toLowerCase() }}</span>
         </div>
+
         <div class="cds-server-groups">
-          @for (result of getServerResultsWithCards(); track result.server.id) {
+          @for (result of getServerResultsWithCards(); track result.server.id + '-' + result.serviceId) {
             <div class="cds-server-group">
               <div class="cds-server-group-header">
-                <div>
+                <div class="cds-server-title-group">
                   <strong>{{ getServerDisplayName(result) }}</strong>
                   <span class="cds-server-group-url">{{ result.server.baseUrl }}</span>
                 </div>
-                <span class="cds-server-group-mode">{{ getServerStatusLabel(result) }}</span>
+                <div class="cds-server-meta">
+                  <span class="cds-server-hook">{{ getDisplayedHookLabel() }}</span>
+                  <span class="cds-server-group-mode">{{ getServerStatusLabel(result) }}</span>
+                </div>
               </div>
 
               <div class="cds-cards">
-                @for (card of result.response?.cards || []; track card; let i = $index) {
+                @for (card of result.response?.cards || []; track $index) {
                   <mat-card class="cds-card" [ngClass]="'indicator-' + card.indicator">
                     <mat-card-header>
                       <mat-card-title>
@@ -77,13 +96,14 @@
                       </mat-card-content>
                     }
                     <mat-card-actions>
-                      @for (suggestion of card.suggestions; track suggestion) {
+                      @for (suggestion of card.suggestions || []; track suggestion.label) {
                         <button mat-button color="primary">
                           {{ suggestion.label }}
                         </button>
                       }
                       @if (card.source.url) {
-                        <button mat-button
+                        <button
+                          mat-button
                           color="accent"
                           (click)="openSourceUrl(card.source.url)"
                           title="View source">
@@ -100,10 +120,10 @@
 
           @if (getServerResultsWithoutCards().length > 0) {
             <div class="cds-server-muted-list">
-              @for (result of getServerResultsWithoutCards(); track result.server.id) {
+              @for (result of getServerResultsWithoutCards(); track result.server.id + '-' + result.serviceId) {
                 <div class="cds-server-muted-item">
                   <strong>{{ getServerDisplayName(result) }}</strong>
-                  <span>No recommendations returned.</span>
+                  <span>{{ getDisplayedHookLabel() }} completed with no recommendations.</span>
                 </div>
               }
             </div>
@@ -111,7 +131,7 @@
 
           @if (getErroredServerResults().length > 0) {
             <div class="cds-server-errors">
-              @for (result of getErroredServerResults(); track result.server.id) {
+              @for (result of getErroredServerResults(); track result.server.id + '-' + result.serviceId) {
                 <div class="cds-server-error-item">
                   <strong>{{ getServerDisplayName(result) }}</strong>
                   <span>{{ result.error }}</span>
@@ -128,10 +148,7 @@
         <mat-icon color="accent">check_circle</mat-icon>
         <div class="no-recommendations-content">
           <strong>No specific recommendations</strong>
-          <span>No medication order recommendations were returned by the active CDS servers for the current conditions and medications.</span>
-          <button mat-stroked-button color="primary" (click)="submitToCdsService()" [disabled]="isCdsLoading" style="margin-top: 8px;">
-            Refresh
-          </button>
+          <span>No CDS recommendations were returned for {{ getDisplayedHookLabel().toLowerCase() }} across the active servers.</span>
         </div>
       </div>
     }
