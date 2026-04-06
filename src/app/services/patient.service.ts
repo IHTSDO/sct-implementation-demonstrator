@@ -850,9 +850,7 @@ export class PatientService {
         await this.loadPatientsForCurrentMode();
       }
       const resolvedPatient = (shouldRefreshPatients ? this.getPatientById(savedPatient.id) : undefined) || savedPatient;
-      if (shouldRefreshPatients) {
-        this.addOrUpdatePatientInMemory(resolvedPatient);
-      }
+      this.addOrUpdatePatientInMemory(resolvedPatient);
       this.selectedPatientSubject.next(resolvedPatient);
       return resolvedPatient;
     } catch (error) {
@@ -916,9 +914,7 @@ export class PatientService {
     }
 
     const resolvedPatient = (shouldRefreshPatients ? this.getPatientById(result.patient.id) : undefined) || result.patient;
-    if (shouldRefreshPatients) {
-      this.addOrUpdatePatientInMemory(resolvedPatient);
-    }
+    this.addOrUpdatePatientInMemory(resolvedPatient);
     this.selectedPatientSubject.next(resolvedPatient);
 
     if (this.getCurrentPersistenceMode() === 'fhir') {
@@ -1046,9 +1042,7 @@ export class PatientService {
     }
 
     const resolvedPatient = (shouldRefreshPatients ? this.getPatientById(result.patient.id) : undefined) || result.patient;
-    if (shouldRefreshPatients) {
-      this.addOrUpdatePatientInMemory(resolvedPatient);
-    }
+    this.addOrUpdatePatientInMemory(resolvedPatient);
     this.selectedPatientSubject.next(resolvedPatient);
 
     if (this.getCurrentPersistenceMode() === 'fhir') {
