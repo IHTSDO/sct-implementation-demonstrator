@@ -531,6 +531,7 @@ export class PatientService {
   public setConditionSnomedExpressionCoding(condition: Condition, expression: string, display?: string): void {
     this.upsertConditionCoding(condition, {
       system: PatientService.SNOMED_SYSTEM,
+      version: 'http://snomed.info/xsct',
       code: expression,
       display: display || condition.code?.text || expression
     }, false, (existingCoding: any) => this.isSnomedExpressionCoding(existingCoding));
@@ -568,7 +569,7 @@ export class PatientService {
 
   private upsertConditionCoding(
     condition: Condition,
-    coding: { system?: string; code?: string; display?: string },
+    coding: { system?: string; version?: string; code?: string; display?: string },
     placeFirst: boolean,
     predicate?: (existingCoding: any) => boolean
   ): void {
@@ -585,6 +586,9 @@ export class PatientService {
   }
 
   private isSnomedExpressionCoding(coding: any): boolean {
+    if (coding?.version === 'http://snomed.info/xsct') {
+      return true;
+    }
     const code = String(coding?.code || '').trim();
     return code.startsWith('===');
   }
@@ -1211,6 +1215,17 @@ export class PatientService {
 
   addPatientConditionAllowDuplicates(patientId: string, condition: Condition): void {
     const conditions = this.getPatientConditions(patientId);
+
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createCondition(patientId, condition)
+        .then((savedCondition) => {
+          this.setResourceCache(this.fhirCache.conditions, patientId, [...conditions, savedCondition]);
+          this.enrichConditionInBackground(patientId, savedCondition);
+        })
+        .catch((error) => console.error('Error creating condition in FHIR storage service:', error));
+      return;
+    }
+
     conditions.push(condition);
     this.savePatientConditions(patientId, conditions);
     this.enrichConditionInBackground(patientId, condition);
@@ -1443,6 +1458,17 @@ export class PatientService {
 
   async addPatientProcedureAllowDuplicatesEnriched(patientId: string, procedure: Procedure): Promise<void> {
     await this.enrichProcedure(procedure);
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.patientFhirStorageService.createProcedure(patientId, procedure)
+        .then((savedProcedure) => {
+          const procedures = this.getPatientProcedures(patientId);
+          this.setResourceCache(this.fhirCache.procedures, patientId, [...procedures, savedProcedure]);
+          this.enrichProcedureInBackground(patientId, savedProcedure);
+        })
+        .catch((error) => console.error('Error creating procedure in FHIR storage service:', error));
+      return;
+    }
+
     const procedures = this.getPatientProcedures(patientId);
     procedures.push(procedure);
     this.savePatientProcedures(patientId, procedures);

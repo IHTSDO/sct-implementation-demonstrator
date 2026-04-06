@@ -12,7 +12,7 @@ import { DENTAL_FINDING_OPTIONS } from './data/dental-finding-options';
 import { DENTAL_PROCEDURE_OPTIONS } from './data/dental-procedure-options';
 import { DentalFindingListItem } from './models/dental-finding-list-item.model';
 import { DentistryFhirDialogComponent, DentistryFhirDialogData } from './dentistry-fhir-dialog/dentistry-fhir-dialog.component';
-import type { BodyStructure, Condition, Patient, Procedure } from '../../model';
+import type { Condition, Patient, Procedure } from '../../model';
 
 interface QuadrantConfig {
   key: string;
@@ -533,18 +533,17 @@ export class DentistryRecordComponent implements OnChanges {
 
     this.saveFeedbackByToothId[this.pinnedTooth.id] = false;
     if (this.getPinnedEntryType() === 'procedure') {
-      const resources = this.buildDentalProcedureAndBodyStructure(this.patient.id, this.pinnedTooth, entry.siteCodes, entry.findingCode);
-      if (!resources) {
+      const procedure = this.buildDentalProcedure(this.patient.id, this.pinnedTooth, entry.siteCodes, entry.findingCode);
+      if (!procedure) {
         return;
       }
-      this.patientService.addPatientBodyStructure(this.patient.id, resources.bodyStructure);
-      await this.patientService.addPatientProcedureEnriched(this.patient.id, resources.procedure);
+      await this.patientService.addPatientProcedureEnriched(this.patient.id, procedure);
     } else {
-      const resources = this.buildDentalConditionAndBodyStructure(this.patient.id, this.pinnedTooth, entry.siteCodes, entry.findingCode);
-      if (!resources) {
+      const condition = this.buildDentalCondition(this.patient.id, this.pinnedTooth, entry.siteCodes, entry.findingCode);
+      if (!condition) {
         return;
       }
-      await this.patientService.addPatientConditionAllowDuplicatesEnriched(this.patient.id, resources.condition);
+      await this.patientService.addPatientConditionAllowDuplicatesEnriched(this.patient.id, condition);
     }
 
     this.saveFeedbackByToothId[this.pinnedTooth.id] = true;
@@ -588,9 +587,6 @@ export class DentistryRecordComponent implements OnChanges {
     }
     if (item.entryType === 'finding' && item.conditionId) {
       this.patientService.deletePatientCondition(this.patient.id, item.conditionId);
-    }
-    if (item.bodyStructureId) {
-      this.patientService.deletePatientBodyStructure(this.patient.id, item.bodyStructureId);
     }
     this.refreshDentalFindingList(this.patient.id);
     if (this.pinnedTooth) {
@@ -671,7 +667,7 @@ export class DentistryRecordComponent implements OnChanges {
       title: 'Dental HL7 FHIR Resources',
       links: [
         { label: 'Condition', href: 'https://hl7.org/fhir/condition.html' },
-        { label: 'BodyStructure', href: 'https://hl7.org/fhir/bodystructure.html' }
+        { label: 'Procedure', href: 'https://hl7.org/fhir/procedure.html' }
       ],
       jsonString: JSON.stringify(this.buildDentalFhirBundle(this.patient.id), null, 2),
       fileName: `dental-fhir-${this.patient.id}.json`
@@ -754,12 +750,12 @@ export class DentistryRecordComponent implements OnChanges {
     this.selectedSideTabIndex = 1;
   }
 
-  private buildDentalConditionAndBodyStructure(
+  private buildDentalCondition(
     patientId: string,
     tooth: OdontogramTooth,
     siteCodes: string[],
     findingCode: string
-  ): { condition: Condition } | null {
+  ): Condition | null {
     const toothStructure = tooth.snomedStructure;
     const finding = this.findingOptions.find((option) => option.code === findingCode);
     if (!toothStructure || !finding) {
@@ -870,15 +866,15 @@ export class DentistryRecordComponent implements OnChanges {
       ]
     };
 
-    return { condition };
+    return condition;
   }
 
-  private buildDentalProcedureAndBodyStructure(
+  private buildDentalProcedure(
     patientId: string,
     tooth: OdontogramTooth,
     siteCodes: string[],
     procedureCode: string
-  ): { procedure: Procedure; bodyStructure: BodyStructure } | null {
+  ): Procedure | null {
     const toothStructure = tooth.snomedStructure;
     const procedureOption = this.procedureOptions.find((option) => option.code === procedureCode);
     if (!toothStructure || !procedureOption) {
@@ -894,49 +890,7 @@ export class DentistryRecordComponent implements OnChanges {
     }
 
     const now = new Date().toISOString();
-    const bodyStructureId = `body-structure-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const procedureId = `procedure-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
-    const bodyStructure: BodyStructure = {
-      resourceType: 'BodyStructure',
-      id: bodyStructureId,
-      patient: {
-        reference: `Patient/${patientId}`,
-        display: `Patient ${patientId}`
-      },
-      includedStructure: [
-        {
-          structure: {
-            coding: [
-              {
-                system: this.SNOMED_SYSTEM,
-                code: toothStructure.code,
-                display: toothStructure.display
-              }
-            ],
-            text: toothStructure.display
-          }
-        },
-        ...selectedSites.map((site) => ({
-          structure: {
-            coding: [
-              {
-                system: this.SNOMED_SYSTEM,
-                code: site.code,
-                display: site.display
-              }
-            ],
-            text: site.display
-          }
-        }))
-      ],
-      note: [
-        {
-          text: `Dental body structure for FDI tooth ${tooth.notations.fdi}.`,
-          time: now
-        }
-      ]
-    };
 
     const procedure: Procedure = {
       resourceType: 'Procedure',
@@ -979,13 +933,29 @@ export class DentistryRecordComponent implements OnChanges {
         reference: `Patient/${patientId}`,
         display: `Patient ${patientId}`
       },
-      performedDateTime: now,
-      reasonReference: [
+      bodySite: [
         {
-          reference: `BodyStructure/${bodyStructureId}`,
-          display: toothStructure.display
-        }
+          coding: [
+            {
+              system: this.SNOMED_SYSTEM,
+              code: toothStructure.code,
+              display: toothStructure.display
+            }
+          ],
+          text: toothStructure.display
+        },
+        ...selectedSites.map((site) => ({
+          coding: [
+            {
+              system: this.SNOMED_SYSTEM,
+              code: site.code,
+              display: site.display
+            }
+          ],
+          text: site.display
+        }))
       ],
+      performedDateTime: now,
       note: [
         {
           text: `Dental procedure recorded for FDI tooth ${tooth.notations.fdi} at ${selectedSites.map((site) => site.display).join(', ')}.`,
@@ -994,7 +964,7 @@ export class DentistryRecordComponent implements OnChanges {
       ]
     };
 
-    return { procedure, bodyStructure };
+    return procedure;
   }
 
   private findToothById(toothId: string): OdontogramTooth | null {
@@ -1020,21 +990,9 @@ export class DentistryRecordComponent implements OnChanges {
     ) || procedure.category?.text === 'Dental procedure' || false;
   }
 
-  private getBodyStructureIdFromReference(reference: string | undefined): string {
-    if (!reference) {
-      return '';
-    }
-    return reference.startsWith('BodyStructure/') ? reference.replace('BodyStructure/', '') : reference;
-  }
-
   private refreshDentalFindingList(patientId: string): void {
     const conditions = this.patientService.getPatientConditions(patientId);
     const procedures = this.patientService.getPatientProcedures(patientId);
-    const bodyStructures = this.patientService.getPatientBodyStructures(patientId);
-    const bodyStructureById = bodyStructures.reduce((acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    }, {} as Record<string, BodyStructure>);
 
     this.savedSurfaceByToothId = {};
     this.absentToothIds = new Set<string>();
@@ -1042,15 +1000,10 @@ export class DentistryRecordComponent implements OnChanges {
     const conditionItems = conditions
       .filter((condition) => this.isDentalCondition(condition))
       .map((condition): DentalFindingListItem => {
-        const bodyStructureId = this.getBodyStructureIdFromReference(condition.bodyStructure?.reference);
-        const bodyStructure = bodyStructureById[bodyStructureId];
         const bodySiteCodes = (condition.bodySite || [])
           .map((site) => site.coding?.[0]?.code || '')
           .filter(Boolean);
-        const bodyStructureCodes = (bodyStructure?.includedStructure || [])
-          .map((item) => item.structure?.coding?.[0]?.code || '')
-          .filter(Boolean);
-        const structureCodes = bodySiteCodes.length ? bodySiteCodes : bodyStructureCodes;
+        const structureCodes = bodySiteCodes;
 
         const toothCode = structureCodes.find((code) => !!this.toothIdBySnomedCode[code]) || '';
         const toothId = this.toothIdBySnomedCode[toothCode] || '';
@@ -1086,7 +1039,6 @@ export class DentistryRecordComponent implements OnChanges {
         return {
           entryType: 'finding',
           conditionId: condition.id,
-          bodyStructureId,
           toothId,
           toothFdi: tooth?.notations.fdi || 'Unknown',
           siteCodes,
@@ -1104,12 +1056,10 @@ export class DentistryRecordComponent implements OnChanges {
     const procedureItems = procedures
       .filter((procedure) => this.isDentalProcedure(procedure))
       .map((procedure): DentalFindingListItem => {
-        const bodyStructureRef = procedure.reasonReference?.find((ref) => (ref.reference || '').includes('BodyStructure/'))?.reference || '';
-        const bodyStructureId = this.getBodyStructureIdFromReference(bodyStructureRef);
-        const bodyStructure = bodyStructureById[bodyStructureId];
-        const structureCodes = (bodyStructure?.includedStructure || [])
-          .map((item) => item.structure?.coding?.[0]?.code || '')
+        const bodySiteCodes = (procedure.bodySite || [])
+          .map((site) => site.coding?.[0]?.code || '')
           .filter(Boolean);
+        const structureCodes = bodySiteCodes;
 
         const toothCode = structureCodes.find((code) => !!this.toothIdBySnomedCode[code]) || '';
         const toothId = this.toothIdBySnomedCode[toothCode] || '';
@@ -1135,7 +1085,6 @@ export class DentistryRecordComponent implements OnChanges {
         return {
           entryType: 'procedure',
           procedureId: procedure.id,
-          bodyStructureId,
           toothId,
           toothFdi: tooth?.notations.fdi || 'Unknown',
           siteCodes,
@@ -1239,21 +1188,7 @@ export class DentistryRecordComponent implements OnChanges {
   private buildDentalFhirBundle(patientId: string): any {
     const conditions = this.patientService.getPatientConditions(patientId).filter((condition) => this.isDentalCondition(condition));
     const procedures = this.patientService.getPatientProcedures(patientId).filter((procedure) => this.isDentalProcedure(procedure));
-    const bodyStructures = this.patientService.getPatientBodyStructures(patientId);
-    const referencedBodyStructureIds = new Set(
-      [
-        ...conditions
-          .map((condition) => condition.bodyStructure?.reference || '')
-          .filter(Boolean),
-        ...procedures.map(
-          (procedure) => procedure.reasonReference?.find((ref) => (ref.reference || '').includes('BodyStructure/'))?.reference || ''
-        )
-      ]
-        .map((reference) => reference.replace('BodyStructure/', ''))
-    );
-
-    const linkedBodyStructures = bodyStructures.filter((resource) => referencedBodyStructureIds.has(resource.id));
-    const resources = [...conditions, ...procedures, ...linkedBodyStructures];
+    const resources = [...conditions, ...procedures];
 
     return {
       resourceType: 'Bundle',
