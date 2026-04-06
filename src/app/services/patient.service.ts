@@ -484,8 +484,10 @@ export class PatientService {
     // Extract SNOMED CT code from various resource types
     if (resource.code?.coding) {
       const snomedCoding = resource.code.coding.find((coding: any) =>
-        coding.system === PatientService.SNOMED_SYSTEM ||
-        coding.system === PatientService.SNOMED_EDITION_SYSTEM
+        (
+          coding.system === PatientService.SNOMED_SYSTEM ||
+          coding.system === PatientService.SNOMED_EDITION_SYSTEM
+        ) && !this.isSnomedExpressionCoding(coding)
       );
       return snomedCoding?.code || null;
     }
@@ -519,9 +521,19 @@ export class PatientService {
 
   public getConditionSnomedCoding(condition: Condition): { system?: string; code?: string; display?: string } | undefined {
     return condition.code?.coding?.find((coding: any) =>
-      coding.system === PatientService.SNOMED_SYSTEM ||
-      coding.system === PatientService.SNOMED_EDITION_SYSTEM
+      (
+        coding.system === PatientService.SNOMED_SYSTEM ||
+        coding.system === PatientService.SNOMED_EDITION_SYSTEM
+      ) && !this.isSnomedExpressionCoding(coding)
     );
+  }
+
+  public setConditionSnomedExpressionCoding(condition: Condition, expression: string, display?: string): void {
+    this.upsertConditionCoding(condition, {
+      system: PatientService.SNOMED_SYSTEM,
+      code: expression,
+      display: display || condition.code?.text || expression
+    }, false, (existingCoding: any) => this.isSnomedExpressionCoding(existingCoding));
   }
 
   public getConditionIcd10Coding(condition: Condition): { system?: string; code?: string; display?: string } | undefined {
@@ -538,7 +550,11 @@ export class PatientService {
       system: existingCoding?.system || PatientService.SNOMED_SYSTEM,
       code: coding.code,
       display: coding.display || existingCoding?.display || condition.code?.text || coding.code
-    }, true);
+    }, true, (existingCoding: any) => {
+      const sameSystem = existingCoding?.system === PatientService.SNOMED_SYSTEM
+        || existingCoding?.system === PatientService.SNOMED_EDITION_SYSTEM;
+      return sameSystem && !this.isSnomedExpressionCoding(existingCoding);
+    });
   }
 
   public setConditionIcd10Coding(condition: Condition, coding: { code: string; display?: string }): void {
@@ -553,13 +569,24 @@ export class PatientService {
   private upsertConditionCoding(
     condition: Condition,
     coding: { system?: string; code?: string; display?: string },
-    placeFirst: boolean
+    placeFirst: boolean,
+    predicate?: (existingCoding: any) => boolean
   ): void {
     condition.code = condition.code || { text: coding.display || coding.code || '' };
 
     const existingCodings = condition.code.coding || [];
-    const filteredCodings = existingCodings.filter((item: any) => item.system !== coding.system);
+    const filteredCodings = existingCodings.filter((item: any) => {
+      if (predicate) {
+        return !predicate(item);
+      }
+      return item.system !== coding.system;
+    });
     condition.code.coding = placeFirst ? [coding, ...filteredCodings] : [...filteredCodings, coding];
+  }
+
+  private isSnomedExpressionCoding(coding: any): boolean {
+    const code = String(coding?.code || '').trim();
+    return code.startsWith('===');
   }
 
   private isDuplicateCondition(existingConditions: Condition[], newCondition: Condition): boolean {

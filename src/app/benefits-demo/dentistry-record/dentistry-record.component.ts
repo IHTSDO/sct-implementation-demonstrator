@@ -34,6 +34,8 @@ type SurfaceVisualType = 'finding' | 'procedure-planned' | 'procedure-completed'
 export class DentistryRecordComponent implements OnChanges {
   @Input() patient: Patient | null = null;
 
+  private readonly SNOMED_SYSTEM = 'http://snomed.info/sct';
+  private readonly SNOMED_EXPRESSION_VERSION = 'http://snomed.info/xsct';
   private readonly DENTAL_CATEGORY_SYSTEM = 'http://example.org/fhir/CodeSystem/condition-category';
   private readonly DENTAL_CATEGORY_CODE = 'dental';
   private readonly DENTAL_PROCEDURE_CATEGORY_CODE = 'dental-procedure';
@@ -542,7 +544,6 @@ export class DentistryRecordComponent implements OnChanges {
       if (!resources) {
         return;
       }
-      this.patientService.addPatientBodyStructure(this.patient.id, resources.bodyStructure);
       await this.patientService.addPatientConditionAllowDuplicatesEnriched(this.patient.id, resources.condition);
     }
 
@@ -758,7 +759,7 @@ export class DentistryRecordComponent implements OnChanges {
     tooth: OdontogramTooth,
     siteCodes: string[],
     findingCode: string
-  ): { condition: Condition; bodyStructure: BodyStructure } | null {
+  ): { condition: Condition } | null {
     const toothStructure = tooth.snomedStructure;
     const finding = this.findingOptions.find((option) => option.code === findingCode);
     if (!toothStructure || !finding) {
@@ -774,49 +775,7 @@ export class DentistryRecordComponent implements OnChanges {
     }
 
     const now = new Date().toISOString();
-    const bodyStructureId = `body-structure-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const conditionId = `condition-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
-    const bodyStructure: BodyStructure = {
-      resourceType: 'BodyStructure',
-      id: bodyStructureId,
-      patient: {
-        reference: `Patient/${patientId}`,
-        display: `Patient ${patientId}`
-      },
-      includedStructure: [
-        {
-          structure: {
-            coding: [
-              {
-                system: 'http://snomed.info/sct',
-                code: toothStructure.code,
-                display: toothStructure.display
-              }
-            ],
-            text: toothStructure.display
-          }
-        },
-        ...selectedSites.map((site) => ({
-          structure: {
-            coding: [
-              {
-                system: 'http://snomed.info/sct',
-                code: site.code,
-                display: site.display
-              }
-            ],
-            text: site.display
-          }
-        }))
-      ],
-      note: [
-        {
-          text: `Dental body structure for FDI tooth ${tooth.notations.fdi}.`,
-          time: now
-        }
-      ]
-    };
 
     const condition: Condition = {
       resourceType: 'Condition',
@@ -856,8 +815,21 @@ export class DentistryRecordComponent implements OnChanges {
       code: {
         coding: [
           {
-            system: 'http://snomed.info/sct',
+            system: this.SNOMED_SYSTEM,
             code: finding.code,
+            display: finding.display
+          },
+          {
+            system: this.SNOMED_SYSTEM,
+            version: this.SNOMED_EXPRESSION_VERSION,
+            code: this.buildPostcoordinatedCodingExpression(
+              'finding',
+              finding.code,
+              finding.display,
+              toothStructure.code,
+              toothStructure.display,
+              selectedSites
+            ),
             display: finding.display
           }
         ],
@@ -867,10 +839,28 @@ export class DentistryRecordComponent implements OnChanges {
         reference: `Patient/${patientId}`,
         display: `Patient ${patientId}`
       },
-      bodyStructure: {
-        reference: `BodyStructure/${bodyStructureId}`,
-        display: toothStructure.display
-      },
+      bodySite: [
+        {
+          coding: [
+            {
+              system: this.SNOMED_SYSTEM,
+              code: toothStructure.code,
+              display: toothStructure.display
+            }
+          ],
+          text: toothStructure.display
+        },
+        ...selectedSites.map((site) => ({
+          coding: [
+            {
+              system: this.SNOMED_SYSTEM,
+              code: site.code,
+              display: site.display
+            }
+          ],
+          text: site.display
+        }))
+      ],
       recordedDate: now,
       note: [
         {
@@ -880,7 +870,7 @@ export class DentistryRecordComponent implements OnChanges {
       ]
     };
 
-    return { condition, bodyStructure };
+    return { condition };
   }
 
   private buildDentalProcedureAndBodyStructure(
@@ -919,7 +909,7 @@ export class DentistryRecordComponent implements OnChanges {
           structure: {
             coding: [
               {
-                system: 'http://snomed.info/sct',
+                system: this.SNOMED_SYSTEM,
                 code: toothStructure.code,
                 display: toothStructure.display
               }
@@ -931,7 +921,7 @@ export class DentistryRecordComponent implements OnChanges {
           structure: {
             coding: [
               {
-                system: 'http://snomed.info/sct',
+                system: this.SNOMED_SYSTEM,
                 code: site.code,
                 display: site.display
               }
@@ -965,8 +955,21 @@ export class DentistryRecordComponent implements OnChanges {
       code: {
         coding: [
           {
-            system: 'http://snomed.info/sct',
+            system: this.SNOMED_SYSTEM,
             code: procedureOption.code,
+            display: procedureOption.display
+          },
+          {
+            system: this.SNOMED_SYSTEM,
+            version: this.SNOMED_EXPRESSION_VERSION,
+            code: this.buildPostcoordinatedCodingExpression(
+              'procedure',
+              procedureOption.code,
+              procedureOption.display,
+              toothStructure.code,
+              toothStructure.display,
+              selectedSites
+            ),
             display: procedureOption.display
           }
         ],
@@ -1040,11 +1043,14 @@ export class DentistryRecordComponent implements OnChanges {
       .filter((condition) => this.isDentalCondition(condition))
       .map((condition): DentalFindingListItem => {
         const bodyStructureId = this.getBodyStructureIdFromReference(condition.bodyStructure?.reference);
-
         const bodyStructure = bodyStructureById[bodyStructureId];
-        const structureCodes = (bodyStructure?.includedStructure || [])
+        const bodySiteCodes = (condition.bodySite || [])
+          .map((site) => site.coding?.[0]?.code || '')
+          .filter(Boolean);
+        const bodyStructureCodes = (bodyStructure?.includedStructure || [])
           .map((item) => item.structure?.coding?.[0]?.code || '')
           .filter(Boolean);
+        const structureCodes = bodySiteCodes.length ? bodySiteCodes : bodyStructureCodes;
 
         const toothCode = structureCodes.find((code) => !!this.toothIdBySnomedCode[code]) || '';
         const toothId = this.toothIdBySnomedCode[toothCode] || '';
@@ -1187,23 +1193,47 @@ export class DentistryRecordComponent implements OnChanges {
     const attributeDisplay = item.entryType === 'finding'
       ? this.FINDING_SITE_ATTRIBUTE_DISPLAY
       : this.PROCEDURE_SITE_ATTRIBUTE_DISPLAY;
+    const selectedSites = item.siteCodes
+      .map((siteCode) => this.surfaceOptions.find((option) => option.code === siteCode))
+      .filter((site): site is SnomedConceptOption => !!site);
 
-    const siteLines = item.siteCodes
-      .map((siteCode) => {
-        const site = this.surfaceOptions.find((option) => option.code === siteCode);
-        if (!site) {
-          return '';
-        }
-        return `${attributeCode} |${attributeDisplay}| = ${site.code} |${site.display}|`;
-      })
-      .filter((line) => !!line);
+    const nestedValue = this.buildPostcoordinatedNestedValue(toothCode, toothDisplay, selectedSites);
+    return `=== ${conceptCode} |${conceptDisplay}| :\n  { ${attributeCode} |${attributeDisplay}| = ${nestedValue} }`;
+  }
 
-    const attributeLines = [
-      `${attributeCode} |${attributeDisplay}| = ${toothCode} |${toothDisplay}|`,
-      ...siteLines
+  private buildPostcoordinatedCodingExpression(
+    entryType: 'finding' | 'procedure',
+    conceptCode: string,
+    conceptDisplay: string,
+    toothCode: string,
+    toothDisplay: string,
+    selectedSites: SnomedConceptOption[]
+  ): string {
+    const attributeCode = entryType === 'finding'
+      ? this.FINDING_SITE_ATTRIBUTE_CODE
+      : this.PROCEDURE_SITE_ATTRIBUTE_CODE;
+    const attributeDisplay = entryType === 'finding'
+      ? this.FINDING_SITE_ATTRIBUTE_DISPLAY
+      : this.PROCEDURE_SITE_ATTRIBUTE_DISPLAY;
+    const nestedValue = this.buildPostcoordinatedNestedValue(toothCode, toothDisplay, selectedSites);
+    return `=== ${conceptCode} |${conceptDisplay}| : { ${attributeCode} |${attributeDisplay}| = ${nestedValue} }`;
+  }
+
+  private buildPostcoordinatedNestedValue(
+    toothCode: string,
+    toothDisplay: string,
+    selectedSites: SnomedConceptOption[]
+  ): string {
+    const components = [
+      `${toothCode} |${toothDisplay}|`,
+      ...selectedSites.map((site) => `${site.code} |${site.display}|`)
     ];
 
-    return `=== ${conceptCode} |${conceptDisplay}| :\n${attributeLines.join(',\n')}`;
+    if (components.length === 1) {
+      return components[0];
+    }
+
+    return `( ${components.join(' + ')} )`;
   }
 
   private buildDentalFhirBundle(patientId: string): any {
@@ -1212,12 +1242,13 @@ export class DentistryRecordComponent implements OnChanges {
     const bodyStructures = this.patientService.getPatientBodyStructures(patientId);
     const referencedBodyStructureIds = new Set(
       [
-        ...conditions.map((condition) => condition.bodyStructure?.reference || ''),
+        ...conditions
+          .map((condition) => condition.bodyStructure?.reference || '')
+          .filter(Boolean),
         ...procedures.map(
           (procedure) => procedure.reasonReference?.find((ref) => (ref.reference || '').includes('BodyStructure/'))?.reference || ''
         )
       ]
-        .filter(Boolean)
         .map((reference) => reference.replace('BodyStructure/', ''))
     );
 

@@ -162,6 +162,7 @@ export interface Condition {
   code: {
     coding?: Array<{
       system?: string;
+      version?: string;
       code?: string;
       display?: string;
     }>;
@@ -373,6 +374,7 @@ export interface Procedure {
   code: {
     coding?: Array<{
       system?: string;
+      version?: string;
       code?: string;
       display?: string;
     }>;
