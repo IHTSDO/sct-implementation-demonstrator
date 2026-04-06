@@ -893,16 +893,19 @@ export class PatientService {
   async addPatientWithConditions(
     patient: Patient,
     conditions: Condition[],
-    options?: { refreshPatients?: boolean }
+    options?: { refreshPatients?: boolean; skipConditionEnrichment?: boolean }
   ): Promise<PatientConditionPackageResult> {
     const shouldRefreshPatients = options?.refreshPatients !== false;
-    const enrichedConditions = await Promise.all(
-      conditions.map(async (condition) => {
-        const clonedCondition: Condition = JSON.parse(JSON.stringify(condition));
-        await this.enrichCondition(clonedCondition);
-        return clonedCondition;
-      })
-    );
+    const shouldSkipConditionEnrichment = options?.skipConditionEnrichment === true;
+    const enrichedConditions = shouldSkipConditionEnrichment
+      ? conditions.map((condition) => JSON.parse(JSON.stringify(condition)) as Condition)
+      : await Promise.all(
+          conditions.map(async (condition) => {
+            const clonedCondition: Condition = JSON.parse(JSON.stringify(condition));
+            await this.enrichCondition(clonedCondition);
+            return clonedCondition;
+          })
+        );
 
     const normalizedConditions = enrichedConditions.map((condition) => ({
       ...condition,

@@ -57,19 +57,15 @@ export class PatientLocalStorageService implements PatientStorageBackend {
 
   async savePatientWithConditions(patient: Patient, conditions: Condition[]): Promise<PatientConditionPackageResult> {
     const savedPatient = await this.createPatient(patient);
-    const savedConditions = conditions
-      .map((condition) => {
-        const normalizedCondition: Condition = {
-          ...condition,
-          subject: {
-            ...condition.subject,
-            reference: `Patient/${savedPatient.id}`,
-            display: condition.subject?.display || this.getPatientDisplayName(savedPatient)
-          }
-        };
-
-        return this.pushItem(`ehr_conditions_${savedPatient.id}`, this.prepareConditionForStorage(normalizedCondition));
-      });
+    const savedConditions = conditions.map((condition) => this.prepareConditionForStorage({
+      ...condition,
+      subject: {
+        ...condition.subject,
+        reference: `Patient/${savedPatient.id}`,
+        display: condition.subject?.display || this.getPatientDisplayName(savedPatient)
+      }
+    }));
+    this.writeArray(`ehr_conditions_${savedPatient.id}`, savedConditions);
 
     return {
       patient: savedPatient,

@@ -780,7 +780,10 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
                     const savedPackage = await this.patientService.addPatientWithConditions(
                       result.patient,
                       result.diagnoses,
-                      { refreshPatients: false }
+                      {
+                        refreshPatients: false,
+                        skipConditionEnrichment: !this.isFhirMode()
+                      }
                     );
                     lastPatientId = savedPackage.patient.id;
                   }
