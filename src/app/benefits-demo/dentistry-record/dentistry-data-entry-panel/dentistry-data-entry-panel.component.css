@@ -111,6 +111,19 @@
   border-top: 1px dashed #dde3ec;
 }
 
+.root-surface-grid {
+  margin-top: 8px;
+}
+
+.surface-section-label {
+  margin: 0 0 6px;
+  color: #7a8594;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
+}
+
 .entry-input {
   width: 100%;
   margin-bottom: 10px;

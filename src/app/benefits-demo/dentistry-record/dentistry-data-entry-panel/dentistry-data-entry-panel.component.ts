@@ -11,6 +11,8 @@ import { DentalFindingListItem } from '../models/dental-finding-list-item.model'
 export class DentistryDataEntryPanelComponent {
   @Input() pinnedTooth: OdontogramTooth | null = null;
   @Input() surfaceOnlyOptions: SnomedConceptOption[] = [];
+  @Input() rootSurfaceOptions: SnomedConceptOption[] = [];
+  @Input() showRoots = false;
   @Input() selectedSiteCodes: string[] = [];
   @Input() completeSiteCode = '302214001';
   @Input() periodontalSiteCode = '8711009';

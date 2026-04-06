@@ -24,7 +24,7 @@
         class="view-mode-button"
         [class.active]="viewMode === 'rootSurface'"
         (click)="setViewMode('rootSurface')">
-        Root Surface View
+        Odontogram View
       </button>
     </div>
 
@@ -32,7 +32,7 @@
       <app-dentistry-odontogram-anatomic
         *ngIf="viewMode === 'anatomic'"
         [quadrants]="quadrants"
-        [surfaceOptions]="surfaceOptions"
+        [surfaceOptions]="anatomicSurfaceOptions"
         [hoveredTooth]="hoveredTooth"
         [tooltipX]="tooltipX"
         [tooltipY]="tooltipY"
@@ -61,6 +61,7 @@
         [getTeethForQuadrant]="getTeethForQuadrantFn"
         [isSelected]="isSelectedFn"
         [isToothAbsent]="isToothAbsentFn"
+        [showRoots]="showRoots"
         [hasSurfaceVisual]="hasSurfaceVisualFn"
         [getSurfaceVisualType]="getSurfaceVisualTypeFn"
         [isSurfacePreview]="isSurfacePreviewFn"
@@ -72,9 +73,14 @@
         [surfaceCodeOcclusal]="SURFACE_CODE_OCCLUSAL"
         [surfaceCodeLingual]="SURFACE_CODE_LINGUAL"
         [surfaceCodeVestibular]="SURFACE_CODE_VESTIBULAR"
+        [surfaceCodeRootMesial]="SURFACE_CODE_ROOT_MESIAL"
+        [surfaceCodeRootDistal]="SURFACE_CODE_ROOT_DISTAL"
+        [surfaceCodeRootLingual]="SURFACE_CODE_ROOT_LINGUAL"
+        [surfaceCodeRootVestibular]="SURFACE_CODE_ROOT_VESTIBULAR"
         [surfaceCodeEntire]="SURFACE_CODE_COMPLETE"
         [surfaceCodePeriodontal]="SURFACE_CODE_PERIODONTAL"
         [getToothTooltipLines]="getToothTooltipLinesFn"
+        (showRootsChange)="setShowRoots($event)"
         (toothPinned)="pinTooth($event)"
         (toothMouseEnter)="onToothMouseEnter($event.tooth, $event.event)"
         (toothMouseMove)="onToothMouseMove($event)"
@@ -88,6 +94,8 @@
               <app-dentistry-data-entry-panel
                 [pinnedTooth]="pinnedTooth"
                 [surfaceOnlyOptions]="getSurfaceOnlyOptions()"
+                [rootSurfaceOptions]="getRootSurfaceOptions()"
+                [showRoots]="showRoots"
                 [selectedSiteCodes]="getPinnedSiteCodes()"
                 [completeSiteCode]="SURFACE_CODE_COMPLETE"
                 [periodontalSiteCode]="SURFACE_CODE_PERIODONTAL"

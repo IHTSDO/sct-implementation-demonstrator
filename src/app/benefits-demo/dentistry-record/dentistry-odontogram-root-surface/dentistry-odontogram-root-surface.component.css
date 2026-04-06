@@ -13,10 +13,28 @@
   font-weight: 700;
 }
 
+.root-surface-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .root-surface-header p {
   margin: 4px 0 12px;
   color: #6b7786;
   font-size: 0.8rem;
+}
+
+.show-roots-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 2px;
+  color: #5e6977;
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .root-surface-canvas {
@@ -55,6 +73,10 @@
   fill: rgba(47, 73, 209, 0.24);
 }
 
+.root-tooth.selected.without-roots .tooth-core-background {
+  fill: rgba(47, 73, 209, 0.24);
+}
+
 .root-tooth.absent {
   color: #b8c0cb;
 }
@@ -63,15 +85,31 @@
   fill: #eef1f5;
 }
 
+.root-tooth.absent .tooth-core-background {
+  fill: #eef1f5;
+}
+
 .root-tooth.absent .tooth-label {
   fill: #8e98a6;
+}
+
+.tooth-hit-area {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
 }
 
 .tooth-node {
   fill: #f5f7fa;
   stroke: currentColor;
   stroke-width: 1.6;
-  pointer-events: all;
+  pointer-events: none;
+}
+
+.tooth-core-background {
+  fill: #f5f7fa;
+  stroke: none;
+  pointer-events: none;
 }
 
 .tooth-outer-square,
@@ -84,6 +122,7 @@
 }
 
 .surface-segment,
+.surface-root-segment,
 .surface-occlusal,
 .surface-entire {
   fill: rgba(255, 0, 0, 0.78);
@@ -101,12 +140,14 @@
 }
 
 .surface-segment.surface-procedure,
+.surface-root-segment.surface-procedure,
 .surface-occlusal.surface-procedure,
 .surface-entire.surface-procedure {
   fill: rgba(47, 125, 63, 0.78);
 }
 
 .surface-segment.surface-procedure-completed,
+.surface-root-segment.surface-procedure-completed,
 .surface-occlusal.surface-procedure-completed,
 .surface-entire.surface-procedure-completed {
   fill: rgba(45, 108, 223, 0.78);

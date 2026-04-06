@@ -26,6 +26,7 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   @Input() getTeethForQuadrant: (prefix: string) => OdontogramTooth[] = () => [];
   @Input() isSelected: (toothId: string) => boolean = () => false;
   @Input() isToothAbsent: (toothId: string) => boolean = () => false;
+  @Input() showRoots = false;
   @Input() hasSurfaceVisual: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() getSurfaceVisualType: (toothId: string, surfaceCode: string) => 'finding' | 'procedure-planned' | 'procedure-completed' | null = () => null;
   @Input() isSurfacePreview: (toothId: string, surfaceCode: string) => boolean = () => false;
@@ -39,9 +40,14 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   @Input() surfaceCodeOcclusal = '';
   @Input() surfaceCodeLingual = '';
   @Input() surfaceCodeVestibular = '';
+  @Input() surfaceCodeRootMesial = '';
+  @Input() surfaceCodeRootDistal = '';
+  @Input() surfaceCodeRootLingual = '';
+  @Input() surfaceCodeRootVestibular = '';
   @Input() surfaceCodeEntire = '';
   @Input() surfaceCodePeriodontal = '';
 
+  @Output() showRootsChange = new EventEmitter<boolean>();
   @Output() toothPinned = new EventEmitter<OdontogramTooth>();
   @Output() toothMouseEnter = new EventEmitter<{ tooth: OdontogramTooth; event: MouseEvent }>();
   @Output() toothMouseMove = new EventEmitter<MouseEvent>();
@@ -131,8 +137,39 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
     return `${inner},${-inner} ${outer},${-outer} ${outer},${outer} ${inner},${inner}`;
   }
 
+  getRootTopPath(tooth: OdontogramTooth): string {
+    const outer = this.getOuterHalfSize(tooth);
+    return `M ${-outer} ${-outer} Q 0 -18 ${outer} ${-outer} L ${-outer} ${-outer} Z`;
+  }
+
+  getRootBottomPath(tooth: OdontogramTooth): string {
+    const outer = this.getOuterHalfSize(tooth);
+    return `M ${outer} ${outer} Q 0 18 ${-outer} ${outer} L ${outer} ${outer} Z`;
+  }
+
+  getRootLeftPath(tooth: OdontogramTooth): string {
+    const outer = this.getOuterHalfSize(tooth);
+    return `M ${-outer} ${outer} Q -18 0 ${-outer} ${-outer} L ${-outer} ${outer} Z`;
+  }
+
+  getRootRightPath(tooth: OdontogramTooth): string {
+    const outer = this.getOuterHalfSize(tooth);
+    return `M ${outer} ${-outer} Q 18 0 ${outer} ${outer} L ${outer} ${-outer} Z`;
+  }
+
   hasDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
     const code = this.getSurfaceCodeForDirection(tooth, direction);
+    if (!code) {
+      return false;
+    }
+    return this.hasSurfaceVisual(tooth.id, code);
+  }
+
+  hasRootDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
+    if (!this.showRoots) {
+      return false;
+    }
+    const code = this.getRootSurfaceCodeForDirection(tooth, direction);
     if (!code) {
       return false;
     }
@@ -147,6 +184,14 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
     return this.isSurfacePreview(tooth.id, code);
   }
 
+  isRootDirectionPreview(tooth: OdontogramTooth, direction: RootDirection): boolean {
+    const code = this.getRootSurfaceCodeForDirection(tooth, direction);
+    if (!code) {
+      return false;
+    }
+    return this.isSurfacePreview(tooth.id, code);
+  }
+
   isProcedureDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
     const code = this.getSurfaceCodeForDirection(tooth, direction);
     if (!code) {
@@ -155,8 +200,24 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
     return this.isProcedureSurface(tooth, code);
   }
 
+  isProcedureRootDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
+    const code = this.getRootSurfaceCodeForDirection(tooth, direction);
+    if (!code) {
+      return false;
+    }
+    return this.isProcedureSurface(tooth, code);
+  }
+
   isCompletedProcedureDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
     const code = this.getSurfaceCodeForDirection(tooth, direction);
+    if (!code) {
+      return false;
+    }
+    return this.isCompletedProcedureSurface(tooth, code);
+  }
+
+  isCompletedProcedureRootDirectionSurface(tooth: OdontogramTooth, direction: RootDirection): boolean {
+    const code = this.getRootSurfaceCodeForDirection(tooth, direction);
     if (!code) {
       return false;
     }
@@ -187,6 +248,10 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
     return this.isSurfacePreview(tooth.id, this.surfaceCodePeriodontal);
   }
 
+  onShowRootsChange(checked: boolean): void {
+    this.showRootsChange.emit(checked);
+  }
+
   private getSurfaceCodeForDirection(tooth: OdontogramTooth, direction: RootDirection): string | null {
     const fdi = tooth.notations.fdi;
     if (direction === this.getMesialDirection(fdi)) {
@@ -200,6 +265,23 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
     }
     if (direction === this.getLingualDirection(fdi)) {
       return this.surfaceCodeLingual;
+    }
+    return null;
+  }
+
+  private getRootSurfaceCodeForDirection(tooth: OdontogramTooth, direction: RootDirection): string | null {
+    const fdi = tooth.notations.fdi;
+    if (direction === this.getMesialDirection(fdi)) {
+      return this.surfaceCodeRootMesial;
+    }
+    if (direction === this.getDistalDirection(fdi)) {
+      return this.surfaceCodeRootDistal;
+    }
+    if (direction === this.getVestibularDirection(fdi)) {
+      return this.surfaceCodeRootVestibular;
+    }
+    if (direction === this.getLingualDirection(fdi)) {
+      return this.surfaceCodeRootLingual;
     }
     return null;
   }

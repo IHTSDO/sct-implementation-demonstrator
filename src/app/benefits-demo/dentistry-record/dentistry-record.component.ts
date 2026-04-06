@@ -42,6 +42,10 @@ export class DentistryRecordComponent implements OnChanges {
   readonly SURFACE_CODE_OCCLUSAL = '83473006';
   readonly SURFACE_CODE_LINGUAL = '72203008';
   readonly SURFACE_CODE_VESTIBULAR = '62579006';
+  readonly SURFACE_CODE_ROOT_MESIAL = '245716007';
+  readonly SURFACE_CODE_ROOT_DISTAL = '245717003';
+  readonly SURFACE_CODE_ROOT_LINGUAL = '245715006';
+  readonly SURFACE_CODE_ROOT_VESTIBULAR = '773297003';
   readonly SURFACE_CODE_COMPLETE = '302214001';
   readonly SURFACE_CODE_PERIODONTAL = '8711009';
   private readonly TOOTH_ABSENT_FINDING_CODE = '234948008';
@@ -64,6 +68,9 @@ export class DentistryRecordComponent implements OnChanges {
   private absentToothIds = new Set<string>();
 
   readonly surfaceOptions: SnomedConceptOption[] = DENTAL_SURFACE_OPTIONS;
+  readonly anatomicSurfaceOptions: SnomedConceptOption[] = DENTAL_SURFACE_OPTIONS.filter((option) => option.scope !== 'rootSurface');
+  readonly crownSurfaceOptions: SnomedConceptOption[] = DENTAL_SURFACE_OPTIONS.filter((option) => option.scope === 'surface');
+  readonly rootSurfaceOptions: SnomedConceptOption[] = DENTAL_SURFACE_OPTIONS.filter((option) => option.scope === 'rootSurface');
   readonly findingOptions: SnomedConceptOption[] = DENTAL_FINDING_OPTIONS;
   readonly procedureOptions: SnomedConceptOption[] = DENTAL_PROCEDURE_OPTIONS;
   readonly quadrants: QuadrantConfig[] = [
@@ -75,6 +82,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly teethByQuadrant = this.buildTeethByQuadrant();
   readonly toothIdBySnomedCode = this.buildToothIdBySnomedCodeMap();
   viewMode: OdontogramViewMode = 'anatomic';
+  showRoots = false;
   selectedSideTabIndex = 1;
   readonly getTeethForQuadrantFn = (prefix: string) => this.getTeethForQuadrant(prefix);
   readonly trackByToothIdFn = (_: number, tooth: OdontogramTooth) => this.trackByToothId(_, tooth);
@@ -104,6 +112,17 @@ export class DentistryRecordComponent implements OnChanges {
     this.viewMode = mode;
   }
 
+  setShowRoots(showRoots: boolean): void {
+    this.showRoots = showRoots;
+
+    if (!showRoots && this.pinnedTooth) {
+      const visibleSiteCodes = this.getPinnedSiteCodes().filter((siteCode) => !this.isRootSurfaceCode(siteCode));
+      if (visibleSiteCodes.length !== this.getPinnedSiteCodes().length) {
+        this.onSiteSelectionChanged(this.getOrderedSiteCodes(visibleSiteCodes));
+      }
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['patient']) {
       return;
@@ -128,7 +147,11 @@ export class DentistryRecordComponent implements OnChanges {
   }
 
   getSurfaceOnlyOptions(): SnomedConceptOption[] {
-    return this.surfaceOptions.filter((option) => option.scope === 'surface');
+    return this.crownSurfaceOptions;
+  }
+
+  getRootSurfaceOptions(): SnomedConceptOption[] {
+    return this.showRoots ? this.rootSurfaceOptions : [];
   }
 
   pinTooth(tooth: OdontogramTooth): void {
@@ -246,6 +269,10 @@ export class DentistryRecordComponent implements OnChanges {
     }
 
     this.onSiteSelectionChanged(this.getOrderedSiteCodes([...next]));
+  }
+
+  private isRootSurfaceCode(siteCode: string): boolean {
+    return this.rootSurfaceOptions.some((option) => option.code === siteCode);
   }
 
   getSurfaceFill(surfaceCode: string, tooth: OdontogramTooth, quadrantPrefix: string): string {

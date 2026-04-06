@@ -126,5 +126,13 @@
       </a>
     </mat-toolbar>
   }
+  @if (loadingModule) {
+    <div class="module-load-overlay">
+      <div class="module-load-card">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading...</span>
+      </div>
+    </div>
+  }
   <router-outlet></router-outlet>
 </mat-drawer-container>

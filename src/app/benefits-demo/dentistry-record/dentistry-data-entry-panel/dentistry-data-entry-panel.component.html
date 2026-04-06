@@ -64,7 +64,7 @@
           type="checkbox"
           [checked]="isSelectedSite(completeSiteCode)"
           (change)="onExclusiveToggle(completeSiteCode, !!$any($event.target).checked)">
-        <span>Entire tooth</span>
+        <span>Tooth in general</span>
       </label>
       <label class="site-checkbox">
         <input
@@ -76,6 +76,17 @@
 
       <div class="surface-checkbox-grid">
         <label class="site-checkbox" *ngFor="let option of surfaceOnlyOptions">
+          <input
+            type="checkbox"
+            [checked]="isSelectedSite(option.code)"
+            (change)="onSurfaceToggle(option.code, !!$any($event.target).checked)">
+          <span>{{ option.display }}</span>
+        </label>
+      </div>
+
+      <div class="surface-checkbox-grid root-surface-grid" *ngIf="showRoots && rootSurfaceOptions.length > 0">
+        <div class="surface-section-label">Root surfaces</div>
+        <label class="site-checkbox" *ngFor="let option of rootSurfaceOptions">
           <input
             type="checkbox"
             [checked]="isSelectedSite(option.code)"

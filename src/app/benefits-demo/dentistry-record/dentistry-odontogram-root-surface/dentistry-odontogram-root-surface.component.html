@@ -1,7 +1,16 @@
 <div class="root-surface-container">
   <div class="root-surface-header">
-    <h3>Root Surface Odontogram (Dennison)</h3>
-    <p>Segmented surfaces with larger central polygon for molars.</p>
+    <div>
+      <h3>Odontogram</h3>
+      <p>Segmented surfaces with larger central polygon for molars.</p>
+    </div>
+    <label class="show-roots-toggle">
+      <input
+        type="checkbox"
+        [checked]="showRoots"
+        (change)="onShowRootsChange(!!$any($event.target).checked)">
+      <span>Show roots</span>
+    </label>
   </div>
 
   <svg
@@ -25,6 +34,7 @@
         class="root-tooth"
         [class.selected]="isSelected(positioned.tooth.id)"
         [class.absent]="isToothAbsent(positioned.tooth.id)"
+        [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
         [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
@@ -32,15 +42,29 @@
         (mousemove)="toothMouseMove.emit($event)"
         (mouseleave)="toothMouseLeave.emit()">
         <circle
-          class="tooth-node"
+          class="tooth-hit-area"
           cx="0"
           cy="0"
           r="18"
           (click)="onPinTooth(positioned.tooth)">
         </circle>
+        <circle
+          *ngIf="showRoots"
+          class="tooth-node"
+          cx="0"
+          cy="0"
+          r="18">
+        </circle>
+        <polygon class="tooth-core-background" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
 
-        <circle *ngIf="hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" cx="0" cy="0" r="18"></circle>
+        <circle *ngIf="showRoots && hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" cx="0" cy="0" r="18"></circle>
+        <polygon *ngIf="!showRoots && hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
         <circle *ngIf="hasPeriodontalSurface(positioned.tooth)" class="surface-periodontal" [class.surface-preview]="isPeriodontalPreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodePeriodontal)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodePeriodontal)" cx="0" cy="0" r="21"></circle>
+
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'top')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'top')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'top')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'top')" [attr.d]="getRootTopPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'right')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'right')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'right')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'right')" [attr.d]="getRootRightPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'bottom')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'bottom')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'bottom')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'bottom')" [attr.d]="getRootBottomPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'left')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'left')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'left')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'left')" [attr.d]="getRootLeftPath(positioned.tooth)"></path>
 
         <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'top')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'top')" [class.surface-procedure]="isProcedureDirectionSurface(positioned.tooth, 'top')" [class.surface-procedure-completed]="isCompletedProcedureDirectionSurface(positioned.tooth, 'top')" [attr.points]="getTopPolygonPoints(positioned.tooth)"></polygon>
         <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'right')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'right')" [class.surface-procedure]="isProcedureDirectionSurface(positioned.tooth, 'right')" [class.surface-procedure-completed]="isCompletedProcedureDirectionSurface(positioned.tooth, 'right')" [attr.points]="getRightPolygonPoints(positioned.tooth)"></polygon>
@@ -69,6 +93,7 @@
         class="root-tooth"
         [class.selected]="isSelected(positioned.tooth.id)"
         [class.absent]="isToothAbsent(positioned.tooth.id)"
+        [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
         [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
@@ -76,15 +101,29 @@
         (mousemove)="toothMouseMove.emit($event)"
         (mouseleave)="toothMouseLeave.emit()">
         <circle
-          class="tooth-node"
+          class="tooth-hit-area"
           cx="0"
           cy="0"
           r="18"
           (click)="onPinTooth(positioned.tooth)">
         </circle>
+        <circle
+          *ngIf="showRoots"
+          class="tooth-node"
+          cx="0"
+          cy="0"
+          r="18">
+        </circle>
+        <polygon class="tooth-core-background" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
 
-        <circle *ngIf="hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" cx="0" cy="0" r="18"></circle>
+        <circle *ngIf="showRoots && hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" cx="0" cy="0" r="18"></circle>
+        <polygon *ngIf="!showRoots && hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
         <circle *ngIf="hasPeriodontalSurface(positioned.tooth)" class="surface-periodontal" [class.surface-preview]="isPeriodontalPreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodePeriodontal)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodePeriodontal)" cx="0" cy="0" r="21"></circle>
+
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'top')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'top')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'top')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'top')" [attr.d]="getRootTopPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'right')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'right')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'right')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'right')" [attr.d]="getRootRightPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'bottom')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'bottom')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'bottom')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'bottom')" [attr.d]="getRootBottomPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'left')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'left')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'left')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'left')" [attr.d]="getRootLeftPath(positioned.tooth)"></path>
 
         <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'top')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'top')" [class.surface-procedure]="isProcedureDirectionSurface(positioned.tooth, 'top')" [class.surface-procedure-completed]="isCompletedProcedureDirectionSurface(positioned.tooth, 'top')" [attr.points]="getTopPolygonPoints(positioned.tooth)"></polygon>
         <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'right')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'right')" [class.surface-procedure]="isProcedureDirectionSurface(positioned.tooth, 'right')" [class.surface-procedure-completed]="isCompletedProcedureDirectionSurface(positioned.tooth, 'right')" [attr.points]="getRightPolygonPoints(positioned.tooth)"></polygon>
@@ -113,6 +152,7 @@
         class="root-tooth"
         [class.selected]="isSelected(positioned.tooth.id)"
         [class.absent]="isToothAbsent(positioned.tooth.id)"
+        [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
         [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
@@ -120,15 +160,29 @@
         (mousemove)="toothMouseMove.emit($event)"
         (mouseleave)="toothMouseLeave.emit()">
         <circle
-          class="tooth-node"
+          class="tooth-hit-area"
           cx="0"
           cy="0"
           r="18"
           (click)="onPinTooth(positioned.tooth)">
         </circle>
+        <circle
+          *ngIf="showRoots"
+          class="tooth-node"
+          cx="0"
+          cy="0"
+          r="18">
+        </circle>
+        <polygon class="tooth-core-background" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
 
-        <circle *ngIf="hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" cx="0" cy="0" r="18"></circle>
+        <circle *ngIf="showRoots && hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" cx="0" cy="0" r="18"></circle>
+        <polygon *ngIf="!showRoots && hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
         <circle *ngIf="hasPeriodontalSurface(positioned.tooth)" class="surface-periodontal" [class.surface-preview]="isPeriodontalPreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodePeriodontal)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodePeriodontal)" cx="0" cy="0" r="21"></circle>
+
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'top')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'top')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'top')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'top')" [attr.d]="getRootTopPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'right')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'right')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'right')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'right')" [attr.d]="getRootRightPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'bottom')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'bottom')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'bottom')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'bottom')" [attr.d]="getRootBottomPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'left')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'left')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'left')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'left')" [attr.d]="getRootLeftPath(positioned.tooth)"></path>
 
         <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'top')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'top')" [class.surface-procedure]="isProcedureDirectionSurface(positioned.tooth, 'top')" [class.surface-procedure-completed]="isCompletedProcedureDirectionSurface(positioned.tooth, 'top')" [attr.points]="getTopPolygonPoints(positioned.tooth)"></polygon>
         <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'right')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'right')" [class.surface-procedure]="isProcedureDirectionSurface(positioned.tooth, 'right')" [class.surface-procedure-completed]="isCompletedProcedureDirectionSurface(positioned.tooth, 'right')" [attr.points]="getRightPolygonPoints(positioned.tooth)"></polygon>
@@ -157,6 +211,7 @@
         class="root-tooth"
         [class.selected]="isSelected(positioned.tooth.id)"
         [class.absent]="isToothAbsent(positioned.tooth.id)"
+        [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
         [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
@@ -164,15 +219,29 @@
         (mousemove)="toothMouseMove.emit($event)"
         (mouseleave)="toothMouseLeave.emit()">
         <circle
-          class="tooth-node"
+          class="tooth-hit-area"
           cx="0"
           cy="0"
           r="18"
           (click)="onPinTooth(positioned.tooth)">
         </circle>
+        <circle
+          *ngIf="showRoots"
+          class="tooth-node"
+          cx="0"
+          cy="0"
+          r="18">
+        </circle>
+        <polygon class="tooth-core-background" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
 
-        <circle *ngIf="hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" cx="0" cy="0" r="18"></circle>
+        <circle *ngIf="showRoots && hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" cx="0" cy="0" r="18"></circle>
+        <polygon *ngIf="!showRoots && hasEntireSurface(positioned.tooth)" class="surface-entire" [class.surface-preview]="isEntirePreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodeEntire)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodeEntire)" [attr.points]="getOuterSquarePoints(positioned.tooth)"></polygon>
         <circle *ngIf="hasPeriodontalSurface(positioned.tooth)" class="surface-periodontal" [class.surface-preview]="isPeriodontalPreview(positioned.tooth)" [class.surface-procedure]="isProcedureSurface(positioned.tooth, surfaceCodePeriodontal)" [class.surface-procedure-completed]="isCompletedProcedureSurface(positioned.tooth, surfaceCodePeriodontal)" cx="0" cy="0" r="21"></circle>
+
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'top')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'top')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'top')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'top')" [attr.d]="getRootTopPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'right')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'right')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'right')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'right')" [attr.d]="getRootRightPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'bottom')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'bottom')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'bottom')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'bottom')" [attr.d]="getRootBottomPath(positioned.tooth)"></path>
+        <path *ngIf="hasRootDirectionSurface(positioned.tooth, 'left')" class="surface-root-segment" [class.surface-preview]="isRootDirectionPreview(positioned.tooth, 'left')" [class.surface-procedure]="isProcedureRootDirectionSurface(positioned.tooth, 'left')" [class.surface-procedure-completed]="isCompletedProcedureRootDirectionSurface(positioned.tooth, 'left')" [attr.d]="getRootLeftPath(positioned.tooth)"></path>
 
         <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'top')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'top')" [class.surface-procedure]="isProcedureDirectionSurface(positioned.tooth, 'top')" [class.surface-procedure-completed]="isCompletedProcedureDirectionSurface(positioned.tooth, 'top')" [attr.points]="getTopPolygonPoints(positioned.tooth)"></polygon>
         <polygon *ngIf="hasDirectionSurface(positioned.tooth, 'right')" class="surface-segment" [class.surface-preview]="isDirectionPreview(positioned.tooth, 'right')" [class.surface-procedure]="isProcedureDirectionSurface(positioned.tooth, 'right')" [class.surface-procedure-completed]="isCompletedProcedureDirectionSurface(positioned.tooth, 'right')" [attr.points]="getRightPolygonPoints(positioned.tooth)"></polygon>

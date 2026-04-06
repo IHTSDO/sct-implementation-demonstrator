@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { CodingSpecService } from './services/coding-spec.service';
 import { ExcelService } from './services/excel.service';
 import { TerminologyService } from './services/terminology.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouteConfigLoadStart, RouteConfigLoadEnd } from '@angular/router';
 import { MenuService } from './services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
@@ -21,6 +21,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class AppComponent {
   title = 'sct-implementation-demonstrator';
+  loadingModule = false;
   bindingsForExport: any[] = [];
   editions: any[] = [];
   editionsDetails: any[] = [];
@@ -64,6 +65,14 @@ export class AppComponent {
     private googleAnalyticsService: GoogleAnalyticsService) { 
     // Google Analytics tracking is now handled automatically by GoogleAnalyticsService
     // which intercepts router events in its constructor
+
+    this.router.events.subscribe(event => {
+      if (event instanceof RouteConfigLoadStart) {
+        this.loadingModule = true;
+      } else if (event instanceof RouteConfigLoadEnd) {
+        this.loadingModule = false;
+      }
+    });
   }
 
   ngOnInit(): void {
