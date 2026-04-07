@@ -3,6 +3,13 @@ import { FormControl } from '@angular/forms';
 import { debounceTime, filter, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
 import { TerminologyService } from 'src/app/services/terminology.service';
 import type { ServiceRequest } from 'src/app/model';
+import { LoincGrouperCacheService } from '../loinc-grouper-cache.service';
+
+type SearchResultItem = {
+  code: string;
+  display: string;
+  isGrouper?: boolean;
+};
 
 @Component({
   selector: 'app-loinc-order-search-panel',
@@ -24,7 +31,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
   searchControl = new FormControl('');
   private destroy$ = new Subject<void>();
 
-  searchResults: any[] = [];
+  searchResults: SearchResultItem[] = [];
   totalResults = 0;
   searching = false;
   extending = false;
@@ -33,12 +40,16 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
   resultsEcl = '';
   initializing = true;
   activeEditionVersion = this.fallbackEditionVersion;
+  initializationMessage = 'Selecting the latest LOINC Ontology edition...';
 
   filterOptions: any[] = [];
   filters: any[] = [];
   skeletonLoaders = Array(10);
 
-  constructor(private terminologyService: TerminologyService) {}
+  constructor(
+    private terminologyService: TerminologyService,
+    private loincGrouperCacheService: LoincGrouperCacheService
+  ) {}
 
   ngOnInit() {
     this.searchControl.disable();
@@ -49,13 +60,13 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
     ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (version) => {
         this.activeEditionVersion = version || this.fallbackEditionVersion;
-        this.searchControl.enable();
-        this.initializing = false;
+        this.initializationMessage = 'Loading LOINC groupers...';
+        this.preloadGroupers();
       },
       error: () => {
         this.activeEditionVersion = this.fallbackEditionVersion;
-        this.searchControl.enable();
-        this.initializing = false;
+        this.initializationMessage = 'Loading LOINC groupers...';
+        this.preloadGroupers();
       }
     });
 
@@ -68,7 +79,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: ({ mainResult, propertyResult, componentResult, scaleResult, siteResult, inheresResult, techniqueResult }) => {
-          this.searchResults = mainResult?.expansion?.contains || [];
+          this.searchResults = this.markGroupers(mainResult?.expansion?.contains || []);
           this.totalResults = mainResult?.expansion?.total || 0;
           this.filterOptions = [
             this.buildFilterOption('Property', propertyResult, '370130000 |Property (attribute)| = '),
@@ -140,7 +151,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
       this.limit
     ).subscribe({
       next: (result) => {
-        const newResults = result?.expansion?.contains || [];
+        const newResults = this.markGroupers(result?.expansion?.contains || []);
         this.searchResults = [...this.searchResults, ...newResults];
         this.extending = false;
       },
@@ -259,6 +270,42 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
 
   getCurrentDate() {
     return new Date().toISOString().split('T')[0];
+  }
+
+  getActiveEditionReleaseLabel(): string {
+    const releaseDate = this.activeEditionVersion.split('/version/')[1];
+    return releaseDate || 'unversioned edition';
+  }
+
+  getActiveEditionTooltip(): string {
+    return `Using LOINC Ontology Edition ${this.getActiveEditionReleaseLabel()}`;
+  }
+
+  isGrouper(item: SearchResultItem): boolean {
+    return !!item.isGrouper;
+  }
+
+  private preloadGroupers(): void {
+    this.loincGrouperCacheService.warmGroupers(this.loincTerminologyServer, this.activeEditionVersion)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.searchResults = this.markGroupers(this.searchResults);
+          this.searchControl.enable();
+          this.initializing = false;
+        },
+        error: () => {
+          this.searchControl.enable();
+          this.initializing = false;
+        }
+      });
+  }
+
+  private markGroupers(results: SearchResultItem[]): SearchResultItem[] {
+    return results.map((result) => ({
+      ...result,
+      isGrouper: this.loincGrouperCacheService.isGrouper(this.activeEditionVersion, result.code)
+    }));
   }
 
   ngOnDestroy() {

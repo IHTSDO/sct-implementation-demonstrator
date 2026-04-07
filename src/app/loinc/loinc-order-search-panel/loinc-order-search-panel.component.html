@@ -1,6 +1,26 @@
+<div class="search-layout-shell">
+  @if (initializing) {
+    <div class="search-loading-overlay">
+      <div class="search-loading-card">
+        <mat-spinner diameter="36"></mat-spinner>
+        <span>{{ initializationMessage }}</span>
+      </div>
+    </div>
+  }
+
 <div class="search-layout">
   <div class="column filters-column">
-    <h2>Search</h2>
+    <div class="search-heading">
+      <h2>Search</h2>
+      <button
+        mat-icon-button
+        color="primary"
+        type="button"
+        [matTooltip]="getActiveEditionTooltip()"
+        [attr.aria-label]="'Active edition: ' + getActiveEditionReleaseLabel()">
+        <mat-icon>info</mat-icon>
+      </button>
+    </div>
     <mat-form-field class="w-full">
       @if (initializing) {
         <mat-label>Setting up search...</mat-label>
@@ -98,7 +118,13 @@
       <div class="w-full">
         @for (concept of searchResults; track concept.code) {
           <div class="result-row clickable" (click)="addToOrder(concept)">
-            {{ concept.display }}
+            <span
+              class="grouper-badge"
+              [class.grouper-badge-hidden]="!isGrouper(concept)"
+              [matTooltip]="isGrouper(concept) ? 'LOINC grouper' : ''">
+              G
+            </span>
+            <span class="result-label">{{ concept.display }}</span>
           </div>
         }
       </div>
@@ -123,4 +149,5 @@
       }
     </div>
   </div>
+</div>
 </div>

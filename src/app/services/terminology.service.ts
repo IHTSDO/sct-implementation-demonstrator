@@ -228,17 +228,32 @@ export class TerminologyService {
   }
 
   /**
-   * Resolve the latest versioned SNOMED CT URI for a specific edition-level URI.
+   * Resolve the latest versioned CodeSystem URI for a specific edition-level URI
+   * on the provided FHIR server.
    * Example:
    * - editionUri:  http://snomed.info/sct/11010000107
    * - versionedUri: http://snomed.info/sct/11010000107/version/20250321
    */
   getLatestCodeSystemVersionFromServer(fhirBase: string, editionUri: string, fallbackVersion?: string): Observable<string> {
     const knownVersionedUri = fallbackVersion || editionUri;
-    return this.getCodeSystemFromServer(fhirBase, knownVersionedUri).pipe(
+    return this.getCodeSystemsFromServer(fhirBase).pipe(
       map((response: any) => {
-        const firstVersion = response?.entry?.[0]?.resource?.version;
-        return firstVersion || knownVersionedUri;
+        const entries = response?.entry || [];
+        const matchingEntries = entries.filter((entry: any) => {
+          const version = `${entry?.resource?.version || ''}`;
+          return version.startsWith(`${editionUri}/version/`);
+        });
+
+        const latestEntry = [...matchingEntries].sort((a: any, b: any) => {
+          const aVersion = `${a?.resource?.version || ''}`;
+          const bVersion = `${b?.resource?.version || ''}`;
+          const aReleaseDate = aVersion.split('/version/')[1] || '';
+          const bReleaseDate = bVersion.split('/version/')[1] || '';
+
+          return bReleaseDate.localeCompare(aReleaseDate) || bVersion.localeCompare(aVersion);
+        })[0];
+
+        return latestEntry?.resource?.version || knownVersionedUri;
       }),
       catchError(() => of(knownVersionedUri))
     );
