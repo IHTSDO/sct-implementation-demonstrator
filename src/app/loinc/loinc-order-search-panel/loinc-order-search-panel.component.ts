@@ -9,6 +9,10 @@ type SearchResultItem = {
   code: string;
   display: string;
   isGrouper?: boolean;
+  level?: number;
+  isExpanded?: boolean;
+  isLoadingChildren?: boolean;
+  children?: SearchResultItem[];
 };
 
 @Component({
@@ -32,6 +36,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   searchResults: SearchResultItem[] = [];
+  visibleSearchResults: SearchResultItem[] = [];
   totalResults = 0;
   searching = false;
   extending = false;
@@ -80,6 +85,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
       .subscribe({
         next: ({ mainResult, propertyResult, componentResult, scaleResult, siteResult, inheresResult, techniqueResult }) => {
           this.searchResults = this.markGroupers(mainResult?.expansion?.contains || []);
+          this.rebuildVisibleSearchResults();
           this.totalResults = mainResult?.expansion?.total || 0;
           this.filterOptions = [
             this.buildFilterOption('Property', propertyResult, '370130000 |Property (attribute)| = '),
@@ -153,6 +159,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
       next: (result) => {
         const newResults = this.markGroupers(result?.expansion?.contains || []);
         this.searchResults = [...this.searchResults, ...newResults];
+        this.rebuildVisibleSearchResults();
         this.extending = false;
       },
       error: () => {
@@ -285,12 +292,56 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
     return !!item.isGrouper;
   }
 
+  canExpandGrouper(item: SearchResultItem): boolean {
+    return this.isGrouper(item);
+  }
+
+  toggleGrouper(item: SearchResultItem, event: Event): void {
+    event.stopPropagation();
+
+    if (!this.canExpandGrouper(item)) {
+      return;
+    }
+
+    if (item.children) {
+      item.isExpanded = !item.isExpanded;
+      this.rebuildVisibleSearchResults();
+      return;
+    }
+
+    item.isExpanded = true;
+    item.isLoadingChildren = true;
+    this.rebuildVisibleSearchResults();
+
+    this.terminologyService.expandValueSetFromServer(
+      this.loincTerminologyServer,
+      this.activeEditionVersion,
+      `(<! ${item.code}) AND (${this.loincOrderablesRefset})`,
+      '',
+      0,
+      100
+    ).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (result) => {
+        item.children = this.markGroupers(result?.expansion?.contains || []);
+        item.isLoadingChildren = false;
+        this.rebuildVisibleSearchResults();
+      },
+      error: () => {
+        item.children = [];
+        item.isExpanded = false;
+        item.isLoadingChildren = false;
+        this.rebuildVisibleSearchResults();
+      }
+    });
+  }
+
   private preloadGroupers(): void {
     this.loincGrouperCacheService.warmGroupers(this.loincTerminologyServer, this.activeEditionVersion)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.searchResults = this.markGroupers(this.searchResults);
+          this.rebuildVisibleSearchResults();
           this.searchControl.enable();
           this.initializing = false;
         },
@@ -304,8 +355,30 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
   private markGroupers(results: SearchResultItem[]): SearchResultItem[] {
     return results.map((result) => ({
       ...result,
+      children: result.children,
+      isExpanded: result.isExpanded || false,
+      isLoadingChildren: result.isLoadingChildren || false,
       isGrouper: this.loincGrouperCacheService.isGrouper(this.activeEditionVersion, result.code)
     }));
+  }
+
+  private rebuildVisibleSearchResults(): void {
+    this.visibleSearchResults = this.flattenSearchResults(this.searchResults);
+  }
+
+  private flattenSearchResults(results: SearchResultItem[], level = 0): SearchResultItem[] {
+    return results.flatMap((result) => {
+      result.level = level;
+
+      if (!result.isExpanded || !result.children?.length) {
+        return [result];
+      }
+
+      return [
+        result,
+        ...this.flattenSearchResults(result.children, level + 1)
+      ];
+    });
   }
 
   ngOnDestroy() {

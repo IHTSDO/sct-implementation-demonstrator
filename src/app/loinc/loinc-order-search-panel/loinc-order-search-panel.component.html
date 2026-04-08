@@ -116,13 +116,28 @@
         </p>
       }
       <div class="w-full">
-        @for (concept of searchResults; track concept.code) {
-          <div class="result-row clickable" (click)="addToOrder(concept)">
+        @for (concept of visibleSearchResults; track concept.code + '-' + (concept.level || 0)) {
+          <div class="result-row clickable" [style.padding-left.px]="8 + ((concept.level || 0) * 20)" (click)="addToOrder(concept)">
+            <button
+              class="expand-toggle"
+              mat-icon-button
+              type="button"
+              [class.expand-toggle-hidden]="!canExpandGrouper(concept)"
+              [disabled]="!canExpandGrouper(concept)"
+              (click)="toggleGrouper(concept, $event)"
+              [attr.aria-label]="concept.isExpanded ? 'Collapse grouper' : 'Expand grouper'">
+              @if (!concept.isLoadingChildren) {
+                <mat-icon class="expand-icon" [class.expand-icon-open]="concept.isExpanded">chevron_right</mat-icon>
+              }
+              @if (concept.isLoadingChildren) {
+                <mat-icon class="expand-icon expand-icon-loading">autorenew</mat-icon>
+              }
+            </button>
             <span
               class="grouper-badge"
-              [class.grouper-badge-hidden]="!isGrouper(concept)"
-              [matTooltip]="isGrouper(concept) ? 'LOINC grouper' : ''">
-              G
+              [class.orderable-badge]="!isGrouper(concept)"
+              [matTooltip]="isGrouper(concept) ? 'LOINC grouper' : 'LOINC orderable'">
+              {{ isGrouper(concept) ? 'G' : 'O' }}
             </span>
             <span class="result-label">{{ concept.display }}</span>
           </div>
