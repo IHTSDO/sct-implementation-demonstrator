@@ -7,10 +7,26 @@
               (draftOrderChanged)="handleDraftOrderChanged($event)">
             </app-loinc-order>
         </mat-tab>
-        <mat-tab label="Results">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                @if (pendingDeterminations > 0) {
+                  <span
+                    class="results-tab-label"
+                    [matBadge]="pendingDeterminations"
+                    matBadgeColor="warn"
+                    matBadgeOverlap="false">
+                    Results
+                  </span>
+                } @else {
+                  <span class="results-tab-label">
+                    Results
+                  </span>
+                }
+            </ng-template>
             <app-loinc-results
               [patient]="patient"
-              [serviceRequests]="draftServiceRequests">
+              [serviceRequests]="draftServiceRequests"
+              (pendingCountChanged)="handlePendingCountChanged($event)">
             </app-loinc-results>
         </mat-tab>
     </mat-tab-group>

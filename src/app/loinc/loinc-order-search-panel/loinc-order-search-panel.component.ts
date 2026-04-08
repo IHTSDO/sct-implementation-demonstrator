@@ -3,17 +3,8 @@ import { FormControl } from '@angular/forms';
 import { debounceTime, filter, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
 import { TerminologyService } from 'src/app/services/terminology.service';
 import type { ServiceRequest } from 'src/app/model';
-import { LoincGrouperCacheService } from '../loinc-grouper-cache.service';
-
-type SearchResultItem = {
-  code: string;
-  display: string;
-  isGrouper?: boolean;
-  level?: number;
-  isExpanded?: boolean;
-  isLoadingChildren?: boolean;
-  children?: SearchResultItem[];
-};
+import { LoincTreeBrowserService } from '../loinc-tree-browser.service';
+import type { LoincTreeNode } from '../loinc-tree.types';
 
 @Component({
   selector: 'app-loinc-order-search-panel',
@@ -35,8 +26,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
   searchControl = new FormControl('');
   private destroy$ = new Subject<void>();
 
-  searchResults: SearchResultItem[] = [];
-  visibleSearchResults: SearchResultItem[] = [];
+  searchResults: LoincTreeNode[] = [];
   totalResults = 0;
   searching = false;
   extending = false;
@@ -53,16 +43,12 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
 
   constructor(
     private terminologyService: TerminologyService,
-    private loincGrouperCacheService: LoincGrouperCacheService
+    private loincTreeBrowserService: LoincTreeBrowserService
   ) {}
 
   ngOnInit() {
     this.searchControl.disable();
-    this.terminologyService.getLatestCodeSystemVersionFromServer(
-      this.loincTerminologyServer,
-      this.loincEditionUri,
-      this.fallbackEditionVersion
-    ).pipe(takeUntil(this.destroy$)).subscribe({
+    this.loincTreeBrowserService.resolveLatestEditionVersion().pipe(takeUntil(this.destroy$)).subscribe({
       next: (version) => {
         this.activeEditionVersion = version || this.fallbackEditionVersion;
         this.initializationMessage = 'Loading LOINC groupers...';
@@ -84,8 +70,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: ({ mainResult, propertyResult, componentResult, scaleResult, siteResult, inheresResult, techniqueResult }) => {
-          this.searchResults = this.markGroupers(mainResult?.expansion?.contains || []);
-          this.rebuildVisibleSearchResults();
+          this.searchResults = this.loincTreeBrowserService.markNodes(this.activeEditionVersion, mainResult?.expansion?.contains || []);
           this.totalResults = mainResult?.expansion?.total || 0;
           this.filterOptions = [
             this.buildFilterOption('Property', propertyResult, '370130000 |Property (attribute)| = '),
@@ -157,9 +142,8 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
       this.limit
     ).subscribe({
       next: (result) => {
-        const newResults = this.markGroupers(result?.expansion?.contains || []);
+        const newResults = this.loincTreeBrowserService.markNodes(this.activeEditionVersion, result?.expansion?.contains || []);
         this.searchResults = [...this.searchResults, ...newResults];
-        this.rebuildVisibleSearchResults();
         this.extending = false;
       },
       error: () => {
@@ -186,7 +170,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  addToOrder(item: any) {
+  addToOrder(item: LoincTreeNode) {
     const specimenEcl = `${item.code}.(704327008 |Direct site (attribute)| OR 704319004 |Inheres in (attribute)|)`;
     forkJoin({
       specimenResult: this.terminologyService.expandValueSetFromServer(
@@ -288,60 +272,12 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
     return `Using LOINC Ontology Edition ${this.getActiveEditionReleaseLabel()}`;
   }
 
-  isGrouper(item: SearchResultItem): boolean {
-    return !!item.isGrouper;
-  }
-
-  canExpandGrouper(item: SearchResultItem): boolean {
-    return this.isGrouper(item);
-  }
-
-  toggleGrouper(item: SearchResultItem, event: Event): void {
-    event.stopPropagation();
-
-    if (!this.canExpandGrouper(item)) {
-      return;
-    }
-
-    if (item.children) {
-      item.isExpanded = !item.isExpanded;
-      this.rebuildVisibleSearchResults();
-      return;
-    }
-
-    item.isExpanded = true;
-    item.isLoadingChildren = true;
-    this.rebuildVisibleSearchResults();
-
-    this.terminologyService.expandValueSetFromServer(
-      this.loincTerminologyServer,
-      this.activeEditionVersion,
-      `(<! ${item.code}) AND (${this.loincOrderablesRefset})`,
-      '',
-      0,
-      100
-    ).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (result) => {
-        item.children = this.markGroupers(result?.expansion?.contains || []);
-        item.isLoadingChildren = false;
-        this.rebuildVisibleSearchResults();
-      },
-      error: () => {
-        item.children = [];
-        item.isExpanded = false;
-        item.isLoadingChildren = false;
-        this.rebuildVisibleSearchResults();
-      }
-    });
-  }
-
   private preloadGroupers(): void {
-    this.loincGrouperCacheService.warmGroupers(this.loincTerminologyServer, this.activeEditionVersion)
+    this.loincTreeBrowserService.warmGroupers(this.activeEditionVersion)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.searchResults = this.markGroupers(this.searchResults);
-          this.rebuildVisibleSearchResults();
+          this.searchResults = this.loincTreeBrowserService.markNodes(this.activeEditionVersion, this.searchResults);
           this.searchControl.enable();
           this.initializing = false;
         },
@@ -350,35 +286,6 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
           this.initializing = false;
         }
       });
-  }
-
-  private markGroupers(results: SearchResultItem[]): SearchResultItem[] {
-    return results.map((result) => ({
-      ...result,
-      children: result.children,
-      isExpanded: result.isExpanded || false,
-      isLoadingChildren: result.isLoadingChildren || false,
-      isGrouper: this.loincGrouperCacheService.isGrouper(this.activeEditionVersion, result.code)
-    }));
-  }
-
-  private rebuildVisibleSearchResults(): void {
-    this.visibleSearchResults = this.flattenSearchResults(this.searchResults);
-  }
-
-  private flattenSearchResults(results: SearchResultItem[], level = 0): SearchResultItem[] {
-    return results.flatMap((result) => {
-      result.level = level;
-
-      if (!result.isExpanded || !result.children?.length) {
-        return [result];
-      }
-
-      return [
-        result,
-        ...this.flattenSearchResults(result.children, level + 1)
-      ];
-    });
   }
 
   ngOnDestroy() {

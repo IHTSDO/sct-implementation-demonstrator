@@ -52,8 +52,13 @@ export class LoincMainComponent {
     };
 
     draftServiceRequests: ServiceRequest[] = [];
+    pendingDeterminations = 0;
 
     handleDraftOrderChanged(serviceRequests: ServiceRequest[]) {
         this.draftServiceRequests = serviceRequests;
+    }
+
+    handlePendingCountChanged(count: number) {
+        this.pendingDeterminations = count;
     }
 }

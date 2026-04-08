@@ -1,0 +1,56 @@
+<div class="dialog-shell">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Resolve LOINC Grouper</h2>
+    <button mat-icon-button type="button" (click)="close()" aria-label="Close grouper dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    @if (step === 'tree') {
+      <div class="dialog-copy">
+        <strong>{{ data.grouperDisplay }}</strong>
+        <p>Select one final orderable descendant to convert this grouper into an observable with results.</p>
+      </div>
+
+      @if (resolvingSelection) {
+        <div class="selection-loading">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Preparing selected orderable...</span>
+        </div>
+      }
+
+      <div class="tree-shell">
+        <app-loinc-tree-browser
+          [nodes]="rootNodes"
+          [activeEditionVersion]="data.activeEditionVersion"
+          [selectionMode]="'orderable-only'"
+          [emptyText]="'No descendants found.'"
+          (nodeSelected)="handleNodeSelected($event)">
+        </app-loinc-tree-browser>
+      </div>
+    }
+
+    @if (step === 'editor' && selectedNode) {
+      <div class="dialog-copy">
+        <strong>Resolved orderable from grouper</strong>
+        <p>Resolved from {{ data.grouperDisplay }}</p>
+      </div>
+
+      <app-loinc-result-editor
+        [result]="selectedResult"
+        [displayText]="selectedNode.display">
+      </app-loinc-result-editor>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    @if (step === 'editor') {
+      <button mat-button type="button" (click)="backToTree()">Back</button>
+    }
+    <button mat-button type="button" (click)="close()">Cancel</button>
+    @if (step === 'editor') {
+      <button mat-flat-button color="primary" type="button" (click)="save()">Apply</button>
+    }
+  </mat-dialog-actions>
+</div>

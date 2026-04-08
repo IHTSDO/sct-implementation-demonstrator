@@ -44,13 +44,13 @@
           <br><br>
           <p class="result-line font-bold">RESULTS</p>
 
-          @if (!results.length) {
+          @if (!rows.length) {
             <div class="empty-state">
               No laboratory orders selected yet.
             </div>
           }
 
-          @if (results.length) {
+          @if (rows.length) {
             <table class="result-table">
               <tr>
                 <th class="type-column"></th>
@@ -59,33 +59,36 @@
                 <th>Units</th>
                 <th>Reference Range</th>
               </tr>
-              @for (result of results; track result.id) {
+              @for (row of rows; track row.id) {
                 <tr
                   class="result-row"
-                  [class.result-row-selected]="selectedResultId === result.id"
-                  [class.result-row-disabled]="!isClickable(result)"
-                  (click)="selectResult(result)">
+                  [class.result-row-selected]="selectedResultId === row.id"
+                  [class.child-result-row]="isChildRow(row)"
+                  (click)="selectResult(row)">
                   <td class="status-cell">
                     <span
                       class="result-type-pill"
-                      [class.result-type-grouper]="result.isGrouper"
-                      [matTooltip]="result.isGrouper ? 'LOINC grouper' : 'LOINC orderable'">
-                      {{ result.isGrouper ? 'G' : 'O' }}
+                      [class.result-type-grouper]="row.isGrouper"
+                      [matTooltip]="row.isGrouper ? 'LOINC grouper' : 'LOINC orderable'">
+                      {{ row.isGrouper ? 'G' : 'O' }}
                     </span>
                   </td>
-                  <td class="pl-2" [matTooltip]="'LOINC: ' + getLoincCode(result.serviceRequest) + ' SNOMED: ' + getSnomedCode(result.serviceRequest)">
-                    <div class="test-name-cell">
-                      <span>{{ getDisplayText(result.serviceRequest) }}</span>
-                      @if (result.isGrouper) {
-                        <span class="result-note">Special grouper workflow pending</span>
+                  <td class="pl-2" [matTooltip]="'LOINC: ' + getLoincCode(row) + ' SNOMED: ' + getSnomedCode(row)">
+                    <div class="test-name-cell" [style.padding-left.px]="row.level * 24">
+                      <span>{{ getDisplayText(row) }}</span>
+                      @if (row.isGrouper) {
+                        <span class="result-note">Grouper resolution pending</span>
+                      }
+                      @if (isChildRow(row)) {
+                        <span class="result-note">Resolved from {{ getResolutionSourceText(row) }}</span>
                       }
                     </div>
                   </td>
-                  <td class="text-right pr-4">{{ result.value || 'Pending' }}</td>
-                  <td class="text-right pr-4">{{ result.unitDisplay || 'Pending' }}</td>
+                  <td class="text-right pr-4">{{ row.value || 'Pending' }}</td>
+                  <td class="text-right pr-4">{{ row.unitDisplay || 'Pending' }}</td>
                   <td class="text-right pr-4">
-                    @if (result.referenceLow && result.referenceHigh) {
-                      {{ result.referenceLow }} - {{ result.referenceHigh }}
+                    @if (row.referenceLow && row.referenceHigh) {
+                      {{ row.referenceLow }} - {{ row.referenceHigh }}
                     } @else {
                       Pending
                     }

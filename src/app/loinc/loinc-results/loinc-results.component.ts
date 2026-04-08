@@ -1,10 +1,14 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import saveAs from 'file-saver';
 import { v3 as uuidv3 } from 'uuid';
 import type { ServiceRequest } from 'src/app/model';
 import { LoincGrouperCacheService } from '../loinc-grouper-cache.service';
+import {
+  GrouperResolutionDialogResult,
+  LoincGrouperResolutionDialogComponent
+} from '../loinc-grouper-resolution-dialog/loinc-grouper-resolution-dialog.component';
 import { LoincResultLoaderDialogComponent } from '../loinc-result-loader-dialog/loinc-result-loader-dialog.component';
 
 type ResultTemplate = {
@@ -16,9 +20,13 @@ type ResultTemplate = {
   referenceHigh: string;
 };
 
-type ResultEntry = {
+type ReportRow = {
   id: string;
+  rowKind: 'service-request' | 'resolved-child';
   serviceRequest: ServiceRequest;
+  parentServiceRequestId?: string;
+  observationCoding: Array<{ system?: string; version?: string; code?: string; display?: string }>;
+  observationText: string;
   value: string;
   unitDisplay: string;
   unitCode: string;
@@ -27,6 +35,7 @@ type ResultEntry = {
   referenceHigh: string;
   isGrouper: boolean;
   isLoaded: boolean;
+  level: number;
 };
 
 @Component({
@@ -38,6 +47,7 @@ type ResultEntry = {
 export class LoincResultsComponent implements OnChanges {
   @Input() patient: any = null;
   @Input() serviceRequests: ServiceRequest[] = [];
+  @Output() pendingCountChanged = new EventEmitter<number>();
 
   isFlipped = false;
   fhirBundle: any = {};
@@ -45,6 +55,7 @@ export class LoincResultsComponent implements OnChanges {
   selectedResultId: string | null = null;
 
   readonly uuidNamespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+  readonly grouperRequestExtensionUrl = 'http://snomedians.org/fhir/StructureDefinition/original-grouper-request';
   readonly samplePatient = {
     resourceType: 'Patient',
     id: 'example-patient',
@@ -123,7 +134,8 @@ export class LoincResultsComponent implements OnChanges {
     }
   };
 
-  results: ResultEntry[] = [];
+  rows: ReportRow[] = [];
+  private resolvedChildRows: ReportRow[] = [];
 
   constructor(
     private clipboard: Clipboard,
@@ -133,7 +145,7 @@ export class LoincResultsComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['serviceRequests'] || changes['patient']) {
-      this.syncResultsFromServiceRequests();
+      this.syncRowsFromServiceRequests();
     }
   }
 
@@ -179,47 +191,60 @@ export class LoincResultsComponent implements OnChanges {
     return this.activePatient?.telecom?.find((item: any) => item.system === 'email')?.value || 'jane@email.com';
   }
 
-  getDisplayText(serviceRequest: ServiceRequest): string {
-    return serviceRequest.code?.text || serviceRequest.code?.coding?.[0]?.display || 'Unnamed test';
+  getDisplayText(row: ReportRow): string {
+    return row.observationText;
   }
 
-  getLoincCode(serviceRequest: ServiceRequest): string {
-    return serviceRequest.code.coding?.find((coding) => coding.system === 'http://loinc.org')?.code || 'n/a';
+  getResolutionSourceText(row: ReportRow): string {
+    if (!row.parentServiceRequestId) {
+      return '';
+    }
+
+    const parentRequest = this.serviceRequests.find((candidate) => candidate.id === row.parentServiceRequestId);
+    return parentRequest?.code?.text || parentRequest?.code?.coding?.[0]?.display || 'original grouper';
   }
 
-  getSnomedCode(serviceRequest: ServiceRequest): string {
-    return serviceRequest.code.coding?.find((coding) => coding.system === 'http://snomed.info/sct')?.code || 'n/a';
+  getLoincCode(row: ReportRow): string {
+    return row.observationCoding.find((coding) => coding.system === 'http://loinc.org')?.code || 'n/a';
   }
 
-  isCompleted(entry: ResultEntry): boolean {
-    return !!entry.value && !!entry.unitDisplay && !!entry.referenceLow && !!entry.referenceHigh;
+  getSnomedCode(row: ReportRow): string {
+    return row.observationCoding.find((coding) => coding.system === 'http://snomed.info/sct')?.code || 'n/a';
   }
 
-  isClickable(entry: ResultEntry): boolean {
-    return !entry.isGrouper;
+  isCompleted(row: ReportRow): boolean {
+    return !!row.value && !!row.unitDisplay && !!row.referenceLow && !!row.referenceHigh;
   }
 
-  selectResult(entry: ResultEntry) {
-    if (!this.isClickable(entry)) {
+  isChildRow(row: ReportRow): boolean {
+    return row.rowKind === 'resolved-child';
+  }
+
+  selectResult(row: ReportRow) {
+    this.selectedResultId = row.id;
+
+    if (row.isGrouper) {
+      this.openGrouperResolutionDialog(row);
       return;
     }
 
-    this.selectedResultId = entry.id;
-    if (!entry.isLoaded) {
-      this.loadTemplate(entry);
+    if (!row.isLoaded) {
+      this.applyTemplate(row);
     }
+
     const dialogRef = this.dialog.open(LoincResultLoaderDialogComponent, {
       width: '760px',
       maxWidth: '92vw',
       data: {
-        result: entry,
-        displayText: this.getDisplayText(entry.serviceRequest)
+        result: row,
+        displayText: this.getDisplayText(row)
       }
     });
 
     dialogRef.afterClosed().subscribe(() => {
-      entry.isLoaded = !!entry.value || !!entry.unitDisplay || !!entry.referenceLow || !!entry.referenceHigh;
+      row.isLoaded = this.isCompleted(row);
       this.createFhirDiagnosticReportBundle();
+      this.emitPendingCount();
       this.selectedResultId = null;
     });
   }
@@ -237,75 +262,151 @@ export class LoincResultsComponent implements OnChanges {
     this.clipboard.copy(text);
   }
 
-  private syncResultsFromServiceRequests() {
-    const previousResults = new Map(this.results.map((entry) => [entry.id, entry]));
-    this.results = this.serviceRequests.map((serviceRequest) => {
-      const previous = previousResults.get(serviceRequest.id);
-      const entry = {
-        id: serviceRequest.id,
-        serviceRequest,
-        value: previous?.value || '',
-        unitDisplay: previous?.unitDisplay || '',
-        unitCode: previous?.unitCode || '',
-        unitSystem: previous?.unitSystem || 'http://unitsofmeasure.org',
-        referenceLow: previous?.referenceLow || '',
-        referenceHigh: previous?.referenceHigh || '',
-        isGrouper: false,
-        isLoaded: previous?.isLoaded || false
-      };
+  private syncRowsFromServiceRequests() {
+    const previousRootRows = new Map(
+      this.rows
+        .filter((row) => row.rowKind === 'service-request')
+        .map((row) => [row.serviceRequest.id, row])
+    );
+    const validParentIds = new Set(this.serviceRequests.map((serviceRequest) => serviceRequest.id));
+    this.resolvedChildRows = this.resolvedChildRows.filter((row) => !!row.parentServiceRequestId && validParentIds.has(row.parentServiceRequestId));
 
-      this.markGrouper(entry);
-      return entry;
+    const rootRows = this.serviceRequests.map((serviceRequest) => {
+      const previousRow = previousRootRows.get(serviceRequest.id);
+      return {
+        id: serviceRequest.id,
+        rowKind: 'service-request' as const,
+        serviceRequest,
+        observationCoding: previousRow?.observationCoding || [...(serviceRequest.code?.coding || [])],
+        observationText: previousRow?.observationText || (serviceRequest.code?.text || serviceRequest.code?.coding?.[0]?.display || 'Unnamed test'),
+        value: previousRow?.value || '',
+        unitDisplay: previousRow?.unitDisplay || '',
+        unitCode: previousRow?.unitCode || '',
+        unitSystem: previousRow?.unitSystem || 'http://unitsofmeasure.org',
+        referenceLow: previousRow?.referenceLow || '',
+        referenceHigh: previousRow?.referenceHigh || '',
+        isGrouper: previousRow?.isGrouper || false,
+        isLoaded: previousRow?.isLoaded || false,
+        level: 0
+      };
     });
 
-    const selectedStillExists = this.results.some((entry) => entry.id === this.selectedResultId);
-    this.selectedResultId = selectedStillExists ? this.selectedResultId : this.results.find((entry) => !entry.isGrouper)?.id || null;
+    rootRows.forEach((row) => this.markGrouper(row));
+    this.rebuildRows(rootRows);
     this.createFhirDiagnosticReportBundle();
   }
 
-  private markGrouper(entry: ResultEntry) {
-    const snomedCoding = entry.serviceRequest.code?.coding?.find((coding) => coding.system === 'http://snomed.info/sct');
+  private rebuildRows(rootRows?: ReportRow[]) {
+    const roots = rootRows || this.rows.filter((row) => row.rowKind === 'service-request');
+    const nextRows: ReportRow[] = [];
+
+    roots.forEach((row) => {
+      const children = this.resolvedChildRows
+        .filter((child) => child.parentServiceRequestId === row.serviceRequest.id)
+        .map((child) => ({ ...child, level: row.isGrouper ? 0 : 1 }));
+
+      if (row.isGrouper && children.length > 0) {
+        nextRows.push(...children);
+        return;
+      }
+
+      nextRows.push({ ...row, level: 0 });
+      nextRows.push(...children);
+    });
+
+    this.rows = nextRows;
+    this.emitPendingCount();
+  }
+
+  private markGrouper(row: ReportRow) {
+    const snomedCoding = row.serviceRequest.code?.coding?.find((coding) => coding.system === 'http://snomed.info/sct');
     const version = snomedCoding?.version || '';
     const code = snomedCoding?.code || '';
 
     if (!version || !code) {
-      entry.isGrouper = false;
+      row.isGrouper = false;
       return;
     }
 
     this.loincGrouperCacheService.warmGroupers('https://browser.loincsnomed.org/fhir', version).subscribe({
       next: () => {
-        entry.isGrouper = this.loincGrouperCacheService.isGrouper(version, code);
+        row.isGrouper = this.loincGrouperCacheService.isGrouper(version, code);
+        this.rebuildRows();
       }
     });
   }
 
-  private loadTemplate(entry: ResultEntry) {
-    const loincCoding = entry.serviceRequest.code?.coding?.find((coding) => coding.system === 'http://loinc.org');
-    const template = loincCoding?.code ? this.resultTemplatesByLoincCode[loincCoding.code] : null;
+  private applyTemplate(row: ReportRow) {
+    const loincCode = this.getLoincCode(row);
+    const template = this.resultTemplatesByLoincCode[loincCode];
 
-    if (template) {
-      entry.value = template.value;
-      entry.unitDisplay = template.unitDisplay;
-      entry.unitCode = template.unitCode;
-      entry.unitSystem = template.unitSystem;
-      entry.referenceLow = template.referenceLow;
-      entry.referenceHigh = template.referenceHigh;
-      entry.isLoaded = true;
-    } else if (!entry.isLoaded) {
-      entry.value = '';
-      entry.unitDisplay = '';
-      entry.unitCode = '';
-      entry.unitSystem = 'http://unitsofmeasure.org';
-      entry.referenceLow = '';
-      entry.referenceHigh = '';
+    if (!template) {
+      return;
     }
 
-    this.createFhirDiagnosticReportBundle();
+    row.value = template.value;
+    row.unitDisplay = template.unitDisplay;
+    row.unitCode = template.unitCode;
+    row.unitSystem = template.unitSystem;
+    row.referenceLow = template.referenceLow;
+    row.referenceHigh = template.referenceHigh;
+    row.isLoaded = true;
+  }
+
+  private openGrouperResolutionDialog(row: ReportRow) {
+    const snomedCoding = row.serviceRequest.code?.coding?.find((coding) => coding.system === 'http://snomed.info/sct');
+    if (!snomedCoding?.code || !snomedCoding.version) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(LoincGrouperResolutionDialogComponent, {
+      width: '920px',
+      maxWidth: '94vw',
+      data: {
+        grouperCode: snomedCoding.code,
+        grouperDisplay: this.getDisplayText(row),
+        activeEditionVersion: snomedCoding.version,
+        resultTemplatesByLoincCode: this.resultTemplatesByLoincCode
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: GrouperResolutionDialogResult | null) => {
+      if (!result) {
+        this.selectedResultId = null;
+        return;
+      }
+
+      const childRow: ReportRow = {
+        id: `resolved-${row.serviceRequest.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        rowKind: 'resolved-child',
+        serviceRequest: row.serviceRequest,
+        parentServiceRequestId: row.serviceRequest.id,
+        observationCoding: result.coding,
+        observationText: result.text,
+        value: result.value,
+        unitDisplay: result.unitDisplay,
+        unitCode: result.unitCode,
+        unitSystem: result.unitSystem,
+        referenceLow: result.referenceLow,
+        referenceHigh: result.referenceHigh,
+        isGrouper: false,
+        isLoaded: !!result.value || !!result.unitDisplay || !!result.referenceLow || !!result.referenceHigh,
+        level: 1
+      };
+
+      this.resolvedChildRows = [...this.resolvedChildRows, childRow];
+      this.rebuildRows();
+      this.createFhirDiagnosticReportBundle();
+      this.selectedResultId = null;
+    });
   }
 
   private createFhirDiagnosticReportBundle() {
-    const completedResults = this.results.filter((entry) => this.isCompleted(entry));
+    const resultBearingRows = this.rows.filter((row) => !row.isGrouper && this.isCompleted(row));
+    const serviceRequestEntries = this.serviceRequests.map((serviceRequest) => ({
+      fullUrl: this.getServiceRequestFullUrl(serviceRequest),
+      resource: serviceRequest
+    }));
 
     this.fhirBundle = {
       resourceType: 'Bundle',
@@ -319,11 +420,12 @@ export class LoincResultsComponent implements OnChanges {
         {
           fullUrl: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8',
           resource: this.activePatient
-        }
+        },
+        ...serviceRequestEntries
       ]
     };
 
-    if (completedResults.length) {
+    if (resultBearingRows.length) {
       this.fhirBundle.entry.push({
         fullUrl: `urn:uuid:${uuidv3('diagnostic-report', this.uuidNamespace)}`,
         resource: {
@@ -338,58 +440,92 @@ export class LoincResultsComponent implements OnChanges {
             display: this.getPatientDisplayName()
           },
           effectiveDateTime: this.getCurrentDate(),
-          result: completedResults.map((entry) => ({
-            reference: `urn:uuid:${uuidv3('ob' + entry.id, this.uuidNamespace)}`
+          result: resultBearingRows.map((row) => ({
+            reference: this.getObservationFullUrl(row)
           }))
         }
       });
     }
 
-    completedResults.forEach((entry, index) => {
+    resultBearingRows.forEach((row, index) => {
+      const basedOnReference = this.getServiceRequestFullUrl(row.serviceRequest);
+      const resource: any = {
+        resourceType: 'Observation',
+        id: `ob-${index}`,
+        status: 'final',
+        subject: {
+          reference: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8'
+        },
+        code: {
+          coding: row.observationCoding,
+          text: row.observationText
+        },
+        valueQuantity: {
+          value: parseFloat(row.value),
+          unit: row.unitDisplay,
+          system: row.unitSystem || 'http://unitsofmeasure.org',
+          code: row.unitCode || row.unitDisplay
+        },
+        referenceRange: [
+          {
+            low: {
+              value: parseFloat(row.referenceLow),
+              unit: row.unitDisplay,
+              system: row.unitSystem || 'http://unitsofmeasure.org',
+              code: row.unitCode || row.unitDisplay
+            },
+            high: {
+              value: parseFloat(row.referenceHigh),
+              unit: row.unitDisplay,
+              system: row.unitSystem || 'http://unitsofmeasure.org',
+              code: row.unitCode || row.unitDisplay
+            }
+          }
+        ],
+        basedOn: [
+          {
+            reference: basedOnReference
+          }
+        ]
+      };
+
+      if (row.rowKind === 'resolved-child') {
+        resource.extension = [
+          {
+            url: this.grouperRequestExtensionUrl,
+            valueReference: {
+              reference: basedOnReference
+            }
+          }
+        ];
+      }
+
       this.fhirBundle.entry.push({
-        fullUrl: `urn:uuid:${uuidv3('ob' + entry.id, this.uuidNamespace)}`,
-        resource: {
-          resourceType: 'Observation',
-          id: `ob-${index}`,
-          status: 'final',
-          subject: {
-            reference: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8'
-          },
-          code: {
-            coding: entry.serviceRequest.code?.coding || [],
-            text: this.getDisplayText(entry.serviceRequest)
-          },
-          valueQuantity: {
-            value: parseFloat(entry.value),
-            unit: entry.unitDisplay,
-            system: entry.unitSystem || 'http://unitsofmeasure.org',
-            code: entry.unitCode || entry.unitDisplay
-          },
-          referenceRange: [
-            {
-              low: {
-                value: parseFloat(entry.referenceLow),
-                unit: entry.unitDisplay,
-                system: entry.unitSystem || 'http://unitsofmeasure.org',
-                code: entry.unitCode || entry.unitDisplay
-              },
-              high: {
-                value: parseFloat(entry.referenceHigh),
-                unit: entry.unitDisplay,
-                system: entry.unitSystem || 'http://unitsofmeasure.org',
-                code: entry.unitCode || entry.unitDisplay
-              }
-            }
-          ],
-          basedOn: [
-            {
-              reference: entry.serviceRequest.id
-            }
-          ]
-        }
+        fullUrl: this.getObservationFullUrl(row),
+        resource
       });
     });
 
     this.fhirBundleStr = JSON.stringify(this.fhirBundle, null, 2);
+  }
+
+  private emitPendingCount() {
+    const pendingCount = this.rows.filter((row) => {
+      if (row.isGrouper) {
+        return true;
+      }
+
+      return !this.isCompleted(row);
+    }).length;
+
+    this.pendingCountChanged.emit(pendingCount);
+  }
+
+  private getServiceRequestFullUrl(serviceRequest: ServiceRequest): string {
+    return `urn:uuid:${uuidv3(serviceRequest.id, this.uuidNamespace)}`;
+  }
+
+  private getObservationFullUrl(row: ReportRow): string {
+    return `urn:uuid:${uuidv3('ob' + row.id, this.uuidNamespace)}`;
   }
 }

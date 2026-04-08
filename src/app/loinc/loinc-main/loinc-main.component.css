@@ -29,3 +29,18 @@
     overflow: visible;
     height: auto;
 }
+
+.results-tab-label {
+    display: inline-flex;
+    align-items: center;
+    padding-right: 0.35rem;
+}
+
+.tab-group ::ng-deep .results-tab-label .mat-badge-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    line-height: 1;
+    transform: translate(10%, 2%);
+}

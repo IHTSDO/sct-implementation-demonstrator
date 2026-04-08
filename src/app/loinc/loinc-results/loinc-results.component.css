@@ -148,13 +148,8 @@ pre > code {
   background-color: #e6f0ff;
 }
 
-.result-row-disabled {
-  cursor: default;
-  background-color: #f8f8f8;
-}
-
-.result-row-disabled:hover {
-  background-color: #f8f8f8;
+.child-result-row {
+  background-color: #fbfdff;
 }
 
 .type-column {

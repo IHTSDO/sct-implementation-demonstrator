@@ -1,0 +1,38 @@
+@if (!nodes.length) {
+  <p>{{ emptyText }}</p>
+}
+
+@if (nodes.length) {
+  <div class="tree-list">
+    @for (node of visibleNodes; track node.code + '-' + (node.level || 0)) {
+      <div
+        class="tree-row"
+        [class.tree-row-clickable]="canSelect(node)"
+        [style.padding-left.px]="8 + ((node.level || 0) * 20)"
+        (click)="onNodeClick(node)">
+        <button
+          class="expand-toggle"
+          mat-icon-button
+          type="button"
+          [class.expand-toggle-hidden]="!canExpandGrouper(node)"
+          [disabled]="!canExpandGrouper(node)"
+          (click)="toggleNode(node, $event)"
+          [attr.aria-label]="node.isExpanded ? 'Collapse grouper' : 'Expand grouper'">
+          @if (!node.isLoadingChildren) {
+            <mat-icon class="expand-icon" [class.expand-icon-open]="node.isExpanded">chevron_right</mat-icon>
+          }
+          @if (node.isLoadingChildren) {
+            <mat-icon class="expand-icon expand-icon-loading">autorenew</mat-icon>
+          }
+        </button>
+        <span
+          class="type-badge"
+          [class.orderable-badge]="!isGrouper(node)"
+          [matTooltip]="isGrouper(node) ? 'LOINC grouper' : 'LOINC orderable'">
+          {{ isGrouper(node) ? 'G' : 'O' }}
+        </span>
+        <span class="tree-label">{{ node.display }}</span>
+      </div>
+    }
+  </div>
+}
