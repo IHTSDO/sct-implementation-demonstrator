@@ -2,10 +2,16 @@
     <h2>LOINC Ontology Demonstrator</h2>
     <mat-tab-group class="tab-group">
         <mat-tab label="Order">
-            <app-loinc-order></app-loinc-order>
+            <app-loinc-order
+              [patient]="patient"
+              (draftOrderChanged)="handleDraftOrderChanged($event)">
+            </app-loinc-order>
         </mat-tab>
         <mat-tab label="Results">
-            <app-loinc-results></app-loinc-results>
+            <app-loinc-results
+              [patient]="patient"
+              [serviceRequests]="draftServiceRequests">
+            </app-loinc-results>
         </mat-tab>
     </mat-tab-group>
 </div>

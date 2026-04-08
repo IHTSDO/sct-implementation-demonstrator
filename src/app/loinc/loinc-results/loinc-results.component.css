@@ -1,153 +1,208 @@
-.main-container {
+.results-shell {
   display: flex;
   width: 100%;
-  height: calc(100vh - 200px);
+  min-height: calc(100vh - 200px);
   justify-content: center;
   margin-top: 2rem;
 }
 
+.flip-card {
+  perspective: 1000px;
+  position: relative;
+  width: min(1380px, 100%);
+  min-height: 820px;
+}
+
+.flip-card-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.header-row h2 {
+  margin: 0;
+}
+
+.header-row .rbutton {
+  position: absolute;
+  right: 0;
+}
+
+.header-row .lbutton {
+  position: absolute;
+  left: 0;
+}
+
 .result {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
-    margin-top: 20px;
-    background-color: white;
-    font-family: monospace;
-    font-size: 0.7rem;
-    padding: 2rem;
-    box-shadow: #ccc 0px 0px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  background-color: white;
+  font-family: monospace;
+  font-size: 0.7rem;
+  padding: 2rem;
+  box-shadow: #ccc 0 0 10px;
 }
-  
+
 .result-line {
-    display: flex;
-    flex-direction: row;
-    align-content: center;
-    justify-content: space-between;
-    width: 100%;
-    text-align: left;
-    margin-bottom: 5px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 5px;
 }
 
-  .flip-card {
-    /* This gives us the "3D space" effect */
-    perspective: 1000px;
-    position: relative;
-    width: 1024px
-  }
-  
-  /* The inner element that will rotate */
-  .flip-card-inner {
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s ease;
-    transform-style: preserve-3d; /* Needed so front/back are preserved in 3D */
-    position: relative;
-  }
-  
-  /* When we add 'flipped' on the parent, rotate the inner content */
-  .flip-card.flipped .flip-card-inner {
-    transform: rotateY(180deg);
-  }
-  
-  /* Front face and back face both need these properties: */
-  .flip-card-front,
-  .flip-card-back {
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden; /* Hide the "mirrored" side when flipped */
-    position: absolute; /* So they stack on top of each other */
-    top: 0;
-    left: 0;
-  }
-  
-  /* The back face is rotated 180 so it's hidden by default */
-  .flip-card-back {
-    transform: rotateY(180deg);
-  }
-  
-  #output {
-    border-radius: 10px;
-    background-color: #282c34;
-    padding: 10px;
-    position: relative;
-    min-height: 500px;
-    text-align: left;
-    font-size: 0.7rem;
-  }
-  
-  pre > code {
-    width: 45%; /* Set the width to 100% */
-    white-space: pre-wrap; /* Enable text wrapping */
-    word-wrap: break-word; /* Break long words to avoid overflow */
-  }
-  
-  #save {
-    position: absolute;
-    right: 0;
-    top: 0;
-    color: rgb(232, 140, 21);
-  }
-  
-  #clear {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-  }
-  
-  .header-row {
-    display: flex;
-    align-items: center;
-    justify-content: center; 
-    position: relative; /* so we can position the button absolutely inside */
-  }
-  
-  .header-row h2 {
-    margin: 0; /* optional: remove default heading margin */
-  }
-  
-  .header-row .rbutton {
-    position: absolute;
-    right: 0;
-  }
-  
-  .header-row .lbutton {
-    position: absolute;
-    left: 0;
-  }
-  
-  .clickable {
-    cursor: pointer;
-  }
-  
-  .clickable:hover {
-    background-color: #e0e0e0; /* light grey */
-  }
+#output {
+  border-radius: 10px;
+  background-color: #282c34;
+  padding: 10px;
+  position: relative;
+  min-height: 500px;
+  text-align: left;
+  font-size: 0.7rem;
+}
 
-  .logo {
-    width: 180px;
-  }
+pre > code {
+  width: 45%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 
-  .result-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #ccc; /* outer border for the whole table */
-  }
-  
-  .result-table th {
-    border-bottom: 1px solid #ccc; /* border below the header */
-    border-right: 1px solid #ccc; /* column separator in headers */
-  }
-  
-  .result-table th:last-child {
-    border-right: none; /* no right border on last header column */
-  }
-  
-  .result-table td {
-    border-right: 1px solid #ccc; /* column separator for cells */
-  }
-  
-  .result-table td:last-child {
-    border-right: none; /* no right border on last column */
-  }
-  
+#save {
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: rgb(232, 140, 21);
+}
+
+.logo {
+  width: 180px;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ccc;
+}
+
+.result-table th {
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  padding: 0.4rem;
+}
+
+.result-table th:last-child {
+  border-right: none;
+}
+
+.result-table td {
+  border-right: 1px solid #ccc;
+  border-top: 1px solid #eee;
+  padding: 0.45rem;
+}
+
+.result-table td:last-child {
+  border-right: none;
+}
+
+.result-row {
+  cursor: pointer;
+}
+
+.result-row:hover {
+  background-color: #eef5ff;
+}
+
+.result-row-selected {
+  background-color: #e6f0ff;
+}
+
+.result-row-disabled {
+  cursor: default;
+  background-color: #f8f8f8;
+}
+
+.result-row-disabled:hover {
+  background-color: #f8f8f8;
+}
+
+.type-column {
+  width: 52px;
+}
+
+.status-cell {
+  width: 52px;
+  text-align: center;
+}
+
+.result-type-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background-color: #d9ecff;
+  color: #1d4f91;
+  font-weight: 700;
+  font-size: 0.7rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.result-type-grouper {
+  background-color: #dff3ea;
+  color: #2f6b57;
+}
+
+.test-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.result-note {
+  color: #8c6b00;
+  font-style: italic;
+}
+
+.empty-state {
+  width: 100%;
+  padding: 1rem;
+  border: 1px dashed #bfd0e6;
+  border-radius: 12px;
+  background: #f8fbff;
+  color: #47627c;
+}

@@ -14,6 +14,7 @@ export class LoincOrderComponent {
   @Input() patient: any = null;
   @Input() showSaveAction = false;
   @Output() orderSaved = new EventEmitter<LaboratoryOrderGroup>();
+  @Output() draftOrderChanged = new EventEmitter<ServiceRequest[]>();
 
   showLoincCodes = true;
   showFhirView = false;
@@ -236,6 +237,7 @@ export class LoincOrderComponent {
     });
 
     this.fhirBundleStr = JSON.stringify(this.fhirBundle, null, 2);
+    this.draftOrderChanged.emit([...this.serviceRequests]);
   }
 
   getPatientDisplayName(): string {

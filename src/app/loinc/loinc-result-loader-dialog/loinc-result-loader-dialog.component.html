@@ -1,0 +1,68 @@
+<div class="dialog-shell">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Result Loader</h2>
+    <button mat-icon-button type="button" (click)="close()" aria-label="Close result loader">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <div class="editor-summary">
+      <strong>{{ data.displayText }}</strong>
+      @if (data.result.isGrouper) {
+        <p class="editor-empty-copy">Groupers are visible in the report, but they are not editable in this first step.</p>
+      }
+    </div>
+
+    @if (!data.result.isGrouper) {
+      <div class="editor-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Result value</mat-label>
+          <input matInput [(ngModel)]="data.result.value">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>UCUM unit</mat-label>
+          <input
+            matInput
+            [formControl]="unitInputControl"
+            [matAutocomplete]="unitAutocomplete"
+            placeholder="Search units by name or code">
+          @if (unitOptionsLoading) {
+            <mat-hint>Loading UCUM units...</mat-hint>
+          }
+        </mat-form-field>
+        <mat-autocomplete #unitAutocomplete="matAutocomplete" [displayWith]="displayUnitFn" (optionSelected)="onUnitSelected($event.option.value)">
+          @for (unit of unitFilteredOptions | async; track unit.code) {
+            <mat-option [value]="unit">
+              {{ unit.display }} ({{ unit.code }})
+            </mat-option>
+          }
+        </mat-autocomplete>
+
+        <div class="range-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Reference low</mat-label>
+            <input matInput [(ngModel)]="data.result.referenceLow">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Reference high</mat-label>
+            <input matInput [(ngModel)]="data.result.referenceHigh">
+          </mat-form-field>
+        </div>
+
+        <div class="unit-summary" *ngIf="data.result.unitDisplay || data.result.unitCode">
+          <span><b>Display:</b> {{ data.result.unitDisplay || 'Pending' }}</span>
+          <span><b>Code:</b> {{ data.result.unitCode || 'Pending' }}</span>
+          <span><b>System:</b> {{ data.result.unitSystem || 'Pending' }}</span>
+        </div>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="close()">Cancel</button>
+    <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="data.result.isGrouper">Apply</button>
+  </mat-dialog-actions>
+</div>
