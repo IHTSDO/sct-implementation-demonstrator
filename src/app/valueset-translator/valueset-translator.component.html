@@ -384,7 +384,7 @@
             <!-- Edition Selector Button and Menu -->
             <button mat-raised-button color="primary" [matMenuTriggerFor]="editionMenu" class="translation-button edition-button">
               <mat-icon>book</mat-icon>
-              <span>{{ terminologyContext.editionName }}</span>
+              <span>{{ selectedOutputEditionName }}</span>
             </button>
             <mat-menu #editionMenu="matMenu">
               @for (edition of editionsDetails; track edition) {

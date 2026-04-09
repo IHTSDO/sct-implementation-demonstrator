@@ -153,11 +153,15 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   public selectedContext: any = null;
   public selectedLanguageDisplayLabel: string = 'Language';
   public selectedLanRefsetConcept: any = null;
+  public selectedOutputFhirUrlParam = '';
+  public selectedOutputEditionName = 'Edition';
+  public selectedOutputLanguage = '';
   public languageRefsets: any[] = [];
   public isFileLoading = false;
   public isTranslationLoading = false;
   totalCount: number = 0;
   generatedPackage: FHIRPackage | null = null;
+  private outputSettingsInitialized = false;
 
 
   constructor(
@@ -188,8 +192,15 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           language: this.terminologyService.getComputedLanguageContext(),
           editionName
         };
-        this.selectedContext = context;
-        this.selectedLanRefsetConcept = languageRefsetConcept;
+        if (!this.outputSettingsInitialized) {
+          this.selectedOutputFhirUrlParam = fhirUrlParam;
+          this.selectedOutputEditionName = editionName;
+          this.selectedOutputLanguage = lang;
+          this.selectedContext = context;
+          this.selectedLanRefsetConcept = languageRefsetConcept;
+          this.refreshOutputContexts(fhirUrlParam);
+          this.outputSettingsInitialized = true;
+        }
         this.updateSelectedLanguageLabel();
       })
     );
@@ -1008,13 +1019,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       }
 
       // Create source ValueSet and expand it
-      const sourceValueSet = this.terminologyService.getValueSetFromCodes(targetCodes);
+      const sourceValueSet = this.buildInlineValueSetFromCodes(targetCodes);
       
       // Show loading state
       this.isLoading = true;
       
       // Expand the ValueSet to get translations
-      const expandedValueSet = await this.terminologyService.expandInlineValueSet(sourceValueSet).toPromise();
+      const expandedValueSet = await this.expandInlineValueSetForSelectedOutput(sourceValueSet);
       
       // Create a map of codes to translated display values
       const translationMap = new Map<string, string>();
@@ -1469,10 +1480,10 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
         this.isTranslationLoading = false;
         return;
       }
-      const sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
+      const sourceValueSet = this.buildInlineValueSetFromCodes(codes);
 
       // Expand the ValueSet to get translations
-      const expandedValueSet = await this.terminologyService.expandInlineValueSet(sourceValueSet).toPromise();
+      const expandedValueSet = await this.expandInlineValueSetForSelectedOutput(sourceValueSet);
       this.targetValueSet = expandedValueSet;
       
       this.targetPreviewData = codes.map(codeItem => {
@@ -1697,7 +1708,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           resource: this.buildValueSetResource(codes)
         }]
       };
-      const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
+      const expandedValueSet = await this.expandInlineValueSetForSelectedOutput(this.sourceValueSet);
       this.targetValueSet = expandedValueSet;
     } catch (error: any) {
       this.error = `Error generating target ValueSet: ${error.message || error}`;
@@ -1718,8 +1729,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       const { source, snomed } = this.extractConcepts(data);
       
       // Create source ValueSet and expand it
-      const sourceValueSet = this.terminologyService.getValueSetFromCodes(snomed);
-      const expandedValueSet = await this.terminologyService.expandInlineValueSet(sourceValueSet).toPromise();
+      const sourceValueSet = this.buildInlineValueSetFromCodes(snomed);
+      const expandedValueSet = await this.expandInlineValueSetForSelectedOutput(sourceValueSet);
       
       this.targetValueSet = expandedValueSet;
     } catch (error: any) {
@@ -1762,11 +1773,66 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       compose: {
         include: [{
           system: 'http://snomed.info/sct',
-          version: this.terminologyContext.fhirUrlParam,
+          version: this.getSelectedOutputFhirUrlParam(),
           concept: codes
         }]
       }
     };
+  }
+
+  private buildInlineValueSetFromCodes(codes: Array<{code: string, display?: string}>): any {
+    return {
+      resourceType: 'Parameters',
+      parameter: [{
+        name: 'valueSet',
+        resource: {
+          resourceType: 'ValueSet',
+          status: 'draft',
+          experimental: true,
+          compose: {
+            include: [{
+              system: 'http://snomed.info/sct',
+              version: this.getSelectedOutputFhirUrlParam(),
+              concept: codes
+            }]
+          }
+        }
+      }]
+    };
+  }
+
+  private getSelectedOutputFhirUrlParam(): string {
+    return this.selectedOutputFhirUrlParam || this.terminologyContext.fhirUrlParam;
+  }
+
+  private getSelectedOutputLanguageContext(): string {
+    return this.terminologyService.getComputedLanguageContextForSelection(
+      this.selectedOutputLanguage || this.terminologyService.getLang(),
+      this.selectedLanRefsetConcept,
+      this.selectedContext,
+      this.terminologyService.getSnowstormFhirBase()
+    );
+  }
+
+  private refreshOutputContexts(fhirUrlParam: string): void {
+    this.contexts = this.terminologyService.getContextsForEdition(fhirUrlParam);
+
+    if (this.contexts.length > 0) {
+      this.selectedContext = this.contexts[0];
+      this.selectedLanRefsetConcept = null;
+    } else {
+      this.selectedContext = null;
+    }
+
+    this.updateSelectedLanguageLabel();
+  }
+
+  private async expandInlineValueSetForSelectedOutput(inlineValueSet: any): Promise<any> {
+    return await this.terminologyService.expandInlineValueSetFromServer(
+      this.terminologyService.getSnowstormFhirBase(),
+      inlineValueSet,
+      this.getSelectedOutputLanguageContext()
+    ).toPromise();
   }
 
   private buildDownloadableTargetValueSet(): any | null {
@@ -1868,39 +1934,47 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     // Find the edition object by name and set it
     const editionObj = this.editionsDetails.find(e => e.editionName === editionName);
     if (editionObj && editionObj.editions && editionObj.editions.length > 0) {
-      // Use the first version for the selected edition
-      this.terminologyService.setFhirUrlParam(editionObj.editions[0].resource.version);
+      this.selectedOutputEditionName = editionName;
+      this.selectedOutputFhirUrlParam = editionObj.editions[0].resource.version;
+      this.refreshOutputContexts(this.selectedOutputFhirUrlParam);
       this.scrollToBottomAfterRender();
     }
   }
 
   onLanguageChange(language: string) {
-    this.terminologyService.setLang(language);
+    this.selectedOutputLanguage = language;
+    this.selectedContext = null;
+    this.selectedLanRefsetConcept = null;
+    this.updateSelectedLanguageLabel();
     this.scrollToBottomAfterRender();
   }
 
   onContextChange(context: any) {
-    this.terminologyService.setContext(context);
+    this.selectedContext = context;
+    this.selectedLanRefsetConcept = null;
+    this.updateSelectedLanguageLabel();
     this.scrollToBottomAfterRender();
   }
 
   onLanguageRefsetChange(langRefset: any) {
-    this.terminologyService.setLanguageRefsetConcept(langRefset);
+    this.selectedLanRefsetConcept = langRefset;
+    this.selectedContext = null;
+    this.updateSelectedLanguageLabel();
     this.scrollToBottomAfterRender();
   }
 
   updateSelectedLanguageLabel() {
-    const activeLanguage = this.terminologyService.getComputedLanguageContext();
-    if (activeLanguage && typeof activeLanguage === 'string') {
-      if (!activeLanguage.includes('-X-')) {
-        this.selectedLanguageDisplayLabel = activeLanguage;
-      } else {
-        const languageParts = activeLanguage.split('-X-');
-        this.selectedLanguageDisplayLabel = languageParts[0] + '*';
-      }
-    } else if (activeLanguage && typeof activeLanguage === 'object') {
-      this.selectedLanguageDisplayLabel = activeLanguage['name'];
+    if (this.selectedContext?.name) {
+      this.selectedLanguageDisplayLabel = this.selectedContext.name;
+      return;
     }
+
+    if (this.selectedLanRefsetConcept?.display) {
+      this.selectedLanguageDisplayLabel = this.selectedLanRefsetConcept.display;
+      return;
+    }
+
+    this.selectedLanguageDisplayLabel = this.selectedOutputLanguage || this.terminologyService.getLang() || 'Language';
   }
 
   getEditionReleaseDate(): string {

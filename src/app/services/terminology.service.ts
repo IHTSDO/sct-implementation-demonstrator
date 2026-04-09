@@ -164,9 +164,42 @@ export class TerminologyService {
     } else return this.lang;
   }
 
+  getComputedLanguageContextForSelection(
+    lang: string,
+    languageRefsetConcept?: any,
+    context?: any,
+    fhirBase?: string
+  ): string {
+    const effectiveLang = lang || this.lang;
+    const effectiveFhirBase = fhirBase || this.snowstormFhirBase;
+
+    if (context) {
+      const dialects = context.languageDialects;
+      if (this.isOntoserverBase(effectiveFhirBase) && dialects && this.isSnowstormLanguageFormat(dialects)) {
+        const { lang, refsetCode } = this.parseSnowstormLanguageFormat(dialects);
+        return this.toLanguageCode(lang, refsetCode);
+      }
+      return dialects ?? effectiveLang;
+    }
+
+    if (languageRefsetConcept) {
+      const code = String(languageRefsetConcept.code);
+      if (this.isOntoserverBase(effectiveFhirBase)) {
+        return this.toLanguageCode(effectiveLang, code);
+      }
+      return effectiveLang + '-X-' + code;
+    }
+
+    return effectiveLang;
+  }
+
   /** True when the configured FHIR base URL is an Ontoserver (different language refset format). */
   private isOntoserver(): boolean {
     return this.snowstormFhirBase.toLowerCase().includes('ontoserver');
+  }
+
+  private isOntoserverBase(fhirBase: string): boolean {
+    return (fhirBase || '').toLowerCase().includes('ontoserver');
   }
 
   /** Matches Snowstorm format e.g. en-X-900000000000509007 (lang-X-refsetCode). */
@@ -381,6 +414,22 @@ export class TerminologyService {
     return this.http.post<any>(requestUrl, inlineValueSet, httpOptions)
       .pipe(
         catchError(this.handleError<any>('expandInlineValueSet', {}))
+      );
+  }
+
+  expandInlineValueSetFromServer(fhirBase: string, inlineValueSet: any, acceptLanguage?: string): Observable<any> {
+    const requestUrl = `${fhirBase || this.snowstormFhirBase}/ValueSet/$expand`;
+    const resolvedLanguage = acceptLanguage || this.getComputedLanguageContext();
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/fhir+json',
+        'Accept-Language': resolvedLanguage,
+      })
+    };
+
+    return this.http.post<any>(requestUrl, inlineValueSet, httpOptions)
+      .pipe(
+        catchError(this.handleError<any>('expandInlineValueSetFromServer', {}))
       );
   }
 
@@ -912,6 +961,21 @@ export class TerminologyService {
       return 'en,' + langContext;
     }
     return langContext;
+  }
+
+  getContextsForEdition(fhirUrl: string): any[] {
+    const editionUri = this.extractEditionUri(fhirUrl);
+    const edition = this.languageMetadata?.editions?.find(
+      (e: any) => e.moduleUri === editionUri
+    );
+
+    const contexts = Array.isArray(edition?.contexts) ? [...edition.contexts] : [];
+    const hasUsEnglish = contexts.some((context: any) => context?.languageDialects === 'en-X-900000000000509007');
+    if (!hasUsEnglish) {
+      contexts.push({ name: 'US English', languageDialects: 'en-X-900000000000509007' });
+    }
+
+    return contexts;
   }
 
   /**
