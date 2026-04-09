@@ -140,6 +140,7 @@
             *ngIf="hasSurfaceVisual(tooth.id, option.code)"
             class="surface-overlay-path {{ getSurfaceOverlayClass(option.code, tooth, quadrant.prefix) }}"
             [class.surface-preview]="isSurfacePreview(tooth.id, option.code)"
+            [class.surface-tooth-present]="isToothPresentOverlay(tooth.id, option.code)"
             [attr.d]="getSurfaceOverlayPath(option.code, tooth)"
             [attr.fill]="getSurfaceFill(option.code, tooth, quadrant.prefix)"
             [attr.stroke]="getSurfaceStroke(option.code)"

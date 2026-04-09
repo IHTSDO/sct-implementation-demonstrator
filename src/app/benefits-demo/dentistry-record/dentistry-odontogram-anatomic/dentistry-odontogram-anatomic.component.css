@@ -179,6 +179,10 @@
   opacity: 0.94;
 }
 
+.surface-overlay-path.overlay-entire-tooth.surface-tooth-present {
+  opacity: 0.24;
+}
+
 .surface-overlay-path.overlay-periodontal-ring {
   fill: none;
   opacity: 0.85;

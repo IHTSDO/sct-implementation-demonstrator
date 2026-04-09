@@ -37,6 +37,7 @@ export class DentistryOdontogramAnatomicComponent {
   @Input() getSurfaceStrokeWidth: (surfaceCode: string) => string | null = () => null;
   @Input() getToothTooltipLines: (toothId: string) => string[] = () => [];
   @Input() getDisplayedNotation: (tooth: OdontogramTooth) => string = (tooth: OdontogramTooth) => tooth.notations.fdi;
+  @Input() isToothPresentOverlay: (toothId: string, surfaceCode: string) => boolean = () => false;
 
   @Output() notationSystemChange = new EventEmitter<'FDI' | 'Universal'>();
   @Output() toothPinned = new EventEmitter<OdontogramTooth>();

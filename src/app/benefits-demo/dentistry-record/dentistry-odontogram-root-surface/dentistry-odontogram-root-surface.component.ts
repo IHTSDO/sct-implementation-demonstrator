@@ -31,6 +31,7 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   @Input() hasSurfaceVisual: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() getSurfaceVisualType: (toothId: string, surfaceCode: string) => 'finding' | 'procedure-planned' | 'procedure-completed' | null = () => null;
   @Input() isSurfacePreview: (toothId: string, surfaceCode: string) => boolean = () => false;
+  @Input() isToothPresentOverlay: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() hoveredTooth: OdontogramTooth | null = null;
   @Input() tooltipX = 0;
   @Input() tooltipY = 0;

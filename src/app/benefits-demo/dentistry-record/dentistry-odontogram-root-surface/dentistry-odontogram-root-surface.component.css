@@ -165,6 +165,10 @@
   pointer-events: none;
 }
 
+.surface-entire.surface-tooth-present {
+  fill: rgba(255, 0, 0, 0.16);
+}
+
 .surface-periodontal {
   fill: none;
   stroke: rgba(255,0,0, 0.9);

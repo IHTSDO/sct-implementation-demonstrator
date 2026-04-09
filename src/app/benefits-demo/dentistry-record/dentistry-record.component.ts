@@ -21,6 +21,11 @@ interface QuadrantConfig {
   transform: string;
 }
 
+interface PostcoordinationEnrichmentResult {
+  locationCodes: string[];
+  enriched: boolean;
+}
+
 type SurfaceDirection = 'top' | 'bottom' | 'left' | 'right';
 type OdontogramViewMode = 'anatomic' | 'rootSurface';
 type SurfaceVisualType = 'finding' | 'procedure-planned' | 'procedure-completed';
@@ -51,6 +56,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly SURFACE_CODE_COMPLETE = '302214001';
   readonly SURFACE_CODE_PERIODONTAL = '8711009';
   private readonly TOOTH_ABSENT_FINDING_CODE = '234948008';
+  private readonly TOOTH_PRESENT_FINDING_CODE = '278661005';
   private readonly FINDING_SITE_ATTRIBUTE_CODE = '363698007';
   private readonly FINDING_SITE_ATTRIBUTE_DISPLAY = 'Finding site (attribute)';
   private readonly PROCEDURE_SITE_ATTRIBUTE_CODE = '405813007';
@@ -68,6 +74,8 @@ export class DentistryRecordComponent implements OnChanges {
   dentalFindingList: DentalFindingListItem[] = [];
   savedSurfaceByToothId: Record<string, Record<string, SurfaceVisualType>> = {};
   private absentToothIds = new Set<string>();
+  private toothPresentToothIds = new Set<string>();
+  private notifiedPostcoordinatedEnrichmentIds = new Set<string>();
 
   readonly surfaceOptions: SnomedConceptOption[] = DENTAL_SURFACE_OPTIONS;
   readonly anatomicSurfaceOptions: SnomedConceptOption[] = DENTAL_SURFACE_OPTIONS.filter((option) => option.scope !== 'rootSurface');
@@ -238,6 +246,12 @@ export class DentistryRecordComponent implements OnChanges {
       return this.getPinnedEntryType() === 'procedure' ? 'procedure-planned' : 'finding';
     }
     return this.getSavedSurfaceVisualType(toothId, surfaceCode);
+  }
+
+  isToothPresentOverlay(toothId: string, surfaceCode: string): boolean {
+    return surfaceCode === this.SURFACE_CODE_COMPLETE
+      && this.toothPresentToothIds.has(toothId)
+      && this.getSurfaceVisualType(toothId, surfaceCode) === 'finding';
   }
 
   isToothAbsent(toothId: string): boolean {
@@ -1000,20 +1014,155 @@ export class DentistryRecordComponent implements OnChanges {
     ) || procedure.category?.text === 'Dental procedure' || false;
   }
 
+  private getPreferredSnomedCoding(
+    codeableConcept: { coding?: Array<{ system?: string; version?: string; code?: string; display?: string }>; text?: string } | undefined
+  ): { system?: string; version?: string; code?: string; display?: string } | undefined {
+    const snomedCodings = (codeableConcept?.coding || []).filter((coding) => coding.system === this.SNOMED_SYSTEM);
+    if (!snomedCodings.length) {
+      return undefined;
+    }
+
+    const nonExpressionCoding = snomedCodings.find((coding) => !String(coding.version || '').includes('xsct'));
+    return nonExpressionCoding || snomedCodings[0];
+  }
+
+  private getLocationCodesFromBodySite(
+    bodySite: Array<{ coding?: Array<{ system?: string; code?: string; display?: string }>; text?: string }> | undefined
+  ): string[] {
+    return (bodySite || [])
+      .map((site) => site.coding?.find((coding) => coding.system === this.SNOMED_SYSTEM)?.code || site.coding?.[0]?.code || '')
+      .filter(Boolean);
+  }
+
+  private extractLocationCodesFromPostcoordination(codeableConcept: { coding?: Array<{ system?: string; version?: string; code?: string; display?: string }> } | undefined): string[] {
+    const expressionCoding = codeableConcept?.coding?.find((coding) =>
+      coding.system === this.SNOMED_SYSTEM
+      && (String(coding.version || '').includes('xsct') || String(coding.code || '').includes('{'))
+    );
+    const expression = String(expressionCoding?.code || '').trim();
+    if (!expression) {
+      return [];
+    }
+
+    const numericTokens = expression.match(/\d{6,18}/g) || [];
+    if (!numericTokens.length) {
+      return [];
+    }
+
+    const attributeCodes = new Set([this.FINDING_SITE_ATTRIBUTE_CODE, this.PROCEDURE_SITE_ATTRIBUTE_CODE]);
+    const baseConceptCode = numericTokens[0];
+
+    return numericTokens.filter((token, index) => index > 0 && token !== baseConceptCode && !attributeCodes.has(token));
+  }
+
+  private buildDentalBodySiteFromCodes(locationCodes: string[]): Array<{ coding: Array<{ system: string; code: string; display?: string }>; text?: string }> {
+    return locationCodes.map((code) => {
+      const toothId = this.toothIdBySnomedCode[code];
+      const tooth = toothId ? this.findToothById(toothId) : null;
+      const surface = this.surfaceOptions.find((option) => option.code === code);
+      const display = tooth?.snomedStructure?.display || surface?.display;
+      return {
+        coding: [
+          {
+            system: this.SNOMED_SYSTEM,
+            code,
+            ...(display ? { display } : {})
+          }
+        ],
+        ...(display ? { text: display } : {})
+      };
+    });
+  }
+
+  private normalizeOdontogramLocationCodes(locationCodes: string[]): string[] {
+    if (!locationCodes.length) {
+      return [];
+    }
+
+    const toothCodes = locationCodes.filter((code) => !!this.toothIdBySnomedCode[code]);
+    const siteCodes = locationCodes.filter((code) => this.surfaceOptions.some((option) => option.code === code));
+
+    if (!toothCodes.length || siteCodes.length) {
+      return locationCodes;
+    }
+
+    return [...locationCodes, this.SURFACE_CODE_COMPLETE];
+  }
+
+  private mergeLocationCodes(existingCodes: string[], expressionCodes: string[]): string[] {
+    if (!expressionCodes.length) {
+      return this.normalizeOdontogramLocationCodes(existingCodes);
+    }
+
+    const merged = [...existingCodes];
+    expressionCodes.forEach((code) => {
+      if (!merged.includes(code)) {
+        merged.push(code);
+      }
+    });
+    return this.normalizeOdontogramLocationCodes(merged);
+  }
+
+  private maybeEnrichConditionBodySiteFromPostcoordination(condition: Condition): PostcoordinationEnrichmentResult {
+    const existingCodes = this.getLocationCodesFromBodySite(condition.bodySite);
+    const expressionCodes = this.extractLocationCodesFromPostcoordination(condition.code);
+    const mergedCodes = this.mergeLocationCodes(existingCodes, expressionCodes);
+
+    if (!mergedCodes.length || mergedCodes.length === existingCodes.length) {
+      return { locationCodes: mergedCodes, enriched: false };
+    }
+
+    condition.bodySite = this.buildDentalBodySiteFromCodes(mergedCodes);
+    const enriched = !this.notifiedPostcoordinatedEnrichmentIds.has(condition.id);
+    this.notifiedPostcoordinatedEnrichmentIds.add(condition.id);
+    return { locationCodes: mergedCodes, enriched };
+  }
+
+  private maybeEnrichProcedureBodySiteFromPostcoordination(procedure: Procedure): PostcoordinationEnrichmentResult {
+    const existingCodes = this.getLocationCodesFromBodySite(procedure.bodySite);
+    const expressionCodes = this.extractLocationCodesFromPostcoordination(procedure.code);
+    const mergedCodes = this.mergeLocationCodes(existingCodes, expressionCodes);
+
+    if (!mergedCodes.length || mergedCodes.length === existingCodes.length) {
+      return { locationCodes: mergedCodes, enriched: false };
+    }
+
+    procedure.bodySite = this.buildDentalBodySiteFromCodes(mergedCodes);
+    const enriched = !this.notifiedPostcoordinatedEnrichmentIds.has(procedure.id);
+    this.notifiedPostcoordinatedEnrichmentIds.add(procedure.id);
+    return { locationCodes: mergedCodes, enriched };
+  }
+
+  private showPostcoordinationExtractionSnackBar(enrichedCount: number): void {
+    if (!enrichedCount) {
+      return;
+    }
+
+    const suffix = enrichedCount === 1 ? 'record' : 'records';
+    this.snackBar.open(
+      `Extracting dental sites from post coordination expressions (${enrichedCount} ${suffix})`,
+      'Close',
+      { duration: 3200 }
+    );
+  }
+
   private refreshDentalFindingList(patientId: string): void {
     const conditions = this.patientService.getPatientConditions(patientId);
     const procedures = this.patientService.getPatientProcedures(patientId);
+    let enrichedFromPostcoordinationCount = 0;
 
     this.savedSurfaceByToothId = {};
     this.absentToothIds = new Set<string>();
+    this.toothPresentToothIds = new Set<string>();
 
     const conditionItems = conditions
       .filter((condition) => this.isDentalCondition(condition))
       .map((condition): DentalFindingListItem => {
-        const bodySiteCodes = (condition.bodySite || [])
-          .map((site) => site.coding?.[0]?.code || '')
-          .filter(Boolean);
-        const structureCodes = bodySiteCodes;
+        const enrichmentResult = this.maybeEnrichConditionBodySiteFromPostcoordination(condition);
+        const structureCodes = enrichmentResult.locationCodes;
+        if (enrichmentResult.enriched) {
+          enrichedFromPostcoordinationCount += 1;
+        }
 
         const toothCode = structureCodes.find((code) => !!this.toothIdBySnomedCode[code]) || '';
         const toothId = this.toothIdBySnomedCode[toothCode] || '';
@@ -1023,11 +1172,17 @@ export class DentistryRecordComponent implements OnChanges {
         const clinicalStatusCode = this.getConditionClinicalStatusCode(condition);
         const clinicalStatusDisplay = this.getConditionClinicalStatusDisplay(condition, clinicalStatusCode);
         const isResolved = clinicalStatusCode === 'resolved';
-        const findingCode = condition.code?.coding?.[0]?.code || '';
+        const preferredFindingCoding = this.getPreferredSnomedCoding(condition.code);
+        const findingCode = preferredFindingCoding?.code || condition.code?.text || '';
         const isToothAbsentFinding = findingCode === this.TOOTH_ABSENT_FINDING_CODE;
+        const isToothPresentFinding = findingCode === this.TOOTH_PRESENT_FINDING_CODE;
 
         if (!isResolved && toothId && isToothAbsentFinding) {
           this.absentToothIds.add(toothId);
+        }
+
+        if (!isResolved && toothId && isToothPresentFinding && siteCodes.includes(this.SURFACE_CODE_COMPLETE)) {
+          this.toothPresentToothIds.add(toothId);
         }
 
         if (!isResolved && !isToothAbsentFinding) {
@@ -1044,7 +1199,7 @@ export class DentistryRecordComponent implements OnChanges {
           .map((siteCode) => this.surfaceOptions.find((option) => option.code === siteCode)?.display || siteCode)
           .filter(Boolean);
 
-        const findingDisplay = condition.code?.coding?.[0]?.display || condition.code?.text || 'Not specified';
+        const findingDisplay = preferredFindingCoding?.display || condition.code?.text || 'Not specified';
 
         return {
           entryType: 'finding',
@@ -1067,10 +1222,11 @@ export class DentistryRecordComponent implements OnChanges {
     const procedureItems = procedures
       .filter((procedure) => this.isDentalProcedure(procedure))
       .map((procedure): DentalFindingListItem => {
-        const bodySiteCodes = (procedure.bodySite || [])
-          .map((site) => site.coding?.[0]?.code || '')
-          .filter(Boolean);
-        const structureCodes = bodySiteCodes;
+        const enrichmentResult = this.maybeEnrichProcedureBodySiteFromPostcoordination(procedure);
+        const structureCodes = enrichmentResult.locationCodes;
+        if (enrichmentResult.enriched) {
+          enrichedFromPostcoordinationCount += 1;
+        }
 
         const toothCode = structureCodes.find((code) => !!this.toothIdBySnomedCode[code]) || '';
         const toothId = this.toothIdBySnomedCode[toothCode] || '';
@@ -1090,8 +1246,9 @@ export class DentistryRecordComponent implements OnChanges {
           .map((siteCode) => this.surfaceOptions.find((option) => option.code === siteCode)?.display || siteCode)
           .filter(Boolean);
 
-        const procedureCode = procedure.code?.coding?.[0]?.code || '';
-        const procedureDisplay = procedure.code?.coding?.[0]?.display || procedure.code?.text || 'Not specified';
+        const preferredProcedureCoding = this.getPreferredSnomedCoding(procedure.code);
+        const procedureCode = preferredProcedureCoding?.code || procedure.code?.text || '';
+        const procedureDisplay = preferredProcedureCoding?.display || procedure.code?.text || 'Not specified';
 
         return {
           entryType: 'procedure',
@@ -1132,6 +1289,7 @@ export class DentistryRecordComponent implements OnChanges {
         const bTime = b.recordedDateTime ? new Date(b.recordedDateTime).getTime() : 0;
         return bTime - aTime;
       });
+    this.showPostcoordinationExtractionSnackBar(enrichedFromPostcoordinationCount);
   }
 
   private buildPostcoordinatedExpression(item: DentalFindingListItem): string {
