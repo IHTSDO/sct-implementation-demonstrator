@@ -30,11 +30,46 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-top: 2px;
   color: #5e6977;
   font-size: 0.76rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.root-surface-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.notation-toggle {
+  display: inline-flex;
+  border: 1px solid #cfd7e3;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f7f9fc;
+}
+
+.notation-button {
+  border: 0;
+  background: transparent;
+  color: #5e6977;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+
+.notation-button:hover {
+  background: rgba(47, 73, 209, 0.08);
+}
+
+.notation-button.active {
+  background: #2f49d1;
+  color: #ffffff;
 }
 
 .root-surface-canvas {

@@ -20,6 +20,7 @@ export class DentistryOdontogramAnatomicComponent {
   @Input() hoveredTooth: OdontogramTooth | null = null;
   @Input() tooltipX = 0;
   @Input() tooltipY = 0;
+  @Input() notationSystem: 'FDI' | 'Universal' = 'FDI';
 
   @Input() getTeethForQuadrant: (prefix: string) => OdontogramTooth[] = () => [];
   @Input() trackByToothId: (_: number, tooth: OdontogramTooth) => string = (_: number, tooth: OdontogramTooth) => tooth.id;
@@ -35,7 +36,9 @@ export class DentistryOdontogramAnatomicComponent {
   @Input() getSurfaceStroke: (surfaceCode: string) => string | null = () => null;
   @Input() getSurfaceStrokeWidth: (surfaceCode: string) => string | null = () => null;
   @Input() getToothTooltipLines: (toothId: string) => string[] = () => [];
+  @Input() getDisplayedNotation: (tooth: OdontogramTooth) => string = (tooth: OdontogramTooth) => tooth.notations.fdi;
 
+  @Output() notationSystemChange = new EventEmitter<'FDI' | 'Universal'>();
   @Output() toothPinned = new EventEmitter<OdontogramTooth>();
   @Output() toothMouseEnter = new EventEmitter<{ tooth: OdontogramTooth; event: MouseEvent }>();
   @Output() toothMouseMove = new EventEmitter<MouseEvent>();
@@ -47,5 +50,9 @@ export class DentistryOdontogramAnatomicComponent {
 
   onMouseEnter(tooth: OdontogramTooth, event: MouseEvent): void {
     this.toothMouseEnter.emit({ tooth, event });
+  }
+
+  onNotationSystemChange(notationSystem: 'FDI' | 'Universal'): void {
+    this.notationSystemChange.emit(notationSystem);
   }
 }

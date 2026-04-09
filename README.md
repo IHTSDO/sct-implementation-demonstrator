@@ -23,8 +23,7 @@ Navigate to `http://localhost:4200/`. The application will automatically reload 
 
 ## Attribution
 
-The Dentistry odontogram feature in this project is inspired by the following open-source project:
+The Dentistry odontogram feature in this project is inspired by the following open-source projects:
 
-- [react-odontogram](https://github.com/biomathcode/react-odontogram) by [biomathcode](https://github.com/biomathcode)
-
-We reused and adapted SVG tooth path data from that project. `react-odontogram` is licensed under the MIT License.
+- [react-odontogram](https://github.com/biomathcode/react-odontogram) by [biomathcode](https://github.com/biomathcode): We reused and adapted SVG tooth path data from this project  - `react-odontogram` is licensed under the MIT License.
+- The DigiDOT pilot project by Novari IKS and Conteir - [Demo](https://tann.conteir.no/)

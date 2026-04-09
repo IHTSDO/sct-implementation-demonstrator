@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BASE_TEETH } from './data/tooth-data';
-import { FindingScope, OdontogramTooth, SnomedConceptOption, ToothFindingEntry } from './models/tooth.model';
+import { FindingScope, NotationSystem, OdontogramTooth, SnomedConceptOption, ToothFindingEntry } from './models/tooth.model';
 import { getToothNotations } from './utils/tooth-notation.utils';
 import { FDI_TO_SNOMED_STRUCTURE_MAP } from './data/fdi-snomed-structure-map';
 import { DENTAL_SURFACE_OPTIONS } from './data/dental-surface-options';
@@ -85,6 +85,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly toothIdBySnomedCode = this.buildToothIdBySnomedCodeMap();
   viewMode: OdontogramViewMode = 'anatomic';
   showRoots = false;
+  notationSystem: Extract<NotationSystem, 'FDI' | 'Universal'> = 'FDI';
   selectedSideTabIndex = 1;
   readonly getTeethForQuadrantFn = (prefix: string) => this.getTeethForQuadrant(prefix);
   readonly trackByToothIdFn = (_: number, tooth: OdontogramTooth) => this.trackByToothId(_, tooth);
@@ -102,6 +103,7 @@ export class DentistryRecordComponent implements OnChanges {
   readonly getSurfaceStrokeFn = (surfaceCode: string) => this.getSurfaceStroke(surfaceCode);
   readonly getSurfaceStrokeWidthFn = (surfaceCode: string) => this.getSurfaceStrokeWidth(surfaceCode);
   readonly getToothTooltipLinesFn = (toothId: string) => this.getToothTooltipLines(toothId);
+  readonly getDisplayedToothNotationFn = (tooth: OdontogramTooth) => this.getDisplayedToothNotation(tooth);
 
   constructor(
     private patientService: PatientService,
@@ -123,6 +125,10 @@ export class DentistryRecordComponent implements OnChanges {
         this.onSiteSelectionChanged(this.getOrderedSiteCodes(visibleSiteCodes));
       }
     }
+  }
+
+  setNotationSystem(notationSystem: 'FDI' | 'Universal'): void {
+    this.notationSystem = notationSystem;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -154,6 +160,10 @@ export class DentistryRecordComponent implements OnChanges {
 
   getRootSurfaceOptions(): SnomedConceptOption[] {
     return this.showRoots ? this.rootSurfaceOptions : [];
+  }
+
+  getDisplayedToothNotation(tooth: OdontogramTooth): string {
+    return this.notationSystem === 'Universal' ? tooth.notations.universal : tooth.notations.fdi;
   }
 
   pinTooth(tooth: OdontogramTooth): void {
@@ -1041,6 +1051,7 @@ export class DentistryRecordComponent implements OnChanges {
           conditionId: condition.id,
           toothId,
           toothFdi: tooth?.notations.fdi || 'Unknown',
+          toothUniversal: tooth?.notations.universal || 'Unknown',
           siteCodes,
           surfaceCode: siteCodes.join(', '),
           surfaceDisplay: siteDisplays.join(' + ') || 'Not specified',
@@ -1087,6 +1098,7 @@ export class DentistryRecordComponent implements OnChanges {
           procedureId: procedure.id,
           toothId,
           toothFdi: tooth?.notations.fdi || 'Unknown',
+          toothUniversal: tooth?.notations.universal || 'Unknown',
           siteCodes,
           surfaceCode: siteCodes.join(', '),
           surfaceDisplay: siteDisplays.join(' + ') || 'Not specified',

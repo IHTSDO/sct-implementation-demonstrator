@@ -27,6 +27,7 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   @Input() isSelected: (toothId: string) => boolean = () => false;
   @Input() isToothAbsent: (toothId: string) => boolean = () => false;
   @Input() showRoots = false;
+  @Input() notationSystem: 'FDI' | 'Universal' = 'FDI';
   @Input() hasSurfaceVisual: (toothId: string, surfaceCode: string) => boolean = () => false;
   @Input() getSurfaceVisualType: (toothId: string, surfaceCode: string) => 'finding' | 'procedure-planned' | 'procedure-completed' | null = () => null;
   @Input() isSurfacePreview: (toothId: string, surfaceCode: string) => boolean = () => false;
@@ -34,6 +35,7 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   @Input() tooltipX = 0;
   @Input() tooltipY = 0;
   @Input() getToothTooltipLines: (toothId: string) => string[] = () => [];
+  @Input() getDisplayedNotation: (tooth: OdontogramTooth) => string = (tooth: OdontogramTooth) => tooth.notations.fdi;
 
   @Input() surfaceCodeMesial = '';
   @Input() surfaceCodeDistal = '';
@@ -48,6 +50,7 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
   @Input() surfaceCodePeriodontal = '';
 
   @Output() showRootsChange = new EventEmitter<boolean>();
+  @Output() notationSystemChange = new EventEmitter<'FDI' | 'Universal'>();
   @Output() toothPinned = new EventEmitter<OdontogramTooth>();
   @Output() toothMouseEnter = new EventEmitter<{ tooth: OdontogramTooth; event: MouseEvent }>();
   @Output() toothMouseMove = new EventEmitter<MouseEvent>();
@@ -72,6 +75,10 @@ export class DentistryOdontogramRootSurfaceComponent implements OnInit, OnChange
 
   onPinTooth(tooth: OdontogramTooth): void {
     this.toothPinned.emit(tooth);
+  }
+
+  onNotationSystemChange(notationSystem: 'FDI' | 'Universal'): void {
+    this.notationSystemChange.emit(notationSystem);
   }
 
   trackByToothPosition(_: number, positioned: RootSurfaceToothPosition): string {

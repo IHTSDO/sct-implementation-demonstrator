@@ -1,4 +1,27 @@
 <div class="odontogram-canvas-container">
+  <div class="odontogram-header">
+    <div>
+      <h3>Anatomic View</h3>
+      <p>Natural tooth contours with surface overlays.</p>
+    </div>
+    <div class="notation-toggle" role="group" aria-label="Tooth numbering selector">
+      <button
+        type="button"
+        class="notation-button"
+        [class.active]="notationSystem === 'FDI'"
+        (click)="onNotationSystemChange('FDI')">
+        FDI (ISO)
+      </button>
+      <button
+        type="button"
+        class="notation-button"
+        [class.active]="notationSystem === 'Universal'"
+        (click)="onNotationSystemChange('Universal')">
+        Universal
+      </button>
+    </div>
+  </div>
+
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -103,7 +126,7 @@
         *ngFor="let tooth of getTeethForQuadrant(quadrant.prefix); trackBy: trackByToothId"
         [class.selected]="isSelected(tooth.id)"
         [class.absent]="isToothAbsent(tooth.id)"
-        [attr.aria-label]="'Tooth ' + tooth.notations.fdi"
+        [attr.aria-label]="'Tooth ' + getDisplayedNotation(tooth)"
         [attr.aria-selected]="isSelected(tooth.id)"
         (mousedown)="$event.preventDefault()"
         (click)="onPinTooth(tooth)"
@@ -137,7 +160,7 @@
     *ngIf="hoveredTooth"
     [style.left.px]="tooltipX"
     [style.top.px]="tooltipY">
-    <div class="tooltip-number">Tooth {{ hoveredTooth.notations.fdi }}</div>
+    <div class="tooltip-number">Tooth {{ getDisplayedNotation(hoveredTooth) }}</div>
     <div class="tooltip-type">{{ hoveredTooth.type }}</div>
     <ng-container *ngIf="getToothTooltipLines(hoveredTooth.id) as tooltipLines">
       <div class="tooltip-records" *ngIf="tooltipLines.length">

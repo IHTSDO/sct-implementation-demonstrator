@@ -4,6 +4,7 @@ export interface DentalFindingListItem {
   procedureId?: string;
   toothId: string;
   toothFdi: string;
+  toothUniversal: string;
   siteCodes: string[];
   surfaceCode: string;
   surfaceDisplay: string;

@@ -6,6 +6,54 @@
   position: relative;
 }
 
+.odontogram-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.odontogram-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.odontogram-header p {
+  margin: 4px 0 12px;
+  color: #6b7786;
+  font-size: 0.8rem;
+}
+
+.notation-toggle {
+  display: inline-flex;
+  border: 1px solid #cfd7e3;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f7f9fc;
+}
+
+.notation-button {
+  border: 0;
+  background: transparent;
+  color: #5e6977;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+
+.notation-button:hover {
+  background: rgba(47, 73, 209, 0.08);
+}
+
+.notation-button.active {
+  background: #2f49d1;
+  color: #ffffff;
+}
+
 .odontogram-canvas {
   width: 100%;
   height: auto;

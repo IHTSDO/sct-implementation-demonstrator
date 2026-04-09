@@ -1,16 +1,35 @@
 <div class="root-surface-container">
   <div class="root-surface-header">
     <div>
-      <h3>Odontogram</h3>
+      <h3>Odontogram View</h3>
       <p>Segmented surfaces with larger central polygon for molars.</p>
     </div>
-    <label class="show-roots-toggle">
-      <input
-        type="checkbox"
-        [checked]="showRoots"
-        (change)="onShowRootsChange(!!$any($event.target).checked)">
-      <span>Show roots</span>
-    </label>
+    <div class="root-surface-controls">
+      <label class="show-roots-toggle">
+        <input
+          type="checkbox"
+          [checked]="showRoots"
+          (change)="onShowRootsChange(!!$any($event.target).checked)">
+        <span>Show root surfaces</span>
+      </label>
+
+      <div class="notation-toggle" role="group" aria-label="Tooth numbering selector">
+        <button
+          type="button"
+          class="notation-button"
+          [class.active]="notationSystem === 'FDI'"
+          (click)="onNotationSystemChange('FDI')">
+          FDI (ISO)
+        </button>
+        <button
+          type="button"
+          class="notation-button"
+          [class.active]="notationSystem === 'Universal'"
+          (click)="onNotationSystemChange('Universal')">
+          Universal
+        </button>
+      </div>
+    </div>
   </div>
 
   <svg
@@ -36,7 +55,7 @@
         [class.absent]="isToothAbsent(positioned.tooth.id)"
         [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
+        [attr.aria-label]="'Tooth ' + getDisplayedNotation(positioned.tooth)"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
@@ -84,7 +103,7 @@
           [attr.y2]="connector.y2">
         </line>
 
-        <text class="tooth-label" x="0" y="-26">{{ positioned.tooth.notations.fdi }}</text>
+        <text class="tooth-label" x="0" y="-26">{{ getDisplayedNotation(positioned.tooth) }}</text>
       </g>
     </ng-container>
 
@@ -95,7 +114,7 @@
         [class.absent]="isToothAbsent(positioned.tooth.id)"
         [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
+        [attr.aria-label]="'Tooth ' + getDisplayedNotation(positioned.tooth)"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
@@ -143,7 +162,7 @@
           [attr.y2]="connector.y2">
         </line>
 
-        <text class="tooth-label" x="0" y="-26">{{ positioned.tooth.notations.fdi }}</text>
+        <text class="tooth-label" x="0" y="-26">{{ getDisplayedNotation(positioned.tooth) }}</text>
       </g>
     </ng-container>
 
@@ -154,7 +173,7 @@
         [class.absent]="isToothAbsent(positioned.tooth.id)"
         [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
+        [attr.aria-label]="'Tooth ' + getDisplayedNotation(positioned.tooth)"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
@@ -202,7 +221,7 @@
           [attr.y2]="connector.y2">
         </line>
 
-        <text class="tooth-label" x="0" y="35">{{ positioned.tooth.notations.fdi }}</text>
+        <text class="tooth-label" x="0" y="35">{{ getDisplayedNotation(positioned.tooth) }}</text>
       </g>
     </ng-container>
 
@@ -213,7 +232,7 @@
         [class.absent]="isToothAbsent(positioned.tooth.id)"
         [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        [attr.aria-label]="'Tooth ' + positioned.tooth.notations.fdi"
+        [attr.aria-label]="'Tooth ' + getDisplayedNotation(positioned.tooth)"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
@@ -261,7 +280,7 @@
           [attr.y2]="connector.y2">
         </line>
 
-        <text class="tooth-label" x="0" y="35">{{ positioned.tooth.notations.fdi }}</text>
+        <text class="tooth-label" x="0" y="35">{{ getDisplayedNotation(positioned.tooth) }}</text>
       </g>
     </ng-container>
   </svg>
@@ -271,7 +290,7 @@
     *ngIf="hoveredTooth"
     [style.left.px]="tooltipX"
     [style.top.px]="tooltipY">
-    <div class="tooltip-number">Tooth {{ hoveredTooth.notations.fdi }}</div>
+    <div class="tooltip-number">Tooth {{ getDisplayedNotation(hoveredTooth) }}</div>
     <div class="tooltip-type">{{ hoveredTooth.type }}</div>
     <ng-container *ngIf="getToothTooltipLines(hoveredTooth.id) as tooltipLines">
       <div class="tooltip-records" *ngIf="tooltipLines.length">
