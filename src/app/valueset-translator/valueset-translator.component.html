@@ -553,7 +553,7 @@
                 color="primary"
                 class="download-button"
                 (click)="downloadTargetValueSet()"
-                [disabled]="isLoading"
+                [disabled]="isLoading || (selectedAction === 'translate' && !hasValueSetMetadata())"
                 >
                 <mat-icon>download</mat-icon>
                 <span>Download Target ValueSet</span>
@@ -608,6 +608,29 @@
               </button>
             }
           </div>
+          @if (selectedAction === 'translate') {
+            <div class="valueset-metadata">
+              <h3 class="valueset-metadata-title">
+                <mat-icon>info</mat-icon>
+                ValueSet Metadata
+              </h3>
+              <div class="valueset-metadata-content">
+                <mat-form-field>
+                  <mat-label>ValueSet URI</mat-label>
+                  <input matInput [(ngModel)]="valueSetUri" placeholder="http://example.org/fhir" required>
+                  <mat-hint>Base URI for ValueSets</mat-hint>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>ValueSet Name</mat-label>
+                  <input matInput [(ngModel)]="valueSetName" placeholder="ExampleValueSet" required>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Version</mat-label>
+                  <input matInput [(ngModel)]="valueSetVersion" placeholder="1.0.0">
+                </mat-form-field>
+              </div>
+            </div>
+          }
         </div>
       }
       @if (codeDisplayExported) {

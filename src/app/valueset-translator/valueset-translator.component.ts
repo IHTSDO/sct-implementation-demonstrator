@@ -613,7 +613,15 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
 
   downloadTargetValueSet() {
     if (!this.targetValueSet) return;
-    this.downloadValueSet(this.targetValueSet, 'target-valueset.json');
+
+    const downloadableValueSet = this.buildDownloadableTargetValueSet();
+    if (!downloadableValueSet) {
+      this.error = 'Please complete ValueSet URI, ValueSet Name, and Version before downloading the target ValueSet.';
+      this.scrollToBottomAfterRender();
+      return;
+    }
+
+    this.downloadValueSet(downloadableValueSet, 'target-valueset.json');
   }
 
   downloadTargetAsExcel() {
@@ -1573,6 +1581,14 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     return true;
   }
 
+  hasValueSetMetadata(): boolean {
+    const hasValueSetUri = !!this.normalizeBaseUrl(this.valueSetUri);
+    const hasValueSetName = !!(this.valueSetName || '').trim();
+    const hasVersion = !!(this.valueSetVersion || '').trim();
+
+    return hasValueSetUri && hasValueSetName && hasVersion;
+  }
+
   getActionIcon(): string {
     switch (this.selectedAction) {
       case 'translate': return 'translate';
@@ -1667,7 +1683,6 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.error = null;
 
     try {
-      // Use the same inline ValueSet builder used by map translation and preview.
       const codes = await this.getCodesForPreview();
       if (!codes.length) {
         this.error = 'No codes found to generate target ValueSet.';
@@ -1675,7 +1690,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
         return;
       }
 
-      this.sourceValueSet = this.terminologyService.getValueSetFromCodes(codes);
+      this.sourceValueSet = {
+        resourceType: 'Parameters',
+        parameter: [{
+          name: 'valueSet',
+          resource: this.buildValueSetResource(codes)
+        }]
+      };
       const expandedValueSet = await this.terminologyService.expandInlineValueSet(this.sourceValueSet).toPromise();
       this.targetValueSet = expandedValueSet;
     } catch (error: any) {
@@ -1745,6 +1766,20 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           concept: codes
         }]
       }
+    };
+  }
+
+  private buildDownloadableTargetValueSet(): any | null {
+    if (!this.targetValueSet || !this.hasValueSetMetadata()) {
+      return null;
+    }
+
+    return {
+      ...this.targetValueSet,
+      resourceType: 'ValueSet',
+      url: this.normalizeBaseUrl(this.valueSetUri),
+      name: this.valueSetName.trim(),
+      version: this.valueSetVersion.trim()
     };
   }
 
