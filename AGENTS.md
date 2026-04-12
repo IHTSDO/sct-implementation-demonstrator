@@ -63,6 +63,14 @@
   does this pull in a heavy library?
   should this live in a shared module or a feature module?
 
+## Angular Dependency Alignment
+
+- Keep Angular packages within the same minor line, e.g. `21.2.x`.
+- Do not force every `@angular/*` package to the exact same patch version if the published ecosystem does not line up that way.
+- Prefer the most secure and build-stable combination over patch uniformity.
+- It is acceptable for `@angular/core` packages, `@angular/cli`, `@angular-devkit/build-angular`, and `@angular/material`/`@angular/cdk` to differ by patch as long as they remain in the same supported minor line and `npm audit` stays clean.
+- When updating Angular dependencies, validate with both `npm audit` and `CI=1 npx ng build --progress=false`.
+
 ## Practical Rule
 
 - If a new screen is not needed for the first paint of `home`, it should usually not be part of the initial bundle.
