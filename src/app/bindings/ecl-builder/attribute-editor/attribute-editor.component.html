@@ -25,7 +25,7 @@
 
     <app-multi-prefix-select-binding
       class="attribute-name-cell"
-      [binding]="{ title: 'Attribute name', note: 'Restricted by MRCM when available', ecl: domainAttributesEcl, type: 'Select' }"
+      [binding]="{ title: 'Attribute name', note: domainAttributesEcl ? 'Restricted by MRCM' : '', ecl: domainAttributesEcl, type: 'Select' }"
       [term]="attributeNameSelection"
       [readonly]="readonly"
       [appearance]="'outline'"
@@ -57,7 +57,7 @@
     <app-concept-picker
       class="value-cell"
       [label]="'Value'"
-      [note]="'Constrained by attribute range when available'"
+      [note]="getAttributeRangeEcl() ? 'Constrained by attribute range' : ''"
       [ecl]="getAttributeRangeEcl()"
       [conceptId]="valueConceptId"
       [readonly]="readonly"
