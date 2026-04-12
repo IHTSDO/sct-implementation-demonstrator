@@ -147,6 +147,13 @@ export class MenuService {
       description: "An utility for transforming SNOMED CT value sets from non-standard formats (Excel, CSV, Snap2SNOMED maps) into standards-compliant FHIR ValueSet resources and packages."
     },
     {
+      name: "Extensions Search Utility",
+      subtitle: "Tool",
+      type: "internal",
+      url: "/extensions-search",
+      description: "A utility for running ECL searches across the latest SNOMED CT extensions and comparing concept matches by edition."
+    },
+    {
       name: "Analytics with Snolytical",
       subtitle: "Analytics demo",
       type: "external",

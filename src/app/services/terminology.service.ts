@@ -512,7 +512,15 @@ export class TerminologyService {
       );
   }
 
-  expandValueSetFromServer(fhirBase: string, fhirUrl: string, ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
+  expandValueSetFromServer(
+    fhirBase: string,
+    fhirUrl: string,
+    ecl: string,
+    terms: string,
+    offset?: number,
+    count?:number,
+    languageOverride?: string
+  ): Observable<any> {
     if (!offset) offset = 0;
     if (!count) count = 20;
     if (!fhirBase) fhirBase = this.snowstormFhirBase;
@@ -521,7 +529,7 @@ export class TerminologyService {
       terms = '';
     }
     // Calculate language context on-the-fly based on the edition being queried
-    let langParam = this.computedLanguageContextForUri(fhirUrl);
+    let langParam = languageOverride || this.computedLanguageContextForUri(fhirUrl);
     // For LOINC SNOMED server, use simpler language parameter (just 'en' instead of language refset)
     const isLoincSnomedServer = fhirBase.includes('loincsnomed');
     const languageParam = isLoincSnomedServer ? 'en' : langParam;

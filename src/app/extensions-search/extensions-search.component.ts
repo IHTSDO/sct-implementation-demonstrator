@@ -26,6 +26,7 @@ interface ExportEditionConcepts {
   standalone: false
 })
 export class ExtensionsSearchComponent implements OnInit, OnDestroy {
+  private readonly COMPARISON_LANGUAGE = 'en,es';
   eclInput = '';
   latestEditions: any[] = [];
   editionsWithResults: EditionWithResult[] = [];
@@ -203,7 +204,8 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
               eclWithModule,
               '',
               0,
-              this.resultsPageSize
+              this.resultsPageSize,
+              this.COMPARISON_LANGUAGE
             ).pipe(
               concatMap((res: any) => {
                 const total = res?.expansion?.total ?? 0;
@@ -286,7 +288,8 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
       eclWithModule,
       '',
       0,
-      this.resultsPageSize
+      this.resultsPageSize,
+      this.COMPARISON_LANGUAGE
     ).subscribe({
       next: (res: any) => {
         const total = res?.expansion?.total ?? 0;
@@ -320,7 +323,8 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
       eclWithModule,
       this.resultsFilter,
       this.resultsOffset,
-      this.resultsPageSize
+      this.resultsPageSize,
+      this.COMPARISON_LANGUAGE
     ).subscribe({
       next: (res: any) => {
         this.rightPanelResults = res?.expansion?.contains ?? [];
@@ -356,7 +360,8 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
       eclWithModule,
       '',
       offset,
-      this.resultsPageSize
+      this.resultsPageSize,
+      this.COMPARISON_LANGUAGE
     ).subscribe({
       next: (res: any) => {
         const newResults = res?.expansion?.contains ?? [];
@@ -536,7 +541,8 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
               eclWithModule,
               '',
               0,
-              this.EXPORT_COUNT
+              this.EXPORT_COUNT,
+              this.COMPARISON_LANGUAGE
             ).pipe(
               concatMap((res: any) => {
                 const contains = res?.expansion?.contains ?? [];
