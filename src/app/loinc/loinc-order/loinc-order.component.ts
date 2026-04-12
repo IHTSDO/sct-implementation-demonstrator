@@ -13,12 +13,12 @@ import type { LaboratoryOrderGroup, ServiceRequest } from 'src/app/model';
   standalone: false
 })
 export class LoincOrderComponent implements AfterViewInit, OnDestroy {
-  private readonly compactLayoutBreakpoint = 1400;
   private readonly searchPanelMinWidth = 1100;
+  private readonly searchPanelWidthRatio = 3 / 5;
+  private readonly compactLayoutBreakpoint = Math.ceil(this.searchPanelMinWidth / this.searchPanelWidthRatio);
   private readonly visualViewportResizeHandler = () => this.updateCompactLayoutFromContainer();
 
   @ViewChild('orderLayoutRoot') orderLayoutRoot?: ElementRef<HTMLElement>;
-  @ViewChild('searchPanelRoot') searchPanelRoot?: ElementRef<HTMLElement>;
   @Input() patient: any = null;
   @Input() showSaveAction = false;
   @Output() orderSaved = new EventEmitter<LaboratoryOrderGroup>();
@@ -336,11 +336,7 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
     this.updateCompactLayoutFromContainer();
   }
 
-  private computeIsCompactLayout(containerWidth?: number, searchPanelWidth?: number): boolean {
-    if (typeof searchPanelWidth === 'number' && searchPanelWidth > 0) {
-      return searchPanelWidth <= this.searchPanelMinWidth;
-    }
-
+  private computeIsCompactLayout(containerWidth?: number): boolean {
     if (typeof containerWidth === 'number' && containerWidth > 0) {
       return containerWidth <= this.compactLayoutBreakpoint;
     }
@@ -350,8 +346,7 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
 
   private updateCompactLayoutFromContainer() {
     const containerWidth = this.orderLayoutRoot?.nativeElement.getBoundingClientRect().width;
-    const searchPanelWidth = this.searchPanelRoot?.nativeElement.getBoundingClientRect().width;
-    this.isCompactLayout = this.computeIsCompactLayout(containerWidth, searchPanelWidth);
+    this.isCompactLayout = this.computeIsCompactLayout(containerWidth);
     this.hasMeasuredLayout = true;
   }
 }
