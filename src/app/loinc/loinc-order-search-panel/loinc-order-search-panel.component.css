@@ -75,6 +75,35 @@
   height: 100%;
 }
 
+.results-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.results-heading h2 {
+  margin: 0;
+}
+
+.order-preview-button {
+  flex: 0 0 auto;
+}
+
+.results-heading .mat-badge {
+  padding-right: 0.35rem;
+}
+
+.results-heading ::ng-deep .mat-badge-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  line-height: 1;
+  transform: translate(-18%, 16%);
+}
+
 .expansion-list {
   width: 100%;
   display: flex;
@@ -171,5 +200,9 @@
 @media (max-width: 1100px) {
   .search-layout {
     grid-template-columns: 1fr;
+  }
+
+  .results-heading {
+    flex-wrap: wrap;
   }
 }

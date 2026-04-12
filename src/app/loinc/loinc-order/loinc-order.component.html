@@ -1,105 +1,122 @@
-<div class="order-layout">
-  <section class="search-panel">
+<div class="order-layout" #orderLayoutRoot [class.order-layout-compact]="hasMeasuredLayout && isCompactLayout">
+  <section class="search-panel" #searchPanelRoot>
     <app-loinc-order-search-panel
       [patient]="activePatient"
-      (serviceRequestCreated)="handleServiceRequestCreated($event)">
+      [showOrderPreviewButton]="hasMeasuredLayout && isCompactLayout"
+      [orderPreviewCount]="orderPreviewCount"
+      (serviceRequestCreated)="handleServiceRequestCreated($event)"
+      (orderPreviewRequested)="openOrderPreviewDialog()">
     </app-loinc-order-search-panel>
   </section>
-  <section class="preview-shell">
-    <div class="preview-panel">
-      <div class="preview-header">
-        <div class="preview-controls">
-          <span (click)="toggleLoincCodes()" class="clickable-option">SNOMED Codes&nbsp;</span>
-          <mat-slide-toggle (click)="toggleLoincCodes()" [checked]="showLoincCodes" color="primary">
-            LOINC Codes
-          </mat-slide-toggle>
+  @if (hasMeasuredLayout && !isCompactLayout) {
+    <section class="preview-shell">
+      <ng-container *ngTemplateOutlet="orderPreviewContent"></ng-container>
+    </section>
+  }
+</div>
+
+<ng-template #orderPreviewDialogTemplate let-dialogRef="dialogRef">
+  <div class="compact-preview-dialog">
+    <div mat-dialog-content class="compact-preview-dialog-content">
+      <ng-container *ngTemplateOutlet="orderPreviewContent; context: { compactDialog: true, dialogRef: dialogRef }"></ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #orderPreviewContent let-compactDialog="compactDialog">
+  <div class="preview-panel" [class.compact-preview-panel]="compactDialog">
+    <div class="preview-header">
+      <div class="preview-controls">
+        <span (click)="toggleLoincCodes()" class="clickable-option">SNOMED Codes&nbsp;</span>
+        <mat-slide-toggle (click)="toggleLoincCodes()" [checked]="showLoincCodes" color="primary">
+          LOINC Codes
+        </mat-slide-toggle>
+      </div>
+      <div class="preview-title-group">
+        <h2>{{ showFhirView ? 'FHIR Resources' : 'Order' }}</h2>
+      </div>
+      <div class="preview-actions">
+        <button mat-raised-button color="primary" (click)="flipCard()">
+          {{ showFhirView ? 'See clinical order' : 'See FHIR Resources' }}
+        </button>
+      </div>
+    </div>
+
+    @if (!showFhirView) {
+      <div class="order">
+        <div class="w-full flex flex-row justify-between">
+          <p class="text-left font-bold">SNOMEDIANS STATE HOSPITAL</p>
+          <p class="text-right ">Date: {{ getCurrentDate()}}</p>
         </div>
-        <div class="preview-title-group">
-          <h2>{{ showFhirView ? 'FHIR Resources' : 'Order' }}</h2>
+        <p class="text-left w-full font-bold">=========================</p>
+        <br>
+        <p class="text-center w-full">Outpatient Laboratory Order</p>
+        <br>
+        <div class="order-patient-grid">
+          <div class="order-patient-column">
+            <p class="text-left w-full"><b>Patient:</b> {{ getPatientDisplayName() }}</p>
+            <p class="text-left w-full"><b>DOB:</b> {{ getPatientBirthDate() }}</p>
+            <p class="text-left w-full"><b>MRN:</b> {{ getPatientIdentifier() }}</p>
+          </div>
+          <div class="order-patient-column">
+            <p class="text-left w-full"><b>Address</b></p>
+            <p class="text-left w-full">{{ getPatientAddressLine() }}</p>
+            <p class="text-left w-full">{{ getPatientAddressCity() }}</p>
+          </div>
+          <div class="order-patient-column">
+            <p class="text-left w-full"><b>Contact information</b></p>
+            <p class="text-left w-full">Phone: {{ getPatientPhone() }}</p>
+            <p class="text-left w-full">Email: {{ getPatientEmail() }}</p>
+          </div>
         </div>
-        <div class="preview-actions">
-          <button mat-raised-button color="primary" (click)="flipCard()">
-            {{ showFhirView ? 'See clinical order' : 'See FHIR Resources' }}
+        <br><br>
+        <p class="order-line font-bold">LABORATORY TESTS</p>
+        @if (!serviceRequests.length) {
+          <p class="order-line">No orders selected</p>
+        }
+        @for (item of serviceRequests; track item.id; let i = $index) {
+          <p class="order-line ml-4">
+            <span>
+              {{ getDisplayText(item) }}
+              <span class="text-xs italic"> ({{ getDisplayedCode(item) }})</span>
+            </span>
+            <mat-icon class="text-gray-300 text-sm cursor-pointer hover:text-gray-700" (click)="removeFromOrder(i)">cancel</mat-icon>
+          </p>
+        }
+        <br><br>
+        <p class="order-line font-bold">SPECIMENS REQUIRED</p>
+        @if (!serviceRequests.length) {
+          <p class="order-line">No orders selected</p>
+        }
+        @for (item of getSpecimens(); track item.code) {
+          <p class="order-line ml-4">{{ item.display }}</p>
+        }
+        <br><br><br><br>
+        <p>Physician Signature: ___________________________</p>
+        <br><br>
+      </div>
+      @if (showSaveAction) {
+        <div class="save-order-row">
+          <button mat-raised-button color="accent" (click)="saveCurrentOrder()" [disabled]="!hasDraftOrder()">
+            Save Order
           </button>
         </div>
+      }
+    }
+
+    @if (showFhirView) {
+      <div id="output">
+        <div class="output-toolbar">
+          <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource">
+            <mat-icon fontIcon="cloud_download"></mat-icon>
+          </button>
+          <button mat-icon-button (click)="copyToClipboard(fhirBundleStr)" matTooltip="Copy FHIR Resource">
+            <mat-icon fontIcon="content_copy"></mat-icon>
+          </button>
+        </div>
+        <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [textContent]="fhirBundleStr" wrap="soft">
+        </textarea>
       </div>
-
-      @if (!showFhirView) {
-        <div class="order">
-          <div class="w-full flex flex-row justify-between">
-            <p class="text-left font-bold">SNOMEDIANS STATE HOSPITAL</p>
-            <p class="text-right ">Date: {{ getCurrentDate()}}</p>
-          </div>
-          <p class="text-left w-full font-bold">=========================</p>
-          <br>
-          <p class="text-center w-full">Outpatient Laboratory Order</p>
-          <br>
-          <div class="order-patient-grid">
-            <div class="order-patient-column">
-              <p class="text-left w-full"><b>Patient:</b> {{ getPatientDisplayName() }}</p>
-              <p class="text-left w-full"><b>DOB:</b> {{ getPatientBirthDate() }}</p>
-              <p class="text-left w-full"><b>MRN:</b> {{ getPatientIdentifier() }}</p>
-            </div>
-            <div class="order-patient-column">
-              <p class="text-left w-full"><b>Address</b></p>
-              <p class="text-left w-full">{{ getPatientAddressLine() }}</p>
-              <p class="text-left w-full">{{ getPatientAddressCity() }}</p>
-            </div>
-            <div class="order-patient-column">
-              <p class="text-left w-full"><b>Contact information</b></p>
-              <p class="text-left w-full">Phone: {{ getPatientPhone() }}</p>
-              <p class="text-left w-full">Email: {{ getPatientEmail() }}</p>
-            </div>
-          </div>
-          <br><br>
-          <p class="order-line font-bold">LABORATORY TESTS</p>
-          @if (!serviceRequests.length) {
-            <p class="order-line">No orders selected</p>
-          }
-          @for (item of serviceRequests; track item.id; let i = $index) {
-            <p class="order-line ml-4">
-              <span>
-                {{ getDisplayText(item) }}
-                <span class="text-xs italic"> ({{ getDisplayedCode(item) }})</span>
-              </span>
-              <mat-icon class="text-gray-300 text-sm cursor-pointer hover:text-gray-700" (click)="removeFromOrder(i)">cancel</mat-icon>
-            </p>
-          }
-          <br><br>
-          <p class="order-line font-bold">SPECIMENS REQUIRED</p>
-          @if (!serviceRequests.length) {
-            <p class="order-line">No orders selected</p>
-          }
-          @for (item of getSpecimens(); track item.code) {
-            <p class="order-line ml-4">{{ item.display }}</p>
-          }
-          <br><br><br><br>
-          <p>Physician Signature: ___________________________</p>
-          <br><br>
-        </div>
-        @if (showSaveAction) {
-          <div class="save-order-row">
-            <button mat-raised-button color="accent" (click)="saveCurrentOrder()" [disabled]="!hasDraftOrder()">
-              Save Order
-            </button>
-          </div>
-        }
-      }
-
-      @if (showFhirView) {
-        <div id="output">
-          <div class="output-toolbar">
-            <button mat-icon-button (click)="saveFhirResource()" matTooltip="Download FHIR Resource">
-              <mat-icon fontIcon="cloud_download"></mat-icon>
-            </button>
-            <button mat-icon-button (click)="copyToClipboard(fhirBundleStr)" matTooltip="Copy FHIR Resource">
-              <mat-icon fontIcon="content_copy"></mat-icon>
-            </button>
-          </div>
-          <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [textContent]="fhirBundleStr" wrap="soft">
-          </textarea>
-        </div>
-      }
-    </div>
-  </section>
-</div>
+    }
+  </div>
+</ng-template>

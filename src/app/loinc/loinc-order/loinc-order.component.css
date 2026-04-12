@@ -12,6 +12,10 @@
   align-items: stretch;
 }
 
+.order-layout.order-layout-compact {
+  grid-template-columns: 1fr;
+}
+
 .search-panel {
   min-width: 0;
   display: flex;
@@ -74,6 +78,11 @@
 
 .order-patient-column p {
   overflow-wrap: anywhere;
+}
+
+.order p b,
+.order .font-bold {
+  font-weight: 700;
 }
 
 .expansion-list {
@@ -194,7 +203,37 @@
   user-select: none;
 }
 
-@media (max-width: 1100px) {
+.compact-preview-dialog-content {
+  padding: 0;
+}
+
+.compact-preview-panel {
+  border: none;
+  padding: 0;
+}
+
+.compact-preview-panel .preview-header {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.compact-preview-panel .preview-controls {
+  justify-self: start;
+}
+
+.compact-preview-panel .preview-title-group {
+  justify-self: center;
+}
+
+.compact-preview-panel .preview-actions {
+  justify-content: flex-end;
+  justify-self: end;
+}
+
+.compact-preview-panel .order-patient-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1400px) {
   .order-layout {
     grid-template-columns: 1fr;
   }
@@ -225,5 +264,24 @@
 
   .save-order-row {
     justify-content: flex-start;
+  }
+
+  .compact-preview-panel .preview-header {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    justify-items: stretch;
+  }
+
+  .compact-preview-panel .preview-controls,
+  .compact-preview-panel .preview-title-group,
+  .compact-preview-panel .preview-actions {
+    justify-self: auto;
+  }
+
+  .compact-preview-panel .preview-actions {
+    justify-content: flex-end;
+  }
+
+  .compact-preview-panel .order-patient-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

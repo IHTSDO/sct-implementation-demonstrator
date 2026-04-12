@@ -100,7 +100,33 @@
   </div>
 
   <div class="column results-column">
-    <h2>Orderables</h2>
+    <div class="results-heading">
+      <h2>Orderables</h2>
+      @if (showOrderPreviewButton) {
+        @if (orderPreviewCount > 0) {
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            class="order-preview-button"
+            (click)="requestOrderPreview()"
+            [matBadge]="orderPreviewCount"
+            matBadgeColor="accent"
+            matBadgeOverlap="false">
+            Order Preview
+          </button>
+        } @else {
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            class="order-preview-button"
+            (click)="requestOrderPreview()">
+            Order Preview
+          </button>
+        }
+      }
+    </div>
     @if (!searchResults.length && !searching) {
       <p>No results...</p>
     }

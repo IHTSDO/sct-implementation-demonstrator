@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AfterViewInit, ElementRef, OnDestroy, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import saveAs from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { v3 as uuidv3 } from 'uuid';
@@ -10,19 +12,29 @@ import type { LaboratoryOrderGroup, ServiceRequest } from 'src/app/model';
   styleUrl: './loinc-order.component.css',
   standalone: false
 })
-export class LoincOrderComponent {
+export class LoincOrderComponent implements AfterViewInit, OnDestroy {
+  private readonly compactLayoutBreakpoint = 1400;
+  private readonly searchPanelMinWidth = 1100;
+  private readonly visualViewportResizeHandler = () => this.updateCompactLayoutFromContainer();
+
+  @ViewChild('orderLayoutRoot') orderLayoutRoot?: ElementRef<HTMLElement>;
+  @ViewChild('searchPanelRoot') searchPanelRoot?: ElementRef<HTMLElement>;
   @Input() patient: any = null;
   @Input() showSaveAction = false;
   @Output() orderSaved = new EventEmitter<LaboratoryOrderGroup>();
   @Output() draftOrderChanged = new EventEmitter<ServiceRequest[]>();
+  @ViewChild('orderPreviewDialogTemplate') orderPreviewDialogTemplate?: TemplateRef<unknown>;
 
   showLoincCodes = true;
   showFhirView = false;
+  isCompactLayout = false;
+  hasMeasuredLayout = false;
   fhirBundle: any = {};
   fhirBundleStr = '';
   readonly uuidNamespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
   serviceRequests: ServiceRequest[] = [];
+  private resizeObserver?: ResizeObserver;
 
   readonly samplePatient = {
     resourceType: 'Patient',
@@ -67,12 +79,45 @@ export class LoincOrderComponent {
     ]
   };
 
-  constructor(private clipboard: Clipboard) {
+  constructor(
+    private clipboard: Clipboard,
+    private dialog: MatDialog
+  ) {
     this.updateFHIRBundle();
+  }
+
+  ngAfterViewInit() {
+    this.updateCompactLayoutFromContainer();
+
+    if (typeof ResizeObserver === 'undefined' || !this.orderLayoutRoot?.nativeElement) {
+      return;
+    }
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.updateCompactLayoutFromContainer();
+    });
+
+    this.resizeObserver.observe(this.orderLayoutRoot.nativeElement);
+
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      window.visualViewport.addEventListener('resize', this.visualViewportResizeHandler);
+    }
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver?.disconnect();
+
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', this.visualViewportResizeHandler);
+    }
   }
 
   get activePatient() {
     return this.patient || this.samplePatient;
+  }
+
+  get orderPreviewCount(): number {
+    return this.serviceRequests.length;
   }
 
   handleServiceRequestCreated(serviceRequest: ServiceRequest) {
@@ -105,6 +150,20 @@ export class LoincOrderComponent {
 
   flipCard() {
     this.showFhirView = !this.showFhirView;
+  }
+
+  openOrderPreviewDialog() {
+    if (!this.isCompactLayout || !this.orderPreviewDialogTemplate) {
+      return;
+    }
+
+    this.dialog.open(this.orderPreviewDialogTemplate, {
+      width: '960px',
+      maxWidth: '96vw',
+      maxHeight: '92vh',
+      autoFocus: false,
+      panelClass: 'loinc-order-preview-dialog-panel'
+    });
   }
 
   saveCurrentOrder() {
@@ -270,5 +329,29 @@ export class LoincOrderComponent {
 
   getPatientEmail(): string {
     return this.activePatient?.telecom?.find((item: any) => item.system === 'email')?.value || 'jane@email.com';
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.updateCompactLayoutFromContainer();
+  }
+
+  private computeIsCompactLayout(containerWidth?: number, searchPanelWidth?: number): boolean {
+    if (typeof searchPanelWidth === 'number' && searchPanelWidth > 0) {
+      return searchPanelWidth <= this.searchPanelMinWidth;
+    }
+
+    if (typeof containerWidth === 'number' && containerWidth > 0) {
+      return containerWidth <= this.compactLayoutBreakpoint;
+    }
+
+    return typeof window !== 'undefined' ? window.innerWidth <= this.compactLayoutBreakpoint : false;
+  }
+
+  private updateCompactLayoutFromContainer() {
+    const containerWidth = this.orderLayoutRoot?.nativeElement.getBoundingClientRect().width;
+    const searchPanelWidth = this.searchPanelRoot?.nativeElement.getBoundingClientRect().width;
+    this.isCompactLayout = this.computeIsCompactLayout(containerWidth, searchPanelWidth);
+    this.hasMeasuredLayout = true;
   }
 }

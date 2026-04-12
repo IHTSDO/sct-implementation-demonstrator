@@ -14,7 +14,10 @@ import type { LoincTreeNode } from '../loinc-tree.types';
 })
 export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
   @Input() patient: any = null;
+  @Input() showOrderPreviewButton = false;
+  @Input() orderPreviewCount = 0;
   @Output() serviceRequestCreated = new EventEmitter<ServiceRequest>();
+  @Output() orderPreviewRequested = new EventEmitter<void>();
 
   readonly loincTerminologyServer = 'https://browser.loincsnomed.org/fhir';
   readonly loincEditionUri = 'http://snomed.info/sct/11010000107';
@@ -189,6 +192,10 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
         this.serviceRequestCreated.emit(this.buildServiceRequest(item, specimen, loincCode));
       }
     });
+  }
+
+  requestOrderPreview() {
+    this.orderPreviewRequested.emit();
   }
 
   getAlternateIdentifierByScheme(alternateIdentifiers: any[], identifierSchemeConceptId: string): string | null {
