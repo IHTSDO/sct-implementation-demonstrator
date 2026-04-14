@@ -135,6 +135,15 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
     event.target.value = '';
   }
 
+  loadExample(): void {
+    fetch('assets/data/ips-example-argentina-problematic-use.json')
+      .then(r => r.blob())
+      .then(blob => {
+        const file = new File([blob], 'ips-example-argentina-problematic-use.json', { type: 'application/json' });
+        this.processFile(file);
+      });
+  }
+
   async processFile(file: File): Promise<void> {
     this.validationError = '';
     this.fhirResource = null;

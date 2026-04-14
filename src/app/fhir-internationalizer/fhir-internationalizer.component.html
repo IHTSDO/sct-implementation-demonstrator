@@ -32,6 +32,10 @@
             Browse file
           </button>
           <input #fileInput type="file" hidden accept=".json" (change)="onFileSelected($event)" />
+          <button mat-button color="primary" (click)="loadExample()" style="margin-top: 4px;">
+            <mat-icon>science</mat-icon>
+            Load example
+          </button>
         </div>
 
         <mat-error *ngIf="validationError" class="upload-error">
