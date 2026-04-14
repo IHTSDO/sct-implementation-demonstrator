@@ -2,13 +2,13 @@
   <div class="ecl-section">
     <h2>ECL Expression</h2>
     <div class="ecl-editor-row">
-      <mat-form-field class="ecl-field" appearance="fill">
+      <mat-form-field class="ecl-field" appearance="fill" subscriptSizing="dynamic">
         <mat-label>Enter ECL (module filter is added per edition)</mat-label>
         <textarea
           matInput
           [(ngModel)]="eclInput"
           placeholder="e.g. < 363680008 |Radiographic imaging procedure (procedure)|"
-          rows="4"
+          rows="3"
         ></textarea>
       </mat-form-field>
       <button
@@ -22,15 +22,6 @@
         <span>Query builder</span>
       </button>
     </div>
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="runExecute()"
-      [disabled]="!eclInput.trim() || runningEditions"
-    >
-      <mat-icon>play_arrow</mat-icon>
-      Run for all editions
-    </button>
   </div>
 
   @if (error) {
@@ -40,25 +31,30 @@
     </div>
   }
 
-  <div class="progress-section">
+  <div class="run-progress-row">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="runExecute()"
+      [disabled]="!eclInput.trim() || runningEditions"
+    >
+      <mat-icon>play_arrow</mat-icon>
+      Run for all editions
+    </button>
     @if (runningEditions) {
-      <mat-progress-bar mode="determinate" [value]="(runningProgress / runningTotal) * 100"></mat-progress-bar>
-      <p class="progress-message">Running ECL for {{ currentRunningEditionName }} edition ({{ runningProgress }} / {{ runningTotal }})... Total concepts found so far: {{ totalConceptsFound }}</p>
+      <mat-progress-bar class="run-bar" mode="determinate" [value]="(runningProgress / runningTotal) * 100"></mat-progress-bar>
+      <span class="progress-message">{{ currentRunningEditionName }} ({{ runningProgress }}/{{ runningTotal }}) &middot; {{ totalConceptsFound }} concepts</span>
     } @else if (runCompleted) {
-      <mat-progress-bar mode="determinate" [value]="100"></mat-progress-bar>
-      <p class="progress-message summary">
-        <span class="success-count">
-          <mat-icon>check_circle</mat-icon> {{ successCount }} successful
-        </span>
+      <mat-progress-bar class="run-bar" mode="determinate" [value]="100"></mat-progress-bar>
+      <span class="progress-message summary">
+        <span class="success-count"><mat-icon>check_circle</mat-icon>{{ successCount }} successful &middot; {{ totalConceptsFound }} concepts</span>
         @if (errorCount > 0) {
-          <span class="error-count">
-            <mat-icon>error</mat-icon> {{ errorCount }} failed
-          </span>
+          <span class="error-count"><mat-icon>error</mat-icon>{{ errorCount }} failed</span>
         }
-      </p>
+      </span>
     } @else {
-      <mat-progress-bar mode="determinate" [value]="0"></mat-progress-bar>
-      <p class="progress-message hint">Enter ECL and click "Run for all editions" to start</p>
+      <mat-progress-bar class="run-bar" mode="determinate" [value]="0"></mat-progress-bar>
+      <span class="progress-message hint">Enter ECL and click "Run for all editions" to start</span>
     }
   </div>
 
