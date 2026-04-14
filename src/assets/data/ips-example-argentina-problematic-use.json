@@ -102,7 +102,7 @@
               },
               "text": {
                 "status": "generated",
-                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Sofocos menopáusicos<br/>Consumo problemático (hallazgo)</div>"
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Sofocos menopáusicos<br/>Consumo problemático (hallazgo)<br/>Bronquitis aguda con obstrucción recurrente (trastorno)</div>"
               },
               "entry": [
                 {
@@ -110,6 +110,9 @@
                 },
                 {
                   "reference": "Condition/8d0abf6d-7d82-4fe7-9d0f-78f5e2f3eb55"
+                },
+                {
+                  "reference": "Condition/b3a3b957-9eb1-4568-8fa9-6f6a34ff8ff1"
                 }
               ]
             },
@@ -525,6 +528,65 @@
                 "version": "http://snomed.info/sct/11000221109",
                 "code": "574771000221103",
                 "display": "Consumo problemático (hallazgo)"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+          },
+          "onsetDateTime": "2017",
+          "recordedDate": "2017-12-11"
+        }
+      },
+      {
+        "fullUrl": "urn:uuid:b3a3b957-9eb1-4568-8fa9-6f6a34ff8ff1",
+        "resource": {
+          "resourceType": "Condition",
+          "id": "b3a3b957-9eb1-4568-8fa9-6f6a34ff8ff1",
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative</b></p><p><b>identifier</b>: id: 65ab88f8-d8a2-4513-8c2f-2093930db17f</p><p><b>clinicalStatus</b>: <span title=\"Codes: {http://terminology.hl7.org/CodeSystem/condition-clinical active}\">Active</span></p><p><b>verificationStatus</b>: <span title=\"Codes: {http://terminology.hl7.org/CodeSystem/condition-ver-status confirmed}\">Confirmed</span></p><p><b>category</b>: <span title=\"Codes: {http://loinc.org 75326-9}\">Problem</span></p><p><b>code</b>: <span title=\"Codes: {http://snomed.info/sct 572451000221109}\">Bronquitis aguda con obstrucción recurrente (trastorno)</span></p><p><b>subject</b>: <a href=\"#Patient_2b90dd2b-2dab-4c75-9bb9-a355e07401e8\">See above (Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8)</a></p><p><b>onset</b>: 2017</p><p><b>recordedDate</b>: 2017-12-11</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "urn:oid:1.2.3.999",
+              "value": "65ab88f8-d8a2-4513-8c2f-2093930db17f"
+            }
+          ],
+          "clinicalStatus": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                "code": "active"
+              }
+            ]
+          },
+          "verificationStatus": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                "code": "confirmed"
+              }
+            ]
+          },
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "75326-9",
+                  "display": "Problem"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "version": "http://snomed.info/sct/11000221109",
+                "code": "572451000221109",
+                "display": "Bronquitis aguda con obstrucción recurrente (trastorno)"
               }
             ]
           },

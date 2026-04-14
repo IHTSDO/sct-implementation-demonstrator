@@ -432,6 +432,22 @@
   color: rgba(0, 0, 0, 0.38);
 }
 
+.replacement-row {
+  align-items: center;
+}
+
+.replacement-checkbox {
+  flex-shrink: 0;
+  margin-right: 2px;
+  transform: scale(0.85);
+  transform-origin: center left;
+}
+
+.replacement-unchecked {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
 .equivalence-label {
   color: rgba(0, 0, 0, 0.4);
   font-style: italic;
@@ -463,6 +479,14 @@
 
 .no-replacement-label {
   color: rgba(0, 0, 0, 0.35);
+  font-style: italic;
+}
+
+.extension-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(0, 0, 0, 0.3);
   font-style: italic;
 }
 

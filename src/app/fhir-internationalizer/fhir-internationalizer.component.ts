@@ -13,12 +13,12 @@ export interface FoundCoding {
   moduleId?: string;
   editionFhirUrl?: string;
   ecl?: string;
-  replacements: any[];
+  replacements: Array<{ code: string; display: string; system?: string; selected: boolean }>;
   loading: boolean;
   error?: string;
   analyzed: boolean;
   inactive?: boolean;
-  inactiveReplacements?: Array<{ code: string; display: string; system: string; equivalence: string }>;
+  inactiveReplacements?: Array<{ code: string; display: string; system: string; equivalence: string; selected: boolean }>;
   loadingInactiveReplacements?: boolean;
 }
 
@@ -29,11 +29,11 @@ export interface PreviewRow {
   isExtension: boolean;
   moduleId?: string;
   modifiedDisplay: string | null;
-  replacements: Array<{ code: string; display: string }>;
+  replacements: Array<{ code: string; display: string; system?: string; selected: boolean }>;
   loading: boolean;
   analyzed: boolean;
   inactive?: boolean;
-  inactiveReplacements?: Array<{ code: string; display: string; system: string; equivalence: string }>;
+  inactiveReplacements?: Array<{ code: string; display: string; system: string; equivalence: string; selected: boolean }>;
   loadingInactiveReplacements?: boolean;
 }
 
@@ -289,7 +289,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
       .expandValueSetFromServer(fhirBase, coding.editionFhirUrl, coding.ecl, '', 0, 50)
       .subscribe({
         next: (res: any) => {
-          coding.replacements = res?.expansion?.contains ?? [];
+          coding.replacements = (res?.expansion?.contains ?? []).map((r: any) => ({ ...r, selected: true }));
           coding.loading = false;
           coding.analyzed = true;
           this.cdr.detectChanges();
@@ -414,7 +414,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
           item.equivalence = part.valueCode;
         }
       }
-      if (item.code) out.push(item);
+      if (item.code) out.push({ ...item, selected: true });
     }
     return out;
   }
@@ -443,7 +443,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
       const parentArray = this.navigatePath(modified, parentInfo.arrayPath);
       if (!Array.isArray(parentArray)) continue;
 
-      for (const replacement of coding.replacements) {
+      for (const replacement of coding.replacements.filter(r => r.selected)) {
         const alreadyPresent = parentArray.some(
           (c: any) => c.code === replacement.code && c.system === replacement.system
         );
@@ -590,7 +590,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
         );
         const replacements =
           c.isExtension && c.analyzed && !c.error
-            ? c.replacements.map((r: any) => ({ code: r.code, display: r.display || r.code }))
+            ? c.replacements  // pass by reference so checkbox mutations persist
             : [];
         return {
           path: c.path,

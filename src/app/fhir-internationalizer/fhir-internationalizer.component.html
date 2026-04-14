@@ -122,9 +122,10 @@
       <ng-template #modifiedLeaf let-item="item">
         <!-- Extension: analyzed with replacements -->
         <ng-container *ngIf="item.row?.isExtension && item.row?.analyzed && item.row?.replacements?.length">
-          <div *ngFor="let r of item.row.replacements" class="tree-leaf" [style.padding-left.px]="item.depth * 20">
-            <mat-icon class="leaf-icon ok-icon">fiber_manual_record</mat-icon>
-            <div class="leaf-content">
+          <div *ngFor="let r of item.row.replacements" class="tree-leaf replacement-row" [style.padding-left.px]="item.depth * 20">
+            <mat-checkbox *ngIf="item.row.replacements.length > 1"
+              [checked]="r.selected" (change)="r.selected = $event.checked" color="primary" class="replacement-checkbox"></mat-checkbox>
+            <div class="leaf-content" [class.replacement-unchecked]="item.row.replacements.length > 1 && !r.selected">
               <span class="leaf-display modified-display">{{ r.display }}</span>
               <code class="leaf-code modified-code">{{ r.code }}</code>
             </div>
@@ -137,13 +138,15 @@
             <span class="leaf-display pending-display">{{ item.row?.display }}</span>
           </div>
         </div>
-        <!-- Extension: not analyzed yet — show same as original -->
+        <!-- Extension: not analyzed yet — placeholder -->
         <div *ngIf="item.row?.isExtension && !item.row?.analyzed && !item.row?.loading"
              class="tree-leaf" [style.padding-left.px]="item.depth * 20">
-          <mat-icon class="leaf-icon">fiber_manual_record</mat-icon>
+          <mat-icon class="leaf-icon" style="color: rgba(0,0,0,0.2)">fiber_manual_record</mat-icon>
           <div class="leaf-content">
-            <span class="leaf-display">{{ item.row?.display }}</span>
-            <code class="leaf-code">{{ item.row?.code }}</code>
+            <span class="extension-placeholder mat-caption">
+              <mat-icon class="inline-icon" style="font-size:14px;height:14px;width:14px;color:rgba(0,0,0,0.3)">search</mat-icon>
+              find international replacement
+            </span>
           </div>
         </div>
         <!-- Extension: analyzed but no replacement found -->
@@ -166,9 +169,10 @@
         </div>
         <!-- International: inactive — replacements found -->
         <ng-container *ngIf="!item.row?.isExtension && item.row?.inactive && !item.row?.loadingInactiveReplacements && item.row?.inactiveReplacements?.length">
-          <div *ngFor="let r of item.row.inactiveReplacements" class="tree-leaf" [style.padding-left.px]="item.depth * 20">
-            <mat-icon class="leaf-icon ok-icon">fiber_manual_record</mat-icon>
-            <div class="leaf-content">
+          <div *ngFor="let r of item.row.inactiveReplacements" class="tree-leaf replacement-row" [style.padding-left.px]="item.depth * 20">
+            <mat-checkbox *ngIf="item.row.inactiveReplacements.length > 1"
+              [checked]="r.selected" (change)="r.selected = $event.checked" color="primary" class="replacement-checkbox"></mat-checkbox>
+            <div class="leaf-content" [class.replacement-unchecked]="item.row.inactiveReplacements.length > 1 && !r.selected">
               <span class="leaf-display modified-display">{{ r.display }}</span>
               <code class="leaf-code modified-code">{{ r.code }}</code>
               <span class="equivalence-label mat-caption">{{ r.equivalence }}</span>
