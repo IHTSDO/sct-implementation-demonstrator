@@ -44,6 +44,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     }
   }
 
+/* Multiline tooltip */
+.multiline-tooltip {
+  white-space: pre-line;
+}
+
 /* Material Snackbar styles */
 ::ng-deep .warning-snackbar {
   background-color: #ff9800 !important;

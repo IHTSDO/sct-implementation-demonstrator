@@ -14,6 +14,7 @@ import { CookieConsentComponent } from './cookie-consent/cookie-consent.componen
 import { DrugStrengthRoundingComponent } from './drug-strength-rounding/drug-strength-rounding.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { ExtensionsSearchComponent } from './extensions-search/extensions-search.component';
+import { FhirInternationalizerComponent } from './fhir-internationalizer/fhir-internationalizer.component';
 import { AddToHomeComponent } from './game/add-to-home/add-to-home.component';
 import { KeyboardComponent } from './game/keyboard/keyboard.component';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
@@ -56,6 +57,7 @@ initializeApp(firebaseConfig);
     DrugStrengthRoundingComponent,
     ExpoQuiz2025Component,
     ExtensionsSearchComponent,
+    FhirInternationalizerComponent,
     AddToHomeComponent,
     KeyboardComponent,
     ScoreboardComponent,

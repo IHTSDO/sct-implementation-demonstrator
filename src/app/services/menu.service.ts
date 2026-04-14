@@ -180,6 +180,13 @@ export class MenuService {
       type: "internal",
       url: "/medicinal-product-classes",
       description: "A terminology bindings demonstrator for medicinal product, clinical drug, and packaged clinical drug classes using reusable coding spec tabs."
+    },
+    {
+      name: "FHIR Resource Internationalizer",
+      subtitle: "Tool",
+      type: "internal",
+      url: "/fhir-internationalizer",
+      description: "Upload a FHIR resource, replace extension codings with their closest International Edition ancestors, adapt concept displays to the language and terminology of your target edition, and find historical replacements for any inactive concepts."
     }
 
   ];

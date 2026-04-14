@@ -7,6 +7,7 @@ import { CrsBatchGeneratorComponent } from './crs-batch-generator/crs-batch-gene
 import { DrugStrengthRoundingComponent } from './drug-strength-rounding/drug-strength-rounding.component';
 import { ExpoQuiz2025Component } from './expo-quiz-2025/expo-quiz-2025.component';
 import { ExtensionsSearchComponent } from './extensions-search/extensions-search.component';
+import { FhirInternationalizerComponent } from './fhir-internationalizer/fhir-internationalizer.component';
 import { AddToHomeComponent } from './game/add-to-home/add-to-home.component';
 import { KeyboardComponent } from './game/keyboard/keyboard.component';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
@@ -55,6 +56,7 @@ const routes: Routes = [
   { path: 'drug-strength-rounding', component: DrugStrengthRoundingComponent },
   { path: 'medicinal-product-classes', component: MedicinalProductClassesComponent },
   { path: 'extensions-search', component: ExtensionsSearchComponent },
+  { path: 'fhir-internationalizer', component: FhirInternationalizerComponent },
   { path: 'sunburst-chart', loadChildren: () => import('./descriptive-statistics/sunburst-chart-entry.module').then((m) => m.SunburstChartEntryModule) },
   { path: 'd3-sunburst-chart', loadChildren: () => import('./descriptive-statistics/d3-sunburst-entry.module').then((m) => m.D3SunburstEntryModule) },
   { path: 'descriptive-analytics', loadChildren: () => import('./descriptive-statistics/plotly-treemap-entry.module').then((m) => m.PlotlyTreemapEntryModule) },
