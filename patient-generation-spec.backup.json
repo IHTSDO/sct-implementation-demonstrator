@@ -7,7 +7,7 @@
       "male": [
         {
           "label": "Neonatal disorders (preterm birth complications, birth asphyxia)",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Neonatal disorders",
           "snomed": {
             "code": "205294008",
@@ -28,7 +28,7 @@
         },
         {
           "label": "Lower respiratory infections",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Lower respiratory infections",
           "snomed": {
             "code": "50417007",
@@ -182,7 +182,7 @@
         },
         {
           "label": "Diarrheal diseases",
-          "computedLocation": "abdomen",
+          "bodySiteCode": "abdomen",
           "termQueried": "Diarrheal diseases",
           "snomed": {
             "code": "128333008",
@@ -336,7 +336,7 @@
         },
         {
           "label": "Congenital anomalies",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Congenital anomalies",
           "snomed": {
             "code": "19416009",
@@ -490,7 +490,7 @@
         },
         {
           "label": "Malaria (in many regions)",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Malaria",
           "snomed": {
             "code": "61462000",
@@ -646,7 +646,7 @@
       "female": [
         {
           "label": "Neonatal disorders (preterm birth complications, birth asphyxia)",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Neonatal disorders",
           "snomed": {
             "code": "22925008",
@@ -796,7 +796,7 @@
         },
         {
           "label": "Lower respiratory infections",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Lower respiratory infections",
           "snomed": {
             "code": "50417007",
@@ -950,7 +950,7 @@
         },
         {
           "label": "Diarrheal diseases",
-          "computedLocation": "abdomen",
+          "bodySiteCode": "abdomen",
           "termQueried": "Diarrheal diseases",
           "snomed": {
             "code": "128333008",
@@ -1104,7 +1104,7 @@
         },
         {
           "label": "Congenital anomalies",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Congenital anomalies",
           "snomed": {
             "code": "66091009",
@@ -1263,7 +1263,7 @@
       "male": [
         {
           "label": "Lower respiratory infections",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Lower respiratory infections",
           "snomed": {
             "code": "50417007",
@@ -1417,7 +1417,7 @@
         },
         {
           "label": "Diarrheal diseases",
-          "computedLocation": "abdomen",
+          "bodySiteCode": "abdomen",
           "termQueried": "Diarrheal diseases",
           "snomed": {
             "code": "128333008",
@@ -1571,7 +1571,7 @@
         },
         {
           "label": "Malaria / other infectious diseases (region-dependent)",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Malaria",
           "snomed": {
             "code": "61462000",
@@ -1725,7 +1725,7 @@
         },
         {
           "label": "Childhood injuries",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Childhood injuries",
           "snomed": {
             "code": "417746004",
@@ -1879,7 +1879,7 @@
         },
         {
           "label": "Nutritional deficiencies",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Nutritional deficiencies",
           "snomed": {
             "code": "70241007",
@@ -2035,7 +2035,7 @@
       "female": [
         {
           "label": "Lower respiratory infections",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Lower respiratory infections",
           "snomed": {
             "code": "50417007",
@@ -2189,7 +2189,7 @@
         },
         {
           "label": "Diarrheal diseases",
-          "computedLocation": "abdomen",
+          "bodySiteCode": "abdomen",
           "termQueried": "Diarrheal diseases",
           "snomed": {
             "code": "128333008",
@@ -2343,7 +2343,7 @@
         },
         {
           "label": "Nutritional deficiencies",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Nutritional deficiencies",
           "snomed": {
             "code": "70241007",
@@ -2497,7 +2497,7 @@
         },
         {
           "label": "Asthma",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Asthma",
           "snomed": {
             "code": "195967001",
@@ -2651,7 +2651,7 @@
         },
         {
           "label": "Anemia",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Anemia",
           "snomed": {
             "code": "271737000",
@@ -2812,7 +2812,7 @@
       "male": [
         {
           "label": "Road injuries",
-          "computedLocation": "legs",
+          "bodySiteCode": "legs",
           "termQueried": "Road injuries",
           "snomed": {
             "code": "214031005",
@@ -2958,7 +2958,7 @@
         },
         {
           "label": "Sexually transmitted infections",
-          "computedLocation": "pelvis",
+          "bodySiteCode": "pelvis",
           "termQueried": "Sexually transmitted infections",
           "snomed": {
             "code": "8098009",
@@ -3112,7 +3112,7 @@
         },
         {
           "label": "Depression / mental health disorders",
-          "computedLocation": "head",
+          "bodySiteCode": "head",
           "termQueried": "Depression",
           "snomed": {
             "code": "35489007",
@@ -3266,7 +3266,7 @@
         },
         {
           "label": "Lower respiratory diseases",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Lower respiratory diseases",
           "snomed": {
             "code": "50417007",
@@ -3420,7 +3420,7 @@
         },
         {
           "label": "Reproductive health issues (region-dependent)",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Disorder of male reproductive system",
           "snomed": {
             "code": "363194005",
@@ -3576,7 +3576,7 @@
       "female": [
         {
           "label": "Maternal / reproductive health conditions",
-          "computedLocation": "pelvis",
+          "bodySiteCode": "pelvis",
           "termQueried": "Maternal",
           "snomed": {
             "code": "363124003",
@@ -3730,7 +3730,7 @@
         },
         {
           "label": "Depression / anxiety disorders",
-          "computedLocation": "head",
+          "bodySiteCode": "head",
           "termQueried": "Depression",
           "snomed": {
             "code": "35489007",
@@ -3884,7 +3884,7 @@
         },
         {
           "label": "HIV / sexually transmitted infections",
-          "computedLocation": "pelvis",
+          "bodySiteCode": "pelvis",
           "termQueried": "HIV",
           "snomed": {
             "code": "8098009",
@@ -4038,7 +4038,7 @@
         },
         {
           "label": "Musculoskeletal disorders",
-          "computedLocation": "legs",
+          "bodySiteCode": "legs",
           "termQueried": "Musculoskeletal disorders",
           "snomed": {
             "code": "928000",
@@ -4190,7 +4190,7 @@
         },
         {
           "label": "Lower respiratory diseases",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Lower respiratory diseases",
           "snomed": {
             "code": "50417007",
@@ -4351,7 +4351,7 @@
       "male": [
         {
           "label": "Cardiovascular diseases (ischemic heart disease, stroke)",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Cardiovascular diseases",
           "snomed": {
             "code": "49601007",
@@ -4505,7 +4505,7 @@
         },
         {
           "label": "Chronic respiratory diseases (COPD, etc.)",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Chronic respiratory diseases",
           "snomed": {
             "code": "17097001",
@@ -4659,7 +4659,7 @@
         },
         {
           "label": "Diabetes mellitus type 2",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Diabetes mellitus type 2",
           "snomed": {
             "code": "44054006",
@@ -4757,7 +4757,7 @@
         },
         {
           "label": "Cancers (lung, liver, colorectal)",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Cancers",
           "snomed": {
             "code": "363346000",
@@ -4911,7 +4911,7 @@
         },
         {
           "label": "Musculoskeletal disorders (low back pain)",
-          "computedLocation": "abdomen",
+          "bodySiteCode": "abdomen",
           "termQueried": "Musculoskeletal disorders",
           "snomed": {
             "code": "279039007",
@@ -5067,7 +5067,7 @@
       "female": [
         {
           "label": "Cardiovascular diseases",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Cardiovascular diseases",
           "snomed": {
             "code": "49601007",
@@ -5221,7 +5221,7 @@
         },
         {
           "label": "Cancers (breast, cervical, colorectal)",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Cancers",
           "snomed": {
             "code": "363346000",
@@ -5375,7 +5375,7 @@
         },
         {
           "label": "Musculoskeletal disorders (low back pain, osteoarthritis)",
-          "computedLocation": "abdomen",
+          "bodySiteCode": "abdomen",
           "termQueried": "Musculoskeletal disorders",
           "snomed": {
             "code": "396275006",
@@ -5529,7 +5529,7 @@
         },
         {
           "label": "Chronic respiratory diseases",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Chronic respiratory diseases",
           "snomed": {
             "code": "17097001",
@@ -5683,7 +5683,7 @@
         },
         {
           "label": "Depression / mental health disorders",
-          "computedLocation": "head",
+          "bodySiteCode": "head",
           "termQueried": "Depression",
           "snomed": {
             "code": "35489007",
@@ -5844,7 +5844,7 @@
       "male": [
         {
           "label": "Ischemic heart disease",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Ischemic heart disease",
           "snomed": {
             "code": "414545008",
@@ -5998,7 +5998,7 @@
         },
         {
           "label": "Stroke",
-          "computedLocation": "head",
+          "bodySiteCode": "head",
           "termQueried": "Stroke",
           "snomed": {
             "code": "230690007",
@@ -6152,7 +6152,7 @@
         },
         {
           "label": "Chronic obstructive pulmonary disease (COPD)",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Chronic obstructive pulmonary disease (COPD)",
           "snomed": {
             "code": "13645005",
@@ -6306,7 +6306,7 @@
         },
         {
           "label": "Alzheimer's disease and other dementias",
-          "computedLocation": "head",
+          "bodySiteCode": "head",
           "termQueried": "Alzheimer's disease",
           "snomed": {
             "code": "26929004",
@@ -6460,7 +6460,7 @@
         },
         {
           "label": "Cancers (lung and others)",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Cancers",
           "snomed": {
             "code": "363346000",
@@ -6614,7 +6614,7 @@
         },
         {
           "label": "Chronic kidney disease",
-          "computedLocation": "abdomen",
+          "bodySiteCode": "abdomen",
           "termQueried": "Chronic kidney disease",
           "snomed": {
             "code": "709044004",
@@ -6768,7 +6768,7 @@
         },
         {
           "label": "Diabetes complications",
-          "computedLocation": "systemic",
+          "bodySiteCode": "systemic",
           "termQueried": "Diabetes complications",
           "snomed": {
             "code": "74627003",
@@ -6924,7 +6924,7 @@
       "female": [
         {
           "label": "Alzheimer's disease and other dementias",
-          "computedLocation": "head",
+          "bodySiteCode": "head",
           "termQueried": "Alzheimer's disease",
           "snomed": {
             "code": "26929004",
@@ -7078,7 +7078,7 @@
         },
         {
           "label": "Cardiovascular diseases (ischemic heart disease, stroke)",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Cardiovascular diseases",
           "snomed": {
             "code": "49601007",
@@ -7232,7 +7232,7 @@
         },
         {
           "label": "Chronic obstructive pulmonary disease (COPD)",
-          "computedLocation": "thorax",
+          "bodySiteCode": "thorax",
           "termQueried": "Chronic obstructive pulmonary disease (COPD)",
           "snomed": {
             "code": "13645005",
@@ -7386,7 +7386,7 @@
         },
         {
           "label": "Osteoarthritis and musculoskeletal disorders",
-          "computedLocation": "legs",
+          "bodySiteCode": "legs",
           "termQueried": "Osteoarthritis",
           "snomed": {
             "code": "396275006",
@@ -7540,7 +7540,7 @@
         },
         {
           "label": "Vision and hearing disorders (cataracts, sensory impairments)",
-          "computedLocation": "head",
+          "bodySiteCode": "head",
           "termQueried": "Vision",
           "snomed": {
             "code": "193570009",
@@ -7692,7 +7692,7 @@
         },
         {
           "label": "Depression / mental health disorders",
-          "computedLocation": "head",
+          "bodySiteCode": "head",
           "termQueried": "Depression",
           "snomed": {
             "code": "35489007",

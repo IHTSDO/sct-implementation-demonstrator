@@ -151,7 +151,7 @@ const calculateLocation = async (conceptId) => {
 
 // Función principal
 const main = async () => {
-  console.log('🚀 Iniciando proceso de agregar computedLocation a descendants...\n');
+  console.log('🚀 Iniciando proceso de agregar bodySiteCode a descendants...\n');
   
   // Cargar JSON
   const jsonPath = path.join(__dirname, 'src/assets/patients/patient-generation-spec.json');
@@ -225,8 +225,8 @@ const main = async () => {
   fs.writeFileSync(CACHE_FILE, JSON.stringify(locationCache, null, 2));
   console.log(`\n💾 Cache final guardado: ${Object.keys(locationCache).length} códigos`);
   
-  // Actualizar JSON con computedLocation
-  console.log('\n🔄 Actualizando JSON con computedLocation...');
+  // Actualizar JSON con bodySiteCode
+  console.log('\n🔄 Actualizando JSON con bodySiteCode...');
   
   let updatedCount = 0;
   
@@ -234,8 +234,8 @@ const main = async () => {
     ageGroup.male.forEach(diagnosis => {
       if (diagnosis.snomed?.descendants) {
         diagnosis.snomed.descendants.forEach(descendant => {
-          if (descendant.code && !descendant.computedLocation) {
-            descendant.computedLocation = locationCache[descendant.code] || 'systemic';
+          if (descendant.code && !descendant.bodySiteCode) {
+            descendant.bodySiteCode = locationCache[descendant.code] || 'systemic';
             updatedCount++;
           }
         });
@@ -245,8 +245,8 @@ const main = async () => {
     ageGroup.female.forEach(diagnosis => {
       if (diagnosis.snomed?.descendants) {
         diagnosis.snomed.descendants.forEach(descendant => {
-          if (descendant.code && !descendant.computedLocation) {
-            descendant.computedLocation = locationCache[descendant.code] || 'systemic';
+          if (descendant.code && !descendant.bodySiteCode) {
+            descendant.bodySiteCode = locationCache[descendant.code] || 'systemic';
             updatedCount++;
           }
         });

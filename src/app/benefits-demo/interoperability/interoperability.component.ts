@@ -1787,20 +1787,31 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
     for (const condition of selectedConditionsData) {
       const snomedCode = this.patientService.extractSnomedCode(condition);
-      let computedLocation: string | undefined;
+      let locationCode: string | undefined;
 
       if (snomedCode) {
         try {
-          computedLocation = await this.calculateAnatomicLocation(snomedCode);
+          locationCode = await this.calculateAnatomicLocation(snomedCode);
         } catch (error) {
           console.warn('Could not calculate anatomic location for SNOMED code:', snomedCode, error);
-          computedLocation = 'systemic';
+          locationCode = 'systemic';
         }
       }
 
       convertedConditions.push({
         ...this.toClinicalEntryCondition(condition, patientId),
-        computedLocation: computedLocation || 'systemic'
+        bodySite: [
+          {
+            coding: [
+              {
+                system: 'http://ehr-lab.demo/location',
+                code: locationCode || 'systemic',
+                display: this.toLocationDisplay(locationCode || 'systemic')
+              }
+            ],
+            text: this.toLocationDisplay(locationCode || 'systemic')
+          }
+        ]
       });
     }
 
@@ -1813,6 +1824,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
   private buildSelectedMedications(patientId: string, selectedMedicationsData: any[]): any[] {
     return selectedMedicationsData.map((medication) => this.toClinicalEntryMedication(medication, patientId));
+  }
+
+  private toLocationDisplay(locationCode: string): string {
+    return locationCode
+      .split(/[-_]/g)
+      .filter((segment) => segment.length > 0)
+      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join(' ');
   }
 
   private buildSelectedImmunizations(patientId: string, selectedImmunizationsData: any[]): Immunization[] {

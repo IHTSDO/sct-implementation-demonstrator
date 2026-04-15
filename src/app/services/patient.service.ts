@@ -1560,7 +1560,7 @@ export class PatientService {
     try {
       const response = await firstValueFrom(this.terminologyService.getAncestors(snomedCode));
       const ancestorIds = this.extractConceptIdsFromExpansion(response);
-      return this.findBestComputedLocation(ancestorIds);
+      return this.findBestAnchorLocation(ancestorIds);
     } catch (error) {
       console.warn(`Failed to resolve anatomical location for SNOMED concept ${snomedCode}:`, error);
       return 'systemic';
@@ -1578,7 +1578,7 @@ export class PatientService {
       .filter((code: string) => code.length > 0);
   }
 
-  private findBestComputedLocation(ancestorIds: string[]): string {
+  private findBestAnchorLocation(ancestorIds: string[]): string {
     for (const anchorPoint of this.ANATOMICAL_ANCHOR_POINTS) {
       const anchorPointConceptIds = anchorPoint.ancestors.map(ancestor => this.extractAnchorConceptId(ancestor));
       if (anchorPointConceptIds.some(ancestorId => ancestorIds.includes(ancestorId))) {
@@ -1962,10 +1962,6 @@ export class PatientService {
   }
 
   private async enrichMedicationInBackground(patientId: string, medication: MedicationStatement): Promise<void> {
-    if (medication.computedLocation) {
-      return;
-    }
-
     try {
       await this.enrichMedication(patientId, medication);
       this.updatePatientMedication(patientId, medication.id, medication);
@@ -1974,66 +1970,11 @@ export class PatientService {
     }
   }
 
-  private async enrichMedication(patientId: string, medication: MedicationStatement): Promise<void> {
+  private async enrichMedication(_patientId: string, medication: MedicationStatement): Promise<void> {
     const medicationSnomedCode = this.extractSnomedCode(medication);
     if (medicationSnomedCode) {
       medication.snomedConceptId = medication.snomedConceptId || medicationSnomedCode;
     }
-
-    if (!medication.computedLocation) {
-      medication.computedLocation = await this.resolveMedicationComputedLocation(patientId, medication);
-    }
-  }
-
-  private async resolveMedicationComputedLocation(patientId: string, medication: MedicationStatement): Promise<string> {
-    const referencedLocation = await this.resolveMedicationReferencedLocation(patientId, medication);
-    if (referencedLocation) {
-      return referencedLocation;
-    }
-
-    const conceptId = this.extractSnomedCode(medication);
-    if (!conceptId) {
-      return 'systemic';
-    }
-
-    return this.resolveComputedLocation(conceptId);
-  }
-
-  private async resolveMedicationReferencedLocation(patientId: string, medication: MedicationStatement): Promise<string | undefined> {
-    const references = medication.reasonReference || [];
-
-    for (const reference of references) {
-      const [resourceType, resourceId] = (reference.reference || '').split('/');
-      if (!resourceType || !resourceId) {
-        continue;
-      }
-
-      if (resourceType === 'Condition') {
-        const condition = this.getPatientConditions(patientId).find(item => item.id === resourceId);
-        const conditionLocation = condition ? this.getConditionStoredLocation(condition) : undefined;
-        if (conditionLocation) {
-          return conditionLocation;
-        }
-        const conditionConceptId = condition ? this.extractSnomedCode(condition) : null;
-        if (conditionConceptId) {
-          return this.resolveComputedLocation(conditionConceptId);
-        }
-      }
-
-      if (resourceType === 'Procedure') {
-        const procedure = this.getPatientProcedures(patientId).find(item => item.id === resourceId);
-        const procedureLocation = procedure ? this.getProcedureStoredLocation(procedure) : undefined;
-        if (procedureLocation) {
-          return procedureLocation;
-        }
-        const procedureConceptId = procedure ? this.extractSnomedCode(procedure) : null;
-        if (procedureConceptId) {
-          return this.resolveComputedLocation(procedureConceptId);
-        }
-      }
-    }
-
-    return undefined;
   }
 
   // Observations

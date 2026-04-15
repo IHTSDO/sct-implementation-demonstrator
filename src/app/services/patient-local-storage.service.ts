@@ -29,8 +29,6 @@ import {
 })
 export class PatientLocalStorageService implements PatientStorageBackend {
   private readonly STORAGE_KEY = 'ehr_patients';
-  private static readonly EHR_LAB_LOCATION_SYSTEM = 'http://ehr-lab.demo/location';
-  private static readonly EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL = 'http://ehr-lab.demo/fhir/StructureDefinition/computed-location';
 
   constructor(private storageService: StorageService) {}
 
@@ -118,8 +116,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
             display: medication.subject?.display || patientDisplay
           }
         })
-      ))
-      .map((medication) => this.hydrateMedicationComputedLocation(medication));
+      ));
 
     const savedImmunizations = payload.immunizations
       .map((immunization) => this.pushItem(
@@ -245,15 +242,13 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   async deleteProcedure(patientId: string, procedureId: string): Promise<void> { this.removeItem(`ehr_procedures_${patientId}`, procedureId); }
 
   async getMedications(patientId: string): Promise<MedicationStatement[]> {
-    return this.readArray<MedicationStatement>(`ehr_medications_${patientId}`).map((medication) => this.hydrateMedicationComputedLocation(medication));
+    return this.readArray<MedicationStatement>(`ehr_medications_${patientId}`);
   }
   async createMedication(patientId: string, medication: MedicationStatement): Promise<MedicationStatement> {
-    const savedMedication = this.pushItem(`ehr_medications_${patientId}`, this.prepareMedicationForStorage(medication));
-    return this.hydrateMedicationComputedLocation(savedMedication);
+    return this.pushItem(`ehr_medications_${patientId}`, this.prepareMedicationForStorage(medication));
   }
   async updateMedication(patientId: string, medicationId: string, medication: MedicationStatement): Promise<MedicationStatement> {
-    const savedMedication = this.replaceItem(`ehr_medications_${patientId}`, medicationId, this.prepareMedicationForStorage(medication));
-    return this.hydrateMedicationComputedLocation(savedMedication);
+    return this.replaceItem(`ehr_medications_${patientId}`, medicationId, this.prepareMedicationForStorage(medication));
   }
   async deleteMedication(patientId: string, medicationId: string): Promise<void> { this.removeItem(`ehr_medications_${patientId}`, medicationId); }
 
@@ -346,7 +341,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   }
 
   hydrateMedicationsFromStorage(medications: MedicationStatement[]): MedicationStatement[] {
-    return medications.map((medication) => this.hydrateMedicationComputedLocation(medication));
+    return medications;
   }
 
   normalizeMedicationsForStorage(medications: MedicationStatement[]): MedicationStatement[] {
@@ -417,144 +412,19 @@ export class PatientLocalStorageService implements PatientStorageBackend {
   }
 
   private prepareConditionForStorage(condition: Condition): Condition {
-    const { computedLocation, ...conditionWithoutComputedLocation } = condition;
-    const bodySite = Array.isArray(condition.bodySite) ? [...condition.bodySite] : [];
-    const filteredBodySite = bodySite.filter((site: any) => {
-      const codings = Array.isArray(site?.coding) ? site.coding : [];
-      return !codings.some((coding: any) => coding?.system === PatientLocalStorageService.EHR_LAB_LOCATION_SYSTEM);
-    });
-
-    if (!condition.computedLocation) {
-      return {
-        ...conditionWithoutComputedLocation,
-        bodySite: filteredBodySite.length > 0 ? filteredBodySite : undefined
-      };
-    }
-
-    return {
-      ...conditionWithoutComputedLocation,
-      bodySite: [
-        ...filteredBodySite,
-        {
-          coding: [
-            {
-              system: PatientLocalStorageService.EHR_LAB_LOCATION_SYSTEM,
-              code: condition.computedLocation,
-              display: this.toLocationDisplay(condition.computedLocation)
-            }
-          ],
-          text: this.toLocationDisplay(condition.computedLocation)
-        }
-      ]
-    };
-  }
-
-  private hydrateConditionComputedLocation(condition: Condition): Condition {
-    if (condition.computedLocation) {
-      return condition;
-    }
-
-    const computedLocation = (condition.bodySite || [])
-      .flatMap((site: any) => Array.isArray(site?.coding) ? site.coding : [])
-      .find((coding: any) => coding?.system === PatientLocalStorageService.EHR_LAB_LOCATION_SYSTEM)
-      ?.code;
-
-    return computedLocation ? { ...condition, computedLocation } : condition;
+    return condition;
   }
 
   private prepareProcedureForStorage(procedure: Procedure): Procedure {
-    const { computedLocation, ...procedureWithoutComputedLocation } = procedure;
-    const bodySite = Array.isArray(procedure.bodySite) ? [...procedure.bodySite] : [];
-    const filteredBodySite = bodySite.filter((site: any) => {
-      const codings = Array.isArray(site?.coding) ? site.coding : [];
-      return !codings.some((coding: any) => coding?.system === PatientLocalStorageService.EHR_LAB_LOCATION_SYSTEM);
-    });
-
-    if (!procedure.computedLocation) {
-      return {
-        ...procedureWithoutComputedLocation,
-        bodySite: filteredBodySite.length > 0 ? filteredBodySite : undefined
-      };
-    }
-
-    return {
-      ...procedureWithoutComputedLocation,
-      bodySite: [
-        ...filteredBodySite,
-        {
-          coding: [
-            {
-              system: PatientLocalStorageService.EHR_LAB_LOCATION_SYSTEM,
-              code: procedure.computedLocation,
-              display: this.toLocationDisplay(procedure.computedLocation)
-            }
-          ],
-          text: this.toLocationDisplay(procedure.computedLocation)
-        }
-      ]
-    };
-  }
-
-  private hydrateProcedureComputedLocation(procedure: Procedure): Procedure {
-    if (procedure.computedLocation) {
-      return procedure;
-    }
-
-    const computedLocation = (procedure.bodySite || [])
-      .flatMap((site: any) => Array.isArray(site?.coding) ? site.coding : [])
-      .find((coding: any) => coding?.system === PatientLocalStorageService.EHR_LAB_LOCATION_SYSTEM)
-      ?.code;
-
-    return computedLocation ? { ...procedure, computedLocation } : procedure;
+    return procedure;
   }
 
   private prepareMedicationForStorage(medication: MedicationStatement): MedicationStatement {
-    const { computedLocation, ...medicationWithoutComputedLocation } = medication as MedicationStatement & { computedLocation?: string };
-    const extensions = Array.isArray((medication as any).extension) ? [...(medication as any).extension] : [];
-    const filteredExtensions = extensions.filter((extension: any) => extension?.url !== PatientLocalStorageService.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL);
-
-    if (!medication.computedLocation) {
-      return {
-        ...medicationWithoutComputedLocation,
-        extension: filteredExtensions.length > 0 ? filteredExtensions : undefined
-      } as MedicationStatement;
-    }
-
-    return {
-      ...medicationWithoutComputedLocation,
-      extension: [
-        ...filteredExtensions,
-        {
-          url: PatientLocalStorageService.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL,
-          valueCode: medication.computedLocation
-        }
-      ]
-    } as MedicationStatement;
-  }
-
-  private hydrateMedicationComputedLocation(medication: MedicationStatement): MedicationStatement {
-    if (medication.computedLocation) {
-      return medication;
-    }
-
-    const extensions = Array.isArray((medication as any).extension) ? (medication as any).extension : [];
-    const computedLocation = extensions.find(
-      (extension: any) => extension?.url === PatientLocalStorageService.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL
-    )?.valueCode;
-
-    return computedLocation ? { ...medication, computedLocation } : medication;
+    return medication;
   }
 
   private prepareProvenanceForStorage(provenance: Provenance): Provenance {
     return provenance;
-  }
-
-  private toLocationDisplay(locationCode: string): string {
-    return locationCode
-      .split(/[-_]/g)
-      .filter((segment) => segment.length > 0)
-      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-      .join(' ');
   }
 
   private getPatientDisplayName(patient: Patient): string {

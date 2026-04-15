@@ -35,8 +35,6 @@ import {
 export class PatientFhirStorageService implements PatientStorageBackend {
   private readonly patientPageSize = 20;
   private static readonly BUNDLE_PATIENT_REFERENCE_EXTENSION_URL = 'http://snomed.org/fhir/StructureDefinition/patient-reference';
-  private static readonly EHR_LAB_LOCATION_SYSTEM = 'http://ehr-lab.demo/location';
-  private static readonly EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL = 'http://ehr-lab.demo/fhir/StructureDefinition/computed-location';
 
   constructor(private fhirService: FhirService) {}
 
@@ -321,8 +319,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       procedures: resources
         .filter((resource: any) => resource?.resourceType === 'Procedure'),
       medications: resources
-        .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
-        .map((medication: any) => this.hydrateMedicationComputedLocation(medication)),
+        .filter((resource: any) => resource?.resourceType === 'MedicationStatement'),
       immunizations: resources
         .filter((resource: any) => resource?.resourceType === 'Immunization'),
       allergies: resources
@@ -372,16 +369,13 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   async deleteProcedure(patientId: string, procedureId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Procedure', procedureId)); }
 
   async getMedications(patientId: string): Promise<MedicationStatement[]> {
-    const medications = await this.fetchPatientResources<MedicationStatement>('MedicationStatement', { subject: this.getPatientReference(patientId), _count: '200' });
-    return medications.map((medication) => this.hydrateMedicationComputedLocation(medication));
+    return this.fetchPatientResources<MedicationStatement>('MedicationStatement', { subject: this.getPatientReference(patientId), _count: '200' });
   }
   async createMedication(patientId: string, medication: MedicationStatement): Promise<MedicationStatement> {
-    const savedMedication = await firstValueFrom(this.fhirService.create('MedicationStatement', this.prepareMedicationForFhir(medication)));
-    return this.hydrateMedicationComputedLocation(savedMedication);
+    return await firstValueFrom(this.fhirService.create('MedicationStatement', this.prepareMedicationForFhir(medication)));
   }
   async updateMedication(patientId: string, medicationId: string, medication: MedicationStatement): Promise<MedicationStatement> {
-    const savedMedication = await firstValueFrom(this.fhirService.update('MedicationStatement', medicationId, this.prepareMedicationForFhir(medication)));
-    return this.hydrateMedicationComputedLocation(savedMedication);
+    return await firstValueFrom(this.fhirService.update('MedicationStatement', medicationId, this.prepareMedicationForFhir(medication)));
   }
   async deleteMedication(patientId: string, medicationId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('MedicationStatement', medicationId)); }
 
@@ -498,8 +492,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const procedures = resources
       .filter((resource: any) => resource?.resourceType === 'Procedure') as Procedure[];
     const medications = resources
-      .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
-      .map((medication: MedicationStatement) => this.hydrateMedicationComputedLocation(medication));
+      .filter((resource: any) => resource?.resourceType === 'MedicationStatement') as MedicationStatement[];
     const immunizations = resources
       .filter((resource: any) => resource?.resourceType === 'Immunization') as Immunization[];
     const serviceRequests = resources.filter((resource: any) => resource?.resourceType === 'ServiceRequest') as ServiceRequest[];
@@ -632,8 +625,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const procedures = resources
       .filter((resource: any) => resource?.resourceType === 'Procedure');
     const medications = resources
-      .filter((resource: any) => resource?.resourceType === 'MedicationStatement')
-      .map((medication: any) => this.hydrateMedicationComputedLocation(medication));
+      .filter((resource: any) => resource?.resourceType === 'MedicationStatement');
     const immunizations = resources
       .filter((resource: any) => resource?.resourceType === 'Immunization');
     const allergies = resources
@@ -1026,36 +1018,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   }
 
   private prepareConditionForFhir(condition: Condition): Condition {
-    const { computedLocation, ...conditionWithoutComputedLocation } = condition;
-    const bodySite = Array.isArray(condition.bodySite) ? [...condition.bodySite] : [];
-    const filteredBodySite = bodySite.filter((site: any) => {
-      const codings = Array.isArray(site?.coding) ? site.coding : [];
-      return !codings.some((coding: any) => coding?.system === PatientFhirStorageService.EHR_LAB_LOCATION_SYSTEM);
-    });
-
-    if (!condition.computedLocation) {
-      return {
-        ...conditionWithoutComputedLocation,
-        bodySite: filteredBodySite.length > 0 ? filteredBodySite : undefined
-      };
-    }
-
-    return {
-      ...conditionWithoutComputedLocation,
-      bodySite: [
-        ...filteredBodySite,
-        {
-          coding: [
-            {
-              system: PatientFhirStorageService.EHR_LAB_LOCATION_SYSTEM,
-              code: condition.computedLocation,
-              display: this.toLocationDisplay(condition.computedLocation)
-            }
-          ],
-          text: this.toLocationDisplay(condition.computedLocation)
-        }
-      ]
-    };
+    return condition;
   }
 
   private prepareProvenanceForFhir(provenance: Provenance, patientIdOrReference: string): Provenance {
@@ -1093,108 +1056,12 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     return patientWithoutId;
   }
 
-  private hydrateConditionComputedLocation(condition: Condition): Condition {
-    if (condition.computedLocation) {
-      return condition;
-    }
-
-    const computedLocation = (condition.bodySite || [])
-      .flatMap((site: any) => Array.isArray(site?.coding) ? site.coding : [])
-      .find((coding: any) => coding?.system === PatientFhirStorageService.EHR_LAB_LOCATION_SYSTEM)
-      ?.code;
-
-    return computedLocation ? { ...condition, computedLocation } : condition;
-  }
-
   private prepareProcedureForFhir(procedure: Procedure): Procedure {
-    const { computedLocation, ...procedureWithoutComputedLocation } = procedure;
-    const bodySite = Array.isArray(procedure.bodySite) ? [...procedure.bodySite] : [];
-    const filteredBodySite = bodySite.filter((site: any) => {
-      const codings = Array.isArray(site?.coding) ? site.coding : [];
-      return !codings.some((coding: any) => coding?.system === PatientFhirStorageService.EHR_LAB_LOCATION_SYSTEM);
-    });
-
-    if (!procedure.computedLocation) {
-      return {
-        ...procedureWithoutComputedLocation,
-        bodySite: filteredBodySite.length > 0 ? filteredBodySite : undefined
-      };
-    }
-
-    return {
-      ...procedureWithoutComputedLocation,
-      bodySite: [
-        ...filteredBodySite,
-        {
-          coding: [
-            {
-              system: PatientFhirStorageService.EHR_LAB_LOCATION_SYSTEM,
-              code: procedure.computedLocation,
-              display: this.toLocationDisplay(procedure.computedLocation)
-            }
-          ],
-          text: this.toLocationDisplay(procedure.computedLocation)
-        }
-      ]
-    };
-  }
-
-  private hydrateProcedureComputedLocation(procedure: Procedure): Procedure {
-    if (procedure.computedLocation) {
-      return procedure;
-    }
-
-    const computedLocation = (procedure.bodySite || [])
-      .flatMap((site: any) => Array.isArray(site?.coding) ? site.coding : [])
-      .find((coding: any) => coding?.system === PatientFhirStorageService.EHR_LAB_LOCATION_SYSTEM)
-      ?.code;
-
-    return computedLocation ? { ...procedure, computedLocation } : procedure;
+    return procedure;
   }
 
   private prepareMedicationForFhir(medication: MedicationStatement): MedicationStatement {
-    const { computedLocation, ...medicationWithoutComputedLocation } = medication as MedicationStatement & { computedLocation?: string };
-    const extensions = Array.isArray((medication as any).extension) ? [...(medication as any).extension] : [];
-    const filteredExtensions = extensions.filter((extension: any) => extension?.url !== PatientFhirStorageService.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL);
-
-    if (!medication.computedLocation) {
-      return {
-        ...medicationWithoutComputedLocation,
-        extension: filteredExtensions.length > 0 ? filteredExtensions : undefined
-      } as MedicationStatement;
-    }
-
-    return {
-      ...medicationWithoutComputedLocation,
-      extension: [
-        ...filteredExtensions,
-        {
-          url: PatientFhirStorageService.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL,
-          valueCode: medication.computedLocation
-        }
-      ]
-    } as MedicationStatement;
-  }
-
-  private hydrateMedicationComputedLocation(medication: MedicationStatement): MedicationStatement {
-    if (medication.computedLocation) {
-      return medication;
-    }
-
-    const extensions = Array.isArray((medication as any).extension) ? (medication as any).extension : [];
-    const computedLocation = extensions.find(
-      (extension: any) => extension?.url === PatientFhirStorageService.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL
-    )?.valueCode;
-
-    return computedLocation ? { ...medication, computedLocation } : medication;
-  }
-
-  private toLocationDisplay(locationCode: string): string {
-    return locationCode
-      .split(/[-_]/g)
-      .filter((segment) => segment.length > 0)
-      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-      .join(' ');
+    return medication;
   }
 
   private getPatientDisplayName(patient: Patient): string {

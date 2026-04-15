@@ -290,7 +290,6 @@ export interface Condition {
     time?: string;
     text: string;
   }>;
-  computedLocation?: string;
   bodyStructure?: {
     reference?: string;
     display?: string;
@@ -531,7 +530,6 @@ export interface Procedure {
     }>;
     text?: string;
   }>;
-  computedLocation?: string;
   bodyStructure?: {
     reference?: string;
     display?: string;
@@ -830,7 +828,6 @@ export interface MedicationStatement {
       code?: string;
     };
   }>;
-  computedLocation?: string;
   snomedConceptId?: string;
 }
 

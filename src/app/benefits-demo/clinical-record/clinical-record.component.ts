@@ -91,7 +91,6 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   private readonly DENTAL_CONDITION_CATEGORY_CODE = 'dental';
   private readonly DENTAL_PROCEDURE_CATEGORY_CODE = 'dental-procedure';
   private readonly EHR_LAB_LOCATION_SYSTEM = 'http://ehr-lab.demo/location';
-  private readonly EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL = 'http://ehr-lab.demo/fhir/StructureDefinition/computed-location';
   private medicationOrderSelectPreviewTimeout: ReturnType<typeof setTimeout> | null = null;
   
 
@@ -1224,7 +1223,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           }
         }
         
-        // Reload conditions after mapping to get the updated computedLocation
+        // Reload conditions after mapping to get the updated body-site location
         this.conditions = this.patientService.getPatientConditions(this.patient.id);
         if (newestAllergy) {
           this.dispatchCdsEvent({ type: 'allergy-added', newAllergy: newestAllergy });
@@ -2896,13 +2895,9 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
 
     if (event?.resourceType === 'MedicationStatement') {
-      const extensions = Array.isArray(event?.extension) ? event.extension : [];
-      const extensionLocation = extensions.find(
-        (extension: any) => extension?.url === this.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL
-      )?.valueCode;
-
-      if (extensionLocation) {
-        return extensionLocation;
+      const referencedLocation = this.getMedicationReferencedLocation(event);
+      if (referencedLocation) {
+        return referencedLocation;
       }
 
       const dosageSiteLocation = event?.dosage?.[0]?.site?.coding?.find(
@@ -2964,20 +2959,35 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return;
     }
 
-    if (event?.resourceType === 'MedicationStatement') {
-      const extensions = Array.isArray(event?.extension) ? [...event.extension] : [];
-      const filteredExtensions = extensions.filter(
-        (extension: any) => extension?.url !== this.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL
-      );
+  }
 
-      event.extension = [
-        ...filteredExtensions,
-        {
-          url: this.EHR_LAB_COMPUTED_LOCATION_EXTENSION_URL,
-          valueCode: locationCode
-        }
-      ];
+  private getMedicationReferencedLocation(event: any): string | null {
+    const references = Array.isArray(event?.reasonReference) ? event.reasonReference : [];
+    const conditions = this.patient?.id
+      ? this.conditions.length > 0
+        ? this.conditions
+        : this.patientService.getPatientConditions(this.patient.id)
+      : [];
+
+    for (const reference of references) {
+      const referenceValue = reference?.reference;
+      if (!referenceValue) {
+        continue;
+      }
+
+      const conditionId = referenceValue.replace(/^Condition\//, '');
+      const condition = conditions.find((item) => item.id === conditionId);
+      const locationCode = condition?.bodySite
+        ?.flatMap((site: any) => Array.isArray(site?.coding) ? site.coding : [])
+        ?.find((coding: any) => coding?.system === this.EHR_LAB_LOCATION_SYSTEM)
+        ?.code;
+
+      if (locationCode) {
+        return locationCode;
+      }
     }
+
+    return null;
   }
 
   private toLocationDisplay(locationCode: string): string {

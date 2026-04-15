@@ -7,7 +7,7 @@ import { map, catchError } from 'rxjs/operators';
 
 export interface DiagnosisSpec {
   label: string;
-  computedLocation: string;
+  bodySiteCode: string;
   termQueried: string;
   snomed: {
     code: string;
@@ -21,7 +21,7 @@ export interface DiagnosisSpec {
       icd10: {
         code: string;
       };
-      computedLocation?: string;
+      bodySiteCode?: string;
     }>;
   };
 }
@@ -42,6 +42,7 @@ export interface PatientGenerationSpec {
   providedIn: 'root'
 })
 export class PatientSimulationService {
+  private readonly EHR_LAB_LOCATION_SYSTEM = 'http://ehr-lab.demo/location';
 
   private readonly maleFirstNames = [
     'James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Charles', 'Joseph', 'Thomas',
@@ -460,7 +461,7 @@ export class PatientSimulationService {
     let snomedCode: string;
     let snomedDisplay: string;
     let icd10Code: string | undefined;
-    let computedLocation: string;
+    let bodySiteCode: string;
 
     if (diagnosis.snomed.descendants && diagnosis.snomed.descendants.length > 0) {
       // Select a random descendant
@@ -470,14 +471,14 @@ export class PatientSimulationService {
       snomedCode = selectedDescendant.code;
       snomedDisplay = selectedDescendant.display;
       icd10Code = selectedDescendant.icd10?.code || undefined;
-      // Use the descendant's computedLocation if available, otherwise fall back to diagnosis computedLocation
-      computedLocation = selectedDescendant.computedLocation || diagnosis.computedLocation;
+      // Use the descendant's body site if available, otherwise fall back to the diagnosis body site
+      bodySiteCode = selectedDescendant.bodySiteCode || diagnosis.bodySiteCode;
     } else {
       // Use the main diagnosis code
       snomedCode = diagnosis.snomed.code;
       snomedDisplay = diagnosis.snomed.display;
       icd10Code = diagnosis.snomed.icd10?.code || undefined;
-      computedLocation = diagnosis.computedLocation;
+      bodySiteCode = diagnosis.bodySiteCode;
     }
 
     return {
@@ -520,8 +521,31 @@ export class PatientSimulationService {
       },
       onsetDateTime: randomizedTime,
       recordedDate: randomizedTime,
-      computedLocation: computedLocation
+      bodySite: this.buildLocationBodySite(bodySiteCode)
     } as Condition;
+  }
+
+  private buildLocationBodySite(locationCode: string): NonNullable<Condition['bodySite']> {
+    return [
+      {
+        coding: [
+          {
+            system: this.EHR_LAB_LOCATION_SYSTEM,
+            code: locationCode,
+            display: this.toLocationDisplay(locationCode)
+          }
+        ],
+        text: this.toLocationDisplay(locationCode)
+      }
+    ];
+  }
+
+  private toLocationDisplay(locationCode: string): string {
+    return locationCode
+      .split(/[-_]/g)
+      .filter((segment) => segment.length > 0)
+      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join(' ');
   }
 
   private getRandomDateWithinTimeframe(timeframeYears: number = 2): Date {
