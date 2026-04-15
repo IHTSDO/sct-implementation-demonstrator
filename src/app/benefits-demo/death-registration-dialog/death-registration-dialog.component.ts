@@ -93,7 +93,6 @@ export class DeathRegistrationDialogComponent {
       return;
     }
 
-    this.removeExistingDerivedConditions();
     this.patientService.deletePatientDeathRecord(this.data.patient.id);
 
     const revivedPatient: Patient = {
@@ -183,8 +182,6 @@ export class DeathRegistrationDialogComponent {
         return;
       }
 
-      this.removeExistingDerivedConditions();
-
       const enrichedPart1 = await this.createDerivedConditions(
         serializedPart1.map(entry => ({ ...entry })),
         deceasedDateTime
@@ -248,12 +245,14 @@ export class DeathRegistrationDialogComponent {
     this.deceasedTime = existingDateTime;
 
     const part1LineCodes: Part1LineCode[] = ['a', 'b', 'c', 'd'];
+    const part1Diagnoses = this.getBundleDiagnoses(this.data.existingRecord, 'part1');
+    const part2Diagnoses = this.getBundleDiagnoses(this.data.existingRecord, 'part2');
+
     this.part1Lines = part1LineCodes.map(lineCode => {
-      const existingLine = this.getBundleDiagnoses(this.data.existingRecord!, 'part1').find(line => line.line === lineCode);
+      const existingLine = part1Diagnoses.find(line => line.line === lineCode);
       return existingLine ? this.mapDiagnosisToLine(existingLine, lineCode) : this.createPart1Line(lineCode);
     });
 
-    const part2Diagnoses = this.getBundleDiagnoses(this.data.existingRecord, 'part2');
     this.part2Lines = part2Diagnoses.length > 0
       ? part2Diagnoses.map(line => this.mapDiagnosisToLine(line))
       : [this.createPart2Line()];
@@ -284,7 +283,7 @@ export class DeathRegistrationDialogComponent {
     return {
       line,
       sourceType: diagnosis.sourceType,
-      selectedConditionId: diagnosis.sourceConditionId || '',
+      selectedConditionId: this.resolveConditionId(diagnosis),
       selectedConcept: diagnosis.snomedConceptId
         ? { code: diagnosis.snomedConceptId, display: diagnosis.snomedDisplay || diagnosis.text }
         : null,
@@ -292,6 +291,22 @@ export class DeathRegistrationDialogComponent {
       text: diagnosis.text || '',
       intervalText: diagnosis.intervalText || ''
     };
+  }
+
+  private resolveConditionId(diagnosis: DeathRecordDiagnosis): string {
+    if (diagnosis.sourceConditionId && this.data.conditions.some(c => c.id === diagnosis.sourceConditionId)) {
+      return diagnosis.sourceConditionId;
+    }
+    if (diagnosis.snomedConceptId) {
+      const match = this.data.conditions.find(c => {
+        const coding = this.patientService.getConditionSnomedCoding(c);
+        return coding?.code === diagnosis.snomedConceptId;
+      });
+      if (match) {
+        return match.id;
+      }
+    }
+    return diagnosis.sourceConditionId || '';
   }
 
   private async serializePart1(): Promise<Array<DeathRecordDiagnosis & { line: Part1LineCode }>> {
@@ -418,28 +433,13 @@ export class DeathRegistrationDialogComponent {
         }
       ];
 
-      await this.patientService.addPatientConditionAllowDuplicatesEnriched(this.data.patient.id, condition);
-      diagnosis.derivedConditionId = condition.id;
+      const savedCondition = await this.patientService.addPatientConditionAllowDuplicatesEnriched(this.data.patient.id, condition);
+      diagnosis.sourceType = 'existing-condition';
+      diagnosis.sourceConditionId = savedCondition.id;
+      diagnosis.derivedConditionId = undefined;
     }
 
     return diagnoses;
-  }
-
-  private removeExistingDerivedConditions(): void {
-    if (!this.data.existingRecord) {
-      return;
-    }
-
-    const previousDiagnoses = [
-      ...this.getBundleDiagnoses(this.data.existingRecord, 'part1'),
-      ...this.getBundleDiagnoses(this.data.existingRecord, 'part2')
-    ];
-
-    previousDiagnoses.forEach(diagnosis => {
-      if (diagnosis.derivedConditionId) {
-        this.patientService.deletePatientCondition(this.data.patient.id, diagnosis.derivedConditionId);
-      }
-    });
   }
 
   private getConditionById(conditionId?: string): Condition | undefined {
@@ -448,6 +448,17 @@ export class DeathRegistrationDialogComponent {
     }
 
     return this.data.conditions.find(condition => condition.id === conditionId);
+  }
+
+  getConditionDisplayText(condition: Condition): string {
+    if (condition.code?.text) {
+      return condition.code.text;
+    }
+    const snomed = this.patientService.getConditionSnomedCoding(condition);
+    if (snomed?.display) {
+      return snomed.display;
+    }
+    return condition.code?.coding?.find(c => c.display)?.display || condition.id || '';
   }
 
   private getConditionSnomed(condition: Condition): { code?: string; display?: string } {
@@ -506,7 +517,7 @@ export class DeathRegistrationDialogComponent {
 
     const entries = [
       { fullUrl: `urn:uuid:${compositionId}`, resource: compositionResource },
-      { fullUrl: `urn:uuid:${this.data.patient.id}`, resource: patientResource },
+      { fullUrl: `Patient/${this.data.patient.id}`, resource: patientResource },
       { fullUrl: `urn:uuid:${practitionerId}`, resource: practitionerResource },
       { fullUrl: `urn:uuid:${procedureId}`, resource: procedureResource },
       ...part1Observations.map(resource => ({ fullUrl: `urn:uuid:${resource.id}`, resource })),
@@ -570,7 +581,7 @@ export class DeathRegistrationDialogComponent {
         text: 'Death certification'
       },
       subject: {
-        reference: `urn:uuid:${this.data.patient.id}`
+        reference: `Patient/${this.data.patient.id}`
       },
       performedDateTime: deceasedDateTime,
       performer: [
@@ -609,7 +620,7 @@ export class DeathRegistrationDialogComponent {
         text: 'Death certificate'
       },
       subject: {
-        reference: `urn:uuid:${this.data.patient.id}`
+        reference: `Patient/${this.data.patient.id}`
       },
       date: deceasedDateTime,
       author: [
@@ -672,7 +683,7 @@ export class DeathRegistrationDialogComponent {
         ]
       },
       subject: {
-        reference: `urn:uuid:${this.data.patient.id}`
+        reference: `Patient/${this.data.patient.id}`
       },
       performer: [
         {
@@ -737,7 +748,7 @@ export class DeathRegistrationDialogComponent {
         ]
       },
       subject: {
-        reference: `urn:uuid:${this.data.patient.id}`
+        reference: `Patient/${this.data.patient.id}`
       },
       performer: [
         {

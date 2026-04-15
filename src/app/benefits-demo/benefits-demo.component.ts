@@ -51,6 +51,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   isCreatingPatient = false;
   creatingPatientMessage = 'Creating patient...';
   isDeletingPatient = false;
+  isOpeningDeathDialog = false;
   isSearchingPatients = false;
   remoteSearchTotal: number | null = null;
   private subscriptions: Subscription[] = [];
@@ -562,9 +563,16 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     this.router.navigate(['/clinical-record', this.selectedPatient.id]);
   }
 
-  openDeathRegistration(): void {
-    if (!this.selectedPatient) {
+  async openDeathRegistration(): Promise<void> {
+    if (!this.selectedPatient || this.isOpeningDeathDialog) {
       return;
+    }
+
+    this.isOpeningDeathDialog = true;
+    try {
+      await this.patientService.ensureConditionsAndDeathRecordLoaded(this.selectedPatient.id);
+    } finally {
+      this.isOpeningDeathDialog = false;
     }
 
     const existingRecord = this.patientService.getPatientDeathRecord(this.selectedPatient.id);

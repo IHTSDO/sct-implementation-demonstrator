@@ -450,6 +450,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async loadClinicalData(patientId: string): Promise<void> {
+    console.trace(`[loadClinicalData] called for patient ${patientId}`);
     if (this.patientService.getCurrentPersistenceMode() === 'fhir') {
       this.isLoadingClinicalData = true;
 

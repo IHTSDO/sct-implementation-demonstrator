@@ -411,10 +411,10 @@
                 color="primary"
                 (click)="openDeathRegistration()"
                 class="death-button"
-                [disabled]="isDeletingPatient"
+                [disabled]="isDeletingPatient || isOpeningDeathDialog"
                 >
-                <mat-icon>bed</mat-icon>
-                {{ getDeathActionLabel(selectedPatient) }}
+                <mat-icon>{{ isOpeningDeathDialog ? 'hourglass_empty' : 'bed' }}</mat-icon>
+                {{ isOpeningDeathDialog ? 'Loading...' : getDeathActionLabel(selectedPatient) }}
               </button>
               <button
                 mat-flat-button

@@ -64,7 +64,7 @@
             <mat-select [(value)]="line.selectedConditionId" (selectionChange)="onExistingConditionSelected(line)">
               <mat-option [value]="''">Select condition</mat-option>
               <mat-option *ngFor="let condition of data.conditions" [value]="condition.id">
-                {{ condition.code.text }}
+                {{ getConditionDisplayText(condition) }}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -117,7 +117,7 @@
             <mat-select [(value)]="line.selectedConditionId" (selectionChange)="onExistingConditionSelected(line)">
               <mat-option [value]="''">Select condition</mat-option>
               <mat-option *ngFor="let condition of data.conditions" [value]="condition.id">
-                {{ condition.code.text }}
+                {{ getConditionDisplayText(condition) }}
               </mat-option>
             </mat-select>
           </mat-form-field>

@@ -35,6 +35,8 @@ import {
 export class PatientFhirStorageService implements PatientStorageBackend {
   private readonly patientPageSize = 20;
   private static readonly BUNDLE_PATIENT_REFERENCE_EXTENSION_URL = 'http://snomed.org/fhir/StructureDefinition/patient-reference';
+  private static readonly DEATH_CERTIFICATE_IDENTIFIER_SYSTEM = 'http://example.org/fhir/identifiers/death-certificate-document';
+  private static readonly BUNDLE_PATIENT_TAG_SYSTEM = 'http://snomed.org/fhir/tags/patient';
 
   constructor(private fhirService: FhirService) {}
 
@@ -395,9 +397,9 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   async updateServiceRequest(patientId: string, requestId: string, serviceRequest: ServiceRequest): Promise<ServiceRequest> { return await firstValueFrom(this.fhirService.update('ServiceRequest', requestId, serviceRequest)); }
   async deleteServiceRequest(patientId: string, requestId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('ServiceRequest', requestId)); }
 
-  async getLabOrders(patientId: string): Promise<LaboratoryOrderGroup[]> {
-    const bundles = await this.fetchPatientBundles(patientId, 'document');
-    return bundles.map((bundle: any) => ({
+  async getLabOrders(patientId: string, prefetchedBundles?: any[]): Promise<LaboratoryOrderGroup[]> {
+    const bundles = prefetchedBundles ?? await this.fetchPatientBundles(patientId, 'document');
+    return bundles.filter((bundle: any) => !this.isDeathCertificateBundle(bundle)).map((bundle: any) => ({
       id: bundle.id,
       patientId,
       patientDisplay: this.getPatientDisplay(bundle, patientId),
@@ -441,8 +443,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   async deleteQuestionnaireResponse(patientId: string, responseId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('QuestionnaireResponse', responseId)); }
 
   async getDeathRecord(patientId: string): Promise<DeathRecord | null> {
-    const bundles = await this.fetchPatientBundles(patientId, 'document');
-    return (bundles[0] as DeathRecord) || null;
+    return this.fetchDeathRecordBundle(patientId);
   }
 
   async saveDeathRecord(patientId: string, record: DeathRecord): Promise<DeathRecord> {
@@ -503,11 +504,12 @@ export class PatientFhirStorageService implements PatientStorageBackend {
       .filter((resource: any) => resource?.resourceType === 'Encounter')
       .map((encounter: any) => this.hydrateEncounterFreeText(encounter)) as Encounter[];
 
-    const [labOrders, provenance, deathRecord] = await Promise.all([
-      this.getLabOrders(patientId),
+    const [documentBundles, provenance, deathRecord] = await Promise.all([
+      this.fetchPatientBundles(patientId, 'document'),
       this.getProvenance(patientId),
-      this.getDeathRecord(patientId)
+      this.fetchDeathRecordBundle(patientId)
     ]);
+    const labOrders = await this.getLabOrders(patientId, documentBundles);
 
     return {
       conditions,
@@ -722,14 +724,43 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   }
 
   private async fetchPatientBundles(patientId: string, bundleType?: string): Promise<any[]> {
+    const patientRef = this.getPatientReference(patientId);
     const initialBundle = await firstValueFrom(this.fhirService.search('Bundle', {
       type: bundleType,
-      'composition.patient': this.getPatientReference(patientId),
+      _tag: `${PatientFhirStorageService.BUNDLE_PATIENT_TAG_SYSTEM}|${patientRef}`,
       _count: 200
     }));
 
     const combinedBundle = await this.collectPagedBundle(initialBundle);
-    return this.extractBundleResources<any>(combinedBundle, 'Bundle');
+    const bundles = this.extractBundleResources<any>(combinedBundle, 'Bundle');
+    return bundles.filter((bundle) => this.bundleBelongsToPatient(bundle, patientRef));
+  }
+
+  private isDeathCertificateBundle(bundle: any): boolean {
+    return bundle?.identifier?.system === PatientFhirStorageService.DEATH_CERTIFICATE_IDENTIFIER_SYSTEM;
+  }
+
+  private async fetchDeathRecordBundle(patientId: string): Promise<DeathRecord | null> {
+    const patientRef = this.getPatientReference(patientId);
+    const result = await firstValueFrom(this.fhirService.search('Bundle', {
+      _tag: `${PatientFhirStorageService.BUNDLE_PATIENT_TAG_SYSTEM}|${patientRef}`,
+      identifier: `${PatientFhirStorageService.DEATH_CERTIFICATE_IDENTIFIER_SYSTEM}|`,
+      _count: 5
+    }));
+    const bundles = this.extractBundleResources<any>(result, 'Bundle');
+    return (bundles.find(bundle =>
+      this.isDeathCertificateBundle(bundle) && this.bundleBelongsToPatient(bundle, patientRef)
+    ) as DeathRecord) ?? null;
+  }
+
+  private bundleBelongsToPatient(bundle: any, patientRef: string): boolean {
+    const extension = (bundle.extension || []).find(
+      (ext: any) => ext.url === PatientFhirStorageService.BUNDLE_PATIENT_REFERENCE_EXTENSION_URL
+    );
+    if (extension?.valueReference?.reference === patientRef) {
+      return true;
+    }
+    return this.getBundlePatientReference(bundle) === patientRef;
   }
 
   private extractBundleResources<T>(bundle: any, resourceType?: string): T[] {
@@ -982,18 +1013,33 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     }
   }
 
-  private withBundlePatientReference<T extends Record<string, any>>(resource: T, patientId: string): T & { extension: any[] } {
+  private withBundlePatientReference<T extends Record<string, any>>(resource: T, patientId: string): T & { extension: any[]; meta: any } {
     const extensions = Array.isArray(resource['extension']) ? [...resource['extension']] : [];
     const otherExtensions = extensions.filter((extension: any) => extension.url !== PatientFhirStorageService.BUNDLE_PATIENT_REFERENCE_EXTENSION_URL);
 
+    const patientRef = this.getPatientReference(patientId);
+    const existingMeta = resource['meta'] || {};
+    const existingTags: any[] = Array.isArray(existingMeta.tag) ? existingMeta.tag : [];
+    const otherTags = existingTags.filter((tag: any) => tag.system !== PatientFhirStorageService.BUNDLE_PATIENT_TAG_SYSTEM);
+
     return {
       ...resource,
+      meta: {
+        ...existingMeta,
+        tag: [
+          ...otherTags,
+          {
+            system: PatientFhirStorageService.BUNDLE_PATIENT_TAG_SYSTEM,
+            code: patientRef
+          }
+        ]
+      },
       extension: [
         ...otherExtensions,
         {
           url: PatientFhirStorageService.BUNDLE_PATIENT_REFERENCE_EXTENSION_URL,
           valueReference: {
-            reference: this.getPatientReference(patientId)
+            reference: patientRef
           }
         }
       ]

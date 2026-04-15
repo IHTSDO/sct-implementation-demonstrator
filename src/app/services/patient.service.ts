@@ -347,6 +347,31 @@ export class PatientService {
     return this.buildClinicalDataLoadSummary(clinicalData);
   }
 
+  async ensureConditionsAndDeathRecordLoaded(patientId: string): Promise<void> {
+    if (this.getCurrentPersistenceMode() !== 'fhir') {
+      return;
+    }
+    const conditionsCached = this.fhirCache.conditions.has(patientId);
+    const deathRecordCached = this.fhirCache.deathRecords.has(patientId);
+    if (conditionsCached && deathRecordCached) {
+      return;
+    }
+    const tasks: Promise<void>[] = [];
+    if (!conditionsCached) {
+      tasks.push(
+        this.patientFhirStorageService.getConditions(patientId)
+          .then((conditions) => { this.setResourceCache(this.fhirCache.conditions, patientId, conditions, false); })
+      );
+    }
+    if (!deathRecordCached) {
+      tasks.push(
+        this.patientFhirStorageService.getDeathRecord(patientId)
+          .then((deathRecord) => { this.setResourceCache(this.fhirCache.deathRecords, patientId, deathRecord, false); })
+      );
+    }
+    await Promise.all(tasks);
+  }
+
   private async loadClinicalRecordDataByResource(patientId: string): Promise<PatientClinicalRecordData> {
     const [
       conditions,
@@ -1234,9 +1259,17 @@ export class PatientService {
     this.enrichConditionInBackground(patientId, condition);
   }
 
-  async addPatientConditionAllowDuplicatesEnriched(patientId: string, condition: Condition): Promise<void> {
+  async addPatientConditionAllowDuplicatesEnriched(patientId: string, condition: Condition): Promise<Condition> {
     await this.enrichCondition(condition);
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      const conditions = this.getPatientConditions(patientId);
+      const savedCondition = await this.patientFhirStorageService.createCondition(patientId, condition);
+      this.setResourceCache(this.fhirCache.conditions, patientId, [...conditions, savedCondition]);
+      this.enrichConditionInBackground(patientId, savedCondition);
+      return savedCondition;
+    }
     this.addPatientConditionAllowDuplicates(patientId, condition);
+    return condition;
   }
 
   async addPatientConditionWithIcd10(patientId: string, condition: Condition): Promise<boolean> {
@@ -1911,12 +1944,7 @@ export class PatientService {
 
   getPatientLabOrders(patientId: string): LaboratoryOrderGroup[] {
     if (this.getCurrentPersistenceMode() === 'fhir') {
-      return this.ensureFhirResourceLoaded(
-        this.fhirCache.labOrders,
-        patientId,
-        () => this.patientFhirStorageService.getLabOrders(patientId),
-        []
-      );
+      return this.fhirCache.labOrders.get(patientId) ?? [];
     }
 
     return this.patientLocalStorageService.readStoredArray<LaboratoryOrderGroup>(`ehr_lab_orders_${patientId}`);
@@ -2460,12 +2488,7 @@ export class PatientService {
 
   getPatientDeathRecord(patientId: string): DeathRecord | null {
     if (this.getCurrentPersistenceMode() === 'fhir') {
-      return this.ensureFhirResourceLoaded(
-        this.fhirCache.deathRecords,
-        patientId,
-        () => this.patientFhirStorageService.getDeathRecord(patientId),
-        null
-      );
+      return this.fhirCache.deathRecords.get(patientId) ?? null;
     }
 
     return this.patientLocalStorageService.readStoredValue<DeathRecord | null>(`ehr_death_record_${patientId}`, null);
