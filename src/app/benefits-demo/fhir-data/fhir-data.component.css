@@ -5,6 +5,7 @@
   min-height: 0;
   align-items: start;
   position: relative;
+  max-height: calc(100vh - 180px);
 }
 
 .fhir-data-overlay {
@@ -57,9 +58,24 @@
   border-radius: 10px;
   background: #f9fbff;
   padding: 10px;
-  height: auto;
-  overflow: visible;
-  max-height: none !important;
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+  scrollbar-width: thin;
+  scrollbar-color: #b8cde6 #eef3fa;
+}
+
+.resource-browser::-webkit-scrollbar {
+  width: 6px;
+}
+
+.resource-browser::-webkit-scrollbar-track {
+  background: #eef3fa;
+  border-radius: 999px;
+}
+
+.resource-browser::-webkit-scrollbar-thumb {
+  background: #b8cde6;
+  border-radius: 999px;
 }
 
 .browser-title {
@@ -246,7 +262,8 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow: hidden;
+  max-height: calc(100vh - 180px);
 }
 
 .viewer-header {
@@ -322,7 +339,8 @@
   border-radius: 0 0 10px 10px;
   min-height: 0;
   padding: 10px;
-  overflow: hidden;
+  overflow: auto;
+  flex: 1;
 }
 
 .json-viewer {
@@ -330,8 +348,8 @@
   padding: 12px;
   width: 100%;
   height: auto;
-  min-height: 520px;
-  overflow-y: hidden;
+  min-height: 0;
+  overflow-y: visible;
   overflow-x: auto;
   white-space: pre;
   font-size: 0.7rem;
@@ -363,7 +381,7 @@
 /* ngx-highlight-js can replace/apply styles on generated pre.hljs */
 :host ::ng-deep .json-container pre.hljs {
   overflow-x: auto !important;
-  overflow-y: hidden !important;
+  overflow-y: visible !important;
   white-space: pre !important;
   scrollbar-width: thin;
   scrollbar-color: #5b6f86 #293243;
@@ -401,9 +419,14 @@
 @media (max-width: 1024px) {
   .fhir-data-root {
     grid-template-columns: 1fr;
+    max-height: none;
   }
 
   .resource-browser {
+    max-height: 60vh;
+  }
+
+  .resource-viewer {
     max-height: none;
   }
 
