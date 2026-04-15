@@ -117,6 +117,10 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
     return this.serviceRequests.length;
   }
 
+  get orderedSnomedCodes(): Set<string> {
+    return new Set(this.serviceRequests.map((sr) => this.getSnomedCode(sr)).filter(Boolean));
+  }
+
   handleServiceRequestCreated(serviceRequest: ServiceRequest) {
     const alreadySelected = this.serviceRequests.some((existing) => this.getSnomedCode(existing) === this.getSnomedCode(serviceRequest));
     if (alreadySelected) {

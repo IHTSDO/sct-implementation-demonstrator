@@ -14,6 +14,7 @@ export class LoincTreeBrowserComponent implements OnChanges {
   @Input() activeEditionVersion = '';
   @Input() selectionMode: 'all' | 'orderable-only' = 'all';
   @Input() emptyText = 'No results...';
+  @Input() orderedSnomedCodes: Set<string> = new Set();
   @Output() nodeSelected = new EventEmitter<LoincTreeNode>();
 
   treeNodes: LoincTreeNode[] = [];
@@ -30,6 +31,10 @@ export class LoincTreeBrowserComponent implements OnChanges {
 
   isGrouper(node: LoincTreeNode): boolean {
     return !!node.isGrouper;
+  }
+
+  isInOrder(node: LoincTreeNode): boolean {
+    return this.orderedSnomedCodes.has(node.code);
   }
 
   canExpandGrouper(node: LoincTreeNode): boolean {

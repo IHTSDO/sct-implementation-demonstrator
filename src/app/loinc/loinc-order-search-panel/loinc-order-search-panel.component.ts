@@ -18,6 +18,7 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
   @Input() orderPreviewCount = 0;
   @Input() showSaveAction = false;
   @Input() hasDraftOrder = false;
+  @Input() orderedSnomedCodes: Set<string> = new Set();
   @Output() serviceRequestCreated = new EventEmitter<ServiceRequest>();
   @Output() orderPreviewRequested = new EventEmitter<void>();
   @Output() saveOrderRequested = new EventEmitter<void>();

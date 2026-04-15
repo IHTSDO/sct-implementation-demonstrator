@@ -32,6 +32,9 @@
           {{ isGrouper(node) ? 'G' : 'O' }}
         </span>
         <span class="tree-label">{{ node.display }}</span>
+        @if (isInOrder(node)) {
+          <mat-icon class="in-order-check" matTooltip="Already in order">task_alt</mat-icon>
+        }
       </div>
     }
   </div>
