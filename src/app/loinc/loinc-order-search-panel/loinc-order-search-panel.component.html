@@ -125,6 +125,16 @@
             Order Preview
           </button>
         }
+        @if (showSaveAction) {
+          <button
+            mat-stroked-button
+            color="accent"
+            type="button"
+            (click)="requestSaveOrder()"
+            [disabled]="!hasDraftOrder">
+            Save Order
+          </button>
+        }
       }
     </div>
     @if (!searchResults.length && !searching) {

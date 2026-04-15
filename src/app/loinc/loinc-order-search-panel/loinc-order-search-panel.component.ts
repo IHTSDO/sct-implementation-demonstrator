@@ -16,8 +16,11 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
   @Input() patient: any = null;
   @Input() showOrderPreviewButton = false;
   @Input() orderPreviewCount = 0;
+  @Input() showSaveAction = false;
+  @Input() hasDraftOrder = false;
   @Output() serviceRequestCreated = new EventEmitter<ServiceRequest>();
   @Output() orderPreviewRequested = new EventEmitter<void>();
+  @Output() saveOrderRequested = new EventEmitter<void>();
 
   readonly loincTerminologyServer = 'https://browser.loincsnomed.org/fhir';
   readonly loincEditionUri = 'http://snomed.info/sct/11010000107';
@@ -196,6 +199,10 @@ export class LoincOrderSearchPanelComponent implements OnInit, OnDestroy {
 
   requestOrderPreview() {
     this.orderPreviewRequested.emit();
+  }
+
+  requestSaveOrder() {
+    this.saveOrderRequested.emit();
   }
 
   getAlternateIdentifierByScheme(alternateIdentifiers: any[], identifierSchemeConceptId: string): string | null {

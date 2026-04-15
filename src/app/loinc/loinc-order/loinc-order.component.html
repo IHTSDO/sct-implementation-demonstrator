@@ -1,14 +1,17 @@
-<div class="order-layout" #orderLayoutRoot [class.order-layout-compact]="hasMeasuredLayout && isCompactLayout">
+<div class="order-layout" #orderLayoutRoot [class.order-layout-compact]="isCompactLayout">
   <section class="search-panel">
     <app-loinc-order-search-panel
       [patient]="activePatient"
-      [showOrderPreviewButton]="hasMeasuredLayout && isCompactLayout"
+      [showOrderPreviewButton]="isCompactLayout"
       [orderPreviewCount]="orderPreviewCount"
+      [showSaveAction]="showSaveAction"
+      [hasDraftOrder]="hasDraftOrder()"
       (serviceRequestCreated)="handleServiceRequestCreated($event)"
-      (orderPreviewRequested)="openOrderPreviewDialog()">
+      (orderPreviewRequested)="openOrderPreviewDialog()"
+      (saveOrderRequested)="saveCurrentOrder()">
     </app-loinc-order-search-panel>
   </section>
-  @if (hasMeasuredLayout && !isCompactLayout) {
+  @if (!isCompactLayout) {
     <section class="preview-shell">
       <ng-container *ngTemplateOutlet="orderPreviewContent"></ng-container>
     </section>

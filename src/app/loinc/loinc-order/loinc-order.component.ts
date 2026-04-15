@@ -1,5 +1,5 @@
-import { AfterViewInit, ElementRef, OnDestroy, TemplateRef } from '@angular/core';
-import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, ElementRef, NgZone, OnDestroy, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import saveAs from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -16,7 +16,10 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
   private readonly searchPanelMinWidth = 1100;
   private readonly searchPanelWidthRatio = 3 / 5;
   private readonly compactLayoutBreakpoint = Math.ceil(this.searchPanelMinWidth / this.searchPanelWidthRatio);
-  private readonly visualViewportResizeHandler = () => this.updateCompactLayoutFromContainer();
+  private readonly bundleAuthorDisplay = 'RHR Lab Demo';
+  private readonly bundleTypeSystem = 'http://ehr-lab.demo/document-type';
+  private readonly bundleTypeCode = 'laboratory-order';
+  private readonly bundleTypeDisplay = 'Outpatient laboratory order';
 
   @ViewChild('orderLayoutRoot') orderLayoutRoot?: ElementRef<HTMLElement>;
   @Input() patient: any = null;
@@ -27,8 +30,7 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
 
   showLoincCodes = true;
   showFhirView = false;
-  isCompactLayout = false;
-  hasMeasuredLayout = false;
+  isCompactLayout = true;
   fhirBundle: any = {};
   fhirBundleStr = '';
   readonly uuidNamespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
@@ -81,7 +83,9 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private clipboard: Clipboard,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {
     this.updateFHIRBundle();
   }
@@ -93,23 +97,16 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.resizeObserver = new ResizeObserver(() => {
-      this.updateCompactLayoutFromContainer();
+    this.ngZone.runOutsideAngular(() => {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.ngZone.run(() => this.updateCompactLayoutFromContainer());
+      });
+      this.resizeObserver!.observe(this.orderLayoutRoot!.nativeElement);
     });
-
-    this.resizeObserver.observe(this.orderLayoutRoot.nativeElement);
-
-    if (typeof window !== 'undefined' && window.visualViewport) {
-      window.visualViewport.addEventListener('resize', this.visualViewportResizeHandler);
-    }
   }
 
   ngOnDestroy() {
     this.resizeObserver?.disconnect();
-
-    if (typeof window !== 'undefined' && window.visualViewport) {
-      window.visualViewport.removeEventListener('resize', this.visualViewportResizeHandler);
-    }
   }
 
   get activePatient() {
@@ -252,11 +249,56 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
   }
 
   updateFHIRBundle() {
+    const bundleTimestamp = new Date().toISOString();
+    const patientReference = this.getPatientReference();
+    const patientFullUrl = patientReference;
+    const compositionId = `composition-${this.activePatient?.id || 'example-patient'}`;
+
     this.fhirBundle = {
       resourceType: 'Bundle',
-      type: 'collection',
+      type: 'document',
+      timestamp: bundleTimestamp,
       entry: []
     };
+
+    this.fhirBundle.entry.push({
+      fullUrl: `urn:uuid:${uuidv3(compositionId, this.uuidNamespace)}`,
+      resource: {
+        resourceType: 'Composition',
+        id: compositionId,
+        status: 'final',
+        type: {
+          coding: [
+            {
+              system: this.bundleTypeSystem,
+              code: this.bundleTypeCode,
+              display: this.bundleTypeDisplay
+            }
+          ],
+          text: this.bundleTypeDisplay
+        },
+        subject: {
+          reference: patientReference,
+          display: this.getPatientDisplayName()
+        },
+        date: bundleTimestamp,
+        author: [
+          {
+            display: this.bundleAuthorDisplay
+          }
+        ],
+        title: this.bundleTypeDisplay,
+        section: [
+          {
+            title: 'Requested laboratory studies',
+            entry: this.serviceRequests.map((serviceRequest) => ({
+              reference: `urn:uuid:${uuidv3(serviceRequest.id, this.uuidNamespace)}`,
+              display: this.getDisplayText(serviceRequest)
+            }))
+          }
+        ]
+      }
+    });
 
     this.serviceRequests.forEach((serviceRequest) => {
       this.fhirBundle.entry.push({
@@ -291,7 +333,7 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
     });
 
     this.fhirBundle.entry.push({
-      fullUrl: 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+      fullUrl: patientFullUrl,
       resource: this.activePatient
     });
 
@@ -304,6 +346,11 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
     if (name?.text) return name.text;
     const parts = [...(name?.given || []), name?.family].filter(Boolean);
     return parts.length ? parts.join(' ') : 'Jane Doe';
+  }
+
+  private getPatientReference(): string {
+    const patientId = this.activePatient?.id;
+    return patientId ? `Patient/${patientId}` : 'urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8';
   }
 
   getPatientIdentifier(): string {
@@ -331,11 +378,6 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
     return this.activePatient?.telecom?.find((item: any) => item.system === 'email')?.value || 'jane@email.com';
   }
 
-  @HostListener('window:resize')
-  onWindowResize() {
-    this.updateCompactLayoutFromContainer();
-  }
-
   private computeIsCompactLayout(containerWidth?: number): boolean {
     if (typeof containerWidth === 'number' && containerWidth > 0) {
       return containerWidth <= this.compactLayoutBreakpoint;
@@ -347,6 +389,5 @@ export class LoincOrderComponent implements AfterViewInit, OnDestroy {
   private updateCompactLayoutFromContainer() {
     const containerWidth = this.orderLayoutRoot?.nativeElement.getBoundingClientRect().width;
     this.isCompactLayout = this.computeIsCompactLayout(containerWidth);
-    this.hasMeasuredLayout = true;
   }
 }

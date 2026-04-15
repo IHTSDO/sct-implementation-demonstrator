@@ -402,7 +402,7 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   async deleteServiceRequest(patientId: string, requestId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('ServiceRequest', requestId)); }
 
   async getLabOrders(patientId: string): Promise<LaboratoryOrderGroup[]> {
-    const bundles = await this.fetchPatientBundles(patientId, 'collection');
+    const bundles = await this.fetchPatientBundles(patientId, 'document');
     return bundles.map((bundle: any) => ({
       id: bundle.id,
       patientId,
@@ -730,12 +730,14 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   }
 
   private async fetchPatientBundles(patientId: string, bundleType?: string): Promise<any[]> {
-    const bundle = await firstValueFrom(this.fhirService.search('Bundle', {
+    const initialBundle = await firstValueFrom(this.fhirService.search('Bundle', {
       type: bundleType,
+      'composition.patient': this.getPatientReference(patientId),
       _count: 200
     }));
-    return this.extractBundleResources<any>(bundle, 'Bundle')
-      .filter((resource: any) => this.getBundlePatientReference(resource) === this.getPatientReference(patientId));
+
+    const combinedBundle = await this.collectPagedBundle(initialBundle);
+    return this.extractBundleResources<any>(combinedBundle, 'Bundle');
   }
 
   private extractBundleResources<T>(bundle: any, resourceType?: string): T[] {
@@ -750,8 +752,11 @@ export class PatientFhirStorageService implements PatientStorageBackend {
   }
 
   private getBundlePatientReference(resource: any): string | null {
-    const extensions = Array.isArray(resource?.extension) ? resource.extension : [];
-    return extensions.find((extension: any) => extension.url === PatientFhirStorageService.BUNDLE_PATIENT_REFERENCE_EXTENSION_URL)?.valueReference?.reference || null;
+    const composition = (resource?.entry || [])
+      .map((entry: any) => entry?.resource)
+      .find((entryResource: any) => entryResource?.resourceType === 'Composition');
+
+    return composition?.subject?.reference || null;
   }
 
   private createTransactionFullUrl(prefix: string): string {

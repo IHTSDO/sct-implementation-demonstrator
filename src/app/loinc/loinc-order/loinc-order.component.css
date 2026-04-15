@@ -5,15 +5,15 @@
 
 .order-layout {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-columns: 1fr;
   gap: 1rem;
   min-width: 0;
   width: 100%;
   align-items: stretch;
 }
 
-.order-layout.order-layout-compact {
-  grid-template-columns: 1fr;
+.order-layout:not(.order-layout-compact) {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
 }
 
 .search-panel {
@@ -233,55 +233,3 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-@media (max-width: 1400px) {
-  .order-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .search-panel,
-  .preview-shell {
-    width: 100%;
-  }
-
-  .preview-header {
-    grid-template-columns: 1fr;
-    justify-items: stretch;
-  }
-
-  .order-patient-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .preview-controls,
-  .preview-title-group,
-  .preview-actions {
-    justify-self: stretch;
-  }
-
-  .preview-actions {
-    justify-content: flex-start;
-  }
-
-  .save-order-row {
-    justify-content: flex-start;
-  }
-
-  .compact-preview-panel .preview-header {
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    justify-items: stretch;
-  }
-
-  .compact-preview-panel .preview-controls,
-  .compact-preview-panel .preview-title-group,
-  .compact-preview-panel .preview-actions {
-    justify-self: auto;
-  }
-
-  .compact-preview-panel .preview-actions {
-    justify-content: flex-end;
-  }
-
-  .compact-preview-panel .order-patient-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
