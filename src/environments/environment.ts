@@ -9,5 +9,5 @@ export const environment = {
     { name: 'Ontoserver R4 Demo',            url: 'https://r4.ontoserver.csiro.au/fhir' },
     { name: 'Implementation Demo SnowstormX',   url: 'https://implementation-demo.snomedtools.org/fhir' },
   ] as FhirServer[],
-  defaultFhirServerIndex: 1,
+  defaultFhirServerIndex: 0,
 };
