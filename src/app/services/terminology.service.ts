@@ -32,7 +32,7 @@ interface CodeDisplay {
 export class TerminologyService {
   
   
-  snowstormFhirBase = 'https://snowstorm.ihtsdotools.org/fhir';
+  snowstormFhirBase = '';
   defaultFhirUrlParam = 'http://snomed.info/sct'; // 'http://snomed.info/sct/11000221109/version/20211130'
   fhirUrlParam = this.defaultFhirUrlParam;
   lang = 'en';
@@ -228,6 +228,7 @@ export class TerminologyService {
   }
 
   getCodeSystems() {
+    if (!this.snowstormFhirBase) return of({});
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem`;
     if (this.isOntoserver()) {
       requestUrl += `?system=http://snomed.info/sct`;

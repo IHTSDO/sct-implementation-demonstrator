@@ -10,8 +10,10 @@ import { LicenseAgreementComponent } from './license-agreement/license-agreement
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 import { CookieService } from './services/cookie.service';
 import { GoogleAnalyticsService } from './services/google-analytics.service';
-import { catchError, of, skip, Subject, switchMap, tap } from 'rxjs';
+import { catchError, filter, of, skip, Subject, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
+import { FhirServer } from '../environments/fhir-server.interface';
 
 @Component({
     selector: 'app-root',
@@ -34,18 +36,8 @@ export class AppComponent {
   selectedLanRefsetConcept: any = null;
   selectedLanguageContext: any = null;
   selectedLanguageDisplayLabel = 'Language';
-  fhirServers = [
-    { name: "SNOMED Dev IS", url: "https://dev-is-browser.ihtsdotools.org/fhir"},
-    { name: "SNOMED Public", url: "https://snowstorm.ihtsdotools.org/fhir"},
-    { name: "SNOMED Dev 2", url: "https://snowstorm-temp.kaicode.io/fhir"},
-    { name: "SNOMED Lite Demo", url: "https://implementation-demo.snomedtools.org/snowstorm-lite/fhir"},
-    { name: "LOINC Ontology Server", url: "https://browser.loincsnomed.org/fhir"},
-    { name: "Ontoserver", url: "https://r4.ontoserver.csiro.au/fhir"},
-    { name: "SNOMED Dev 1", url: "https://dev-browser.ihtsdotools.org/fhir"},
-    { name: "Implementation Demo", url: "https://implementation-demo.snomedtools.org/fhir"},
-    // { name: "SNOMED International Next", url: "https://snomedbrowser.org/fhir"},
-  ];
-  selectedServer = this.fhirServers[1];
+  fhirServers: FhirServer[] = environment.fhirServers;
+  selectedServer: FhirServer = this.fhirServers[environment.defaultFhirServerIndex];
   embeddedMode: boolean = false;
   demos: any[] = [];
 
@@ -188,7 +180,7 @@ export class AppComponent {
       }
     });
 
-    this.terminologyService.snowstormFhirBase$.subscribe(url => {
+    this.terminologyService.snowstormFhirBase$.pipe(filter(url => !!url)).subscribe(url => {
       if (this.fhirServers?.length > 0) {
         this.fhirServers.forEach(loopServer => {
           if (loopServer.url === url) {
