@@ -394,6 +394,162 @@ onDestroy():
 
 ---
 
+---
+
+## SDC Pre-population (Questionnaire Population)
+
+SDC Population is the reverse of extraction: pre-filling a rendered questionnaire with data already
+in the patient record, so clinicians don't re-enter values that are already known.
+
+### Pre-population API — CRITICAL
+
+**Do NOT use the `fhirQuestionnaireResponse` option of `addFormToPage`:**
+
+```
+// ❌ WRONG — LForms silently ignores the option; answers never appear
+LForms.Util.addFormToPage(questionnaire, containerId, { fhirQuestionnaireResponse: qr });
+```
+
+**Use the three-step merge instead:**
+
+```
+// ✅ CORRECT
+lfData = LForms.Util.convertFHIRQuestionnaireToLForms(questionnaire, "R4")
+merged = LForms.Util.mergeFHIRDataIntoLForms("QuestionnaireResponse", qr, lfData, "R4")
+LForms.Util.addFormToPage(merged, containerId)
+```
+
+`mergeFHIRDataIntoLForms` requires a fully formed QuestionnaireResponse with `item` arrays.
+Passing a partial QR (only the items that have answers) is sufficient — unanswered items are left
+blank.
+
+### setFHIRContext before merge
+
+If you call `mergeFHIRDataIntoLForms` without first calling `setFHIRContext`, LForms logs:
+
+```
+Warning: FHIR resources might not be loaded, because loadFHIRResources() was called
+before LForms.Util.setFHIRContext()
+```
+
+Fix: call `setFHIRContext` with the configured FHIR server base URL before the merge step:
+
+```
+if (typeof LForms.Util.setFHIRContext === "function") {
+  LForms.Util.setFHIRContext({ baseUrl: fhirBaseUrl });
+}
+```
+
+Only call it when you actually have a QR to merge; skip it on plain renders.
+
+### Three population strategies
+
+#### Strategy 1a — Observation lookup (`sdc-questionnaire-observationLinkPeriod`, non-choice items)
+
+Items with this extension AND a `code` array are linked to recent Observations. Fetch by code,
+filter to the declared time window, map the most recent value to a QR answer.
+
+Extension URL: `http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod`
+Value type: `valueDuration` (fields: `value`, `code` — UCUM unit codes: `a`=year, `mo`=month,
+`wk`=week, `d`=day)
+
+```json
+{
+  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+  "valueDuration": { "value": 1, "unit": "year", "system": "http://unitsofmeasure.org", "code": "a" }
+}
+```
+
+Observation → QR answer mapping:
+| Observation field | QR answer field |
+|---|---|
+| `valueQuantity` | `valueQuantity` |
+| `valueCodeableConcept.coding[0]` | `valueCoding` |
+| `valueString` | `valueString` |
+| `valueBoolean` | `valueBoolean` |
+| `valueInteger` | `valueInteger` |
+| `valueDecimal` | `valueDecimal` |
+
+#### Strategy 1b — Condition lookup (`sdc-questionnaire-observationLinkPeriod`, choice items)
+
+For `choice`-type items, the relevant clinical resource is **Condition**, not Observation (e.g.
+risk factors, diagnoses extracted by SDC). Match against the item's `answerOption[].valueCoding`
+codings, not the item's own code. Return all matching active conditions as a multi-select answer.
+
+```
+// For each condition in patient record:
+//   coding = condition.code.coding[0]
+//   match  = answerOption whose system+code equals coding.system+coding.code
+//   if match → include { valueCoding: matchedAnswerOption } in QR answers
+```
+
+The `observationLinkPeriod` cutoff is applied using `condition.onsetDateTime ?? condition.recordedDate`.
+
+#### Strategy 2 — Patient demographics (`sdc-questionnaire-initialExpression`)
+
+Questionnaire must declare a Patient launch context at the root level:
+
+```json
+{
+  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext",
+  "extension": [
+    { "url": "name", "valueCoding": { "code": "patient" } },
+    { "url": "type", "valueCode": "Patient" }
+  ]
+}
+```
+
+Items with `sdc-questionnaire-initialExpression` (FHIRPath, language `text/fhirpath`) are
+evaluated against the Patient resource. Supported expressions:
+
+| Expression | Maps to |
+|---|---|
+| `%patient.birthDate` | `Patient.birthDate` |
+| `%patient.gender` | `Patient.gender` |
+| `%patient.name.where(use='official').family` | official name family |
+| `%patient.name.where(use='official').given.first()` | official given[0] |
+| `%patient.identifier.where(system='<url>').value` | identifier value for system |
+
+A full FHIRPath engine is not required; simple string matching on the expression handles all
+common demographic cases.
+
+#### Strategy 3 — Previous QuestionnaireResponse
+
+If the questionnaire has a `url`, find the most recent QuestionnaireResponse for the same patient
+and questionnaire URL. Use its items as initial answers (strategies 1 and 2 override on conflict).
+
+Sort by `authored` descending; take the first match.
+
+### Population priority (highest wins)
+
+```
+Strategy 1 (Observation / Condition lookup)   ← freshest clinical data
+Strategy 2 (Patient demographics)
+Strategy 3 (Previous QR)                      ← continuity fallback
+```
+
+### Fallback on merge failure
+
+Wrap the entire merge+render block in try/catch. On failure, fall back to plain `addFormToPage`
+without a QR so the form always renders:
+
+```
+try:
+  lfData  = convertFHIRQuestionnaireToLForms(questionnaire, "R4")
+  merged  = mergeFHIRDataIntoLForms("QuestionnaireResponse", qr, lfData, "R4")
+  addFormToPage(merged, containerId)
+catch:
+  addFormToPage(questionnaire, containerId)   // plain render, no pre-population
+```
+
+### Storage-mode independence
+
+Population reads should use the application's patient data abstraction (e.g. `PatientService`),
+not raw FHIR HTTP calls. This ensures pre-population works in both localStorage mode and FHIR
+server mode without extra guards.
+
+---
+
 ## Summary: Decision Checklist
 
 When integrating LForms into a new page or feature, verify:
@@ -412,3 +568,7 @@ When integrating LForms into a new page or feature, verify:
 - [ ] SDC extraction uses extension URL detection, not item position
 - [ ] Composite vital signs (blood pressure) are aggregated into a single Observation with components
 - [ ] Component cleanup clears the container on destroy
+- [ ] Pre-population uses `convertFHIRQuestionnaireToLForms` + `mergeFHIRDataIntoLForms`, NOT `fhirQuestionnaireResponse` option
+- [ ] `setFHIRContext` is called before `mergeFHIRDataIntoLForms` when a QR is being merged
+- [ ] `choice` items with `observationLinkPeriod` look up **Conditions**, not Observations
+- [ ] Population reads use the storage abstraction layer, not raw HTTP, to work in all persistence modes
