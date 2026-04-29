@@ -25,10 +25,20 @@
   "status": "draft",
   "item": [
     {
+      "type": "choice",
       "extension": [
         {
           "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
           "valueBoolean": true
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+          "valueDuration": {
+            "value": 10,
+            "unit": "years",
+            "system": "http://unitsofmeasure.org",
+            "code": "a"
+          }
         }
       ],
       "linkId": "4009522077787",
@@ -40,7 +50,6 @@
         }
       ],
       "text": "Risk factors",
-      "type": "choice",
       "answerOption": [
         {
           "valueCoding": {

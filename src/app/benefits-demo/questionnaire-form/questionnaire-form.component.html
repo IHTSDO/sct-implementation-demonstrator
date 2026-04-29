@@ -12,6 +12,12 @@
         @if (questionnaire.version) {
           <span class="version-info">v{{ questionnaire.version }}</span>
         }
+        @if (isPrePopulated) {
+          <span class="pre-populated-badge">
+            <mat-icon>auto_fix_high</mat-icon>
+            Pre-populated from patient record
+          </span>
+        }
       </div>
     </div>
   }

@@ -1,4 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges, EventEmitter, Output, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { SdcPopulationService } from '../../services/sdc-population.service';
+import { FhirService } from '../../services/fhir.service';
 
 declare var LForms: any;
 
@@ -11,14 +13,20 @@ declare var LForms: any;
 export class QuestionnaireFormComponent implements OnChanges, AfterViewInit {
   @Input() questionnaire: any = null;
   @Input() questionnaireId: string = '';
+  @Input() patientId: string | null = null;
   @Output() formSubmitted = new EventEmitter<any>();
   @Output() formCancelled = new EventEmitter<void>();
 
   formRendered = false;
+  isPrePopulated = false;
   formContainerId = '';
   private lformsLoaded = false;
 
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private sdcPopulationService: SdcPopulationService,
+    private fhirService: FhirService
+  ) {
     // Generate unique container ID for this component instance
     this.formContainerId = `questionnaire-form-${Math.random().toString(36).substr(2, 9)}`;
     // Load LForms library if not already loaded
@@ -63,7 +71,7 @@ export class QuestionnaireFormComponent implements OnChanges, AfterViewInit {
     document.head.appendChild(script);
   }
 
-  renderForm(): void {
+  async renderForm(): Promise<void> {
     if (!this.questionnaire) {
       this.formRendered = false;
       return;
@@ -75,26 +83,50 @@ export class QuestionnaireFormComponent implements OnChanges, AfterViewInit {
     }
 
     try {
-      // Check if container exists
       const container = document.getElementById(this.formContainerId);
       if (!container) {
         this.formRendered = false;
         return;
       }
-      
-      // Clear any existing form first
+
       container.innerHTML = '';
-      
-      // Render the questionnaire using LForms
-      // Use setTimeout to ensure the container is fully cleared
+
+      let populatedQR: any = null;
+      if (this.patientId) {
+        try {
+          populatedQR = this.sdcPopulationService.populate(this.questionnaire, this.patientId);
+        } catch {
+          // Pre-population failure must never block form rendering
+        }
+      }
+
       setTimeout(() => {
         try {
-          LForms.Util.addFormToPage(this.questionnaire, this.formContainerId);
+          if (populatedQR) {
+            // Merge approach: convert questionnaire to LForms internal format first,
+            // then merge the QR into it before rendering. This is the correct LForms
+            // API for pre-population — addFormToPage options do not apply QR answers.
+            if (typeof LForms.Util.setFHIRContext === 'function') {
+              LForms.Util.setFHIRContext({ baseUrl: this.fhirService.getBaseUrl() });
+            }
+            const lfData = LForms.Util.convertFHIRQuestionnaireToLForms(this.questionnaire, 'R4');
+            const merged = LForms.Util.mergeFHIRDataIntoLForms('QuestionnaireResponse', populatedQR, lfData, 'R4');
+            LForms.Util.addFormToPage(merged, this.formContainerId);
+          } else {
+            LForms.Util.addFormToPage(this.questionnaire, this.formContainerId);
+          }
           this.formRendered = true;
-          // Trigger change detection to update the view
+          this.isPrePopulated = !!populatedQR;
           this.cdr.detectChanges();
         } catch (innerError) {
-          this.formRendered = false;
+          // If merge/render fails, fall back to plain render without pre-population
+          try {
+            LForms.Util.addFormToPage(this.questionnaire, this.formContainerId);
+            this.formRendered = true;
+          } catch {
+            this.formRendered = false;
+          }
+          this.isPrePopulated = false;
           this.cdr.detectChanges();
         }
       }, 100);

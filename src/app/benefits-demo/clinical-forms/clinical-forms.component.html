@@ -95,6 +95,7 @@
                   <app-questionnaire-form
                     [questionnaire]="getQuestionnaire(selectedForm)"
                     [questionnaireId]="selectedForm"
+                    [patientId]="patient?.id ?? null"
                     (formSubmitted)="onQuestionnaireSubmitted($event)"
                     (formCancelled)="onFormCancelled()">
                   </app-questionnaire-form>
