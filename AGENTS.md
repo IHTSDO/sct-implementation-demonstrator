@@ -100,3 +100,14 @@
 - Reuse its existing methods and server/context handling before adding new terminology request code.
 - If a new terminology capability is needed, prefer extending `TerminologyService` rather than calling FHIR terminology endpoints ad hoc from components.
 - Keep components focused on UI and orchestration; terminology querying, lookup, expansion, validation, and language/context handling should live in services.
+
+## Terminology Server Rate Limiting
+
+- Minimize HTTP requests to terminology servers; they have rate limits and cold-start latency.
+- **Sequential over parallel**: Never fire multiple terminology requests concurrently for the same user action. Chain calls with `switchMap` so only one request is in-flight at a time per flow.
+- For any call that may be triggered multiple times in a session (e.g., once per result row), apply a two-level cache:
+  1. A **results cache** (Map) that returns a resolved value immediately on subsequent calls.
+  2. An **in-flight deduplication map** (`Map<key, Observable>`) that lets concurrent callers share one pending request via `shareReplay(1)` rather than firing duplicates.
+- Request only the minimum `count` needed: if you only need to confirm membership, use `count=1`.
+- Prefer ECL over repeated `$lookup` calls when checking properties of multiple concepts.
+- Keep terminology calls in services, not components, so caching is shared across the application lifetime.
