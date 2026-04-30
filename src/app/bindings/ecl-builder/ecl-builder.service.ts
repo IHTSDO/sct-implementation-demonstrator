@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, map, of } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
 import {
   EclAttribute,
@@ -26,27 +26,43 @@ export class EclBuilderService {
       return of(this.transformIn({ wildcard: true, returnAllMemberFields: false }));
     }
 
+    const headers = new HttpHeaders({ 'Content-Type': 'text/plain' });
+    const options = { headers, responseType: 'json' as const };
+
     return this.http
-      .post<any>(`${this.getSnowstormBaseUrl()}/util/ecl-string-to-model`, normalized, {
-        headers: new HttpHeaders({
-          'Content-Type': 'text/plain'
-        }),
-        responseType: 'json' as const
-      })
-      .pipe(map((model) => this.transformIn(model)));
+      .post<any>(`${this.getSnowstormBaseUrl()}/util/ecl-string-to-model`, normalized, options)
+      .pipe(
+        catchError(() =>
+          this.http.post<any>(
+            `${this.fallbackSnowstormBase}/util/ecl-string-to-model`,
+            normalized,
+            options
+          )
+        ),
+        map((model) => this.transformIn(model))
+      );
   }
+
+  private readonly fallbackSnowstormBase = 'https://snowstorm.ihtsdotools.org/snowstorm/snomed-ct';
 
   modelToString(model: EclExpressionConstraint): Observable<string> {
     const clonedModel = this.deepClone(model);
     this.transformOut(clonedModel);
 
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
     return this.http
-      .post<any>(`${this.getSnowstormBaseUrl()}/util/ecl-model-to-string`, clonedModel, {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json'
-        })
-      })
-      .pipe(map((response) => response?.eclString ?? ''));
+      .post<any>(`${this.getSnowstormBaseUrl()}/util/ecl-model-to-string`, clonedModel, { headers })
+      .pipe(
+        catchError(() =>
+          this.http.post<any>(
+            `${this.fallbackSnowstormBase}/util/ecl-model-to-string`,
+            clonedModel,
+            { headers }
+          )
+        ),
+        map((response) => response?.eclString ?? '')
+      );
   }
 
   getDomainAttributes(parentConceptId: string): Observable<EclDomainAttribute[]> {

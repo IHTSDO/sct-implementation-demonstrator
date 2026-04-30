@@ -19,6 +19,7 @@ export class AttributeEditorComponent implements OnChanges {
   domainAttributes: EclDomainAttribute[] = [];
   domainAttributesEcl = '';
   loadingDomainAttributes = false;
+  mrcmFailed = false;
   attributeNameSelection: { code: string; display: string } | null = null;
 
   readonly comparisonOperators: EclComparisonOperator[] = ['=', '!='];
@@ -96,6 +97,7 @@ export class AttributeEditorComponent implements OnChanges {
   }
 
   getAttributeRangeEcl(): string {
+    if (this.mrcmFailed) return '<< 138875005';
     const conceptId = this.extractConceptId(this.attribute.attributeName.conceptId);
     const matching = this.domainAttributes.find((item) => item.conceptId === conceptId);
     return matching?.attributeRange?.[0]?.rangeConstraint || '';
@@ -109,6 +111,7 @@ export class AttributeEditorComponent implements OnChanges {
       return;
     }
 
+    this.mrcmFailed = false;
     this.loadingDomainAttributes = true;
     this.eclBuilderService.getDomainAttributes(conceptId).subscribe({
       next: (attributes) => {
@@ -119,8 +122,9 @@ export class AttributeEditorComponent implements OnChanges {
         this.loadingDomainAttributes = false;
       },
       error: () => {
+        this.mrcmFailed = true;
         this.domainAttributes = [];
-        this.domainAttributesEcl = '';
+        this.domainAttributesEcl = '< 762705008';
         this.loadingDomainAttributes = false;
       }
     });

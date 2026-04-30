@@ -51,6 +51,20 @@
   color: rgba(0, 0, 0, 0.7);
 }
 
+.mrcm-fallback-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--mat-sys-outline);
+}
+
+.mrcm-fallback-hint .hint-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
 @media (max-width: 900px) {
   .field-grid {
     grid-template-columns: 1fr;
