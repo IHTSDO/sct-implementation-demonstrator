@@ -283,9 +283,39 @@
   color: #f44336;
 }
 
+.module-override-notice {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--mat-sys-primary, #6200ee);
+  opacity: 0.75;
+}
+
+.module-override-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
 .right-panel-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   margin-bottom: 12px;
 }
+
+.edition-module-select {
+  flex: 0 0 260px;
+}
+
+:host ::ng-deep .right-panel-header .edition-module-select .compact-field {
+  --mat-form-field-container-height: 36px;
+  --mat-form-field-container-vertical-padding: 6px;
+}
+
 
 /* Alinear ícono y texto en el botón del panel derecho */
 :host ::ng-deep .right-panel-header button .mdc-button__label {

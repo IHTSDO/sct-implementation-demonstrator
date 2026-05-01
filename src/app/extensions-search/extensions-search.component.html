@@ -82,6 +82,11 @@
               }
             </span>
             <span class="edition-count">{{ getLastRelease(edition) }} - Matches: {{ getCountDisplay($index) }}</span>
+            @if (moduleOverrides[$index]) {
+              <span class="module-override-notice">
+                <mat-icon class="module-override-icon">tune</mat-icon>{{ moduleOverrides[$index]?.display }}
+              </span>
+            }
           </mat-list-item>
         }
       </mat-list>
@@ -107,6 +112,16 @@
               </ng-container>
             }
           </button>
+          <app-multi-prefix-select-binding
+            class="edition-module-select"
+            [binding]="MODULE_BINDING"
+            [terminologyServer]="fhirBase"
+            [editionUri]="latestEditions[selectedEditionIndex].resource.version"
+            [term]="getModuleTerm(selectedEditionIndex)"
+            [appearance]="'outline'"
+            [compact]="true"
+            (selectionChange)="moduleOverrides[selectedEditionIndex] = $any($event)"
+          ></app-multi-prefix-select-binding>
         </div>
         @if (loadingRightPanel) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>

@@ -12,6 +12,43 @@ mat-hint {
   font-size: 12px;
 }
 
+.search-clear-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+::ng-deep .mat-select-search-clear {
+  top: calc((47px - 20px) / 2) !important;
+  transform: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+}
+
+::ng-deep .mat-select-search-clear .mdc-icon-button__ripple,
+::ng-deep .mat-select-search-clear .mat-mdc-button-ripple,
+::ng-deep .mat-select-search-clear .mat-mdc-button-persistent-overlay,
+::ng-deep .mat-select-search-clear .mat-mdc-button-touch-target {
+  display: none !important;
+}
+
 .multi-prefix-select.compact-field mat-hint {
   font-size: 11px;
+}
+
+.select-field-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.field-progress {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 0 0 4px 4px;
 }

@@ -22,6 +22,8 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
     ecl?: string;
     note?: string;
   };
+  @Input() terminologyServer?: string;
+  @Input() editionUri?: string;
   @Input() expansionCount = 1000;
   @Input() term: SnomedOption | SnomedOption[] | null = null;
   @Input() readonly = false;
@@ -37,6 +39,7 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
   isLoading = false;
 
   private readonly destroy$ = new Subject<void>();
+  private readonly optionsCache = new Map<string, SnomedOption[]>();
 
   constructor(private terminologyService: TerminologyService) {}
 
@@ -48,7 +51,11 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['binding'] && !changes['binding'].firstChange) {
+    if (
+      (changes['binding'] && !changes['binding'].firstChange) ||
+      (changes['terminologyServer'] && !changes['terminologyServer'].firstChange) ||
+      (changes['editionUri'] && !changes['editionUri'].firstChange)
+    ) {
       this.selectedOption = null;
       this.selectedOptions = [];
       this.searchCtrl.setValue('', { emitEvent: false });
@@ -95,14 +102,31 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
       return;
     }
 
+    const cacheKey = `${this.terminologyServer || ''}|${this.editionUri || ''}|${this.binding.ecl}`;
+    const cached = this.optionsCache.get(cacheKey);
+    if (cached) {
+      this.options = cached;
+      this.syncSelectionFromTerm();
+      this.applyFilter(this.searchCtrl.value || '');
+      return;
+    }
+
     this.isLoading = true;
-    this.terminologyService
-      .expandValueSetUsingCache(this.binding.ecl, '', 0, this.expansionCount)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+    const obs = (this.terminologyServer || this.editionUri)
+      ? this.terminologyService.expandValueSetFromServer(
+          this.terminologyServer || '',
+          this.editionUri || '',
+          this.binding.ecl,
+          '',
+          0,
+          this.expansionCount
+        )
+      : this.terminologyService.expandValueSetUsingCache(this.binding.ecl, '', 0, this.expansionCount);
+    obs.pipe(takeUntil(this.destroy$)).subscribe({
         next: (response: any) => {
           const contains = (response?.expansion?.contains || []) as SnomedOption[];
           this.options = this.sortOptions(contains);
+          this.optionsCache.set(cacheKey, this.options);
           this.syncSelectionFromTerm();
           this.applyFilter(this.searchCtrl.value || '');
           this.isLoading = false;

@@ -55,6 +55,10 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
   /** Edition name currently being read during export */
   exportingEditionName = '';
 
+  moduleOverrides: { [index: number]: { code: string; display: string } | null } = {};
+  defaultModuleTerms: { [index: number]: { code: string; display: string } | null } = {};
+  readonly MODULE_BINDING = { ecl: '<< 900000000000443000', title: 'Module' };
+
   private readonly DEFAULT_MODULE_ID = '900000000000207008';
   private readonly INTERNATIONAL_MODULE_ID = '900000000000207008';
   private readonly EXPORT_COUNT = 1000;
@@ -65,6 +69,23 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
     private terminologyService: TerminologyService,
     private eclBuilderDialog: EclBuilderDialogService
   ) {}
+
+  get fhirBase(): string {
+    return this.terminologyService.getSnowstormFhirBase();
+  }
+
+  getEffectiveModuleId(index: number, defaultModuleId: string | null): string | null {
+    const override = this.moduleOverrides[index];
+    if (override === undefined) return defaultModuleId;
+    return override?.code ?? defaultModuleId;
+  }
+
+  getModuleTerm(index: number): { code: string; display: string } | null {
+    if (this.moduleOverrides[index] !== undefined) {
+      return this.moduleOverrides[index];
+    }
+    return this.defaultModuleTerms[index] ?? null;
+  }
 
   ngOnInit(): void {
     this.serverChangeSub = this.terminologyService.snowstormFhirBase$.subscribe(() => {
@@ -105,6 +126,12 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
             // Filter out editions without valid moduleId or International Edition
             return moduleId !== null && moduleId !== this.INTERNATIONAL_MODULE_ID;
           });
+        this.moduleOverrides = {};
+        this.defaultModuleTerms = {};
+        this.latestEditions.forEach((edition, i) => {
+          const code = this.extractModuleId(edition?.resource?.version);
+          this.defaultModuleTerms[i] = code ? { code, display: code } : null;
+        });
         this.loading = false;
       },
       error: err => {
@@ -197,7 +224,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
           concatMap(() => {
             const fhirUrl = edition.resource.version;
             const moduleId = this.extractModuleId(fhirUrl);
-            const eclWithModule = this.buildEclWithModule(this.eclInput, moduleId);
+            const eclWithModule = this.buildEclWithModule(this.eclInput, this.getEffectiveModuleId(index, moduleId));
             return this.terminologyService.expandValueSetFromServer(
               fhirBase,
               fhirUrl,
@@ -279,7 +306,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
     const fhirBase = this.terminologyService.getSnowstormFhirBase();
     const fhirUrl = edition.resource.version;
     const moduleId = this.extractModuleId(fhirUrl);
-    const eclWithModule = this.buildEclWithModule(this.eclInput, moduleId);
+    const eclWithModule = this.buildEclWithModule(this.eclInput, this.getEffectiveModuleId(index, moduleId));
     this.runningEditionIndex = index;
     this.error = null;
     this.terminologyService.expandValueSetFromServer(
@@ -316,7 +343,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
     const fhirBase = this.terminologyService.getSnowstormFhirBase();
     const fhirUrl = edition.resource.version;
     const moduleId = this.extractModuleId(fhirUrl);
-    const eclWithModule = this.buildEclWithModule(this.eclInput, moduleId);
+    const eclWithModule = this.buildEclWithModule(this.eclInput, this.getEffectiveModuleId(this.selectedEditionIndex!, moduleId));
     this.terminologyService.expandValueSetFromServer(
       fhirBase,
       fhirUrl,
@@ -351,7 +378,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
     const fhirBase = this.terminologyService.getSnowstormFhirBase();
     const fhirUrl = edition.resource.version;
     const moduleId = this.extractModuleId(fhirUrl);
-    const eclWithModule = this.buildEclWithModule(this.eclInput, moduleId);
+    const eclWithModule = this.buildEclWithModule(this.eclInput, this.getEffectiveModuleId(this.selectedEditionIndex!, moduleId));
     const offset = this.rightPanelResults.length; // Start from where we left off
     
     this.terminologyService.expandValueSetFromServer(
@@ -534,7 +561,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
         const delayObs = index === 0 ? of(item) : of(item).pipe(delay(this.DELAY_MS));
         return delayObs.pipe(
           concatMap(() => {
-            const eclWithModule = this.buildEclWithModule(this.eclInput, moduleId);
+            const eclWithModule = this.buildEclWithModule(this.eclInput, this.getEffectiveModuleId(index, moduleId));
             return this.terminologyService.expandValueSetFromServer(
               fhirBase,
               fhirUrl,
@@ -575,11 +602,22 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
         const rows = this.buildCrossCountryRows(exportData);
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(rows);
+        const editionModuleRows = this.editionsWithResults
+          .filter(item => !item.hasError)
+          .map((item, index) => {
+            const defaultModuleId = this.extractModuleId(item.edition.resource.version) ?? '';
+            const effectiveModuleId = this.getEffectiveModuleId(index, defaultModuleId) ?? defaultModuleId;
+            const isOverride = !!this.moduleOverrides[index];
+            return [this.getEditionTitle(item.edition), effectiveModuleId, isOverride ? 'override' : 'default'];
+          });
         const metadataRows = [
           ['field', 'value'],
           ['ecl', this.eclInput.trim()],
           ['executionDate', executionDate.toISOString()],
-          ['executionDateLocal', executionDate.toLocaleString()]
+          ['executionDateLocal', executionDate.toLocaleString()],
+          [],
+          ['edition', 'module_id', 'source'],
+          ...editionModuleRows
         ];
         const metadataWs = XLSX.utils.aoa_to_sheet(metadataRows);
         ws['!cols'] = [
@@ -588,8 +626,9 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
           { wch: 10 }
         ];
         metadataWs['!cols'] = [
+          { wch: 40 },
           { wch: 20 },
-          { wch: 80 }
+          { wch: 10 }
         ];
         XLSX.utils.book_append_sheet(wb, ws, 'Cross-country matches');
         XLSX.utils.book_append_sheet(wb, metadataWs, 'Execution metadata');
