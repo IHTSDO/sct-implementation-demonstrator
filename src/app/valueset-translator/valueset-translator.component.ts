@@ -619,7 +619,10 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
 
   downloadSourceValueSet() {
     if (!this.sourceValueSet) return;
-    this.downloadValueSet(this.sourceValueSet, 'source-valueset.json');
+    const payload = this.hasValueSetMetadata()
+      ? this.withSourceExportMetadataApplied(this.sourceValueSet)
+      : this.sourceValueSet;
+    this.downloadValueSet(payload, 'source-valueset.json');
   }
 
   downloadTargetValueSet() {
@@ -1659,7 +1662,12 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
 
     try {
       if ((this.isValueSetFile || this.isEclResult) && this.sourceValueSet) {
-        // For JSON and ECL flows, use the prepared source ValueSet.
+        // For JSON and ECL flows, reuse the prepared source ValueSet. When metadata fields
+        // are filled on the form, apply them — the nested ValueSet may have been built
+        // earlier with placeholder url/name/version (e.g. ECL expand before editing metadata).
+        if (this.hasValueSetMetadata()) {
+          this.sourceValueSet = this.withSourceExportMetadataApplied(this.sourceValueSet);
+        }
         this.targetValueSet = this.sourceValueSet;
       } else {
         // For other file types, check previewData and extract codes
@@ -1760,7 +1768,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
 
   private buildValueSetResource(codes: Array<{code: string, display?: string}>): any {
     const timestamp = new Date().toISOString().split('T')[0];
-    const defaultUrl = this.valueSetUri || `http://example.org/fhir/ValueSet/preview-${timestamp}`;
+    const defaultUrl = this.normalizeBaseUrl(this.valueSetUri) ||
+      `http://example.org/fhir/ValueSet/preview-${timestamp}`;
     const defaultName = this.valueSetName || `PreviewValueSet-${timestamp}`;
 
     return {
@@ -1847,6 +1856,20 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       name: this.valueSetName.trim(),
       version: this.valueSetVersion.trim()
     };
+  }
+
+  /** Deep clone Parameters + apply current ValueSet Metadata form fields to the nested ValueSet resource. */
+  private withSourceExportMetadataApplied(parametersWrapper: any): any {
+    const cloned = JSON.parse(JSON.stringify(parametersWrapper));
+    const valueSetEntry = cloned.parameter?.find((p: any) => p.name === 'valueSet');
+    const vs = valueSetEntry?.resource;
+    if (!vs || vs.resourceType !== 'ValueSet') {
+      return cloned;
+    }
+    vs.url = this.normalizeBaseUrl(this.valueSetUri);
+    vs.name = this.valueSetName.trim();
+    vs.version = this.valueSetVersion.trim();
+    return cloned;
   }
 
   private async getCodesForPreview(): Promise<Array<{code: string, display?: string}>> {
