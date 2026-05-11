@@ -14,6 +14,10 @@ import { catchError, filter, of, skip, Subject, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { FhirServer } from '../environments/fhir-server.interface';
+import { CustomFhirTermServerDialogComponent, CustomFhirTermServerDialogData } from './util/custom-fhir-term-server-dialog/custom-fhir-term-server-dialog.component';
+
+/** Must match the bottom menu item label in the Term Server menu. */
+const CUSTOM_FHIR_TERM_SERVER_MENU_LABEL = 'Local Server/Custom';
 
 @Component({
     selector: 'app-root',
@@ -23,6 +27,7 @@ import { FhirServer } from '../environments/fhir-server.interface';
 })
 export class AppComponent {
   title = 'sct-implementation-demonstrator';
+  readonly customTermServerMenuLabel = CUSTOM_FHIR_TERM_SERVER_MENU_LABEL;
   loadingModule = false;
   bindingsForExport: any[] = [];
   editions: any[] = [];
@@ -181,15 +186,13 @@ export class AppComponent {
     });
 
     this.terminologyService.snowstormFhirBase$.pipe(filter(url => !!url)).subscribe(url => {
-      if (this.fhirServers?.length > 0) {
-        this.fhirServers.forEach(loopServer => {
-          if (loopServer.url === url) {
-            this.selectedServer = loopServer;
-            this.cdRef.detectChanges();
-            this.updateCodeSystemOptions()
-          }
-        });
-      }
+      const normalized = this.normalizeTerminologyServerBaseUrl(url);
+      const predefined = this.fhirServers.find(
+        s => this.normalizeTerminologyServerBaseUrl(s.url) === normalized
+      );
+      this.selectedServer = predefined ?? { name: CUSTOM_FHIR_TERM_SERVER_MENU_LABEL, url: normalized };
+      this.cdRef.detectChanges();
+      this.updateCodeSystemOptions();
     });
     this.setFhirServer(this.selectedServer);
   
@@ -269,12 +272,39 @@ export class AppComponent {
     return 0;
   }
 
-  setFhirServer(server: any) {
-    this.selectedServer = server;
-    this.terminologyService.setSnowstormFhirBase(server.url);
+  setFhirServer(server: FhirServer) {
+    const url = this.normalizeTerminologyServerBaseUrl(server.url);
+    this.selectedServer = { name: server.name, url };
+    this.terminologyService.setSnowstormFhirBase(url);
     this.selectedEdition = 'Edition';
     this.editions = [];
     this.editionsDetails = [];
+  }
+
+  openCustomTerminologyServerDialog(): void {
+    const initialUrl = this.isCustomTerminologyServerSelection()
+      ? this.normalizeTerminologyServerBaseUrl(this.selectedServer.url)
+      : 'http://localhost:8080/fhir';
+
+    const dialogRef = this.dialog.open(CustomFhirTermServerDialogComponent, {
+      width: '460px',
+      data: { defaultUrl: initialUrl } as CustomFhirTermServerDialogData
+    });
+
+    dialogRef.afterClosed().subscribe((chosenUrl?: string | null) => {
+      if (!chosenUrl) {
+        return;
+      }
+      this.setFhirServer({ name: CUSTOM_FHIR_TERM_SERVER_MENU_LABEL, url: chosenUrl });
+    });
+  }
+
+  private isCustomTerminologyServerSelection(): boolean {
+    return this.selectedServer?.name === CUSTOM_FHIR_TERM_SERVER_MENU_LABEL;
+  }
+
+  private normalizeTerminologyServerBaseUrl(url: string): string {
+    return (url ?? '').trim().replace(/\/+$/, '');
   }
 
   setEdition(edition: any) {

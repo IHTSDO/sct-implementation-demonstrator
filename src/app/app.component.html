@@ -20,6 +20,7 @@
         @for (server of fhirServers; track server) {
           <button mat-menu-item (click)="setFhirServer(server)">{{server.name}}</button>
         }
+        <button mat-menu-item (click)="openCustomTerminologyServerDialog()">{{ customTermServerMenuLabel }}</button>
       </mat-menu>
 
       <button mat-button [matMenuTriggerFor]="editionsMenuN">Edition: {{selectedEdition}}</button>
@@ -79,6 +80,7 @@
         @for (server of fhirServers; track server) {
           <button mat-menu-item (click)="setFhirServer(server)">{{server.name}}</button>
         }
+        <button mat-menu-item (click)="openCustomTerminologyServerDialog()">{{ customTermServerMenuLabel }}</button>
       </mat-menu>
       <button mat-flat-button color="primary" [matMenuTriggerFor]="editionsMenu" class="bar-button">{{selectedEdition}}</button>
       <mat-menu #editionsMenu="matMenu" class="wide-menu">

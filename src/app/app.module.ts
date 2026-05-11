@@ -20,6 +20,7 @@ import { KeyboardComponent } from './game/keyboard/keyboard.component';
 import { ScoreboardComponent } from './game/scoreboard/scoreboard.component';
 import { SnoguessMainComponent } from './game/snoguess-main/snoguess-main.component';
 import { HomeComponent } from './home/home.component';
+import { CustomFhirTermServerDialogComponent } from './util/custom-fhir-term-server-dialog/custom-fhir-term-server-dialog.component';
 import { SubsetValidatorComponent } from './implementation-course/subset-validator/subset-validator.component';
 import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
 import { MedicinalProductClassesComponent } from './medicinal-product-classes/medicinal-product-classes.component';
@@ -82,6 +83,7 @@ initializeApp(firebaseConfig);
     BrowserModule,
     BrowserAnimationsModule,
     AppMaterialModule,
+    CustomFhirTermServerDialogComponent,
     AppRoutingModule,
     AllergiesModule,
     BindingsModule,
