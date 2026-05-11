@@ -576,16 +576,8 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       }
     }
 
-    // Always set sourceValueSet for JSON files
-    this.sourceValueSet = {
-      resourceType: 'Parameters',
-      parameter: [{
-        name: 'valueSet',
-        resource: json
-      }]
-    };
-
-    this.sourceValueSet = this.sourceValueSet;
+    // Store the canonical ValueSet resource (not a Parameters wrapper).
+    this.sourceValueSet = json;
 
     // Pre-fill ValueSet metadata fields from the source FHIR ValueSet
     if (json.url) {
@@ -619,9 +611,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
 
   downloadSourceValueSet() {
     if (!this.sourceValueSet) return;
+    const valueSet = this.getValueSetFromSourceOrWrapper();
+    if (!valueSet || valueSet.resourceType !== 'ValueSet') {
+      return;
+    }
     const payload = this.hasValueSetMetadata()
-      ? this.withSourceExportMetadataApplied(this.sourceValueSet)
-      : this.sourceValueSet;
+      ? this.withSourceExportMetadataApplied(valueSet)
+      : valueSet;
     this.downloadValueSet(payload, 'source-valueset.json');
   }
 
@@ -895,13 +891,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
             code: c.code,
             display: c.display || ''
           }));
-          this.sourceValueSet = {
-            resourceType: 'Parameters',
-            parameter: [{
-              name: 'valueSet',
-              resource: this.buildValueSetResource(eclCodes)
-            }]
-          };
+          this.sourceValueSet = this.buildValueSetResource(eclCodes);
 
           // Build full preview data and render incrementally via "Load more".
           this.previewData = [
@@ -1679,13 +1669,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
         
         const codes = await this.extractCodesFromForm();
         
-        this.sourceValueSet = {
-          resourceType: 'Parameters',
-          parameter: [{
-            name: 'valueSet',
-            resource: this.buildValueSetResource(codes)
-          }]
-        };
+        this.sourceValueSet = this.buildValueSetResource(codes);
 
         this.targetValueSet = this.sourceValueSet;
       }
@@ -1709,13 +1693,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
         return;
       }
 
-      this.sourceValueSet = {
-        resourceType: 'Parameters',
-        parameter: [{
-          name: 'valueSet',
-          resource: this.buildValueSetResource(codes)
-        }]
-      };
+      this.sourceValueSet = this.buildValueSetResource(codes);
       const expandedValueSet = await this.expandInlineValueSetForSelectedOutput(this.sourceValueSet);
       this.targetValueSet = expandedValueSet;
     } catch (error: any) {
@@ -1791,22 +1769,16 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
 
   private buildInlineValueSetFromCodes(codes: Array<{code: string, display?: string}>): any {
     return {
-      resourceType: 'Parameters',
-      parameter: [{
-        name: 'valueSet',
-        resource: {
-          resourceType: 'ValueSet',
-          status: 'draft',
-          experimental: true,
-          compose: {
-            include: [{
-              system: 'http://snomed.info/sct',
-              version: this.getSelectedOutputFhirUrlParam(),
-              concept: codes
-            }]
-          }
-        }
-      }]
+      resourceType: 'ValueSet',
+      status: 'draft',
+      experimental: true,
+      compose: {
+        include: [{
+          system: 'http://snomed.info/sct',
+          version: this.getSelectedOutputFhirUrlParam(),
+          concept: codes
+        }]
+      }
     };
   }
 
@@ -1836,10 +1808,20 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.updateSelectedLanguageLabel();
   }
 
-  private async expandInlineValueSetForSelectedOutput(inlineValueSet: any): Promise<any> {
+  private toValueSetExpandRequestBody(valueSetOrParams: any): any {
+    if (!valueSetOrParams || valueSetOrParams.resourceType !== 'ValueSet') {
+      return valueSetOrParams;
+    }
+    return {
+      resourceType: 'Parameters',
+      parameter: [{ name: 'valueSet', resource: valueSetOrParams }]
+    };
+  }
+
+  private async expandInlineValueSetForSelectedOutput(inlineValueSetOrParams: any): Promise<any> {
     return await this.terminologyService.expandInlineValueSetFromServer(
       this.terminologyService.getSnowstormFhirBase(),
-      inlineValueSet,
+      this.toValueSetExpandRequestBody(inlineValueSetOrParams),
       this.getSelectedOutputLanguageContext()
     ).toPromise();
   }
@@ -1858,18 +1840,30 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     };
   }
 
-  /** Deep clone Parameters + apply current ValueSet Metadata form fields to the nested ValueSet resource. */
-  private withSourceExportMetadataApplied(parametersWrapper: any): any {
-    const cloned = JSON.parse(JSON.stringify(parametersWrapper));
-    const valueSetEntry = cloned.parameter?.find((p: any) => p.name === 'valueSet');
-    const vs = valueSetEntry?.resource;
-    if (!vs || vs.resourceType !== 'ValueSet') {
+  /** Deep clone ValueSet + apply current ValueSet Metadata form fields. */
+  private withSourceExportMetadataApplied(valueSet: any): any {
+    const cloned = JSON.parse(JSON.stringify(valueSet));
+    if (!cloned || cloned.resourceType !== 'ValueSet') {
       return cloned;
     }
-    vs.url = this.normalizeBaseUrl(this.valueSetUri);
-    vs.name = this.valueSetName.trim();
-    vs.version = this.valueSetVersion.trim();
+    cloned.url = this.normalizeBaseUrl(this.valueSetUri);
+    cloned.name = this.valueSetName.trim();
+    cloned.version = this.valueSetVersion.trim();
     return cloned;
+  }
+
+  /** ValueSet from uploaded JSON, or nested resource if a Parameters wrapper is ever present. */
+  private getValueSetFromSourceOrWrapper(): any | null {
+    if (!this.sourceValueSet) {
+      return null;
+    }
+    if (this.sourceValueSet.resourceType === 'ValueSet') {
+      return this.sourceValueSet;
+    }
+    if (this.sourceValueSet.resourceType === 'Parameters') {
+      return this.sourceValueSet.parameter?.find((p: any) => p.name === 'valueSet')?.resource ?? null;
+    }
+    return null;
   }
 
   private async getCodesForPreview(): Promise<Array<{code: string, display?: string}>> {
@@ -1877,15 +1871,15 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       return this.fullEclConcepts.map(c => ({ code: c.code, display: c.display }));
     }
 
-    if (this.isValueSetFile && this.sourceValueSet?.parameter?.[0]?.resource) {
-      const valueSet = this.sourceValueSet.parameter[0].resource;
-      if (valueSet.compose?.include?.[0]?.concept?.length) {
+    if (this.isValueSetFile) {
+      const valueSet = this.getValueSetFromSourceOrWrapper();
+      if (valueSet?.compose?.include?.[0]?.concept?.length) {
         return valueSet.compose.include[0].concept.map((c: any) => ({
           code: c.code,
           display: c.display
         }));
       }
-      if (valueSet.expansion?.contains?.length) {
+      if (valueSet?.expansion?.contains?.length) {
         return valueSet.expansion.contains.map((c: any) => ({
           code: c.code,
           display: c.display
