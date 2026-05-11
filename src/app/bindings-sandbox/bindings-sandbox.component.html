@@ -145,7 +145,7 @@
 
                   <div class="binding-actions">
                     @if (binding.type != 'Section header' && j == 0) {
-                      <button mat-icon-button color="primary" [matMenuTriggerFor]="bindingInfoMenu" [disabled]="!binding.code && !binding.ecl" matTooltip="Binding details">
+                      <button mat-icon-button color="primary" [matMenuTriggerFor]="bindingInfoMenu" [disabled]="!binding.code && !binding.ecl && !binding.valueSetUrl" matTooltip="Binding details">
                         <mat-icon>info</mat-icon>
                       </button>
                     }
@@ -156,9 +156,18 @@
                           <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
                         </span>
                       }
+                      @if (binding.valueSetUrl) {
+                        <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+                          <h4 class="mb-0">Answer ValueSet URL</h4>
+                          @if (binding.valueSetTitle) {
+                            <p class="bindings-info-title">{{ binding.valueSetTitle }}</p>
+                          }
+                          <pre>{{ binding.valueSetUrl }}</pre>
+                        </span>
+                      }
                       @if (binding.ecl) {
                         <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
-                          <h4 class="mb-0">Answer terminology binding</h4>
+                          <h4 class="mb-0">Answer terminology binding (ECL)</h4>
                           <pre>{{ binding.ecl }}</pre>
                         </span>
                       }
@@ -257,18 +266,75 @@
               <mat-error>{{ getErrorMessage('type') }}</mat-error>
             </mat-form-field>
 
-            @if (newBindingForm.controls.type.value != 'Section header' && newBindingForm.controls.type.value != 'Text box' && newBindingForm.controls.type.value != 'Checkbox' && newBindingForm.controls.type.value != 'Integer' && newBindingForm.controls.type.value != 'Decimal') {
-              <mat-form-field class="input-field">
-                <mat-label>Answer options: ECL Expression</mat-label>
-                <textarea matInput rows="3" formControlName="ecl" placeholder="Enter ECL..."></textarea>
-                <a href="javascript:void(0)" class="field-builder-link" (click)="openEclBuilder(newBindingForm.get('ecl')?.value, 'ecl')">ECL Builder</a>
-                @if (newBindingForm.get('ecl')?.value) {
-                  <button matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('ecl')?.reset()">
-                    <mat-icon>close</mat-icon>
-                  </button>
+            @if (needsAnswerExpansionSource(newBindingForm.controls.type.value)) {
+              <div class="answer-source-block">
+                <p class="field-section-label">Answer options source</p>
+                <div class="answer-source-toolbar">
+                  <mat-button-toggle-group formControlName="answerSource" class="answer-source-toggle">
+                    <mat-button-toggle value="ecl">ECL</mat-button-toggle>
+                    <mat-button-toggle value="valueset">ValueSet</mat-button-toggle>
+                  </mat-button-toggle-group>
+                  @if (newBindingForm.controls.answerSource.value === 'valueset') {
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      color="primary"
+                      class="refresh-valueset-list-btn"
+                      (click)="refreshValueSetsList()"
+                      [disabled]="valueSetsLoading || !valueSetRefreshAvailable()"
+                    >
+                      Refresh List
+                    </button>
+                  }
+                </div>
+
+                @if (newBindingForm.controls.answerSource.value === 'ecl') {
+                  <mat-form-field class="input-field">
+                    <mat-label>Answer options: ECL expression</mat-label>
+                    <textarea matInput rows="3" formControlName="ecl" placeholder="Enter ECL..."></textarea>
+                    <a href="javascript:void(0)" class="field-builder-link" (click)="openEclBuilder(newBindingForm.get('ecl')?.value, 'ecl')">ECL Builder</a>
+                    @if (newBindingForm.get('ecl')?.value) {
+                      <button matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('ecl')?.reset()">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }
+                    <mat-hint>Select concepts using SNOMED ECL served by your terminology FHIR endpoint.</mat-hint>
+                    <mat-error>{{ getErrorMessage('ecl') }}</mat-error>
+                  </mat-form-field>
+                } @else {
+                  <mat-form-field class="input-field">
+                    <mat-label>ValueSet from terminology server</mat-label>
+                    <input
+                      matInput
+                      formControlName="valueSetEntry"
+                      [matAutocomplete]="vsAutocomplete"
+                      (focus)="onValueSetFieldActivated()"
+                      placeholder="Search by title or URL..."
+                    >
+                    @if (valueSetsLoading) {
+                      <mat-spinner matSuffix diameter="22"></mat-spinner>
+                    }
+                    @if (newBindingForm.controls.valueSetEntry.value) {
+                      <button matSuffix mat-icon-button type="button" aria-label="Clear" (click)="newBindingForm.controls.valueSetEntry.reset()">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }
+                    <mat-autocomplete
+                      #vsAutocomplete="matAutocomplete"
+                      [displayWith]="displayValueSetLabel"
+                    >
+                      @for (vs of filteredValueSets; track vs.url) {
+                        <mat-option [value]="vs">
+                          <span class="valueset-opt-title">{{ vs.title }}</span>
+                          <div class="valueset-opt-url">{{ vs.url }}</div>
+                        </mat-option>
+                      }
+                    </mat-autocomplete>
+                    <mat-hint>List from configured FHIR base (use Refresh List to reload). Search filters title and URL locally.</mat-hint>
+                    <mat-error>{{ getErrorMessage('valueSetEntry') }}</mat-error>
+                  </mat-form-field>
                 }
-                <mat-error>{{ getErrorMessage('ecl') }}</mat-error>
-              </mat-form-field>
+              </div>
             }
 
             @if (newBindingForm.controls.type.value == 'Decimal') {

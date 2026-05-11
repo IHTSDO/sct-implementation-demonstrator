@@ -45,7 +45,7 @@
         }
         <div class="actions">
           @if (getBindingType(binding) != 'Section header') {
-            <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" [disabled]="!binding.code  && !binding.ecl">
+            <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" [disabled]="!binding.code && !binding.ecl && !binding.valueSetUrl">
               <mat-icon>info</mat-icon>
             </button>
           }
@@ -67,10 +67,20 @@
                 <pre>{{ binding.code?.code }} |{{ binding.code?.display }}|</pre>
               </span>
             }
+            @if (binding.valueSetUrl) {
+              <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()"
+                (click)="copyToClipboard(binding.valueSetUrl)">
+                <h4 class="mb-0">Answer ValueSet URL</h4>
+                @if (binding.valueSetTitle) {
+                  <p class="bindings-viewer-vs-title">{{ binding.valueSetTitle }}</p>
+                }
+                <pre>{{ binding.valueSetUrl }}</pre>
+              </span>
+            }
             @if (binding.ecl) {
               <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()"
                 (click)="copyToClipboard(binding.ecl)">
-                <h4 class="mb-0">Answer terminology binding</h4>
+                <h4 class="mb-0">Answer terminology binding (ECL)</h4>
                 <pre>{{ binding.ecl }}</pre>
               </span>
             }

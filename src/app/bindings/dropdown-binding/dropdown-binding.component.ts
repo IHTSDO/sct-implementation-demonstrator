@@ -24,10 +24,10 @@ export class DropdownBindingComponent implements OnInit, OnDestroy {
   constructor(private terminologyService: TerminologyService) {}
 
   ngOnInit(): void {
-    this.terminologyService.expandValueSet(this.binding.ecl, '')
+    this.terminologyService.expandBindingAnswerValueSet(this.binding, '', 0, 1500)
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
-        this.options         = res.expansion.contains;
+        this.options         = res?.expansion?.contains ?? [];
         this.filteredOptions = [...this.options];
 
         // decide whether search should be available

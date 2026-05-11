@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 import { BehaviorSubject } from 'rxjs';
@@ -23,6 +23,12 @@ type NormalForm = {
 interface CodeDisplay {
   code: string;
   display?: string;
+}
+
+/** Canonical FHIR ValueSet summary for picker UIs (`url` is authoritative). */
+export interface ValueSetSummary {
+  url: string;
+  title: string;
 }
 
 @Injectable({
@@ -50,6 +56,10 @@ export class TerminologyService {
   private readonly CACHE_LIMIT = 100;
   private readonly CACHE_DURATION = 20 * 60 * 60 * 1000; // 20 hours in milliseconds
   private readonly CACHE_KEY = 'valueSetCache';
+
+  /** Session cache and in-flight deduplication for `GET ValueSet` list (sandbox picker). */
+  private valueSetsListCache = new Map<string, ValueSetSummary[]>();
+  private valueSetsListInFlight = new Map<string, Observable<ValueSetSummary[]>>();
 
   public editionsDetails$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   public languages$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv']);
@@ -545,34 +555,131 @@ export class TerminologyService {
   }
 
   /**
-   * Expands a FHIR ValueSet by URL directly (without ECL)
-   * @param valuesetUrl The canonical URL of the ValueSet (e.g., 'http://hl7.org/fhir/ValueSet/ucum-units')
-   * @param fhirBase Optional FHIR base URL (defaults to 'https://tx.fhir.org/r4')
-   * @param filter Optional filter term to search within the valueset
-   * @param offset Optional offset for pagination
-   * @param count Optional count for pagination
-   * @returns Observable with the expanded ValueSet
+   * Expands a FHIR ValueSet by canonical `url=` (no ECL). Defaults to this app terminology base when omitted.
    */
   expandValueSetByUrl(valuesetUrl: string, fhirBase?: string, filter?: string, offset?: number, count?: number): Observable<any> {
     if (!offset) offset = 0;
-    if (!count) count = 1000; // Default to large count for UCUM units
-    if (!fhirBase) fhirBase = 'https://tx.fhir.org/r4'; // Default FHIR terminology server
+    if (!count) count = 1000;
+    if (!fhirBase) fhirBase = this.snowstormFhirBase || 'https://tx.fhir.org/r4';
     if (!filter) filter = '';
-    
-    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${encodeURIComponent(valuesetUrl)}&count=${count}&offset=${offset}`;
+
+    const base = fhirBase.replace(/\/$/, '');
+    let requestUrl = `${base}/ValueSet/$expand?url=${encodeURIComponent(valuesetUrl)}&count=${count}&offset=${offset}`;
     if (filter) {
       requestUrl += `&filter=${encodeURIComponent(filter)}`;
     }
-    
+
+    const lang = this.getComputedLanguageContext();
     const headers = new HttpHeaders({
-      'Accept': 'application/fhir+json',
-      'Accept-Language': 'en'
+      Accept: 'application/fhir+json',
+      'Accept-Language': lang,
     });
-    
-    return this.http.get<any>(requestUrl, { headers })
-      .pipe(
-        catchError(this.handleError<any>('expandValueSetByUrl', {}))
+
+    return this.http.get<any>(requestUrl, { headers }).pipe(
+      catchError(this.handleError<any>('expandValueSetByUrl', {}))
+    );
+  }
+
+  /**
+   * Expands answer options for a sandbox binding (ECL-backed or canonical ValueSet URL).
+   */
+  expandBindingAnswerValueSet(
+    binding: { ecl?: string; valueSetUrl?: string },
+    filter: string,
+    offset?: number,
+    count?: number,
+    terminologyServer?: string,
+    editionUri?: string,
+    useExpansionCache?: boolean
+  ): Observable<any> {
+    if (!offset) offset = 0;
+    if (!count) count = 20;
+    const vsUrl = binding?.valueSetUrl?.trim();
+    if (vsUrl) {
+      const fhirBase = (terminologyServer || this.snowstormFhirBase || '').replace(/\/$/, '');
+      if (!fhirBase) {
+        return of({});
+      }
+      return this.expandValueSetByUrl(vsUrl, fhirBase, filter, offset, count);
+    }
+    const ecl = binding?.ecl ?? '';
+    if (!ecl) {
+      return of({});
+    }
+    const terms = typeof filter === 'string' ? filter : '';
+    if (terminologyServer || editionUri) {
+      return this.expandValueSetFromServer(
+        terminologyServer || '',
+        editionUri || '',
+        ecl,
+        terms,
+        offset,
+        count
       );
+    }
+    if (useExpansionCache && !terms && offset === 0) {
+      return this.expandValueSetUsingCache(ecl, terms, offset, count);
+    }
+    return this.expandValueSet(ecl, terms, offset, count);
+  }
+
+  /**
+   * Lists ValueSet resources (`url`, `title`) from a FHIR server. Session-scoped cache; one in-flight request per key.
+   * @param refresh When true, drops cache and in-flight entry for this key and fetches from the server again.
+   */
+  fetchValueSets(fhirBase?: string, maxCount = 500, refresh = false): Observable<ValueSetSummary[]> {
+    const base = (fhirBase || this.snowstormFhirBase || '').replace(/\/$/, '');
+    if (!base) {
+      return of([]);
+    }
+    const cacheKey = `${base}|${maxCount}`;
+    if (refresh) {
+      this.valueSetsListCache.delete(cacheKey);
+      this.valueSetsListInFlight.delete(cacheKey);
+    }
+    if (!refresh && this.valueSetsListCache.has(cacheKey)) {
+      return of(this.valueSetsListCache.get(cacheKey)!);
+    }
+    const existing = this.valueSetsListInFlight.get(cacheKey);
+    if (existing && !refresh) {
+      return existing;
+    }
+    const headers = new HttpHeaders({
+      Accept: 'application/fhir+json',
+      'Accept-Language': this.lang,
+    });
+    const requestUrl = `${base}/ValueSet?_count=${maxCount}&_elements=url,title,name`;
+    const shared$ = this.http.get<any>(requestUrl, { headers }).pipe(
+      map((bundle) => this.parseValueSetBundle(bundle)),
+      tap((list) => {
+        this.valueSetsListCache.set(cacheKey, list);
+      }),
+      catchError(() => of([])),
+      finalize(() => {
+        this.valueSetsListInFlight.delete(cacheKey);
+      }),
+      shareReplay(1)
+    );
+    this.valueSetsListInFlight.set(cacheKey, shared$);
+    return shared$;
+  }
+
+  private parseValueSetBundle(bundle: any): ValueSetSummary[] {
+    const out: ValueSetSummary[] = [];
+    const seen = new Set<string>();
+    for (const entry of bundle?.entry || []) {
+      const r = entry?.resource;
+      if (!r || r.resourceType !== 'ValueSet' || !r.url) {
+        continue;
+      }
+      if (seen.has(r.url)) {
+        continue;
+      }
+      seen.add(r.url);
+      const title = (r.title || r.name || r.url) as string;
+      out.push({ url: r.url, title });
+    }
+    return out;
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

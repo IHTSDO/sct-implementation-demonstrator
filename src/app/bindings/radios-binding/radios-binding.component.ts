@@ -16,7 +16,8 @@ export class RadiosBindingComponent implements OnInit {
   constructor(private terminologyService: TerminologyService) { }
 
   ngOnInit(): void {
-    this.terminologyService.expandValueSet(this.binding.ecl, '').subscribe(response => this.options = response.expansion.contains)
+    this.terminologyService.expandBindingAnswerValueSet(this.binding, '', 0, 1500)
+      .subscribe(response => this.options = response?.expansion?.contains ?? []);
   }
 
   optionSelected(value: any) {

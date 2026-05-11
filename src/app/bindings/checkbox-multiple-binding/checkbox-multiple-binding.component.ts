@@ -32,8 +32,8 @@ export class CheckBoxMultipleBindingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.terminologyService.expandValueSet(this.binding.ecl, '').subscribe(response => {
-      this.options = response.expansion.contains;
+    this.terminologyService.expandBindingAnswerValueSet(this.binding, '', 0, 1500).subscribe(response => {
+      this.options = response?.expansion?.contains ?? [];
       // convert options to an array of form controls (display : false )
       this.options?.forEach((o: any) => {
         this.checkboxes.addControl(o.display, this._formBuilder.control(false));

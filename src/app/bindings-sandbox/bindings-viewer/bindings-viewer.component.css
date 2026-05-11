@@ -11,6 +11,13 @@ h3 {
     color: #4b5563;
 }
 
+.bindings-viewer-vs-title {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
 .row {
     display: flex;
     flex-wrap: wrap;

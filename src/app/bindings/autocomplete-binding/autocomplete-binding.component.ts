@@ -243,19 +243,26 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, AfterVie
   }
 
   private getExpansionObservable(term: string): Observable<any> {
-    // If custom terminology server or edition URI is provided, use expandValueSetFromServer
     if (this.terminologyServer || this.editionUri) {
-      return this.terminologyService.expandValueSetFromServer(
-        this.terminologyServer || '', // Pass empty string if undefined (service will use default)
-        this.editionUri || '', // Pass empty string if undefined (service will use default)
-        this.binding.ecl,
+      return this.terminologyService.expandBindingAnswerValueSet(
+        this.binding,
         term,
         0,
-        50
+        50,
+        this.terminologyServer || '',
+        this.editionUri || '',
+        false
       );
     }
-    // Otherwise, use default service configuration (backward compatible)
-    return this.terminologyService.expandValueSet(this.binding.ecl, term, 0, 50);
+    return this.terminologyService.expandBindingAnswerValueSet(
+      this.binding,
+      term,
+      0,
+      50,
+      undefined,
+      undefined,
+      false
+    );
   }
   
   ngOnChanges(changes: SimpleChanges): void {

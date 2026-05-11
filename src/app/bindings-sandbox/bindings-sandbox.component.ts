@@ -1,12 +1,12 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { map, lastValueFrom } from 'rxjs';
+import { Subject, map, lastValueFrom, takeUntil } from 'rxjs';
 import { saveAs } from 'file-saver';
 import { EclBuilderDialogService } from '../bindings/ecl-builder/ecl-builder-dialog.service';
-import { TerminologyService } from '../services/terminology.service';
+import { TerminologyService, ValueSetSummary } from '../services/terminology.service';
 import { BindingsDataDialogComponent } from './bindings-data-dialog/bindings-data-dialog.component';
 
 @Component({
@@ -15,7 +15,7 @@ import { BindingsDataDialogComponent } from './bindings-data-dialog/bindings-dat
   styleUrls: ['./bindings-sandbox.component.css'],
   standalone: false
 })
-export class BindingsSandboxComponent implements OnInit {
+export class BindingsSandboxComponent implements OnInit, OnDestroy {
   formTitle: string = 'My new form';
   titleEditMode = false;
 
@@ -114,12 +114,21 @@ export class BindingsSandboxComponent implements OnInit {
     title: new FormControl('', [Validators.required, Validators.maxLength(50)]),
     code: new FormControl('', []),
     type: new FormControl('', [Validators.required]),
+    answerSource: new FormControl<'ecl' | 'valueset'>('ecl'),
     ecl: new FormControl('', []),
+    valueSetEntry: new FormControl<ValueSetSummary | string | null>(null),
     value: new FormControl('', []),
     unit: new FormControl('', []),
     note: new FormControl('', [Validators.maxLength(500)]),
     repeatable: new FormControl(false, [])
   });
+
+  /** ValueSets from FHIR server (sandbox picker); filtered client-side by title/url. */
+  allValueSets: ValueSetSummary[] = [];
+  filteredValueSets: ValueSetSummary[] = [];
+  valueSetsLoading = false;
+
+  private readonly destroy$ = new Subject<void>();
 
   indexInEdit = -1;
   maxSelectCount = 50;
@@ -150,6 +159,137 @@ export class BindingsSandboxComponent implements OnInit {
   ngOnInit(): void {
     this.checkboxBinding.title = this.checkboxBinding.title.replace('Question', 'Checkbox');
     this.updateViewportState();
+
+    const answerSourceCtl = this.newBindingForm.get('answerSource');
+    const valueSetCtl = this.newBindingForm.get('valueSetEntry');
+
+    answerSourceCtl?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((src) => {
+      if (src === 'ecl') {
+        valueSetCtl?.setValue(null, { emitEvent: false });
+        valueSetCtl?.setErrors(null);
+      } else {
+        this.newBindingForm.get('ecl')?.setValue('', { emitEvent: false });
+        this.newBindingForm.get('ecl')?.setErrors(null);
+        this.loadValueSetsIfNeeded();
+      }
+    });
+
+    valueSetCtl?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((val) => {
+      if (answerSourceCtl?.value !== 'valueset') {
+        return;
+      }
+      const q = typeof val === 'string' ? val : (val ? this.displayValueSetLabel(val as ValueSetSummary) : '');
+      this.applyValueSetFilter(q);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  needsAnswerExpansionSource(type: string | null | undefined): boolean {
+    return !!type && [
+      'Autocomplete',
+      'Select (Single)',
+      'Select (Multiple)',
+      'Multi-prefix search select',
+      'Options',
+    ].includes(type);
+  }
+
+  displayValueSetLabel(value: ValueSetSummary | string | null | undefined): string {
+    if (value == null || value === '') {
+      return '';
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    return `${value.title} — ${value.url}`;
+  }
+
+  onValueSetFieldActivated(): void {
+    this.loadValueSetsIfNeeded();
+  }
+
+  private applyValueSetFilter(query: string): void {
+    const t = query.trim().toLowerCase();
+    if (!t) {
+      this.filteredValueSets = [...this.allValueSets];
+      return;
+    }
+    this.filteredValueSets = this.allValueSets.filter(
+      (vs) => vs.title.toLowerCase().includes(t) || vs.url.toLowerCase().includes(t)
+    );
+  }
+
+  /**
+   * Re-fetches ValueSets from the configured FHIR terminology base (cache bypass).
+   */
+  refreshValueSetsList(): void {
+    if (!this.terminologyService.getSnowstormFhirBase()) {
+      return;
+    }
+    this.valueSetsLoading = true;
+    this.terminologyService.fetchValueSets(undefined, 500, true).subscribe({
+      next: (list) => {
+        this.allValueSets = list;
+        const raw = this.newBindingForm.get('valueSetEntry')?.value;
+        const q =
+          typeof raw === 'string'
+            ? raw
+            : raw && typeof raw === 'object'
+              ? this.displayValueSetLabel(raw as ValueSetSummary)
+              : '';
+        this.applyValueSetFilter(q);
+        this.valueSetsLoading = false;
+      },
+      error: () => {
+        this.valueSetsLoading = false;
+      },
+    });
+  }
+
+  valueSetRefreshAvailable(): boolean {
+    return !!this.terminologyService.getSnowstormFhirBase();
+  }
+
+  loadValueSetsIfNeeded(): void {
+    if (!this.terminologyService.getSnowstormFhirBase()) {
+      return;
+    }
+    if (this.allValueSets.length > 0) {
+      const raw = this.newBindingForm.get('valueSetEntry')?.value;
+      const q =
+        typeof raw === 'string'
+          ? raw
+          : raw && typeof raw === 'object'
+            ? this.displayValueSetLabel(raw as ValueSetSummary)
+            : '';
+      this.applyValueSetFilter(q);
+      return;
+    }
+    if (this.valueSetsLoading) {
+      return;
+    }
+    this.valueSetsLoading = true;
+    this.terminologyService.fetchValueSets().subscribe({
+      next: (list) => {
+        this.allValueSets = list;
+        const raw = this.newBindingForm.get('valueSetEntry')?.value;
+        const q =
+          typeof raw === 'string'
+            ? raw
+            : raw && typeof raw === 'object'
+              ? this.displayValueSetLabel(raw as ValueSetSummary)
+              : '';
+        this.applyValueSetFilter(q);
+        this.valueSetsLoading = false;
+      },
+      error: () => {
+        this.valueSetsLoading = false;
+      },
+    });
   }
 
   @HostListener('window:resize')
@@ -172,7 +312,11 @@ export class BindingsSandboxComponent implements OnInit {
   startCreateBinding(): void {
     this.indexInEdit = -1;
     this.editorMode = 'create';
-    this.newBindingForm.reset({ repeatable: false });
+    this.newBindingForm.reset({
+      repeatable: false,
+      answerSource: 'ecl',
+      valueSetEntry: null,
+    });
     if (this.isTabletViewport) {
       this.editorSheetOpen = true;
     }
@@ -204,44 +348,121 @@ export class BindingsSandboxComponent implements OnInit {
       return;
     }
 
-    const { title, code, type, ecl, value, unit, note, repeatable } = this.newBindingForm.controls;
-    const binding = {
+    const { title, code, type, ecl, value, unit, note, repeatable, answerSource, valueSetEntry } =
+      this.newBindingForm.controls;
+    const binding: any = {
       title: title.value,
       code: code.value,
       type: type.value,
-      ecl: ecl.value,
       value: value.value,
       unit: unit.value,
       note: note.value,
       repeatable: repeatable.value,
-      count: 1
+      count: 1,
     };
 
+    const pickedVs =
+      typeof valueSetEntry.value === 'object' &&
+      valueSetEntry.value !== null &&
+      'url' in (valueSetEntry.value as object)
+        ? (valueSetEntry.value as ValueSetSummary)
+        : null;
+
+    if (this.needsAnswerExpansionSource(type.value)) {
+      if (answerSource.value === 'valueset') {
+        binding.ecl = '';
+        if (pickedVs?.url) {
+          binding.valueSetUrl = pickedVs.url;
+          binding.valueSetTitle = pickedVs.title;
+        }
+      } else {
+        binding.ecl = (ecl.value as string) || '';
+        delete binding.valueSetUrl;
+        delete binding.valueSetTitle;
+      }
+    } else {
+      binding.ecl = ecl.value;
+      delete binding.valueSetUrl;
+      delete binding.valueSetTitle;
+    }
+
     let errors = false;
-    if (ecl.value) {
-      if (typeof binding.type?.indexOf('Select') !== 'undefined' && binding.type?.indexOf('Select') > -1) {
-        const results = await this.getEclPreview(ecl.value);
-        if (results.expansion.contains.length > this.maxSelectCount) {
+
+    const needsExp = this.needsAnswerExpansionSource(type.value);
+    if (needsExp) {
+      valueSetEntry.setErrors(null);
+      ecl.setErrors(null);
+      if (answerSource.value === 'valueset') {
+        if (!pickedVs?.url?.trim()) {
           errors = true;
-          ecl.setErrors({ selectTooManyResults: true });
+          valueSetEntry.setErrors({ required: true });
         }
-      } else if ((typeof binding.type?.indexOf('Options') !== 'undefined' && binding.type?.indexOf('Options') > -1) ||
-                 (typeof binding.type?.indexOf('Checkbox multiple') !== 'undefined' && binding.type?.indexOf('Checkbox multiple') > -1)) {
-        const results = await this.getEclPreview(ecl.value);
-        if (results.expansion.contains.length > this.maxOptionsCount) {
-          errors = true;
-          ecl.setErrors({ optionsTooManyResults: true });
-        }
-      } else if (binding.type === 'Multi-prefix search select') {
-        const results = await this.getEclPreview(ecl.value);
-        if (results.expansion.contains.length > this.maxMultiPrefixCount) {
-          errors = true;
-          ecl.setErrors({ multiPrefixTooManyResults: true });
+      } else if (!(ecl.value || '').toString().trim()) {
+        errors = true;
+        ecl.setErrors({ required: true });
+      }
+    } else if (
+      binding.type !== 'Section header' &&
+      binding.type !== 'Text box' &&
+      binding.type !== 'Integer' &&
+      binding.type !== 'Decimal'
+    ) {
+      if (!ecl.value) {
+        errors = true;
+        ecl.setErrors({ required: true });
+      }
+    }
+
+    const expansionSpec =
+      needsExp && answerSource.value === 'valueset' && pickedVs?.url
+        ? { valueSetUrl: pickedVs.url }
+        : needsExp && answerSource.value === 'ecl'
+          ? { ecl: (ecl.value as string) || '' }
+          : null;
+
+    if (!errors && expansionSpec && (expansionSpec.ecl || expansionSpec.valueSetUrl)) {
+      let limit = 0;
+      const t = binding.type;
+      if (typeof t === 'string' && t.includes('Select')) {
+        limit = this.maxSelectCount + 1;
+      } else if (typeof t === 'string' && (t.includes('Options') || t.includes('Checkbox multiple'))) {
+        limit = this.maxOptionsCount + 1;
+      } else if (t === 'Multi-prefix search select') {
+        limit = this.maxMultiPrefixCount + 1;
+      }
+
+      if (limit > 0) {
+        const results = await this.getAnswerExpansionPreview(expansionSpec, limit);
+        const n = results.expansion?.contains?.length ?? 0;
+        if (typeof t === 'string' && t.includes('Select')) {
+          if (n > this.maxSelectCount) {
+            errors = true;
+            if (answerSource.value === 'valueset') {
+              valueSetEntry.setErrors({ selectTooManyResults: true });
+            } else {
+              ecl.setErrors({ selectTooManyResults: true });
+            }
+          }
+        } else if (typeof t === 'string' && (t.includes('Options') || t.includes('Checkbox multiple'))) {
+          if (n > this.maxOptionsCount) {
+            errors = true;
+            if (answerSource.value === 'valueset') {
+              valueSetEntry.setErrors({ optionsTooManyResults: true });
+            } else {
+              ecl.setErrors({ optionsTooManyResults: true });
+            }
+          }
+        } else if (t === 'Multi-prefix search select') {
+          if (n > this.maxMultiPrefixCount) {
+            errors = true;
+            if (answerSource.value === 'valueset') {
+              valueSetEntry.setErrors({ multiPrefixTooManyResults: true });
+            } else {
+              ecl.setErrors({ multiPrefixTooManyResults: true });
+            }
+          }
         }
       }
-    } else if (binding.type !== 'Section header' && binding.type !== 'Text box' && binding.type !== 'Integer' && binding.type !== 'Decimal') {
-      errors = true;
-      ecl.setErrors({ required: true });
     }
 
     if (errors) {
@@ -254,7 +475,11 @@ export class BindingsSandboxComponent implements OnInit {
       this.bindings.push(binding);
     }
 
-    this.newBindingForm.reset({ repeatable: false });
+    this.newBindingForm.reset({
+      repeatable: false,
+      answerSource: 'ecl',
+      valueSetEntry: null,
+    });
     this.indexInEdit = -1;
     this.editorMode = 'create';
     if (this.isTabletViewport) {
@@ -378,28 +603,46 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   getAnswerValueSet(binding: any) {
+    const vs = binding?.valueSetUrl?.trim();
+    if (vs) {
+      return vs;
+    }
     return `http://snomed.info/sct/900000000000207008?fhir_vs=ecl%2F${encodeURIComponent(binding.ecl)}`;
   }
 
-  async getEclPreview(ecl: string): Promise<any> {
-    const response = await this.terminologyService.expandValueSet(ecl, '');
-    return lastValueFrom(response.pipe(map((res: any) => res)));
+  async getAnswerExpansionPreview(
+    spec: { ecl?: string; valueSetUrl?: string },
+    maxCount: number
+  ): Promise<any> {
+    const response = await lastValueFrom(
+      this.terminologyService.expandBindingAnswerValueSet(spec, '', 0, maxCount).pipe(map((res: any) => res))
+    );
+    return response;
   }
 
   edit(i: number) {
     this.indexInEdit = i;
     this.editorMode = 'edit';
     const binding = this.bindings[i];
+    const vsPick: ValueSetSummary | null = binding.valueSetUrl
+      ? { url: binding.valueSetUrl, title: binding.valueSetTitle || binding.valueSetUrl }
+      : null;
     this.newBindingForm.setValue({
       title: binding.title,
       code: binding.code ? binding.code : '',
       type: binding.type,
-      ecl: binding.ecl,
+      answerSource: binding.valueSetUrl ? 'valueset' : 'ecl',
+      ecl: binding.valueSetUrl ? '' : binding.ecl,
+      valueSetEntry: vsPick,
       value: binding.value,
       unit: binding.unit ? binding.unit : null,
       note: binding.note,
-      repeatable: binding.repeatable
+      repeatable: binding.repeatable,
     });
+
+    if (vsPick) {
+      this.loadValueSetsIfNeeded();
+    }
 
     if (this.isTabletViewport) {
       this.editorSheetOpen = true;
@@ -420,22 +663,25 @@ export class BindingsSandboxComponent implements OnInit {
 
   getErrorMessage(controlName: string) {
     const errors = this.getErrors(controlName);
-    if (errors) {
-      if (errors['required']) {
-        return 'This field is required';
-      }
-      if (errors['maxlength']) {
-        return `This field must be less than ${errors['maxlength'].requiredLength} characters`;
-      }
-      if (errors['selectTooManyResults']) {
-        return `Too many results (Max = ${this.maxSelectCount})`;
-      }
-      if (errors['optionsTooManyResults']) {
-        return `Too many results (Max = ${this.maxOptionsCount})`;
-      }
-      if (errors['multiPrefixTooManyResults']) {
-        return `Too many results (Max = ${this.maxMultiPrefixCount})`;
-      }
+    if (!errors) {
+      return null;
+    }
+    if (errors['required']) {
+      return controlName === 'valueSetEntry'
+        ? 'Select a ValueSet from the server'
+        : 'This field is required';
+    }
+    if (errors['maxlength']) {
+      return `This field must be less than ${errors['maxlength'].requiredLength} characters`;
+    }
+    if (errors['selectTooManyResults']) {
+      return `Too many results (Max = ${this.maxSelectCount})`;
+    }
+    if (errors['optionsTooManyResults']) {
+      return `Too many results (Max = ${this.maxOptionsCount})`;
+    }
+    if (errors['multiPrefixTooManyResults']) {
+      return `Too many results (Max = ${this.maxMultiPrefixCount})`;
     }
     return null;
   }
@@ -575,7 +821,11 @@ export class BindingsSandboxComponent implements OnInit {
   }
 
   cancelEdit() {
-    this.newBindingForm.reset({ repeatable: false });
+    this.newBindingForm.reset({
+      repeatable: false,
+      answerSource: 'ecl',
+      valueSetEntry: null,
+    });
     this.indexInEdit = -1;
     this.editorMode = 'create';
     if (this.isTabletViewport) {
@@ -586,7 +836,11 @@ export class BindingsSandboxComponent implements OnInit {
   clear() {
     this.bindings = [];
     this.clearOutput();
-    this.newBindingForm.reset({ repeatable: false });
+    this.newBindingForm.reset({
+      repeatable: false,
+      answerSource: 'ecl',
+      valueSetEntry: null,
+    });
     this.formTitle = 'My new form';
     this.indexInEdit = -1;
     this.editorMode = 'create';

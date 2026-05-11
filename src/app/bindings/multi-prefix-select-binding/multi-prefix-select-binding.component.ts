@@ -20,6 +20,7 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
     title?: string;
     type?: string;
     ecl?: string;
+    valueSetUrl?: string;
     note?: string;
   };
   @Input() terminologyServer?: string;
@@ -96,13 +97,13 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
   }
 
   private loadOptions(): void {
-    if (!this.binding?.ecl) {
+    if (!this.binding?.ecl && !this.binding?.valueSetUrl) {
       this.options = [];
       this.filteredOptions = [];
       return;
     }
 
-    const cacheKey = `${this.terminologyServer || ''}|${this.editionUri || ''}|${this.binding.ecl}`;
+    const cacheKey = `${this.terminologyServer || ''}|${this.editionUri || ''}|${this.binding?.ecl || ''}|${this.binding?.valueSetUrl || ''}`;
     const cached = this.optionsCache.get(cacheKey);
     if (cached) {
       this.options = cached;
@@ -112,16 +113,16 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
     }
 
     this.isLoading = true;
-    const obs = (this.terminologyServer || this.editionUri)
-      ? this.terminologyService.expandValueSetFromServer(
-          this.terminologyServer || '',
-          this.editionUri || '',
-          this.binding.ecl,
-          '',
-          0,
-          this.expansionCount
-        )
-      : this.terminologyService.expandValueSetUsingCache(this.binding.ecl, '', 0, this.expansionCount);
+    const useCache = !(this.terminologyServer || this.editionUri);
+    const obs = this.terminologyService.expandBindingAnswerValueSet(
+      this.binding,
+      '',
+      0,
+      this.expansionCount,
+      this.terminologyServer || '',
+      this.editionUri || '',
+      useCache && !this.binding?.valueSetUrl
+    );
     obs.pipe(takeUntil(this.destroy$)).subscribe({
         next: (response: any) => {
           const contains = (response?.expansion?.contains || []) as SnomedOption[];
