@@ -8,7 +8,14 @@
         }
       </mat-menu>
 
-      <button mat-button [matMenuTriggerFor]="serverMenuN">FHIR Server: {{selectedServer.name}}</button>
+      <button
+        mat-button
+        [matMenuTriggerFor]="serverMenuN"
+        matTooltip="Select the FHIR Terminology Server to use"
+        matTooltipPosition="below"
+        >
+        FHIR Term Server: {{selectedServer.name}}
+      </button>
       <mat-menu #serverMenuN="matMenu">
         @for (server of fhirServers; track server) {
           <button mat-menu-item (click)="setFhirServer(server)">{{server.name}}</button>
@@ -58,7 +65,16 @@
           <button mat-menu-item (click)="navigate(demo)">{{demo.name}}</button>
         }
       </mat-menu>
-      <button mat-flat-button color="primary" [matMenuTriggerFor]="serverMenu" class="bar-button">FHIR Server: {{selectedServer.name}}</button>
+      <button
+        mat-flat-button
+        color="primary"
+        [matMenuTriggerFor]="serverMenu"
+        class="bar-button"
+        matTooltip="Select the FHIR Terminology Server to use"
+        matTooltipPosition="below"
+        >
+        FHIR Term Server: {{selectedServer.name}}
+      </button>
       <mat-menu #serverMenu="matMenu">
         @for (server of fhirServers; track server) {
           <button mat-menu-item (click)="setFhirServer(server)">{{server.name}}</button>
