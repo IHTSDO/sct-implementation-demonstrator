@@ -171,12 +171,12 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
     this.http.get<PatientResponse>('assets/data/mock_patients_5000.json')
       .subscribe({
         next: (response: PatientResponse) => {
-          this.calculatePatientCounts(response.content);
-          // Don't call getData() here as it's called separately in ngOnInit
+          // Only initialize allPatients for demographic filtering.
+          // Do NOT recalculate node values — the CSV already has server-aggregated counts.
+          this.allPatients = response.content;
         },
         error: (error: any) => {
           console.error('Error loading patient data for counts:', error);
-          // Continue without patient counts if loading fails
         }
       });
   }
@@ -235,8 +235,6 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       const baseConceptId = item.id.split('_')[0];
       const patientSet = conceptPatientCounts.get(baseConceptId);
       item.patientCount = patientSet ? patientSet.size : 0;
-      
-      // Always use patient count as the value for the treemap
       item.value = item.patientCount;
     });
   }
@@ -316,11 +314,10 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
           id: row.id,
           label: row.label,
           parent: row.parent || '',
-          value: parseInt(row.patientCount || row.value, 10), // Use patientCount if available, fallback to value
+          value: parseInt(row.patientCount || row.value, 10),
           patientCount: row.patientCount ? parseInt(row.patientCount, 10) : undefined,
           labelCount: row['label-count'] ? parseInt(row['label-count'], 10) : undefined
         }));
-        
         this.getData();
       },
       error: (error: any) => {
