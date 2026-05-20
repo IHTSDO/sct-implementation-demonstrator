@@ -1,8 +1,8 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormGroupDirective, Validators } from '@angular/forms';
 import { Subject, map, lastValueFrom, takeUntil } from 'rxjs';
 import { saveAs } from 'file-saver';
 import { EclBuilderDialogService } from '../bindings/ecl-builder/ecl-builder-dialog.service';
@@ -28,6 +28,8 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
   responseBundleStr: string = '{}';
   fhirQuestionnaire: any = {};
   fhirQuestionnaireStr: string = '{}';
+
+  @ViewChild(FormGroupDirective) formDirective!: FormGroupDirective;
 
   editorMode: 'create' | 'edit' = 'create';
   editorSheetOpen = false;
@@ -312,7 +314,7 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
   startCreateBinding(): void {
     this.indexInEdit = -1;
     this.editorMode = 'create';
-    this.newBindingForm.reset({
+    this.formDirective.resetForm({
       repeatable: false,
       answerSource: 'ecl',
       valueSetEntry: null,
@@ -475,7 +477,7 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
       this.bindings.push(binding);
     }
 
-    this.newBindingForm.reset({
+    this.formDirective.resetForm({
       repeatable: false,
       answerSource: 'ecl',
       valueSetEntry: null,
@@ -821,7 +823,7 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
   }
 
   cancelEdit() {
-    this.newBindingForm.reset({
+    this.formDirective.resetForm({
       repeatable: false,
       answerSource: 'ecl',
       valueSetEntry: null,
@@ -836,7 +838,7 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
   clear() {
     this.bindings = [];
     this.clearOutput();
-    this.newBindingForm.reset({
+    this.formDirective.resetForm({
       repeatable: false,
       answerSource: 'ecl',
       valueSetEntry: null,

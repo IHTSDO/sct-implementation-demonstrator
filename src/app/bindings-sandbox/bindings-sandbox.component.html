@@ -232,7 +232,7 @@
               <mat-label>Question text</mat-label>
               <input matInput type="text" formControlName="title" placeholder="Enter title...">
               @if (newBindingForm.get('title')?.value) {
-                <button matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('title')?.reset()">
+                <button type="button" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('title')?.reset()">
                   <mat-icon>close</mat-icon>
                 </button>
               }
@@ -294,7 +294,7 @@
                     <textarea matInput rows="3" formControlName="ecl" placeholder="Enter ECL..."></textarea>
                     <a href="javascript:void(0)" class="field-builder-link" (click)="openEclBuilder(newBindingForm.get('ecl')?.value, 'ecl')">ECL Builder</a>
                     @if (newBindingForm.get('ecl')?.value) {
-                      <button matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('ecl')?.reset()">
+                      <button type="button" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('ecl')?.reset()">
                         <mat-icon>close</mat-icon>
                       </button>
                     }
@@ -371,7 +371,7 @@
             <mat-label>Note</mat-label>
             <input matInput type="text" formControlName="note" placeholder="Enter a description...">
             @if (newBindingForm.get('note')?.value) {
-              <button matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('note')?.reset()">
+              <button type="button" matSuffix mat-icon-button aria-label="Clear" (click)="newBindingForm.get('note')?.reset()">
                 <mat-icon>close</mat-icon>
               </button>
             }
@@ -381,12 +381,12 @@
 
         <div class="editor-actions">
           @if (indexInEdit == -1) {
-            <button mat-flat-button color="primary" (click)="addBinding()">Add binding</button>
+            <button type="button" mat-flat-button color="primary" (click)="addBinding()">Add binding</button>
           }
           @if (indexInEdit > -1) {
-            <button mat-flat-button color="primary" (click)="addBinding(); clearOutput();">Update binding</button>
+            <button type="button" mat-flat-button color="primary" (click)="addBinding(); clearOutput();">Update binding</button>
           }
-          <button mat-stroked-button color="primary" (click)="cancelEdit()">Cancel</button>
+          <button type="button" mat-stroked-button color="primary" (click)="cancelEdit()">Cancel</button>
         </div>
       </form>
     </aside>
