@@ -1,13 +1,14 @@
-<h2 mat-dialog-title>Generate Multiple Patients</h2>
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
+<h2 mat-dialog-title>{{ t('batchPatientDialog.sections.title') }}</h2>
 
 <mat-dialog-content>
   @if (!isGenerating) {
     <div claate multipss="dialog-content">
-      <p>Generate synthetic patient data based on real-world health statistics from the <a href="https://www.healthdata.org/research-analysis/gbd" target="_blank" rel="noopener noreferrer">Global Burden of Disease (GBD) Study</a>. These artificial patients reflect disease prevalence patterns by age and gender, allowing you to populate your EHR system with realistic test data.</p>
+      <p>{{ t('batchPatientDialog.messages.description') }} <a href="https://www.healthdata.org/research-analysis/gbd" target="_blank" rel="noopener noreferrer">{{ t('batchPatientDialog.messages.gbdStudy') }}</a>. {{ t('batchPatientDialog.messages.descriptionSuffix') }}</p>
       <div class="two-column-layout">
         <div class="column-left">
           <mat-form-field class="full-width">
-            <mat-label>Number of Patients</mat-label>
+            <mat-label>{{ t('batchPatientDialog.fields.numberOfPatients') }}</mat-label>
             <input
               matInput
               type="number"
@@ -16,10 +17,10 @@
               max="500"
               [disabled]="isGenerating"
               >
-            <mat-hint>Enter a number between 1 and 500</mat-hint>
+            <mat-hint>{{ t('batchPatientDialog.fields.numberOfPatientsHint') }}</mat-hint>
           </mat-form-field>
           <mat-form-field class="full-width">
-            <mat-label>Clinical Data Timeframe (Years)</mat-label>
+            <mat-label>{{ t('batchPatientDialog.fields.timeframeYears') }}</mat-label>
             <input
               matInput
               type="number"
@@ -28,12 +29,12 @@
               max="20"
               [disabled]="isGenerating"
               >
-            <mat-hint>Generated dates will be randomized within the last 2 years by default</mat-hint>
+            <mat-hint>{{ t('batchPatientDialog.fields.timeframeYearsHint') }}</mat-hint>
           </mat-form-field>
           <div class="gender-distribution-container">
-            <p class="section-label">Gender Distribution</p>
+            <p class="section-label">{{ t('batchPatientDialog.fields.genderDistribution') }}</p>
             <div class="slider-container">
-              <span class="slider-label">Female</span>
+              <span class="slider-label">{{ t('batchPatientDialog.labels.female') }}</span>
               <mat-slider
                 class="gender-slider"
                 [min]="0"
@@ -44,20 +45,20 @@
                 >
                 <input matSliderThumb [(ngModel)]="genderDistribution" name="genderDistribution">
               </mat-slider>
-              <span class="slider-label">Male</span>
+              <span class="slider-label">{{ t('batchPatientDialog.labels.male') }}</span>
             </div>
             <div class="slider-value">
               <span>{{ genderDistributionLabel }}</span>
             </div>
-            <mat-hint class="range-hint">Adjust the probability of generating male vs female patients</mat-hint>
+            <mat-hint class="range-hint">{{ t('batchPatientDialog.fields.genderDistributionHint') }}</mat-hint>
           </div>
         </div>
         <div class="column-right">
           <div class="age-distribution-container">
-            <p class="section-label">Age Distribution</p>
+            <p class="section-label">{{ t('batchPatientDialog.fields.ageDistribution') }}</p>
             <div class="age-inputs">
               <mat-form-field class="age-input">
-                <mat-label>Children (0-18)</mat-label>
+                <mat-label>{{ t('batchPatientDialog.fields.children') }}</mat-label>
                 <mat-select
                   [(ngModel)]="ageDistribution.children"
                   [disabled]="isGenerating"
@@ -71,7 +72,7 @@
                 </mat-select>
               </mat-form-field>
               <mat-form-field class="age-input">
-                <mat-label>Adults (18-65)</mat-label>
+                <mat-label>{{ t('batchPatientDialog.fields.adults') }}</mat-label>
                 <mat-select
                   [(ngModel)]="ageDistribution.adults"
                   [disabled]="isGenerating"
@@ -85,7 +86,7 @@
                 </mat-select>
               </mat-form-field>
               <mat-form-field class="age-input">
-                <mat-label>Elderly (65+)</mat-label>
+                <mat-label>{{ t('batchPatientDialog.fields.elderly') }}</mat-label>
                 <mat-select
                   [(ngModel)]="ageDistribution.elderly"
                   [disabled]="isGenerating"
@@ -100,18 +101,18 @@
               </mat-form-field>
             </div>
             <div class="age-total" [class.invalid]="!ageDistributionValid">
-              <span>Total: {{ ageDistributionTotal }}%</span>
+              <span>{{ t('batchPatientDialog.labels.total') }}: {{ ageDistributionTotal }}%</span>
               @if (!ageDistributionValid) {
-                <span class="error-text"> (Must equal 100%)</span>
+                <span class="error-text"> ({{ t('batchPatientDialog.messages.mustEqual100') }})</span>
               }
             </div>
-            <mat-hint class="range-hint">Select percentages in 10% increments. Total must equal 100%.</mat-hint>
+            <mat-hint class="range-hint">{{ t('batchPatientDialog.fields.ageDistributionHint') }}</mat-hint>
           </div>
           <div class="diagnoses-range-container">
-            <p class="section-label">Number of Diagnoses per Patient</p>
+            <p class="section-label">{{ t('batchPatientDialog.fields.diagnosesPerPatient') }}</p>
             <div class="range-inputs">
               <mat-form-field class="range-input">
-                <mat-label>Minimum</mat-label>
+                <mat-label>{{ t('batchPatientDialog.fields.minimum') }}</mat-label>
                 <input
                   matInput
                   type="number"
@@ -121,9 +122,9 @@
                   [disabled]="isGenerating"
                   >
               </mat-form-field>
-              <span class="range-separator">to</span>
+              <span class="range-separator">{{ t('batchPatientDialog.labels.to') }}</span>
               <mat-form-field class="range-input">
-                <mat-label>Maximum</mat-label>
+                <mat-label>{{ t('batchPatientDialog.fields.maximum') }}</mat-label>
                 <input
                   matInput
                   type="number"
@@ -134,7 +135,7 @@
                   >
               </mat-form-field>
             </div>
-            <mat-hint class="range-hint">Set both to 0 to generate patients without diagnoses. Each patient will have a random number of diagnoses between these values.</mat-hint>
+            <mat-hint class="range-hint">{{ t('batchPatientDialog.fields.diagnosesRangeHint') }}</mat-hint>
           </div>
         </div>
       </div>
@@ -143,16 +144,17 @@
 
   @if (isGenerating) {
     <div class="progress-container">
-      <p>Generating patients... {{ currentPatient }} / {{ numberOfPatients }}</p>
+      <p>{{ t('batchPatientDialog.messages.generating') }} {{ currentPatient }} / {{ numberOfPatients }}</p>
       <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
     </div>
   }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()" [disabled]="isGenerating">Cancel</button>
+  <button mat-button (click)="onCancel()" [disabled]="isGenerating">{{ t('batchPatientDialog.actions.cancel') }}</button>
   <button mat-flat-button color="primary" (click)="onGenerate()" [disabled]="isGenerating || !ageDistributionValid">
     <mat-icon>group_add</mat-icon>
-    Generate Patients
+    {{ t('batchPatientDialog.actions.generatePatients') }}
   </button>
 </mat-dialog-actions>
+</ng-container>

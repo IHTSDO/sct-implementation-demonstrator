@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { CodingSpecService } from './services/coding-spec.service';
 import { ExcelService } from './services/excel.service';
 import { TerminologyService } from './services/terminology.service';
@@ -26,9 +27,13 @@ const CUSTOM_FHIR_TERM_SERVER_MENU_LABEL = 'Local Server/Custom';
     standalone: false
 })
 export class AppComponent {
+  private translocoService = inject(TranslocoService);
+
   title = 'sct-implementation-demonstrator';
   readonly customTermServerMenuLabel = CUSTOM_FHIR_TERM_SERVER_MENU_LABEL;
   loadingModule = false;
+  availableSiteLangs = this.translocoService.getAvailableLangs() as string[];
+  activeSiteLang = this.translocoService.getActiveLang();
   bindingsForExport: any[] = [];
   editions: any[] = [];
   editionsDetails: any[] = [];
@@ -72,7 +77,19 @@ export class AppComponent {
     });
   }
 
+  setSiteLanguage(lang: string): void {
+    this.translocoService.setActiveLang(lang);
+    this.activeSiteLang = lang;
+    localStorage.setItem('ui-lang', lang);
+  }
+
   ngOnInit(): void {
+    const savedLang = localStorage.getItem('ui-lang');
+    if (savedLang && this.availableSiteLangs.includes(savedLang)) {
+      this.translocoService.setActiveLang(savedLang);
+      this.activeSiteLang = savedLang;
+    }
+
     // Check embedded mode immediately from snapshot
     const params = this.activatedRoute.snapshot.queryParams;
     this.embeddedMode = params['embedded'] === 'true';

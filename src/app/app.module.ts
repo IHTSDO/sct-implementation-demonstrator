@@ -1,5 +1,7 @@
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, isDevMode, NgModule } from '@angular/core';
+import { provideTransloco, TranslocoModule } from '@jsverse/transloco';
+import { TranslocoHttpLoader } from './transloco-loader';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { initializeApp } from 'firebase/app';
@@ -90,6 +92,7 @@ initializeApp(firebaseConfig);
     LoincModule,
     QuestionnairesSharedModule,
     UiSharedModule,
+    TranslocoModule,
   ],
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
@@ -97,7 +100,16 @@ initializeApp(firebaseConfig);
       provide: HTTP_INTERCEPTORS,
       useClass: FhirRateLimitInterceptor,
       multi: true
-    }
+    },
+    provideTransloco({
+      config: {
+        availableLangs: ['en', 'es'],
+        defaultLang: 'en',
+        reRenderOnLangChange: true,
+        prodMode: !isDevMode(),
+      },
+      loader: TranslocoHttpLoader,
+    }),
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

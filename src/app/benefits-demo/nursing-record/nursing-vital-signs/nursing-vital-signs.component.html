@@ -1,10 +1,11 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="vital-signs-section">
   <div class="section-header">
-    <h3>Vital Signs</h3>
+    <h3>{{ t('nursingVitalSigns.sections.vitalSigns') }}</h3>
     <button
       mat-icon-button
       class="fhir-floating-button"
-      matTooltip="View Vital FHIR Resources"
+      [matTooltip]="t('nursingVitalSigns.tooltips.viewVitalFhir')"
       (click)="openVitalFhirDialog()">
       <mat-icon fontIcon="data_object"></mat-icon>
     </button>
@@ -23,3 +24,4 @@
     </app-nursing-vital-card>
   </div>
 </div>
+</ng-container>

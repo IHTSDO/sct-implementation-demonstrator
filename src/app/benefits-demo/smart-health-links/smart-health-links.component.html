@@ -1,18 +1,19 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="smart-health-links-page">
   <div class="header">
-    <h1>Smart Health Links</h1>
-    <p>Static demo for generating SHLinks and downloadable QR codes from FHIR JSON resources in assets/data.</p>
+    <h1>{{ t('smartHealthLinks.sections.title') }}</h1>
+    <p>{{ t('smartHealthLinks.sections.description') }}</p>
   </div>
 
   <div class="table-card">
     <table class="links-table">
       <thead>
         <tr>
-          <th>Label</th>
-          <th>Source JSON</th>
-          <th>Manifest</th>
-          <th>QR Preview</th>
-          <th>Actions</th>
+          <th>{{ t('smartHealthLinks.table.label') }}</th>
+          <th>{{ t('smartHealthLinks.table.sourceJson') }}</th>
+          <th>{{ t('smartHealthLinks.table.manifest') }}</th>
+          <th>{{ t('smartHealthLinks.table.qrPreview') }}</th>
+          <th>{{ t('smartHealthLinks.table.actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -25,15 +26,15 @@
               <img
                 class="qr-preview"
                 [src]="item.qrPreviewDataUrl || ''"
-                [alt]="'QR preview for ' + item.label"
+                [alt]="t('smartHealthLinks.labels.qrPreviewAlt') + ' ' + item.label"
                 loading="lazy"
               />
             </td>
             <td>
               <div class="actions">
-                <button mat-stroked-button color="primary" (click)="copyShLink(item)">Copy SHLink</button>
-                <button mat-flat-button color="primary" (click)="downloadQr(item, 'svg')">Download SVG</button>
-                <button mat-flat-button color="accent" (click)="downloadQr(item, 'png')">Download PNG</button>
+                <button mat-stroked-button color="primary" (click)="copyShLink(item)">{{ t('smartHealthLinks.actions.copyShLink') }}</button>
+                <button mat-flat-button color="primary" (click)="downloadQr(item, 'svg')">{{ t('smartHealthLinks.actions.downloadSvg') }}</button>
+                <button mat-flat-button color="accent" (click)="downloadQr(item, 'png')">{{ t('smartHealthLinks.actions.downloadPng') }}</button>
               </div>
             </td>
           </tr>
@@ -42,3 +43,4 @@
     </table>
   </div>
 </div>
+</ng-container>

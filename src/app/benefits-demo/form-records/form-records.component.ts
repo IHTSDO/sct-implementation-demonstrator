@@ -1,7 +1,8 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { PatientService } from '../../services/patient.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { TranslocoService } from '@jsverse/transloco';
 import type { DeathRecord, OpenEHRComposition, QuestionnaireResponse } from '../../model';
 
 export type FormRecord = QuestionnaireResponse | OpenEHRComposition | DeathRecord;
@@ -22,6 +23,8 @@ export class FormRecordsComponent implements OnChanges {
   isLoading: boolean = false;
   selectedResponse: FormRecord | null = null;
   isFlipped: boolean = false;
+
+  private translocoService = inject(TranslocoService);
 
   constructor(
     private patientService: PatientService,
@@ -68,8 +71,8 @@ export class FormRecordsComponent implements OnChanges {
     } catch (error) {
       console.error('Error loading form records:', error);
       this.snackBar.open(
-        'Error loading form records',
-        'Close',
+        this.translocoService.translate('benefitsDemo.formRecords.messages.errorLoading'),
+        this.translocoService.translate('benefitsDemo.formRecords.actions.close'),
         {
           duration: 4000,
           panelClass: ['error-snackbar']
@@ -137,8 +140,8 @@ export class FormRecordsComponent implements OnChanges {
       this.loadAllFormRecords();
       
       this.snackBar.open(
-        'Form record deleted successfully',
-        'Close',
+        this.translocoService.translate('benefitsDemo.formRecords.messages.deleteSuccess'),
+        this.translocoService.translate('benefitsDemo.formRecords.actions.close'),
         {
           duration: 3000,
           panelClass: ['success-snackbar']
@@ -175,8 +178,8 @@ export class FormRecordsComponent implements OnChanges {
       window.URL.revokeObjectURL(url);
       
       this.snackBar.open(
-        'Form record exported successfully',
-        'Close',
+        this.translocoService.translate('benefitsDemo.formRecords.messages.exportSuccess'),
+        this.translocoService.translate('benefitsDemo.formRecords.actions.close'),
         {
           duration: 3000,
           panelClass: ['success-snackbar']
@@ -185,8 +188,8 @@ export class FormRecordsComponent implements OnChanges {
     } catch (error) {
       console.error('Error exporting response:', error);
       this.snackBar.open(
-        'Error exporting form record',
-        'Close',
+        this.translocoService.translate('benefitsDemo.formRecords.messages.errorExporting'),
+        this.translocoService.translate('benefitsDemo.formRecords.actions.close'),
         {
           duration: 4000,
           panelClass: ['error-snackbar']
@@ -701,8 +704,8 @@ export class FormRecordsComponent implements OnChanges {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(dataStr).then(() => {
           this.snackBar.open(
-            'JSON copied to clipboard successfully',
-            'Close',
+            this.translocoService.translate('benefitsDemo.formRecords.messages.copySuccess'),
+            this.translocoService.translate('benefitsDemo.formRecords.actions.close'),
             {
               duration: 3000,
               panelClass: ['success-snackbar']
@@ -719,8 +722,8 @@ export class FormRecordsComponent implements OnChanges {
     } catch (error) {
       console.error('Error copying to clipboard:', error);
       this.snackBar.open(
-        'Error copying to clipboard',
-        'Close',
+        this.translocoService.translate('benefitsDemo.formRecords.messages.errorCopying'),
+        this.translocoService.translate('benefitsDemo.formRecords.actions.close'),
         {
           duration: 4000,
           panelClass: ['error-snackbar']
@@ -743,8 +746,8 @@ export class FormRecordsComponent implements OnChanges {
       const successful = document.execCommand('copy');
       if (successful) {
         this.snackBar.open(
-          'JSON copied to clipboard successfully',
-          'Close',
+          this.translocoService.translate('benefitsDemo.formRecords.messages.copySuccess'),
+          this.translocoService.translate('benefitsDemo.formRecords.actions.close'),
           {
             duration: 3000,
             panelClass: ['success-snackbar']
@@ -756,8 +759,8 @@ export class FormRecordsComponent implements OnChanges {
     } catch (err) {
       console.error('Fallback copy failed:', err);
       this.snackBar.open(
-        'Error copying to clipboard. Please copy manually.',
-        'Close',
+        this.translocoService.translate('benefitsDemo.formRecords.messages.errorCopyingManual'),
+        this.translocoService.translate('benefitsDemo.formRecords.actions.close'),
         {
           duration: 4000,
           panelClass: ['error-snackbar']

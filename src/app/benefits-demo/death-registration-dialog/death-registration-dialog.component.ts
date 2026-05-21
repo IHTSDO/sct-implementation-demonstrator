@@ -1,5 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
 import { PatientService } from '../../services/patient.service';
@@ -30,6 +31,7 @@ interface DeathRegistrationDialogData {
   standalone: false
 })
 export class DeathRegistrationDialogComponent {
+  private translocoService = inject(TranslocoService);
   private readonly VRDR_DOCUMENT_PROFILE =
     'http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certificate-document';
   private readonly VRDR_COMPOSITION_PROFILE =
@@ -166,7 +168,7 @@ export class DeathRegistrationDialogComponent {
 
     const deceasedDateTime = this.buildDeceasedDateTime();
     if (!deceasedDateTime) {
-      this.errorMessage = 'Please enter the date and time of death.';
+      this.errorMessage = this.translocoService.translate('benefitsDemo.deathRegistrationDialog.messages.errorEnterDateTime');
       return;
     }
 
@@ -177,7 +179,7 @@ export class DeathRegistrationDialogComponent {
       const serializedPart2 = await this.serializePart2();
 
       if (serializedPart1.length === 0 && serializedPart2.length === 0) {
-        this.errorMessage = 'Enter at least one cause of death before saving.';
+        this.errorMessage = this.translocoService.translate('benefitsDemo.deathRegistrationDialog.messages.errorAtLeastOneCause');
         this.isSaving = false;
         return;
       }
@@ -205,7 +207,7 @@ export class DeathRegistrationDialogComponent {
 
       this.dialogRef.close({ saved: true, deathRecord, patient: updatedPatient });
     } catch (error) {
-      this.errorMessage = error instanceof Error ? error.message : 'Unable to save the death record.';
+      this.errorMessage = error instanceof Error ? error.message : this.translocoService.translate('benefitsDemo.deathRegistrationDialog.messages.errorUnableToSave');
     } finally {
       this.isSaving = false;
     }
@@ -216,11 +218,15 @@ export class DeathRegistrationDialogComponent {
   }
 
   getDialogTitle(): string {
-    return this.data.existingRecord ? 'Update death registration' : 'Death registration';
+    return this.data.existingRecord
+      ? this.translocoService.translate('benefitsDemo.deathRegistrationDialog.sections.titleUpdate')
+      : this.translocoService.translate('benefitsDemo.deathRegistrationDialog.sections.title');
   }
 
   getSourceFieldLabel(line: DeathDiagnosisFormLine): string {
-    const baseLabel = line.sourceType === 'existing-condition' ? 'Existing condition' : 'SNOMED condition';
+    const baseLabel = line.sourceType === 'existing-condition'
+      ? this.translocoService.translate('benefitsDemo.deathRegistrationDialog.fields.existingCondition')
+      : this.translocoService.translate('benefitsDemo.deathRegistrationDialog.fields.snomedCondition');
     return line.previewIcd10Code ? `${baseLabel} - ICD-10 ${line.previewIcd10Code}` : baseLabel;
   }
 
@@ -348,12 +354,12 @@ export class DeathRegistrationDialogComponent {
     if (line.sourceType === 'existing-condition') {
       const condition = this.getConditionById(line.selectedConditionId);
       if (!condition) {
-        throw new Error('Select an existing condition for each populated line using that option.');
+        throw new Error(this.translocoService.translate('benefitsDemo.deathRegistrationDialog.messages.errorSelectCondition'));
       }
 
       const snomed = this.getConditionSnomed(condition);
       if (!snomed.code) {
-        throw new Error(`The selected condition "${condition.code?.text || 'Unknown'}" does not have a SNOMED CT code. Use the SNOMED search option for that line.`);
+        throw new Error(this.translocoService.translate('benefitsDemo.deathRegistrationDialog.messages.errorNoSnomedCode', { name: condition.code?.text || this.translocoService.translate('benefitsDemo.deathRegistrationDialog.labels.unknown') }));
       }
 
       const text = line.text.trim() || condition.code?.text || snomed.display || '';
@@ -372,7 +378,7 @@ export class DeathRegistrationDialogComponent {
 
     const concept = line.selectedConcept;
     if (!concept?.code) {
-      throw new Error('Select a SNOMED CT concept for each populated line using SNOMED search.');
+      throw new Error(this.translocoService.translate('benefitsDemo.deathRegistrationDialog.messages.errorSelectSnomedConcept'));
     }
 
     const text = line.text.trim() || concept.display || '';

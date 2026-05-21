@@ -1,12 +1,13 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="ai-assisted-entry-container">
   <div class="ai-content">
     <div class="ai-two-column-layout">
       <!-- Left Column - Text Input (75%) -->
       <div class="ai-input-column">
         <div class="input-section">
-          <h3>AI Assisted Data Entry</h3>
+          <h3>{{ t('aiAssistedEntry.sections.title') }}</h3>
           <p class="ai-description">
-            Intelligent clinical data entry powered by AI to streamline documentation and improve accuracy.
+            {{ t('aiAssistedEntry.sections.description') }}
           </p>
           <!-- Single editable field with real-time highlights -->
           <div class="ai-editor-container">
@@ -19,9 +20,9 @@
             </div>
             @if (!clinicalText) {
               <div class="ai-placeholder">
-                This is a user experience demo, there is no real AI model and only a few simulated detections are shown.
+                {{ t('aiAssistedEntry.messages.placeholderLine1') }}
                 <br><br>
-                Insert sample text using the button below to see a simulation of AI-assisted clincal entities detection.
+                {{ t('aiAssistedEntry.messages.placeholderLine2') }}
               </div>
             }
           </div>
@@ -29,18 +30,18 @@
           <!-- Encounter Form -->
           @if (hasDetectedEntities()) {
             <div class="encounter-form-section">
-              <h4>Encounter Details</h4>
-              <p class="encounter-description">Configure the encounter details for this clinical session</p>
+              <h4>{{ t('aiAssistedEntry.sections.encounterDetails') }}</h4>
+              <p class="encounter-description">{{ t('aiAssistedEntry.sections.encounterDescription') }}</p>
               <div class="encounter-form">
                 <!-- Reason for Encounter -->
                 <div class="form-field">
-                  <label for="reasonForEncounter">Reason for Encounter</label>
+                  <label for="reasonForEncounter">{{ t('aiAssistedEntry.fields.reasonForEncounter') }}</label>
                   <mat-select
                     id="reasonForEncounter"
                     [(value)]="selectedReasonForEncounter"
                     (selectionChange)="onReasonForEncounterChange($event.value)"
-                    placeholder="Select reason for encounter">
-                    <mat-option [value]="null">None</mat-option>
+                    [placeholder]="t('aiAssistedEntry.fields.selectReasonForEncounter')">
+                    <mat-option [value]="null">{{ t('aiAssistedEntry.labels.none') }}</mat-option>
                     @for (condition of detectedConditions; track condition) {
                       <mat-option
                         [value]="condition">
@@ -51,13 +52,13 @@
                 </div>
                 <!-- Diagnosis -->
                 <div class="form-field">
-                  <label for="diagnosis">Diagnosis</label>
+                  <label for="diagnosis">{{ t('aiAssistedEntry.fields.diagnosis') }}</label>
                   <mat-select
                     id="diagnosis"
                     [(value)]="selectedDiagnosis"
                     (selectionChange)="onDiagnosisChange($event.value)"
-                    placeholder="Select diagnosis">
-                    <mat-option [value]="null">None</mat-option>
+                    [placeholder]="t('aiAssistedEntry.fields.selectDiagnosis')">
+                    <mat-option [value]="null">{{ t('aiAssistedEntry.labels.none') }}</mat-option>
                     @for (condition of detectedConditions; track condition) {
                       <mat-option
                         [value]="condition">
@@ -68,13 +69,13 @@
                 </div>
                 <!-- Procedure -->
                 <div class="form-field">
-                  <label for="procedure">Procedure</label>
+                  <label for="procedure">{{ t('aiAssistedEntry.fields.procedure') }}</label>
                   <mat-select
                     id="procedure"
                     [(value)]="selectedProcedure"
                     (selectionChange)="onProcedureChange($event.value)"
-                    placeholder="Select procedure">
-                    <mat-option [value]="null">None</mat-option>
+                    [placeholder]="t('aiAssistedEntry.fields.selectProcedure')">
+                    <mat-option [value]="null">{{ t('aiAssistedEntry.labels.none') }}</mat-option>
                     @for (procedure of detectedProcedures; track procedure.id) {
                       <mat-option
                         [value]="procedure">
@@ -93,7 +94,7 @@
               (click)="addSampleText()"
               [disabled]="isProcessing || isSaving">
               <mat-icon>auto_awesome</mat-icon>
-              Add Sample Text
+              {{ t('aiAssistedEntry.actions.addSampleText') }}
             </button>
             <button mat-raised-button
               color="primary"
@@ -101,20 +102,20 @@
               (click)="saveAllDetected()"
               [disabled]="isProcessing || isSaving || !hasDetectedEntities()">
               <mat-icon>{{ isSaving ? 'sync' : 'save' }}</mat-icon>
-              {{ isSaving ? 'Saving to FHIR Server...' : 'Save All to Patient' }}
+              {{ isSaving ? t('aiAssistedEntry.status.savingToFhir') : t('aiAssistedEntry.actions.saveAllToPatient') }}
             </button>
           </div>
 
           @if (isProcessing) {
             <div class="ai-status">
               <mat-spinner diameter="20"></mat-spinner>
-              <span>AI analyzing text...</span>
+              <span>{{ t('aiAssistedEntry.status.analyzingText') }}</span>
             </div>
           }
           @if (isSaving) {
             <div class="ai-status">
               <mat-spinner diameter="20"></mat-spinner>
-              <span>Saving clinical resources...</span>
+              <span>{{ t('aiAssistedEntry.status.savingClinicalResources') }}</span>
             </div>
           }
         </div>
@@ -123,14 +124,14 @@
       <!-- Right Column - Detected Entities (25%) -->
       <div class="ai-detection-column">
         <div class="detection-section">
-          <h4>Detected Clinical Entities</h4>
-          <p class="detection-description">AI-detected conditions, procedures, and medications</p>
+          <h4>{{ t('aiAssistedEntry.sections.detectedEntities') }}</h4>
+          <p class="detection-description">{{ t('aiAssistedEntry.sections.detectedEntitiesDescription') }}</p>
 
           <!-- Detected Conditions -->
           @if (detectedConditions.length > 0) {
             <div class="detected-category">
               <div class="category-header conditions-header">
-                <h5><mat-icon>medical_services</mat-icon> Conditions</h5>
+                <h5><mat-icon>medical_services</mat-icon> {{ t('aiAssistedEntry.labels.conditions') }}</h5>
                 <span class="item-count conditions-count">{{ detectedConditions.length }}</span>
               </div>
               <div class="detected-list">
@@ -144,13 +145,13 @@
                         <button mat-icon-button
                           class="remove-button"
                           (click)="removeDetected(condition)"
-                          [title]="condition.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                          [title]="condition.isExisting ? t('aiAssistedEntry.tooltips.removeExisting') : t('aiAssistedEntry.tooltips.remove')">
                           <mat-icon>close</mat-icon>
                         </button>
                       </div>
                     </div>
                     <div class="item-details">
-                      <span class="confidence-score">Confidence: {{ condition.confidence }}%</span>
+                      <span class="confidence-score">{{ t('aiAssistedEntry.labels.confidence') }}: {{ condition.confidence }}%</span>
                       @if (condition.isExisting) {
                         <span class="existing-status">
                           <mat-icon>info</mat-icon>
@@ -168,7 +169,7 @@
           @if (detectedProcedures.length > 0) {
             <div class="detected-category">
               <div class="category-header procedures-header">
-                <h5><mat-icon>healing</mat-icon> Procedures</h5>
+                <h5><mat-icon>healing</mat-icon> {{ t('aiAssistedEntry.labels.procedures') }}</h5>
                 <span class="item-count procedures-count">{{ detectedProcedures.length }}</span>
               </div>
               <div class="detected-list">
@@ -182,13 +183,13 @@
                         <button mat-icon-button
                           class="remove-button"
                           (click)="removeDetected(procedure)"
-                          [title]="procedure.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                          [title]="procedure.isExisting ? t('aiAssistedEntry.tooltips.removeExisting') : t('aiAssistedEntry.tooltips.remove')">
                           <mat-icon>close</mat-icon>
                         </button>
                       </div>
                     </div>
                     <div class="item-details">
-                      <span class="confidence-score">Confidence: {{ procedure.confidence }}%</span>
+                      <span class="confidence-score">{{ t('aiAssistedEntry.labels.confidence') }}: {{ procedure.confidence }}%</span>
                       @if (procedure.isExisting) {
                         <span class="existing-status">
                           <mat-icon>info</mat-icon>
@@ -206,7 +207,7 @@
           @if (detectedMedications.length > 0) {
             <div class="detected-category">
               <div class="category-header medications-header">
-                <h5><mat-icon>medication</mat-icon> Medications</h5>
+                <h5><mat-icon>medication</mat-icon> {{ t('aiAssistedEntry.labels.medications') }}</h5>
                 <span class="item-count medications-count">{{ detectedMedications.length }}</span>
               </div>
               <div class="detected-list">
@@ -220,13 +221,13 @@
                         <button mat-icon-button
                           class="remove-button"
                           (click)="removeDetected(medication)"
-                          [title]="medication.isExisting ? 'Remove from detected (will not be saved as new clinical event)' : 'Remove from detected'">
+                          [title]="medication.isExisting ? t('aiAssistedEntry.tooltips.removeExisting') : t('aiAssistedEntry.tooltips.remove')">
                           <mat-icon>close</mat-icon>
                         </button>
                       </div>
                     </div>
                     <div class="item-details">
-                      <span class="confidence-score">Confidence: {{ medication.confidence }}%</span>
+                      <span class="confidence-score">{{ t('aiAssistedEntry.labels.confidence') }}: {{ medication.confidence }}%</span>
                       @if (medication.isExisting) {
                         <span class="existing-status">
                           <mat-icon>info</mat-icon>
@@ -244,8 +245,8 @@
           @if (detectedConditions.length === 0 && detectedProcedures.length === 0 && detectedMedications.length === 0) {
             <div class="empty-detection">
               <mat-icon class="empty-icon">search</mat-icon>
-              <p>Start typing clinical notes to detect entities</p>
-              <p class="hint">Try: "Patient has asthma, needs surgery, takes aspirin"</p>
+              <p>{{ t('aiAssistedEntry.messages.emptyStateHint') }}</p>
+              <p class="hint">{{ t('aiAssistedEntry.messages.emptyStateExample') }}</p>
             </div>
           }
         </div>
@@ -253,3 +254,4 @@
     </div>
   </div>
 </div>
+</ng-container>

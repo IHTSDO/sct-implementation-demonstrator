@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="questionnaire-form-container">
   @if (questionnaire) {
     <div class="questionnaire-header">
@@ -15,7 +16,7 @@
         @if (isPrePopulated) {
           <span class="pre-populated-badge">
             <mat-icon>auto_fix_high</mat-icon>
-            Pre-populated from patient record
+            {{ t('questionnaireForm.labels.prePopulated') }}
           </span>
         }
       </div>
@@ -26,7 +27,7 @@
   @if (questionnaire && !formRendered) {
     <div class="loading-questionnaire">
       <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading questionnaire...</p>
+      <p>{{ t('questionnaireForm.messages.loading') }}</p>
     </div>
   }
 
@@ -37,8 +38,8 @@
   @if (!questionnaire) {
     <div class="no-questionnaire">
       <mat-icon>description</mat-icon>
-      <p>No questionnaire loaded</p>
-      <p class="hint">Select a questionnaire from the dropdown above</p>
+      <p>{{ t('questionnaireForm.messages.noQuestionnaire') }}</p>
+      <p class="hint">{{ t('questionnaireForm.messages.noQuestionnaireHint') }}</p>
     </div>
   }
 
@@ -47,12 +48,13 @@
     <div class="form-actions">
       <button mat-flat-button color="primary" (click)="submitForm()">
         <mat-icon>save</mat-icon>
-        Submit Response
+        {{ t('questionnaireForm.actions.submitResponse') }}
       </button>
       <button mat-stroked-button (click)="cancel()">
         <mat-icon>close</mat-icon>
-        Cancel
+        {{ t('questionnaireForm.actions.cancel') }}
       </button>
     </div>
   }
 </div>
+</ng-container>

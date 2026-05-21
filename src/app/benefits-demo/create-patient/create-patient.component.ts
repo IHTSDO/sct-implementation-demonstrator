@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PatientService } from '../../services/patient.service';
 import { Subscription } from 'rxjs';
 import type { Patient } from '../../model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-create-patient',
@@ -12,6 +13,7 @@ import type { Patient } from '../../model';
   standalone: false
 })
 export class CreatePatientComponent implements OnInit, OnDestroy {
+  private translocoService = inject(TranslocoService);
   patientForm: FormGroup;
   isSubmitting = false;
   private subscriptions: Subscription[] = [];
@@ -124,16 +126,20 @@ export class CreatePatientComponent implements OnInit, OnDestroy {
   getErrorMessage(controlName: string): string {
     const control = this.patientForm.get(controlName);
     if (control?.hasError('required')) {
-      return 'This field is required';
+      return this.translocoService.translate('benefitsDemo.createPatient.errors.fieldRequired');
     }
     if (control?.hasError('minlength')) {
-      return `Minimum length is ${control.errors?.['minlength'].requiredLength} characters`;
+      return this.translocoService.translate(
+        'createPatient.errors.minlength',
+        { requiredLength: control.errors?.['minlength'].requiredLength },
+        'benefits-demo'
+      );
     }
     if (control?.hasError('email')) {
-      return 'Please enter a valid email address';
+      return this.translocoService.translate('benefitsDemo.createPatient.errors.emailInvalid');
     }
     if (control?.hasError('pattern')) {
-      return 'Please enter a valid phone number';
+      return this.translocoService.translate('benefitsDemo.createPatient.errors.phoneInvalid');
     }
     return '';
   }

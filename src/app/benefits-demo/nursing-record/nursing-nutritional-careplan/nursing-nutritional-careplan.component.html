@@ -1,9 +1,10 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="nutritional-careplan-container">
   <div class="careplan-section">
-    <h3>Nutritional Evaluation</h3>
+    <h3>{{ t('nursingNutritionalCareplan.sections.nutritionalEvaluation') }}</h3>
     <div class="careplan-layout">
       <aside class="vitals-column">
-        <h4 class="section-subtitle">Anthropometry</h4>
+        <h4 class="section-subtitle">{{ t('nursingNutritionalCareplan.sections.anthropometry') }}</h4>
         <div class="anthropometry-cards">
           <app-nursing-vital-card
             [patient]="patient"
@@ -28,9 +29,9 @@
           <div class="anthro-card bmi-card" [ngClass]="bmiCardClass" [style.background-color]="bmiBackgroundColor || '#fcfdff'">
             <div class="anthro-header">
               <span class="anthro-emoji">📊</span>
-              <span class="anthro-label">BMI</span>
+              <span class="anthro-label">{{ t('nursingNutritionalCareplan.labels.bmi') }}</span>
             </div>
-            <div class="bmi-value">{{ bmiDisplay || 'No data recorded' }}</div>
+            <div class="bmi-value">{{ bmiDisplay || t('nursingNutritionalCareplan.messages.noDataRecorded') }}</div>
           </div>
         </div>
 
@@ -41,7 +42,7 @@
           class="save-assessment-button"
           [disabled]="!bmiValue"
           (click)="saveNutritionalAssessment()">
-          Save
+          {{ t('nursingNutritionalCareplan.actions.save') }}
         </button>
       </aside>
 
@@ -53,7 +54,7 @@
           (selectionChange)="onNursingDiagnosisChange($event)">
         </app-multi-prefix-select-binding>
 
-        <h4 class="section-subtitle">Nutritional goals</h4>
+        <h4 class="section-subtitle">{{ t('nursingNutritionalCareplan.sections.nutritionalGoals') }}</h4>
         <div class="goals-row">
           <app-multi-prefix-select-binding
             [binding]="mainGoalExpectedOutcomeBinding"
@@ -70,7 +71,7 @@
           </app-multi-prefix-select-binding>
         </div>
 
-        <h4 class="section-subtitle">Interventions</h4>
+        <h4 class="section-subtitle">{{ t('nursingNutritionalCareplan.sections.interventions') }}</h4>
         <div class="interventions-list">
           <div class="intervention-row" *ngFor="let _ of selectedInterventions; let i = index">
             <app-multi-prefix-select-binding
@@ -87,7 +88,7 @@
               class="remove-intervention-button"
               [disabled]="selectedInterventions.length === 1"
               (click)="removeInterventionRow(i)"
-              aria-label="Remove intervention">
+              [attr.aria-label]="t('nursingNutritionalCareplan.actions.removeIntervention')">
               <mat-icon>remove_circle_outline</mat-icon>
             </button>
           </div>
@@ -99,9 +100,10 @@
           [disabled]="!canAddIntervention()"
           (click)="addInterventionRow()">
           <mat-icon>add</mat-icon>
-          Add intervention
+          {{ t('nursingNutritionalCareplan.actions.addIntervention') }}
         </button>
       </section>
     </div>
   </div>
 </div>
+</ng-container>

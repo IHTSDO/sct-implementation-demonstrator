@@ -1,7 +1,8 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="record-content" *ngIf="patient">
   <div class="record-section">
     <div class="section-header">
-      <h2>Nursing</h2>
+      <h2>{{ t('nursingRecord.sections.nursing') }}</h2>
     </div>
 
     <div class="tab-content" *ngIf="selectedView === 'vitals'">
@@ -13,3 +14,4 @@
     </div>
   </div>
 </div>
+</ng-container>

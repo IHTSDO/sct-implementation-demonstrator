@@ -1,8 +1,9 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { saveAs } from 'file-saver';
+import { TranslocoService } from '@jsverse/transloco';
 
 export interface DentistryFhirDialogData {
   title: string;
@@ -18,6 +19,8 @@ export interface DentistryFhirDialogData {
   standalone: false
 })
 export class DentistryFhirDialogComponent {
+  private translocoService = inject(TranslocoService);
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: DentistryFhirDialogData,
     private clipboard: Clipboard,
@@ -31,6 +34,10 @@ export class DentistryFhirDialogComponent {
 
   copyToClipboard(): void {
     this.clipboard.copy(this.data.jsonString);
-    this.snackBar.open('FHIR JSON copied to clipboard', 'Close', { duration: 2000 });
+    this.snackBar.open(
+      this.translocoService.translate('benefitsDemo.dentistryFhirDialog.messages.copied'),
+      this.translocoService.translate('benefitsDemo.dentistryFhirDialog.actions.close'),
+      { duration: 2000 }
+    );
   }
 }

@@ -3,6 +3,7 @@ import { firstValueFrom, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslocoService } from '@jsverse/transloco';
 import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
 import { PatientService } from '../../services/patient.service';
@@ -89,7 +90,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     private terminologyService: TerminologyService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private conceptHierarchyValidationService: ConceptHierarchyValidationService
+    private conceptHierarchyValidationService: ConceptHierarchyValidationService,
+    private translocoService: TranslocoService
   ) { }
 
   ngOnInit(): void {
@@ -311,58 +313,59 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   private rebuildWizardSteps(): void {
+    const t = (key: string) => this.translocoService.translate('benefitsDemo.' + key);
     const steps: WizardStep[] = [
       {
         id: 'patient',
-        title: 'Identify Patient',
-        description: 'Match the IPS patient to an existing record or create a new one.'
+        title: t('interoperability.wizardSteps.patient.title'),
+        description: t('interoperability.wizardSteps.patient.description')
       }
     ];
 
     if (this.hasConditions()) {
       steps.push({
         id: 'conditions',
-        title: 'Merge Conditions',
-        description: 'Review IPS conditions against the current clinical record.'
+        title: t('interoperability.wizardSteps.conditions.title'),
+        description: t('interoperability.wizardSteps.conditions.description')
       });
     }
 
     if (this.hasProcedures()) {
       steps.push({
         id: 'procedures',
-        title: 'Merge Procedures',
-        description: 'Review IPS procedures against the current clinical record.'
+        title: t('interoperability.wizardSteps.procedures.title'),
+        description: t('interoperability.wizardSteps.procedures.description')
       });
     }
 
     if (this.hasMedications()) {
       steps.push({
         id: 'medications',
-        title: 'Merge Medications',
-        description: 'Review IPS medications against the current clinical record.'
+        title: t('interoperability.wizardSteps.medications.title'),
+        description: t('interoperability.wizardSteps.medications.description')
       });
     }
 
     if (this.hasImmunizations()) {
       steps.push({
         id: 'immunizations',
-        title: 'Merge Immunizations',
-        description: 'Review IPS immunizations against the current clinical record.'
+        title: t('interoperability.wizardSteps.immunizations.title'),
+        description: t('interoperability.wizardSteps.immunizations.description')
       });
     }
 
     if (this.hasAllergies()) {
       steps.push({
         id: 'allergies',
-        title: 'Merge Allergies',
-        description: 'Review IPS allergies against the current clinical record.'
+        title: t('interoperability.wizardSteps.allergies.title'),
+        description: t('interoperability.wizardSteps.allergies.description')
       });
     }
 
     steps.push({
       id: 'summary',
-      title: 'Summary',
-      description: 'Confirm the selected IPS items before importing them.'
+      title: t('interoperability.wizardSteps.summary.title'),
+      description: t('interoperability.wizardSteps.summary.description')
     });
 
     this.wizardSteps = steps;
@@ -1353,17 +1356,18 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   getSectionTitle(section: MergeSectionId): string {
+    const t = (key: string) => this.translocoService.translate('benefitsDemo.' + key);
     switch (section) {
       case 'conditions':
-        return 'Conditions';
+        return t('interoperability.sectionTitles.conditions');
       case 'procedures':
-        return 'Procedures';
+        return t('interoperability.sectionTitles.procedures');
       case 'medications':
-        return 'Medications';
+        return t('interoperability.sectionTitles.medications');
       case 'immunizations':
-        return 'Immunizations';
+        return t('interoperability.sectionTitles.immunizations');
       case 'allergies':
-        return 'Allergies';
+        return t('interoperability.sectionTitles.allergies');
     }
   }
 
@@ -1378,13 +1382,17 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
     if (this.isMergeSectionStep(step.id)) {
       const selectedCount = this.getSelectedCount(step.id);
-      const label = selectedCount === 1 ? 'code selected' : 'codes selected';
+      const label = selectedCount === 1
+        ? this.translocoService.translate('benefitsDemo.interoperability.labels.codeSelected')
+        : this.translocoService.translate('benefitsDemo.interoperability.labels.codesSelected');
       return `${selectedCount} ${label}`;
     }
 
     if (step.id === 'summary') {
       const totalSelected = this.getTotalSelectedCount();
-      const label = totalSelected === 1 ? 'code selected' : 'codes selected';
+      const label = totalSelected === 1
+        ? this.translocoService.translate('benefitsDemo.interoperability.labels.codeSelected')
+        : this.translocoService.translate('benefitsDemo.interoperability.labels.codesSelected');
       return `${totalSelected} ${label}`;
     }
 
@@ -1555,8 +1563,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       dialogRef.componentInstance.state = {
         ...dialogRef.componentInstance.state,
         loading: false,
-        message: 'We could not complete the hierarchy check. You can still add the concept if you want to continue.',
-        primaryActionLabel: 'Add anyway',
+        message: this.translocoService.translate('benefitsDemo.interoperability.validation.hierarchyCheckFailed'),
+        primaryActionLabel: this.translocoService.translate('benefitsDemo.interoperability.actions.addAnyway'),
         hasConflict: true,
         relations: []
       };
@@ -1567,20 +1575,22 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   private buildConceptValidationLoadingState(candidate: RecordConcept): ConceptValidationDialogState {
+    const t = (key: string) => this.translocoService.translate('benefitsDemo.' + key);
     return {
-      title: 'Checking SNOMED hierarchy',
-      message: 'Preparing concept hierarchy validation...',
+      title: t('interoperability.validation.checkingHierarchyTitle'),
+      message: t('interoperability.validation.preparingValidation'),
       loading: true,
       progressCurrent: 0,
       progressTotal: 1,
       candidateLabel: `${candidate.label || candidate.code} (${candidate.code})`,
-      primaryActionLabel: 'Add',
+      primaryActionLabel: t('interoperability.actions.add'),
       hasConflict: false,
       relations: []
     };
   }
 
   private buildConceptValidationResultState(result: HierarchyValidationResult): ConceptValidationDialogState {
+    const t = (key: string) => this.translocoService.translate('benefitsDemo.' + key);
     const relations = result.matches.map(match => ({
       label: match.existing.label || match.existing.code,
       code: match.existing.code,
@@ -1588,28 +1598,31 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     }));
 
     return {
-      title: result.hasConflict ? 'Hierarchy review required' : 'Hierarchy check complete',
+      title: result.hasConflict
+        ? t('interoperability.validation.hierarchyReviewRequiredTitle')
+        : t('interoperability.validation.hierarchyCheckCompleteTitle'),
       message: result.hasConflict
-        ? 'The selected concept overlaps hierarchically with one or more concepts already in the record. Review the relationships before deciding whether to add it.'
-        : 'No hierarchical overlap was found with the existing concepts in this section.',
+        ? t('interoperability.validation.hierarchyConflictMessage')
+        : t('interoperability.validation.hierarchyNoConflictMessage'),
       loading: false,
       progressCurrent: relations.length + 1,
       progressTotal: relations.length + 1,
       candidateLabel: `${result.candidate.label || result.candidate.code} (${result.candidate.code})`,
-      primaryActionLabel: result.hasConflict ? 'Add anyway' : 'Add',
+      primaryActionLabel: result.hasConflict ? t('interoperability.actions.addAnyway') : t('interoperability.actions.add'),
       hasConflict: result.hasConflict,
       relations
     };
   }
 
   private getHierarchyRelationLabel(match: HierarchyMatch): string {
+    const t = (key: string) => this.translocoService.translate('benefitsDemo.' + key);
     switch (match.relation) {
       case 'exact-match':
-        return 'Exact match';
+        return t('interoperability.validation.relationExactMatch');
       case 'candidate-is-ancestor':
-        return 'Selected concept is broader';
+        return t('interoperability.validation.relationBroader');
       case 'candidate-is-descendant':
-        return 'Selected concept is narrower';
+        return t('interoperability.validation.relationNarrower');
     }
   }
 
@@ -1695,17 +1708,18 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   getItemDateLabel(section: MergeSectionId): string {
+    const t = (key: string) => this.translocoService.translate('benefitsDemo.' + key);
     switch (section) {
       case 'conditions':
-        return 'Onset';
+        return t('interoperability.datLabels.onset');
       case 'procedures':
-        return 'Performed';
+        return t('interoperability.datLabels.performed');
       case 'medications':
-        return 'Effective';
+        return t('interoperability.datLabels.effective');
       case 'immunizations':
-        return 'Occurrence';
+        return t('interoperability.datLabels.occurrence');
       case 'allergies':
-        return 'Recorded';
+        return t('interoperability.datLabels.recorded');
     }
   }
 

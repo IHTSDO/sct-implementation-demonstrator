@@ -1,7 +1,8 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="openehr-form-container">
   @if (webTemplate) {
     <div class="openehr-header">
-      <h3>{{ webTemplate.tree?.name || 'openEHR Form' }}</h3>
+      <h3>{{ webTemplate.tree?.name || t('openehrForm.labels.defaultTitle') }}</h3>
       @if (webTemplate.tree?.description) {
         <p class="openehr-description">
           {{ webTemplate.tree?.description }}
@@ -22,7 +23,7 @@
   @if (webTemplate && !formRendered) {
     <div class="loading-form">
       <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading openEHR form...</p>
+      <p>{{ t('openehrForm.messages.loading') }}</p>
     </div>
   }
 
@@ -33,8 +34,8 @@
   @if (!webTemplate) {
     <div class="no-template">
       <mat-icon>description</mat-icon>
-      <p>No openEHR template loaded</p>
-      <p class="hint">Select a template from the dropdown above</p>
+      <p>{{ t('openehrForm.messages.noTemplate') }}</p>
+      <p class="hint">{{ t('openehrForm.messages.noTemplateHint') }}</p>
     </div>
   }
 
@@ -43,14 +44,15 @@
     <div class="form-actions">
       <button mat-flat-button color="primary" (click)="submitForm()">
         <mat-icon>save</mat-icon>
-        Submit Composition
+        {{ t('openehrForm.actions.submitComposition') }}
       </button>
       <button mat-stroked-button (click)="cancel()">
         <mat-icon>close</mat-icon>
-        Cancel
+        {{ t('openehrForm.actions.cancel') }}
       </button>
     </div>
   }
 </div>
+</ng-container>
 
 

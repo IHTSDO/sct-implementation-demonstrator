@@ -1,14 +1,15 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="form-records-container">
   <div class="records-header">
-    <h3>Form Records</h3>
-    <p class="subtitle">View completed questionnaires and clinical forms</p>
+    <h3>{{ t('formRecords.sections.title') }}</h3>
+    <p class="subtitle">{{ t('formRecords.sections.subtitle') }}</p>
   </div>
 
   <!-- Loading state -->
   @if (isLoading) {
     <div class="loading-container">
       <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading form records...</p>
+      <p>{{ t('formRecords.status.loading') }}</p>
     </div>
   }
 
@@ -16,8 +17,8 @@
   @if (!isLoading && allFormRecords.length === 0) {
     <div class="empty-state">
       <mat-icon class="empty-icon">description</mat-icon>
-      <h3>No Form Records</h3>
-      <p>Complete questionnaires and clinical forms to see them listed here.</p>
+      <h3>{{ t('formRecords.status.emptyTitle') }}</h3>
+      <p>{{ t('formRecords.status.emptyMessage') }}</p>
     </div>
   }
 
@@ -49,7 +50,7 @@
               <mat-chip-set>
                 <mat-chip>
                   <mat-icon>check_circle</mat-icon>
-                  {{ isQuestionnaireResponse(response) ? (response.status || 'Completed') : 'Completed' }}
+                  {{ isQuestionnaireResponse(response) ? (response.status || t('formRecords.status.completed')) : t('formRecords.status.completed') }}
                 </mat-chip>
               </mat-chip-set>
               <p class="summary-text">{{ getResponseSummary(response) }}</p>
@@ -58,15 +59,15 @@
           <mat-card-actions align="end">
             <button mat-button color="primary" (click)="viewResponse(response)">
               <mat-icon>visibility</mat-icon>
-              View
+              {{ t('formRecords.actions.view') }}
             </button>
             <button mat-button (click)="exportResponse(response, $event)">
               <mat-icon>download</mat-icon>
-              Export
+              {{ t('formRecords.actions.export') }}
             </button>
             <button mat-button color="warn" (click)="deleteResponse(response, $event)">
               <mat-icon>delete</mat-icon>
-              Delete
+              {{ t('formRecords.actions.delete') }}
             </button>
           </mat-card-actions>
         </mat-card>
@@ -88,7 +89,7 @@
                 <div class="header-actions">
                   <button mat-raised-button color="primary" (click)="flipCard()">
                     <mat-icon>code</mat-icon>
-                    View {{ isOpenEHRComposition(selectedResponse) ? 'openEHR' : 'FHIR' }} JSON
+                    {{ t('formRecords.actions.viewJson', { format: isOpenEHRComposition(selectedResponse) ? 'openEHR' : 'FHIR' }) }}
                   </button>
                   <button mat-icon-button (click)="closeViewer()">
                     <mat-icon>close</mat-icon>
@@ -97,35 +98,35 @@
               </div>
               <div class="viewer-metadata">
                 <div class="metadata-item">
-                  <strong>Date:</strong> {{ formatDate(selectedResponse.authored) }}
+                  <strong>{{ t('formRecords.labels.date') }}:</strong> {{ formatDate(selectedResponse.authored) }}
                 </div>
                 @if (isQuestionnaireResponse(selectedResponse)) {
                   <div class="metadata-item">
-                    <strong>Status:</strong> {{ selectedResponse.status }}
+                    <strong>{{ t('formRecords.labels.status') }}:</strong> {{ selectedResponse.status }}
                   </div>
                 }
                 @if (isOpenEHRComposition(selectedResponse)) {
                   <div class="metadata-item">
-                    <strong>Type:</strong> openEHR Composition
+                    <strong>{{ t('formRecords.labels.type') }}:</strong> {{ t('formRecords.labels.openehrComposition') }}
                   </div>
                 }
                 @if (isDeathCertificateBundle(selectedResponse)) {
                   <div class="metadata-item">
-                    <strong>Type:</strong> VRDR FHIR Document Bundle
+                    <strong>{{ t('formRecords.labels.type') }}:</strong> {{ t('formRecords.labels.vrdrBundle') }}
                   </div>
                 }
                 <div class="metadata-item">
-                  <strong>ID:</strong> {{ selectedResponse.id }}
+                  <strong>{{ t('formRecords.labels.id') }}:</strong> {{ selectedResponse.id }}
                 </div>
               </div>
               <div class="viewer-content">
-                <h3>Questions & Answers</h3>
+                <h3>{{ t('formRecords.sections.questionsAndAnswers') }}</h3>
                 <div class="qa-container">
                   @let qaPairs = getQuestionAnswerPairs(selectedResponse);
                   @if (qaPairs.length === 0) {
                     <div class="no-answers">
                       <mat-icon>info</mat-icon>
-                      <p>No answers found in this response</p>
+                      <p>{{ t('formRecords.messages.noAnswers') }}</p>
                     </div>
                   }
                   @for (qa of qaPairs; track qa.question + '|' + qa.level + '|' + qa.answer; let i = $index) {
@@ -150,7 +151,7 @@
                           {{ qa.question }}
                           @if (qa.hasSubItems) {
                             <span class="sub-items-count">
-                              ({{ qa.hasSubItems ? 'contains sub-items' : '' }})
+                              ({{ qa.hasSubItems ? t('formRecords.labels.containsSubItems') : '' }})
                             </span>
                           }
                         </div>
@@ -185,25 +186,25 @@
               <div class="viewer-actions">
                 <button mat-raised-button (click)="copyToClipboard(selectedResponse, $event)">
                   <mat-icon>content_copy</mat-icon>
-                  Copy JSON
+                  {{ t('formRecords.actions.copyJson') }}
                 </button>
                 <button mat-raised-button (click)="exportResponse(selectedResponse, $event)">
                   <mat-icon>download</mat-icon>
-                  Export JSON
+                  {{ t('formRecords.actions.exportJson') }}
                 </button>
                 <button mat-raised-button color="primary" (click)="closeViewer()">
-                  Close
+                  {{ t('formRecords.actions.close') }}
                 </button>
               </div>
             </div>
             <!-- Back: JSON -->
             <div class="flip-card-back">
               <div class="viewer-header">
-                <h2>{{ isOpenEHRComposition(selectedResponse) ? 'openEHR Composition' : (isDeathCertificateBundle(selectedResponse) ? 'FHIR Death Certificate Bundle' : 'FHIR QuestionnaireResponse') }} (JSON)</h2>
+                <h2>{{ isOpenEHRComposition(selectedResponse) ? t('formRecords.labels.openehrComposition') : (isDeathCertificateBundle(selectedResponse) ? t('formRecords.labels.fhirDeathCertBundle') : t('formRecords.labels.fhirQR')) }} (JSON)</h2>
                 <div class="header-actions">
                   <button mat-raised-button color="primary" (click)="flipCard()">
                     <mat-icon>article</mat-icon>
-                    View Readable Format
+                    {{ t('formRecords.actions.viewReadable') }}
                   </button>
                   <button mat-icon-button (click)="closeViewer()">
                     <mat-icon>close</mat-icon>
@@ -212,30 +213,30 @@
               </div>
               <div class="viewer-metadata">
                 <div class="metadata-item">
-                  <strong>Resource Type:</strong> {{ selectedResponse.resourceType }}
+                  <strong>{{ t('formRecords.labels.resourceType') }}:</strong> {{ selectedResponse.resourceType }}
                 </div>
                 <div class="metadata-item">
-                  <strong>Format:</strong> {{ isOpenEHRComposition(selectedResponse) ? 'openEHR FLAT' : 'FHIR R4' }}
+                  <strong>{{ t('formRecords.labels.format') }}:</strong> {{ isOpenEHRComposition(selectedResponse) ? t('formRecords.labels.openehrFlat') : 'FHIR R4' }}
                 </div>
                 <div class="metadata-item">
-                  <strong>ID:</strong> {{ selectedResponse.id }}
+                  <strong>{{ t('formRecords.labels.id') }}:</strong> {{ selectedResponse.id }}
                 </div>
               </div>
               <div class="viewer-content">
-                <h3>Response Data ({{ isOpenEHRComposition(selectedResponse) ? 'openEHR FLAT' : 'FHIR' }} Format)</h3>
+                <h3>{{ t('formRecords.sections.responseData', { format: isOpenEHRComposition(selectedResponse) ? t('formRecords.labels.openehrFlat') : 'FHIR' }) }}</h3>
                 <pre class="json-viewer">{{ formatJSON(selectedResponse) }}</pre>
               </div>
               <div class="viewer-actions">
                 <button mat-raised-button (click)="copyToClipboard(selectedResponse, $event)">
                   <mat-icon>content_copy</mat-icon>
-                  Copy JSON
+                  {{ t('formRecords.actions.copyJson') }}
                 </button>
                 <button mat-raised-button (click)="exportResponse(selectedResponse, $event)">
                   <mat-icon>download</mat-icon>
-                  Export JSON
+                  {{ t('formRecords.actions.exportJson') }}
                 </button>
                 <button mat-raised-button color="primary" (click)="closeViewer()">
-                  Close
+                  {{ t('formRecords.actions.close') }}
                 </button>
               </div>
             </div>
@@ -245,3 +246,4 @@
     </div>
   }
 </div>
+</ng-container>

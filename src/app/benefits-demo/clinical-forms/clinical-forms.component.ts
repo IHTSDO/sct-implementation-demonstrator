@@ -1,7 +1,8 @@
-import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ViewChild, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { TranslocoService } from '@jsverse/transloco';
 import { PatientService } from '../../services/patient.service';
 import { AdverseReactionReport } from './adverse-reaction-form/adverse-reaction-form.component';
 import { FormRecordsComponent } from '../form-records/form-records.component';
@@ -113,8 +114,10 @@ export class ClinicalFormsComponent implements OnInit {
   // Store loaded openEHR templates
   private openehrTemplates: { [key: string]: any } = {};
 
+  private translocoService = inject(TranslocoService);
+
   constructor(
-    private snackBar: MatSnackBar, 
+    private snackBar: MatSnackBar,
     private patientService: PatientService,
     private http: HttpClient,
     private customQuestionnaireService: CustomQuestionnaireService
@@ -157,8 +160,8 @@ export class ClinicalFormsComponent implements OnInit {
 
     // Validate file type
     if (!file.name.endsWith('.json')) {
-      this.uploadError = 'Please select a JSON file';
-      this.snackBar.open('Please select a JSON file', 'Close', {
+      this.uploadError = this.translocoService.translate('benefitsDemo.clinicalForms.messages.selectJsonFile');
+      this.snackBar.open(this.uploadError ?? '', this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'), {
         duration: 4000,
         panelClass: ['error-snackbar']
       });
@@ -183,8 +186,8 @@ export class ClinicalFormsComponent implements OnInit {
           
           // Show success message
           this.snackBar.open(
-            `✅ Questionnaire "${jsonContent.title || jsonContent.name}" uploaded successfully!`,
-            'Close',
+            this.translocoService.translate('benefitsDemo.clinicalForms.messages.questionnaireUploadedSuccess', { name: jsonContent.title || jsonContent.name }),
+            this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
             {
               duration: 5000,
               panelClass: ['success-snackbar']
@@ -194,10 +197,10 @@ export class ClinicalFormsComponent implements OnInit {
           // Clear the file input
           event.target.value = '';
         } else {
-          this.uploadError = result.error || 'Failed to upload questionnaire';
+          this.uploadError = result.error || this.translocoService.translate('benefitsDemo.clinicalForms.messages.failedToUploadQuestionnaire');
           this.snackBar.open(
-            `❌ ${result.error || 'Failed to upload questionnaire'}`,
-            'Close',
+            this.uploadError ?? '',
+            this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
             {
               duration: 6000,
               panelClass: ['error-snackbar']
@@ -205,10 +208,10 @@ export class ClinicalFormsComponent implements OnInit {
           );
         }
       } catch (error) {
-        this.uploadError = 'Invalid JSON file';
+        this.uploadError = this.translocoService.translate('benefitsDemo.clinicalForms.messages.invalidJsonFile');
         this.snackBar.open(
-          '❌ Invalid JSON file. Please ensure the file contains valid JSON.',
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalForms.messages.invalidJsonFileDetail'),
+          this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
           {
             duration: 6000,
             panelClass: ['error-snackbar']
@@ -220,10 +223,10 @@ export class ClinicalFormsComponent implements OnInit {
     };
 
     reader.onerror = () => {
-      this.uploadError = 'Failed to read file';
+      this.uploadError = this.translocoService.translate('benefitsDemo.clinicalForms.messages.failedToReadFile');
       this.snackBar.open(
-        '❌ Failed to read file',
-        'Close',
+        this.uploadError ?? '',
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 4000,
           panelClass: ['error-snackbar']
@@ -239,7 +242,7 @@ export class ClinicalFormsComponent implements OnInit {
    * Delete a custom questionnaire
    */
   deleteCustomQuestionnaire(id: string, name: string): void {
-    if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+    if (!confirm(this.translocoService.translate('benefitsDemo.clinicalForms.messages.confirmDeleteQuestionnaire', { name }))) {
       return;
     }
 
@@ -255,8 +258,8 @@ export class ClinicalFormsComponent implements OnInit {
       }
       
       this.snackBar.open(
-        `✅ Questionnaire "${name}" deleted successfully`,
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.questionnaireDeletedSuccess', { name }),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 4000,
           panelClass: ['success-snackbar']
@@ -264,8 +267,8 @@ export class ClinicalFormsComponent implements OnInit {
       );
     } else {
       this.snackBar.open(
-        `❌ Failed to delete questionnaire`,
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.failedToDeleteQuestionnaire'),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 4000,
           panelClass: ['error-snackbar']
@@ -278,7 +281,7 @@ export class ClinicalFormsComponent implements OnInit {
    * Delete all custom questionnaires
    */
   deleteAllCustomQuestionnaires(): void {
-    if (!confirm('Are you sure you want to delete ALL custom questionnaires? This action cannot be undone.')) {
+    if (!confirm(this.translocoService.translate('benefitsDemo.clinicalForms.messages.confirmDeleteAllQuestionnaires'))) {
       return;
     }
 
@@ -292,8 +295,8 @@ export class ClinicalFormsComponent implements OnInit {
       }
       
       this.snackBar.open(
-        '✅ All custom questionnaires deleted successfully',
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.allQuestionnairesDeletedSuccess'),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 4000,
           panelClass: ['success-snackbar']
@@ -301,8 +304,8 @@ export class ClinicalFormsComponent implements OnInit {
       );
     } else {
       this.snackBar.open(
-        '❌ Failed to delete questionnaires',
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.failedToDeleteQuestionnaires'),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 4000,
           panelClass: ['error-snackbar']
@@ -366,8 +369,8 @@ export class ClinicalFormsComponent implements OnInit {
       this.questionnaires[formId] = data;
     } catch (error) {
       this.snackBar.open(
-        `Failed to load questionnaire: ${questionnaireFile}`,
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.failedToLoadQuestionnaire', { file: questionnaireFile }),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 5000,
           panelClass: ['error-snackbar']
@@ -431,8 +434,8 @@ export class ClinicalFormsComponent implements OnInit {
     
     if (!templateFile) {
       this.snackBar.open(
-        `Template file not found for: ${formId}`,
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.templateFileNotFound', { formId }),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 5000,
           panelClass: ['error-snackbar']
@@ -468,8 +471,8 @@ export class ClinicalFormsComponent implements OnInit {
     } catch (error) {
       console.error('Error loading openEHR template:', error);
       this.snackBar.open(
-        `Failed to load openEHR template: ${templateFile}. Error: ${(error as Error).message}`,
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.failedToLoadOpenEhrTemplate', { file: templateFile, error: (error as Error).message }),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 5000,
           panelClass: ['error-snackbar']
@@ -529,9 +532,9 @@ export class ClinicalFormsComponent implements OnInit {
     const organization = this.getTargetOrganization(formData);
     const referenceId = this.generateReferenceId();
     
-    const message = `✅ ICSR Report ${reportId} successfully submitted to ${organization}. Reference ID: ${referenceId}`;
-    const action = 'Close';
-    
+    const message = this.translocoService.translate('benefitsDemo.clinicalForms.messages.icsrSubmittedSuccess', { reportId, organization, referenceId });
+    const action = this.translocoService.translate('benefitsDemo.clinicalForms.actions.close');
+
     this.snackBar.open(
       message,
       action,
@@ -546,8 +549,8 @@ export class ClinicalFormsComponent implements OnInit {
     // Add demo notice after a short delay
     setTimeout(() => {
       this.snackBar.open(
-        'This is a demonstration. No actual data was submitted to any regulatory authority.',
-        'OK',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.demoNotice'),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.ok'),
         {
           duration: 6000,
           horizontalPosition: 'center',
@@ -560,8 +563,8 @@ export class ClinicalFormsComponent implements OnInit {
 
   private showErrorMessage(): void {
     this.snackBar.open(
-      '❌ Submission failed. Please check your connection and try again.',
-      'Close',
+      this.translocoService.translate('benefitsDemo.clinicalForms.messages.submissionFailed'),
+      this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
       {
         duration: 6000,
         horizontalPosition: 'center',
@@ -603,8 +606,8 @@ export class ClinicalFormsComponent implements OnInit {
   onQuestionnaireSubmitted(data: any): void {
     // Show success message
     this.snackBar.open(
-      `Questionnaire response saved successfully`,
-      'Close',
+      this.translocoService.translate('benefitsDemo.clinicalForms.messages.questionnaireResponseSaved'),
+      this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
       {
         duration: 4000,
         horizontalPosition: 'center',
@@ -663,8 +666,8 @@ export class ClinicalFormsComponent implements OnInit {
         
         // Show success message
         this.snackBar.open(
-          `openEHR composition saved successfully`,
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalForms.messages.openEhrCompositionSaved'),
+          this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -675,8 +678,8 @@ export class ClinicalFormsComponent implements OnInit {
       } else {
         // No composition data
         this.snackBar.open(
-          `Warning: No data to save. Please fill in at least one field.`,
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalForms.messages.warningNoDataToSave'),
+          this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
           {
             duration: 5000,
             horizontalPosition: 'center',
@@ -689,8 +692,8 @@ export class ClinicalFormsComponent implements OnInit {
     } else {
       // No patient selected
       this.snackBar.open(
-        `Warning: No patient selected. Composition not saved.`,
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalForms.messages.warningNoPatientSelected'),
+        this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
         {
           duration: 5000,
           horizontalPosition: 'center',
@@ -728,8 +731,8 @@ export class ClinicalFormsComponent implements OnInit {
   onAllergyAdded(allergyData: any): void {
     // Show success message for allergy documentation
     this.snackBar.open(
-      `✅ Allergy/Intolerance documented: ${allergyData.display || 'Unknown'}`,
-      'Close',
+      this.translocoService.translate('benefitsDemo.clinicalForms.messages.allergyDocumented', { display: allergyData.display || this.translocoService.translate('benefitsDemo.clinicalForms.labels.unknown') }),
+      this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
       {
         duration: 4000,
         horizontalPosition: 'center',
@@ -780,13 +783,13 @@ export class ClinicalFormsComponent implements OnInit {
         const newConditionsAdded = await this.createConditionsFromAllergyReactions(allergyToStore);
         
         // Show success message
-        const message = newConditionsAdded > 0 
-          ? `Allergy/Intolerance saved successfully. ${newConditionsAdded} reaction(s) added to problem list.`
-          : 'Allergy/Intolerance saved successfully';
+        const message = newConditionsAdded > 0
+          ? this.translocoService.translate('benefitsDemo.clinicalForms.messages.allergySavedWithReactions', { count: newConditionsAdded })
+          : this.translocoService.translate('benefitsDemo.clinicalForms.messages.allergySavedSuccess');
         
         this.snackBar.open(
           message,
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -808,8 +811,8 @@ export class ClinicalFormsComponent implements OnInit {
       } else {
         // Duplicate detected
         this.snackBar.open(
-          'This allergy already exists for this patient',
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalForms.messages.allergyAlreadyExists'),
+          this.translocoService.translate('benefitsDemo.clinicalForms.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',

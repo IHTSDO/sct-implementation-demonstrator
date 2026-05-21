@@ -1,35 +1,36 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="interoperability-container">
   <div class="back-button-container">
     <button mat-flat-button (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
-      Back to the SNOMED EHR Lab
+      {{ t('interoperability.actions.backToEhrLab') }}
     </button>
   </div>
 
   @if (isLoading || error || hasPatientData()) {
     <div class="page-header">
       <div class="page-header-copy">
-        <h1>IPS Reconciliation Wizard</h1>
-        <p>Load an IPS, identify the patient, review each clinical section, and import only the items you want to keep.</p>
+        <h1>{{ t('interoperability.sections.pageTitle') }}</h1>
+        <p>{{ t('interoperability.sections.pageSubtitle') }}</p>
       </div>
       <div class="page-header-actions">
         @if (hasPatientData()) {
           <button mat-stroked-button color="primary" (click)="backToInteroperabilityHome()" [disabled]="isImporting">
             <mat-icon>arrow_back</mat-icon>
-            Back to interoperability home
+            {{ t('interoperability.actions.backToInteroperabilityHome') }}
           </button>
         } @else {
           <button mat-flat-button color="primary" (click)="triggerFileUpload()" [disabled]="isLoading || isImporting">
             <mat-icon>upload_file</mat-icon>
-            Upload IPS File
+            {{ t('interoperability.actions.uploadIpsFile') }}
           </button>
           <button mat-stroked-button color="primary" (click)="startShlQrScan()" [disabled]="isLoading || isImporting || isShlResolving">
             <mat-icon>qr_code_scanner</mat-icon>
-            Scan SHL QR
+            {{ t('interoperability.actions.scanShlQr') }}
           </button>
           <button mat-button (click)="loadExampleIPSBundle()" [disabled]="isLoading || isImporting">
             <mat-icon>play_arrow</mat-icon>
-            Try Example IPS
+            {{ t('interoperability.actions.tryExampleIps') }}
           </button>
         }
       </div>
@@ -42,12 +43,12 @@
     <div class="scanner-panel">
       <div class="scanner-panel-header">
         <div>
-          <h3>Scan Smart Health Link</h3>
-          <p>Point the camera at an SHL QR code to load the IPS bundle.</p>
+          <h3>{{ t('interoperability.sections.scannerTitle') }}</h3>
+          <p>{{ t('interoperability.sections.scannerSubtitle') }}</p>
         </div>
         <button mat-stroked-button color="warn" (click)="stopShlQrScan()">
           <mat-icon>close</mat-icon>
-          Stop scanner
+          {{ t('interoperability.actions.stopScanner') }}
         </button>
       </div>
       <video #shlScannerVideo class="scanner-video" autoplay playsinline muted></video>
@@ -64,7 +65,7 @@
   @if (isShlResolving && !isLoading) {
     <div class="banner banner-info">
       <mat-spinner diameter="24"></mat-spinner>
-      <span>Resolving SHL and downloading IPS...</span>
+      <span>{{ t('interoperability.messages.resolvingShl') }}</span>
     </div>
   }
 
@@ -72,19 +73,19 @@
     @if (isLoading) {
       <div class="state-card">
         <mat-spinner diameter="48"></mat-spinner>
-        <h3>Loading IPS bundle</h3>
-        <p>We are parsing the patient summary and preparing the wizard steps.</p>
+        <h3>{{ t('interoperability.messages.loadingTitle') }}</h3>
+        <p>{{ t('interoperability.messages.loadingSubtitle') }}</p>
       </div>
     }
 
     @if (error && !isLoading) {
       <div class="state-card state-card-error">
         <mat-icon class="state-icon">error</mat-icon>
-        <h3>Could not load the IPS</h3>
+        <h3>{{ t('interoperability.messages.errorTitle') }}</h3>
         <p>{{ error }}</p>
         <button mat-flat-button color="primary" (click)="loadExampleIPSBundle()">
           <mat-icon>refresh</mat-icon>
-          Retry with example IPS
+          {{ t('interoperability.actions.retryWithExample') }}
         </button>
       </div>
     }
@@ -93,26 +94,23 @@
       <div class="welcome-shell">
         <div class="welcome-panel">
           <div class="welcome-logo-row">
-            <img class="welcome-ips-logo" src="assets/img/ips-logo.png" alt="IPS logo">
-            <img class="welcome-snomed-logo" src="assets/img/SI_CT_w_tagline.png" alt="SNOMED CT logo">
+            <img class="welcome-ips-logo" src="assets/img/ips-logo.png" [alt]="t('interoperability.labels.ipsLogoAlt')">
+            <img class="welcome-snomed-logo" src="assets/img/SI_CT_w_tagline.png" [alt]="t('interoperability.labels.snomedLogoAlt')">
           </div>
-          <h2>Reconcile an incoming IPS step by step</h2>
-          <p>
-            This module guides the clinician through patient identification first, then one reconciliation step
-            per IPS section that contains content, and finally a summary before import.
-          </p>
+          <h2>{{ t('interoperability.sections.welcomeTitle') }}</h2>
+          <p>{{ t('interoperability.sections.welcomeDescription') }}</p>
           <div class="welcome-actions">
             <button mat-flat-button color="primary" (click)="loadExampleIPSBundle()" [disabled]="isImporting">
               <mat-icon>play_arrow</mat-icon>
-              Try Example IPS Bundle
+              {{ t('interoperability.actions.tryExampleIpsBundle') }}
             </button>
             <button mat-stroked-button color="primary" (click)="triggerFileUpload()" [disabled]="isImporting">
               <mat-icon>upload_file</mat-icon>
-              Upload Your Own IPS File
+              {{ t('interoperability.actions.uploadYourOwnIpsFile') }}
             </button>
             <button mat-stroked-button color="primary" (click)="startShlQrScan()" [disabled]="isImporting || isShlResolving">
               <mat-icon>qr_code_scanner</mat-icon>
-              Scan SHL QR
+              {{ t('interoperability.actions.scanShlQr') }}
             </button>
           </div>
         </div>
@@ -123,8 +121,8 @@
       <div class="wizard-shell">
         <aside class="wizard-sidebar">
           <div class="wizard-sidebar-header">
-            <span class="eyebrow">Workflow</span>
-            <h3>Reconciliation Steps</h3>
+            <span class="eyebrow">{{ t('interoperability.labels.workflowEyebrow') }}</span>
+            <h3>{{ t('interoperability.sections.reconciliationSteps') }}</h3>
           </div>
 
           <div class="wizard-steps">
@@ -152,7 +150,7 @@
 
         <section class="wizard-stage">
           <div class="wizard-stage-header">
-            <span class="eyebrow">Step {{ currentStepIndex + 1 }} of {{ wizardSteps.length }}</span>
+            <span class="eyebrow">{{ t('interoperability.labels.stepOf', { current: currentStepIndex + 1, total: wizardSteps.length }) }}</span>
             <h2>{{ getCurrentStep()?.title }}</h2>
             <p>{{ getCurrentStep()?.description }}</p>
           </div>
@@ -163,21 +161,21 @@
                 <mat-card-header>
                   <mat-card-title>
                     <mat-icon>badge</mat-icon>
-                    IPS Patient
+                    {{ t('interoperability.labels.ipsPatient') }}
                   </mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
                   <div class="patient-summary-grid">
                     <div class="patient-summary-item">
-                      <span class="patient-summary-label">Name</span>
+                      <span class="patient-summary-label">{{ t('interoperability.labels.name') }}</span>
                       <strong>{{ getPatientName() }}</strong>
                     </div>
                     <div class="patient-summary-item">
-                      <span class="patient-summary-label">Date of birth</span>
+                      <span class="patient-summary-label">{{ t('interoperability.labels.dateOfBirth') }}</span>
                       <strong>{{ patientData?.patient?.birthDate | date:'mediumDate' }}</strong>
                     </div>
                     <div class="patient-summary-item">
-                      <span class="patient-summary-label">Gender</span>
+                      <span class="patient-summary-label">{{ t('interoperability.labels.gender') }}</span>
                       <strong>{{ getPatientGender() }}</strong>
                     </div>
                   </div>
@@ -188,24 +186,24 @@
                 <mat-card-header>
                   <mat-card-title>
                     <mat-icon>person_search</mat-icon>
-                    Identify or Create Patient
+                    {{ t('interoperability.labels.identifyOrCreatePatient') }}
                   </mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
                   @if (suggestedPatient && !linkedPatient) {
                     <div class="suggestion-card">
                       <div class="suggestion-copy">
-                        <span class="eyebrow">Suggested automatic match</span>
+                        <span class="eyebrow">{{ t('interoperability.labels.suggestedMatch') }}</span>
                         <strong>{{ getPatientDisplayName(suggestedPatient) }}</strong>
-                        <span>{{ suggestedPatient.birthDate }} · {{ formatScoreAsPercentage(suggestedPatient.score) }} match</span>
+                        <span>{{ suggestedPatient.birthDate }} · {{ formatScoreAsPercentage(suggestedPatient.score) }} {{ t('interoperability.labels.match') }}</span>
                       </div>
                       <div class="suggestion-actions">
                         <button mat-flat-button color="primary" (click)="acceptSuggestion()">
                           <mat-icon>check</mat-icon>
-                          Use this patient
+                          {{ t('interoperability.actions.useThisPatient') }}
                         </button>
                         <button mat-button (click)="dismissSuggestion()">
-                          Dismiss
+                          {{ t('interoperability.actions.dismiss') }}
                         </button>
                       </div>
                     </div>
@@ -214,14 +212,14 @@
                   @if (needsManualPatientEntry() && !linkedPatient) {
                     <div class="banner banner-muted">
                       <mat-icon>info</mat-icon>
-                      <span>No automatic match with existing patients. You can select one manually or create a new patient.</span>
+                      <span>{{ t('interoperability.messages.noAutoMatch') }}</span>
                     </div>
                   }
 
                   <mat-form-field class="patient-selector">
-                    <mat-label>Select existing patient</mat-label>
+                    <mat-label>{{ t('interoperability.labels.selectExistingPatient') }}</mat-label>
                     <mat-select [(value)]="selectedPatientId" (selectionChange)="onPatientSelectionChange($event)">
-                      <mat-option value="">No patient selected</mat-option>
+                      <mat-option value="">{{ t('interoperability.labels.noPatientSelected') }}</mat-option>
                       @for (item of sortedPatientsWithScores; track item.patient.id) {
                         <mat-option [value]="item.patient.id">
                           {{ getPatientDisplayName(item.patient) }} ({{ item.patient.birthDate }}) · {{ formatScoreAsPercentage(item.score) }}
@@ -234,7 +232,7 @@
                     <div class="action-row">
                       <button mat-stroked-button color="primary" (click)="createNewPatient()">
                         <mat-icon>person_add</mat-icon>
-                        Create New Patient
+                        {{ t('interoperability.actions.createNewPatient') }}
                       </button>
                     </div>
                   }
@@ -242,11 +240,11 @@
                   @if (linkedPatient) {
                     <div class="linked-patient-card">
                       <div>
-                        <span class="eyebrow">{{ linkedPatientIsDraft ? 'New patient draft' : 'Linked target record' }}</span>
+                        <span class="eyebrow">{{ linkedPatientIsDraft ? t('interoperability.labels.newPatientDraft') : t('interoperability.labels.linkedTargetRecord') }}</span>
                         <strong>{{ getPatientDisplayName(linkedPatient) }}</strong>
                         <span>{{ linkedPatient.birthDate | date:'mediumDate' }} · {{ linkedPatient.gender | titlecase }}</span>
                       </div>
-                      <span class="success-pill">{{ linkedPatientIsDraft ? 'Will be created on import' : 'Ready' }}</span>
+                      <span class="success-pill">{{ linkedPatientIsDraft ? t('interoperability.labels.willBeCreated') : t('interoperability.labels.ready') }}</span>
                     </div>
                   }
                 </mat-card-content>
@@ -258,19 +256,19 @@
             <div class="merge-step-shell">
               <div class="merge-step-overview">
                 <div class="merge-overview-card">
-                  <span class="merge-overview-label">IPS items</span>
+                  <span class="merge-overview-label">{{ t('interoperability.labels.ipsItems') }}</span>
                   <strong>{{ getSectionItems(section).length }}</strong>
                 </div>
                 <div class="merge-overview-card">
-                  <span class="merge-overview-label">Already in record</span>
+                  <span class="merge-overview-label">{{ t('interoperability.labels.alreadyInRecord') }}</span>
                   <strong>{{ getExistingItems(section).length }}</strong>
                 </div>
                 <div class="merge-overview-card">
-                  <span class="merge-overview-label">Selected to import</span>
+                  <span class="merge-overview-label">{{ t('interoperability.labels.selectedToImport') }}</span>
                   <strong>{{ getSelectedCount(section) }}</strong>
                 </div>
                 <div class="merge-overview-card">
-                  <span class="merge-overview-label">Skipped</span>
+                  <span class="merge-overview-label">{{ t('interoperability.labels.skipped') }}</span>
                   <strong>{{ getSkippedCount(section) }}</strong>
                 </div>
               </div>
@@ -278,7 +276,7 @@
               @if (!hasAvailableItems(section) && getExistingItems(section).length > 0) {
                 <div class="banner banner-muted">
                   <mat-icon>verified</mat-icon>
-                  <span>All IPS {{ getSectionTitle(section).toLowerCase() }} already appear to exist in the clinical record.</span>
+                  <span>{{ t('interoperability.messages.allAlreadyExist', { section: getSectionTitle(section).toLowerCase() }) }}</span>
                 </div>
               }
 
@@ -286,8 +284,8 @@
                 <mat-card class="comparison-card">
                   <mat-card-header>
                     <mat-card-title class="comparison-title comparison-title-ips">
-                      <span>From IPS</span>
-                      <img class="ips-title-logo" src="assets/img/ips-logo.png" alt="IPS logo">
+                      <span>{{ t('interoperability.labels.fromIps') }}</span>
+                      <img class="ips-title-logo" src="assets/img/ips-logo.png" [alt]="t('interoperability.labels.ipsLogoAlt')">
                     </mat-card-title>
                   </mat-card-header>
                   <mat-card-content>
@@ -310,13 +308,13 @@
                             </div>
 
                             @if (isItemAlreadyRecorded(section, item)) {
-                              <span class="status-pill status-pill-neutral">Already in record</span>
+                              <span class="status-pill status-pill-neutral">{{ t('interoperability.labels.alreadyInRecord') }}</span>
                             }
 
                             @if (!isItemAlreadyRecorded(section, item)) {
                               <button mat-flat-button color="primary" (click)="toggleSectionSelection(section, item.id)">
                                 <mat-icon>{{ isItemSelected(section, item.id) ? 'remove_circle' : 'add_circle' }}</mat-icon>
-                                {{ isItemSelected(section, item.id) ? 'Remove' : 'Add' }}
+                                {{ isItemSelected(section, item.id) ? t('interoperability.actions.remove') : t('interoperability.actions.add') }}
                               </button>
                             }
                           </div>
@@ -330,7 +328,7 @@
                   <mat-card-header>
                     <mat-card-title>
                       <mat-icon>description</mat-icon>
-                      Existing Clinical Record
+                      {{ t('interoperability.labels.existingClinicalRecord') }}
                     </mat-card-title>
                   </mat-card-header>
                   <mat-card-content>
@@ -354,7 +352,7 @@
                     @if (getExistingItems(section).length === 0) {
                       <div class="empty-panel">
                         <mat-icon>inbox</mat-icon>
-                        <p>No {{ getSectionTitle(section).toLowerCase() }} currently exist in the linked clinical record.</p>
+                        <p>{{ t('interoperability.messages.noExistingItems', { section: getSectionTitle(section).toLowerCase() }) }}</p>
                       </div>
                     }
                   </mat-card-content>
@@ -370,17 +368,17 @@
                   <mat-card-header>
                     <mat-card-title class="summary-card-title">
                       <mat-icon>badge</mat-icon>
-                      IPS Patient
+                      {{ t('interoperability.labels.ipsPatient') }}
                     </mat-card-title>
                   </mat-card-header>
                   <mat-card-content>
                     <div class="patient-summary-grid">
                       <div class="patient-summary-item">
-                        <span class="patient-summary-label">Name</span>
+                        <span class="patient-summary-label">{{ t('interoperability.labels.name') }}</span>
                         <strong>{{ getPatientName() }}</strong>
                       </div>
                       <div class="patient-summary-item">
-                        <span class="patient-summary-label">Date of birth</span>
+                        <span class="patient-summary-label">{{ t('interoperability.labels.dateOfBirth') }}</span>
                         <strong>{{ patientData?.patient?.birthDate | date:'mediumDate' }}</strong>
                       </div>
                     </div>
@@ -391,18 +389,18 @@
                   <mat-card-header>
                     <mat-card-title class="summary-card-title">
                       <mat-icon>person_outline</mat-icon>
-                      Target Clinical Record
+                      {{ t('interoperability.labels.targetClinicalRecord') }}
                     </mat-card-title>
                   </mat-card-header>
                   <mat-card-content>
                     @if (linkedPatient) {
                       <div class="patient-summary-grid">
                         <div class="patient-summary-item">
-                          <span class="patient-summary-label">Name</span>
+                          <span class="patient-summary-label">{{ t('interoperability.labels.name') }}</span>
                           <strong>{{ getPatientDisplayName(linkedPatient) }}</strong>
                         </div>
                         <div class="patient-summary-item">
-                          <span class="patient-summary-label">Date of birth</span>
+                          <span class="patient-summary-label">{{ t('interoperability.labels.dateOfBirth') }}</span>
                           <strong>{{ linkedPatient.birthDate | date:'mediumDate' }}</strong>
                         </div>
                       </div>
@@ -412,7 +410,7 @@
               </div>
 
               <div class="summary-header">
-                <h3>Import summary</h3>
+                <h3>{{ t('interoperability.sections.importSummary') }}</h3>
                 <p>{{ getSummarySubtitle() }}</p>
               </div>
 
@@ -424,8 +422,8 @@
                     </mat-card-header>
                     <mat-card-content>
                       <div class="summary-counts">
-                        <span>{{ getSelectedCount(section) }} selected</span>
-                        <span>{{ getSkippedCount(section) }} skipped</span>
+                        <span>{{ t('interoperability.labels.selectedCount', { count: getSelectedCount(section) }) }}</span>
+                        <span>{{ t('interoperability.labels.skippedCount', { count: getSkippedCount(section) }) }}</span>
                       </div>
 
                       @if (getSelectedItems(section).length > 0) {
@@ -440,7 +438,7 @@
                       }
 
                       @if (getSelectedItems(section).length === 0) {
-                        <div class="empty-inline">No {{ getSectionTitle(section).toLowerCase() }} selected for import.</div>
+                        <div class="empty-inline">{{ t('interoperability.messages.noneSelectedForImport', { section: getSectionTitle(section).toLowerCase() }) }}</div>
                       }
                     </mat-card-content>
                   </mat-card>
@@ -453,12 +451,12 @@
           <div class="wizard-actions">
             <button mat-button (click)="goToPreviousStep()" [disabled]="!canGoToPreviousStep() || isImporting">
               <mat-icon>west</mat-icon>
-              Back
+              {{ t('interoperability.actions.back') }}
             </button>
 
             @if (!isCurrentStep('summary')) {
               <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="!canGoToNextStep() || isImporting">
-                Next
+                {{ t('interoperability.actions.next') }}
                 <mat-icon>east</mat-icon>
               </button>
             }
@@ -467,20 +465,20 @@
               @if (hasSelectedItems()) {
                 <button mat-flat-button color="primary" (click)="importAllSelectedItems()" [disabled]="isImporting">
                   <mat-icon>save</mat-icon>
-                  Import Selected Items ({{ getTotalSelectedCount() }})
+                  {{ t('interoperability.actions.importSelectedItems', { count: getTotalSelectedCount() }) }}
                 </button>
               } @else {
                 <div class="wizard-actions-inline-note">
-                  <span class="wizard-actions-note">Nothing to add</span>
+                  <span class="wizard-actions-note">{{ t('interoperability.labels.nothingToAdd') }}</span>
                   @if (linkedPatientIsDraft) {
                     <button mat-flat-button color="primary" (click)="importAllSelectedItems()" [disabled]="!linkedPatient || isImporting">
                       <mat-icon>person_add</mat-icon>
-                      Create Patient Only
+                      {{ t('interoperability.actions.createPatientOnly') }}
                     </button>
                   } @else {
                     <button mat-flat-button color="primary" (click)="openLinkedPatientRecord()" [disabled]="!linkedPatient || isImporting">
                       <mat-icon>open_in_new</mat-icon>
-                      Open record
+                      {{ t('interoperability.actions.openRecord') }}
                     </button>
                   }
                 </div>
@@ -496,9 +494,10 @@
     <div class="import-overlay">
       <div class="import-overlay-content">
         <mat-spinner diameter="56"></mat-spinner>
-        <h3>Importing selected IPS items</h3>
-        <p>Saving the selected concepts into the clinical record and opening the patient chart.</p>
+        <h3>{{ t('interoperability.messages.importingTitle') }}</h3>
+        <p>{{ t('interoperability.messages.importingSubtitle') }}</p>
       </div>
     </div>
   }
 </div>
+</ng-container>

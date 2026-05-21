@@ -11,6 +11,7 @@ import { CdsState } from '../cds-panel/cds-panel.component';
 import { Subscription, forkJoin, of, delay, firstValueFrom } from 'rxjs';
 import { AllergyFormDialogComponent } from '../allergy-form-dialog/allergy-form-dialog.component';
 import { ConfirmationDialogComponent } from '../../questionnaires/confirmation-dialog/confirmation-dialog.component';
+import { TranslocoService } from '@jsverse/transloco';
 import type {
   AllergyIntolerance,
   ClinicalDataLoadSummary,
@@ -211,7 +212,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     private router: Router,
     private terminologyService: TerminologyService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private translocoService: TranslocoService
   ) { }
 
   ngOnInit(): void {
@@ -462,7 +464,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         this.showClinicalDataLoadedSnackBar(summary);
       } catch (error) {
         console.error('Error loading clinical data from FHIR server:', error);
-        this.snackBar.open('Failed to load clinical data from the FHIR server.', 'Close', {
+        this.snackBar.open(this.translocoService.translate('benefitsDemo.clinicalRecord.messages.failedToLoadClinicalData'), this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'), {
           duration: 3500,
           horizontalPosition: 'center',
           verticalPosition: 'bottom'
@@ -821,8 +823,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       error: (error) => {
         console.error(`Failed to get ICD-10 mapping for SNOMED concept ${snomedConceptId}:`, error);
         this.snackBar.open(
-          `Failed to map to ICD-10. Error: ${error.message || 'Unknown error'}`,
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.messages.failedToMapIcd10', { error: error.message || this.translocoService.translate('benefitsDemo.clinicalRecord.messages.unknownError') }),
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 5000,
             horizontalPosition: 'center',
@@ -896,8 +898,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       if (!wasAdded) {
         // Duplicate detected - show warning and don't add to local array
         this.snackBar.open(
-          'This condition already exists for this patient (duplicate SNOMED CT code detected).',
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.messages.duplicateCondition'),
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -946,8 +948,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       if (!wasAdded) {
         // Duplicate detected - show warning and don't add to local array
         this.snackBar.open(
-          'This procedure already exists for this patient (duplicate SNOMED CT code detected).',
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.messages.duplicateProcedure'),
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -1026,8 +1028,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       if (!wasAdded) {
         // Duplicate detected - show warning and don't add to local array
         this.snackBar.open(
-          'This medication already exists for this patient (duplicate SNOMED CT code detected).',
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.messages.duplicateMedication'),
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -1089,8 +1091,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
       if (!wasAdded) {
         this.snackBar.open(
-          'This immunization already exists for this patient (same vaccine and date).',
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.messages.duplicateImmunization'),
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -1123,7 +1125,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.patientService.addPatientLabOrder(this.patient.id, labOrder);
     this.labOrders = [...this.labOrders, labOrder];
     this.touchDataVersion();
-    this.snackBar.open('Order saved successfully.', 'Close', {
+    this.snackBar.open(this.translocoService.translate('benefitsDemo.clinicalRecord.messages.orderSaved'), this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'), {
       duration: 3000,
       horizontalPosition: 'center',
       verticalPosition: 'top'
@@ -1159,8 +1161,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     } catch (error) {
       if ((error as any)?.code === 'duplicate-encounter') {
         this.snackBar.open(
-          'This encounter already exists for this patient.',
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.messages.duplicateEncounter'),
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -1231,12 +1233,12 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         
         // Show success notification (already shown in clinical-forms component, but update here if needed)
         const message = event.newConditionsCount > 0
-          ? `Allergy updated. Summary and ${event.newConditionsCount} reaction(s) mapped to body diagram.`
-          : 'Allergy record updated successfully';
-        
+          ? this.translocoService.translate('benefitsDemo.clinicalRecord.messages.allergyUpdatedWithReactions', { count: event.newConditionsCount })
+          : this.translocoService.translate('benefitsDemo.clinicalRecord.messages.allergyRecordUpdated');
+
         this.snackBar.open(
           message,
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -1287,18 +1289,19 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           questionnaireData.response
         );
         
-        let successMessage = `✅ Questionnaire "${questionnaireResponse.questionnaireName || 'Response'}" saved successfully`;
-        
+        const questionnaireName = questionnaireResponse.questionnaireName || this.translocoService.translate('benefitsDemo.clinicalRecord.messages.questionnaireDefaultName');
+        let successMessage = this.translocoService.translate('benefitsDemo.clinicalRecord.messages.questionnaireSaved', { name: questionnaireName });
+
         if (extractedConditions > 0) {
-          successMessage += `. ${extractedConditions} item(s) extracted.`;
+          successMessage += `. ${this.translocoService.translate('benefitsDemo.clinicalRecord.messages.questionnaireItemsExtracted', { count: extractedConditions })}`;
           // Reload conditions to update the UI
           this.conditions = this.patientService.getPatientConditions(this.patient.id);
         }
-        
+
         // Show success notification
         this.snackBar.open(
           successMessage,
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 5000,
             horizontalPosition: 'center',
@@ -1307,12 +1310,12 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           }
         );
         this.touchDataVersion();
-        
+
       } catch (error) {
         console.error('Error saving questionnaire response:', error);
         this.snackBar.open(
-          '❌ Error saving questionnaire response',
-          'Close',
+          this.translocoService.translate('benefitsDemo.clinicalRecord.messages.questionnaireSaveError'),
+          this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -2518,8 +2521,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const eventCount = this.conditions.length + this.procedures.length + this.medications.length + this.immunizations.length + this.allergies.length + encounters.length;
     if (eventCount === 0) {
       this.snackBar.open(
-        'No clinical events to delete.',
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalRecord.messages.noEventsToDelete'),
+        this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
         {
           duration: 3000,
           horizontalPosition: 'center',
@@ -2533,10 +2536,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const confirmation = await firstValueFrom(this.dialog.open(ConfirmationDialogComponent, {
       width: '460px',
       data: {
-        title: 'Delete All Clinical Events',
-        message: `This will permanently delete ${eventCount} clinical events for ${this.getPatientDisplayName(this.patient)}.\n\nThis includes conditions, procedures, medications, immunizations, allergies, encounters, observations, questionnaires, and related bundles.\n\nThis action cannot be undone.`,
-        confirmText: 'Delete All Events',
-        cancelText: 'Cancel',
+        title: this.translocoService.translate('benefitsDemo.clinicalRecord.dialogs.deleteAllEventsTitle'),
+        message: this.translocoService.translate('benefitsDemo.clinicalRecord.dialogs.deleteAllEventsMessage', { count: eventCount, patient: this.getPatientDisplayName(this.patient) }),
+        confirmText: this.translocoService.translate('benefitsDemo.clinicalRecord.dialogs.deleteAllEventsConfirm'),
+        cancelText: this.translocoService.translate('benefitsDemo.clinicalRecord.dialogs.cancel'),
         confirmColor: 'warn'
       }
     }).afterClosed());
@@ -2560,7 +2563,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       this.patientService.selectPatient({ ...this.patient });
 
       this.snackBar.open(
-        'All clinical events have been deleted successfully.',
+        this.translocoService.translate('benefitsDemo.clinicalRecord.messages.allEventsDeleted'),
         undefined,
         {
           duration: 4000,
@@ -2572,8 +2575,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     } catch (error) {
       console.error('Error deleting all clinical events:', error);
       this.snackBar.open(
-        'Unable to delete all clinical events.',
-        'Close',
+        this.translocoService.translate('benefitsDemo.clinicalRecord.messages.failedToDeleteAllEvents'),
+        this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
         {
           duration: 4000,
           horizontalPosition: 'center',
@@ -2599,8 +2602,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const groupLabel = nonZeroGroups === 1 ? 'group' : 'groups';
 
     this.snackBar.open(
-      `FHIR data loaded: ${summary.totalResources} ${resourceLabel} across ${nonZeroGroups} ${groupLabel}.`,
-      'Close',
+      this.translocoService.translate('benefitsDemo.clinicalRecord.messages.fhirDataLoaded', { total: summary.totalResources, resourceLabel, groups: nonZeroGroups, groupLabel }),
+      this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
       {
         duration: 3200,
         horizontalPosition: 'center',

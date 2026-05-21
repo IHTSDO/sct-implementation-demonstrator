@@ -1,0 +1,10 @@
+<button mat-flat-button color="primary" class="bar-button" [matMenuTriggerFor]="siteLangMenu">
+  Site: {{ activeLang | uppercase }}
+</button>
+<mat-menu #siteLangMenu="matMenu">
+  @for (lang of availableLangs; track lang) {
+    <button mat-menu-item (click)="setLang(lang)">
+      {{ lang | uppercase }}
+    </button>
+  }
+</mat-menu>

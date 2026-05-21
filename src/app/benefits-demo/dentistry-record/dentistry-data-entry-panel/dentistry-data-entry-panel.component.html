@@ -1,26 +1,27 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div *ngIf="pinnedTooth; else noPinnedTooth" class="details-card">
   <div class="tooth-compact-header">
     <div class="tooth-notation-line">
-      Selected: <span class="tooth-name">{{ pinnedTooth.type }}</span>
+      {{ t('dentistryDataEntry.labels.selected') }}: <span class="tooth-name">{{ pinnedTooth.type }}</span>
       <br>
-      FDI (ISO): <strong>{{ pinnedTooth.notations.fdi }}</strong>
+      {{ t('dentistryDataEntry.labels.fdiIso') }}: <strong>{{ pinnedTooth.notations.fdi }}</strong>
       <span class="meta-separator">-</span>
-      Universal: <strong>{{ pinnedTooth.notations.universal }}</strong>
+      {{ t('dentistryDataEntry.labels.universal') }}: <strong>{{ pinnedTooth.notations.universal }}</strong>
       <span class="meta-separator">-</span>
-      Palmer: <strong>{{ pinnedTooth.notations.palmer }}</strong>
+      {{ t('dentistryDataEntry.labels.palmer') }}: <strong>{{ pinnedTooth.notations.palmer }}</strong>
     </div>
     <div class="tooth-snomed-line">
-      SNOMED:
+      {{ t('dentistryDataEntry.labels.snomed') }}:
       <ng-container *ngIf="pinnedTooth.snomedStructure as snomed; else snomedNotMapped">
         <strong>{{ normalizeWhitespace(snomed.code) }}</strong>
         {{ normalizeWhitespace(snomed.display) }}
       </ng-container>
-      <ng-template #snomedNotMapped>Not mapped</ng-template>
+      <ng-template #snomedNotMapped>{{ t('dentistryDataEntry.labels.notMapped') }}</ng-template>
     </div>
   </div>
 
   <div class="tooth-findings-section">
-    <h4>Current Records For This Tooth</h4>
+    <h4>{{ t('dentistryDataEntry.sections.currentRecords') }}</h4>
     <div *ngIf="pinnedToothSavedFindings.length > 0; else noPinnedToothFindings" class="tooth-findings-list">
       <app-dentistry-record-item
         *ngFor="let item of pinnedToothSavedFindings"
@@ -33,45 +34,45 @@
     </div>
     <ng-template #noPinnedToothFindings>
       <div class="empty-selection">
-        No records saved for this tooth yet.
+        {{ t('dentistryDataEntry.messages.noRecordsForTooth') }}
       </div>
     </ng-template>
   </div>
 
   <div class="finding-entry-section">
-    <label class="entry-label">Add new record</label>
-    <div class="entry-type-switch" role="group" aria-label="Entry type selector">
+    <label class="entry-label">{{ t('dentistryDataEntry.labels.addNewRecord') }}</label>
+    <div class="entry-type-switch" role="group" [attr.aria-label]="t('dentistryDataEntry.labels.entryTypeSelector')">
       <button
         type="button"
         class="entry-type-button"
         [class.active]="entryType === 'finding'"
         (click)="onEntryTypeChanged('finding')">
-        Findings
+        {{ t('dentistryDataEntry.tabs.findings') }}
       </button>
       <button
         type="button"
         class="entry-type-button"
         [class.active]="entryType === 'procedure'"
         (click)="onEntryTypeChanged('procedure')">
-        Procedures
+        {{ t('dentistryDataEntry.tabs.procedures') }}
       </button>
     </div>
 
-    <label class="entry-label">Affected Site(s) *</label>
+    <label class="entry-label">{{ t('dentistryDataEntry.fields.affectedSites') }}</label>
     <div class="site-selector">
       <label class="site-checkbox">
         <input
           type="checkbox"
           [checked]="isSelectedSite(completeSiteCode)"
           (change)="onExclusiveToggle(completeSiteCode, !!$any($event.target).checked)">
-        <span>Tooth in general</span>
+        <span>{{ t('dentistryDataEntry.fields.toothInGeneral') }}</span>
       </label>
       <label class="site-checkbox">
         <input
           type="checkbox"
           [checked]="isSelectedSite(periodontalSiteCode)"
           (change)="onExclusiveToggle(periodontalSiteCode, !!$any($event.target).checked)">
-        <span>Periodontal tissues</span>
+        <span>{{ t('dentistryDataEntry.fields.periodontalTissues') }}</span>
       </label>
 
       <div class="surface-checkbox-grid">
@@ -85,7 +86,7 @@
       </div>
 
       <div class="surface-checkbox-grid root-surface-grid" *ngIf="showRoots && rootSurfaceOptions.length > 0">
-        <div class="surface-section-label">Root surfaces</div>
+        <div class="surface-section-label">{{ t('dentistryDataEntry.labels.rootSurfaces') }}</div>
         <label class="site-checkbox" *ngFor="let option of rootSurfaceOptions">
           <input
             type="checkbox"
@@ -96,13 +97,13 @@
       </div>
     </div>
 
-    <label class="entry-label" for="finding-select">{{ entryType === 'finding' ? 'Finding *' : 'Procedure *' }}</label>
+    <label class="entry-label" for="finding-select">{{ entryType === 'finding' ? t('dentistryDataEntry.fields.finding') : t('dentistryDataEntry.fields.procedure') }}</label>
     <input
       id="finding-select"
       class="entry-input"
       type="text"
       required
-      [placeholder]="entryType === 'finding' ? 'Type to search findings' : 'Type to search procedures'"
+      [placeholder]="entryType === 'finding' ? t('dentistryDataEntry.fields.searchFindings') : t('dentistryDataEntry.fields.searchProcedures')"
       [value]="findingQuery"
       (input)="onFindingInput(($any($event.target).value || '').toString())"
       [matAutocomplete]="findingAutocomplete">
@@ -119,10 +120,10 @@
       class="save-entry-button"
       [disabled]="!canSave"
       (click)="onSaveClick()">
-      Save
+      {{ t('dentistryDataEntry.actions.save') }}
     </button>
     <div class="save-entry-feedback" *ngIf="isSaved">
-      Entry saved for tooth {{ pinnedTooth.notations.fdi }}.
+      {{ t('dentistryDataEntry.messages.entrySaved', { fdi: pinnedTooth.notations.fdi }) }}
     </div>
     <div class="save-entry-disabled-reason" *ngIf="!canSave && saveDisabledReason">
       {{ saveDisabledReason }}
@@ -132,6 +133,7 @@
 
 <ng-template #noPinnedTooth>
   <div class="empty-details">
-    Click a tooth to pin it here for data entry.
+    {{ t('dentistryDataEntry.messages.clickToPin') }}
   </div>
 </ng-template>
+</ng-container>

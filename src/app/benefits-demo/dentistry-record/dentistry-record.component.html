@@ -1,30 +1,31 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="record-content" *ngIf="patient">
   <div class="record-section">
     <div class="section-header">
-      <h2>Odontogram</h2>
+      <h2>{{ t('dentistryRecord.sections.odontogram') }}</h2>
       <button
         mat-icon-button
         class="fhir-floating-button"
-        matTooltip="View Dental FHIR Resources"
+        [matTooltip]="t('dentistryRecord.tooltips.viewDentalFhir')"
         (click)="openDentalFhirDialog()">
         <mat-icon fontIcon="data_object"></mat-icon>
       </button>
     </div>
 
-    <div class="view-mode-switch" role="group" aria-label="Odontogram view selector">
+    <div class="view-mode-switch" role="group" [attr.aria-label]="t('dentistryRecord.labels.odontogramViewSelector')">
       <button
         type="button"
         class="view-mode-button"
         [class.active]="viewMode === 'anatomic'"
         (click)="setViewMode('anatomic')">
-        Anatomic View
+        {{ t('dentistryRecord.tabs.anatomicView') }}
       </button>
       <button
         type="button"
         class="view-mode-button"
         [class.active]="viewMode === 'rootSurface'"
         (click)="setViewMode('rootSurface')">
-        Odontogram View
+        {{ t('dentistryRecord.tabs.odontogramView') }}
       </button>
     </div>
 
@@ -97,7 +98,7 @@
 
       <div class="odontogram-details">
         <mat-tab-group class="dental-side-tabs" [(selectedIndex)]="selectedSideTabIndex">
-          <mat-tab label="Selected Tooth">
+          <mat-tab [label]="t('dentistryRecord.tabs.selectedTooth')">
             <div class="side-tab-content">
               <app-dentistry-data-entry-panel
                 [pinnedTooth]="pinnedTooth"
@@ -128,7 +129,7 @@
 
           </mat-tab>
 
-          <mat-tab label="All Records">
+          <mat-tab [label]="t('dentistryRecord.tabs.allRecords')">
             <app-dentistry-all-findings-list
               [items]="getDentalObservationList()"
               (resolveFinding)="resolveSavedFinding($event)"
@@ -142,3 +143,4 @@
     </div>
   </div>
 </div>
+</ng-container>

@@ -1,9 +1,10 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="clinical-record-container">
   <!-- Header with patient info and navigation -->
   <div class="record-header">
     <div class="header-left">
       <button mat-flat-button color="primary" (click)="goBack()">
-        ← Back to Patient List
+        ← {{ t('clinicalRecord.actions.backToPatientList') }}
       </button>
     </div>
     <div class="header-center" *ngIf="patient">
@@ -13,12 +14,12 @@
         <span>{{ getPatientDeceasedSummary(patient) }}</span>
       </div>
       <div class="patient-meta">
-        <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
-        <span class="patient-dob" *ngIf="patient.birthDate">DOB: {{ patient.birthDate | date:'MMM dd, yyyy' }}</span>
-        <span class="patient-age" *ngIf="patient.birthDate">Age: {{ getPatientAge(patient.birthDate) }}</span>
+        <span class="patient-id">{{ t('clinicalRecord.labels.id') }}: {{ getPatientIdentifier(patient) }}</span>
+        <span class="patient-dob" *ngIf="patient.birthDate">{{ t('clinicalRecord.labels.dob') }}: {{ patient.birthDate | date:'MMM dd, yyyy' }}</span>
+        <span class="patient-age" *ngIf="patient.birthDate">{{ t('clinicalRecord.labels.age') }}: {{ getPatientAge(patient.birthDate) }}</span>
         <span class="patient-gender" *ngIf="patient.gender">{{ patient.gender }}</span>
         <span class="patient-status" [class.active]="patient.active !== false">
-          {{ patient.active === false ? 'Inactive' : 'Active' }}
+          {{ patient.active === false ? t('clinicalRecord.status.inactive') : t('clinicalRecord.status.active') }}
         </span>
       </div>
     </div>
@@ -32,7 +33,7 @@
         class="patient-cds-alert-link"
         (click)="onCdsNoticeClick()">
         <mat-icon>shield</mat-icon>
-        <span>{{ cdsState.recommendationCount }} CDS alert{{ cdsState.recommendationCount === 1 ? '' : 's' }} - View</span>
+        <span>{{ cdsState.recommendationCount }} {{ t('clinicalRecord.labels.cdsAlert') }}{{ cdsState.recommendationCount === 1 ? '' : t('clinicalRecord.labels.cdsAlertPlural') }} - {{ t('clinicalRecord.actions.view') }}</span>
       </button>
     </div>
   </div>
@@ -41,19 +42,19 @@
     <div class="clinical-loading-overlay" *ngIf="isLoadingClinicalData">
       <div class="clinical-loading-card">
         <mat-spinner diameter="36"></mat-spinner>
-        <span>Loading clinical data from FHIR server...</span>
+        <span>{{ t('clinicalRecord.messages.loadingClinicalData') }}</span>
       </div>
     </div>
 
     <div class="clinical-workspace" [class.sidebar-collapsed]="isSidebarCollapsed">
     <aside class="clinical-sidebar" [class.expanded]="isClinicalNavExpanded" [class.collapsed]="isSidebarCollapsed">
       <div class="sidebar-toggle-row">
-        <span class="workspace-title">EHR Lab</span>
+        <span class="workspace-title">{{ t('clinicalRecord.labels.workspaceTitle') }}</span>
         <button
           mat-icon-button
           class="sidebar-collapse-toggle"
           (click)="toggleSidebarCollapsed()"
-          [attr.aria-label]="isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+          [attr.aria-label]="isSidebarCollapsed ? t('clinicalRecord.tooltips.expandSidebar') : t('clinicalRecord.tooltips.collapseSidebar')">
           <mat-icon>menu</mat-icon>
         </button>
       </div>
@@ -66,7 +67,7 @@
             [class.active]="selectedModule === 'clinical'"
             (click)="onClinicalRootClick()">
             <mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon>
-            <span class="module-label">Clinical</span>
+            <span class="module-label">{{ t('clinicalRecord.nav.clinical') }}</span>
             <span class="group-caret-wrapper">
               <mat-icon class="group-caret" *ngIf="isClinicalNavExpanded">expand_less</mat-icon>
               <mat-icon class="group-caret" *ngIf="!isClinicalNavExpanded">expand_more</mat-icon>
@@ -80,7 +81,7 @@
               [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'summary'"
               (click)="selectClinicalView('summary')">
               <mat-icon>summarize</mat-icon>
-              <span>Summary</span>
+              <span>{{ t('clinicalRecord.nav.summary') }}</span>
             </button>
             <button
               mat-stroked-button
@@ -88,7 +89,7 @@
               [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'"
               (click)="selectClinicalView('problems')">
               <mat-icon>list_alt</mat-icon>
-              <span>Problems List</span>
+              <span>{{ t('clinicalRecord.nav.problemsList') }}</span>
             </button>
             <button
               mat-stroked-button
@@ -96,7 +97,7 @@
               [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'"
               (click)="selectClinicalView('orders')">
               <mat-icon>biotech</mat-icon>
-              <span>Clinical Orders</span>
+              <span>{{ t('clinicalRecord.nav.clinicalOrders') }}</span>
             </button>
             <button
               mat-stroked-button
@@ -104,7 +105,7 @@
               [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'"
               (click)="selectClinicalView('encounters')">
               <mat-icon>event_note</mat-icon>
-              <span>Encounters</span>
+              <span>{{ t('clinicalRecord.nav.encounters') }}</span>
             </button>
             <button
               mat-stroked-button
@@ -112,7 +113,7 @@
               [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'ai-entry'"
               (click)="selectClinicalView('ai-entry')">
               <mat-icon>smart_toy</mat-icon>
-              <span>AI Assisted Data Entry</span>
+              <span>{{ t('clinicalRecord.nav.aiAssistedDataEntry') }}</span>
             </button>
             <button
               mat-stroked-button
@@ -120,7 +121,7 @@
               [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'forms'"
               (click)="selectClinicalView('forms')">
               <mat-icon>description</mat-icon>
-              <span>Clinical Forms</span>
+              <span>{{ t('clinicalRecord.nav.clinicalForms') }}</span>
             </button>
             <button
               mat-stroked-button
@@ -128,7 +129,7 @@
               [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'alerts'"
               (click)="selectClinicalView('alerts')">
               <mat-icon>shield</mat-icon>
-              <span>Alerts</span>
+              <span>{{ t('clinicalRecord.nav.alerts') }}</span>
             </button>
           </div>
 
@@ -138,7 +139,7 @@
             [class.active]="selectedModule === 'dentistry'"
             (click)="onDentalRootClick()">
             <mat-icon fontSet="material-symbols-outlined">dentistry</mat-icon>
-            <span class="module-label">Dental</span>
+            <span class="module-label">{{ t('clinicalRecord.nav.dental') }}</span>
             <span class="group-caret-wrapper">
               <mat-icon class="group-caret" *ngIf="isDentalNavExpanded">expand_less</mat-icon>
               <mat-icon class="group-caret" *ngIf="!isDentalNavExpanded">expand_more</mat-icon>
@@ -152,7 +153,7 @@
               [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'"
               (click)="selectDentalView('odontogram')">
               <mat-icon>account_tree</mat-icon>
-              <span>Odontogram</span>
+              <span>{{ t('clinicalRecord.nav.odontogram') }}</span>
             </button>
           </div>
 
@@ -162,7 +163,7 @@
             [class.active]="selectedModule === 'nursing'"
             (click)="onNursingRootClick()">
             <mat-icon>healing</mat-icon>
-            <span class="module-label">Nursing</span>
+            <span class="module-label">{{ t('clinicalRecord.nav.nursing') }}</span>
             <span class="group-caret-wrapper">
               <mat-icon class="group-caret" *ngIf="isNursingNavExpanded">expand_less</mat-icon>
               <mat-icon class="group-caret" *ngIf="!isNursingNavExpanded">expand_more</mat-icon>
@@ -176,7 +177,7 @@
               [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'"
               (click)="selectNursingView('vitals')">
               <mat-icon>monitor_heart</mat-icon>
-              <span>Vital Signs</span>
+              <span>{{ t('clinicalRecord.nav.vitalSigns') }}</span>
             </button>
             <button
               mat-stroked-button
@@ -184,20 +185,20 @@
               [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'"
               (click)="selectNursingView('nutrition')">
               <mat-icon>restaurant</mat-icon>
-              <span>Nutritional Careplan</span>
+              <span>{{ t('clinicalRecord.nav.nutritionalCareplan') }}</span>
             </button>
           </div>
         </div>
 
         <div class="sidebar-data-section">
-          <div class="sidebar-section-label">Data</div>
+          <div class="sidebar-section-label">{{ t('clinicalRecord.nav.dataSectionLabel') }}</div>
           <button
             mat-stroked-button
             class="sidebar-item module-root data-root"
             [class.active]="selectedModule === 'data'"
             (click)="onDataRootClick()">
             <mat-icon>dataset</mat-icon>
-            <span class="module-label">Data</span>
+            <span class="module-label">{{ t('clinicalRecord.nav.data') }}</span>
             <span class="group-caret-wrapper">
               <mat-icon class="group-caret" *ngIf="isDataNavExpanded">expand_less</mat-icon>
               <mat-icon class="group-caret" *ngIf="!isDataNavExpanded">expand_more</mat-icon>
@@ -211,7 +212,7 @@
             [class.active]="selectedModule === 'data' && selectedDataView === 'fhir'"
             (click)="selectDataView('fhir')">
               <mat-icon>data_object</mat-icon>
-              <span>FHIR Repository</span>
+              <span>{{ t('clinicalRecord.nav.fhirRepository') }}</span>
           </button>
         </div>
         </div>
@@ -219,39 +220,39 @@
 
       <div class="collapsed-nav" *ngIf="isSidebarCollapsed">
         <div class="collapsed-nav-main">
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'summary'" (click)="selectClinicalView('summary')" matTooltip="Summary" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'summary'" (click)="selectClinicalView('summary')" [matTooltip]="t('clinicalRecord.nav.summary')" matTooltipPosition="right">
             <mat-icon>summarize</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'" (click)="selectClinicalView('problems')" matTooltip="Problems List" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'" (click)="selectClinicalView('problems')" [matTooltip]="t('clinicalRecord.nav.problemsList')" matTooltipPosition="right">
             <mat-icon>list_alt</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'" (click)="selectClinicalView('orders')" matTooltip="Clinical Orders" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'" (click)="selectClinicalView('orders')" [matTooltip]="t('clinicalRecord.nav.clinicalOrders')" matTooltipPosition="right">
             <mat-icon>biotech</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'" (click)="selectClinicalView('encounters')" matTooltip="Encounters" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'" (click)="selectClinicalView('encounters')" [matTooltip]="t('clinicalRecord.nav.encounters')" matTooltipPosition="right">
             <mat-icon>event_note</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'ai-entry'" (click)="selectClinicalView('ai-entry')" matTooltip="AI Assisted Data Entry" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'ai-entry'" (click)="selectClinicalView('ai-entry')" [matTooltip]="t('clinicalRecord.nav.aiAssistedDataEntry')" matTooltipPosition="right">
             <mat-icon>smart_toy</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'forms'" (click)="selectClinicalView('forms')" matTooltip="Clinical Forms" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'forms'" (click)="selectClinicalView('forms')" [matTooltip]="t('clinicalRecord.nav.clinicalForms')" matTooltipPosition="right">
             <mat-icon>description</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'alerts'" (click)="selectClinicalView('alerts')" matTooltip="Alerts" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'alerts'" (click)="selectClinicalView('alerts')" [matTooltip]="t('clinicalRecord.nav.alerts')" matTooltipPosition="right">
             <mat-icon>shield</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'" (click)="selectDentalView('odontogram')" matTooltip="Dental: Odontogram" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'dentistry' && selectedDentalView === 'odontogram'" (click)="selectDentalView('odontogram')" [matTooltip]="t('clinicalRecord.tooltips.dentalOdontogram')" matTooltipPosition="right">
             <mat-icon fontSet="material-symbols-outlined">dentistry</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'" (click)="selectNursingView('vitals')" matTooltip="Nursing: Vital Signs" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'vitals'" (click)="selectNursingView('vitals')" [matTooltip]="t('clinicalRecord.tooltips.nursingVitalSigns')" matTooltipPosition="right">
             <mat-icon>monitor_heart</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'" (click)="selectNursingView('nutrition')" matTooltip="Nursing: Nutritional Careplan" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'" (click)="selectNursingView('nutrition')" [matTooltip]="t('clinicalRecord.tooltips.nursingNutritionalCareplan')" matTooltipPosition="right">
             <mat-icon>restaurant</mat-icon>
           </button>
         </div>
         <div class="collapsed-nav-data">
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'data' && selectedDataView === 'fhir'" (click)="selectDataView('fhir')" matTooltip="Data: FHIR Repository" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'data' && selectedDataView === 'fhir'" (click)="selectDataView('fhir')" [matTooltip]="t('clinicalRecord.tooltips.dataFhirRepository')" matTooltipPosition="right">
             <mat-icon>data_object</mat-icon>
           </button>
         </div>
@@ -272,11 +273,11 @@
 
       <!-- Patient Demographics Section -->
       <div class="record-section" [ngClass]="getActiveContentThemeClass()" *ngIf="selectedModule === 'clinical' && selectedClinicalView === 'summary'">
-        <h2>Summary</h2>
+        <h2>{{ t('clinicalRecord.sections.summary') }}</h2>
         <div class="summary-deceased-panel" *ngIf="isPatientDeceased(patient)">
           <mat-icon>warning</mat-icon>
           <div>
-            <strong>Patient marked as deceased.</strong>
+            <strong>{{ t('clinicalRecord.messages.patientDeceased') }}</strong>
             <span>{{ getPatientDeceasedSummary(patient) }}</span>
           </div>
         </div>
@@ -284,9 +285,9 @@
           <div class="demographics-left">
             <div class="clinical-events-summary">
               <div class="clinical-summary-section">
-                <h5 class="summary-heading-conditions">Conditions</h5>
+                <h5 class="summary-heading-conditions">{{ t('clinicalRecord.sections.conditions') }}</h5>
                 <div class="clinical-summary-list" *ngIf="getSortedSummaryConditions().length > 0; else noConditions">
-                  <div class="clinical-summary-item hoverable-summary-condition" 
+                  <div class="clinical-summary-item hoverable-summary-condition"
                       *ngFor="let condition of getSortedSummaryConditions(); let i = index"
                       [attr.data-condition-id]="condition.id"
                       (mouseenter)="onConditionHover(condition, $event)"
@@ -295,14 +296,14 @@
                   </div>
                 </div>
                 <ng-template #noConditions>
-                  <div class="no-clinical-data">No conditions recorded</div>
+                  <div class="no-clinical-data">{{ t('clinicalRecord.messages.noConditions') }}</div>
                 </ng-template>
               </div>
 
               <div class="clinical-summary-section">
-                <h5 class="summary-heading-procedures">Procedures</h5>
+                <h5 class="summary-heading-procedures">{{ t('clinicalRecord.sections.procedures') }}</h5>
                 <div class="clinical-summary-list" *ngIf="getSortedSummaryProcedures().length > 0; else noProcedures">
-                  <div class="clinical-summary-item hoverable-summary-condition" 
+                  <div class="clinical-summary-item hoverable-summary-condition"
                       *ngFor="let procedure of getSortedSummaryProcedures()"
                       [attr.data-procedure-id]="procedure.id"
                       (mouseenter)="onProcedureHover(procedure, $event)"
@@ -311,7 +312,7 @@
                   </div>
                 </div>
                 <ng-template #noProcedures>
-                  <div class="no-clinical-data">No procedures recorded</div>
+                  <div class="no-clinical-data">{{ t('clinicalRecord.messages.noProcedures') }}</div>
                 </ng-template>
               </div>
             </div>
@@ -319,21 +320,21 @@
           <div class="demographics-middle">
             <div class="body-model-container">
               <div class="model-with-annotations">
-                <img 
-                  [src]="getBodyModelImage(patient.gender)" 
+                <img
+                  [src]="getBodyModelImage(patient.gender)"
                   [alt]="'Human body model - ' + (patient.gender || 'unspecified')"
                   class="body-model-image"
                 />
-                
+
                 <!-- Loading Overlay -->
                 <div *ngIf="isLoadingMapping" class="mapping-loader-overlay">
                   <div class="mapping-spinner"></div>
-                  <div class="mapping-loader-text">Updating event mappings...</div>
+                  <div class="mapping-loader-text">{{ t('clinicalRecord.messages.updatingEventMappings') }}</div>
                 </div>
-                
+
                 <!-- Anchor Points (hidden during loading) -->
-                <div 
-                  *ngFor="let anchorPoint of anchorPoints" 
+                <div
+                  *ngFor="let anchorPoint of anchorPoints"
                   class="anchor-point"
                   [class.active]="getEventCountForAnchorPoint(anchorPoint.id) > 0"
                   [class.empty]="!hasAssociatedEvents(anchorPoint)"
@@ -348,7 +349,7 @@
                   (mouseleave)="onAnchorPointHoverEnd()"
                 >
                   <div class="anchor-point-label" *ngIf="anchorPoint.type !== 'systemic'">{{ anchorPoint.name }}</div>
-                  <span *ngIf="anchorPoint.type === 'systemic'">Systemic</span>
+                  <span *ngIf="anchorPoint.type === 'systemic'">{{ t('clinicalRecord.labels.systemic') }}</span>
                 </div>
 
                 <!-- Connection lines are now handled dynamically via hover events -->
@@ -358,9 +359,9 @@
           <div class="demographics-right">
             <div class="clinical-events-summary">
               <div class="clinical-summary-section">
-                <h5 class="summary-heading-medications">Medications</h5>
+                <h5 class="summary-heading-medications">{{ t('clinicalRecord.sections.medications') }}</h5>
                 <div class="clinical-summary-list" *ngIf="medications.length > 0; else noMedications">
-                  <div class="clinical-summary-item hoverable-summary-condition" 
+                  <div class="clinical-summary-item hoverable-summary-condition"
                       *ngFor="let medication of getSortedMedications()"
                       [attr.data-medication-id]="medication.id"
                       (mouseenter)="onMedicationHover(medication, $event)"
@@ -369,12 +370,12 @@
                   </div>
                 </div>
                 <ng-template #noMedications>
-                  <div class="no-clinical-data">No medications recorded</div>
+                  <div class="no-clinical-data">{{ t('clinicalRecord.messages.noMedications') }}</div>
                 </ng-template>
               </div>
 
               <div class="clinical-summary-section">
-                <h5 class="summary-heading-medications">Immunizations</h5>
+                <h5 class="summary-heading-medications">{{ t('clinicalRecord.sections.immunizations') }}</h5>
                 <div class="clinical-summary-list" *ngIf="immunizations.length > 0; else noImmunizations">
                   <div class="clinical-summary-item"
                       *ngFor="let immunization of getSortedImmunizations()">
@@ -382,37 +383,37 @@
                   </div>
                 </div>
                 <ng-template #noImmunizations>
-                  <div class="no-clinical-data">No immunizations recorded</div>
+                  <div class="no-clinical-data">{{ t('clinicalRecord.messages.noImmunizations') }}</div>
                 </ng-template>
               </div>
 
               <div class="clinical-summary-section">
-                <h5 class="summary-heading-allergies">Allergic to:</h5>
+                <h5 class="summary-heading-allergies">{{ t('clinicalRecord.sections.allergicTo') }}</h5>
                 <div class="clinical-summary-list" *ngIf="allergies.length > 0; else noAllergies">
-                  <div class="clinical-summary-item hoverable-summary-condition" 
+                  <div class="clinical-summary-item hoverable-summary-condition"
                       *ngFor="let allergy of getSortedAllergies()"
                       (mouseenter)="onAllergyHover(allergy, $event)"
                       (mouseleave)="onConditionHoverEnd()">
                     <div class="item-name">
                       {{ getAllergyDisplayName(allergy) }} -
-                      <span class="allergy-meta" *ngIf="getAllergyCriticality(allergy)">Criticality: {{ getAllergyCriticality(allergy) }},</span>
+                      <span class="allergy-meta" *ngIf="getAllergyCriticality(allergy)">{{ t('clinicalRecord.labels.criticality') }}: {{ getAllergyCriticality(allergy) }},</span>
                       <span class="allergy-meta" *ngIf="getAllergyVerificationStatus(allergy)">{{ getAllergyVerificationStatus(allergy) }}</span>
                     </div>
                     <div class="allergy-reactions" *ngIf="getAllergyReactions(allergy).length > 0">
-                      <div class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy)">Reaction: {{ reaction }}</div>
+                      <div class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy)">{{ t('clinicalRecord.labels.reaction') }}: {{ reaction }}</div>
                     </div>
                   </div>
                 </div>
                 <ng-template #noAllergies>
-                  <div class="no-clinical-data">No allergies recorded</div>
+                  <div class="no-clinical-data">{{ t('clinicalRecord.messages.noAllergies') }}</div>
                 </ng-template>
               </div>
 
               <!-- CDS Section -->
               <div class="clinical-summary-section">
-                <h5>CDS</h5>
+                <h5>{{ t('clinicalRecord.sections.cds') }}</h5>
                 <div class="cds-notice-section">
-                  <div class="cds-notice clickable" 
+                  <div class="cds-notice clickable"
                       [ngClass]="getCdsNoticeClass()"
                       (click)="onCdsNoticeClick()">
                     <span class="cds-notice-text"><mat-icon class="cds-notice-icon">{{ getCdsNoticeIcon() }}</mat-icon> {{ getCdsNoticeText() }}</span>
@@ -423,10 +424,10 @@
           </div>
         </div>
         <div class="summary-timeline">
-          <app-clinical-timeline 
+          <app-clinical-timeline
             #clinicalTimeline
             [conditions]="conditions"
-            [procedures]="procedures" 
+            [procedures]="procedures"
             [medications]="medications"
             [immunizations]="immunizations"
             [allergies]="allergies"
@@ -462,10 +463,10 @@
 
             <div *ngIf="selectedClinicalView === 'ai-entry'" class="tab-content with-problems-layout ai-entry-layout">
               <div class="main-pane">
-                <app-ai-assisted-entry 
+                <app-ai-assisted-entry
                   [patient]="patient"
                   [conditions]="conditions"
-                  [procedures]="procedures" 
+                  [procedures]="procedures"
                   [medications]="medications"
                   (conditionAdded)="onConditionAdded($event)"
                   (procedureAdded)="onProcedureAdded($event)"
@@ -491,43 +492,43 @@
                     <div class="record-section clinical-entry-section">
                       <div class="clinical-entry-controls">
                         <div class="problem-header">
-                          <h3>Add Problem</h3>
-                          <p class="problem-description">A problem is any health-related issue, diagnosis, procedure, or ongoing treatment that needs to be tracked as part of a patient's care.</p>
+                          <h3>{{ t('clinicalRecord.sections.addProblem') }}</h3>
+                          <p class="problem-description">{{ t('clinicalRecord.messages.addProblemDescription') }}</p>
                         </div>
                         <div class="entry-buttons">
-                          <button mat-raised-button 
-                                  color="primary" 
+                          <button mat-raised-button
+                                  color="primary"
                                   (click)="toggleConditionEntry()"
                                   [disabled]="isProcessingNewEvent"
                                   class="entry-toggle-button condition-button"
                                   [class.active]="conditionEntry?.showAddForm">
                             <mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon>
-                            Add Condition
+                            {{ t('clinicalRecord.actions.addCondition') }}
                           </button>
-                          <button mat-raised-button 
+                          <button mat-raised-button
                                   color="primary"
                                   (click)="openAllergyForm()"
                                   class="entry-toggle-button allergy-button">
                             <mat-icon>warning</mat-icon>
-                            Add Allergy
+                            {{ t('clinicalRecord.actions.addAllergy') }}
                           </button>
-                          <button mat-raised-button 
-                                  color="primary" 
+                          <button mat-raised-button
+                                  color="primary"
                                   (click)="toggleProcedureEntry()"
                                   [disabled]="isProcessingNewEvent"
                                   class="entry-toggle-button procedure-button"
                                   [class.active]="procedureEntry?.showAddForm">
                             <mat-icon>healing</mat-icon>
-                            Add Procedure
+                            {{ t('clinicalRecord.actions.addProcedure') }}
                           </button>
-                          <button mat-raised-button 
-                                  color="primary" 
+                          <button mat-raised-button
+                                  color="primary"
                                   (click)="toggleMedicationEntry()"
                                   [disabled]="isProcessingNewEvent"
                                   class="entry-toggle-button medication-button"
                                   [class.active]="medicationEntry?.showAddForm">
                             <mat-icon>medication</mat-icon>
-                            Add Medication
+                            {{ t('clinicalRecord.actions.addMedication') }}
                           </button>
                           <button mat-raised-button
                                   color="primary"
@@ -536,36 +537,36 @@
                                   class="entry-toggle-button medication-button"
                                   [class.active]="immunizationEntry?.showAddForm">
                             <mat-icon>vaccines</mat-icon>
-                            Add Immunization
+                            {{ t('clinicalRecord.actions.addImmunization') }}
                           </button>
                         </div>
                       </div>
-                      
+
                       <!-- Clinical Entry Forms -->
                       <div class="clinical-entry-forms">
-                        <app-clinical-entry 
+                        <app-clinical-entry
                           #conditionEntry
-                          [patientId]="patient.id" 
+                          [patientId]="patient.id"
                           entryType="condition"
                           [hideButton]="true"
                           [saving]="savingEntryType === 'condition'"
                           (itemAdded)="onConditionAdded($event)"
                           (formOpened)="onClinicalEntryFormOpened($event)">
                         </app-clinical-entry>
-                        
-                        <app-clinical-entry 
+
+                        <app-clinical-entry
                           #procedureEntry
-                          [patientId]="patient.id" 
+                          [patientId]="patient.id"
                           entryType="procedure"
                           [hideButton]="true"
                           [saving]="savingEntryType === 'procedure'"
                           (itemAdded)="onProcedureAdded($event)"
                           (formOpened)="onClinicalEntryFormOpened($event)">
                         </app-clinical-entry>
-                        
-                        <app-clinical-entry 
+
+                        <app-clinical-entry
                           #medicationEntry
-                          [patientId]="patient.id" 
+                          [patientId]="patient.id"
                           entryType="medication"
                           [availableConditions]="conditions"
                           [availableProcedures]="procedures"
@@ -593,24 +594,24 @@
 	                      <!-- Conditions Column -->
 		                      <div class="clinical-column conditions-column">
 	                        <div class="column-header">
-	                          <h4><mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon> Conditions</h4>
+	                          <h4><mat-icon fontSet="material-symbols-outlined">stethoscope</mat-icon> {{ t('clinicalRecord.sections.conditions') }}</h4>
 	                          <span class="item-count">{{ conditions.length }}</span>
 	                        </div>
                         <div class="clinical-list compact" *ngIf="conditions.length > 0; else noConditionsList">
-                          <div class="clinical-item compact" 
+                          <div class="clinical-item compact"
                               *ngFor="let condition of getSortedConditions()">
                             <div class="item-header compact">
                               <span class="item-title compact">{{ condition.code.text }}</span>
                               <div class="item-header-actions compact">
-                                <span class="anchor-category-indicator compact" 
+                                <span class="anchor-category-indicator compact"
                                       [style.background-color]="findBestAnchorPointForConcept(getConceptId(condition))?.defaultColor"
-                                      title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}">
+                                      [title]="t('clinicalRecord.tooltips.mappedTo') + ': ' + findBestAnchorPointForConcept(getConceptId(condition))?.name">
                                   {{ findBestAnchorPointForConcept(getConceptId(condition))?.name }}
                                 </span>
-                                <button mat-icon-button 
-                                        class="delete-button compact" 
+                                <button mat-icon-button
+                                        class="delete-button compact"
                                         (click)="deleteCondition(condition.id)"
-                                        title="Delete condition">
+                                        [title]="t('clinicalRecord.tooltips.deleteCondition')">
                                   <mat-icon>delete_outline</mat-icon>
                                 </button>
                               </div>
@@ -620,7 +621,7 @@
                                 {{ getConceptId(condition) }}
                               </span>
                               <span class="item-icd10-code compact" *ngIf="getIcd10Code(condition)">
-                                ICD-10: {{ getIcd10Code(condition) }}
+                                {{ t('clinicalRecord.labels.icd10') }}: {{ getIcd10Code(condition) }}
                               </span>
                               <span class="item-status compact" [class]="getConditionStatus(condition).toLowerCase()">
                                 {{ getConditionStatus(condition) }}
@@ -629,14 +630,14 @@
                           </div>
                         </div>
 	                        <ng-template #noConditionsList>
-	                          <div class="no-clinical-data compact">No conditions recorded</div>
+	                          <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noConditions') }}</div>
 	                        </ng-template>
 	                      </div>
 
 	                      <!-- Allergies Column -->
 	                      <div class="clinical-column allergies-column">
 	                        <div class="column-header">
-	                          <h4><mat-icon>warning</mat-icon> Allergies</h4>
+	                          <h4><mat-icon>warning</mat-icon> {{ t('clinicalRecord.sections.allergies') }}</h4>
 	                          <span class="item-count">{{ allergies.length }}</span>
 	                        </div>
 	                        <div class="clinical-list compact" *ngIf="allergies.length > 0; else noAllergiesList">
@@ -644,16 +645,16 @@
 	                            <div class="item-header compact">
 	                              <span class="item-title compact">{{ getAllergyDisplayName(allergy) }}</span>
 	                              <div class="item-header-actions compact">
-	                                <span class="criticality-badge compact" 
+	                                <span class="criticality-badge compact"
 	                                      [class.high]="getAllergyCriticality(allergy) === 'high'"
 	                                      [class.low]="getAllergyCriticality(allergy) === 'low'"
 	                                      *ngIf="getAllergyCriticality(allergy)">
 	                                  {{ getAllergyCriticality(allergy) }}
 	                                </span>
-	                                <button mat-icon-button 
-	                                        class="delete-button compact" 
+	                                <button mat-icon-button
+	                                        class="delete-button compact"
 	                                        (click)="deleteAllergy(allergy.id)"
-	                                        title="Delete allergy">
+	                                        [title]="t('clinicalRecord.tooltips.deleteAllergy')">
 	                                  <mat-icon>delete_outline</mat-icon>
 	                                </button>
 	                              </div>
@@ -670,7 +671,7 @@
 	                              </span>
 	                            </div>
 	                            <div class="allergy-reactions compact" *ngIf="getAllergyReactions(allergy).length > 0">
-	                              <span class="reactions-label">Reactions:</span>
+	                              <span class="reactions-label">{{ t('clinicalRecord.labels.reactions') }}:</span>
 	                              <span class="reaction-item" *ngFor="let reaction of getAllergyReactions(allergy); let last = last">
 	                                {{ reaction }}<span *ngIf="!last">, </span>
 	                              </span>
@@ -678,14 +679,14 @@
 	                          </div>
 	                        </div>
 	                        <ng-template #noAllergiesList>
-	                          <div class="no-clinical-data compact">No allergies recorded</div>
+	                          <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noAllergies') }}</div>
 	                        </ng-template>
 	                      </div>
 
 	                      <!-- Procedures Column -->
 	                      <div class="clinical-column procedures-column">
                         <div class="column-header">
-                          <h4><mat-icon>healing</mat-icon> Procedures</h4>
+                          <h4><mat-icon>healing</mat-icon> {{ t('clinicalRecord.sections.procedures') }}</h4>
                           <span class="item-count">{{ procedures.length }}</span>
                         </div>
                         <div class="clinical-list compact" *ngIf="procedures.length > 0; else noProcedures">
@@ -693,15 +694,15 @@
                             <div class="item-header compact">
                               <span class="item-title compact">{{ procedure.code.text }}</span>
                               <div class="item-header-actions compact">
-                                <span class="anchor-category-indicator compact" 
+                                <span class="anchor-category-indicator compact"
                                       [style.background-color]="findBestAnchorPointForConcept(getConceptId(procedure))?.defaultColor"
-                                      title="Mapped to: {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}">
+                                      [title]="t('clinicalRecord.tooltips.mappedTo') + ': ' + findBestAnchorPointForConcept(getConceptId(procedure))?.name">
                                   {{ findBestAnchorPointForConcept(getConceptId(procedure))?.name }}
                                 </span>
-                                <button mat-icon-button 
-                                        class="delete-button compact" 
+                                <button mat-icon-button
+                                        class="delete-button compact"
                                         (click)="deleteProcedure(procedure.id)"
-                                        title="Delete procedure">
+                                        [title]="t('clinicalRecord.tooltips.deleteProcedure')">
                                   <mat-icon>delete_outline</mat-icon>
                                 </button>
                               </div>
@@ -717,14 +718,14 @@
                           </div>
                         </div>
                         <ng-template #noProcedures>
-                          <div class="no-clinical-data compact">No procedures recorded</div>
+                          <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noProcedures') }}</div>
                         </ng-template>
                       </div>
 
                       <!-- Medications Column -->
                       <div class="clinical-column medications-column">
                         <div class="column-header">
-                          <h4><mat-icon>medication</mat-icon> Medications</h4>
+                          <h4><mat-icon>medication</mat-icon> {{ t('clinicalRecord.sections.medications') }}</h4>
                           <span class="item-count">{{ medications.length }}</span>
                         </div>
                         <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
@@ -732,15 +733,15 @@
                             <div class="item-header compact">
                               <span class="item-title compact">{{ medication.medicationCodeableConcept?.text }}</span>
                               <div class="item-header-actions compact">
-                                <span class="anchor-category-indicator compact" 
+                                <span class="anchor-category-indicator compact"
                                       [style.background-color]="findBestAnchorPointForConcept(getMappingConceptId(medication))?.defaultColor"
-                                      title="Mapped to: {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}">
+                                      [title]="t('clinicalRecord.tooltips.mappedTo') + ': ' + findBestAnchorPointForConcept(getMappingConceptId(medication))?.name">
                                   {{ findBestAnchorPointForConcept(getMappingConceptId(medication))?.name }}
                                 </span>
-                                <button mat-icon-button 
-                                        class="delete-button compact" 
+                                <button mat-icon-button
+                                        class="delete-button compact"
                                         (click)="deleteMedication(medication.id)"
-                                        title="Delete medication">
+                                        [title]="t('clinicalRecord.tooltips.deleteMedication')">
                                   <mat-icon>delete_outline</mat-icon>
                                 </button>
                               </div>
@@ -763,11 +764,11 @@
                           </div>
                         </div>
                         <ng-template #noMedications>
-                          <div class="no-clinical-data compact">No medications recorded</div>
+                          <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noMedications') }}</div>
                         </ng-template>
 
                         <div class="column-header secondary-column-header">
-                          <h4><mat-icon>vaccines</mat-icon> Immunizations</h4>
+                          <h4><mat-icon>vaccines</mat-icon> {{ t('clinicalRecord.sections.immunizations') }}</h4>
                           <span class="item-count">{{ immunizations.length }}</span>
                         </div>
                         <div class="clinical-list compact" *ngIf="immunizations.length > 0; else noImmunizationsList">
@@ -778,7 +779,7 @@
                                 <button mat-icon-button
                                         class="delete-button compact"
                                         (click)="deleteImmunization(immunization.id)"
-                                        title="Delete immunization">
+                                        [title]="t('clinicalRecord.tooltips.deleteImmunization')">
                                   <mat-icon>delete_outline</mat-icon>
                                 </button>
                               </div>
@@ -795,7 +796,7 @@
                           </div>
                         </div>
                         <ng-template #noImmunizationsList>
-                          <div class="no-clinical-data compact">No immunizations recorded</div>
+                          <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noImmunizations') }}</div>
                         </ng-template>
                       </div>
                     </div>
@@ -805,8 +806,8 @@
               <div class="orders-panel">
                 <div class="orders-header">
                   <div>
-                    <h3>Clinical Orders</h3>
-                    <p>Build a multi-determination laboratory order, review it in the right-hand column, and save it as a bundle of ServiceRequest resources.</p>
+                    <h3>{{ t('clinicalRecord.sections.clinicalOrders') }}</h3>
+                    <p>{{ t('clinicalRecord.messages.clinicalOrdersDescription') }}</p>
                   </div>
                 </div>
 
@@ -819,7 +820,7 @@
 
               <div class="orders-list-panel">
                 <div class="column-header">
-                  <h4><mat-icon>receipt_long</mat-icon> Saved Orders</h4>
+                  <h4><mat-icon>receipt_long</mat-icon> {{ t('clinicalRecord.sections.savedOrders') }}</h4>
                   <span class="item-count">{{ labOrders.length }}</span>
                 </div>
 
@@ -831,24 +832,24 @@
                         <button mat-icon-button
                                 class="delete-button compact"
                                 (click)="deleteLabOrder(labOrder.id)"
-                                title="Delete order">
+                                [title]="t('clinicalRecord.tooltips.deleteOrder')">
                           <mat-icon>delete_outline</mat-icon>
                         </button>
                       </div>
                     </div>
                     <div class="item-details compact inline">
                       <span class="item-concept-id compact">
-                        {{ getLabOrderDeterminationCount(labOrder) }} determination{{ getLabOrderDeterminationCount(labOrder) === 1 ? '' : 's' }}
+                        {{ getLabOrderDeterminationCount(labOrder) }} {{ t('clinicalRecord.labels.determination') }}{{ getLabOrderDeterminationCount(labOrder) === 1 ? '' : t('clinicalRecord.labels.determinationPlural') }}
                       </span>
                       <span class="item-icd10-code compact" *ngIf="getLabOrderLoincCodes(labOrder).length">
-                        LOINC: {{ getLabOrderLoincCodes(labOrder).join(', ') }}
+                        {{ t('clinicalRecord.labels.loinc') }}: {{ getLabOrderLoincCodes(labOrder).join(', ') }}
                       </span>
                       <span class="item-status compact">
                         {{ labOrder.createdAt | date:'medium' }}
                       </span>
                     </div>
                     <div class="allergy-reactions compact" *ngIf="getLabOrderSpecimenLabels(labOrder).length">
-                      <span class="reactions-label">Specimens:</span>
+                      <span class="reactions-label">{{ t('clinicalRecord.labels.specimens') }}:</span>
                       <span class="reaction-item" *ngFor="let specimen of getLabOrderSpecimenLabels(labOrder); let last = last">
                         {{ specimen }}<span *ngIf="!last">, </span>
                       </span>
@@ -857,14 +858,14 @@
                 </div>
 
                 <ng-template #noLabOrders>
-                  <div class="no-clinical-data compact">No orders recorded</div>
+                  <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noOrders') }}</div>
                 </ng-template>
               </div>
             </div>
 
             <div *ngIf="selectedClinicalView === 'forms'" class="tab-content with-problems-layout">
               <div class="main-pane">
-                <app-clinical-forms 
+                <app-clinical-forms
                   #clinicalForms
                   [patient]="patient"
                   [conditions]="conditions"
@@ -939,12 +940,13 @@
   <!-- No patient selected message -->
   <div class="no-patient-message" *ngIf="!patient">
     <div class="message-content">
-      <h2>No Patient Selected</h2>
-      <p>Please select a patient from the patient list to view their clinical record.</p>
+      <h2>{{ t('clinicalRecord.messages.noPatientSelected') }}</h2>
+      <p>{{ t('clinicalRecord.messages.noPatientSelectedDescription') }}</p>
       <button mat-flat-button color="primary" (click)="goBack()">
-        Return to Patient List
+        {{ t('clinicalRecord.actions.returnToPatientList') }}
       </button>
     </div>
     </div>
   </div>
 </div>
+</ng-container>

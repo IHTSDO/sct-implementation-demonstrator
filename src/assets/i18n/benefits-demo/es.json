@@ -1,0 +1,1277 @@
+{
+  "main": {
+    "header": {
+      "title": "SNOMED EHR Lab",
+      "subtitle": "Una suite de demostración práctica que muestra cómo diseñar flujos de trabajo clínicos que producen datos limpios, conectados y computables, listos para verificaciones de seguridad, análisis e intercambio. Impulsado por FHIR y SNOMED CT, pero orientado hacia la calidad de la información de extremo a extremo.",
+      "phiWarning": "No ingrese Información de Salud Protegida (PHI) ni información real identificable de pacientes en este sistema de demostración."
+    },
+    "dataMenu": {
+      "label": "Datos",
+      "useLocalStorage": "Usar almacenamiento local",
+      "useFhirServer": "Usar servidor FHIR",
+      "fhirServerSettings": "Configuración del servidor FHIR",
+      "connectedServer": "Servidor conectado",
+      "cdsHooksServers": "Servidores CDS Hooks",
+      "smartHealthLinks": "Smart Health Links",
+      "downloadPatientData": "Descargar datos del paciente",
+      "uploadPatientData": "Cargar datos del paciente",
+      "clearAllData": "Borrar todos los datos del paciente"
+    },
+    "patientList": {
+      "title": "Pacientes",
+      "fhirMode": "Modo FHIR",
+      "localStorageMode": "Modo de almacenamiento local",
+      "refreshAriaLabel": "Actualizar pacientes desde el servidor FHIR",
+      "refreshTooltip": "Actualizar pacientes desde el servidor FHIR",
+      "loading": "Cargando..."
+    },
+    "actions": {
+      "analytics": "Analítica",
+      "interoperability": "Interoperabilidad",
+      "createPatient": "Crear paciente"
+    },
+    "createMenu": {
+      "manualEntry": "Entrada manual",
+      "generateRandom": "Generar aleatorio",
+      "creatingPatient": "Creando paciente...",
+      "generateWithDiagnoses": "Generar con diagnósticos",
+      "creatingWithDiagnoses": "Creando con diagnósticos...",
+      "generateMultiple": "Generar múltiples pacientes"
+    },
+    "search": {
+      "label": "Buscar pacientes",
+      "placeholder": "Buscar por nombre o apellido",
+      "clearAriaLabel": "Limpiar búsqueda"
+    },
+    "patientCard": {
+      "deceased": "Fallecido",
+      "idPrefix": "ID"
+    },
+    "noResults": {
+      "title": "No se encontraron pacientes",
+      "message": "Ningún paciente coincide con sus criterios de búsqueda.",
+      "clearSearch": "Limpiar búsqueda"
+    },
+    "noPatients": {
+      "title": "Sin pacientes aún",
+      "message": "Comience creando registros de pacientes para su sistema de HCE.",
+      "creating": "Creando...",
+      "createSingle": "Crear un paciente",
+      "generateMultiple": "Generar múltiples pacientes",
+      "hint": "O cargue datos de pacientes existentes usando el menú Datos de arriba"
+    },
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "selectedPatient": {
+      "title": "Paciente seleccionado",
+      "removeBookmark": "Quitar marcador",
+      "bookmarkPatient": "Marcar paciente",
+      "openClinicalRecord": "Abrir historial clínico",
+      "agePrefix": "Edad",
+      "contactInformation": "Información de contacto",
+      "address": "Dirección",
+      "demographics": "Datos demográficos",
+      "birthDate": "Fecha de nacimiento",
+      "loading": "Cargando...",
+      "deleting": "Eliminando...",
+      "deletePatient": "Eliminar paciente",
+      "noSelection": "Seleccione un paciente de la lista para ver los detalles."
+    },
+    "analytics": {
+      "title": "Analítica de datos clínicos",
+      "titleIcd10": "Analítica ICD-10",
+      "backToPatients": "Volver a pacientes"
+    }
+  },
+  "createPatient": {
+    "title": "Crear nuevo paciente",
+    "subtitle": "Ingrese la información del paciente para crear un nuevo registro",
+    "sections": {
+      "personalInformation": "Información personal",
+      "contactInformation": "Información de contacto",
+      "addressInformation": "Información de dirección"
+    },
+    "fields": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "dateOfBirth": "Fecha de nacimiento",
+      "gender": "Género",
+      "phoneNumber": "Número de teléfono",
+      "emailAddress": "Correo electrónico",
+      "streetAddress": "Dirección",
+      "city": "Ciudad",
+      "state": "Estado / Provincia",
+      "postalCode": "Código postal",
+      "country": "País"
+    },
+    "placeholders": {
+      "firstName": "Ingrese el nombre",
+      "lastName": "Ingrese el apellido",
+      "streetAddress": "Calle Principal 123",
+      "city": "Ciudad de México",
+      "state": "CDMX",
+      "postalCode": "06600",
+      "country": "MX"
+    },
+    "genderOptions": {
+      "male": "Masculino",
+      "female": "Femenino",
+      "other": "Otro",
+      "unknown": "Desconocido"
+    },
+    "errors": {
+      "firstNameRequired": "El nombre es obligatorio",
+      "firstNameMinlength": "El nombre debe tener al menos 2 caracteres",
+      "lastNameRequired": "El apellido es obligatorio",
+      "lastNameMinlength": "El apellido debe tener al menos 2 caracteres",
+      "birthDateRequired": "La fecha de nacimiento es obligatoria",
+      "genderRequired": "El género es obligatorio",
+      "phoneInvalid": "Por favor ingrese un número de teléfono válido",
+      "emailInvalid": "Por favor ingrese una dirección de correo electrónico válida",
+      "fieldRequired": "Este campo es obligatorio",
+      "minlength": "La longitud mínima es {{requiredLength}} caracteres"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "createPatient": "Crear paciente",
+      "creating": "Creando..."
+    }
+  },
+  "clinicalRecord": {
+    "actions": {
+      "backToPatientList": "Volver a la lista de pacientes",
+      "returnToPatientList": "Regresar a la lista de pacientes",
+      "view": "Ver",
+      "addCondition": "Agregar condición",
+      "addAllergy": "Agregar alergia",
+      "addProcedure": "Agregar procedimiento",
+      "addMedication": "Agregar medicamento",
+      "addImmunization": "Agregar inmunización",
+      "close": "Cerrar"
+    },
+    "labels": {
+      "id": "ID",
+      "dob": "FN",
+      "age": "Edad",
+      "workspaceTitle": "EHR Lab",
+      "cdsAlert": "Alerta CDS",
+      "cdsAlertPlural": "s",
+      "criticality": "Criticidad",
+      "reaction": "Reacción",
+      "reactions": "Reacciones",
+      "systemic": "Sistémico",
+      "icd10": "ICD-10",
+      "loinc": "LOINC",
+      "determination": "determinación",
+      "determinationPlural": "es",
+      "specimens": "Muestras"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "nav": {
+      "clinical": "Clínico",
+      "summary": "Resumen",
+      "problemsList": "Lista de problemas",
+      "clinicalOrders": "Órdenes clínicas",
+      "encounters": "Encuentros clínicos",
+      "aiAssistedDataEntry": "Entrada de datos asistida por IA",
+      "clinicalForms": "Formularios clínicos",
+      "alerts": "Alertas",
+      "dental": "Dental",
+      "odontogram": "Odontograma",
+      "nursing": "Enfermería",
+      "vitalSigns": "Signos vitales",
+      "nutritionalCareplan": "Plan de cuidado nutricional",
+      "dataSectionLabel": "Datos",
+      "data": "Datos",
+      "fhirRepository": "Repositorio FHIR"
+    },
+    "tooltips": {
+      "expandSidebar": "Expandir barra lateral",
+      "collapseSidebar": "Contraer barra lateral",
+      "dentalOdontogram": "Dental: Odontograma",
+      "nursingVitalSigns": "Enfermería: Signos vitales",
+      "nursingNutritionalCareplan": "Enfermería: Plan de cuidado nutricional",
+      "dataFhirRepository": "Datos: Repositorio FHIR",
+      "mappedTo": "Mapeado a",
+      "deleteCondition": "Eliminar condición",
+      "deleteAllergy": "Eliminar alergia",
+      "deleteProcedure": "Eliminar procedimiento",
+      "deleteMedication": "Eliminar medicamento",
+      "deleteImmunization": "Eliminar inmunización",
+      "deleteOrder": "Eliminar orden"
+    },
+    "sections": {
+      "summary": "Resumen",
+      "conditions": "Condiciones",
+      "procedures": "Procedimientos",
+      "medications": "Medicamentos",
+      "immunizations": "Inmunizaciones",
+      "allergicTo": "Alérgico a:",
+      "allergies": "Alergias",
+      "cds": "CDS",
+      "addProblem": "Agregar problema",
+      "clinicalOrders": "Órdenes clínicas",
+      "savedOrders": "Órdenes guardadas"
+    },
+    "messages": {
+      "loadingClinicalData": "Cargando datos clínicos desde el servidor FHIR...",
+      "updatingEventMappings": "Actualizando mapeos de eventos...",
+      "patientDeceased": "Paciente marcado como fallecido.",
+      "noConditions": "No se han registrado condiciones",
+      "noProcedures": "No se han registrado procedimientos",
+      "noMedications": "No se han registrado medicamentos",
+      "noImmunizations": "No se han registrado inmunizaciones",
+      "noAllergies": "No se han registrado alergias",
+      "noOrders": "No se han registrado órdenes",
+      "noPatientSelected": "Ningún paciente seleccionado",
+      "noPatientSelectedDescription": "Por favor seleccione un paciente de la lista para ver su historial clínico.",
+      "addProblemDescription": "Un problema es cualquier asunto relacionado con la salud, diagnóstico, procedimiento o tratamiento continuo que debe seguirse como parte de la atención del paciente.",
+      "clinicalOrdersDescription": "Construya una orden de laboratorio con múltiples determinaciones, revísela en la columna derecha y guárdela como un conjunto de recursos ServiceRequest.",
+      "failedToLoadClinicalData": "No se pudieron cargar los datos clínicos desde el servidor FHIR.",
+      "failedToMapIcd10": "No se pudo mapear a ICD-10. Error: {{ error }}",
+      "unknownError": "Error desconocido",
+      "duplicateCondition": "Esta condición ya existe para este paciente (código SNOMED CT duplicado detectado).",
+      "duplicateProcedure": "Este procedimiento ya existe para este paciente (código SNOMED CT duplicado detectado).",
+      "duplicateMedication": "Este medicamento ya existe para este paciente (código SNOMED CT duplicado detectado).",
+      "duplicateImmunization": "Esta inmunización ya existe para este paciente (misma vacuna y fecha).",
+      "duplicateEncounter": "Este encuentro clínico ya existe para este paciente.",
+      "orderSaved": "Orden guardada exitosamente.",
+      "allergyUpdatedWithReactions": "Alergia actualizada. Resumen y {{ count }} reacción(es) mapeadas al diagrama corporal.",
+      "allergyRecordUpdated": "Registro de alergia actualizado exitosamente",
+      "questionnaireSaved": "Cuestionario \"{{ name }}\" guardado exitosamente",
+      "questionnaireDefaultName": "Respuesta",
+      "questionnaireItemsExtracted": "{{ count }} elemento(s) extraído(s).",
+      "questionnaireSaveError": "Error al guardar la respuesta del cuestionario",
+      "noEventsToDelete": "No hay eventos clínicos para eliminar.",
+      "allEventsDeleted": "Todos los eventos clínicos han sido eliminados exitosamente.",
+      "failedToDeleteAllEvents": "No se pudieron eliminar todos los eventos clínicos.",
+      "fhirDataLoaded": "Datos FHIR cargados: {{ total }} {{ resourceLabel }} en {{ groups }} {{ groupLabel }}."
+    },
+    "dialogs": {
+      "deleteAllEventsTitle": "Eliminar todos los eventos clínicos",
+      "deleteAllEventsMessage": "Esto eliminará permanentemente {{ count }} eventos clínicos de {{ patient }}.\n\nEsto incluye condiciones, procedimientos, medicamentos, inmunizaciones, alergias, encuentros, observaciones, cuestionarios y paquetes relacionados.\n\nEsta acción no se puede deshacer.",
+      "deleteAllEventsConfirm": "Eliminar todos los eventos",
+      "cancel": "Cancelar"
+    }
+  },
+  "encounterRecord": {
+    "sections": {
+      "currentEncounter": "Encuentro clínico actual",
+      "notes": "Notas",
+      "previousEncounters": "Encuentros clínicos anteriores"
+    },
+    "fields": {
+      "dateTime": "Fecha/Hora",
+      "reasonForEncounter": "Motivo de consulta",
+      "diagnosis": "Diagnóstico",
+      "diagnosisNote": "Nota de diagnóstico",
+      "diagnosisNotePlaceholder": "Nota opcional",
+      "procedure": "Procedimiento",
+      "laterality": "Lateralidad",
+      "lateralityPlaceholder": "Seleccionar lateralidad",
+      "notes": "Notas",
+      "notesPlaceholder": "Notas generales sobre este encuentro clínico..."
+    },
+    "actions": {
+      "add": "Agregar",
+      "saving": "Guardando...",
+      "saveEncounter": "Guardar encuentro clínico",
+      "reset": "Restablecer"
+    },
+    "tooltips": {
+      "clickForMoreInfo": "Haga clic para más información",
+      "remove": "Quitar",
+      "deleteEncounter": "Eliminar encuentro clínico"
+    },
+    "labels": {
+      "reasons": "Motivo(s):",
+      "diagnosis": "Diagnóstico:",
+      "procedures": "Procedimiento(s):",
+      "notes": "Notas:"
+    },
+    "messages": {
+      "lateralityNotApplicable": "La lateralidad no aplica para este procedimiento",
+      "noProcedures": "No se han registrado procedimientos",
+      "saveError": "Error al guardar el registro del encuentro clínico. Por favor intente de nuevo.",
+      "deleteConfirm": "¿Está seguro de que desea eliminar este encuentro clínico?",
+      "deleteSuccess": "Encuentro clínico eliminado exitosamente"
+    },
+    "infoMenus": {
+      "reasonForEncounter": {
+        "title": "Motivo de consulta",
+        "p1": "El campo Motivo de consulta utiliza el Lenguaje de Restricción de Expresiones (ECL) de SNOMED CT para recuperar todas las opciones desde un servidor de terminología SNOMED CT basado en FHIR.",
+        "p2Pre": "Las opciones de Motivo de consulta se recuperan aquí usando",
+        "p3": "Las opciones se filtran según la entrada del usuario y el campo se implementa con un componente de autocompletar para limitar la escritura del usuario.",
+        "p4Pre": "Si el servidor de terminología lo permite, los resultados devueltos pueden limitarse usando",
+        "p4Post": ". Esto puede evitar que el servidor responda con un error de 'demasiado costoso' y mejorar el rendimiento de la búsqueda y la representación."
+      },
+      "diagnosis": {
+        "title": "Diagnóstico",
+        "p1": "El campo Diagnóstico utiliza el Lenguaje de Restricción de Expresiones (ECL) de SNOMED CT para recuperar todas las opciones desde un servidor de terminología SNOMED CT basado en FHIR.",
+        "p2Pre": "Las opciones de Diagnóstico se recuperan aquí usando",
+        "p3": "Las opciones se filtran según la entrada del usuario y el campo se implementa con un componente de autocompletar para limitar la escritura del usuario.",
+        "p4Pre": "Si el servidor de terminología lo permite, los resultados devueltos pueden limitarse usando",
+        "p4Post": ". Esto puede evitar que el servidor responda con un error de 'demasiado costoso' y mejorar el rendimiento de la búsqueda y la representación."
+      },
+      "diagnosisNote": {
+        "title": "Nota de diagnóstico",
+        "p1": "El campo Nota de diagnóstico permite al usuario calificar el concepto SNOMED CT en el campo Diagnóstico. En otras palabras, agregar más detalles al concepto SNOMED CT si es necesario.",
+        "p2": "Este campo es un ejemplo de cómo manejar un concepto SNOMED CT que podría no ser suficientemente específico. Este enfoque permite al usuario elegir el concepto SNOMED CT disponible más cercano y luego proporcionar los detalles adicionales necesarios."
+      },
+      "procedure": {
+        "title": "Procedimiento",
+        "p1": "El campo Procedimiento utiliza el Lenguaje de Restricción de Expresiones (ECL) de SNOMED CT para recuperar todas las opciones desde un servidor de terminología SNOMED CT basado en FHIR.",
+        "p2Pre": "Las opciones de Procedimiento se recuperan aquí usando",
+        "p3": "Las opciones se filtran según la entrada del usuario y el campo se implementa con un componente de autocompletar para limitar la escritura del usuario.",
+        "p4Pre": "Si el servidor de terminología lo permite, los resultados devueltos pueden limitarse usando",
+        "p4Post": ". Esto puede evitar que el servidor responda con un error de 'demasiado costoso' y mejorar el rendimiento de la búsqueda y la representación.",
+        "p5Pre": "Este campo es un ejemplo de donde podría usar el",
+        "p5Bold": "modelado",
+        "p5Post": " de un concepto SNOMED CT para pre-poblar o habilitar otros campos. El campo Lateralidad se pre-llenará si selecciona un concepto cuyo sitio de procedimiento ha sido modelado con lateralidad (p.ej. 735085002 | Excisión del bulto de mama izquierda |).",
+        "p6": "La lateralidad también se habilitará para la entrada del usuario cuando un concepto tiene un sitio de procedimiento, pero no se ha especificado lateralidad (p.ej. 392021009 | Tumorectomía de mama |). Esto se refinará aún más para restringir la habilitación a sitios de procedimiento en el conjunto de referencia de conceptos lateralizables de SNOMED CT."
+      },
+      "laterality": {
+        "title": "Lateralidad",
+        "p1": "El campo Lateralidad utiliza el Lenguaje de Restricción de Expresiones (ECL) de SNOMED CT para recuperar todas las opciones desde un servidor de terminología SNOMED CT basado en FHIR.",
+        "p2Pre": "Las opciones de Lateralidad se recuperan aquí usando",
+        "p3Pre": "Este campo es un ejemplo de un campo que se llena basándose en el",
+        "p3Bold": "modelado",
+        "p3Post": " de un concepto en otro campo. El campo Procedimiento controla la habilitación y las opciones disponibles de este campo de Lateralidad.",
+        "p4": "El campo Lateralidad se pre-llenará si selecciona un concepto de procedimiento cuyo sitio de procedimiento ha sido modelado con lateralidad (p.ej. 735085002 | Excisión del bulto de mama izquierda |).",
+        "p5": "La lateralidad también se habilitará para la entrada del usuario cuando un concepto de procedimiento tiene un sitio de procedimiento, pero no se ha especificado lateralidad (p.ej. 392021009 | Tumorectomía de mama |). Esto se refinará aún más para restringir la habilitación a sitios de procedimiento en el conjunto de referencia de conceptos lateralizables de SNOMED CT."
+      }
+    }
+  },
+  "interoperability": {
+    "sections": {
+      "pageTitle": "Asistente de reconciliación IPS",
+      "pageSubtitle": "Cargue un IPS, identifique al paciente, revise cada sección clínica e importe solo los elementos que desee conservar.",
+      "scannerTitle": "Escanear Smart Health Link",
+      "scannerSubtitle": "Apunte la cámara a un código QR de SHL para cargar el paquete IPS.",
+      "welcomeTitle": "Reconciliar un IPS entrante paso a paso",
+      "welcomeDescription": "Este módulo guía al clínico a través de la identificación del paciente primero, luego un paso de reconciliación por cada sección del IPS que contenga contenido, y finalmente un resumen antes de la importación.",
+      "reconciliationSteps": "Pasos de reconciliación",
+      "importSummary": "Resumen de importación"
+    },
+    "actions": {
+      "backToEhrLab": "Volver al SNOMED EHR Lab",
+      "backToInteroperabilityHome": "Volver al inicio de interoperabilidad",
+      "uploadIpsFile": "Cargar archivo IPS",
+      "scanShlQr": "Escanear QR SHL",
+      "tryExampleIps": "Probar IPS de ejemplo",
+      "tryExampleIpsBundle": "Probar paquete IPS de ejemplo",
+      "uploadYourOwnIpsFile": "Cargar su propio archivo IPS",
+      "stopScanner": "Detener escáner",
+      "retryWithExample": "Reintentar con IPS de ejemplo",
+      "useThisPatient": "Usar este paciente",
+      "dismiss": "Descartar",
+      "createNewPatient": "Crear nuevo paciente",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "importSelectedItems": "Importar elementos seleccionados ({{ count }})",
+      "createPatientOnly": "Crear solo el paciente",
+      "openRecord": "Abrir historial",
+      "remove": "Quitar",
+      "add": "Agregar",
+      "addAnyway": "Agregar de todas formas"
+    },
+    "labels": {
+      "workflowEyebrow": "Flujo de trabajo",
+      "stepOf": "Paso {{ current }} de {{ total }}",
+      "ipsPatient": "Paciente IPS",
+      "identifyOrCreatePatient": "Identificar o crear paciente",
+      "name": "Nombre",
+      "dateOfBirth": "Fecha de nacimiento",
+      "gender": "Género",
+      "suggestedMatch": "Coincidencia automática sugerida",
+      "match": "coincidencia",
+      "selectExistingPatient": "Seleccionar paciente existente",
+      "noPatientSelected": "Ningún paciente seleccionado",
+      "newPatientDraft": "Borrador de nuevo paciente",
+      "linkedTargetRecord": "Registro destino vinculado",
+      "willBeCreated": "Se creará al importar",
+      "ready": "Listo",
+      "ipsItems": "Elementos IPS",
+      "alreadyInRecord": "Ya existe en el historial",
+      "selectedToImport": "Seleccionado para importar",
+      "skipped": "Omitido",
+      "fromIps": "Del IPS",
+      "existingClinicalRecord": "Historial clínico existente",
+      "targetClinicalRecord": "Historial clínico destino",
+      "selectedCount": "{{ count }} seleccionado(s)",
+      "skippedCount": "{{ count }} omitido(s)",
+      "nothingToAdd": "Nada para agregar",
+      "ipsLogoAlt": "Logo IPS",
+      "snomedLogoAlt": "Logo SNOMED CT",
+      "codeSelected": "código seleccionado",
+      "codesSelected": "códigos seleccionados"
+    },
+    "messages": {
+      "resolvingShl": "Resolviendo SHL y descargando IPS...",
+      "loadingTitle": "Cargando paquete IPS",
+      "loadingSubtitle": "Estamos procesando el resumen del paciente y preparando los pasos del asistente.",
+      "errorTitle": "No se pudo cargar el IPS",
+      "noAutoMatch": "No se encontró coincidencia automática con pacientes existentes. Puede seleccionar uno manualmente o crear un nuevo paciente.",
+      "allAlreadyExist": "Todos los {{ section }} del IPS ya parecen existir en el historial clínico.",
+      "noExistingItems": "No existen {{ section }} actualmente en el historial clínico vinculado.",
+      "noneSelectedForImport": "Ningún {{ section }} seleccionado para importar.",
+      "importingTitle": "Importando elementos IPS seleccionados",
+      "importingSubtitle": "Guardando los conceptos seleccionados en el historial clínico y abriendo el expediente del paciente."
+    },
+    "wizardSteps": {
+      "patient": {
+        "title": "Identificar paciente",
+        "description": "Vincule el paciente IPS con un registro existente o cree uno nuevo."
+      },
+      "conditions": {
+        "title": "Fusionar condiciones",
+        "description": "Revise las condiciones del IPS frente al historial clínico actual."
+      },
+      "procedures": {
+        "title": "Fusionar procedimientos",
+        "description": "Revise los procedimientos del IPS frente al historial clínico actual."
+      },
+      "medications": {
+        "title": "Fusionar medicamentos",
+        "description": "Revise los medicamentos del IPS frente al historial clínico actual."
+      },
+      "immunizations": {
+        "title": "Fusionar inmunizaciones",
+        "description": "Revise las inmunizaciones del IPS frente al historial clínico actual."
+      },
+      "allergies": {
+        "title": "Fusionar alergias",
+        "description": "Revise las alergias del IPS frente al historial clínico actual."
+      },
+      "summary": {
+        "title": "Resumen",
+        "description": "Confirme los elementos IPS seleccionados antes de importarlos."
+      }
+    },
+    "sectionTitles": {
+      "conditions": "Condiciones",
+      "procedures": "Procedimientos",
+      "medications": "Medicamentos",
+      "immunizations": "Inmunizaciones",
+      "allergies": "Alergias"
+    },
+    "datLabels": {
+      "onset": "Inicio",
+      "performed": "Realizado",
+      "effective": "Efectivo",
+      "occurrence": "Ocurrencia",
+      "recorded": "Registrado"
+    },
+    "validation": {
+      "checkingHierarchyTitle": "Verificando jerarquía SNOMED",
+      "preparingValidation": "Preparando validación de jerarquía de conceptos...",
+      "hierarchyReviewRequiredTitle": "Se requiere revisión de jerarquía",
+      "hierarchyCheckCompleteTitle": "Verificación de jerarquía completada",
+      "hierarchyConflictMessage": "El concepto seleccionado se superpone jerárquicamente con uno o más conceptos ya presentes en el historial. Revise las relaciones antes de decidir si agregarlo.",
+      "hierarchyNoConflictMessage": "No se encontró superposición jerárquica con los conceptos existentes en esta sección.",
+      "hierarchyCheckFailed": "No pudimos completar la verificación de jerarquía. Aún puede agregar el concepto si desea continuar.",
+      "relationExactMatch": "Coincidencia exacta",
+      "relationBroader": "El concepto seleccionado es más amplio",
+      "relationNarrower": "El concepto seleccionado es más específico"
+    }
+  },
+  "conceptValidationDialog": {
+    "labels": {
+      "overlappingConcepts": "Conceptos en el historial del paciente con significado superpuesto"
+    },
+    "actions": {
+      "cancel": "Cancelar"
+    }
+  },
+  "formRecords": {
+    "sections": {
+      "title": "Registros de formularios",
+      "subtitle": "Ver cuestionarios completados y formularios clínicos",
+      "questionsAndAnswers": "Preguntas y respuestas",
+      "responseData": "Datos de respuesta (formato {{ format }})"
+    },
+    "status": {
+      "loading": "Cargando registros de formularios...",
+      "emptyTitle": "Sin registros de formularios",
+      "emptyMessage": "Complete cuestionarios y formularios clínicos para verlos listados aquí.",
+      "completed": "Completado"
+    },
+    "actions": {
+      "view": "Ver",
+      "export": "Exportar",
+      "delete": "Eliminar",
+      "viewJson": "Ver JSON {{ format }}",
+      "viewReadable": "Ver formato legible",
+      "copyJson": "Copiar JSON",
+      "exportJson": "Exportar JSON",
+      "close": "Cerrar"
+    },
+    "labels": {
+      "date": "Fecha",
+      "status": "Estado",
+      "type": "Tipo",
+      "id": "ID",
+      "resourceType": "Tipo de recurso",
+      "format": "Formato",
+      "openehrComposition": "Composición openEHR",
+      "vrdrBundle": "Paquete de documento FHIR VRDR",
+      "fhirDeathCertBundle": "Paquete de certificado de defunción FHIR",
+      "fhirQR": "QuestionnaireResponse FHIR",
+      "openehrFlat": "openEHR FLAT",
+      "containsSubItems": "contiene subelementos"
+    },
+    "messages": {
+      "noAnswers": "No se encontraron respuestas en esta respuesta",
+      "errorLoading": "Error al cargar los registros de formularios",
+      "deleteSuccess": "Registro de formulario eliminado exitosamente",
+      "exportSuccess": "Registro de formulario exportado exitosamente",
+      "errorExporting": "Error al exportar el registro de formulario",
+      "copySuccess": "JSON copiado al portapapeles exitosamente",
+      "errorCopying": "Error al copiar al portapapeles",
+      "errorCopyingManual": "Error al copiar al portapapeles. Por favor copie manualmente."
+    }
+  },
+  "cdsPanel": {
+    "sections": {
+      "title": "Soporte de decisiones",
+      "description": "Este panel muestra los últimos resultados estandarizados de CDS Hooks devueltos por los servidores CDS activos para el flujo de trabajo clínico actual."
+    },
+    "actions": {
+      "refresh": "Actualizar",
+      "viewSource": "Ver fuente",
+      "close": "Cerrar"
+    },
+    "status": {
+      "requesting": "Solicitando resultados de {{ hook }} desde servidores CDS activos...",
+      "noRequestAvailable": "No hay solicitud CDS disponible",
+      "error": "Error",
+      "recommendationCount": "{{ count }} recomendación(es) para {{ hook }}",
+      "completedNoRecommendations": "{{ hook }} completado sin recomendaciones.",
+      "noSpecificRecommendations": "Sin recomendaciones específicas",
+      "noRecommendationsDetail": "No se devolvieron recomendaciones CDS para {{ hook }} en los servidores activos."
+    },
+    "tooltips": {
+      "viewSource": "Ver fuente"
+    },
+    "info": {
+      "intro": "Esta demostración usa este recurso de código abierto:",
+      "serviceTitle": "Servicio de soporte clínico de decisiones SNOMED FHIR",
+      "overview": "Esta demostración presenta el servicio CDS FHIR de SNOMED y está destinada únicamente para fines de demostración, no para uso clínico real. Construida sobre estándares FHIR y SNOMED CT, analiza órdenes de medicamentos para detectar contraindicaciones, interacciones farmacológicas, dosificación anormal y errores de validación.",
+      "keyComponentsTitle": "Componentes clave",
+      "rulesEngineLabel": "Motor de reglas",
+      "rulesEngineText": "Carga reglas de interacción medicamento-condición y fármaco-fármaco.",
+      "fhirIntegrationLabel": "Integración FHIR",
+      "fhirIntegrationText": "Acepta recursos MedicationRequest, Condition, AllergyIntolerance y Patient.",
+      "knowledgeBasesLabel": "Bases de conocimiento",
+      "interactionsLabel": "Interacciones",
+      "interactionsText": "Una lista limitada de riesgos de interacción de medicamentos creada a partir de recursos de acceso público para la demostración.",
+      "contraindicationsLabel": "Contraindicaciones",
+      "contraindicationsText": "Una lista limitada de contraindicaciones medicamento-condición creada a partir de recursos de acceso público para la demostración.",
+      "dddLabel": "DDD",
+      "dddText": "Utiliza las Dosis Diarias Definidas ATC de la OMS para estimar alertas de dosificación excesiva.",
+      "thresholdsLabel": "Umbrales",
+      "thresholdsText": "Admite límites de alerta de dosificación ajustables.",
+      "alertTypesTitle": "Tipos de alerta",
+      "contraindicationAlertsLabel": "Alertas de contraindicación",
+      "contraindicationAlertsText": "Indica cuando un medicamento no es seguro para las condiciones médicas existentes de un paciente. ADVERTENCIA indica una contraindicación crítica, mientras que INFO sugiere precaución.",
+      "allergyAlertsLabel": "Alertas de alergia a medicamentos",
+      "allergyAlertsText": "Indica cuando un medicamento entra en conflicto con la información de alergias registrada.",
+      "highDosageAlertsLabel": "Alertas de dosis alta",
+      "highDosageAlertsText": "Identifica cuando la dosis diaria prescrita supera la Dosis Diaria Definida de referencia de la OMS. INFO indica 2-4 veces la DDD y ADVERTENCIA indica 4 veces la DDD o más.",
+      "formulaLabel": "Fórmula",
+      "formulaText": "Dosis diaria prescrita / Referencia DDD = Umbral de alerta",
+      "configurationLabel": "Configuración",
+      "configurationText": "Umbral aceptable 2x DDD, umbral máximo 4x DDD.",
+      "drugInteractionAlertsLabel": "Alertas de interacciones farmacológicas",
+      "drugInteractionAlertsText": "Detecta combinaciones de medicamentos riesgosas, con severidades INFO, ADVERTENCIA y CRÍTICO según la intensidad de la interacción.",
+      "validationErrorAlertsLabel": "Alertas de error de validación",
+      "validationErrorAlertsText": "Indica datos de prescripción incompletos o no válidos, como unidades de dosis no válidas, frecuencia faltante o información incompleta.",
+      "severityTitle": "Indicadores de severidad de alerta",
+      "severityInfo": "INFO",
+      "severityInfoText": "Informativo",
+      "severityWarning": "ADVERTENCIA",
+      "severityWarningText": "Preocupación de seguridad importante",
+      "severityCritical": "CRÍTICO",
+      "severityCriticalText": "Problema de seguridad grave"
+    }
+  },
+  "clinicalEntry": {
+    "fields": {
+      "indicationReason": "Seleccione el motivo de la indicación",
+      "noneGeneral": "Ninguno - Medicamento general",
+      "conditionsGroup": "Condiciones",
+      "proceduresGroup": "Procedimientos",
+      "conditionDate": "Fecha de la condición",
+      "procedureDate": "Fecha del procedimiento",
+      "immunizationDate": "Fecha de inmunización",
+      "medicationStartDate": "Fecha de inicio del medicamento",
+      "doseValue": "Valor de dosis",
+      "doseUnit": "Unidad de dosis",
+      "every": "Cada",
+      "periodUnit": "Unidad de período",
+      "hours": "Horas",
+      "days": "Días",
+      "weeks": "Semanas",
+      "immunizationStatus": "Estado de inmunización",
+      "statusCompleted": "Completado",
+      "statusNotDone": "No realizado",
+      "statusEnteredInError": "Ingresado por error"
+    },
+    "actions": {
+      "saving": "Guardando...",
+      "cancel": "Cancelar"
+    },
+    "tooltips": {
+      "infoButton": "Haga clic para más información sobre este campo"
+    },
+    "info": {
+      "terminologyBindingTitle": "Vinculación de terminología",
+      "terminologyBindingDesc": "Este campo utiliza el Lenguaje de Restricción de Expresiones (ECL) de SNOMED CT para recuperar opciones desde un servidor de terminología SNOMED CT basado en FHIR.",
+      "eclExpressionIntro": "La expresión ECL utilizada para esta vinculación es:",
+      "autocompleteDesc": "Las opciones se filtran según la entrada del usuario y el campo se implementa con un componente de autocompletar para limitar la escritura del usuario y mejorar la experiencia de selección.",
+      "countDesc": "Si el servidor de terminología lo permite, los resultados devueltos pueden limitarse usando count=X. Esto puede evitar que el servidor responda con un error de 'demasiado costoso' y mejorar el rendimiento de la búsqueda y la representación.",
+      "associationNote": "Nota: Puede asociar este medicamento con una condición o procedimiento existente seleccionando el motivo de indicación del menú desplegable."
+    }
+  },
+  "fhirData": {
+    "sections": {
+      "fhirResources": "Recursos FHIR"
+    },
+    "status": {
+      "deletingEvents": "Eliminando eventos clínicos...",
+      "deletingEventsSubtitle": "Eliminando recursos del paciente de la memoria y del servidor FHIR activo.",
+      "noResources": "Sin recursos",
+      "noFhirResources": "No se encontraron recursos FHIR para este paciente.",
+      "noPatientSelected": "Ningún paciente seleccionado."
+    },
+    "actions": {
+      "exportingBundle": "Exportando paquete...",
+      "exportAllBundle": "Exportar todo como paquete",
+      "generatingLocalIps": "Generando IPS local...",
+      "generateLocalIps": "Generar IPS local",
+      "requestingIpsFromServer": "Solicitando IPS al servidor...",
+      "checkingIpsSupport": "Verificando compatibilidad con IPS...",
+      "requestIpsToServer": "Solicitar generación de IPS al servidor",
+      "deleteAllEvents": "Eliminar todos los eventos",
+      "openOnServer": "Abrir en el servidor",
+      "close": "Cerrar"
+    },
+    "labels": {
+      "fhirResource": "Recurso FHIR",
+      "selectToInspect": "Seleccione un recurso para inspeccionar el JSON"
+    },
+    "tooltips": {
+      "exportBundle": "Descargar el historial completo del paciente como un paquete de transacción para importar en otro servidor FHIR",
+      "generateLocalIps": "Generar un documento IPS local a partir de los datos clínicos actuales",
+      "summaryFhirOnly": "$summary solo está disponible en modo FHIR",
+      "checkingCapabilities": "Verificando capacidades del servidor FHIR...",
+      "ipsNotSupported": "La generación de IPS no es compatible con este servidor",
+      "requestIpsGeneration": "Solicitar generación de IPS al servidor usando Patient/$summary",
+      "deleteAllEvents": "Eliminar todos los eventos clínicos de este paciente",
+      "openOnServer": "Abrir este recurso en el servidor FHIR",
+      "downloadJson": "Descargar JSON",
+      "copyJson": "Copiar JSON"
+    },
+    "messages": {
+      "jsonCopied": "JSON FHIR copiado al portapapeles",
+      "bundleExported": "Historial del paciente exportado como paquete de transacción.",
+      "localIpsGenerated": "Documento IPS generado a partir de datos clínicos locales.",
+      "serverIpsLoaded": "Resumen del paciente cargado desde el servidor FHIR.",
+      "serverIpsNotSupported": "Este servidor FHIR no admite Patient/$summary.",
+      "errorLoadingServerIps": "No se pudo cargar el resumen del paciente desde el servidor FHIR."
+    }
+  },
+  "clinicalForms": {
+    "sections": {
+      "title": "Formularios clínicos",
+      "customQuestionnaires": "Cuestionarios personalizados",
+      "uploadNewQuestionnaire": "Cargar nuevo cuestionario",
+      "uploadedQuestionnaires": "Cuestionarios cargados"
+    },
+    "tabs": {
+      "dataEntry": "Entrada de datos",
+      "formRecords": "Registros de formularios",
+      "manageQuestionnaires": "Gestionar cuestionarios"
+    },
+    "fields": {
+      "selectClinicalForm": "Seleccionar formulario clínico"
+    },
+    "labels": {
+      "builtInForms": "Formularios integrados",
+      "uploadedForms": "Formularios cargados",
+      "formSuffix": "Formulario",
+      "requirements": "Requisitos:",
+      "uploaded": "Cargado",
+      "id": "ID",
+      "unknown": "Desconocido"
+    },
+    "actions": {
+      "chooseFile": "Elegir archivo",
+      "deleteAll": "Eliminar todos",
+      "useForm": "Usar formulario",
+      "delete": "Eliminar",
+      "close": "Cerrar",
+      "ok": "Aceptar"
+    },
+    "status": {
+      "uploading": "Cargando...",
+      "submittingIcsr": "Enviando informe ICSR...",
+      "submittingWait": "Por favor espere mientras enviamos su informe a la autoridad regulatoria.",
+      "submittingMoment": "Esto puede tardar unos momentos."
+    },
+    "messages": {
+      "noLocalFormsUploaded": "Aún no se han cargado formularios locales",
+      "formUnderDevelopment": "Este formulario está en desarrollo actualmente.",
+      "comingSoon": "Próximamente...",
+      "selectFormTitle": "Seleccionar un formulario clínico",
+      "selectFormHint": "Elija un formulario del menú desplegable de arriba para comenzar a documentar información clínica.",
+      "manageQuestionnairesDesc": "Cargar y gestionar recursos de cuestionarios FHIR personalizados",
+      "uploadDescription": "Cargue un recurso de cuestionario FHIR en formato JSON. El cuestionario estará disponible para todos los pacientes.",
+      "requirementFhir": "Recurso de cuestionario FHIR válido (resourceType: \"Questionnaire\")",
+      "requirementJson": "Formato JSON (archivo .json)",
+      "requirementTitle": "Debe incluir el campo title o name",
+      "noCustomQuestionnaires": "Aún no se han cargado cuestionarios personalizados",
+      "uploadToGetStarted": "Cargue un archivo JSON de cuestionario FHIR para comenzar",
+      "selectJsonFile": "Por favor seleccione un archivo JSON",
+      "questionnaireUploadedSuccess": "Cuestionario \"{{ name }}\" cargado exitosamente.",
+      "failedToUploadQuestionnaire": "Error al cargar el cuestionario",
+      "invalidJsonFile": "Archivo JSON no válido",
+      "invalidJsonFileDetail": "Archivo JSON no válido. Asegúrese de que el archivo contenga JSON válido.",
+      "failedToReadFile": "Error al leer el archivo",
+      "confirmDeleteQuestionnaire": "¿Está seguro de que desea eliminar \"{{ name }}\"?",
+      "questionnaireDeletedSuccess": "Cuestionario \"{{ name }}\" eliminado exitosamente",
+      "failedToDeleteQuestionnaire": "Error al eliminar el cuestionario",
+      "confirmDeleteAllQuestionnaires": "¿Está seguro de que desea eliminar TODOS los cuestionarios personalizados? Esta acción no se puede deshacer.",
+      "allQuestionnairesDeletedSuccess": "Todos los cuestionarios personalizados eliminados exitosamente",
+      "failedToDeleteQuestionnaires": "Error al eliminar los cuestionarios",
+      "icsrSubmittedSuccess": "Informe ICSR {{ reportId }} enviado exitosamente a {{ organization }}. ID de referencia: {{ referenceId }}",
+      "demoNotice": "Esta es una demostración. No se enviaron datos reales a ninguna autoridad regulatoria.",
+      "submissionFailed": "El envío falló. Por favor verifique su conexión e intente de nuevo.",
+      "questionnaireResponseSaved": "Respuesta del cuestionario guardada exitosamente",
+      "openEhrCompositionSaved": "Composición openEHR guardada exitosamente",
+      "warningNoDataToSave": "Advertencia: Sin datos para guardar. Por favor complete al menos un campo.",
+      "warningNoPatientSelected": "Advertencia: Ningún paciente seleccionado. La composición no fue guardada.",
+      "allergyDocumented": "Alergia/Intolerancia documentada: {{ display }}",
+      "allergySavedWithReactions": "Alergia/Intolerancia guardada exitosamente. {{ count }} reacción(es) agregada(s) a la lista de problemas.",
+      "allergySavedSuccess": "Alergia/Intolerancia guardada exitosamente",
+      "allergyAlreadyExists": "Esta alergia ya existe para este paciente",
+      "failedToLoadQuestionnaire": "Error al cargar el cuestionario: {{ file }}",
+      "templateFileNotFound": "Archivo de plantilla no encontrado para: {{ formId }}",
+      "failedToLoadOpenEhrTemplate": "Error al cargar la plantilla openEHR: {{ file }}. Error: {{ error }}"
+    }
+  },
+  "adverseReactionForm": {
+    "sections": {
+      "title": "Informe individual de caso de seguridad (ICSR)",
+      "subtitle": "Formulario de notificación de reacciones adversas a medicamentos - RAM UE / ICSR",
+      "caseIdentification": "Identificación del caso e información administrativa",
+      "senderInformation": "Información del emisor",
+      "patientInformation": "Información del paciente",
+      "adverseReactionDetails": "Detalles de la reacción adversa",
+      "selectAdverseReaction": "Seleccionar reacción adversa de las condiciones del paciente",
+      "meddraMappings": "Mapeos MedDRA",
+      "suspectedMedicinalProduct": "Producto medicinal sospechoso",
+      "selectSuspectedMedication": "Seleccionar medicamento sospechoso de los medicamentos del paciente",
+      "snomedConceptId": "ID de concepto SNOMED",
+      "concomitantProducts": "Productos concomitantes",
+      "otherMedicationsConcurrently": "Otros medicamentos tomados de forma concomitante",
+      "followUpInformation": "Seguimiento e información adicional",
+      "seriousnessCriteria": "Criterios de gravedad"
+    },
+    "fields": {
+      "reportId": "ID del informe",
+      "reportIdHint": "Identificador único generado automáticamente",
+      "dateOfReceipt": "Fecha de recepción",
+      "typeOfReport": "Tipo de informe",
+      "reporterType": "Tipo de notificador",
+      "name": "Nombre",
+      "country": "País",
+      "address": "Dirección",
+      "qualification": "Cualificación",
+      "patientInitials": "Iniciales del paciente",
+      "age": "Edad",
+      "gender": "Género",
+      "dateOfBirth": "Fecha de nacimiento",
+      "relevantMedicalHistory": "Historial médico relevante",
+      "chooseFromConditions": "Elegir de las condiciones existentes",
+      "selectConditionPlaceholder": "Seleccionar una condición",
+      "descriptionOfAdverseEvent": "Descripción del evento adverso",
+      "descriptionPlaceholder": "Describa la reacción adversa en detalle",
+      "dateOfOnset": "Fecha de inicio",
+      "duration": "Duración",
+      "durationPlaceholder": "p.ej., 2 días, 1 semana",
+      "dateOfRecovery": "Fecha de recuperación",
+      "outcome": "Resultado",
+      "chooseFromMedications": "Elegir de los medicamentos existentes",
+      "selectMedicationPlaceholder": "Seleccionar un medicamento",
+      "productName": "Nombre del producto",
+      "activeSubstance": "Sustancia activa",
+      "dose": "Dosis",
+      "dosePlaceholder": "p.ej., 10 mg",
+      "frequency": "Frecuencia",
+      "frequencyPlaceholder": "p.ej., una vez al día",
+      "productDurationPlaceholder": "p.ej., 5 días",
+      "routeOfAdministration": "Vía de administración",
+      "selectRoute": "Seleccionar vía",
+      "startDate": "Fecha de inicio",
+      "stopDate": "Fecha de fin",
+      "batchLotNumber": "Número de lote",
+      "countryOfReaction": "País de la reacción",
+      "countryOfReporter": "País del notificador",
+      "therapeuticMeasuresTaken": "Medidas terapéuticas tomadas",
+      "therapeuticMeasuresPlaceholder": "Describa los tratamientos o intervenciones realizados para manejar la reacción adversa",
+      "relevantLaboratoryData": "Datos de laboratorio relevantes",
+      "laboratoryDataPlaceholder": "Incluya los resultados de pruebas, valores de laboratorio o hallazgos de imagen relevantes",
+      "literatureReference": "Referencia bibliográfica",
+      "literatureReferencePlaceholder": "Si aplica, proporcione la referencia bibliográfica",
+      "caseNarrative": "Narrativa del caso",
+      "caseNarrativePlaceholder": "Proporcione una narrativa completa que describa el caso, incluyendo cronología, evolución clínica y cualquier otro detalle relevante",
+      "caseNarrativeHint": "Esta narrativa debe proporcionar una imagen completa del caso para la revisión regulatoria"
+    },
+    "labels": {
+      "patient": "Paciente:",
+      "age": "Edad",
+      "male": "Masculino",
+      "female": "Femenino",
+      "other": "Otro",
+      "unknownCondition": "Condición desconocida",
+      "unknownMedication": "Medicamento desconocido",
+      "concomitantProductN": "Producto concomitante"
+    },
+    "actions": {
+      "addConcomitantProduct": "Agregar producto concomitante",
+      "cancel": "Cancelar",
+      "submitIcsr": "Enviar informe ICSR"
+    },
+    "status": {
+      "loadingMeddraMappings": "Cargando mapeos MedDRA..."
+    },
+    "messages": {
+      "selectConditionForMeddra": "Seleccione una condición para ver los mapeos MedDRA",
+      "noMeddraMappings": "No se encontraron mapeos MedDRA para esta condición",
+      "noMeddraMappingsHint": "Es posible que esta condición no tenga términos MedDRA correspondientes",
+      "selectMedicationForSnomed": "Seleccione un medicamento para ver el ID de concepto SNOMED",
+      "noConcomitantProducts": "No se han agregado productos concomitantes. Haga clic en \"Agregar producto concomitante\" para incluir otros medicamentos.",
+      "selectAllThatApply": "Seleccione todos los que apliquen:"
+    }
+  },
+  "dentistryRecord": {
+    "sections": {
+      "odontogram": "Odontograma"
+    },
+    "tabs": {
+      "anatomicView": "Vista anatómica",
+      "odontogramView": "Vista de odontograma",
+      "selectedTooth": "Diente seleccionado",
+      "allRecords": "Todos los registros"
+    },
+    "labels": {
+      "odontogramViewSelector": "Selector de vista de odontograma"
+    },
+    "tooltips": {
+      "viewDentalFhir": "Ver recursos FHIR dentales"
+    },
+    "actions": {
+      "close": "Cerrar"
+    },
+    "messages": {
+      "couldNotGenerateExpression": "No se pudo generar la expresión poscoordinada para este registro.",
+      "expressionCopied": "Expresión poscoordinada copiada al portapapeles.",
+      "unableToCopy": "No se pudo copiar la expresión al portapapeles.",
+      "extractingDentalSites": "Extrayendo sitios dentales de expresiones de poscoordinación ({{ count }})"
+    }
+  },
+  "dentistryDataEntry": {
+    "sections": {
+      "currentRecords": "Registros actuales para este diente"
+    },
+    "tabs": {
+      "findings": "Hallazgos",
+      "procedures": "Procedimientos"
+    },
+    "fields": {
+      "affectedSites": "Sitio(s) afectado(s) *",
+      "toothInGeneral": "Diente en general",
+      "periodontalTissues": "Tejidos periodontales",
+      "finding": "Hallazgo *",
+      "procedure": "Procedimiento *",
+      "searchFindings": "Escriba para buscar hallazgos",
+      "searchProcedures": "Escriba para buscar procedimientos"
+    },
+    "labels": {
+      "selected": "Seleccionado",
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universal",
+      "palmer": "Palmer",
+      "snomed": "SNOMED",
+      "notMapped": "Sin mapeo",
+      "addNewRecord": "Agregar nuevo registro",
+      "entryTypeSelector": "Selector de tipo de entrada",
+      "rootSurfaces": "Superficies radiculares"
+    },
+    "actions": {
+      "save": "Guardar"
+    },
+    "messages": {
+      "noRecordsForTooth": "Aún no hay registros guardados para este diente.",
+      "entrySaved": "Entrada guardada para el diente {{ fdi }}.",
+      "clickToPin": "Haga clic en un diente para fijarlo aquí para la entrada de datos."
+    }
+  },
+  "dentistryFhirDialog": {
+    "tooltips": {
+      "download": "Descargar recurso FHIR",
+      "copy": "Copiar recurso FHIR"
+    },
+    "actions": {
+      "close": "Cerrar"
+    },
+    "messages": {
+      "copied": "JSON FHIR copiado al portapapeles"
+    }
+  },
+  "odontogramAnatomic": {
+    "sections": {
+      "title": "Vista anatómica",
+      "subtitle": "Contornos naturales del diente con superposiciones de superficie."
+    },
+    "tabs": {
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universal"
+    },
+    "labels": {
+      "toothNumberingSelector": "Selector de numeración dental",
+      "interactiveOdontogram": "Odontograma interactivo",
+      "maxillaryArch": "Arcada maxilar",
+      "mandibularArch": "Arcada mandibular",
+      "tooth": "Diente",
+      "surfaceColorLegend": "Leyenda de colores de superficie"
+    },
+    "legend": {
+      "findings": "Hallazgos",
+      "plannedProcedures": "Procedimientos planificados",
+      "completedProcedures": "Procedimientos realizados"
+    }
+  },
+  "odontogramRootSurface": {
+    "sections": {
+      "title": "Vista de odontograma",
+      "subtitle": "Superficies segmentadas con polígono central más grande para molares."
+    },
+    "tabs": {
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universal"
+    },
+    "labels": {
+      "showRootSurfaces": "Mostrar superficies radiculares",
+      "toothNumberingSelector": "Selector de numeración dental",
+      "interactiveOdontogram": "Odontograma interactivo de superficie radicular",
+      "tooth": "Diente",
+      "surfaceColorLegend": "Leyenda de colores de superficie"
+    },
+    "legend": {
+      "findings": "Hallazgos",
+      "plannedProcedures": "Procedimientos planificados",
+      "completedProcedures": "Procedimientos realizados"
+    }
+  },
+  "dentistryRecordItem": {
+    "labels": {
+      "toothFdi": "Diente FDI {{ fdi }} - Univ. {{ universal }}"
+    },
+    "actions": {
+      "deleteRecord": "Eliminar registro",
+      "copyPostcoordinated": "Copiar expresión poscoordinada"
+    },
+    "tooltips": {
+      "deleteRecord": "Eliminar registro",
+      "setAsPlanned": "Marcar como planificado",
+      "setAsCompleted": "Marcar como completado",
+      "setAsActive": "Marcar como activo",
+      "setAsResolved": "Marcar como resuelto"
+    }
+  },
+  "dentistryAllFindings": {
+    "sections": {
+      "title": "Todos los registros"
+    },
+    "messages": {
+      "noRecords": "Aún no hay registros dentales guardados para este paciente."
+    }
+  },
+  "aiAssistedEntry": {
+    "sections": {
+      "title": "Entrada de datos asistida por IA",
+      "description": "Entrada de datos clínicos inteligente impulsada por IA para agilizar la documentación y mejorar la precisión.",
+      "encounterDetails": "Detalles del encuentro clínico",
+      "encounterDescription": "Configure los detalles del encuentro clínico para esta sesión clínica",
+      "detectedEntities": "Entidades clínicas detectadas",
+      "detectedEntitiesDescription": "Condiciones, procedimientos y medicamentos detectados por IA"
+    },
+    "fields": {
+      "reasonForEncounter": "Motivo de consulta",
+      "selectReasonForEncounter": "Seleccionar motivo de consulta",
+      "diagnosis": "Diagnóstico",
+      "selectDiagnosis": "Seleccionar diagnóstico",
+      "procedure": "Procedimiento",
+      "selectProcedure": "Seleccionar procedimiento"
+    },
+    "labels": {
+      "none": "Ninguno",
+      "conditions": "Condiciones",
+      "procedures": "Procedimientos",
+      "medications": "Medicamentos",
+      "confidence": "Confianza",
+      "unknownError": "Error desconocido"
+    },
+    "actions": {
+      "addSampleText": "Agregar texto de muestra",
+      "saveAllToPatient": "Guardar todo en el paciente",
+      "close": "Cerrar"
+    },
+    "status": {
+      "savingToFhir": "Guardando en el servidor FHIR...",
+      "analyzingText": "IA analizando texto...",
+      "savingClinicalResources": "Guardando recursos clínicos...",
+      "alreadyExistsInProblemsList": "Ya existe en la lista de problemas"
+    },
+    "tooltips": {
+      "remove": "Quitar de los detectados",
+      "removeExisting": "Quitar de los detectados (no se guardará como nuevo evento clínico)"
+    },
+    "messages": {
+      "placeholderLine1": "Esta es una demostración de experiencia de usuario, no hay un modelo de IA real y solo se muestran algunas detecciones simuladas.",
+      "placeholderLine2": "Inserte texto de muestra usando el botón de abajo para ver una simulación de detección de entidades clínicas asistida por IA.",
+      "emptyStateHint": "Comience a escribir notas clínicas para detectar entidades",
+      "emptyStateExample": "Pruebe: \"El paciente tiene asma, necesita cirugía, toma aspirina\"",
+      "errorDetectingEntities": "Error al detectar entidades: {{ message }}",
+      "procedureLinkedToEncounter": "El procedimiento \"{{ name }}\" ya existía y fue vinculado al nuevo encuentro clínico.",
+      "procedureAlreadyExists": "El procedimiento \"{{ name }}\" ya existe para este paciente.",
+      "savedClinicalResources": "{{ count }} recursos clínicos guardados exitosamente.",
+      "failedToSave": "Error al guardar los recursos clínicos: {{ message }}"
+    }
+  },
+  "nursingRecord": {
+    "sections": {
+      "nursing": "Enfermería"
+    }
+  },
+  "nursingVitalCard": {
+    "labels": {
+      "last": "Último"
+    },
+    "fields": {
+      "systolic": "Sistólica",
+      "diastolic": "Diastólica"
+    },
+    "actions": {
+      "addNew": "Agregar nuevo",
+      "save": "Guardar",
+      "cancel": "Cancelar"
+    }
+  },
+  "nursingVitalSigns": {
+    "sections": {
+      "vitalSigns": "Signos vitales"
+    },
+    "tooltips": {
+      "viewVitalFhir": "Ver recursos FHIR de signos vitales"
+    }
+  },
+  "nursingNutritionalCareplan": {
+    "sections": {
+      "nutritionalEvaluation": "Evaluación nutricional",
+      "anthropometry": "Antropometría",
+      "nutritionalGoals": "Objetivos nutricionales",
+      "interventions": "Intervenciones"
+    },
+    "labels": {
+      "bmi": "IMC"
+    },
+    "actions": {
+      "save": "Guardar",
+      "close": "Cerrar",
+      "removeIntervention": "Quitar intervención",
+      "addIntervention": "Agregar intervención"
+    },
+    "messages": {
+      "noDataRecorded": "Sin datos registrados",
+      "noChangesToSave": "Sin cambios para guardar en el IMC",
+      "assessmentSaved": "Evaluación nutricional guardada (IMC)"
+    }
+  },
+  "problemsList": {
+    "sections": {
+      "title": "Lista de problemas"
+    },
+    "labels": {
+      "consolidatedView": "Vista consolidada"
+    },
+    "messages": {
+      "noProblemsRecorded": "No se han registrado problemas"
+    }
+  },
+  "clinicalTimeline": {
+    "sections": {
+      "title": "Línea de tiempo",
+      "overview": "Resumen"
+    },
+    "labels": {
+      "status": "Estado",
+      "snomedCt": "SNOMED CT"
+    },
+    "messages": {
+      "zoomPan": "Acerque y desplace para explorar la cronología de los eventos registrados.",
+      "noEvents": "Sin eventos en la línea de tiempo",
+      "noEventsHint": "Los eventos clínicos aparecerán aquí cuando se agreguen condiciones, alergias, procedimientos, medicamentos o inmunizaciones con fechas."
+    }
+  },
+  "questionnaireForm": {
+    "labels": {
+      "prePopulated": "Pre-llenado desde el historial del paciente"
+    },
+    "actions": {
+      "submitResponse": "Enviar respuesta",
+      "cancel": "Cancelar"
+    },
+    "messages": {
+      "loading": "Cargando cuestionario...",
+      "noQuestionnaire": "No se ha cargado ningún cuestionario",
+      "noQuestionnaireHint": "Seleccione un cuestionario del menú desplegable de arriba"
+    }
+  },
+  "openehrForm": {
+    "labels": {
+      "defaultTitle": "Formulario openEHR"
+    },
+    "actions": {
+      "submitComposition": "Enviar composición",
+      "cancel": "Cancelar"
+    },
+    "messages": {
+      "loading": "Cargando formulario openEHR...",
+      "noTemplate": "No se ha cargado ninguna plantilla openEHR",
+      "noTemplateHint": "Seleccione una plantilla del menú desplegable de arriba"
+    }
+  },
+  "smartHealthLinks": {
+    "sections": {
+      "title": "Smart Health Links",
+      "description": "Demostración estática para generar SHLinks y códigos QR descargables a partir de recursos JSON FHIR en assets/data."
+    },
+    "table": {
+      "label": "Etiqueta",
+      "sourceJson": "JSON fuente",
+      "manifest": "Manifiesto",
+      "qrPreview": "Vista previa QR",
+      "actions": "Acciones"
+    },
+    "labels": {
+      "qrPreviewAlt": "Vista previa QR para"
+    },
+    "actions": {
+      "copyShLink": "Copiar SHLink",
+      "downloadSvg": "Descargar SVG",
+      "downloadPng": "Descargar PNG"
+    }
+  },
+  "allergyFormDialog": {
+    "sections": {
+      "title": "Agregar alergia / intolerancia"
+    },
+    "actions": {
+      "close": "Cerrar diálogo de alergias"
+    }
+  },
+  "batchPatientDialog": {
+    "sections": {
+      "title": "Generar múltiples pacientes"
+    },
+    "fields": {
+      "numberOfPatients": "Número de pacientes",
+      "numberOfPatientsHint": "Ingrese un número entre 1 y 500",
+      "timeframeYears": "Marco temporal de datos clínicos (años)",
+      "timeframeYearsHint": "Las fechas generadas se aleatorizarán dentro de los últimos 2 años de forma predeterminada",
+      "genderDistribution": "Distribución por género",
+      "genderDistributionHint": "Ajuste la probabilidad de generar pacientes masculinos vs femeninos",
+      "ageDistribution": "Distribución por edad",
+      "ageDistributionHint": "Seleccione porcentajes en incrementos del 10%. El total debe ser igual al 100%.",
+      "children": "Niños (0-18)",
+      "adults": "Adultos (18-65)",
+      "elderly": "Adultos mayores (65+)",
+      "diagnosesPerPatient": "Número de diagnósticos por paciente",
+      "diagnosesRangeHint": "Establezca ambos en 0 para generar pacientes sin diagnósticos. Cada paciente tendrá un número aleatorio de diagnósticos entre estos valores.",
+      "minimum": "Mínimo",
+      "maximum": "Máximo"
+    },
+    "labels": {
+      "female": "Femenino",
+      "male": "Masculino",
+      "total": "Total",
+      "to": "a"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "generatePatients": "Generar pacientes"
+    },
+    "messages": {
+      "description": "Genere datos sintéticos de pacientes basados en estadísticas de salud del mundo real del",
+      "gbdStudy": "Estudio de la Carga Global de Enfermedad (GBD)",
+      "descriptionSuffix": "Estos pacientes artificiales reflejan patrones de prevalencia de enfermedades por edad y género, lo que le permite poblar su sistema de HCE con datos de prueba realistas.",
+      "mustEqual100": "Debe ser igual al 100%",
+      "generating": "Generando pacientes..."
+    }
+  },
+  "deathRegistrationDialog": {
+    "sections": {
+      "title": "Registro de defunción",
+      "titleUpdate": "Actualizar registro de defunción",
+      "subtitle": "Capture el certificado de causa de muerte y marque a este paciente como fallecido.",
+      "causeOfDeath": "Causa de muerte",
+      "part1Subtitle": "Parte I. Ingrese la cadena de eventos que causó directamente la muerte.",
+      "part2Subtitle": "Parte II. Otras condiciones significativas que contribuyeron a la muerte."
+    },
+    "fields": {
+      "dateOfDeath": "Fecha de defunción",
+      "time": "Hora",
+      "interval": "Intervalo",
+      "intervalPlaceholder": "p.ej. 3 días",
+      "selectCondition": "Seleccionar condición",
+      "existingCondition": "Condición existente",
+      "snomedCondition": "Condición SNOMED"
+    },
+    "table": {
+      "line": "Línea",
+      "causeCondition": "Causa/condición",
+      "approximateInterval": "Intervalo aproximado"
+    },
+    "labels": {
+      "id": "ID",
+      "dob": "FN",
+      "unknown": "Desconocido"
+    },
+    "actions": {
+      "searchInSnomed": "Buscar en SNOMED",
+      "useExistingCondition": "Usar condición existente",
+      "clearLine": "Limpiar línea",
+      "addContributingCondition": "Agregar condición contribuyente",
+      "deleteRecord": "Eliminar registro de certificación de defunción",
+      "cancel": "Cancelar",
+      "updateRecord": "Actualizar registro de defunción",
+      "saveRecord": "Guardar registro de defunción"
+    },
+    "messages": {
+      "errorEnterDateTime": "Por favor ingrese la fecha y hora de defunción.",
+      "errorAtLeastOneCause": "Ingrese al menos una causa de muerte antes de guardar.",
+      "errorUnableToSave": "No se pudo guardar el registro de defunción.",
+      "errorSelectCondition": "Seleccione una condición existente para cada línea completada usando esa opción.",
+      "errorNoSnomedCode": "La condición seleccionada \"{{ name }}\" no tiene un código SNOMED CT. Use la opción de búsqueda SNOMED para esa línea.",
+      "errorSelectSnomedConcept": "Seleccione un concepto SNOMED CT para cada línea completada usando la búsqueda SNOMED."
+    }
+  }
+}

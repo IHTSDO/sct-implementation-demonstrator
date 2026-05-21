@@ -1,40 +1,41 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="create-patient-container">
   <div class="form-header">
-    <h1>Create New Patient</h1>
-    <p>Enter patient information to create a new patient record</p>
+    <h1>{{ t('createPatient.title') }}</h1>
+    <p>{{ t('createPatient.subtitle') }}</p>
   </div>
 
   <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="patient-form">
     <!-- Personal Information Section -->
     <div class="form-section">
-      <h2>Personal Information</h2>
+      <h2>{{ t('createPatient.sections.personalInformation') }}</h2>
       <div class="form-row">
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>First Name</mat-label>
-          <input matInput formControlName="firstName" placeholder="Enter first name">
+          <mat-label>{{ t('createPatient.fields.firstName') }}</mat-label>
+          <input matInput formControlName="firstName" [placeholder]="t('createPatient.placeholders.firstName')">
           @if (patientForm.get('firstName')?.hasError('required')) {
             <mat-error>
-              First name is required
+              {{ t('createPatient.errors.firstNameRequired') }}
             </mat-error>
           }
           @if (patientForm.get('firstName')?.hasError('minlength')) {
             <mat-error>
-              First name must be at least 2 characters
+              {{ t('createPatient.errors.firstNameMinlength') }}
             </mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>Last Name</mat-label>
-          <input matInput formControlName="lastName" placeholder="Enter last name">
+          <mat-label>{{ t('createPatient.fields.lastName') }}</mat-label>
+          <input matInput formControlName="lastName" [placeholder]="t('createPatient.placeholders.lastName')">
           @if (patientForm.get('lastName')?.hasError('required')) {
             <mat-error>
-              Last name is required
+              {{ t('createPatient.errors.lastNameRequired') }}
             </mat-error>
           }
           @if (patientForm.get('lastName')?.hasError('minlength')) {
             <mat-error>
-              Last name must be at least 2 characters
+              {{ t('createPatient.errors.lastNameMinlength') }}
             </mat-error>
           }
         </mat-form-field>
@@ -42,26 +43,26 @@
 
       <div class="form-row">
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>Date of Birth</mat-label>
+          <mat-label>{{ t('createPatient.fields.dateOfBirth') }}</mat-label>
           <input matInput formControlName="birthDate" placeholder="YYYY-MM-DD" type="date">
           @if (patientForm.get('birthDate')?.hasError('required')) {
             <mat-error>
-              Date of birth is required
+              {{ t('createPatient.errors.birthDateRequired') }}
             </mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>Gender</mat-label>
+          <mat-label>{{ t('createPatient.fields.gender') }}</mat-label>
           <mat-select formControlName="gender">
-            <mat-option value="male">Male</mat-option>
-            <mat-option value="female">Female</mat-option>
-            <mat-option value="other">Other</mat-option>
-            <mat-option value="unknown">Unknown</mat-option>
+            <mat-option value="male">{{ t('createPatient.genderOptions.male') }}</mat-option>
+            <mat-option value="female">{{ t('createPatient.genderOptions.female') }}</mat-option>
+            <mat-option value="other">{{ t('createPatient.genderOptions.other') }}</mat-option>
+            <mat-option value="unknown">{{ t('createPatient.genderOptions.unknown') }}</mat-option>
           </mat-select>
           @if (patientForm.get('gender')?.hasError('required')) {
             <mat-error>
-              Gender is required
+              {{ t('createPatient.errors.genderRequired') }}
             </mat-error>
           }
         </mat-form-field>
@@ -70,24 +71,24 @@
 
     <!-- Contact Information Section -->
     <div class="form-section">
-      <h2>Contact Information</h2>
+      <h2>{{ t('createPatient.sections.contactInformation') }}</h2>
       <div class="form-row">
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>Phone Number</mat-label>
+          <mat-label>{{ t('createPatient.fields.phoneNumber') }}</mat-label>
           <input matInput formControlName="phone" placeholder="+1 (555) 123-4567">
           @if (patientForm.get('phone')?.hasError('pattern')) {
             <mat-error>
-              Please enter a valid phone number
+              {{ t('createPatient.errors.phoneInvalid') }}
             </mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>Email Address</mat-label>
+          <mat-label>{{ t('createPatient.fields.emailAddress') }}</mat-label>
           <input matInput formControlName="email" placeholder="patient@email.com" type="email">
           @if (patientForm.get('email')?.hasError('email')) {
             <mat-error>
-              Please enter a valid email address
+              {{ t('createPatient.errors.emailInvalid') }}
             </mat-error>
           }
         </mat-form-field>
@@ -96,35 +97,35 @@
 
     <!-- Address Information Section -->
     <div class="form-section">
-      <h2>Address Information</h2>
+      <h2>{{ t('createPatient.sections.addressInformation') }}</h2>
       <div class="form-row">
         <mat-form-field appearance="fill" class="form-field full-width">
-          <mat-label>Street Address</mat-label>
-          <input matInput formControlName="addressLine1" placeholder="123 Main Street">
+          <mat-label>{{ t('createPatient.fields.streetAddress') }}</mat-label>
+          <input matInput formControlName="addressLine1" [placeholder]="t('createPatient.placeholders.streetAddress')">
         </mat-form-field>
       </div>
 
       <div class="form-row">
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>City</mat-label>
-          <input matInput formControlName="city" placeholder="Springfield">
+          <mat-label>{{ t('createPatient.fields.city') }}</mat-label>
+          <input matInput formControlName="city" [placeholder]="t('createPatient.placeholders.city')">
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>State</mat-label>
-          <input matInput formControlName="state" placeholder="IL">
+          <mat-label>{{ t('createPatient.fields.state') }}</mat-label>
+          <input matInput formControlName="state" [placeholder]="t('createPatient.placeholders.state')">
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>Postal Code</mat-label>
-          <input matInput formControlName="postalCode" placeholder="62701">
+          <mat-label>{{ t('createPatient.fields.postalCode') }}</mat-label>
+          <input matInput formControlName="postalCode" [placeholder]="t('createPatient.placeholders.postalCode')">
         </mat-form-field>
       </div>
 
       <div class="form-row">
         <mat-form-field appearance="fill" class="form-field">
-          <mat-label>Country</mat-label>
-          <input matInput formControlName="country" placeholder="US">
+          <mat-label>{{ t('createPatient.fields.country') }}</mat-label>
+          <input matInput formControlName="country" [placeholder]="t('createPatient.placeholders.country')">
         </mat-form-field>
       </div>
     </div>
@@ -138,7 +139,7 @@
         (click)="cancel()"
         [disabled]="isSubmitting"
         >
-        Cancel
+        {{ t('createPatient.actions.cancel') }}
       </button>
       <button
         mat-flat-button
@@ -150,12 +151,13 @@
           <mat-spinner diameter="20"></mat-spinner>
         }
         @if (!isSubmitting) {
-          <span>Create Patient</span>
+          <span>{{ t('createPatient.actions.createPatient') }}</span>
         }
         @if (isSubmitting) {
-          <span>Creating...</span>
+          <span>{{ t('createPatient.actions.creating') }}</span>
         }
       </button>
     </div>
   </form>
 </div>
+</ng-container>

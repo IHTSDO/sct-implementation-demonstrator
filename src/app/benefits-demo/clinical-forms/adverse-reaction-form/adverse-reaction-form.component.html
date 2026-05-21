@@ -1,12 +1,13 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="adverse-reaction-form-container">
   <div class="form-header">
-    <h2>Individual Case Safety Report (ICSR)</h2>
-    <p class="form-subtitle">Adverse Drug Reaction Reporting Form - EU ADR / ICSR</p>
+    <h2>{{ t('adverseReactionForm.sections.title') }}</h2>
+    <p class="form-subtitle">{{ t('adverseReactionForm.sections.subtitle') }}</p>
     @if (patient) {
       <p class="patient-info">
-        <strong>Patient:</strong> {{ patient.name?.[0]?.given?.[0] }} {{ patient.name?.[0]?.family }}
+        <strong>{{ t('adverseReactionForm.labels.patient') }}</strong> {{ patient.name?.[0]?.given?.[0] }} {{ patient.name?.[0]?.family }}
         @if (adverseReactionForm.get('age')?.value) {
-          <span>(Age: {{ adverseReactionForm.get('age')?.value }})</span>
+          <span>({{ t('adverseReactionForm.labels.age') }}: {{ adverseReactionForm.get('age')?.value }})</span>
         }
       </p>
     }
@@ -19,26 +20,26 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>assignment</mat-icon>
-          Case Identification & Administrative Information
+          {{ t('adverseReactionForm.sections.caseIdentification') }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
       <div class="form-grid">
         <mat-form-field>
-          <mat-label>Report ID</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.reportId') }}</mat-label>
           <input matInput formControlName="reportId" readonly>
-          <mat-hint>Auto-generated unique identifier</mat-hint>
+          <mat-hint>{{ t('adverseReactionForm.fields.reportIdHint') }}</mat-hint>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Date of Receipt</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.dateOfReceipt') }}</mat-label>
           <input matInput [matDatepicker]="receiptPicker" formControlName="dateOfReceipt">
           <mat-datepicker-toggle matSuffix [for]="receiptPicker"></mat-datepicker-toggle>
           <mat-datepicker #receiptPicker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Type of Report</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.typeOfReport') }}</mat-label>
           <mat-select formControlName="reportType">
             @for (type of reportTypes; track type) {
               <mat-option [value]="type">{{ type }}</mat-option>
@@ -47,7 +48,7 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Reporter Type</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.reporterType') }}</mat-label>
           <mat-select formControlName="reporterType">
             @for (type of reporterTypes; track type) {
               <mat-option [value]="type">{{ type }}</mat-option>
@@ -56,15 +57,15 @@
         </mat-form-field>
       </div>
 
-      <h4>Sender Information</h4>
+      <h4>{{ t('adverseReactionForm.sections.senderInformation') }}</h4>
       <div formGroupName="senderInformation" class="form-grid">
         <mat-form-field>
-          <mat-label>Name</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.name') }}</mat-label>
           <input matInput formControlName="name">
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Country</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.country') }}</mat-label>
           <mat-select formControlName="country">
             @for (country of countries; track country) {
               <mat-option [value]="country">{{ country }}</mat-option>
@@ -73,12 +74,12 @@
         </mat-form-field>
 
         <mat-form-field class="full-width">
-          <mat-label>Address</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.address') }}</mat-label>
           <textarea matInput formControlName="address" rows="2"></textarea>
         </mat-form-field>
 
         <mat-form-field class="full-width">
-          <mat-label>Qualification</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.qualification') }}</mat-label>
           <input matInput formControlName="qualification">
         </mat-form-field>
       </div>
@@ -89,32 +90,32 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>person</mat-icon>
-          Patient Information
+          {{ t('adverseReactionForm.sections.patientInformation') }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
       <div class="form-grid">
         <mat-form-field>
-          <mat-label>Patient Initials</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.patientInitials') }}</mat-label>
           <input matInput formControlName="patientInitials" readonly>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Age</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.age') }}</mat-label>
           <input matInput type="number" formControlName="age" readonly>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Gender</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.gender') }}</mat-label>
           <mat-select formControlName="gender">
-            <mat-option value="male">Male</mat-option>
-            <mat-option value="female">Female</mat-option>
-            <mat-option value="other">Other</mat-option>
+            <mat-option value="male">{{ t('adverseReactionForm.labels.male') }}</mat-option>
+            <mat-option value="female">{{ t('adverseReactionForm.labels.female') }}</mat-option>
+            <mat-option value="other">{{ t('adverseReactionForm.labels.other') }}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Date of Birth</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.dateOfBirth') }}</mat-label>
           <input matInput [matDatepicker]="birthPicker" formControlName="dateOfBirth">
           <mat-datepicker-toggle matSuffix [for]="birthPicker"></mat-datepicker-toggle>
           <mat-datepicker #birthPicker></mat-datepicker>
@@ -123,7 +124,7 @@
 
       <div class="full-width-fields">
         <mat-form-field class="full-width">
-          <mat-label>Relevant Medical History</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.relevantMedicalHistory') }}</mat-label>
           <textarea matInput formControlName="medicalHistory" rows="3" readonly></textarea>
         </mat-form-field>
       </div>
@@ -134,20 +135,20 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>warning</mat-icon>
-          Adverse Reaction Details
+          {{ t('adverseReactionForm.sections.adverseReactionDetails') }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
       <div class="condition-selection">
-        <h4>Select Adverse Reaction from Patient Conditions</h4>
+        <h4>{{ t('adverseReactionForm.sections.selectAdverseReaction') }}</h4>
         <div class="two-column-layout">
           <div class="left-column">
             <mat-form-field class="full-width">
-              <mat-label>Choose from existing conditions</mat-label>
-              <mat-select (selectionChange)="onConditionSelected($event.value)" placeholder="Select a condition">
+              <mat-label>{{ t('adverseReactionForm.fields.chooseFromConditions') }}</mat-label>
+              <mat-select (selectionChange)="onConditionSelected($event.value)" [placeholder]="t('adverseReactionForm.fields.selectConditionPlaceholder')">
                 @for (condition of conditions; track condition) {
                   <mat-option [value]="condition">
-                    {{ (condition.code && condition.code.text) || condition.id || 'Unknown condition' }}
+                    {{ (condition.code && condition.code.text) || condition.id || t('adverseReactionForm.labels.unknownCondition') }}
                   </mat-option>
                 }
               </mat-select>
@@ -155,13 +156,13 @@
           </div>
           <div class="right-column">
             <div class="medra-mappings-container">
-              <h5>MedDRA Mappings</h5>
+              <h5>{{ t('adverseReactionForm.sections.meddraMappings') }}</h5>
 
               <!-- Loading state -->
               @if (isLoadingMedra) {
                 <div class="loading-container">
                   <mat-spinner diameter="30"></mat-spinner>
-                  <p>Loading MedDRA mappings...</p>
+                  <p>{{ t('adverseReactionForm.status.loadingMeddraMappings') }}</p>
                 </div>
               }
 
@@ -169,7 +170,7 @@
               @if (!selectedCondition && !isLoadingMedra) {
                 <div class="no-selection">
                   <mat-icon>info</mat-icon>
-                  <p>Select a condition to view MedDRA mappings</p>
+                  <p>{{ t('adverseReactionForm.messages.selectConditionForMeddra') }}</p>
                 </div>
               }
 
@@ -177,8 +178,8 @@
               @if (selectedCondition && !isLoadingMedra && medraMappings.length === 0) {
                 <div class="no-mappings">
                   <mat-icon>warning</mat-icon>
-                  <p>No MedDRA mappings found for this condition</p>
-                  <small>This condition may not have corresponding MedDRA terms</small>
+                  <p>{{ t('adverseReactionForm.messages.noMeddraMappings') }}</p>
+                  <small>{{ t('adverseReactionForm.messages.noMeddraMappingsHint') }}</small>
                 </div>
               }
 
@@ -203,33 +204,33 @@
 
       <div class="full-width-fields" formGroupName="adverseReaction">
         <mat-form-field class="full-width">
-          <mat-label>Description of Adverse Event</mat-label>
-          <textarea matInput formControlName="description" rows="4" placeholder="Describe the adverse reaction in detail"></textarea>
+          <mat-label>{{ t('adverseReactionForm.fields.descriptionOfAdverseEvent') }}</mat-label>
+          <textarea matInput formControlName="description" rows="4" [placeholder]="t('adverseReactionForm.fields.descriptionPlaceholder')"></textarea>
         </mat-form-field>
       </div>
 
       <div formGroupName="adverseReaction" class="form-grid">
         <mat-form-field>
-          <mat-label>Date of Onset</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.dateOfOnset') }}</mat-label>
           <input matInput [matDatepicker]="onsetPicker" formControlName="dateOfOnset">
           <mat-datepicker-toggle matSuffix [for]="onsetPicker"></mat-datepicker-toggle>
           <mat-datepicker #onsetPicker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Duration</mat-label>
-          <input matInput formControlName="duration" placeholder="e.g., 2 days, 1 week">
+          <mat-label>{{ t('adverseReactionForm.fields.duration') }}</mat-label>
+          <input matInput formControlName="duration" [placeholder]="t('adverseReactionForm.fields.durationPlaceholder')">
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Date of Recovery</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.dateOfRecovery') }}</mat-label>
           <input matInput [matDatepicker]="recoveryPicker" formControlName="dateOfRecovery">
           <mat-datepicker-toggle matSuffix [for]="recoveryPicker"></mat-datepicker-toggle>
           <mat-datepicker #recoveryPicker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Outcome</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.outcome') }}</mat-label>
           <mat-select formControlName="outcome">
             @for (outcome of outcomeOptions; track outcome) {
               <mat-option [value]="outcome">{{ outcome }}</mat-option>
@@ -239,8 +240,8 @@
       </div>
 
       <div class="seriousness-section">
-        <h4>Seriousness Criteria</h4>
-        <p class="help-text">Select all that apply:</p>
+        <h4>{{ t('adverseReactionForm.sections.seriousnessCriteria') }}</h4>
+        <p class="help-text">{{ t('adverseReactionForm.messages.selectAllThatApply') }}</p>
         <div class="checkbox-grid">
           @for (criterion of seriousnessOptions; track criterion) {
             <mat-checkbox
@@ -258,20 +259,20 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>medication</mat-icon>
-          Suspected Medicinal Product
+          {{ t('adverseReactionForm.sections.suspectedMedicinalProduct') }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
       <div class="medication-selection">
-        <h4>Select Suspected Medication from Patient Medications</h4>
+        <h4>{{ t('adverseReactionForm.sections.selectSuspectedMedication') }}</h4>
         <div class="two-column-layout">
           <div class="left-column">
             <mat-form-field class="full-width">
-              <mat-label>Choose from existing medications</mat-label>
-              <mat-select (selectionChange)="onMedicationSelected($event.value)" placeholder="Select a medication">
+              <mat-label>{{ t('adverseReactionForm.fields.chooseFromMedications') }}</mat-label>
+              <mat-select (selectionChange)="onMedicationSelected($event.value)" [placeholder]="t('adverseReactionForm.fields.selectMedicationPlaceholder')">
                 @for (medication of medications; track medication) {
                   <mat-option [value]="medication">
-                    {{ medication.medicationCodeableConcept?.text || 'Unknown medication' }}
+                    {{ medication.medicationCodeableConcept?.text || t('adverseReactionForm.labels.unknownMedication') }}
                   </mat-option>
                 }
               </mat-select>
@@ -279,13 +280,13 @@
           </div>
           <div class="right-column">
             <div class="snomed-concept-container">
-              <h5>SNOMED Concept ID</h5>
+              <h5>{{ t('adverseReactionForm.sections.snomedConceptId') }}</h5>
 
               <!-- No medication selected -->
               @if (!selectedMedication) {
                 <div class="no-selection">
                   <mat-icon>info</mat-icon>
-                  <p>Select a medication to view SNOMED concept ID</p>
+                  <p>{{ t('adverseReactionForm.messages.selectMedicationForSnomed') }}</p>
                 </div>
               }
 
@@ -293,7 +294,7 @@
               @if (selectedMedication) {
                 <div class="concept-display">
                   <div class="concept-item">
-                    <div class="concept-display">{{ selectedMedication.medicationCodeableConcept?.text || 'Unknown medication' }}</div>
+                    <div class="concept-display">{{ selectedMedication.medicationCodeableConcept?.text || t('adverseReactionForm.labels.unknownMedication') }}</div>
                     <div class="concept-header">
                       <span class="concept-code">{{ getMedicationConceptId(selectedMedication) }}</span>
                       <span class="concept-system">SNOMED CT</span>
@@ -308,12 +309,12 @@
 
       <div formGroupName="suspectedProduct" class="form-grid">
         <mat-form-field>
-          <mat-label>Product Name</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.productName') }}</mat-label>
           <input matInput formControlName="name">
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Active Substance</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.activeSubstance') }}</mat-label>
           <input matInput formControlName="activeSubstance" [readonly]="true">
           @if (isLoadingIngredients) {
             <mat-spinner diameter="20" class="field-spinner"></mat-spinner>
@@ -321,24 +322,24 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Dose</mat-label>
-          <input matInput formControlName="dose" placeholder="e.g., 10 mg">
+          <mat-label>{{ t('adverseReactionForm.fields.dose') }}</mat-label>
+          <input matInput formControlName="dose" [placeholder]="t('adverseReactionForm.fields.dosePlaceholder')">
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Frequency</mat-label>
-          <input matInput formControlName="frequency" placeholder="e.g., once daily">
+          <mat-label>{{ t('adverseReactionForm.fields.frequency') }}</mat-label>
+          <input matInput formControlName="frequency" [placeholder]="t('adverseReactionForm.fields.frequencyPlaceholder')">
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Duration</mat-label>
-          <input matInput formControlName="duration" placeholder="e.g., 5 days">
+          <mat-label>{{ t('adverseReactionForm.fields.duration') }}</mat-label>
+          <input matInput formControlName="duration" [placeholder]="t('adverseReactionForm.fields.productDurationPlaceholder')">
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Route of Administration</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.routeOfAdministration') }}</mat-label>
           <mat-select formControlName="routeOfAdministration">
-            <mat-option value="">Select route</mat-option>
+            <mat-option value="">{{ t('adverseReactionForm.fields.selectRoute') }}</mat-option>
             @for (route of routeOfAdministrationOptions; track route) {
               <mat-option [value]="route">{{ route }}</mat-option>
             }
@@ -346,21 +347,21 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Start Date</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.startDate') }}</mat-label>
           <input matInput [matDatepicker]="startPicker" formControlName="startDate">
           <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
           <mat-datepicker #startPicker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Stop Date</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.stopDate') }}</mat-label>
           <input matInput [matDatepicker]="stopPicker" formControlName="stopDate">
           <mat-datepicker-toggle matSuffix [for]="stopPicker"></mat-datepicker-toggle>
           <mat-datepicker #stopPicker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Batch/Lot Number</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.batchLotNumber') }}</mat-label>
           <input matInput formControlName="batchNumber">
         </mat-form-field>
       </div>
@@ -371,16 +372,16 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>medication_liquid</mat-icon>
-          Concomitant Products
+          {{ t('adverseReactionForm.sections.concomitantProducts') }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
       <div class="concomitant-products-section">
         <div class="section-header">
-          <h4>Other Medications Taken Concurrently</h4>
+          <h4>{{ t('adverseReactionForm.sections.otherMedicationsConcurrently') }}</h4>
           <button type="button" mat-raised-button color="primary" (click)="addConcomitantProduct()">
             <mat-icon>add</mat-icon>
-            Add Concomitant Product
+            {{ t('adverseReactionForm.actions.addConcomitantProduct') }}
           </button>
         </div>
 
@@ -389,34 +390,34 @@
             <div
               [formGroupName]="i" class="concomitant-product-item">
               <div class="product-header">
-                <h5>Concomitant Product {{ i + 1 }}</h5>
+                <h5>{{ t('adverseReactionForm.labels.concomitantProductN') }} {{ i + 1 }}</h5>
                 <button type="button" mat-icon-button color="warn" (click)="removeConcomitantProduct(i)">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
               <div class="form-grid">
                 <mat-form-field>
-                  <mat-label>Product Name</mat-label>
+                  <mat-label>{{ t('adverseReactionForm.fields.productName') }}</mat-label>
                   <input matInput formControlName="name">
                 </mat-form-field>
                 <mat-form-field>
-                  <mat-label>Active Substance</mat-label>
+                  <mat-label>{{ t('adverseReactionForm.fields.activeSubstance') }}</mat-label>
                   <input matInput formControlName="activeSubstance">
                 </mat-form-field>
                 <mat-form-field>
-                  <mat-label>Dose</mat-label>
+                  <mat-label>{{ t('adverseReactionForm.fields.dose') }}</mat-label>
                   <input matInput formControlName="dose">
                 </mat-form-field>
                 <mat-form-field>
-                  <mat-label>Frequency</mat-label>
+                  <mat-label>{{ t('adverseReactionForm.fields.frequency') }}</mat-label>
                   <input matInput formControlName="frequency">
                 </mat-form-field>
                 <mat-form-field>
-                  <mat-label>Start Date</mat-label>
+                  <mat-label>{{ t('adverseReactionForm.fields.startDate') }}</mat-label>
                   <input matInput type="date" formControlName="startDate">
                 </mat-form-field>
                 <mat-form-field>
-                  <mat-label>Stop Date</mat-label>
+                  <mat-label>{{ t('adverseReactionForm.fields.stopDate') }}</mat-label>
                   <input matInput type="date" formControlName="stopDate">
                 </mat-form-field>
               </div>
@@ -425,7 +426,7 @@
 
           @if (concomitantProductsArray.length === 0) {
             <div class="no-concomitant-products">
-              <p>No concomitant products added. Click "Add Concomitant Product" to include other medications.</p>
+              <p>{{ t('adverseReactionForm.messages.noConcomitantProducts') }}</p>
             </div>
           }
         </div>
@@ -437,13 +438,13 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>follow_the_signs</mat-icon>
-          Follow-up & Additional Information
+          {{ t('adverseReactionForm.sections.followUpInformation') }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
       <div class="form-grid">
         <mat-form-field>
-          <mat-label>Country of Reaction</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.countryOfReaction') }}</mat-label>
           <mat-select formControlName="countryOfReaction">
             @for (country of countries; track country) {
               <mat-option [value]="country">{{ country }}</mat-option>
@@ -452,7 +453,7 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Country of Reporter</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.countryOfReporter') }}</mat-label>
           <mat-select formControlName="countryOfReporter">
             @for (country of countries; track country) {
               <mat-option [value]="country">{{ country }}</mat-option>
@@ -463,28 +464,28 @@
 
       <div class="full-width-fields">
         <mat-form-field class="full-width">
-          <mat-label>Therapeutic Measures Taken</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.therapeuticMeasuresTaken') }}</mat-label>
           <textarea matInput formControlName="therapeuticMeasures" rows="3"
-          placeholder="Describe any treatments or interventions taken to manage the adverse reaction"></textarea>
+          [placeholder]="t('adverseReactionForm.fields.therapeuticMeasuresPlaceholder')"></textarea>
         </mat-form-field>
 
         <mat-form-field class="full-width">
-          <mat-label>Relevant Laboratory Data</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.relevantLaboratoryData') }}</mat-label>
           <textarea matInput formControlName="laboratoryData" rows="3"
-          placeholder="Include any relevant test results, laboratory values, or imaging findings"></textarea>
+          [placeholder]="t('adverseReactionForm.fields.laboratoryDataPlaceholder')"></textarea>
         </mat-form-field>
 
         <mat-form-field class="full-width">
-          <mat-label>Literature Reference</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.literatureReference') }}</mat-label>
           <input matInput formControlName="literatureReference"
-            placeholder="If applicable, provide literature reference">
+            [placeholder]="t('adverseReactionForm.fields.literatureReferencePlaceholder')">
         </mat-form-field>
 
         <mat-form-field class="full-width">
-          <mat-label>Case Narrative</mat-label>
+          <mat-label>{{ t('adverseReactionForm.fields.caseNarrative') }}</mat-label>
           <textarea matInput formControlName="caseNarrative" rows="6"
-          placeholder="Provide a comprehensive narrative describing the case, including timeline, clinical course, and any other relevant details"></textarea>
-          <mat-hint>This narrative should provide a complete picture of the case for regulatory review</mat-hint>
+          [placeholder]="t('adverseReactionForm.fields.caseNarrativePlaceholder')"></textarea>
+          <mat-hint>{{ t('adverseReactionForm.fields.caseNarrativeHint') }}</mat-hint>
         </mat-form-field>
       </div>
     </mat-expansion-panel>
@@ -493,12 +494,13 @@
     <div class="form-actions">
       <button type="button" mat-button (click)="onCancel()" class="cancel-button">
         <mat-icon>cancel</mat-icon>
-        Cancel
+        {{ t('adverseReactionForm.actions.cancel') }}
       </button>
       <button type="submit" mat-raised-button color="primary" class="submit-button">
         <mat-icon>save</mat-icon>
-        Submit ICSR Report
+        {{ t('adverseReactionForm.actions.submitIcsr') }}
       </button>
     </div>
   </form>
 </div>
+</ng-container>

@@ -1,7 +1,8 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="allergy-dialog-shell">
   <div class="dialog-head">
-    <h3>Add Allergy / Intolerance</h3>
-    <button mat-icon-button (click)="close()" aria-label="Close allergy dialog">
+    <h3>{{ t('allergyFormDialog.sections.title') }}</h3>
+    <button mat-icon-button (click)="close()" [attr.aria-label]="t('allergyFormDialog.actions.close')">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -17,3 +18,4 @@
     </app-clinical-forms>
   </div>
 </div>
+</ng-container>

@@ -1,8 +1,9 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="death-dialog">
   <div mat-dialog-title class="dialog-header">
     <div>
       <h2>{{ getDialogTitle() }}</h2>
-      <p>Capture the cause-of-death certificate and mark this patient as deceased.</p>
+      <p>{{ t('deathRegistrationDialog.sections.subtitle') }}</p>
     </div>
   </div>
 
@@ -14,21 +15,21 @@
             {{ data.patient.name?.[0]?.text || ((data.patient.name?.[0]?.given || []).join(' ') + ' ' + (data.patient.name?.[0]?.family || '')) }}
           </div>
           <div class="patient-meta">
-            <span>ID: {{ data.patient.identifier?.[0]?.value || data.patient.id }}</span>
-            <span *ngIf="data.patient.birthDate">DOB: {{ data.patient.birthDate | date:'mediumDate' }}</span>
+            <span>{{ t('deathRegistrationDialog.labels.id') }}: {{ data.patient.identifier?.[0]?.value || data.patient.id }}</span>
+            <span *ngIf="data.patient.birthDate">{{ t('deathRegistrationDialog.labels.dob') }}: {{ data.patient.birthDate | date:'mediumDate' }}</span>
           </div>
         </div>
 
         <div class="death-datetime-group">
           <mat-form-field appearance="outline" class="death-date-field">
-            <mat-label>Date of death</mat-label>
+            <mat-label>{{ t('deathRegistrationDialog.fields.dateOfDeath') }}</mat-label>
             <input matInput [matDatepicker]="deathDatePicker" [(ngModel)]="deceasedDate">
             <mat-datepicker-toggle matIconSuffix [for]="deathDatePicker"></mat-datepicker-toggle>
             <mat-datepicker #deathDatePicker></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="death-time-field">
-            <mat-label>Time</mat-label>
+            <mat-label>{{ t('deathRegistrationDialog.fields.time') }}</mat-label>
             <input matInput [matTimepicker]="deathTimePicker" [(ngModel)]="deceasedTime" readonly>
             <mat-timepicker-toggle matIconSuffix [for]="deathTimePicker"></mat-timepicker-toggle>
             <mat-timepicker #deathTimePicker></mat-timepicker>
@@ -39,14 +40,14 @@
 
     <div class="certificate-card">
       <div class="certificate-header">
-        <div class="title">Cause of death</div>
-        <div class="subtitle">Part I. Enter the chain of events that directly caused the death.</div>
+        <div class="title">{{ t('deathRegistrationDialog.sections.causeOfDeath') }}</div>
+        <div class="subtitle">{{ t('deathRegistrationDialog.sections.part1Subtitle') }}</div>
       </div>
 
       <div class="line-grid header-row">
-        <div>Line</div>
-        <div>Cause/condition</div>
-        <div>Approximate interval</div>
+        <div>{{ t('deathRegistrationDialog.table.line') }}</div>
+        <div>{{ t('deathRegistrationDialog.table.causeCondition') }}</div>
+        <div>{{ t('deathRegistrationDialog.table.approximateInterval') }}</div>
       </div>
 
       <div class="line-grid line-grid-with-actions" *ngFor="let line of part1Lines; let i = index; trackBy: trackByIndex">
@@ -57,12 +58,12 @@
             type="button"
             class="mode-link"
             (click)="line.sourceType = line.sourceType === 'existing-condition' ? 'snomed-search' : 'existing-condition'">
-            {{ line.sourceType === 'existing-condition' ? 'Search in SNOMED' : 'Use existing condition' }}
+            {{ line.sourceType === 'existing-condition' ? t('deathRegistrationDialog.actions.searchInSnomed') : t('deathRegistrationDialog.actions.useExistingCondition') }}
           </button>
           <mat-form-field appearance="outline" *ngIf="line.sourceType === 'existing-condition'">
             <mat-label>{{ getSourceFieldLabel(line) }}</mat-label>
             <mat-select [(value)]="line.selectedConditionId" (selectionChange)="onExistingConditionSelected(line)">
-              <mat-option [value]="''">Select condition</mat-option>
+              <mat-option [value]="''">{{ t('deathRegistrationDialog.fields.selectCondition') }}</mat-option>
               <mat-option *ngFor="let condition of data.conditions" [value]="condition.id">
                 {{ getConditionDisplayText(condition) }}
               </mat-option>
@@ -81,8 +82,8 @@
 
         <div class="interval-column aligned-column">
           <mat-form-field appearance="outline">
-            <mat-label>Interval</mat-label>
-            <input matInput [(ngModel)]="line.intervalText" placeholder="e.g. 3 days">
+            <mat-label>{{ t('deathRegistrationDialog.fields.interval') }}</mat-label>
+            <input matInput [(ngModel)]="line.intervalText" [placeholder]="t('deathRegistrationDialog.fields.intervalPlaceholder')">
           </mat-form-field>
         </div>
 
@@ -90,7 +91,7 @@
           type="button"
           mat-icon-button
           class="line-reset-button"
-          aria-label="Clear line"
+          [attr.aria-label]="t('deathRegistrationDialog.actions.clearLine')"
           (click)="resetPart1Line(i)">
           <mat-icon>close</mat-icon>
         </button>
@@ -99,7 +100,7 @@
 
     <div class="certificate-card">
       <div class="certificate-header">
-        <div class="subtitle">Part II. Other significant conditions contributing to death.</div>
+        <div class="subtitle">{{ t('deathRegistrationDialog.sections.part2Subtitle') }}</div>
       </div>
 
       <div class="line-grid part2-grid" *ngFor="let line of part2Lines; let i = index; trackBy: trackByIndex">
@@ -110,12 +111,12 @@
             type="button"
             class="mode-link"
             (click)="line.sourceType = line.sourceType === 'existing-condition' ? 'snomed-search' : 'existing-condition'">
-            {{ line.sourceType === 'existing-condition' ? 'Search in SNOMED' : 'Use existing condition' }}
+            {{ line.sourceType === 'existing-condition' ? t('deathRegistrationDialog.actions.searchInSnomed') : t('deathRegistrationDialog.actions.useExistingCondition') }}
           </button>
           <mat-form-field appearance="outline" *ngIf="line.sourceType === 'existing-condition'">
             <mat-label>{{ getSourceFieldLabel(line) }}</mat-label>
             <mat-select [(value)]="line.selectedConditionId" (selectionChange)="onExistingConditionSelected(line)">
-              <mat-option [value]="''">Select condition</mat-option>
+              <mat-option [value]="''">{{ t('deathRegistrationDialog.fields.selectCondition') }}</mat-option>
               <mat-option *ngFor="let condition of data.conditions" [value]="condition.id">
                 {{ getConditionDisplayText(condition) }}
               </mat-option>
@@ -136,7 +137,7 @@
           type="button"
           mat-icon-button
           class="part2-clear-button"
-          aria-label="Clear line"
+          [attr.aria-label]="t('deathRegistrationDialog.actions.clearLine')"
           (click)="resetPart2Line(i)">
           <mat-icon>close</mat-icon>
         </button>
@@ -145,7 +146,7 @@
       <div class="part2-actions">
         <button mat-stroked-button color="primary" (click)="addPart2Line()">
           <mat-icon>add</mat-icon>
-          Add contributing condition
+          {{ t('deathRegistrationDialog.actions.addContributingCondition') }}
         </button>
       </div>
     </div>
@@ -164,12 +165,13 @@
       class="delete-record-button"
       (click)="deleteDeathRecord()"
       [disabled]="isSaving">
-      Delete death certification record
+      {{ t('deathRegistrationDialog.actions.deleteRecord') }}
     </button>
-    <button mat-stroked-button (click)="close()" [disabled]="isSaving">Cancel</button>
+    <button mat-stroked-button (click)="close()" [disabled]="isSaving">{{ t('deathRegistrationDialog.actions.cancel') }}</button>
     <button mat-flat-button color="warn" (click)="save()" [disabled]="isSaving">
       <mat-spinner diameter="18" *ngIf="isSaving"></mat-spinner>
-      <span *ngIf="!isSaving">{{ data.existingRecord ? 'Update death record' : 'Save death record' }}</span>
+      <span *ngIf="!isSaving">{{ data.existingRecord ? t('deathRegistrationDialog.actions.updateRecord') : t('deathRegistrationDialog.actions.saveRecord') }}</span>
     </button>
   </div>
 </div>
+</ng-container>

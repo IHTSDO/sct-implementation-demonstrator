@@ -13,7 +13,8 @@
     "download-ehdsi-results": "node scripts/download-ehdsi-results-coded-value.js",
     "download-ehdsi-lab-technique": "node scripts/download-ehdsi-lab-technique.js",
     "import-dental-procedures": "node scripts/import-dental-procedures.js",
-    "generate-shl-demo": "node scripts/generate-shl-demo.js"
+    "generate-shl-demo": "node scripts/generate-shl-demo.js",
+    "i18n:extract": "transloco-keys-manager extract"
   },
   "private": true,
   "dependencies": {
@@ -27,6 +28,7 @@
     "@angular/platform-browser": "^21.2.8",
     "@angular/platform-browser-dynamic": "^21.2.8",
     "@angular/router": "^21.2.8",
+    "@jsverse/transloco": "^8.3.0",
     "@types/d3": "^7.4.3",
     "@types/papaparse": "^5.3.16",
     "@types/plotly.js": "^3.0.3",
@@ -76,6 +78,7 @@
     "@angular-devkit/build-angular": "^21.2.7",
     "@angular/cli": "^21.2.7",
     "@angular/compiler-cli": "^21.2.8",
+    "@jsverse/transloco-keys-manager": "^8.1.0",
     "@types/bad-words": "^3.0.3",
     "@types/file-saver": "^2.0.7",
     "@types/google.maps": "^3.58.1",

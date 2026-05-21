@@ -1,8 +1,8 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="cds-tab-container">
-  <h3>Decision Support</h3>
+  <h3>{{ t('cdsPanel.sections.title') }}</h3>
   <p class="cds-description">
-    This panel shows the latest standardized CDS Hooks results returned by the active CDS servers for the current
-    clinical workflow.
+    {{ t('cdsPanel.sections.description') }}
   </p>
 
   <div class="cds-status">
@@ -28,14 +28,14 @@
         <span>{{ getHookLastUpdatedLabel(getDisplayedHook()) }}</span>
       </div>
       <button mat-stroked-button color="primary" (click)="refreshSelectedHook()" [disabled]="isCdsLoading() || !patient">
-        Refresh
+        {{ t('cdsPanel.actions.refresh') }}
       </button>
     </div>
 
     @if (isCdsLoading()) {
       <div class="cds-loading">
         <mat-spinner diameter="24"></mat-spinner>
-        <span>Requesting {{ getDisplayedHookLabel().toLowerCase() }} results from active CDS servers...</span>
+        <span>{{ t('cdsPanel.status.requesting', { hook: getDisplayedHookLabel().toLowerCase() }) }}</span>
       </div>
     }
 
@@ -43,7 +43,7 @@
       <div class="cds-empty-state">
         <mat-icon color="accent">info</mat-icon>
         <div class="cds-empty-copy">
-          <strong>No CDS request available</strong>
+          <strong>{{ t('cdsPanel.status.noRequestAvailable') }}</strong>
           <span>{{ getCdsNoDataMessage() }}</span>
         </div>
       </div>
@@ -53,7 +53,7 @@
       <div class="cds-error">
         <mat-icon color="warn">error</mat-icon>
         <div class="error-content">
-          <strong>Error</strong>
+          <strong>{{ t('cdsPanel.status.error') }}</strong>
           <span>{{ getCdsError() }}</span>
         </div>
       </div>
@@ -63,7 +63,7 @@
       <div class="cds-recommendations">
         <div class="recommendations-header">
           <mat-icon color="primary">lightbulb</mat-icon>
-          <span>{{ getTotalRecommendationCount() }} recommendation(s) for {{ getDisplayedHookLabel().toLowerCase() }}</span>
+          <span>{{ t('cdsPanel.status.recommendationCount', { count: getTotalRecommendationCount(), hook: getDisplayedHookLabel().toLowerCase() }) }}</span>
         </div>
 
         <div class="cds-server-groups">
@@ -106,9 +106,9 @@
                           mat-button
                           color="accent"
                           (click)="openSourceUrl(card.source.url)"
-                          title="View source">
+                          [title]="t('cdsPanel.tooltips.viewSource')">
                           <mat-icon>open_in_new</mat-icon>
-                          View Source
+                          {{ t('cdsPanel.actions.viewSource') }}
                         </button>
                       }
                     </mat-card-actions>
@@ -123,7 +123,7 @@
               @for (result of getServerResultsWithoutCards(); track result.server.id + '-' + result.serviceId) {
                 <div class="cds-server-muted-item">
                   <strong>{{ getServerDisplayName(result) }}</strong>
-                  <span>{{ getDisplayedHookLabel() }} completed with no recommendations.</span>
+                  <span>{{ t('cdsPanel.status.completedNoRecommendations', { hook: getDisplayedHookLabel() }) }}</span>
                 </div>
               }
             </div>
@@ -147,16 +147,16 @@
       <div class="cds-no-recommendations">
         <mat-icon color="accent">check_circle</mat-icon>
         <div class="no-recommendations-content">
-          <strong>No specific recommendations</strong>
-          <span>No CDS recommendations were returned for {{ getDisplayedHookLabel().toLowerCase() }} across the active servers.</span>
+          <strong>{{ t('cdsPanel.status.noSpecificRecommendations') }}</strong>
+          <span>{{ t('cdsPanel.status.noRecommendationsDetail', { hook: getDisplayedHookLabel().toLowerCase() }) }}</span>
         </div>
       </div>
     }
   </div>
 
   <div class="cds-info-panel">
-    <p class="cds-info-intro">This demo uses this open source resource:</p>
-    <p class="cds-info-title">SNOMED FHIR Clinical Decision Support Service</p>
+    <p class="cds-info-intro">{{ t('cdsPanel.info.intro') }}</p>
+    <p class="cds-info-title">{{ t('cdsPanel.info.serviceTitle') }}</p>
     <a
       class="cds-info-subtitle-link"
       href="https://github.com/IHTSDO/snomed-fhir-cds-service"
@@ -166,54 +166,53 @@
     </a>
 
     <p class="cds-info-overview">
-      This demo showcases the SNOMED FHIR CDS Service and is intended for demonstration purposes only, not for
-      real-world clinical use. Built on FHIR standards and SNOMED CT, it analyzes medication orders to detect
-      contraindications, drug interactions, abnormal dosing, and validation errors.
+      {{ t('cdsPanel.info.overview') }}
     </p>
 
     <div class="cds-info-grid">
       <div class="cds-info-section">
-        <h4>Key Components</h4>
+        <h4>{{ t('cdsPanel.info.keyComponentsTitle') }}</h4>
         <ul>
-          <li><strong>Rules Engine:</strong> Loads medication-condition and drug-drug interaction rules.</li>
-          <li><strong>FHIR Integration:</strong> Accepts MedicationRequest, Condition, AllergyIntolerance, and Patient resources.</li>
+          <li><strong>{{ t('cdsPanel.info.rulesEngineLabel') }}:</strong> {{ t('cdsPanel.info.rulesEngineText') }}</li>
+          <li><strong>{{ t('cdsPanel.info.fhirIntegrationLabel') }}:</strong> {{ t('cdsPanel.info.fhirIntegrationText') }}</li>
           <li>
-            <strong>Knowledge bases:</strong>
+            <strong>{{ t('cdsPanel.info.knowledgeBasesLabel') }}:</strong>
             <div class="cds-info-subpoints">
-              <p><strong>Interactions:</strong> A limited list of medication interaction risks created from publicly available resources for the demo.</p>
-              <p><strong>Contraindications:</strong> A limited list of medication-condition contraindications created from publicly available resources for the demo.</p>
-              <p><strong>DDD:</strong> Uses WHO ATC Defined Daily Doses to estimate excessive dosage alerts.</p>
-              <p><strong>Thresholds:</strong> Supports adjustable dosage alert limits.</p>
+              <p><strong>{{ t('cdsPanel.info.interactionsLabel') }}:</strong> {{ t('cdsPanel.info.interactionsText') }}</p>
+              <p><strong>{{ t('cdsPanel.info.contraindicationsLabel') }}:</strong> {{ t('cdsPanel.info.contraindicationsText') }}</p>
+              <p><strong>{{ t('cdsPanel.info.dddLabel') }}:</strong> {{ t('cdsPanel.info.dddText') }}</p>
+              <p><strong>{{ t('cdsPanel.info.thresholdsLabel') }}:</strong> {{ t('cdsPanel.info.thresholdsText') }}</p>
             </div>
           </li>
         </ul>
       </div>
 
       <div class="cds-info-section">
-        <h4>Alert Types</h4>
+        <h4>{{ t('cdsPanel.info.alertTypesTitle') }}</h4>
         <ul>
-          <li><strong>Contraindication Alerts:</strong> Flags when a medication is unsafe for a patient's existing medical conditions. WARNING indicates a critical contraindication, while INFO suggests caution.</li>
-          <li><strong>Medication Allergy Alerts:</strong> Flags when a medication conflicts with recorded allergy information.</li>
+          <li><strong>{{ t('cdsPanel.info.contraindicationAlertsLabel') }}:</strong> {{ t('cdsPanel.info.contraindicationAlertsText') }}</li>
+          <li><strong>{{ t('cdsPanel.info.allergyAlertsLabel') }}:</strong> {{ t('cdsPanel.info.allergyAlertsText') }}</li>
           <li>
-            <strong>High Dosage Alerts:</strong> Identifies when the prescribed daily dose exceeds the WHO Defined Daily Dose reference. INFO indicates 2-4x DDD and WARNING indicates 4x DDD or higher.
+            <strong>{{ t('cdsPanel.info.highDosageAlertsLabel') }}:</strong> {{ t('cdsPanel.info.highDosageAlertsText') }}
             <div class="cds-info-subpoints">
-              <p><strong>Formula:</strong> Prescribed Daily Dose / DDD Reference = Alert Threshold</p>
-              <p><strong>Configuration:</strong> Acceptable threshold 2x DDD, maximum threshold 4x DDD.</p>
+              <p><strong>{{ t('cdsPanel.info.formulaLabel') }}:</strong> {{ t('cdsPanel.info.formulaText') }}</p>
+              <p><strong>{{ t('cdsPanel.info.configurationLabel') }}:</strong> {{ t('cdsPanel.info.configurationText') }}</p>
             </div>
           </li>
-          <li><strong>Drug-Drug Interaction Alerts:</strong> Detects risky medication combinations, with INFO, WARNING, and CRITICAL severities based on interaction strength.</li>
-          <li><strong>Validation Error Alerts:</strong> Flags incomplete or invalid prescription data such as invalid dose units, missing frequency, or incomplete information.</li>
+          <li><strong>{{ t('cdsPanel.info.drugInteractionAlertsLabel') }}:</strong> {{ t('cdsPanel.info.drugInteractionAlertsText') }}</li>
+          <li><strong>{{ t('cdsPanel.info.validationErrorAlertsLabel') }}:</strong> {{ t('cdsPanel.info.validationErrorAlertsText') }}</li>
         </ul>
       </div>
 
       <div class="cds-info-section">
-        <h4>Alert Severity Indicators</h4>
+        <h4>{{ t('cdsPanel.info.severityTitle') }}</h4>
         <ul class="cds-indicator-list">
-          <li><strong>INFO</strong>: Informational</li>
-          <li><strong>WARNING</strong>: Important safety concern</li>
-          <li><strong>CRITICAL</strong>: Severe safety issue</li>
+          <li><strong>{{ t('cdsPanel.info.severityInfo') }}</strong>: {{ t('cdsPanel.info.severityInfoText') }}</li>
+          <li><strong>{{ t('cdsPanel.info.severityWarning') }}</strong>: {{ t('cdsPanel.info.severityWarningText') }}</li>
+          <li><strong>{{ t('cdsPanel.info.severityCritical') }}</strong>: {{ t('cdsPanel.info.severityCriticalText') }}</li>
         </ul>
       </div>
     </div>
   </div>
 </div>
+</ng-container>

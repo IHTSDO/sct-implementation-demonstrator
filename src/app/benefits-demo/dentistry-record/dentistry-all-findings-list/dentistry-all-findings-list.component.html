@@ -1,5 +1,6 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="side-tab-content">
-  <h3>All Records</h3>
+  <h3>{{ t('dentistryAllFindings.sections.title') }}</h3>
   <div *ngIf="items.length > 0; else noSavedFindings" class="saved-findings-list">
     <app-dentistry-record-item
       *ngFor="let item of items"
@@ -14,7 +15,8 @@
   </div>
   <ng-template #noSavedFindings>
     <div class="empty-details">
-      No saved dental records for this patient yet.
+      {{ t('dentistryAllFindings.messages.noRecords') }}
     </div>
   </ng-template>
 </div>
+</ng-container>

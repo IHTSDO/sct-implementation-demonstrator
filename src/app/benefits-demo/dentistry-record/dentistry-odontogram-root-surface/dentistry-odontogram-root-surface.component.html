@@ -1,8 +1,9 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="root-surface-container">
   <div class="root-surface-header">
     <div>
-      <h3>Odontogram View</h3>
-      <p>Segmented surfaces with larger central polygon for molars.</p>
+      <h3>{{ t('odontogramRootSurface.sections.title') }}</h3>
+      <p>{{ t('odontogramRootSurface.sections.subtitle') }}</p>
     </div>
     <div class="root-surface-controls">
       <label class="show-roots-toggle">
@@ -10,23 +11,23 @@
           type="checkbox"
           [checked]="showRoots"
           (change)="onShowRootsChange(!!$any($event.target).checked)">
-        <span>Show root surfaces</span>
+        <span>{{ t('odontogramRootSurface.labels.showRootSurfaces') }}</span>
       </label>
 
-      <div class="notation-toggle" role="group" aria-label="Tooth numbering selector">
+      <div class="notation-toggle" role="group" [attr.aria-label]="t('odontogramRootSurface.labels.toothNumberingSelector')">
         <button
           type="button"
           class="notation-button"
           [class.active]="notationSystem === 'FDI'"
           (click)="onNotationSystemChange('FDI')">
-          FDI (ISO)
+          {{ t('odontogramRootSurface.tabs.fdiIso') }}
         </button>
         <button
           type="button"
           class="notation-button"
           [class.active]="notationSystem === 'Universal'"
           (click)="onNotationSystemChange('Universal')">
-          Universal
+          {{ t('odontogramRootSurface.tabs.universal') }}
         </button>
       </div>
     </div>
@@ -37,7 +38,7 @@
     viewBox="0 0 1000 560"
     class="root-surface-canvas"
     role="listbox"
-    aria-label="Interactive root surface odontogram"
+    [attr.aria-label]="t('odontogramRootSurface.labels.interactiveOdontogram')"
     aria-multiselectable="true"
     (mouseleave)="toothMouseLeave.emit()">
     <line class="cross-line" x1="500" y1="85" x2="500" y2="470"></line>
@@ -55,7 +56,7 @@
         [class.absent]="isToothAbsent(positioned.tooth.id)"
         [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        [attr.aria-label]="'Tooth ' + getDisplayedNotation(positioned.tooth)"
+        [attr.aria-label]="t('odontogramRootSurface.labels.tooth') + ' ' + getDisplayedNotation(positioned.tooth)"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
@@ -114,7 +115,7 @@
         [class.absent]="isToothAbsent(positioned.tooth.id)"
         [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        [attr.aria-label]="'Tooth ' + getDisplayedNotation(positioned.tooth)"
+        [attr.aria-label]="t('odontogramRootSurface.labels.tooth') + ' ' + getDisplayedNotation(positioned.tooth)"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
@@ -173,7 +174,7 @@
         [class.absent]="isToothAbsent(positioned.tooth.id)"
         [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        [attr.aria-label]="'Tooth ' + getDisplayedNotation(positioned.tooth)"
+        [attr.aria-label]="t('odontogramRootSurface.labels.tooth') + ' ' + getDisplayedNotation(positioned.tooth)"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
@@ -232,7 +233,7 @@
         [class.absent]="isToothAbsent(positioned.tooth.id)"
         [class.without-roots]="!showRoots"
         [attr.transform]="'translate(' + positioned.x + ',' + positioned.y + ') scale(' + getToothScale(positioned.tooth) + ')'"
-        [attr.aria-label]="'Tooth ' + getDisplayedNotation(positioned.tooth)"
+        [attr.aria-label]="t('odontogramRootSurface.labels.tooth') + ' ' + getDisplayedNotation(positioned.tooth)"
         [attr.aria-selected]="isSelected(positioned.tooth.id)"
         (mouseenter)="onMouseEnter(positioned.tooth, $event)"
         (mousemove)="toothMouseMove.emit($event)"
@@ -290,7 +291,7 @@
     *ngIf="hoveredTooth"
     [style.left.px]="tooltipX"
     [style.top.px]="tooltipY">
-    <div class="tooltip-number">Tooth {{ getDisplayedNotation(hoveredTooth) }}</div>
+    <div class="tooltip-number">{{ t('odontogramRootSurface.labels.tooth') }} {{ getDisplayedNotation(hoveredTooth) }}</div>
     <div class="tooltip-type">{{ hoveredTooth.type }}</div>
     <ng-container *ngIf="getToothTooltipLines(hoveredTooth.id) as tooltipLines">
       <div class="tooltip-records" *ngIf="tooltipLines.length">
@@ -299,9 +300,10 @@
     </ng-container>
   </div>
 
-  <div class="surface-legend" aria-label="Surface color legend">
-    <span class="legend-item"><span class="legend-swatch legend-findings"></span>Findings</span>
-    <span class="legend-item"><span class="legend-swatch legend-procedure-planned"></span>Planned procedures</span>
-    <span class="legend-item"><span class="legend-swatch legend-procedure-completed"></span>Completed procedures</span>
+  <div class="surface-legend" [attr.aria-label]="t('odontogramRootSurface.labels.surfaceColorLegend')">
+    <span class="legend-item"><span class="legend-swatch legend-findings"></span>{{ t('odontogramRootSurface.legend.findings') }}</span>
+    <span class="legend-item"><span class="legend-swatch legend-procedure-planned"></span>{{ t('odontogramRootSurface.legend.plannedProcedures') }}</span>
+    <span class="legend-item"><span class="legend-swatch legend-procedure-completed"></span>{{ t('odontogramRootSurface.legend.completedProcedures') }}</span>
   </div>
 </div>
+</ng-container>

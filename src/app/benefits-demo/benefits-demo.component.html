@@ -1,20 +1,19 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="benefits-demo-container">
   <div class="header-section">
     <div class="header-content">
       <div class="header-text">
-        <h1>SNOMED EHR Lab</h1>
-        <p>A hands-on demo suite showing how to design clinical workflows that produce clean, connected,
-          computable data ready for safety checks, analytics, and exchange. Powered by FHIR and SNOMED CT,
-        but framed around end-to-end information quality.</p>
+        <h1>{{ t('main.header.title') }}</h1>
+        <p>{{ t('main.header.subtitle') }}</p>
         <div class="phi-warning">
-          Do not enter Protected Health Information (PHI) or real patient-identifiable information into this demo system.
+          {{ t('main.header.phiWarning') }}
         </div>
       </div>
       <div class="header-actions">
         <button mat-flat-button color="primary" [matMenuTriggerFor]="dataMenu">
           <mat-icon>storage</mat-icon>
           <span>
-            <span>Data</span>
+            <span>{{ t('main.dataMenu.label') }}</span>
             <mat-icon>arrow_drop_down</mat-icon>
           </span>
 
@@ -22,22 +21,22 @@
         <mat-menu #dataMenu="matMenu">
           <button mat-menu-item (click)="switchToLocalMode()">
             <mat-icon>{{ persistenceMode === 'local' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
-            <span>Use Local Storage</span>
+            <span>{{ t('main.dataMenu.useLocalStorage') }}</span>
           </button>
           <button mat-menu-item (click)="switchToFhirMode()">
             <mat-icon>{{ persistenceMode === 'fhir' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
-            <span>Use FHIR Server</span>
+            <span>{{ t('main.dataMenu.useFhirServer') }}</span>
           </button>
           <button mat-menu-item (click)="openFhirServerSettings()">
             <mat-icon>cloud_sync</mat-icon>
-            <span>FHIR Server Settings</span>
+            <span>{{ t('main.dataMenu.fhirServerSettings') }}</span>
           </button>
           <div class="menu-server-hint" *ngIf="currentFhirServer">
-            Connected server: {{ currentFhirServer }}
+            {{ t('main.dataMenu.connectedServer') }}: {{ currentFhirServer }}
           </div>
           <button mat-menu-item (click)="openCdsHooksServersSettings()">
             <mat-icon>hub</mat-icon>
-            <span>CDS Hooks Servers</span>
+            <span>{{ t('main.dataMenu.cdsHooksServers') }}</span>
           </button>
           <div class="menu-server-hint">
             {{ getActiveCdsServerLabel() }}
@@ -45,21 +44,21 @@
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="openSmartHealthLinks()">
             <mat-icon>qr_code_2</mat-icon>
-            <span>Smart Health Links</span>
+            <span>{{ t('main.dataMenu.smartHealthLinks') }}</span>
           </button>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="downloadPatientsAsZip()" [disabled]="isFhirMode()">
             <mat-icon>download</mat-icon>
-            <span>Download patient data</span>
+            <span>{{ t('main.dataMenu.downloadPatientData') }}</span>
           </button>
           <button mat-menu-item (click)="triggerFileUpload()" [disabled]="isFhirMode()">
             <mat-icon>upload</mat-icon>
-            <span>Upload patient data</span>
+            <span>{{ t('main.dataMenu.uploadPatientData') }}</span>
           </button>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="clearAllData()" class="danger-menu-item" [disabled]="isFhirMode()">
             <mat-icon>delete_sweep</mat-icon>
-            <span>Clear all patient data</span>
+            <span>{{ t('main.dataMenu.clearAllData') }}</span>
           </button>
         </mat-menu>
 
@@ -76,7 +75,7 @@
         <div class="section-header">
           <div class="patients-title-block">
             <h2>
-              Patients
+              {{ t('main.patientList.title') }}
               <span class="patient-count">
                 {{ getPatientCountLabel() }}
                 @if (isPatientTotalLoading()) {
@@ -89,24 +88,24 @@
                     class="backend-chip"
                     [matTooltip]="currentFhirServer"
                     matTooltipPosition="above">
-                    FHIR mode
+                    {{ t('main.patientList.fhirMode') }}
                   </span>
                   <button
                     mat-icon-button
                     type="button"
                     class="backend-refresh-button"
-                    aria-label="Refresh patients from FHIR server"
-                    matTooltip="Refresh patients from FHIR server"
+                    [attr.aria-label]="t('main.patientList.refreshAriaLabel')"
+                    [matTooltip]="t('main.patientList.refreshTooltip')"
                     (click)="refreshPatientList()"
                     [disabled]="patientPagination.loading || isSearchingPatients || isCreatingPatient || isDeletingPatient"
                   >
                     <mat-icon>refresh</mat-icon>
                   </button>
                   @if (patientPagination.loading) {
-                    <span class="backend-loading">Loading...</span>
+                    <span class="backend-loading">{{ t('main.patientList.loading') }}</span>
                   }
                 } @else {
-                  <span class="backend-chip backend-chip-local">Local storage mode</span>
+                  <span class="backend-chip backend-chip-local">{{ t('main.patientList.localStorageMode') }}</span>
                 }
               </span>
             </h2>
@@ -121,7 +120,7 @@
               [disabled]="!hasAnalyticsData()"
               >
               <mat-icon>analytics</mat-icon>
-              Analytics
+              {{ t('main.actions.analytics') }}
             </button>
             <button
               mat-flat-button
@@ -129,39 +128,30 @@
               (click)="openInteroperability()"
               >
               <mat-icon>integration_instructions</mat-icon>
-              Interoperability
+              {{ t('main.actions.interoperability') }}
             </button>
-            <!-- <button
-            mat-flat-button
-            color="warn"
-            (click)="openIcd10Analytics()"
-            [disabled]="!hasIcd10AnalyticsData()"
-            >
-            <mat-icon>medical_services</mat-icon>
-            ICD-10 Analytics
-          </button> -->
           <button mat-flat-button color="primary" [matMenuTriggerFor]="createPatientMenu">
             <mat-icon>person_add</mat-icon>
-            <span>Create Patient</span>
+            <span>{{ t('main.actions.createPatient') }}</span>
             <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
           </button>
           <mat-menu #createPatientMenu="matMenu">
             <button mat-menu-item (click)="createNewPatient()" [disabled]="isCreatingPatient">
               <mat-icon>edit</mat-icon>
-              <span>Manual Entry</span>
+              <span>{{ t('main.createMenu.manualEntry') }}</span>
             </button>
             <button mat-menu-item (click)="createRandomPatient()" [disabled]="isCreatingPatient">
               <mat-icon>{{ isCreatingPatient ? 'hourglass_top' : 'auto_awesome' }}</mat-icon>
-              <span>{{ isCreatingPatient ? 'Creating Patient...' : 'Generate Random' }}</span>
+              <span>{{ isCreatingPatient ? t('main.createMenu.creatingPatient') : t('main.createMenu.generateRandom') }}</span>
             </button>
             <button mat-menu-item (click)="createRandomPatientWithDiagnoses()" [disabled]="isCreatingPatient">
               <mat-icon>{{ isCreatingPatient ? 'hourglass_top' : 'medical_services' }}</mat-icon>
-              <span>{{ isCreatingPatient ? 'Creating With Diagnoses...' : 'Generate with Diagnoses' }}</span>
+              <span>{{ isCreatingPatient ? t('main.createMenu.creatingWithDiagnoses') : t('main.createMenu.generateWithDiagnoses') }}</span>
             </button>
             <mat-divider></mat-divider>
             <button mat-menu-item (click)="createBatchPatients()" [disabled]="isCreatingPatient">
               <mat-icon>group_add</mat-icon>
-              <span>Generate Multiple Patients</span>
+              <span>{{ t('main.createMenu.generateMultiple') }}</span>
             </button>
           </mat-menu>
         </div>
@@ -178,12 +168,12 @@
 
         <div class="search-section">
           <mat-form-field class="search-field">
-            <mat-label>Search patients</mat-label>
+            <mat-label>{{ t('main.search.label') }}</mat-label>
             <input
               matInput
               [(ngModel)]="searchTerm"
               (input)="onSearchChange()"
-              placeholder="Search by first or last name"
+              [placeholder]="t('main.search.placeholder')"
               >
             <mat-icon matPrefix>search</mat-icon>
             @if (searchTerm) {
@@ -191,7 +181,7 @@
                 mat-icon-button
                 matSuffix
                 (click)="clearSearch()"
-                aria-label="Clear search"
+                [attr.aria-label]="t('main.search.clearAriaLabel')"
                 >
                 <mat-icon>clear</mat-icon>
               </button>
@@ -228,11 +218,11 @@
                 @if (isPatientDeceased(patient)) {
                   <div class="death-status-badge list-badge">
                     <mat-icon>bed</mat-icon>
-                    Deceased
+                    {{ t('main.patientCard.deceased') }}
                   </div>
                 }
                 <div class="patient-details">
-                  <span class="patient-id">ID: {{ getPatientIdentifier(patient) }}</span>
+                  <span class="patient-id">{{ t('main.patientCard.idPrefix') }}: {{ getPatientIdentifier(patient) }}</span>
                   @if (patient.birthDate) {
                     <span class="patient-age">{{ getPatientAge(patient.birthDate) }}</span>
                   }
@@ -263,30 +253,30 @@
           @if (filteredPatients.length === 0 && patients.length > 0) {
             <div class="no-results">
               <mat-icon class="empty-icon">search_off</mat-icon>
-              <h3>No Patients Found</h3>
-              <p>No patients match your search criteria.</p>
+              <h3>{{ t('main.noResults.title') }}</h3>
+              <p>{{ t('main.noResults.message') }}</p>
               <button mat-flat-button color="primary" (click)="clearSearch()">
                 <mat-icon>clear</mat-icon>
-                Clear Search
+                {{ t('main.noResults.clearSearch') }}
               </button>
             </div>
           }
           @if (patients.length === 0 && !showPatientListSkeleton()) {
             <div class="no-patients">
               <mat-icon class="empty-icon">people_outline</mat-icon>
-              <h3>No Patients Yet</h3>
-              <p>Get started by creating patient records for your EHR system.</p>
+              <h3>{{ t('main.noPatients.title') }}</h3>
+              <p>{{ t('main.noPatients.message') }}</p>
               <div class="empty-state-actions">
                 <button mat-flat-button color="primary" (click)="createRandomPatientWithDiagnoses()" [disabled]="isCreatingPatient">
                   <mat-icon>medical_services</mat-icon>
-                  {{ isCreatingPatient ? 'Creating...' : 'Create Single Patient' }}
+                  {{ isCreatingPatient ? t('main.noPatients.creating') : t('main.noPatients.createSingle') }}
                 </button>
                 <button mat-flat-button color="primary" (click)="createBatchPatients()" [disabled]="isCreatingPatient">
                   <mat-icon>group_add</mat-icon>
-                  Generate Multiple Patients
+                  {{ t('main.noPatients.generateMultiple') }}
                 </button>
               </div>
-              <p class="hint-text">Or upload existing patient data using the Data menu above</p>
+              <p class="hint-text">{{ t('main.noPatients.hint') }}</p>
             </div>
           }
         </div>
@@ -295,10 +285,10 @@
         <div class="patient-pagination">
           <button mat-stroked-button color="primary" (click)="loadPreviousPatientsPage()" [disabled]="patientPagination.loading || !patientPagination.hasPrevious || isRemoteSearchActive()">
             <mat-icon>chevron_left</mat-icon>
-            Previous
+            {{ t('main.pagination.previous') }}
           </button>
           <button mat-stroked-button color="primary" (click)="loadNextPatientsPage()" [disabled]="patientPagination.loading || !patientPagination.hasNext || isRemoteSearchActive()">
-            Next
+            {{ t('main.pagination.next') }}
             <mat-icon>chevron_right</mat-icon>
           </button>
         </div>
@@ -307,7 +297,7 @@
     <!-- Selected Patient Details Section -->
     <div class="patient-details-section">
       <div class="section-header">
-        <h2>Selected Patient</h2>
+        <h2>{{ t('main.selectedPatient.title') }}</h2>
       </div>
       @if (selectedPatient) {
         <div class="selected-patient-details">
@@ -330,7 +320,7 @@
                   [disabled]="isDeletingPatient"
                   >
                   <mat-icon>{{ isPatientBookmarked(selectedPatient) ? 'bookmark' : 'bookmark_border' }}</mat-icon>
-                  {{ isPatientBookmarked(selectedPatient) ? 'Remove Bookmark' : 'Bookmark Patient' }}
+                  {{ isPatientBookmarked(selectedPatient) ? t('main.selectedPatient.removeBookmark') : t('main.selectedPatient.bookmarkPatient') }}
                 </button>
                 <button
                   mat-flat-button
@@ -338,14 +328,14 @@
                   (click)="openClinicalRecord()"
                   [disabled]="isDeletingPatient"
                   >
-                  Open Clinical Record
+                  {{ t('main.selectedPatient.openClinicalRecord') }}
                 </button>
               </div>
             </div>
             <div class="patient-meta detail-patient-meta">
-              <span class="patient-id">ID: {{ getPatientIdentifier(selectedPatient) }}</span>
+              <span class="patient-id">{{ t('main.patientCard.idPrefix') }}: {{ getPatientIdentifier(selectedPatient) }}</span>
               @if (selectedPatient.birthDate) {
-                <span class="patient-age">Age: {{ getPatientAge(selectedPatient.birthDate) }}</span>
+                <span class="patient-age">{{ t('main.selectedPatient.agePrefix') }}: {{ getPatientAge(selectedPatient.birthDate) }}</span>
               }
               @if (getPatientRecordDate(selectedPatient); as recordDate) {
                 <div class="patient-record-date detail-record-date">
@@ -357,7 +347,7 @@
           <div class="patient-details-grid">
             @if (selectedPatient.telecom && selectedPatient.telecom.length > 0) {
               <div class="detail-group">
-                <h4>Contact Information</h4>
+                <h4>{{ t('main.selectedPatient.contactInformation') }}</h4>
                 <div class="contact-list">
                   @for (contact of selectedPatient.telecom; track (contact.system || '') + ':' + (contact.value || '') + ':' + (contact.use || '')) {
                     <div class="contact-item">
@@ -373,7 +363,7 @@
             }
             @if (selectedPatient.address && selectedPatient.address.length > 0) {
               <div class="detail-group">
-                <h4>Address</h4>
+                <h4>{{ t('main.selectedPatient.address') }}</h4>
                 <div class="address-list">
                   @for (address of selectedPatient.address; track (address.use || '') + ':' + (address.text || '') + ':' + (address.city || '') + ':' + (address.state || '') + ':' + (address.postalCode || '')) {
                     <div class="address-item">
@@ -389,14 +379,14 @@
             }
             @if (selectedPatient.birthDate) {
               <div class="detail-group">
-                <h4>Demographics</h4>
+                <h4>{{ t('main.selectedPatient.demographics') }}</h4>
                 <div class="demographics">
                   <div class="demographic-item">
-                    <span class="label">Birth Date:</span>
+                    <span class="label">{{ t('main.selectedPatient.birthDate') }}:</span>
                     <span class="value">{{ selectedPatient.birthDate | date:'longDate' }}</span>
                   </div>
                   <div class="demographic-item">
-                    <span class="label">Age:</span>
+                    <span class="label">{{ t('main.selectedPatient.agePrefix') }}:</span>
                     <span class="value">{{ getPatientAge(selectedPatient.birthDate) }}</span>
                   </div>
                 </div>
@@ -414,7 +404,7 @@
                 [disabled]="isDeletingPatient || isOpeningDeathDialog"
                 >
                 <mat-icon>{{ isOpeningDeathDialog ? 'hourglass_empty' : 'bed' }}</mat-icon>
-                {{ isOpeningDeathDialog ? 'Loading...' : getDeathActionLabel(selectedPatient) }}
+                {{ isOpeningDeathDialog ? t('main.selectedPatient.loading') : getDeathActionLabel(selectedPatient) }}
               </button>
               <button
                 mat-flat-button
@@ -428,7 +418,7 @@
                 } @else {
                   <mat-icon>delete</mat-icon>
                 }
-                <span>{{ isDeletingPatient ? 'Deleting...' : 'Delete Patient' }}</span>
+                <span>{{ isDeletingPatient ? t('main.selectedPatient.deleting') : t('main.selectedPatient.deletePatient') }}</span>
               </button>
             </div>
           }
@@ -436,7 +426,7 @@
       }
       @if (!selectedPatient) {
         <div class="no-selection">
-          <p>Select a patient from the list to view details.</p>
+          <p>{{ t('main.selectedPatient.noSelection') }}</p>
         </div>
       }
     </div>
@@ -448,14 +438,14 @@
   <div class="analytics-full-width">
     <div class="analytics-section">
       <div class="section-header">
-        <h2>{{ analyticsMode === 'icd10' ? 'ICD-10 Analytics' : 'Clinical Data Analytics' }}</h2>
+        <h2>{{ analyticsMode === 'icd10' ? t('main.analytics.titleIcd10') : t('main.analytics.title') }}</h2>
         <div class="header-actions">
           <button
             mat-flat-button
             color="primary"
             (click)="closeAnalytics()">
             <mat-icon>arrow_back</mat-icon>
-            Back to Patients
+            {{ t('main.analytics.backToPatients') }}
           </button>
         </div>
       </div>
@@ -469,3 +459,4 @@
   </div>
 }
 </div>
+</ng-container>

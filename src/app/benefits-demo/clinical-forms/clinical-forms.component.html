@@ -1,20 +1,21 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="clinical-forms-container">
   <div class="forms-header">
-    <h3>Clinical Forms</h3>
+    <h3>{{ t('clinicalForms.sections.title') }}</h3>
   </div>
 
   <!-- Tab Group for Data Entry, Form Records, and Manage Questionnaires -->
   <mat-tab-group class="forms-tabs" [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
 
     <!-- Data Entry Tab -->
-    <mat-tab label="Data Entry">
+    <mat-tab [label]="t('clinicalForms.tabs.dataEntry')">
       <div class="tab-content">
         <div class="forms-content">
           <div class="form-selection">
             <mat-form-field class="form-selector">
-              <mat-label>Select Clinical Form</mat-label>
+              <mat-label>{{ t('clinicalForms.fields.selectClinicalForm') }}</mat-label>
               <mat-select [(value)]="selectedForm" (selectionChange)="onFormSelected($event.value)">
-                <mat-optgroup label="Built-in Forms">
+                <mat-optgroup [label]="t('clinicalForms.labels.builtInForms')">
                   @for (form of availableForms; track form) {
                     <mat-option [value]="form.id">
                       <div class="form-option-content">
@@ -29,10 +30,10 @@
                     </mat-option>
                   }
                 </mat-optgroup>
-                <mat-optgroup label="Uploaded forms">
+                <mat-optgroup [label]="t('clinicalForms.labels.uploadedForms')">
                   @if (customQuestionnaires.length === 0) {
                     <mat-option disabled>
-                      No local forms uploaded yet
+                      {{ t('clinicalForms.messages.noLocalFormsUploaded') }}
                     </mat-option>
                   }
                   @if (customQuestionnaires.length > 0) {
@@ -64,9 +65,9 @@
                     <div class="submission-overlay">
                       <div class="submission-content">
                         <mat-spinner diameter="50"></mat-spinner>
-                        <h3>Submitting ICSR Report...</h3>
-                        <p>Please wait while we submit your report to the regulatory authority.</p>
-                        <p class="submission-details">This may take a few moments.</p>
+                        <h3>{{ t('clinicalForms.status.submittingIcsr') }}</h3>
+                        <p>{{ t('clinicalForms.status.submittingWait') }}</p>
+                        <p class="submission-details">{{ t('clinicalForms.status.submittingMoment') }}</p>
                       </div>
                     </div>
                   }
@@ -117,9 +118,9 @@
                 <div class="form-placeholder">
                   <div class="placeholder-content">
                     <mat-icon class="placeholder-icon">description</mat-icon>
-                    <h3>{{ getSelectedFormName() }} Form</h3>
-                    <p>This form is currently under development.</p>
-                    <p>Coming soon...</p>
+                    <h3>{{ getSelectedFormName() }} {{ t('clinicalForms.labels.formSuffix') }}</h3>
+                    <p>{{ t('clinicalForms.messages.formUnderDevelopment') }}</p>
+                    <p>{{ t('clinicalForms.messages.comingSoon') }}</p>
                   </div>
                 </div>
               }
@@ -130,8 +131,8 @@
             <div class="no-form-selected">
               <div class="placeholder-content">
                 <mat-icon class="placeholder-icon">description</mat-icon>
-                <h3>Select a Clinical Form</h3>
-                <p>Choose a form from the dropdown above to begin documenting clinical information.</p>
+                <h3>{{ t('clinicalForms.messages.selectFormTitle') }}</h3>
+                <p>{{ t('clinicalForms.messages.selectFormHint') }}</p>
               </div>
             </div>
           }
@@ -140,28 +141,28 @@
     </mat-tab>
 
     <!-- Form Records Tab -->
-    <mat-tab label="Form Records">
+    <mat-tab [label]="t('clinicalForms.tabs.formRecords')">
       <div class="tab-content">
         <app-form-records [patientId]="patient?.id || null"></app-form-records>
       </div>
     </mat-tab>
 
     <!-- Manage Questionnaires Tab -->
-    <mat-tab label="Manage Questionnaires">
+    <mat-tab [label]="t('clinicalForms.tabs.manageQuestionnaires')">
       <div class="tab-content manage-tab">
         <div class="manage-header">
-          <h4>Custom Questionnaires</h4>
-          <p>Upload and manage custom FHIR Questionnaire resources</p>
+          <h4>{{ t('clinicalForms.sections.customQuestionnaires') }}</h4>
+          <p>{{ t('clinicalForms.messages.manageQuestionnairesDesc') }}</p>
         </div>
 
         <!-- Upload Section -->
         <div class="upload-section">
           <h5>
             <mat-icon>upload_file</mat-icon>
-            Upload New Questionnaire
+            {{ t('clinicalForms.sections.uploadNewQuestionnaire') }}
           </h5>
           <p class="upload-description">
-            Upload a FHIR Questionnaire resource in JSON format. The questionnaire will be available for all patients.
+            {{ t('clinicalForms.messages.uploadDescription') }}
           </p>
 
           <div class="upload-controls">
@@ -178,13 +179,13 @@
               (click)="fileInput.click()"
               [disabled]="isUploadingQuestionnaire">
               <mat-icon>add_circle</mat-icon>
-              Choose File
+              {{ t('clinicalForms.actions.chooseFile') }}
             </button>
 
             @if (isUploadingQuestionnaire) {
               <div class="upload-progress">
                 <mat-spinner diameter="24"></mat-spinner>
-                <span>Uploading...</span>
+                <span>{{ t('clinicalForms.status.uploading') }}</span>
               </div>
             }
 
@@ -199,11 +200,11 @@
           <div class="upload-info">
             <mat-icon>info</mat-icon>
             <div>
-              <strong>Requirements:</strong>
+              <strong>{{ t('clinicalForms.labels.requirements') }}</strong>
               <ul>
-                <li>Valid FHIR Questionnaire resource (resourceType: "Questionnaire")</li>
-                <li>JSON format (.json file)</li>
-                <li>Must include title or name field</li>
+                <li>{{ t('clinicalForms.messages.requirementFhir') }}</li>
+                <li>{{ t('clinicalForms.messages.requirementJson') }}</li>
+                <li>{{ t('clinicalForms.messages.requirementTitle') }}</li>
               </ul>
             </div>
           </div>
@@ -214,7 +215,7 @@
           <div class="section-header">
             <h5>
               <mat-icon>list</mat-icon>
-              Uploaded Questionnaires ({{ customQuestionnaires.length }})
+              {{ t('clinicalForms.sections.uploadedQuestionnaires') }} ({{ customQuestionnaires.length }})
             </h5>
             @if (customQuestionnaires.length > 0) {
               <button
@@ -223,7 +224,7 @@
                 (click)="deleteAllCustomQuestionnaires()"
                 >
                 <mat-icon>delete_sweep</mat-icon>
-                Delete All
+                {{ t('clinicalForms.actions.deleteAll') }}
               </button>
             }
           </div>
@@ -231,8 +232,8 @@
           @if (customQuestionnaires.length === 0) {
             <div class="no-questionnaires">
               <mat-icon>folder_open</mat-icon>
-              <p>No custom questionnaires uploaded yet</p>
-              <p class="hint">Upload a FHIR Questionnaire JSON file to get started</p>
+              <p>{{ t('clinicalForms.messages.noCustomQuestionnaires') }}</p>
+              <p class="hint">{{ t('clinicalForms.messages.uploadToGetStarted') }}</p>
             </div>
           }
 
@@ -250,12 +251,12 @@
                     <div class="metadata">
                       <span class="metadata-item">
                         <mat-icon>event</mat-icon>
-                        Uploaded: {{ getFormattedDate(q.uploadedDate) }}
+                        {{ t('clinicalForms.labels.uploaded') }}: {{ getFormattedDate(q.uploadedDate) }}
                       </span>
                       @if (q.data.id) {
                         <span class="metadata-item">
                           <mat-icon>fingerprint</mat-icon>
-                          ID: {{ q.data.id }}
+                          {{ t('clinicalForms.labels.id') }}: {{ q.data.id }}
                         </span>
                       }
                     </div>
@@ -266,14 +267,14 @@
                       color="accent"
                       (click)="selectedTabIndex = 0; onFormSelected(q.id)">
                       <mat-icon>edit_note</mat-icon>
-                      Use Form
+                      {{ t('clinicalForms.actions.useForm') }}
                     </button>
                     <button
                       mat-button
                       color="warn"
                       (click)="deleteCustomQuestionnaire(q.id, q.name)">
                       <mat-icon>delete</mat-icon>
-                      Delete
+                      {{ t('clinicalForms.actions.delete') }}
                     </button>
                   </mat-card-actions>
                 </mat-card>
@@ -286,3 +287,4 @@
 
   </mat-tab-group>
 </div>
+</ng-container>

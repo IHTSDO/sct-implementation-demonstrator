@@ -1,15 +1,16 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="fhir-data-root" *ngIf="patient; else noPatient">
   <div class="fhir-data-overlay" *ngIf="isDeletingEvents">
     <div class="fhir-data-overlay-card">
       <span class="inline-button-spinner fhir-action-spinner overlay-spinner" aria-hidden="true"></span>
-      <div class="overlay-title">Deleting clinical events...</div>
-      <div class="overlay-subtitle">Removing patient resources from memory and the active FHIR server.</div>
+      <div class="overlay-title">{{ t('fhirData.status.deletingEvents') }}</div>
+      <div class="overlay-subtitle">{{ t('fhirData.status.deletingEventsSubtitle') }}</div>
     </div>
   </div>
   <aside class="resource-browser">
     <div class="browser-title">
       <mat-icon>data_object</mat-icon>
-      <span>FHIR Resources</span>
+      <span>{{ t('fhirData.sections.fhirResources') }}</span>
     </div>
 
     <ng-container *ngFor="let group of resourceGroups">
@@ -40,7 +41,7 @@
         </div>
 
         <ng-template #noItemsInGroup>
-          <div class="empty-group">No resources</div>
+          <div class="empty-group">{{ t('fhirData.status.noResources') }}</div>
         </ng-template>
       </section>
     </ng-container>
@@ -51,7 +52,7 @@
         color="primary"
         (click)="exportAllAsBundle()"
         [disabled]="isDeletingEvents || isGeneratingLocalIps || isLoadingServerSummary || isExportingBundle"
-        matTooltip="Download the full patient record as a transaction bundle for import into another FHIR server"
+        [matTooltip]="t('fhirData.tooltips.exportBundle')"
         class="ips-summary-button">
         <span class="browser-action-label">
           @if (isExportingBundle) {
@@ -59,7 +60,7 @@
           } @else {
             <mat-icon>download</mat-icon>
           }
-          <span>{{ isExportingBundle ? 'Exporting Bundle...' : 'Export All as Bundle' }}</span>
+          <span>{{ isExportingBundle ? t('fhirData.actions.exportingBundle') : t('fhirData.actions.exportAllBundle') }}</span>
         </span>
       </button>
       <button
@@ -75,7 +76,7 @@
           } @else {
             <mat-icon>description</mat-icon>
           }
-          <span>{{ isGeneratingLocalIps ? 'Generating local IPS...' : 'Generate Local IPS' }}</span>
+          <span>{{ isGeneratingLocalIps ? t('fhirData.actions.generatingLocalIps') : t('fhirData.actions.generateLocalIps') }}</span>
         </span>
       </button>
       <span
@@ -95,10 +96,10 @@
             }
             <span>{{
               isLoadingServerSummary
-                ? 'Requesting IPS from Server...'
+                ? t('fhirData.actions.requestingIpsFromServer')
                 : (isFhirMode() && isCheckingIpsSupport)
-                  ? 'Checking IPS support...'
-                  : 'Request IPS Generation to Server'
+                  ? t('fhirData.actions.checkingIpsSupport')
+                  : t('fhirData.actions.requestIpsToServer')
             }}</span>
           </span>
         </button>
@@ -108,10 +109,10 @@
         color="warn"
         (click)="requestDeleteAllEvents()"
         [disabled]="isDeletingEvents || isGeneratingLocalIps || isLoadingServerSummary"
-        title="Delete all clinical events for this patient"
+        [title]="t('fhirData.tooltips.deleteAllEvents')"
         class="delete-all-events-button">
         <mat-icon>delete_sweep</mat-icon>
-        Delete All Events
+        {{ t('fhirData.actions.deleteAllEvents') }}
       </button>
     </div>
   </aside>
@@ -128,17 +129,17 @@
             [href]="resourceUrl"
             target="_blank"
             rel="noopener noreferrer"
-            matTooltip="Open this resource on the FHIR server">
+            [matTooltip]="t('fhirData.tooltips.openOnServer')">
             <mat-icon>open_in_new</mat-icon>
-            <span>Open on server</span>
+            <span>{{ t('fhirData.actions.openOnServer') }}</span>
           </a>
         </div>
       </div>
       <div class="json-actions">
-        <button mat-icon-button (click)="downloadSelectedResource()" matTooltip="Download JSON">
+        <button mat-icon-button (click)="downloadSelectedResource()" [matTooltip]="t('fhirData.tooltips.downloadJson')">
           <mat-icon>cloud_download</mat-icon>
         </button>
-        <button mat-icon-button (click)="copySelectedResource()" matTooltip="Copy JSON">
+        <button mat-icon-button (click)="copySelectedResource()" [matTooltip]="t('fhirData.tooltips.copyJson')">
           <mat-icon>content_copy</mat-icon>
         </button>
       </div>
@@ -146,8 +147,8 @@
 
     <ng-template #noSelection>
       <div class="viewer-header">
-        <div class="selected-type">FHIR Resource</div>
-        <div class="selected-id">Select a resource to inspect JSON</div>
+        <div class="selected-type">{{ t('fhirData.labels.fhirResource') }}</div>
+        <div class="selected-id">{{ t('fhirData.labels.selectToInspect') }}</div>
       </div>
     </ng-template>
 
@@ -164,7 +165,7 @@
     <ng-template #noResources>
       <div class="empty-viewer">
         <mat-icon>inventory_2</mat-icon>
-        <p>No FHIR resources found for this patient.</p>
+        <p>{{ t('fhirData.status.noFhirResources') }}</p>
       </div>
     </ng-template>
   </section>
@@ -173,6 +174,7 @@
 <ng-template #noPatient>
   <div class="empty-viewer">
     <mat-icon>person_off</mat-icon>
-    <p>No patient selected.</p>
+    <p>{{ t('fhirData.status.noPatientSelected') }}</p>
   </div>
 </ng-template>
+</ng-container>

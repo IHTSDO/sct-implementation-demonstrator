@@ -1,8 +1,9 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { PatientService } from '../../services/patient.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslocoService } from '@jsverse/transloco';
 import { BASE_TEETH } from './data/tooth-data';
 import { FindingScope, NotationSystem, OdontogramTooth, SnomedConceptOption, ToothFindingEntry } from './models/tooth.model';
 import { getToothNotations } from './utils/tooth-notation.utils';
@@ -112,6 +113,8 @@ export class DentistryRecordComponent implements OnChanges {
   readonly getSurfaceStrokeWidthFn = (surfaceCode: string) => this.getSurfaceStrokeWidth(surfaceCode);
   readonly getToothTooltipLinesFn = (toothId: string) => this.getToothTooltipLines(toothId);
   readonly getDisplayedToothNotationFn = (tooth: OdontogramTooth) => this.getDisplayedToothNotation(tooth);
+
+  private translocoService = inject(TranslocoService);
 
   constructor(
     private patientService: PatientService,
@@ -621,14 +624,20 @@ export class DentistryRecordComponent implements OnChanges {
   copyPostcoordinatedExpression(item: DentalFindingListItem): void {
     const expression = this.buildPostcoordinatedExpression(item);
     if (!expression) {
-      this.snackBar.open('Could not generate postcoordinated expression for this record.', 'Close', { duration: 2600 });
+      this.snackBar.open(
+        this.translocoService.translate('benefitsDemo.dentistryRecord.messages.couldNotGenerateExpression'),
+        this.translocoService.translate('benefitsDemo.dentistryRecord.actions.close'),
+        { duration: 2600 }
+      );
       return;
     }
 
     const wasCopied = this.clipboard.copy(expression);
     this.snackBar.open(
-      wasCopied ? 'Postcoordinated expression copied to clipboard.' : 'Unable to copy expression to clipboard.',
-      'Close',
+      wasCopied
+        ? this.translocoService.translate('benefitsDemo.dentistryRecord.messages.expressionCopied')
+        : this.translocoService.translate('benefitsDemo.dentistryRecord.messages.unableToCopy'),
+      this.translocoService.translate('benefitsDemo.dentistryRecord.actions.close'),
       { duration: 2400 }
     );
   }
@@ -1138,10 +1147,9 @@ export class DentistryRecordComponent implements OnChanges {
       return;
     }
 
-    const suffix = enrichedCount === 1 ? 'record' : 'records';
     this.snackBar.open(
-      `Extracting dental sites from post coordination expressions (${enrichedCount} ${suffix})`,
-      'Close',
+      this.translocoService.translate('benefitsDemo.dentistryRecord.messages.extractingDentalSites', { count: enrichedCount }),
+      this.translocoService.translate('benefitsDemo.dentistryRecord.actions.close'),
       { duration: 3200 }
     );
   }

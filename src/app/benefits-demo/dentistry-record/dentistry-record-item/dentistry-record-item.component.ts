@@ -1,4 +1,5 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, inject, Input, Output } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { DentalFindingListItem } from '../models/dental-finding-list-item.model';
 
 @Component({
@@ -20,6 +21,8 @@ export class DentistryRecordItemComponent {
   contextMenuVisible = false;
   contextMenuX = 0;
   contextMenuY = 0;
+
+  private translocoService = inject(TranslocoService);
 
   constructor(private hostRef: ElementRef<HTMLElement>) {}
 
@@ -89,9 +92,13 @@ export class DentistryRecordItemComponent {
       return '';
     }
     if (this.item.entryType === 'procedure') {
-      return this.item.isResolved ? 'Set as Planned' : 'Set as Completed';
+      return this.item.isResolved
+        ? this.translocoService.translate('benefitsDemo.dentistryRecordItem.tooltips.setAsPlanned')
+        : this.translocoService.translate('benefitsDemo.dentistryRecordItem.tooltips.setAsCompleted');
     }
-    return this.item.isResolved ? 'Set as active' : 'Set as resolved';
+    return this.item.isResolved
+      ? this.translocoService.translate('benefitsDemo.dentistryRecordItem.tooltips.setAsActive')
+      : this.translocoService.translate('benefitsDemo.dentistryRecordItem.tooltips.setAsResolved');
   }
 
   isProcedureCompleted(): boolean {

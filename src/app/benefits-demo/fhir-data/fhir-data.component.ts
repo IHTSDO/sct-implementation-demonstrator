@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslocoService } from '@jsverse/transloco';
 import { PatientService } from '../../services/patient.service';
 import { saveAs } from 'file-saver';
 import { FhirService } from '../../services/fhir.service';
@@ -87,6 +88,8 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
   private currentFhirBaseUrl = '';
   private subscriptions: Subscription[] = [];
 
+  private translocoService = inject(TranslocoService);
+
   constructor(
     private patientService: PatientService,
     private fhirService: FhirService,
@@ -157,7 +160,11 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
       return;
     }
     this.clipboard.copy(this.selectedResourceJson);
-    this.snackBar.open('FHIR JSON copied to clipboard', 'Close', { duration: 2000 });
+    this.snackBar.open(
+      this.translocoService.translate('benefitsDemo.fhirData.messages.jsonCopied'),
+      this.translocoService.translate('benefitsDemo.fhirData.actions.close'),
+      { duration: 2000 }
+    );
   }
 
   downloadSelectedResource(): void {
@@ -187,7 +194,11 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
         type: 'application/fhir+json;charset=utf-8'
       });
       saveAs(blob, `patient-${this.patient.id}-transaction-bundle.json`);
-      this.snackBar.open('Patient record exported as a transaction bundle.', 'Close', { duration: 2500 });
+      this.snackBar.open(
+        this.translocoService.translate('benefitsDemo.fhirData.messages.bundleExported'),
+        this.translocoService.translate('benefitsDemo.fhirData.actions.close'),
+        { duration: 2500 }
+      );
     } finally {
       this.isExportingBundle = false;
     }
@@ -226,7 +237,11 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
         this.selectItem(this.localIpsItem);
       }
 
-      this.snackBar.open('IPS document generated from local clinical data.', 'Close', { duration: 2500 });
+      this.snackBar.open(
+        this.translocoService.translate('benefitsDemo.fhirData.messages.localIpsGenerated'),
+        this.translocoService.translate('benefitsDemo.fhirData.actions.close'),
+        { duration: 2500 }
+      );
     } finally {
       this.isGeneratingLocalIps = false;
     }
@@ -257,7 +272,11 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
         this.selectItem(this.serverSummaryItem);
       }
 
-      this.snackBar.open('Patient summary loaded from FHIR server.', 'Close', { duration: 2500 });
+      this.snackBar.open(
+        this.translocoService.translate('benefitsDemo.fhirData.messages.serverIpsLoaded'),
+        this.translocoService.translate('benefitsDemo.fhirData.actions.close'),
+        { duration: 2500 }
+      );
     } catch (error: any) {
       console.error('Error loading patient summary from FHIR server:', error);
       const diagnostics = error?.error?.issue?.[0]?.diagnostics || '';
@@ -267,9 +286,9 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
 
       this.snackBar.open(
         isNotSupported
-          ? 'This FHIR server does not support Patient/$summary.'
-          : 'Unable to load patient summary from the FHIR server.',
-        'Close',
+          ? this.translocoService.translate('benefitsDemo.fhirData.messages.serverIpsNotSupported')
+          : this.translocoService.translate('benefitsDemo.fhirData.messages.errorLoadingServerIps'),
+        this.translocoService.translate('benefitsDemo.fhirData.actions.close'),
         { duration: 3500 }
       );
     } finally {
@@ -296,23 +315,23 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
   }
 
   getLocalIpsButtonTooltip(): string {
-    return 'Generate a local IPS document from the current clinical data';
+    return this.translocoService.translate('benefitsDemo.fhirData.tooltips.generateLocalIps');
   }
 
   getServerIpsButtonTooltip(): string {
     if (!this.isFhirMode()) {
-      return '$summary is only available in FHIR mode';
+      return this.translocoService.translate('benefitsDemo.fhirData.tooltips.summaryFhirOnly');
     }
 
     if (this.isCheckingIpsSupport) {
-      return 'Checking FHIR server capabilities...';
+      return this.translocoService.translate('benefitsDemo.fhirData.tooltips.checkingCapabilities');
     }
 
     if (this.ipsSummarySupported === false) {
-      return 'IPS generation not supported in server';
+      return this.translocoService.translate('benefitsDemo.fhirData.tooltips.ipsNotSupported');
     }
 
-    return 'Request IPS generation to server using Patient/$summary';
+    return this.translocoService.translate('benefitsDemo.fhirData.tooltips.requestIpsGeneration');
   }
 
   getSelectedResourceServerUrl(): string | null {

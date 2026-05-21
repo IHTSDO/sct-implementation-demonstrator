@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div
   class="record-item"
   [class.resolved]="item.isResolved"
@@ -5,7 +6,7 @@
   (click)="onCardClick()"
   (contextmenu)="onContextMenu($event)">
   <div class="record-top">
-    <span class="record-tooth">Tooth FDI {{ item.toothFdi }} - Univ. {{ item.toothUniversal }}</span>
+    <span class="record-tooth">{{ t('dentistryRecordItem.labels.toothFdi', { fdi: item.toothFdi, universal: item.toothUniversal }) }}</span>
     <div class="record-meta">
       <span
         class="record-status"
@@ -31,8 +32,8 @@
     <button
       type="button"
       class="delete-record-button"
-      aria-label="Delete record"
-      matTooltip="Delete record"
+      [attr.aria-label]="t('dentistryRecordItem.actions.deleteRecord')"
+      [matTooltip]="t('dentistryRecordItem.tooltips.deleteRecord')"
       (click)="onDelete($event)">
       <mat-icon fontIcon="delete"></mat-icon>
     </button>
@@ -45,6 +46,7 @@
   [style.left.px]="contextMenuX"
   [style.top.px]="contextMenuY">
   <button type="button" class="record-context-action" (click)="onCopyPostcoordinated($event)">
-    Copy postcoordinated expression
+    {{ t('dentistryRecordItem.actions.copyPostcoordinated') }}
   </button>
 </div>
+</ng-container>

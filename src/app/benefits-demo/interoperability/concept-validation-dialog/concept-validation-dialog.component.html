@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <h2 mat-dialog-title>{{ state.title }}</h2>
 
 <mat-dialog-content class="validation-dialog-content">
@@ -16,7 +17,7 @@
     <p class="validation-message">{{ state.message }}</p>
 
     @if (state.relations.length > 0) {
-      <div class="validation-relations-title">Concepts in patient record with overlapping meaning</div>
+      <div class="validation-relations-title">{{ t('conceptValidationDialog.labels.overlappingConcepts') }}</div>
 
       <div class="validation-relations">
         @for (relation of state.relations; track relation.code + relation.relationLabel) {
@@ -34,8 +35,9 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="cancel()" [disabled]="state.loading">Cancel</button>
+  <button mat-button (click)="cancel()" [disabled]="state.loading">{{ t('conceptValidationDialog.actions.cancel') }}</button>
   <button mat-flat-button color="primary" (click)="confirm()" [disabled]="state.loading">
     {{ state.primaryActionLabel }}
   </button>
 </mat-dialog-actions>
+</ng-container>

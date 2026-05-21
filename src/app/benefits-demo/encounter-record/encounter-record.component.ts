@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
+import { TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
 import type { Patient } from '../../model';
 
@@ -283,8 +284,9 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
   constructor(
     private patientService: PatientService,
-    private terminologyService: TerminologyService
-  ) { 
+    private terminologyService: TerminologyService,
+    private translocoService: TranslocoService
+  ) {
     // Initialize with current date and time
     const now = new Date();
     this.encounterDate = now.toISOString().split('T')[0];
@@ -563,7 +565,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
     } catch (error) {
       this.isSaving = false;
-      alert('Error saving encounter record. Please try again.');
+      alert(this.translocoService.translate('benefitsDemo.encounterRecord.messages.saveError'));
     }
   }
 
@@ -878,18 +880,18 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   }
 
   deleteEncounter(encounterId: string): void {
-    if (confirm('Are you sure you want to delete this encounter?')) {
+    if (confirm(this.translocoService.translate('benefitsDemo.encounterRecord.messages.deleteConfirm'))) {
       if (this.patient) {
         // Use PatientService method to ensure consistent storage and notifications
         this.patientService.deletePatientEncounter(this.patient.id, encounterId);
-        
+
         // Update local state and sort encounters by date
         this.previousEncounters = this.patientService.getPatientEncounters(this.patient.id);
         this.previousEncounters.sort((a, b) => {
           return this.getEncounterSortTimestamp(b) - this.getEncounterSortTimestamp(a);
         });
-        
-        alert('Encounter deleted successfully');
+
+        alert(this.translocoService.translate('benefitsDemo.encounterRecord.messages.deleteSuccess'));
       }
     }
   }

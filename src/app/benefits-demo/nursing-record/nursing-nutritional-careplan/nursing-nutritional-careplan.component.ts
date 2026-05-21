@@ -1,5 +1,6 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
 import { PatientService } from '../../../services/patient.service';
 import type { FhirObservation, Patient } from '../../../model';
@@ -11,6 +12,7 @@ import type { FhirObservation, Patient } from '../../../model';
   standalone: false
 })
 export class NursingNutritionalCareplanComponent implements OnInit, OnChanges, OnDestroy {
+  private translocoService = inject(TranslocoService);
   @Input() patient: Patient | null = null;
 
   private readonly WEIGHT_LOINC_CODE = '29463-7';
@@ -201,7 +203,11 @@ export class NursingNutritionalCareplanComponent implements OnInit, OnChanges, O
 
     const latestBmiValue = latestBmi?.valueQuantity?.value;
     if (latestBmiValue !== undefined && latestBmiValue !== null && Math.abs(latestBmiValue - bmiRounded) < 0.0001) {
-      this.snackBar.open('No changes to save for BMI', 'Close', { duration: 2000 });
+      this.snackBar.open(
+        this.translocoService.translate('benefitsDemo.nursingNutritionalCareplan.messages.noChangesToSave'),
+        this.translocoService.translate('benefitsDemo.nursingNutritionalCareplan.actions.close'),
+        { duration: 2000 }
+      );
       return;
     }
 
@@ -229,7 +235,11 @@ export class NursingNutritionalCareplanComponent implements OnInit, OnChanges, O
     };
 
     this.patientService.addPatientObservation(this.patient.id, bmiObservation);
-    this.snackBar.open('Nutritional assessment saved (BMI)', 'Close', { duration: 2200 });
+    this.snackBar.open(
+      this.translocoService.translate('benefitsDemo.nursingNutritionalCareplan.messages.assessmentSaved'),
+      this.translocoService.translate('benefitsDemo.nursingNutritionalCareplan.actions.close'),
+      { duration: 2200 }
+    );
   }
 
   private getTimestampMillis(observation: FhirObservation): number {

@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslocoService } from '@jsverse/transloco';
 import { PatientService } from '../../services/patient.service';
 import { AiCodingService, DetectedEntity, EntityDetectionResult } from '../../services/ai-coding.service';
 import { Subscription } from 'rxjs';
@@ -41,6 +42,8 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
   private isUpdatingContent: boolean = false;
   private detectionSubscription?: Subscription;
   private currentSampleIndex: number = 0;
+
+  private translocoService = inject(TranslocoService);
 
   constructor(
     private patientService: PatientService,
@@ -179,7 +182,7 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
           this.isProcessing = false;
         },
         error: (error) => {
-          this.snackBar.open('Error detecting entities: ' + error.message, 'Close', {
+          this.snackBar.open(this.translocoService.translate('benefitsDemo.aiAssistedEntry.messages.errorDetectingEntities', { message: error.message }), this.translocoService.translate('benefitsDemo.aiAssistedEntry.actions.close'), {
             duration: 5000,
             panelClass: ['error-snackbar']
           });
@@ -311,8 +314,8 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
         this.patientService.updatePatientProcedure(this.patient.id, existingProcedureToLink.id, existingProcedureToLink);
 
         this.snackBar.open(
-          `Procedure "${this.selectedProcedure?.name}" already existed and was linked to the new encounter.`,
-          'Close',
+          this.translocoService.translate('benefitsDemo.aiAssistedEntry.messages.procedureLinkedToEncounter', { name: this.selectedProcedure?.name }),
+          this.translocoService.translate('benefitsDemo.aiAssistedEntry.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -322,8 +325,8 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
         );
       } else if (this.selectedProcedure && !procedureToSave && !existingProcedureToLink) {
         this.snackBar.open(
-          `Procedure "${this.selectedProcedure.name}" already exists for this patient.`,
-          'Close',
+          this.translocoService.translate('benefitsDemo.aiAssistedEntry.messages.procedureAlreadyExists', { name: this.selectedProcedure.name }),
+          this.translocoService.translate('benefitsDemo.aiAssistedEntry.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -341,8 +344,8 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
         + (transactionResult.encounter ? 1 : 0);
       if (totalSaved > 0) {
         this.snackBar.open(
-          `Successfully saved ${totalSaved} clinical resources.`,
-          'Close',
+          this.translocoService.translate('benefitsDemo.aiAssistedEntry.messages.savedClinicalResources', { count: totalSaved }),
+          this.translocoService.translate('benefitsDemo.aiAssistedEntry.actions.close'),
           {
             duration: 4000,
             horizontalPosition: 'center',
@@ -356,8 +359,8 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
     } catch (error: any) {
       console.error('Error saving AI-assisted entry:', error);
       this.snackBar.open(
-        `Failed to save clinical resources: ${error?.message || 'Unknown error'}`,
-        'Close',
+        this.translocoService.translate('benefitsDemo.aiAssistedEntry.messages.failedToSave', { message: error?.message || this.translocoService.translate('benefitsDemo.aiAssistedEntry.labels.unknownError') }),
+        this.translocoService.translate('benefitsDemo.aiAssistedEntry.actions.close'),
         {
           duration: 5000,
           horizontalPosition: 'center',
@@ -629,7 +632,7 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
   // Get display text for existing entity status
   getExistingStatusText(entity: DetectedEntity): string {
     if (entity.isExisting) {
-      return `Already exists in problems list`;
+      return this.translocoService.translate('benefitsDemo.aiAssistedEntry.status.alreadyExistsInProblemsList');
     }
     return '';
   }

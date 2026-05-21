@@ -104,6 +104,11 @@
         <!-- <span *ngIf="selectedLanRefsetConcept">*</span> -->
       </button>
       <mat-menu #menu="matMenu">
+        <button mat-menu-item [matMenuTriggerFor]="terminologyMenu">Terminology</button>
+        <button mat-menu-item [matMenuTriggerFor]="siteMenu">Site: {{ activeSiteLang | uppercase }}</button>
+      </mat-menu>
+
+      <mat-menu #terminologyMenu="matMenu">
         @if (selectedLanRefsetConcept && !selectedLanguageContext) {
           <p class="menu-text">Selected Language Refset</p>
         }
@@ -124,6 +129,13 @@
         <button mat-menu-item [matMenuTriggerFor]="langContexts">Language Contexts</button>
         <button mat-menu-item (click)="openLanguageDialog()">Advanced config</button>
       </mat-menu>
+
+      <mat-menu #siteMenu="matMenu">
+        @for (lang of availableSiteLangs; track lang) {
+          <button mat-menu-item (click)="setSiteLanguage(lang)">{{ lang | uppercase }}</button>
+        }
+      </mat-menu>
+
       <mat-menu #langCodes="matMenu">
         @for (language of languages; track language) {
           <button mat-menu-item (click)="setLanguage(language)">{{language}}</button>

@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="clinical-entry-container">
   @if (!hideButton) {
     <button mat-flat-button color="primary" (click)="toggleAddForm()" class="add-button">
@@ -22,7 +23,7 @@
               <button mat-icon-button
                 class="info-button"
                 [matMenuTriggerFor]="entryInfoMenu"
-                matTooltip="Click for more information about this field"
+                [matTooltip]="t('clinicalEntry.tooltips.infoButton')"
                 matTooltipPosition="above">
                 <mat-icon>info_outline</mat-icon>
               </button>
@@ -32,11 +33,11 @@
           @if (entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)) {
             <div class="association-section">
               <mat-form-field appearance="outline">
-                <mat-label>Select the reason for the indication</mat-label>
+                <mat-label>{{ t('clinicalEntry.fields.indicationReason') }}</mat-label>
                 <mat-select [(value)]="selectedAssociation" [compareWith]="compareAssociations" (valueChange)="onMedicationDraftInputChanged()">
-                  <mat-option [value]="null">None - General medication</mat-option>
+                  <mat-option [value]="null">{{ t('clinicalEntry.fields.noneGeneral') }}</mat-option>
                   @if (availableConditions.length > 0) {
-                    <mat-optgroup label="Conditions">
+                    <mat-optgroup [label]="t('clinicalEntry.fields.conditionsGroup')">
                       @for (condition of availableConditions; track condition.id) {
                         <mat-option [value]="{type: 'condition', resource: condition}">
                           {{ condition.code.text }}
@@ -45,7 +46,7 @@
                     </mat-optgroup>
                   }
                   @if (availableProcedures.length > 0) {
-                    <mat-optgroup label="Procedures">
+                    <mat-optgroup [label]="t('clinicalEntry.fields.proceduresGroup')">
                       @for (procedure of availableProcedures; track procedure.id) {
                         <mat-option [value]="{type: 'procedure', resource: procedure}">
                           {{ procedure.code.text }}
@@ -62,11 +63,11 @@
               <mat-form-field appearance="outline">
                 <mat-label>
                   @if (entryType === 'condition') {
-                    Condition date
+                    {{ t('clinicalEntry.fields.conditionDate') }}
                   } @else if (entryType === 'procedure') {
-                    Procedure date
+                    {{ t('clinicalEntry.fields.procedureDate') }}
                   } @else {
-                    Immunization date
+                    {{ t('clinicalEntry.fields.immunizationDate') }}
                   }
                 </mat-label>
                 <input
@@ -81,7 +82,7 @@
           @if (entryType === 'medication') {
             <div class="date-section">
               <mat-form-field appearance="outline">
-                <mat-label>Medication start date</mat-label>
+                <mat-label>{{ t('clinicalEntry.fields.medicationStartDate') }}</mat-label>
                 <input
                   matInput
                   [matDatepicker]="medicationDatePicker"
@@ -96,7 +97,7 @@
         @if (entryType === 'medication') {
           <div class="dosage-row">
             <mat-form-field appearance="outline">
-              <mat-label>Dose value</mat-label>
+              <mat-label>{{ t('clinicalEntry.fields.doseValue') }}</mat-label>
               <input
                 matInput
                 type="number"
@@ -107,7 +108,7 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Dose unit</mat-label>
+              <mat-label>{{ t('clinicalEntry.fields.doseUnit') }}</mat-label>
               <mat-select [(ngModel)]="medicationDoseUnit" (ngModelChange)="onMedicationDraftInputChanged()">
                 @for (unit of medicationDoseUnitOptions; track unit) {
                   <mat-option [value]="unit">{{ unit }}</mat-option>
@@ -116,7 +117,7 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Every</mat-label>
+              <mat-label>{{ t('clinicalEntry.fields.every') }}</mat-label>
               <input
                 matInput
                 type="number"
@@ -127,11 +128,11 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Period unit</mat-label>
+              <mat-label>{{ t('clinicalEntry.fields.periodUnit') }}</mat-label>
               <mat-select [(ngModel)]="medicationPeriodUnit" (ngModelChange)="onMedicationDraftInputChanged()">
-                <mat-option value="h">Hours</mat-option>
-                <mat-option value="d">Days</mat-option>
-                <mat-option value="wk">Weeks</mat-option>
+                <mat-option value="h">{{ t('clinicalEntry.fields.hours') }}</mat-option>
+                <mat-option value="d">{{ t('clinicalEntry.fields.days') }}</mat-option>
+                <mat-option value="wk">{{ t('clinicalEntry.fields.weeks') }}</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
@@ -139,11 +140,11 @@
         @if (entryType === 'immunization') {
           <div class="dosage-row">
             <mat-form-field appearance="outline">
-              <mat-label>Immunization status</mat-label>
+              <mat-label>{{ t('clinicalEntry.fields.immunizationStatus') }}</mat-label>
               <mat-select [(ngModel)]="immunizationStatus">
-                <mat-option value="completed">Completed</mat-option>
-                <mat-option value="not-done">Not done</mat-option>
-                <mat-option value="entered-in-error">Entered in error</mat-option>
+                <mat-option value="completed">{{ t('clinicalEntry.fields.statusCompleted') }}</mat-option>
+                <mat-option value="not-done">{{ t('clinicalEntry.fields.statusNotDone') }}</mat-option>
+                <mat-option value="entered-in-error">{{ t('clinicalEntry.fields.statusEnteredInError') }}</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
@@ -156,7 +157,7 @@
               }
               <span>
                 @if (saving) {
-                  Saving...
+                  {{ t('clinicalEntry.actions.saving') }}
                 } @else {
                   Add {{ entryType === 'medication' && selectedAssociation ? 'Associated ' : '' }}{{ sectionTitle.replace('Add ', '') }}
                 }
@@ -164,7 +165,7 @@
             </span>
           </button>
           <button mat-flat-button color="warn" (click)="toggleAddForm()" [disabled]="loading || saving">
-            Cancel
+            {{ t('clinicalEntry.actions.cancel') }}
           </button>
         </div>
       </div>
@@ -174,27 +175,28 @@
   <!-- Info Menu for Clinical Entry -->
   <mat-menu #entryInfoMenu="matMenu" class="info-menu">
     <div class="info-popover" (click)="$event.stopPropagation()">
-      <h3>{{ sectionTitle.replace('Add ', '') }} - Terminology Binding</h3>
+      <h3>{{ sectionTitle.replace('Add ', '') }} - {{ t('clinicalEntry.info.terminologyBindingTitle') }}</h3>
       <p>
-        This field uses SNOMED CT Expression Constraint Language (ECL) to retrieve options from a FHIR-based SNOMED CT terminology server.
+        {{ t('clinicalEntry.info.terminologyBindingDesc') }}
       </p>
       <p>
-        The ECL expression used for this binding is:
+        {{ t('clinicalEntry.info.eclExpressionIntro') }}
       </p>
       <p class="ecl-expression">
         <strong>{{ currentBinding.ecl }}</strong>
       </p>
       <p>
-        Options are filtered based on user input and the field is implemented with an auto-complete component to limit user typing and improve the selection experience.
+        {{ t('clinicalEntry.info.autocompleteDesc') }}
       </p>
       <p>
-        If the terminology server supports it, returned results can be limited by using <strong>count=X</strong>. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.
+        {{ t('clinicalEntry.info.countDesc') }}
       </p>
       @if (entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)) {
         <p>
-          <em>Note: You can associate this medication with an existing condition or procedure by selecting the reason for indication from the dropdown.</em>
+          <em>{{ t('clinicalEntry.info.associationNote') }}</em>
         </p>
       }
     </div>
   </mat-menu>
 </div>
+</ng-container>
