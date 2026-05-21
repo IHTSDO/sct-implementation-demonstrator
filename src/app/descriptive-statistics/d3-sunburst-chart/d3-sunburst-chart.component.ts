@@ -1,7 +1,9 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as d3 from 'd3';
 import Papa from 'papaparse';
+import { TranslocoService } from '@jsverse/transloco';
+import { Subscription } from 'rxjs';
 
 interface ChartItem {
   id: string;
@@ -27,6 +29,9 @@ interface D3Node extends d3.HierarchyNode<any> {
 })
 export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
+
+  private translocoService = inject(TranslocoService);
+  private langSub?: Subscription;
   
   selectedItem: ChartItem | null = null;
   private chartData: ChartItem[] = [];
@@ -52,7 +57,15 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
 
   constructor(private http: HttpClient) {}
 
+  t(key: string, params?: object): string {
+    return this.translocoService.translate('descriptiveStatistics.' + key, params ?? {});
+  }
+
   ngOnInit() {
+    this.translocoService.selectTranslation('descriptive-statistics').subscribe();
+    this.langSub = this.translocoService.langChanges$.subscribe(() => {
+      this.translocoService.selectTranslation('descriptive-statistics').subscribe();
+    });
     this.loadChartData();
   }
 
@@ -85,6 +98,7 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   ngOnDestroy() {
+    this.langSub?.unsubscribe();
     if (this.svg) {
       this.svg.remove();
     }

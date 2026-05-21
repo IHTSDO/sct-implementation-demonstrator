@@ -1,7 +1,9 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, ChangeDetectorRef, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import Plotly from 'plotly.js-dist';
 import Papa from 'papaparse';
+import { TranslocoService } from '@jsverse/transloco';
+import { Subscription } from 'rxjs';
 
 interface ChartItem {
   id: string;
@@ -18,8 +20,12 @@ interface ChartItem {
   styleUrls: ['./sunburst-chart.component.css'],
   standalone: false
 })
-export class SunburstChartComponent implements OnInit {
+export class SunburstChartComponent implements OnInit, OnDestroy {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
+
+  private translocoService = inject(TranslocoService);
+  private cdr = inject(ChangeDetectorRef);
+  private langSub?: Subscription;
   
   selectedItem: ChartItem | null = null;
   private chartData: ChartItem[] = [];
@@ -41,8 +47,22 @@ export class SunburstChartComponent implements OnInit {
 
   constructor(private http: HttpClient) {}
 
+  t(key: string, params?: object): string {
+    return this.translocoService.translate('descriptiveStatistics.' + key, params ?? {});
+  }
+
   ngOnInit() {
+    this.translocoService.selectTranslation('descriptive-statistics').subscribe();
+    this.langSub = this.translocoService.langChanges$.subscribe(() => {
+      this.translocoService.selectTranslation('descriptive-statistics').subscribe(() => {
+        this.cdr.markForCheck();
+      });
+    });
     this.loadChartData();
+  }
+
+  ngOnDestroy() {
+    this.langSub?.unsubscribe();
   }
 
   private loadChartData() {

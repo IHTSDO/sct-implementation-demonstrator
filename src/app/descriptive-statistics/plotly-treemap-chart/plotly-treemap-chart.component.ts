@@ -1,4 +1,5 @@
-import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef, Input, inject } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef, Input, inject, OnChanges } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
@@ -96,6 +97,11 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   private resizeListener: (() => void) | null = null;
 
   private translocoService = inject(TranslocoService);
+  private langSub?: Subscription;
+
+  t(key: string, params?: object): string {
+    return this.translocoService.translate('descriptiveStatistics.' + key, params ?? {});
+  }
 
   constructor(
     private http: HttpClient,
@@ -120,9 +126,17 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       }
     });
     
+    // Preload translations scope
+    this.translocoService.selectTranslation('descriptive-statistics').subscribe();
+    this.langSub = this.translocoService.langChanges$.subscribe(() => {
+      this.translocoService.selectTranslation('descriptive-statistics').subscribe(() => {
+        this.cdr.markForCheck();
+      });
+    });
+
     // Ensure ageRange is initialized
     this.ageRange = [this.minAge, this.maxAge];
-    
+
     // Load patient counts first to initialize allPatients
     this.loadPatientCounts();
     
@@ -145,6 +159,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngOnDestroy() {
+    this.langSub?.unsubscribe();
     if (this.resizeListener) {
       window.removeEventListener('resize', this.resizeListener);
     }
