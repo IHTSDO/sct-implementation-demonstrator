@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { TRANSLOCO_SCOPE, TranslocoModule } from '@jsverse/transloco';
 import { MaturityAdminComponent } from './maturity-admin/maturity-admin.component';
 import { MaturityDashboardComponent } from './maturity-dashboard/maturity-dashboard.component';
 import { MaturityEditorComponent } from './maturity-editor/maturity-editor.component';
@@ -17,6 +18,7 @@ import { UiSharedModule } from '../shared/ui-shared.module';
     MaturityResultsDialogComponent,
     MaturityResultsComponent,
   ],
-  imports: [UiSharedModule, MaturityRoutingModule],
+  imports: [UiSharedModule, MaturityRoutingModule, TranslocoModule],
+  providers: [{ provide: TRANSLOCO_SCOPE, useValue: 'maturity' }],
 })
 export class MaturityModule {}

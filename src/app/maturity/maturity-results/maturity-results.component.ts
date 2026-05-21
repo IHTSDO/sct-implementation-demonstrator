@@ -1,5 +1,8 @@
-import { Component, ElementRef, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
+import { TranslocoService } from '@jsverse/transloco';
+import { Subscription } from 'rxjs';
+import { distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 Chart.register(...registerables);
 
 @Component({
@@ -10,13 +13,24 @@ Chart.register(...registerables);
 })
 
 
-export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnInit {
+export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnInit, OnDestroy {
   @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() maturityResponse: any;
   @Input() allQuestions: any[] = [];
   @Input() expoMode: boolean = false;
 
   private chart!: Chart;
+
+  private translocoService = inject(TranslocoService);
+  private cdr = inject(ChangeDetectorRef);
+  private langSub?: Subscription;
+  private readonly translationScope = 'maturity';
+  public translationsReady = false;
+
+  t(key: string, params?: object): string {
+    if (!this.translationsReady) return '';
+    return this.translocoService.translate('maturity.' + key, params ?? {});
+  }
 
   public overallAverage: number = 1;
   public level: string = '';
@@ -39,9 +53,21 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   }
 
   ngOnInit(): void {
+    this.langSub = this.translocoService.langChanges$.pipe(
+      distinctUntilChanged(),
+      tap(() => { this.translationsReady = false; this.cdr.markForCheck(); }),
+      switchMap(lang => this.translocoService.load(`${this.translationScope}/${lang}`))
+    ).subscribe(() => {
+      this.translationsReady = true;
+      this.cdr.markForCheck();
+    });
     this.processComments();
     this.computeKpaAverages();
     this.overallAverage = this.calculateOverallAverage(this.maturityResponse);
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -426,25 +452,14 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   }
 
   getScaleLabel(value: number): string {
-    // Return "None" if the score is 0.00
-    if (value === 0) {
-      this.level = 'None';
-      return this.level;
-    }
-    
-    // Find the appropriate scale label for the given value based on ranges
-    // 0-1: Basic, 1-2: Emerging, 2-3: Advanced, 3-4: Integrated, 4-5: Optimizing
-    if (value <= 1) {
-      this.level = 'Basic';
-    } else if (value <= 2) {
-      this.level = 'Emerging';
-    } else if (value <= 3) {
-      this.level = 'Advanced';
-    } else if (value <= 4) {
-      this.level = 'Integrated';
-    } else {
-      this.level = 'Optimizing';
-    }
+    let key: string;
+    if (value === 0) key = 'levelNone';
+    else if (value <= 1) key = 'levelBasic';
+    else if (value <= 2) key = 'levelEmerging';
+    else if (value <= 3) key = 'levelAdvanced';
+    else if (value <= 4) key = 'levelIntegrated';
+    else key = 'levelOptimizing';
+    this.level = this.t(`results.${key}`);
     return this.level;
   }
 

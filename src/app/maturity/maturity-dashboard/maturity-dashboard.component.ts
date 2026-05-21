@@ -11,6 +11,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Unsubscribe } from 'firebase/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
+import { TranslocoService } from '@jsverse/transloco';
+import { Subscription } from 'rxjs';
+import { distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-maturity-dashboard',
@@ -68,6 +71,15 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   private mapOverlay: any;
   private readonly averageRadarDatasetIndex = 0;
 
+  private langSub?: Subscription;
+  private readonly translationScope = 'maturity';
+  public translationsReady = false;
+
+  t(key: string, params?: object): string {
+    if (!this.translationsReady) return '';
+    return this.translocoService.translate('maturity.' + key, params ?? {});
+  }
+
   colorPalette = [
     { bg: 'rgba(22, 160, 133, 0.3)', border: 'rgba(22, 160, 133, 1)' },  // Teal
     { bg: 'rgba(142, 68, 173, 0.3)', border: 'rgba(142, 68, 173, 1)' },  // Purple
@@ -85,10 +97,19 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     private firebaseService: FirebaseService,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
+    this.langSub = this.translocoService.langChanges$.pipe(
+      distinctUntilChanged(),
+      tap(() => { this.translationsReady = false; this.cdr.markForCheck(); }),
+      switchMap(lang => this.translocoService.load(`${this.translationScope}/${lang}`))
+    ).subscribe(() => {
+      this.translationsReady = true;
+      this.cdr.markForCheck();
+    });
     // Check for Expo mode from route parameters synchronously
     const params = this.route.snapshot.queryParams;
     if (params['expo']) {
@@ -101,6 +122,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   }
 
   ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
     // Clean up timer and markers when component is destroyed
     this.clearCalloutTimer();
     this.clearMapMarkers();

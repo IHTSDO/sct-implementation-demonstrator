@@ -1,23 +1,24 @@
+<ng-container *transloco="let t; prefix: 'maturity'">
 <div class="editor-container">
   <div class="header">
-    <h1>Maturity Specification Editor</h1>
-    <p class="subtitle">Edit stakeholders, KPAs, questions, and options</p>
+    <h1>{{ t('editor.title') }}</h1>
+    <p class="subtitle">{{ t('editor.subtitle') }}</p>
     @if (specSource === 'saved') {
       <p class="spec-status saved-spec-indicator">
         <mat-icon>save</mat-icon>
-        Viewing saved specification (auto-saved to local storage)
+        {{ t('editor.specSaved') }}
       </p>
     }
     @if (specSource === 'loaded') {
       <p class="spec-status loaded-spec-indicator">
         <mat-icon>upload</mat-icon>
-        Viewing loaded specification
+        {{ t('editor.specLoaded') }}
       </p>
     }
     @if (specSource === 'default') {
       <p class="spec-status default-spec-indicator">
         <mat-icon>description</mat-icon>
-        Viewing default specification
+        {{ t('editor.specDefault') }}
       </p>
     }
   </div>
@@ -30,28 +31,28 @@
           <input hidden (change)="uploadSpecification($event)" #fileInput type="file" accept=".json" />
           <button mat-raised-button color="primary" (click)="fileInput.click()">
             <mat-icon>upload</mat-icon>
-            Upload Spec
+            {{ t('editor.uploadSpec') }}
           </button>
           <button mat-raised-button color="primary" (click)="loadSpecification()">
             <mat-icon>refresh</mat-icon>
-            Load Default
+            {{ t('editor.loadDefault') }}
           </button>
           <button mat-raised-button color="primary" (click)="createBlankSpec()">
             <mat-icon>add_circle_outline</mat-icon>
-            New Blank Spec
+            {{ t('editor.newBlankSpec') }}
           </button>
           <button mat-raised-button color="accent" (click)="downloadSpecification()">
             <mat-icon>download</mat-icon>
-            Download Spec
+            {{ t('editor.downloadSpec') }}
           </button>
           <button mat-raised-button color="primary" (click)="previewSpecification()">
             <mat-icon>preview</mat-icon>
-            Preview Assessment
+            {{ t('editor.previewAssessment') }}
           </button>
           @if (originalSpec) {
             <button mat-raised-button color="warn" (click)="resetToOriginal()">
               <mat-icon>restore</mat-icon>
-              Reset Changes
+              {{ t('editor.resetChanges') }}
             </button>
           }
         </div>
@@ -64,7 +65,7 @@
     <div class="left-panel">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Structure</mat-card-title>
+          <mat-card-title>{{ t('editor.structureTitle') }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="maturity-tree">
@@ -121,11 +122,11 @@
           <div class="add-button-container">
             <button mat-raised-button color="accent" (click)="addFlipCard()" style="margin-right: 10px;">
               <mat-icon>add</mat-icon>
-              Add Flip Card
+              {{ t('editor.addFlipCard') }}
             </button>
             <button mat-raised-button color="primary" (click)="addStakeholder()">
               <mat-icon>add</mat-icon>
-              Add Stakeholder
+              {{ t('editor.addStakeholder') }}
             </button>
           </div>
         </mat-card-content>
@@ -138,25 +139,25 @@
       @if (selectedHomeItem === 'title') {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Edit Title</mat-card-title>
+            <mat-card-title>{{ t('editor.editTitle') }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="titleForm">
               <mat-form-field class="full-width">
-                <mat-label>Welcome Title</mat-label>
+                <mat-label>{{ t('editor.welcomeTitleLabel') }}</mat-label>
                 <input matInput formControlName="title" required>
                 @if (titleForm.get('title')?.hasError('required')) {
                   <mat-error>
-                    Title is required
+                    {{ t('editor.titleRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <div class="form-actions" style="margin-bottom: 20px;">
                 <button type="button" mat-raised-button color="primary" (click)="saveTitle()">
                   <mat-icon>save</mat-icon>
-                  Save Title
+                  {{ t('editor.saveTitle') }}
                 </button>
-                <button type="button" mat-button (click)="selectedHomeItem = null">Back</button>
+                <button type="button" mat-button (click)="selectedHomeItem = null">{{ t('editor.back') }}</button>
               </div>
             </form>
           </mat-card-content>
@@ -167,26 +168,26 @@
       @if (selectedHomeItem === 'subtitle') {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Edit Subtitle</mat-card-title>
+            <mat-card-title>{{ t('editor.editSubtitle') }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="subtitleForm">
               <mat-form-field class="full-width">
-                <mat-label>Welcome Subtitle</mat-label>
+                <mat-label>{{ t('editor.welcomeSubtitleLabel') }}</mat-label>
                 <textarea matInput formControlName="subtitle" rows="3" required></textarea>
-                <mat-hint>You can use HTML tags like &lt;b&gt; for bold text</mat-hint>
+                <mat-hint>{{ t('editor.subtitleHint') }}</mat-hint>
                 @if (subtitleForm.get('subtitle')?.hasError('required')) {
                   <mat-error>
-                    Subtitle is required
+                    {{ t('editor.subtitleRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <div class="form-actions" style="margin-bottom: 20px;">
                 <button type="button" mat-raised-button color="primary" (click)="saveSubtitle()">
                   <mat-icon>save</mat-icon>
-                  Save Subtitle
+                  {{ t('editor.saveSubtitle') }}
                 </button>
-                <button type="button" mat-button (click)="selectedHomeItem = null">Back</button>
+                <button type="button" mat-button (click)="selectedHomeItem = null">{{ t('editor.back') }}</button>
               </div>
             </form>
           </mat-card-content>
@@ -197,50 +198,50 @@
       @if (selectedStakeholderIndex !== null && selectedKpaIndex === null) {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Edit Stakeholder</mat-card-title>
+            <mat-card-title>{{ t('editor.editStakeholder') }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="stakeholderForm">
               <mat-form-field class="full-width">
-                <mat-label>Name</mat-label>
+                <mat-label>{{ t('editor.nameLabel') }}</mat-label>
                 <input matInput formControlName="name" required>
                 @if (stakeholderForm.get('name')?.hasError('required')) {
                   <mat-error>
-                    Name is required
+                    {{ t('editor.nameRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>ID</mat-label>
+                <mat-label>{{ t('editor.idLabel') }}</mat-label>
                 <input matInput formControlName="id" required>
                 @if (stakeholderForm.get('id')?.hasError('required')) {
                   <mat-error>
-                    ID is required
+                    {{ t('editor.idRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Description</mat-label>
+                <mat-label>{{ t('editor.descriptionLabel') }}</mat-label>
                 <textarea matInput formControlName="description" rows="3" required></textarea>
                 @if (stakeholderForm.get('description')?.hasError('required')) {
                   <mat-error>
-                    Description is required
+                    {{ t('editor.descriptionRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <div class="form-actions" style="margin-bottom: 20px;">
                 <button type="button" mat-raised-button color="primary" (click)="saveStakeholder()">
-                  Save Stakeholder
+                  {{ t('editor.saveStakeholder') }}
                 </button>
                 <button type="button" mat-raised-button color="accent" (click)="addKpa()">
                   <mat-icon>add</mat-icon>
-                  Add KPA
+                  {{ t('editor.addKpa') }}
                 </button>
                 <button type="button" mat-raised-button color="warn" (click)="deleteStakeholder(selectedStakeholderIndex!)">
                   <mat-icon>delete</mat-icon>
-                  Delete Stakeholder
+                  {{ t('editor.deleteStakeholder') }}
                 </button>
-                <button type="button" mat-button (click)="clearSelection()">Cancel</button>
+                <button type="button" mat-button (click)="clearSelection()">{{ t('editor.cancel') }}</button>
               </div>
             </form>
           </mat-card-content>
@@ -251,57 +252,57 @@
       @if (selectedStakeholderIndex !== null && selectedKpaIndex !== null && selectedQuestionIndex === null) {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Edit KPA</mat-card-title>
+            <mat-card-title>{{ t('editor.editKpa') }}</mat-card-title>
             <mat-card-subtitle>{{ getSelectedStakeholder()?.name }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="kpaForm">
               <mat-form-field class="full-width">
-                <mat-label>Name</mat-label>
+                <mat-label>{{ t('editor.nameLabel') }}</mat-label>
                 <input matInput formControlName="name" required>
                 @if (kpaForm.get('name')?.hasError('required')) {
                   <mat-error>
-                    Name is required
+                    {{ t('editor.nameRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>ID</mat-label>
+                <mat-label>{{ t('editor.idLabel') }}</mat-label>
                 <input matInput formControlName="id" required>
                 @if (kpaForm.get('id')?.hasError('required')) {
                   <mat-error>
-                    ID is required
+                    {{ t('editor.idRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Description</mat-label>
+                <mat-label>{{ t('editor.descriptionLabel') }}</mat-label>
                 <textarea matInput formControlName="description" rows="3" required></textarea>
                 @if (kpaForm.get('description')?.hasError('required')) {
                   <mat-error>
-                    Description is required
+                    {{ t('editor.descriptionRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <div class="form-actions" style="margin-bottom: 20px;">
                 <button type="button" mat-raised-button color="primary" (click)="saveKpa()">
-                  Save KPA
+                  {{ t('editor.saveKpa') }}
                 </button>
                 <button type="button" mat-raised-button color="accent" (click)="addQuestion()">
                   <mat-icon>add</mat-icon>
-                  Add Question
+                  {{ t('editor.addQuestion') }}
                 </button>
                 <button type="button" mat-raised-button color="warn" (click)="deleteKpa(selectedKpaIndex!)">
                   <mat-icon>delete</mat-icon>
-                  Delete KPA
+                  {{ t('editor.deleteKpa') }}
                 </button>
-                <button type="button" mat-button (click)="selectedKpaIndex = null">Back</button>
+                <button type="button" mat-button (click)="selectedKpaIndex = null">{{ t('editor.back') }}</button>
               </div>
             </form>
             <!-- Questions List -->
             @if (getSelectedKpa()?.questions?.length) {
               <div class="questions-list">
-                <h3>Questions ({{ getSelectedKpa()?.questions?.length }})</h3>
+                <h3>{{ t('editor.questionsCount') }} ({{ getSelectedKpa()?.questions?.length }})</h3>
                 <mat-list>
                   @for (question of getSelectedKpa()?.questions; track question; let k = $index) {
                     <mat-list-item>
@@ -329,61 +330,61 @@
       @if (selectedStakeholderIndex !== null && selectedKpaIndex !== null && selectedQuestionIndex !== null && selectedOptionIndex === null) {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Edit Question</mat-card-title>
+            <mat-card-title>{{ t('editor.editQuestion') }}</mat-card-title>
             <mat-card-subtitle>{{ getSelectedKpa()?.name }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="questionForm">
               <mat-form-field class="full-width">
-                <mat-label>Name</mat-label>
+                <mat-label>{{ t('editor.nameLabel') }}</mat-label>
                 <input matInput formControlName="name" required>
                 @if (questionForm.get('name')?.hasError('required')) {
                   <mat-error>
-                    Name is required
+                    {{ t('editor.nameRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>ID</mat-label>
+                <mat-label>{{ t('editor.idLabel') }}</mat-label>
                 <input matInput formControlName="id" required>
                 @if (questionForm.get('id')?.hasError('required')) {
                   <mat-error>
-                    ID is required
+                    {{ t('editor.idRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Question Text</mat-label>
+                <mat-label>{{ t('editor.questionTextLabel') }}</mat-label>
                 <textarea matInput formControlName="question" rows="3" required></textarea>
                 @if (questionForm.get('question')?.hasError('required')) {
                   <mat-error>
-                    Question text is required
+                    {{ t('editor.questionTextRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Context</mat-label>
+                <mat-label>{{ t('editor.contextLabel') }}</mat-label>
                 <textarea matInput formControlName="context" rows="2"></textarea>
               </mat-form-field>
               <div class="form-actions" style="margin-bottom: 20px;">
                 <button type="button" mat-raised-button color="primary" (click)="saveQuestion()">
-                  Save Question
+                  {{ t('editor.saveQuestion') }}
                 </button>
                 <button type="button" mat-raised-button color="accent" (click)="addOption()">
                   <mat-icon>add</mat-icon>
-                  Add Option
+                  {{ t('editor.addOption') }}
                 </button>
                 <button type="button" mat-raised-button color="warn" (click)="deleteQuestion(selectedQuestionIndex!)">
                   <mat-icon>delete</mat-icon>
-                  Delete Question
+                  {{ t('editor.deleteQuestion') }}
                 </button>
-                <button type="button" mat-button (click)="selectedQuestionIndex = null">Back</button>
+                <button type="button" mat-button (click)="selectedQuestionIndex = null">{{ t('editor.back') }}</button>
               </div>
             </form>
             <!-- Options List -->
             @if (getSelectedQuestion()?.options?.length && selectedOptionIndex === null) {
               <div class="options-list">
-                <h3>Options ({{ getSelectedQuestion()?.options?.length }})</h3>
+                <h3>{{ t('editor.optionsCount') }} ({{ getSelectedQuestion()?.options?.length }})</h3>
                 <mat-list>
                   @for (option of getSelectedQuestion()?.options; track option; let k = $index) {
                     <mat-list-item
@@ -394,7 +395,7 @@
                         <strong>{{ option.id }}.</strong> {{ option.text }}
                       </div>
                       <div matListItemLine>
-                        Score: {{ option.score }} | Example: {{ option.example || 'N/A' }}
+                        {{ t('editor.scoreOf') }} {{ option.score }} | {{ t('editor.exampleOf') }} {{ option.example || 'N/A' }}
                       </div>
                       <div class="list-item-actions">
                         <button mat-icon-button color="primary" (click)="editOption(k); $event.stopPropagation()">
@@ -417,52 +418,52 @@
       @if (selectedStakeholderIndex !== null && selectedKpaIndex !== null && selectedQuestionIndex !== null && selectedOptionIndex !== null) {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Edit Option</mat-card-title>
+            <mat-card-title>{{ t('editor.editOption') }}</mat-card-title>
             <mat-card-subtitle>{{ getSelectedQuestion()?.name }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="optionForm">
               <mat-form-field class="full-width">
-                <mat-label>ID</mat-label>
+                <mat-label>{{ t('editor.idLabel') }}</mat-label>
                 <input matInput type="number" formControlName="id" required>
                 @if (optionForm.get('id')?.hasError('required')) {
                   <mat-error>
-                    ID is required
+                    {{ t('editor.idRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Text</mat-label>
+                <mat-label>{{ t('editor.textLabel') }}</mat-label>
                 <textarea matInput formControlName="text" rows="2" required></textarea>
                 @if (optionForm.get('text')?.hasError('required')) {
                   <mat-error>
-                    Text is required
+                    {{ t('editor.textRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Score</mat-label>
+                <mat-label>{{ t('editor.scoreLabel') }}</mat-label>
                 <input matInput type="number" formControlName="score" required>
-                <mat-hint>Score value (0-100)</mat-hint>
+                <mat-hint>{{ t('editor.scoreHint') }}</mat-hint>
                 @if (optionForm.get('score')?.hasError('required')) {
                   <mat-error>
-                    Score is required
+                    {{ t('editor.scoreRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Example</mat-label>
+                <mat-label>{{ t('editor.exampleLabel') }}</mat-label>
                 <textarea matInput formControlName="example" rows="2"></textarea>
               </mat-form-field>
               <div class="form-actions" style="margin-bottom: 20px;">
                 <button type="button" mat-raised-button color="primary" (click)="saveOption()">
-                  Save Option
+                  {{ t('editor.saveOption') }}
                 </button>
                 <button type="button" mat-raised-button color="warn" (click)="deleteOption(selectedOptionIndex!)">
                   <mat-icon>delete</mat-icon>
-                  Delete Option
+                  {{ t('editor.deleteOption') }}
                 </button>
-                <button type="button" mat-button (click)="selectedOptionIndex = null">Back</button>
+                <button type="button" mat-button (click)="selectedOptionIndex = null">{{ t('editor.back') }}</button>
               </div>
             </form>
           </mat-card-content>
@@ -473,47 +474,47 @@
       @if (selectedFlipCardIndex !== null && selectedFlipCardItemIndex === null) {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Edit Flip Card</mat-card-title>
+            <mat-card-title>{{ t('editor.editFlipCard') }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="flipCardForm">
               <mat-form-field class="full-width">
-                <mat-label>Title</mat-label>
+                <mat-label>{{ t('editor.flipCardTitleLabel') }}</mat-label>
                 <input matInput formControlName="title" required>
                 @if (flipCardForm.get('title')?.hasError('required')) {
                   <mat-error>
-                    Title is required
+                    {{ t('editor.flipCardTitleRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Front Text</mat-label>
+                <mat-label>{{ t('editor.flipCardFrontTextLabel') }}</mat-label>
                 <textarea matInput formControlName="frontText" rows="3" required></textarea>
                 @if (flipCardForm.get('frontText')?.hasError('required')) {
                   <mat-error>
-                    Front text is required
+                    {{ t('editor.flipCardFrontTextRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <div class="form-actions" style="margin-bottom: 20px;">
                 <button type="button" mat-raised-button color="primary" (click)="saveFlipCard()">
-                  Save Flip Card
+                  {{ t('editor.saveFlipCard') }}
                 </button>
                 <button type="button" mat-raised-button color="accent" (click)="addFlipCardItem()">
                   <mat-icon>add</mat-icon>
-                  Add Item
+                  {{ t('editor.addFlipCardItem') }}
                 </button>
                 <button type="button" mat-raised-button color="warn" (click)="deleteFlipCard(selectedFlipCardIndex!)">
                   <mat-icon>delete</mat-icon>
-                  Delete Flip Card
+                  {{ t('editor.deleteFlipCard') }}
                 </button>
-                <button type="button" mat-button (click)="selectedFlipCardIndex = null">Back</button>
+                <button type="button" mat-button (click)="selectedFlipCardIndex = null">{{ t('editor.back') }}</button>
               </div>
             </form>
             <!-- Flip Card Items List -->
             @if (getSelectedFlipCard()?.back?.items?.length) {
               <div class="flipcard-items-list">
-                <h3>Back Items ({{ getSelectedFlipCard()?.back?.items?.length }})</h3>
+                <h3>{{ t('editor.backItems') }} ({{ getSelectedFlipCard()?.back?.items?.length }})</h3>
                 <mat-list>
                   @for (item of getSelectedFlipCard()?.back?.items; track item; let k = $index) {
                     <mat-list-item
@@ -543,38 +544,38 @@
       @if (selectedFlipCardIndex !== null && selectedFlipCardItemIndex !== null) {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Edit Flip Card Item</mat-card-title>
+            <mat-card-title>{{ t('editor.editFlipCardItem') }}</mat-card-title>
             <mat-card-subtitle>{{ getSelectedFlipCard()?.title }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="flipCardItemForm">
               <mat-form-field class="full-width">
-                <mat-label>Item Title</mat-label>
+                <mat-label>{{ t('editor.itemTitleLabel') }}</mat-label>
                 <input matInput formControlName="title" required>
                 @if (flipCardItemForm.get('title')?.hasError('required')) {
                   <mat-error>
-                    Title is required
+                    {{ t('editor.titleRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Item Text</mat-label>
+                <mat-label>{{ t('editor.itemTextLabel') }}</mat-label>
                 <textarea matInput formControlName="text" rows="2" required></textarea>
                 @if (flipCardItemForm.get('text')?.hasError('required')) {
                   <mat-error>
-                    Text is required
+                    {{ t('editor.textRequired') }}
                   </mat-error>
                 }
               </mat-form-field>
               <div class="form-actions" style="margin-bottom: 20px;">
                 <button type="button" mat-raised-button color="primary" (click)="saveFlipCardItem()">
-                  Save Item
+                  {{ t('editor.saveFlipCardItem') }}
                 </button>
                 <button type="button" mat-raised-button color="warn" (click)="deleteFlipCardItem(selectedFlipCardItemIndex!)">
                   <mat-icon>delete</mat-icon>
-                  Delete Item
+                  {{ t('editor.deleteFlipCardItem') }}
                 </button>
-                <button type="button" mat-button (click)="selectedFlipCardItemIndex = null">Back</button>
+                <button type="button" mat-button (click)="selectedFlipCardItemIndex = null">{{ t('editor.back') }}</button>
               </div>
             </form>
           </mat-card-content>
@@ -587,8 +588,8 @@
           <mat-card-content>
             <div class="empty-state">
               <mat-icon>edit_note</mat-icon>
-              <h3>Select an item to edit</h3>
-              <p>Choose a home item (title, subtitle, flip card), stakeholder, KPA, question, or option to start editing.</p>
+              <h3>{{ t('editor.emptyStateHeading') }}</h3>
+              <p>{{ t('editor.emptyStateText') }}</p>
             </div>
           </mat-card-content>
         </mat-card>
@@ -596,3 +597,4 @@
     </div>
   </div>
 </div>
+</ng-container>

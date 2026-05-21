@@ -6,26 +6,25 @@
   <mat-sidenav-content>
     <div class="mt-8 w-full max-w-full">
       <div class="header-container">
-        <!-- <button mat-button (click)="sidenav.toggle()">sidenav.toggle()</button> -->
-        <h1>SNOMED Implementation Maturity Dashboard</h1>
+        <h1>{{ t('dashboard.title') }}</h1>
         @if (!expoMode) {
-          <h2 class="italic">Results from the Maturity Assessment Tool</h2>
+          <h2 class="italic">{{ t('dashboard.subtitle') }}</h2>
         }
         @if (expoMode) {
-          <h2 class="italic">Expo 2025 Assessment Results</h2>
+          <h2 class="italic">{{ t('dashboard.expoSubtitle') }}</h2>
         }
         @if (uploadedData.length === 0 && !expoMode) {
           <div class="flex flex-row gap-4">
             <input #fileInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none"/>
             <input #folderInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none" webkitdirectory/>
             <button mat-raised-button color="primary" (click)="fileInput.click()">
-              Load maturity assessment results (JSON Files)
+              {{ t('dashboard.loadJsonFiles') }}
             </button>
             <button mat-raised-button color="primary" (click)="folderInput.click()">
-              Load maturity assessment results (Folder)
+              {{ t('dashboard.loadFolder') }}
             </button>
             <button mat-raised-button color="primary" (click)="loadExamples()">
-              Load example results
+              {{ t('dashboard.loadExamples') }}
             </button>
           </div>
         }
@@ -33,7 +32,7 @@
         @if (expoMode && !loadingFirebaseData) {
           <div class="flex flex-row gap-4">
             <button mat-raised-button color="primary" (click)="loadFirebaseData()">
-              Load Expo 2025 Data from Firebase
+              {{ t('dashboard.loadFirebase') }}
             </button>
           </div>
         }
@@ -41,7 +40,7 @@
         @if (loadingFirebaseData) {
           <div class="flex flex-row gap-4">
             <mat-spinner diameter="30"></mat-spinner>
-            <span class="ml-2">Loading Expo 2025 data from Firebase...</span>
+            <span class="ml-2">{{ t('dashboard.loadingFirebase') }}</span>
           </div>
         }
       </div>
@@ -64,16 +63,16 @@
         <div>
           <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-8">
             <div class="chart-container flex-1 dashboard-card text-2xl p-4 font-bold">
-              {{ uploadedData.length }} assessments loaded
+              {{ uploadedData.length }} {{ t('dashboard.assessmentsLoaded') }}
             </div>
             <div class="chart-container flex-1 dashboard-card text-2xl p-4 font-bold">
-              Stakeholders: {{ uploadedData[0].stakeHolderName }}
+              {{ t('dashboard.stakeholders') }} {{ uploadedData[0].stakeHolderName }}
             </div>
             <div class="chart-container flex-1 dashboard-card text-2xl p-4 font-bold">
-              Average Score: {{ overallScore }}
+              {{ t('dashboard.averageScore') }} {{ overallScore }}
             </div>
             <div class="chart-container flex-1 dashboard-card text-2xl p-4 font-bold">
-              Average Level: {{ level }}
+              {{ t('dashboard.averageLevel') }} {{ level }}
             </div>
           </div>
           <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-4">
@@ -96,7 +95,7 @@
                 >
               </ngx-gauge>
               <h2>
-                Overall Maturity Score
+                {{ t('dashboard.overallMaturityScore') }}
               </h2>
             </div>
           </div>
@@ -107,24 +106,24 @@
             <div class="chart-container flex-1 dashboard-card radar-chart-card">
               <canvas #radarCanvas></canvas>
               <div class="radar-controls">
-                <button class="radar-control-button" mat-stroked-button color="primary" (click)="showAllRadarSeries()">All stakeholders</button>
-                <button class="radar-control-button" mat-stroked-button color="primary" (click)="showOnlyAverageRadarSeries()">None</button>
+                <button class="radar-control-button" mat-stroked-button color="primary" (click)="showAllRadarSeries()">{{ t('dashboard.allStakeholders') }}</button>
+                <button class="radar-control-button" mat-stroked-button color="primary" (click)="showOnlyAverageRadarSeries()">{{ t('dashboard.none') }}</button>
               </div>
             </div>
           </div>
           <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-4 items-center justify-center">
             <div class="dashboard-card flex flex-col items-center justify-center w-2/3 pt-8 pb-8">
               @if (uploadedData.length != 0) {
-                <h2>Summary of Maturity Assessment Data</h2>
+                <h2>{{ t('dashboard.summaryTitle') }}</h2>
               }
               @if (uploadedData.length != 0) {
                 <table class="bordered-table">
                   <thead>
                     <tr>
-                      <th>Stakeholder Type</th>
-                      <th>StakeHolder Name</th>
-                      <th>Maturity Score</th>
-                      <th>Location</th>
+                      <th>{{ t('dashboard.colStakeholderType') }}</th>
+                      <th>{{ t('dashboard.colStakeholderName') }}</th>
+                      <th>{{ t('dashboard.colMaturityScore') }}</th>
+                      <th>{{ t('dashboard.colLocation') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -133,7 +132,7 @@
                         <td>{{ stakeholder.stakeHolderName }}</td>
                         <td>{{ stakeholder.name }}</td>
                         <td>{{ stakeholder.overallScore }} - {{ stakeholder.level }}</td>
-                        <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : 'No location information'  }}</td>
+                        <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : t('dashboard.noLocation') }}</td>
                       </tr>
                     }
                   </tbody>
@@ -147,10 +146,10 @@
         @if (uploadedData.length != 0) {
           <button mat-raised-button color="primary" (click)="reset()">
             @if (!expoMode) {
-              <span>Reset dashboard</span>
+              <span>{{ t('dashboard.reset') }}</span>
             }
             @if (expoMode) {
-              <span>Refresh Expo 2025 Data</span>
+              <span>{{ t('dashboard.expoRefresh') }}</span>
             }
           </button>
         }

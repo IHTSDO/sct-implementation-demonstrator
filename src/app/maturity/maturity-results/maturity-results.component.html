@@ -32,7 +32,7 @@
     </div>
     <div class="score-scale-labels">
       @for (level of resultsScale; track level) {
-        <span class="level-label">{{ level.label }}</span>
+        <span class="level-label">{{ t('results.level' + level.label) }}</span>
       }
     </div>
   </div>
@@ -40,10 +40,10 @@
   <table class="bordered-table">
     <thead>
       <tr>
-        <th>KPA Description @if (commentList.length > 0) {
-          <span>(responses with comments are listed)</span>
+        <th>{{ t('results.kpaDescription') }} @if (commentList.length > 0) {
+          <span>{{ t('results.responsesWithComments') }}</span>
         }</th>
-        <th>KPA Average Score</th>
+        <th>{{ t('results.kpaAverageScore') }}</th>
       </tr>
     </thead>
     <tbody>
@@ -81,7 +81,7 @@
                       <mat-icon>comment</mat-icon>
                       <p>
                         {{ comment.questionText }}<br>
-                        Result: {{ convertToFiveScale(comment.selectedScore) | number:'1.2-2' }} - {{ comment.selectedOptionText }} Comment: <i>{{ comment.text }}</i>
+                        {{ t('results.result') }} {{ convertToFiveScale(comment.selectedScore) | number:'1.2-2' }} - {{ comment.selectedOptionText }} {{ t('results.comment') }} <i>{{ comment.text }}</i>
                       </p>
                     </div>
                   </td>

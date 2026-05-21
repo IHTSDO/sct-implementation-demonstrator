@@ -1,5 +1,6 @@
 import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { TRANSLOCO_SCOPE } from "@jsverse/transloco";
 
 /**
  * Dialog Component (Embedded in the same file).
@@ -8,21 +9,20 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 @Component({
     selector: 'app-maturity-results-dialog',
     template: `
-      <h2 mat-dialog-title>Maturity Results: {{ stakeholderName }}</h2>
-      <div mat-dialog-content>
-        <!-- 
-          We embed MaturityResultsComponent here. 
-          We assume MaturityResultsComponent has an @Input() named 'maturityResponse' and 'allQuestions'.
-        -->
-        <app-maturity-results 
-          [maturityResponse]="maturityResponse"
-          [allQuestions]="allQuestions">
-        </app-maturity-results>
-      </div>
-      <div mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close>Close</button>
-      </div>
+      <ng-container *transloco="let t; prefix: 'maturity'">
+        <h2 mat-dialog-title>{{ t('resultsDialog.title') }} {{ stakeholderName }}</h2>
+        <div mat-dialog-content>
+          <app-maturity-results
+            [maturityResponse]="maturityResponse"
+            [allQuestions]="allQuestions">
+          </app-maturity-results>
+        </div>
+        <div mat-dialog-actions align="end">
+          <button mat-button mat-dialog-close>{{ t('resultsDialog.close') }}</button>
+        </div>
+      </ng-container>
     `,
+    providers: [{ provide: TRANSLOCO_SCOPE, useValue: 'maturity' }],
     standalone: false
 })
   export class MaturityResultsDialogComponent {
