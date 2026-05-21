@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef, Input, inject, OnChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
@@ -98,8 +98,18 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
 
   private translocoService = inject(TranslocoService);
   private langSub?: Subscription;
+  private readonly translationScope = 'descriptive-statistics';
+  public translationsReady = false;
 
   t(key: string, params?: object): string {
+    return this.scopedTranslate(key, params);
+  }
+
+  private scopedTranslate(key: string, params?: object): string {
+    if (!this.translationsReady) {
+      return '';
+    }
+
     return this.translocoService.translate('descriptiveStatistics.' + key, params ?? {});
   }
 
@@ -126,12 +136,16 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
       }
     });
     
-    // Preload translations scope
-    this.translocoService.selectTranslation('descriptive-statistics').subscribe();
-    this.langSub = this.translocoService.langChanges$.subscribe(() => {
-      this.translocoService.selectTranslation('descriptive-statistics').subscribe(() => {
+    this.langSub = this.translocoService.langChanges$.pipe(
+      distinctUntilChanged(),
+      tap(() => {
+        this.translationsReady = false;
         this.cdr.markForCheck();
-      });
+      }),
+      switchMap(lang => this.translocoService.load(`${this.translationScope}/${lang}`))
+    ).subscribe(() => {
+      this.translationsReady = true;
+      this.cdr.markForCheck();
     });
 
     // Ensure ageRange is initialized
@@ -790,7 +804,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
 
   public getPatients(conceptId: string): void {
     this.isLoadingPatients = true;
-    this.loadingMessage = this.translocoService.translate('descriptiveStatistics.plotlyTreemap.loadingPatientData');
+    this.loadingMessage = this.scopedTranslate('plotlyTreemap.loadingPatientData');
     this.showPatients = false;
     this.showGenderChart = false;
     this.patients = [];
@@ -835,7 +849,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   private processPatientData(patients: Patient[], descendantConceptIds: string[]): void {
     // Process patient filtering asynchronously to prevent UI freezing
     setTimeout(() => {
-      this.loadingMessage = this.translocoService.translate('descriptiveStatistics.plotlyTreemap.processingPatientData');
+      this.loadingMessage = this.scopedTranslate('plotlyTreemap.processingPatientData');
       
       // First apply demographic filters
       const filteredPatients = this.applyFilters(patients);
@@ -1326,8 +1340,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   public getActiveFiltersDescription(): string {
-    const t = (key: string, params?: object) =>
-      this.translocoService.translate('descriptiveStatistics.plotlyTreemap.filtersDescription.' + key, params);
+    const t = (key: string, params?: object) => this.scopedTranslate('plotlyTreemap.filtersDescription.' + key, params);
     const parts: string[] = [];
 
     if (this.selectedGender === 'ALL') {

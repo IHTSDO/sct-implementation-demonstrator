@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import Plotly from 'plotly.js-dist';
 import Papa from 'papaparse';
 import { TranslocoService } from '@jsverse/transloco';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription, switchMap, tap } from 'rxjs';
 
 interface ChartItem {
   id: string;
@@ -26,6 +26,7 @@ export class SunburstChartComponent implements OnInit, OnDestroy {
   private translocoService = inject(TranslocoService);
   private cdr = inject(ChangeDetectorRef);
   private langSub?: Subscription;
+  private readonly translationScope = 'descriptive-statistics';
   
   selectedItem: ChartItem | null = null;
   private chartData: ChartItem[] = [];
@@ -33,6 +34,7 @@ export class SunburstChartComponent implements OnInit, OnDestroy {
   public currentRootId: string = '';
   public maxLevels = 3;
   public isLoading = false;
+  public translationsReady = false;
   public searchTerm: string = '';
   public searchResults: ChartItem[] = [];
   private colorMap = new Map<string, string>();
@@ -48,15 +50,24 @@ export class SunburstChartComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient) {}
 
   t(key: string, params?: object): string {
+    if (!this.translationsReady) {
+      return '';
+    }
+
     return this.translocoService.translate('descriptiveStatistics.' + key, params ?? {});
   }
 
   ngOnInit() {
-    this.translocoService.selectTranslation('descriptive-statistics').subscribe();
-    this.langSub = this.translocoService.langChanges$.subscribe(() => {
-      this.translocoService.selectTranslation('descriptive-statistics').subscribe(() => {
+    this.langSub = this.translocoService.langChanges$.pipe(
+      distinctUntilChanged(),
+      tap(() => {
+        this.translationsReady = false;
         this.cdr.markForCheck();
-      });
+      }),
+      switchMap(lang => this.translocoService.load(`${this.translationScope}/${lang}`))
+    ).subscribe(() => {
+      this.translationsReady = true;
+      this.cdr.markForCheck();
     });
     this.loadChartData();
   }

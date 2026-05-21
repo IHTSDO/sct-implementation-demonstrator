@@ -1,9 +1,9 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as d3 from 'd3';
 import Papa from 'papaparse';
 import { TranslocoService } from '@jsverse/transloco';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription, switchMap, tap } from 'rxjs';
 
 interface ChartItem {
   id: string;
@@ -31,7 +31,9 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
   private translocoService = inject(TranslocoService);
+  private cdr = inject(ChangeDetectorRef);
   private langSub?: Subscription;
+  private readonly translationScope = 'descriptive-statistics';
   
   selectedItem: ChartItem | null = null;
   private chartData: ChartItem[] = [];
@@ -54,17 +56,29 @@ export class D3SunburstChartComponent implements OnInit, AfterViewInit, OnDestro
   private currentRoot: any = null;
   private breadcrumb: any[] = [];
   public loading = false;
+  public translationsReady = false;
 
   constructor(private http: HttpClient) {}
 
   t(key: string, params?: object): string {
+    if (!this.translationsReady) {
+      return '';
+    }
+
     return this.translocoService.translate('descriptiveStatistics.' + key, params ?? {});
   }
 
   ngOnInit() {
-    this.translocoService.selectTranslation('descriptive-statistics').subscribe();
-    this.langSub = this.translocoService.langChanges$.subscribe(() => {
-      this.translocoService.selectTranslation('descriptive-statistics').subscribe();
+    this.langSub = this.translocoService.langChanges$.pipe(
+      distinctUntilChanged(),
+      tap(() => {
+        this.translationsReady = false;
+        this.cdr.markForCheck();
+      }),
+      switchMap(lang => this.translocoService.load(`${this.translationScope}/${lang}`))
+    ).subscribe(() => {
+      this.translationsReady = true;
+      this.cdr.markForCheck();
     });
     this.loadChartData();
   }
