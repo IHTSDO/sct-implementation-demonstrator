@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; scope: 'descriptive-statistics'; prefix: 'descriptiveStatistics'">
 <div class="sunburst-container">
   <div class="chart-section">
     <div class="chart-header">
-      <h3>D3 Sunburst Chart - Lazy Loading (3 Levels)</h3>
+      <h3>{{ t('d3Sunburst.title') }}</h3>
       <div class="chart-controls">
         <button mat-button color="primary" (click)="resetToRoot()" [disabled]="loading">
           <mat-icon>home</mat-icon>
-          Reset to Root
+          {{ t('d3Sunburst.resetToRoot') }}
         </button>
         @if (loading) {
           <div class="loading-indicator">
             <mat-spinner diameter="20"></mat-spinner>
-            <span>Loading...</span>
+            <span>{{ t('common.loading') }}</span>
           </div>
         }
       </div>
@@ -18,28 +19,29 @@
     <div #chartContainer id="chartContainer"></div>
   </div>
   <div class="details-section">
-    <h3>Selected Item Details</h3>
+    <h3>{{ t('common.selectedItemDetails') }}</h3>
     @if (selectedItem) {
       <div class="details-content">
-        <p><strong>ID:</strong> {{ selectedItem.id }}</p>
-        <p><strong>Label:</strong> {{ selectedItem.label }}</p>
-        <p><strong>Value:</strong> {{ selectedItem.value }}</p>
+        <p><strong>{{ t('common.id') }}</strong> {{ selectedItem.id }}</p>
+        <p><strong>{{ t('common.label') }}</strong> {{ selectedItem.label }}</p>
+        <p><strong>{{ t('common.value') }}</strong> {{ selectedItem.value }}</p>
         @if (selectedItem.labelCount !== undefined) {
-          <p><strong>Label Count:</strong> {{ selectedItem.labelCount }}</p>
+          <p><strong>{{ t('common.labelCount') }}</strong> {{ selectedItem.labelCount }}</p>
         }
-        <p><strong>Parent:</strong> {{ selectedItem.parent || 'Root' }}</p>
+        <p><strong>{{ t('common.parent') }}</strong> {{ selectedItem.parent || t('common.root') }}</p>
       </div>
     }
     @if (!selectedItem) {
       <div class="no-selection">
-        <p>Click on any segment to see details</p>
+        <p>{{ t('common.clickToSeeDetails') }}</p>
       </div>
     }
     <div class="navigation-info">
-      <h4>Navigation</h4>
-      <p>• Click on segments to drill down (max 3 levels visible)</p>
-      <p>• Use breadcrumb navigation to go back</p>
-      <p>• Only nodes with children can be drilled into</p>
+      <h4>{{ t('common.navigation.title') }}</h4>
+      <p>• {{ t('d3Sunburst.navigation.drillDown') }}</p>
+      <p>• {{ t('d3Sunburst.navigation.breadcrumb') }}</p>
+      <p>• {{ t('common.navigation.onlyChildren') }}</p>
     </div>
   </div>
 </div>
+</ng-container>

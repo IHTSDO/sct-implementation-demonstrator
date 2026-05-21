@@ -1,19 +1,20 @@
+<ng-container *transloco="let t; scope: 'descriptive-statistics'; prefix: 'descriptiveStatistics'">
 <div class="treemap-container">
   <!-- Row 1: Header and Controls -->
   <div class="header-row">
     <div class="header-content">
-      <h3>Descriptive Population Analysis</h3>
+      <h3>{{ t('plotlyTreemap.title') }}</h3>
       <div class="chart-controls">
         @if (useBrowserStorage) {
           <button mat-button color="primary" (click)="goBackToEhrLab()">
             <mat-icon>arrow_back</mat-icon>
-            Back to EHR Lab
+            {{ t('plotlyTreemap.backToEhrLab') }}
           </button>
         }
         @if (isLoading) {
           <div class="loading-indicator">
             <mat-spinner diameter="20"></mat-spinner>
-            <span>Loading...</span>
+            <span>{{ t('common.loading') }}</span>
           </div>
         }
       </div>
@@ -30,8 +31,8 @@
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ getTotalPopulationCount() }}</div>
-            <div class="stat-label">Total Population</div>
-            <div class="stat-description">All patients in repository</div>
+            <div class="stat-label">{{ t('plotlyTreemap.stats.totalPopulation') }}</div>
+            <div class="stat-description">{{ t('plotlyTreemap.stats.allPatientsInRepository') }}</div>
           </div>
         </div>
 
@@ -41,8 +42,8 @@
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ getFilteredPopulationCount() }}</div>
-            <div class="stat-label">Patients Selected</div>
-            <div class="stat-description">After applying filters</div>
+            <div class="stat-label">{{ t('plotlyTreemap.stats.patientsSelected') }}</div>
+            <div class="stat-description">{{ t('plotlyTreemap.stats.afterApplyingFilters') }}</div>
           </div>
         </div>
       </div>
@@ -56,26 +57,26 @@
         <div class="filter-group">
           <label>
             <mat-icon class="filter-label-icon">people</mat-icon>
-            Gender
+            {{ t('plotlyTreemap.filters.gender') }}
           </label>
           <div class="gender-options">
             <button mat-button
               [class.active]="selectedGender === 'ALL'"
               (click)="selectedGender = 'ALL'; onFilterChange()"
               class="gender-option">
-              All
+              {{ t('plotlyTreemap.filters.all') }}
             </button>
             <button mat-button
               [class.active]="selectedGender === 'FEMALE'"
               (click)="selectedGender = 'FEMALE'; onFilterChange()"
               class="gender-option">
-              Female
+              {{ t('plotlyTreemap.filters.female') }}
             </button>
             <button mat-button
               [class.active]="selectedGender === 'MALE'"
               (click)="selectedGender = 'MALE'; onFilterChange()"
               class="gender-option">
-              Male
+              {{ t('plotlyTreemap.filters.male') }}
             </button>
           </div>
         </div>
@@ -83,7 +84,7 @@
         <div class="filter-group age-filter-group">
           <label>
             <mat-icon class="filter-label-icon">calendar_today</mat-icon>
-            Age Range: {{ minAge }} - {{ maxAge }} years
+            {{ t('plotlyTreemap.filters.ageRange', { min: minAge, max: maxAge }) }}
           </label>
           <div class="age-slider-container">
             <mat-slider
@@ -108,14 +109,14 @@
   <div class="chart-row">
     <div class="chart-container-wrapper">
       <div class="chart-header">
-        <h3>Patient counts by clinical event</h3>
+        <h3>{{ t('plotlyTreemap.chart.title') }}</h3>
       </div>
       <div class="chart-content">
         <div #chartContainer id="chartContainer" [class.loading]="isLoading"></div>
         @if (isLoading) {
           <div class="chart-overlay">
             <mat-spinner diameter="40"></mat-spinner>
-            <p>Updating chart...</p>
+            <p>{{ t('common.updatingChart') }}</p>
           </div>
         }
       </div>
@@ -128,7 +129,7 @@
           <div class="navigation-row">
             <button mat-button color="primary" (click)="goToRoot()" [disabled]="isLoading" class="root-btn">
               <mat-icon>home</mat-icon>
-              Root
+              {{ t('common.root') }}
             </button>
             <div class="current-root">
               <span>Current: {{ getCurrentRootLabel() }}</span>
@@ -141,7 +142,7 @@
           <input type="text"
             [(ngModel)]="searchTerm"
             (input)="onSearchInput()"
-            placeholder="Search clinical events (e.g., 'resp fin')"
+            [placeholder]="t('plotlyTreemap.search.placeholder')"
             class="search-input">
           <mat-icon class="search-icon">search</mat-icon>
         </div>
@@ -149,7 +150,7 @@
 
       @if (searchResults.length > 0) {
         <div class="search-results">
-          <h4>Results ({{ searchResults.length }})</h4>
+          <h4>{{ t('common.search.results', { count: searchResults.length }) }}</h4>
           <div class="results-list">
             @for (result of searchResults; track result) {
               <div class="result-item"
@@ -170,14 +171,14 @@
 
       @if (searchTerm && searchResults.length === 0) {
         <div class="no-results">
-          <p>No nodes found matching "{{ searchTerm }}"</p>
+          <p>{{ t('common.search.noResults', { term: searchTerm }) }}</p>
         </div>
       }
 
       @if (!searchTerm) {
         <div class="search-info">
-          <p>Start typing to search through all the SNOMED CT concepts that identify the clinical events in the dataset</p>
-          <p>Use multiple prefixes separated by spaces (e.g., "resp fin" will find items containing words starting with both "resp" and "fin")</p>
+          <p>{{ t('plotlyTreemap.search.startTyping') }}</p>
+          <p>{{ t('plotlyTreemap.search.useMultiplePrefixes') }}</p>
         </div>
       }
     </div>
@@ -187,8 +188,6 @@
   <div class="details-row">
     <div class="details-content-wrapper">
       <div class="patients-section">
-        <!-- <h3>Selected clinical event: {{ selectedItem?.label || 'None' }}</h3> -->
-
 
         @if (isLoadingPatients) {
           <div class="patients-loading">
@@ -201,25 +200,25 @@
         @if (selectedItem && !isLoadingPatients) {
           <div class="selected-node-name">
             <div class="node-name-row">
-              <h3><span class="label-prefix">Selected clinical event:</span> <span class="concept-name">{{ selectedItem.label }}</span> <span class="concept-code">{{ getSelectedConceptCode() }}</span></h3>
+              <h3><span class="label-prefix">{{ t('plotlyTreemap.patients.selectedClinicalEvent') }}</span> <span class="concept-name">{{ selectedItem.label }}</span> <span class="concept-code">{{ getSelectedConceptCode() }}</span></h3>
               @if (!showPatients) {
                 <button mat-flat-button color="primary"
                   (click)="loadPatientsForSelectedItem()"
                   [disabled]="!selectedItem || isLoadingPatients"
                   >
                   <mat-icon>people</mat-icon>
-                  Load {{ selectedItem.value.toLocaleString() || 0 }} patients
+                  {{ t('plotlyTreemap.patients.loadPatients', { count: selectedItem.value.toLocaleString() || 0 }) }}
                 </button>
               }
             </div>
-            <p class="filter-description">Showing results for {{ getActiveFiltersDescription() }}</p>
+            <p class="filter-description">{{ t('plotlyTreemap.patients.showingResultsFor', { filters: getActiveFiltersDescription() }) }}</p>
           </div>
         }
 
         <!-- Population Pyramid Chart -->
         @if (showGenderChart && !isLoadingPatients && patients.length > 0) {
           <div class="gender-chart-container">
-            <h4>Clinical Event Distribution by Age and Gender ({{ patients.length.toLocaleString() }} patients)</h4>
+            <h4>{{ t('plotlyTreemap.patients.clinicalEventDistribution', { count: patients.length.toLocaleString() }) }}</h4>
             <div #genderChartContainer id="genderChartContainer"></div>
           </div>
         }
@@ -237,7 +236,7 @@
                         [matTooltip]="getPatientEventsTooltip(patient)"
                         [matTooltipPosition]="'right'"
                         [matTooltipClass]="'patient-events-tooltip'">
-                        ({{ getPatientEventCount(patient) }} events)
+                        {{ t('plotlyTreemap.patients.events', { count: getPatientEventCount(patient) }) }}
                       </span>
                     </h4>
                   </div>
@@ -251,9 +250,9 @@
                         mat-icon-button
                         class="open-record-button"
                         (click)="openPatientRecord(patient)"
-                        [matTooltip]="'Open clinical record in new window'"
+                        [matTooltip]="t('plotlyTreemap.patients.openClinicalRecord')"
                         [matTooltipPosition]="'left'"
-                        aria-label="Open clinical record"
+                        [attr.aria-label]="t('plotlyTreemap.patients.openClinicalRecordAria')"
                         >
                         <mat-icon>open_in_new</mat-icon>
                       </button>
@@ -267,28 +266,29 @@
 
         @if (!isLoadingPatients && showPatients && patients.length === 0) {
           <div class="no-patients">
-            <p>No patients found for this concept</p>
+            <p>{{ t('plotlyTreemap.patients.noPatients') }}</p>
           </div>
         }
 
         @if (!showPatients && !isLoadingPatients) {
           <div class="patients-placeholder">
-            <p>Select a clinical event and click "Load Patients" to see detailed patient information</p>
+            <p>{{ t('plotlyTreemap.patients.selectClinicalEvent') }}</p>
           </div>
         }
       </div>
 
       <div class="navigation-section">
-        <h3>Navigation</h3>
+        <h3>{{ t('plotlyTreemap.navigation.title') }}</h3>
         <div class="navigation-info">
-          <p>• Click on treemap boxes to drill down in the clinical event hierarchy and open details (maximum {{ maxLevels }} levels are visible)</p>
-          <p>• Only boxes with children can be drilled into</p>
-          <p>• Click on the current root box to navigate back to its parent</p>
-          <p>• Use "Back to Root" to return to the top level (SNOMED CT concept)</p>
-          <p>• Hover over boxes to see detailed information</p>
-          <p>• Box size represents the relative number of patients of each item</p>
+          <p>• {{ t('plotlyTreemap.navigation.drillDown', { maxLevels: maxLevels }) }}</p>
+          <p>• {{ t('plotlyTreemap.navigation.onlyChildren') }}</p>
+          <p>• {{ t('plotlyTreemap.navigation.drillUp') }}</p>
+          <p>• {{ t('plotlyTreemap.navigation.backToRoot') }}</p>
+          <p>• {{ t('plotlyTreemap.navigation.hoverInfo') }}</p>
+          <p>• {{ t('plotlyTreemap.navigation.boxSize') }}</p>
         </div>
       </div>
     </div>
   </div>
 </div>
+</ng-container>

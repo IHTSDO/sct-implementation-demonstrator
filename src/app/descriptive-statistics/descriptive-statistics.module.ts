@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { TranslocoModule } from '@jsverse/transloco';
 import { D3SunburstChartComponent } from './d3-sunburst-chart/d3-sunburst-chart.component';
 import { PlotlyTreemapChartComponent } from './plotly-treemap-chart/plotly-treemap-chart.component';
 import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.component';
@@ -12,7 +13,7 @@ const DECLARATIONS = [
 
 @NgModule({
   declarations: DECLARATIONS,
-  imports: [AppMaterialModule],
+  imports: [AppMaterialModule, TranslocoModule],
   exports: DECLARATIONS,
 })
 export class DescriptiveStatisticsModule {}

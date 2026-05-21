@@ -1,24 +1,25 @@
+<ng-container *transloco="let t; scope: 'descriptive-statistics'; prefix: 'descriptiveStatistics'">
 <div class="sunburst-container">
   <!-- Row 1: Header and Controls -->
   <div class="header-row">
     <div class="header-content">
-      <h3>Plotly Sunburst Chart - Level Limited ({{ maxLevels }} Levels)</h3>
+      <h3>{{ t('sunburstChart.title', { maxLevels: maxLevels }) }}</h3>
       <div class="chart-controls">
         @if (currentRootId !== '') {
           <button mat-button color="primary" (click)="goToRoot()" [disabled]="isLoading">
             <mat-icon>home</mat-icon>
-            Back to Root
+            {{ t('sunburstChart.backToRoot') }}
           </button>
         }
         @if (currentRootId !== '') {
           <div class="current-root">
-            <span>Current: {{ getCurrentRootLabel() }}</span>
+            <span>{{ t('sunburstChart.current') }} {{ getCurrentRootLabel() }}</span>
           </div>
         }
         @if (isLoading) {
           <div class="loading-indicator">
             <mat-spinner diameter="20"></mat-spinner>
-            <span>Loading...</span>
+            <span>{{ t('common.loading') }}</span>
           </div>
         }
       </div>
@@ -32,19 +33,19 @@
       @if (isLoading) {
         <div class="chart-overlay">
           <mat-spinner diameter="40"></mat-spinner>
-          <p>Updating chart...</p>
+          <p>{{ t('common.updatingChart') }}</p>
         </div>
       }
     </div>
 
     <div class="search-container">
-      <h3>Search Nodes</h3>
+      <h3>{{ t('sunburstChart.searchNodes.title') }}</h3>
       <div class="search-box">
         <div class="custom-search-input">
           <input type="text"
             [(ngModel)]="searchTerm"
             (input)="onSearchInput()"
-            placeholder="Search by node name..."
+            [placeholder]="t('sunburstChart.searchNodes.placeholder')"
             class="search-input">
           <mat-icon class="search-icon">search</mat-icon>
         </div>
@@ -52,7 +53,7 @@
 
       @if (searchResults.length > 0) {
         <div class="search-results">
-          <h4>Results ({{ searchResults.length }})</h4>
+          <h4>{{ t('common.search.results', { count: searchResults.length }) }}</h4>
           <div class="results-list">
             @for (result of searchResults; track result) {
               <div class="result-item"
@@ -71,13 +72,13 @@
 
       @if (searchTerm && searchResults.length === 0) {
         <div class="no-results">
-          <p>No nodes found matching "{{ searchTerm }}"</p>
+          <p>{{ t('common.search.noResults', { term: searchTerm }) }}</p>
         </div>
       }
 
       @if (!searchTerm) {
         <div class="search-info">
-          <p>Start typing to search through all nodes in the dataset</p>
+          <p>{{ t('sunburstChart.searchNodes.startTyping') }}</p>
         </div>
       }
     </div>
@@ -87,34 +88,35 @@
   <div class="details-row">
     <div class="details-content-wrapper">
       <div class="details-section">
-        <h3>Selected Item Details</h3>
+        <h3>{{ t('common.selectedItemDetails') }}</h3>
         @if (selectedItem) {
           <div class="details-content">
-            <p><strong>ID:</strong> {{ selectedItem.id }}</p>
-            <p><strong>Label:</strong> {{ selectedItem.label }}</p>
-            <p><strong>Value:</strong> {{ selectedItem.value }}</p>
+            <p><strong>{{ t('common.id') }}</strong> {{ selectedItem.id }}</p>
+            <p><strong>{{ t('common.label') }}</strong> {{ selectedItem.label }}</p>
+            <p><strong>{{ t('common.value') }}</strong> {{ selectedItem.value }}</p>
             @if (selectedItem.labelCount !== undefined) {
-              <p><strong>Label Count:</strong> {{ selectedItem.labelCount }}</p>
+              <p><strong>{{ t('common.labelCount') }}</strong> {{ selectedItem.labelCount }}</p>
             }
-            <p><strong>Parent:</strong> {{ selectedItem.parent || 'Root' }}</p>
+            <p><strong>{{ t('common.parent') }}</strong> {{ selectedItem.parent || t('common.root') }}</p>
           </div>
         }
         @if (!selectedItem) {
           <div class="no-selection">
-            <p>Click on any segment to see details</p>
+            <p>{{ t('common.clickToSeeDetails') }}</p>
           </div>
         }
       </div>
 
       <div class="navigation-section">
-        <h3>Navigation</h3>
+        <h3>{{ t('common.navigation.title') }}</h3>
         <div class="navigation-info">
-          <p>• Click on segments to drill down (max {{ maxLevels }} levels visible)</p>
-          <p>• Only segments with children can be drilled into</p>
-          <p>• Click on the center segment to drill up</p>
-          <p>• Use "Back to Root" to return to the top level</p>
+          <p>• {{ t('sunburstChart.navigation.drillDown', { maxLevels: maxLevels }) }}</p>
+          <p>• {{ t('common.navigation.onlyChildren') }}</p>
+          <p>• {{ t('sunburstChart.navigation.drillUp') }}</p>
+          <p>• {{ t('sunburstChart.navigation.backToRoot') }}</p>
         </div>
       </div>
     </div>
   </div>
 </div>
+</ng-container>

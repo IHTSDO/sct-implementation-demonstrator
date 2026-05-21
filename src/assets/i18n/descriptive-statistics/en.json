@@ -1,0 +1,101 @@
+{
+  "common": {
+    "id": "ID:",
+    "label": "Label:",
+    "value": "Value:",
+    "labelCount": "Label Count:",
+    "parent": "Parent:",
+    "root": "Root",
+    "loading": "Loading...",
+    "updatingChart": "Updating chart...",
+    "selectedItemDetails": "Selected Item Details",
+    "clickToSeeDetails": "Click on any segment to see details",
+    "navigation": {
+      "title": "Navigation",
+      "onlyChildren": "Only nodes with children can be drilled into"
+    },
+    "search": {
+      "results": "Results ({{count}})",
+      "noResults": "No nodes found matching \"{{term}}\""
+    }
+  },
+  "d3Sunburst": {
+    "title": "D3 Sunburst Chart - Lazy Loading (3 Levels)",
+    "resetToRoot": "Reset to Root",
+    "navigation": {
+      "drillDown": "Click on segments to drill down (max 3 levels visible)",
+      "breadcrumb": "Use breadcrumb navigation to go back"
+    }
+  },
+  "sunburstChart": {
+    "title": "Plotly Sunburst Chart - Level Limited ({{maxLevels}} Levels)",
+    "backToRoot": "Back to Root",
+    "current": "Current:",
+    "searchNodes": {
+      "title": "Search Nodes",
+      "placeholder": "Search by node name...",
+      "startTyping": "Start typing to search through all nodes in the dataset"
+    },
+    "navigation": {
+      "drillDown": "Click on segments to drill down (max {{maxLevels}} levels visible)",
+      "drillUp": "Click on the center segment to drill up",
+      "backToRoot": "Use \"Back to Root\" to return to the top level"
+    }
+  },
+  "plotlyTreemap": {
+    "title": "Descriptive Population Analysis",
+    "backToEhrLab": "Back to EHR Lab",
+    "loadingPatientData": "Loading patient data...",
+    "processingPatientData": "Processing patient data...",
+    "stats": {
+      "totalPopulation": "Total Population",
+      "allPatientsInRepository": "All patients in repository",
+      "patientsSelected": "Patients Selected",
+      "afterApplyingFilters": "After applying filters"
+    },
+    "filters": {
+      "gender": "Gender",
+      "all": "All",
+      "female": "Female",
+      "male": "Male",
+      "ageRange": "Age Range: {{min}} - {{max}} years"
+    },
+    "chart": {
+      "title": "Patient counts by clinical event"
+    },
+    "search": {
+      "placeholder": "Search clinical events (e.g., 'resp fin')",
+      "startTyping": "Start typing to search through all the SNOMED CT concepts that identify the clinical events in the dataset",
+      "useMultiplePrefixes": "Use multiple prefixes separated by spaces (e.g., \"resp fin\" will find items containing words starting with both \"resp\" and \"fin\")"
+    },
+    "patients": {
+      "selectedClinicalEvent": "Selected clinical event:",
+      "loadPatients": "Load {{count}} patients",
+      "showingResultsFor": "Showing results for {{filters}}",
+      "clinicalEventDistribution": "Clinical Event Distribution by Age and Gender ({{count}} patients)",
+      "events": "({{count}} events)",
+      "openClinicalRecord": "Open clinical record in new window",
+      "openClinicalRecordAria": "Open clinical record",
+      "noPatients": "No patients found for this concept",
+      "selectClinicalEvent": "Select a clinical event and click \"Load Patients\" to see detailed patient information"
+    },
+    "navigation": {
+      "title": "Navigation",
+      "drillDown": "Click on treemap boxes to drill down in the clinical event hierarchy and open details (maximum {{maxLevels}} levels are visible)",
+      "onlyChildren": "Only boxes with children can be drilled into",
+      "drillUp": "Click on the current root box to navigate back to its parent",
+      "backToRoot": "Use \"Back to Root\" to return to the top level (SNOMED CT concept)",
+      "hoverInfo": "Hover over boxes to see detailed information",
+      "boxSize": "Box size represents the relative number of patients of each item"
+    },
+    "filtersDescription": {
+      "allGenders": "all genders",
+      "malePatients": "male patients",
+      "femalePatients": "female patients",
+      "allAges": "all ages",
+      "agesUpTo": "ages up to {{max}} years",
+      "agesAndAbove": "ages {{min}} years and above",
+      "agesBetween": "ages {{min}}-{{max}} years"
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "common": {
+    "id": "ID:",
+    "label": "Etiqueta:",
+    "value": "Valor:",
+    "labelCount": "Cantidad de etiquetas:",
+    "parent": "Padre:",
+    "root": "Raíz",
+    "loading": "Cargando...",
+    "updatingChart": "Actualizando gráfico...",
+    "selectedItemDetails": "Detalles del elemento seleccionado",
+    "clickToSeeDetails": "Haga clic en cualquier segmento para ver los detalles",
+    "navigation": {
+      "title": "Navegación",
+      "onlyChildren": "Solo los nodos con hijos se pueden expandir"
+    },
+    "search": {
+      "results": "Resultados ({{count}})",
+      "noResults": "No se encontraron nodos que coincidan con \"{{term}}\""
+    }
+  },
+  "d3Sunburst": {
+    "title": "Gráfico Sunburst D3 - Carga Diferida (3 Niveles)",
+    "resetToRoot": "Volver al inicio",
+    "navigation": {
+      "drillDown": "Haga clic en los segmentos para expandir (máximo 3 niveles visibles)",
+      "breadcrumb": "Use la navegación de migas de pan para retroceder"
+    }
+  },
+  "sunburstChart": {
+    "title": "Gráfico Sunburst Plotly - Nivel Limitado ({{maxLevels}} Niveles)",
+    "backToRoot": "Volver al inicio",
+    "current": "Actual:",
+    "searchNodes": {
+      "title": "Buscar nodos",
+      "placeholder": "Buscar por nombre de nodo...",
+      "startTyping": "Comience a escribir para buscar en todos los nodos del conjunto de datos"
+    },
+    "navigation": {
+      "drillDown": "Haga clic en los segmentos para expandir (máximo {{maxLevels}} niveles visibles)",
+      "drillUp": "Haga clic en el segmento central para subir un nivel",
+      "backToRoot": "Use \"Volver al inicio\" para regresar al nivel superior"
+    }
+  },
+  "plotlyTreemap": {
+    "title": "Análisis Descriptivo de Población",
+    "backToEhrLab": "Volver al Laboratorio EHR",
+    "loadingPatientData": "Cargando datos de pacientes...",
+    "processingPatientData": "Procesando datos de pacientes...",
+    "stats": {
+      "totalPopulation": "Población Total",
+      "allPatientsInRepository": "Todos los pacientes en el repositorio",
+      "patientsSelected": "Pacientes Seleccionados",
+      "afterApplyingFilters": "Después de aplicar filtros"
+    },
+    "filters": {
+      "gender": "Género",
+      "all": "Todos",
+      "female": "Femenino",
+      "male": "Masculino",
+      "ageRange": "Rango de edad: {{min}} - {{max}} años"
+    },
+    "chart": {
+      "title": "Conteo de pacientes por evento clínico"
+    },
+    "search": {
+      "placeholder": "Buscar eventos clínicos (p. ej., 'resp fin')",
+      "startTyping": "Comience a escribir para buscar entre todos los conceptos SNOMED CT que identifican los eventos clínicos del conjunto de datos",
+      "useMultiplePrefixes": "Use múltiples prefijos separados por espacios (p. ej., \"resp fin\" encontrará elementos que contengan palabras que comiencen con \"resp\" y \"fin\")"
+    },
+    "patients": {
+      "selectedClinicalEvent": "Evento clínico seleccionado:",
+      "loadPatients": "Cargar {{count}} pacientes",
+      "showingResultsFor": "Mostrando resultados para {{filters}}",
+      "clinicalEventDistribution": "Distribución de eventos clínicos por edad y género ({{count}} pacientes)",
+      "events": "({{count}} eventos)",
+      "openClinicalRecord": "Abrir expediente clínico en nueva ventana",
+      "openClinicalRecordAria": "Abrir expediente clínico",
+      "noPatients": "No se encontraron pacientes para este concepto",
+      "selectClinicalEvent": "Seleccione un evento clínico y haga clic en \"Cargar pacientes\" para ver la información detallada"
+    },
+    "navigation": {
+      "title": "Navegación",
+      "drillDown": "Haga clic en los cuadros del mapa de árbol para expandir la jerarquía de eventos clínicos (máximo {{maxLevels}} niveles visibles)",
+      "onlyChildren": "Solo los cuadros con hijos se pueden expandir",
+      "drillUp": "Haga clic en el cuadro raíz actual para volver al nivel anterior",
+      "backToRoot": "Use \"Volver al inicio\" para regresar al nivel superior (concepto SNOMED CT)",
+      "hoverInfo": "Coloque el cursor sobre los cuadros para ver información detallada",
+      "boxSize": "El tamaño del cuadro representa el número relativo de pacientes de cada elemento"
+    },
+    "filtersDescription": {
+      "allGenders": "todos los géneros",
+      "malePatients": "pacientes masculinos",
+      "femalePatients": "pacientes femeninos",
+      "allAges": "todas las edades",
+      "agesUpTo": "edades hasta {{max}} años",
+      "agesAndAbove": "edades de {{min}} años en adelante",
+      "agesBetween": "edades de {{min}} a {{max}} años"
+    }
+  }
+}

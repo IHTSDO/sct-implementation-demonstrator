@@ -1,6 +1,7 @@
-import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef, Input } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, OnDestroy, AfterViewInit, ChangeDetectorRef, Input, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
+import { TranslocoService } from '@jsverse/transloco';
 import Plotly from 'plotly.js-dist';
 import Papa from 'papaparse';
 import { PatientDataTransformerService, TransformedPatientResponse, HierarchyDataItem } from '../../services/patient-data-transformer.service';
@@ -94,8 +95,10 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   private genderChart: any = null;
   private resizeListener: (() => void) | null = null;
 
+  private translocoService = inject(TranslocoService);
+
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private patientDataTransformer: PatientDataTransformerService,
     private patientService: PatientService,
@@ -772,7 +775,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
 
   public getPatients(conceptId: string): void {
     this.isLoadingPatients = true;
-    this.loadingMessage = 'Loading patient data...';
+    this.loadingMessage = this.translocoService.translate('descriptiveStatistics.plotlyTreemap.loadingPatientData');
     this.showPatients = false;
     this.showGenderChart = false;
     this.patients = [];
@@ -817,7 +820,7 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   private processPatientData(patients: Patient[], descendantConceptIds: string[]): void {
     // Process patient filtering asynchronously to prevent UI freezing
     setTimeout(() => {
-      this.loadingMessage = 'Processing patient data...';
+      this.loadingMessage = this.translocoService.translate('descriptiveStatistics.plotlyTreemap.processingPatientData');
       
       // First apply demographic filters
       const filteredPatients = this.applyFilters(patients);
@@ -1308,28 +1311,28 @@ export class PlotlyTreemapChartComponent implements OnInit, OnDestroy, AfterView
   }
 
   public getActiveFiltersDescription(): string {
+    const t = (key: string, params?: object) =>
+      this.translocoService.translate('descriptiveStatistics.plotlyTreemap.filtersDescription.' + key, params);
     const parts: string[] = [];
-    
-    // Gender filter description
+
     if (this.selectedGender === 'ALL') {
-      parts.push('all genders');
+      parts.push(t('allGenders'));
     } else if (this.selectedGender === 'MALE') {
-      parts.push('male patients');
+      parts.push(t('malePatients'));
     } else if (this.selectedGender === 'FEMALE') {
-      parts.push('female patients');
+      parts.push(t('femalePatients'));
     }
-    
-    // Age range filter description
+
     if (this.minAge === 0 && this.maxAge === 100) {
-      parts.push('all ages');
+      parts.push(t('allAges'));
     } else if (this.minAge === 0) {
-      parts.push(`ages up to ${this.maxAge} years`);
+      parts.push(t('agesUpTo', { max: this.maxAge }));
     } else if (this.maxAge === 100) {
-      parts.push(`ages ${this.minAge} years and above`);
+      parts.push(t('agesAndAbove', { min: this.minAge }));
     } else {
-      parts.push(`ages ${this.minAge}-${this.maxAge} years`);
+      parts.push(t('agesBetween', { min: this.minAge, max: this.maxAge }));
     }
-    
+
     return parts.join(', ');
   }
 
