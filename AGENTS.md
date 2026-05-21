@@ -101,6 +101,59 @@
 - If a new terminology capability is needed, prefer extending `TerminologyService` rather than calling FHIR terminology endpoints ad hoc from components.
 - Keep components focused on UI and orchestration; terminology querying, lookup, expansion, validation, and language/context handling should live in services.
 
+## Internationalisation (i18n)
+
+- The project uses **@jsverse/transloco** (v8) for runtime language switching.
+- Supported languages are configured in `AppModule` via `provideTransloco()`: currently `en` and `es`.
+- The selected language is persisted to `localStorage` under the key `ui-lang` and restored in `AppComponent.ngOnInit()`.
+- Run `npm run i18n:extract` to auto-generate or update JSON source files from template keys.
+
+### Translation files
+
+- Global (app-level) strings live in `src/assets/i18n/{lang}.json`.
+- Feature scopes live in `src/assets/i18n/{scope-name}/{lang}.json`, e.g. `src/assets/i18n/benefits-demo/en.json`.
+- Scope file keys use a flat namespace per component, e.g. `createPatient.title`, `clinicalRecord.actions.close`.
+- Both `en.json` and `es.json` must exist for every scope; Transloco will 404 without the active-language file.
+
+### Adding i18n to a new feature module
+
+1. Import `TranslocoModule` in the feature module.
+2. Decide on a scope name, e.g. `my-feature`. Create `src/assets/i18n/my-feature/en.json` and `es.json`.
+3. Choose the loading strategy based on whether the module contains `@ViewChild` references used in chart / D3 initialisation:
+
+   **A — Template-only components (no chart ViewChild)**
+   Add `{ provide: TRANSLOCO_SCOPE, useValue: 'my-feature' }` to the module providers.
+   Wrap the template content with `*transloco="let t; prefix: 'myFeature'"`.
+   Use `t('key')` for all string bindings.
+   Do **not** add a scope prefix to the directive when a module-level `TRANSLOCO_SCOPE` is already provided.
+
+   **B — Components that initialise charts or use `@ViewChild({ static: true })`**
+   Do **not** use `*transloco` as an outer structural wrapper — it delays the embedded view creation and leaves `ViewChild` elements undefined when the chart init code runs.
+   Instead: inject `TranslocoService`, add a `t(key, params?)` method that calls `translocoService.translate('myFeature.' + key, params ?? {})`, and load the scope in `ngOnInit()` with the `langChanges$` pipeline shown in the descriptive-statistics components.
+   Use a `translationsReady` flag to return `''` from `t()` until the scope file has loaded, preventing spurious "Missing translation for" console warnings.
+
+4. TypeScript strings (snackbars, error messages, dynamic labels) must use the full prefixed key path: `translocoService.translate('myFeature.key', params)` — passing the scope name as the third `lang` argument does **not** work and silently returns missing translations.
+
+### Transloco v8 structural-directive rules
+
+- `scope:` on `*transloco` triggers file loading but does **not** prefix `t()` key lookups.
+- `prefix:` on `*transloco` sets the key-lookup prefix but does **not** load any file.
+- To use the structural directive without a module-level `TRANSLOCO_SCOPE`, specify both: `*transloco="let t; scope: 'my-feature'; prefix: 'myFeature'"`.
+- Inside the directive, keys must be **relative** (no scope prefix): `t('section.key')`, not `t('myFeature.section.key')`.
+- If a module already provides `TRANSLOCO_SCOPE`, the directive only needs `prefix:`.
+
+### Scope naming
+
+- Scope file folder: `kebab-case`, e.g. `benefits-demo`, `descriptive-statistics`.
+- Transloco auto-derives the camelCase alias used as the translation store key: `benefitsDemo`, `descriptiveStatistics`.
+- Use the camelCase alias as the prefix in `t()` calls and in programmatic `translate()` key paths.
+
+### Avoiding TRANSLOCO_SCOPE token conflicts
+
+- When module A is imported by module B, and both provide `TRANSLOCO_SCOPE`, the last provider in the shared injector wins — silently breaking the other.
+- Do **not** add `TRANSLOCO_SCOPE` to shared feature modules that are imported by other feature modules.
+- Use the directive's `scope:` input or the component `t()` method pattern instead.
+
 ## Terminology Server Rate Limiting
 
 - Minimize HTTP requests to terminology servers; they have rate limits and cold-start latency.
