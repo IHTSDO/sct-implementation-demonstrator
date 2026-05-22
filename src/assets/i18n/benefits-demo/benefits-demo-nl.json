@@ -1,0 +1,1277 @@
+{
+  "main": {
+    "header": {
+      "title": "SNOMED EHR Lab",
+      "subtitle": "Een hands-on demosuite die laat zien hoe klinische workflows ontworpen kunnen worden die schone, verbonden en verwerkbare gegevens opleveren, gereed voor veiligheidscontroles, analyse en uitwisseling. Aangedreven door FHIR en SNOMED CT, maar gericht op informatiekwaliteit van begin tot eind.",
+      "phiWarning": "Voer geen beschermde gezondheidsinformatie (PHI) of echte patiëntidentificerende gegevens in dit demosysteem in."
+    },
+    "dataMenu": {
+      "label": "Gegevens",
+      "useLocalStorage": "Lokale opslag gebruiken",
+      "useFhirServer": "FHIR-server gebruiken",
+      "fhirServerSettings": "FHIR-serverinstellingen",
+      "connectedServer": "Verbonden server",
+      "cdsHooksServers": "CDS Hooks-servers",
+      "smartHealthLinks": "Smart Health Links",
+      "downloadPatientData": "Patiëntgegevens downloaden",
+      "uploadPatientData": "Patiëntgegevens uploaden",
+      "clearAllData": "Alle patiëntgegevens wissen"
+    },
+    "patientList": {
+      "title": "Patiënten",
+      "fhirMode": "FHIR-modus",
+      "localStorageMode": "Lokale opslagmodus",
+      "refreshAriaLabel": "Patiënten vernieuwen vanuit FHIR-server",
+      "refreshTooltip": "Patiënten vernieuwen vanuit FHIR-server",
+      "loading": "Laden..."
+    },
+    "actions": {
+      "analytics": "Analyse",
+      "interoperability": "Interoperabiliteit",
+      "createPatient": "Patiënt aanmaken"
+    },
+    "createMenu": {
+      "manualEntry": "Handmatige invoer",
+      "generateRandom": "Willekeurig genereren",
+      "creatingPatient": "Patiënt aanmaken...",
+      "generateWithDiagnoses": "Genereren met diagnoses",
+      "creatingWithDiagnoses": "Aanmaken met diagnoses...",
+      "generateMultiple": "Meerdere patiënten genereren"
+    },
+    "search": {
+      "label": "Patiënten zoeken",
+      "placeholder": "Zoeken op voor- of achternaam",
+      "clearAriaLabel": "Zoekopdracht wissen"
+    },
+    "patientCard": {
+      "deceased": "Overleden",
+      "idPrefix": "ID"
+    },
+    "noResults": {
+      "title": "Geen patiënten gevonden",
+      "message": "Geen patiënten komen overeen met uw zoekcriteria.",
+      "clearSearch": "Zoekopdracht wissen"
+    },
+    "noPatients": {
+      "title": "Nog geen patiënten",
+      "message": "Ga aan de slag door patiëntendossiers aan te maken voor uw EPD-systeem.",
+      "creating": "Aanmaken...",
+      "createSingle": "Één patiënt aanmaken",
+      "generateMultiple": "Meerdere patiënten genereren",
+      "hint": "Of upload bestaande patiëntgegevens via het gegevensmenu hierboven"
+    },
+    "pagination": {
+      "previous": "Vorige",
+      "next": "Volgende"
+    },
+    "selectedPatient": {
+      "title": "Geselecteerde patiënt",
+      "removeBookmark": "Bladwijzer verwijderen",
+      "bookmarkPatient": "Patiënt bookmarken",
+      "openClinicalRecord": "Klinisch dossier openen",
+      "agePrefix": "Leeftijd",
+      "contactInformation": "Contactgegevens",
+      "address": "Adres",
+      "demographics": "Demografische gegevens",
+      "birthDate": "Geboortedatum",
+      "loading": "Laden...",
+      "deleting": "Verwijderen...",
+      "deletePatient": "Patiënt verwijderen",
+      "noSelection": "Selecteer een patiënt uit de lijst om de details te bekijken."
+    },
+    "analytics": {
+      "title": "Analyse van klinische gegevens",
+      "titleIcd10": "ICD-10-analyse",
+      "backToPatients": "Terug naar patiënten"
+    }
+  },
+  "createPatient": {
+    "title": "Nieuwe patiënt aanmaken",
+    "subtitle": "Voer patiëntgegevens in om een nieuw patiëntendossier aan te maken",
+    "sections": {
+      "personalInformation": "Persoonlijke gegevens",
+      "contactInformation": "Contactgegevens",
+      "addressInformation": "Adresgegevens"
+    },
+    "fields": {
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "dateOfBirth": "Geboortedatum",
+      "gender": "Geslacht",
+      "phoneNumber": "Telefoonnummer",
+      "emailAddress": "E-mailadres",
+      "streetAddress": "Straatnaam en huisnummer",
+      "city": "Stad",
+      "state": "Provincie",
+      "postalCode": "Postcode",
+      "country": "Land"
+    },
+    "placeholders": {
+      "firstName": "Voornaam invoeren",
+      "lastName": "Achternaam invoeren",
+      "streetAddress": "Voorbeeldstraat 1",
+      "city": "Amsterdam",
+      "state": "NH",
+      "postalCode": "1234 AB",
+      "country": "NL"
+    },
+    "genderOptions": {
+      "male": "Man",
+      "female": "Vrouw",
+      "other": "Anders",
+      "unknown": "Onbekend"
+    },
+    "errors": {
+      "firstNameRequired": "Voornaam is verplicht",
+      "firstNameMinlength": "Voornaam moet minimaal 2 tekens bevatten",
+      "lastNameRequired": "Achternaam is verplicht",
+      "lastNameMinlength": "Achternaam moet minimaal 2 tekens bevatten",
+      "birthDateRequired": "Geboortedatum is verplicht",
+      "genderRequired": "Geslacht is verplicht",
+      "phoneInvalid": "Voer een geldig telefoonnummer in",
+      "emailInvalid": "Voer een geldig e-mailadres in",
+      "fieldRequired": "Dit veld is verplicht",
+      "minlength": "Minimale lengte is {{requiredLength}} tekens"
+    },
+    "actions": {
+      "cancel": "Annuleren",
+      "createPatient": "Patiënt aanmaken",
+      "creating": "Aanmaken..."
+    }
+  },
+  "clinicalRecord": {
+    "actions": {
+      "backToPatientList": "Terug naar patiëntenlijst",
+      "returnToPatientList": "Terug naar patiëntenlijst",
+      "view": "Bekijken",
+      "addCondition": "Aandoening toevoegen",
+      "addAllergy": "Allergie toevoegen",
+      "addProcedure": "Verrichting toevoegen",
+      "addMedication": "Medicatie toevoegen",
+      "addImmunization": "Vaccinatie toevoegen",
+      "close": "Sluiten"
+    },
+    "labels": {
+      "id": "ID",
+      "dob": "Geboortedatum",
+      "age": "Leeftijd",
+      "workspaceTitle": "EHR Lab",
+      "cdsAlert": "CDS-melding",
+      "cdsAlertPlural": "en",
+      "criticality": "Ernst",
+      "reaction": "Reactie",
+      "reactions": "Reacties",
+      "systemic": "Systemisch",
+      "icd10": "ICD-10",
+      "loinc": "LOINC",
+      "determination": "bepaling",
+      "determinationPlural": "en",
+      "specimens": "Monsters"
+    },
+    "status": {
+      "active": "Actief",
+      "inactive": "Inactief"
+    },
+    "nav": {
+      "clinical": "Klinisch",
+      "summary": "Samenvatting",
+      "problemsList": "Probleemlijst",
+      "clinicalOrders": "Klinische opdrachten",
+      "encounters": "Contacten",
+      "aiAssistedDataEntry": "AI-ondersteunde gegevensinvoer",
+      "clinicalForms": "Klinische formulieren",
+      "alerts": "Meldingen",
+      "dental": "Tandheelkunde",
+      "odontogram": "Odontogram",
+      "nursing": "Verpleging",
+      "vitalSigns": "Vitale functies",
+      "nutritionalCareplan": "Voedingszorgplan",
+      "dataSectionLabel": "Gegevens",
+      "data": "Gegevens",
+      "fhirRepository": "FHIR-repository"
+    },
+    "tooltips": {
+      "expandSidebar": "Zijbalk uitvouwen",
+      "collapseSidebar": "Zijbalk samenvouwen",
+      "dentalOdontogram": "Tandheelkunde: odontogram",
+      "nursingVitalSigns": "Verpleging: vitale functies",
+      "nursingNutritionalCareplan": "Verpleging: voedingszorgplan",
+      "dataFhirRepository": "Gegevens: FHIR-repository",
+      "mappedTo": "Gekoppeld aan",
+      "deleteCondition": "Aandoening verwijderen",
+      "deleteAllergy": "Allergie verwijderen",
+      "deleteProcedure": "Verrichting verwijderen",
+      "deleteMedication": "Medicatie verwijderen",
+      "deleteImmunization": "Vaccinatie verwijderen",
+      "deleteOrder": "Opdracht verwijderen"
+    },
+    "sections": {
+      "summary": "Samenvatting",
+      "conditions": "Aandoeningen",
+      "procedures": "Verrichtingen",
+      "medications": "Medicatie",
+      "immunizations": "Vaccinaties",
+      "allergicTo": "Allergisch voor:",
+      "allergies": "Allergieën",
+      "cds": "CDS",
+      "addProblem": "Probleem toevoegen",
+      "clinicalOrders": "Klinische opdrachten",
+      "savedOrders": "Opgeslagen opdrachten"
+    },
+    "messages": {
+      "loadingClinicalData": "Klinische gegevens laden van FHIR-server...",
+      "updatingEventMappings": "Gebeurteniskoppelingen bijwerken...",
+      "patientDeceased": "Patiënt gemarkeerd als overleden.",
+      "noConditions": "Geen aandoeningen geregistreerd",
+      "noProcedures": "Geen verrichtingen geregistreerd",
+      "noMedications": "Geen medicatie geregistreerd",
+      "noImmunizations": "Geen vaccinaties geregistreerd",
+      "noAllergies": "Geen allergieën geregistreerd",
+      "noOrders": "Geen opdrachten geregistreerd",
+      "noPatientSelected": "Geen patiënt geselecteerd",
+      "noPatientSelectedDescription": "Selecteer een patiënt uit de patiëntenlijst om het klinisch dossier te bekijken.",
+      "addProblemDescription": "Een probleem is elk gezondheidsgerelateerd issue, diagnose, verrichting of lopende behandeling dat gevolgd moet worden als onderdeel van de zorg voor een patiënt.",
+      "clinicalOrdersDescription": "Stel een laboratoriumopdracht met meerdere bepalingen op, bekijk deze in de rechterkolom en sla deze op als een bundel van ServiceRequest-resources.",
+      "failedToLoadClinicalData": "Klinische gegevens konden niet worden geladen van de FHIR-server.",
+      "failedToMapIcd10": "Koppeling aan ICD-10 mislukt. Fout: {{ error }}",
+      "unknownError": "Onbekende fout",
+      "duplicateCondition": "Deze aandoening bestaat al voor deze patiënt (dubbele SNOMED CT-code gedetecteerd).",
+      "duplicateProcedure": "Deze verrichting bestaat al voor deze patiënt (dubbele SNOMED CT-code gedetecteerd).",
+      "duplicateMedication": "Deze medicatie bestaat al voor deze patiënt (dubbele SNOMED CT-code gedetecteerd).",
+      "duplicateImmunization": "Deze vaccinatie bestaat al voor deze patiënt (zelfde vaccin en datum).",
+      "duplicateEncounter": "Dit contact bestaat al voor deze patiënt.",
+      "orderSaved": "Opdracht succesvol opgeslagen.",
+      "allergyUpdatedWithReactions": "Allergie bijgewerkt. Samenvatting en {{ count }} reactie(s) gekoppeld aan lichaamsdiagram.",
+      "allergyRecordUpdated": "Allergiedossier succesvol bijgewerkt",
+      "questionnaireSaved": "Vragenlijst \"{{ name }}\" succesvol opgeslagen",
+      "questionnaireDefaultName": "Respons",
+      "questionnaireItemsExtracted": "{{ count }} item(s) geëxtraheerd.",
+      "questionnaireSaveError": "Fout bij opslaan van vragenlijstrespons",
+      "noEventsToDelete": "Geen klinische gebeurtenissen om te verwijderen.",
+      "allEventsDeleted": "Alle klinische gebeurtenissen zijn succesvol verwijderd.",
+      "failedToDeleteAllEvents": "Niet alle klinische gebeurtenissen konden worden verwijderd.",
+      "fhirDataLoaded": "FHIR-gegevens geladen: {{ total }} {{ resourceLabel }} verdeeld over {{ groups }} {{ groupLabel }}."
+    },
+    "dialogs": {
+      "deleteAllEventsTitle": "Alle klinische gebeurtenissen verwijderen",
+      "deleteAllEventsMessage": "Dit zal {{ count }} klinische gebeurtenissen voor {{ patient }} permanent verwijderen.\n\nDit omvat aandoeningen, verrichtingen, medicatie, vaccinaties, allergieën, contacten, observaties, vragenlijsten en gerelateerde bundels.\n\nDeze actie kan niet ongedaan worden gemaakt.",
+      "deleteAllEventsConfirm": "Alle gebeurtenissen verwijderen",
+      "cancel": "Annuleren"
+    }
+  },
+  "encounterRecord": {
+    "sections": {
+      "currentEncounter": "Huidig contact",
+      "notes": "Notities",
+      "previousEncounters": "Eerdere contacten"
+    },
+    "fields": {
+      "dateTime": "Datum/tijd",
+      "reasonForEncounter": "Reden voor contact",
+      "diagnosis": "Diagnose",
+      "diagnosisNote": "Diagnosetoelichting",
+      "diagnosisNotePlaceholder": "Optionele toelichting",
+      "procedure": "Verrichting",
+      "laterality": "Lateraliteit",
+      "lateralityPlaceholder": "Selecteer lateraliteit",
+      "notes": "Notities",
+      "notesPlaceholder": "Algemene notities over dit contact..."
+    },
+    "actions": {
+      "add": "Toevoegen",
+      "saving": "Opslaan...",
+      "saveEncounter": "Contact opslaan",
+      "reset": "Opnieuw instellen"
+    },
+    "tooltips": {
+      "clickForMoreInfo": "Klik voor meer informatie",
+      "remove": "Verwijderen",
+      "deleteEncounter": "Contact verwijderen"
+    },
+    "labels": {
+      "reasons": "Reden(en):",
+      "diagnosis": "Diagnose:",
+      "procedures": "Verrichting(en):",
+      "notes": "Notities:"
+    },
+    "messages": {
+      "lateralityNotApplicable": "Lateraliteit niet van toepassing voor deze verrichting",
+      "noProcedures": "Geen verrichtingen geregistreerd",
+      "saveError": "Fout bij opslaan van contactdossier. Probeer het opnieuw.",
+      "deleteConfirm": "Weet u zeker dat u dit contact wilt verwijderen?",
+      "deleteSuccess": "Contact succesvol verwijderd"
+    },
+    "infoMenus": {
+      "reasonForEncounter": {
+        "title": "Reden voor contact",
+        "p1": "Het veld Reden voor contact gebruikt SNOMED CT Expression Constraint Language (ECL) om alle opties op te halen van een op FHIR gebaseerde SNOMED CT-terminologieserver.",
+        "p2Pre": "De opties voor Reden voor contact worden hier opgehaald met behulp van",
+        "p3": "Opties worden gefilterd op basis van de gebruikersinvoer en het veld is geïmplementeerd als een automatisch aanvullend component om het typen te beperken.",
+        "p4Pre": "Als de terminologieserver dit ondersteunt, kunnen geretourneerde resultaten worden beperkt via",
+        "p4Post": ". Dit kan voorkomen dat de server een foutmelding 'te kostbaar' geeft en verbetert de prestaties van de zoekopdracht en weergave."
+      },
+      "diagnosis": {
+        "title": "Diagnose",
+        "p1": "Het veld Diagnose gebruikt SNOMED CT Expression Constraint Language (ECL) om alle opties op te halen van een op FHIR gebaseerde SNOMED CT-terminologieserver.",
+        "p2Pre": "De diagnose-opties worden hier opgehaald met behulp van",
+        "p3": "Opties worden gefilterd op basis van de gebruikersinvoer en het veld is geïmplementeerd als een automatisch aanvullend component om het typen te beperken.",
+        "p4Pre": "Als de terminologieserver dit ondersteunt, kunnen geretourneerde resultaten worden beperkt via",
+        "p4Post": ". Dit kan voorkomen dat de server een foutmelding 'te kostbaar' geeft en verbetert de prestaties van de zoekopdracht en weergave."
+      },
+      "diagnosisNote": {
+        "title": "Diagnosetoelichting",
+        "p1": "Het veld Diagnosetoelichting stelt een gebruiker in staat om het SNOMED CT-concept in het veld Diagnose nader te specificeren. Met andere woorden, om indien nodig meer detail aan het SNOMED CT-concept toe te voegen.",
+        "p2": "Dit veld is een voorbeeld van hoe om te gaan met een SNOMED CT-concept dat mogelijk niet specifiek genoeg is. Deze aanpak stelt de gebruiker in staat het dichtstbijzijnde beschikbare SNOMED CT-concept te kiezen en vervolgens de noodzakelijke extra details te vermelden."
+      },
+      "procedure": {
+        "title": "Verrichting",
+        "p1": "Het veld Verrichting gebruikt SNOMED CT Expression Constraint Language (ECL) om alle opties op te halen van een op FHIR gebaseerde SNOMED CT-terminologieserver.",
+        "p2Pre": "De verrichtingsopties worden hier opgehaald met behulp van",
+        "p3": "Opties worden gefilterd op basis van de gebruikersinvoer en het veld is geïmplementeerd als een automatisch aanvullend component om het typen te beperken.",
+        "p4Pre": "Als de terminologieserver dit ondersteunt, kunnen geretourneerde resultaten worden beperkt via",
+        "p4Post": ". Dit kan voorkomen dat de server een foutmelding 'te kostbaar' geeft en verbetert de prestaties van de zoekopdracht en weergave.",
+        "p5Pre": "Dit veld is een voorbeeld van waar u de",
+        "p5Bold": "modellering",
+        "p5Post": " in een SNOMED CT-concept kunt gebruiken om andere velden voor te vullen of in te schakelen. Het veld Lateraliteit wordt vooraf ingevuld als u een concept selecteert waarvan de verrichtingslocatie is gemodelleerd met een lateraliteit (bijv. 735085002 | Excisie van linker borststuk |).",
+        "p6": "De lateraliteit wordt ook ingeschakeld voor gebruikersinvoer wanneer een concept een verrichtingslocatie heeft, maar geen lateraliteit is opgegeven (bijv. 392021009 | Lumpectomie van borst |). Dit zal verder worden verfijnd om activering te beperken tot verrichtingslocaties in de SNOMED CT-referentieset voor lateraliseerbare concepten."
+      },
+      "laterality": {
+        "title": "Lateraliteit",
+        "p1": "Het veld Lateraliteit gebruikt SNOMED CT Expression Constraint Language (ECL) om alle opties op te halen van een op FHIR gebaseerde SNOMED CT-terminologieserver.",
+        "p2Pre": "De lateraliteitsopties worden hier opgehaald met behulp van",
+        "p3Pre": "Dit veld is een voorbeeld van een veld dat wordt ingevuld op basis van de",
+        "p3Bold": "modellering",
+        "p3Post": " van een concept in een ander veld. Het veld Verrichting bepaalt de activering en beschikbare keuzes van dit veld Lateraliteit.",
+        "p4": "Het veld Lateraliteit wordt vooraf ingevuld als u een verrichtingsconcept selecteert waarvan de verrichtingslocatie is gemodelleerd met een lateraliteit (bijv. 735085002 | Excisie van linker borststuk |).",
+        "p5": "De lateraliteit wordt ook ingeschakeld voor gebruikersinvoer wanneer een verrichtingsconcept een verrichtingslocatie heeft, maar geen lateraliteit is opgegeven (bijv. 392021009 | Lumpectomie van borst |). Dit zal verder worden verfijnd om activering te beperken tot verrichtingslocaties in de SNOMED CT-referentieset voor lateraliseerbare concepten."
+      }
+    }
+  },
+  "interoperability": {
+    "sections": {
+      "pageTitle": "IPS-afstemmingswizard",
+      "pageSubtitle": "Laad een IPS, identificeer de patiënt, beoordeel elke klinische sectie en importeer alleen de items die u wilt bewaren.",
+      "scannerTitle": "Smart Health Link scannen",
+      "scannerSubtitle": "Richt de camera op een SHL QR-code om de IPS-bundel te laden.",
+      "welcomeTitle": "Stap voor stap een inkomende IPS afstemmen",
+      "welcomeDescription": "Deze module begeleidt de clinicus door eerst patiëntidentificatie, vervolgens één afstemmingsstap per IPS-sectie met inhoud, en tot slot een samenvatting vóór het importeren.",
+      "reconciliationSteps": "Afstemmingsstappen",
+      "importSummary": "Importoverzicht"
+    },
+    "actions": {
+      "backToEhrLab": "Terug naar SNOMED EHR Lab",
+      "backToInteroperabilityHome": "Terug naar interoperabiliteitsstartpagina",
+      "uploadIpsFile": "IPS-bestand uploaden",
+      "scanShlQr": "SHL QR scannen",
+      "tryExampleIps": "Voorbeeld IPS proberen",
+      "tryExampleIpsBundle": "Voorbeeld IPS-bundel proberen",
+      "uploadYourOwnIpsFile": "Uw eigen IPS-bestand uploaden",
+      "stopScanner": "Scanner stoppen",
+      "retryWithExample": "Opnieuw proberen met voorbeeld-IPS",
+      "useThisPatient": "Deze patiënt gebruiken",
+      "dismiss": "Sluiten",
+      "createNewPatient": "Nieuwe patiënt aanmaken",
+      "back": "Terug",
+      "next": "Volgende",
+      "importSelectedItems": "Geselecteerde items importeren ({{ count }})",
+      "createPatientOnly": "Alleen patiënt aanmaken",
+      "openRecord": "Dossier openen",
+      "remove": "Verwijderen",
+      "add": "Toevoegen",
+      "addAnyway": "Toch toevoegen"
+    },
+    "labels": {
+      "workflowEyebrow": "Workflow",
+      "stepOf": "Stap {{ current }} van {{ total }}",
+      "ipsPatient": "IPS-patiënt",
+      "identifyOrCreatePatient": "Patiënt identificeren of aanmaken",
+      "name": "Naam",
+      "dateOfBirth": "Geboortedatum",
+      "gender": "Geslacht",
+      "suggestedMatch": "Voorgestelde automatische overeenkomst",
+      "match": "overeenkomst",
+      "selectExistingPatient": "Bestaande patiënt selecteren",
+      "noPatientSelected": "Geen patiënt geselecteerd",
+      "newPatientDraft": "Nieuw patiëntconcept",
+      "linkedTargetRecord": "Gekoppeld doeldossier",
+      "willBeCreated": "Wordt aangemaakt bij import",
+      "ready": "Gereed",
+      "ipsItems": "IPS-items",
+      "alreadyInRecord": "Al in dossier",
+      "selectedToImport": "Geselecteerd voor import",
+      "skipped": "Overgeslagen",
+      "fromIps": "Uit IPS",
+      "existingClinicalRecord": "Bestaand klinisch dossier",
+      "targetClinicalRecord": "Doelklinisch dossier",
+      "selectedCount": "{{ count }} geselecteerd",
+      "skippedCount": "{{ count }} overgeslagen",
+      "nothingToAdd": "Niets toe te voegen",
+      "ipsLogoAlt": "IPS-logo",
+      "snomedLogoAlt": "SNOMED CT-logo",
+      "codeSelected": "code geselecteerd",
+      "codesSelected": "codes geselecteerd"
+    },
+    "messages": {
+      "resolvingShl": "SHL oplossen en IPS downloaden...",
+      "loadingTitle": "IPS-bundel laden",
+      "loadingSubtitle": "De patiëntsamenvatting wordt verwerkt en de wizardstappen worden voorbereid.",
+      "errorTitle": "IPS kon niet worden geladen",
+      "noAutoMatch": "Geen automatische overeenkomst met bestaande patiënten. U kunt er handmatig een selecteren of een nieuwe patiënt aanmaken.",
+      "allAlreadyExist": "Alle IPS-{{ section }} lijken al aanwezig te zijn in het klinisch dossier.",
+      "noExistingItems": "Er zijn momenteel geen {{ section }} in het gekoppelde klinisch dossier.",
+      "noneSelectedForImport": "Geen {{ section }} geselecteerd voor import.",
+      "importingTitle": "Geselecteerde IPS-items importeren",
+      "importingSubtitle": "De geselecteerde concepten worden opgeslagen in het klinisch dossier en het patiëntdossier wordt geopend."
+    },
+    "wizardSteps": {
+      "patient": {
+        "title": "Patiënt identificeren",
+        "description": "Koppel de IPS-patiënt aan een bestaand dossier of maak een nieuwe patiënt aan."
+      },
+      "conditions": {
+        "title": "Aandoeningen samenvoegen",
+        "description": "Vergelijk IPS-aandoeningen met het huidige klinisch dossier."
+      },
+      "procedures": {
+        "title": "Verrichtingen samenvoegen",
+        "description": "Vergelijk IPS-verrichtingen met het huidige klinisch dossier."
+      },
+      "medications": {
+        "title": "Medicatie samenvoegen",
+        "description": "Vergelijk IPS-medicatie met het huidige klinisch dossier."
+      },
+      "immunizations": {
+        "title": "Vaccinaties samenvoegen",
+        "description": "Vergelijk IPS-vaccinaties met het huidige klinisch dossier."
+      },
+      "allergies": {
+        "title": "Allergieën samenvoegen",
+        "description": "Vergelijk IPS-allergieën met het huidige klinisch dossier."
+      },
+      "summary": {
+        "title": "Samenvatting",
+        "description": "Bevestig de geselecteerde IPS-items voordat u ze importeert."
+      }
+    },
+    "sectionTitles": {
+      "conditions": "Aandoeningen",
+      "procedures": "Verrichtingen",
+      "medications": "Medicatie",
+      "immunizations": "Vaccinaties",
+      "allergies": "Allergieën"
+    },
+    "datLabels": {
+      "onset": "Aanvang",
+      "performed": "Uitgevoerd",
+      "effective": "Effectief",
+      "occurrence": "Optreden",
+      "recorded": "Geregistreerd"
+    },
+    "validation": {
+      "checkingHierarchyTitle": "SNOMED-hiërarchie controleren",
+      "preparingValidation": "Validatie van concepthiërarchie voorbereiden...",
+      "hierarchyReviewRequiredTitle": "Hiërarchiebeoordeling vereist",
+      "hierarchyCheckCompleteTitle": "Hiërarchiecontrole voltooid",
+      "hierarchyConflictMessage": "Het geselecteerde concept overlapt hiërarchisch met een of meer concepten die al in het dossier staan. Controleer de relaties voordat u beslist of u het wilt toevoegen.",
+      "hierarchyNoConflictMessage": "Er is geen hiërarchische overlap gevonden met de bestaande concepten in deze sectie.",
+      "hierarchyCheckFailed": "De hiërarchiecontrole kon niet worden voltooid. U kunt het concept nog steeds toevoegen als u wilt doorgaan.",
+      "relationExactMatch": "Exacte overeenkomst",
+      "relationBroader": "Geselecteerd concept is breder",
+      "relationNarrower": "Geselecteerd concept is smaller"
+    }
+  },
+  "conceptValidationDialog": {
+    "labels": {
+      "overlappingConcepts": "Concepten in patiëntdossier met overlappende betekenis"
+    },
+    "actions": {
+      "cancel": "Annuleren"
+    }
+  },
+  "formRecords": {
+    "sections": {
+      "title": "Formulierdossiers",
+      "subtitle": "Ingevulde vragenlijsten en klinische formulieren bekijken",
+      "questionsAndAnswers": "Vragen & antwoorden",
+      "responseData": "Responsgegevens ({{ format }}-formaat)"
+    },
+    "status": {
+      "loading": "Formulierdossiers laden...",
+      "emptyTitle": "Geen formulierdossiers",
+      "emptyMessage": "Vul vragenlijsten en klinische formulieren in om ze hier te zien.",
+      "completed": "Voltooid"
+    },
+    "actions": {
+      "view": "Bekijken",
+      "export": "Exporteren",
+      "delete": "Verwijderen",
+      "viewJson": "{{ format }} JSON bekijken",
+      "viewReadable": "Leesbaar formaat bekijken",
+      "copyJson": "JSON kopiëren",
+      "exportJson": "JSON exporteren",
+      "close": "Sluiten"
+    },
+    "labels": {
+      "date": "Datum",
+      "status": "Status",
+      "type": "Type",
+      "id": "ID",
+      "resourceType": "Resourcetype",
+      "format": "Formaat",
+      "openehrComposition": "openEHR-compositie",
+      "vrdrBundle": "VRDR FHIR-documentbundel",
+      "fhirDeathCertBundle": "FHIR-overlijdensattestbundel",
+      "fhirQR": "FHIR QuestionnaireResponse",
+      "openehrFlat": "openEHR FLAT",
+      "containsSubItems": "bevat subitems"
+    },
+    "messages": {
+      "noAnswers": "Geen antwoorden gevonden in deze respons",
+      "errorLoading": "Fout bij laden van formulierdossiers",
+      "deleteSuccess": "Formulierdossier succesvol verwijderd",
+      "exportSuccess": "Formulierdossier succesvol geëxporteerd",
+      "errorExporting": "Fout bij exporteren van formulierdossier",
+      "copySuccess": "JSON succesvol naar klembord gekopieerd",
+      "errorCopying": "Fout bij kopiëren naar klembord",
+      "errorCopyingManual": "Fout bij kopiëren naar klembord. Kopieer handmatig."
+    }
+  },
+  "cdsPanel": {
+    "sections": {
+      "title": "Beslissingsondersteuning",
+      "description": "Dit paneel toont de meest recente gestandaardiseerde CDS Hooks-resultaten die zijn geretourneerd door de actieve CDS-servers voor de huidige klinische workflow."
+    },
+    "actions": {
+      "refresh": "Vernieuwen",
+      "viewSource": "Bron bekijken",
+      "close": "Sluiten"
+    },
+    "status": {
+      "requesting": "{{ hook }}-resultaten opvragen bij actieve CDS-servers...",
+      "noRequestAvailable": "Geen CDS-aanvraag beschikbaar",
+      "error": "Fout",
+      "recommendationCount": "{{ count }} aanbeveling(en) voor {{ hook }}",
+      "completedNoRecommendations": "{{ hook }} voltooid zonder aanbevelingen.",
+      "noSpecificRecommendations": "Geen specifieke aanbevelingen",
+      "noRecommendationsDetail": "Er zijn geen CDS-aanbevelingen geretourneerd voor {{ hook }} op de actieve servers."
+    },
+    "tooltips": {
+      "viewSource": "Bron bekijken"
+    },
+    "info": {
+      "intro": "Deze demo maakt gebruik van deze open-sourceresource:",
+      "serviceTitle": "SNOMED FHIR Klinische Beslissingsondersteuningsdienst",
+      "overview": "Deze demo laat de SNOMED FHIR CDS-dienst zien en is uitsluitend bedoeld voor demonstratiedoeleinden, niet voor daadwerkelijk klinisch gebruik. Gebouwd op FHIR-standaarden en SNOMED CT analyseert het medicatieopdrachten om contra-indicaties, geneesmiddeleninteracties, afwijkende doseringen en validatiefouten te detecteren.",
+      "keyComponentsTitle": "Belangrijkste componenten",
+      "rulesEngineLabel": "Regelmotor",
+      "rulesEngineText": "Laadt regels voor medicatie-aandoening en geneesmiddel-geneesmiddelinteracties.",
+      "fhirIntegrationLabel": "FHIR-integratie",
+      "fhirIntegrationText": "Accepteert MedicationRequest-, Condition-, AllergyIntolerance- en Patient-resources.",
+      "knowledgeBasesLabel": "Kennisbanken",
+      "interactionsLabel": "Interacties",
+      "interactionsText": "Een beperkte lijst met geneesmiddelinteractierisico's, samengesteld uit openbaar beschikbare bronnen voor de demo.",
+      "contraindicationsLabel": "Contra-indicaties",
+      "contraindicationsText": "Een beperkte lijst met medicatie-aandoening-contra-indicaties, samengesteld uit openbaar beschikbare bronnen voor de demo.",
+      "dddLabel": "DDD",
+      "dddText": "Gebruikt WHO ATC Defined Daily Doses om meldingen van overmatige dosering te schatten.",
+      "thresholdsLabel": "Drempelwaarden",
+      "thresholdsText": "Ondersteunt aanpasbare doseringsdrempelwaarden voor meldingen.",
+      "alertTypesTitle": "Typen meldingen",
+      "contraindicationAlertsLabel": "Contra-indicatiemeldingen",
+      "contraindicationAlertsText": "Markeert wanneer een medicatie onveilig is voor de bestaande medische aandoeningen van een patiënt. WAARSCHUWING duidt op een kritieke contra-indicatie, terwijl INFO voorzichtigheid aanbeveelt.",
+      "allergyAlertsLabel": "Medicatieallergiemelding",
+      "allergyAlertsText": "Markeert wanneer een medicatie conflicteert met geregistreerde allergie-informatie.",
+      "highDosageAlertsLabel": "Hoge-doseringsmeldingen",
+      "highDosageAlertsText": "Identificeert wanneer de voorgeschreven dagelijkse dosis de WHO Defined Daily Dose-referentie overschrijdt. INFO duidt op 2-4x DDD en WAARSCHUWING op 4x DDD of hoger.",
+      "formulaLabel": "Formule",
+      "formulaText": "Voorgeschreven dagelijkse dosis / DDD-referentie = meldingsdrempel",
+      "configurationLabel": "Configuratie",
+      "configurationText": "Acceptabele drempel 2x DDD, maximale drempel 4x DDD.",
+      "drugInteractionAlertsLabel": "Geneesmiddel-geneesmiddelinteractiemeldingen",
+      "drugInteractionAlertsText": "Detecteert riskante medicatiecombinaties, met INFO-, WAARSCHUWINGS- en KRITIEKE ernstniveaus op basis van de interactiesterkte.",
+      "validationErrorAlertsLabel": "Validatiefoutmeldingen",
+      "validationErrorAlertsText": "Markeert onvolledige of ongeldige voorschriftgegevens, zoals ongeldige dosingeenheden, ontbrekende frequentie of onvolledige informatie.",
+      "severityTitle": "Meldingsernstindicatoren",
+      "severityInfo": "INFO",
+      "severityInfoText": "Informatief",
+      "severityWarning": "WAARSCHUWING",
+      "severityWarningText": "Belangrijk veiligheidsprobleem",
+      "severityCritical": "KRITIEK",
+      "severityCriticalText": "Ernstig veiligheidsprobleem"
+    }
+  },
+  "clinicalEntry": {
+    "fields": {
+      "indicationReason": "Selecteer de reden voor de indicatie",
+      "noneGeneral": "Geen - Algemene medicatie",
+      "conditionsGroup": "Aandoeningen",
+      "proceduresGroup": "Verrichtingen",
+      "conditionDate": "Datum aandoening",
+      "procedureDate": "Datum verrichting",
+      "immunizationDate": "Datum vaccinatie",
+      "medicationStartDate": "Startdatum medicatie",
+      "doseValue": "Dosiswaarde",
+      "doseUnit": "Doseringseenheid",
+      "every": "Elke",
+      "periodUnit": "Periode-eenheid",
+      "hours": "Uren",
+      "days": "Dagen",
+      "weeks": "Weken",
+      "immunizationStatus": "Vaccinatiestatus",
+      "statusCompleted": "Voltooid",
+      "statusNotDone": "Niet gedaan",
+      "statusEnteredInError": "Per vergissing ingevoerd"
+    },
+    "actions": {
+      "saving": "Opslaan...",
+      "cancel": "Annuleren"
+    },
+    "tooltips": {
+      "infoButton": "Klik voor meer informatie over dit veld"
+    },
+    "info": {
+      "terminologyBindingTitle": "Terminologiekoppeling",
+      "terminologyBindingDesc": "Dit veld gebruikt SNOMED CT Expression Constraint Language (ECL) om opties op te halen van een op FHIR gebaseerde SNOMED CT-terminologieserver.",
+      "eclExpressionIntro": "De ECL-expressie die voor deze koppeling wordt gebruikt, is:",
+      "autocompleteDesc": "Opties worden gefilterd op basis van gebruikersinvoer en het veld is geïmplementeerd als een automatisch aanvullend component om het typen te beperken en de selectie-ervaring te verbeteren.",
+      "countDesc": "Als de terminologieserver dit ondersteunt, kunnen geretourneerde resultaten worden beperkt via count=X. Dit kan voorkomen dat de server een foutmelding 'te kostbaar' geeft en verbetert de prestaties van de zoekopdracht en weergave.",
+      "associationNote": "Opmerking: U kunt deze medicatie koppelen aan een bestaande aandoening of verrichting door de reden voor indicatie te selecteren in de vervolgkeuzelijst."
+    }
+  },
+  "fhirData": {
+    "sections": {
+      "fhirResources": "FHIR-resources"
+    },
+    "status": {
+      "deletingEvents": "Klinische gebeurtenissen verwijderen...",
+      "deletingEventsSubtitle": "Patiëntresources worden verwijderd uit het geheugen en de actieve FHIR-server.",
+      "noResources": "Geen resources",
+      "noFhirResources": "Geen FHIR-resources gevonden voor deze patiënt.",
+      "noPatientSelected": "Geen patiënt geselecteerd."
+    },
+    "actions": {
+      "exportingBundle": "Bundel exporteren...",
+      "exportAllBundle": "Alles exporteren als bundel",
+      "generatingLocalIps": "Lokale IPS genereren...",
+      "generateLocalIps": "Lokale IPS genereren",
+      "requestingIpsFromServer": "IPS opvragen bij server...",
+      "checkingIpsSupport": "IPS-ondersteuning controleren...",
+      "requestIpsToServer": "IPS-generatie aanvragen bij server",
+      "deleteAllEvents": "Alle gebeurtenissen verwijderen",
+      "openOnServer": "Openen op server",
+      "close": "Sluiten"
+    },
+    "labels": {
+      "fhirResource": "FHIR-resource",
+      "selectToInspect": "Selecteer een resource om de JSON te inspecteren"
+    },
+    "tooltips": {
+      "exportBundle": "Het volledige patiëntendossier downloaden als transactiebundel voor import in een andere FHIR-server",
+      "generateLocalIps": "Een lokaal IPS-document genereren op basis van de huidige klinische gegevens",
+      "summaryFhirOnly": "$summary is alleen beschikbaar in FHIR-modus",
+      "checkingCapabilities": "Mogelijkheden van FHIR-server controleren...",
+      "ipsNotSupported": "IPS-generatie wordt niet ondersteund door de server",
+      "requestIpsGeneration": "IPS-generatie aanvragen bij server via Patient/$summary",
+      "deleteAllEvents": "Alle klinische gebeurtenissen voor deze patiënt verwijderen",
+      "openOnServer": "Deze resource openen op de FHIR-server",
+      "downloadJson": "JSON downloaden",
+      "copyJson": "JSON kopiëren"
+    },
+    "messages": {
+      "jsonCopied": "FHIR JSON naar klembord gekopieerd",
+      "bundleExported": "Patiëntendossier geëxporteerd als transactiebundel.",
+      "localIpsGenerated": "IPS-document gegenereerd op basis van lokale klinische gegevens.",
+      "serverIpsLoaded": "Patiëntsamenvatting geladen van FHIR-server.",
+      "serverIpsNotSupported": "Deze FHIR-server ondersteunt Patient/$summary niet.",
+      "errorLoadingServerIps": "Patiëntsamenvatting kon niet worden geladen van de FHIR-server."
+    }
+  },
+  "clinicalForms": {
+    "sections": {
+      "title": "Klinische formulieren",
+      "customQuestionnaires": "Aangepaste vragenlijsten",
+      "uploadNewQuestionnaire": "Nieuwe vragenlijst uploaden",
+      "uploadedQuestionnaires": "Geüploade vragenlijsten"
+    },
+    "tabs": {
+      "dataEntry": "Gegevensinvoer",
+      "formRecords": "Formulierdossiers",
+      "manageQuestionnaires": "Vragenlijsten beheren"
+    },
+    "fields": {
+      "selectClinicalForm": "Klinisch formulier selecteren"
+    },
+    "labels": {
+      "builtInForms": "Ingebouwde formulieren",
+      "uploadedForms": "Geüploade formulieren",
+      "formSuffix": "Formulier",
+      "requirements": "Vereisten:",
+      "uploaded": "Geüpload",
+      "id": "ID",
+      "unknown": "Onbekend"
+    },
+    "actions": {
+      "chooseFile": "Bestand kiezen",
+      "deleteAll": "Alles verwijderen",
+      "useForm": "Formulier gebruiken",
+      "delete": "Verwijderen",
+      "close": "Sluiten",
+      "ok": "OK"
+    },
+    "status": {
+      "uploading": "Uploaden...",
+      "submittingIcsr": "ICSR-rapport indienen...",
+      "submittingWait": "Even geduld terwijl we uw rapport indienen bij de regelgevende instantie.",
+      "submittingMoment": "Dit kan enkele ogenblikken duren."
+    },
+    "messages": {
+      "noLocalFormsUploaded": "Nog geen lokale formulieren geüpload",
+      "formUnderDevelopment": "Dit formulier is momenteel in ontwikkeling.",
+      "comingSoon": "Binnenkort beschikbaar...",
+      "selectFormTitle": "Selecteer een klinisch formulier",
+      "selectFormHint": "Kies een formulier uit het vervolgkeuzemenu hierboven om klinische informatie te documenteren.",
+      "manageQuestionnairesDesc": "Aangepaste FHIR Questionnaire-resources uploaden en beheren",
+      "uploadDescription": "Upload een FHIR Questionnaire-resource in JSON-formaat. De vragenlijst is beschikbaar voor alle patiënten.",
+      "requirementFhir": "Geldige FHIR Questionnaire-resource (resourceType: \"Questionnaire\")",
+      "requirementJson": "JSON-formaat (.json-bestand)",
+      "requirementTitle": "Moet het veld title of name bevatten",
+      "noCustomQuestionnaires": "Nog geen aangepaste vragenlijsten geüpload",
+      "uploadToGetStarted": "Upload een FHIR Questionnaire JSON-bestand om aan de slag te gaan",
+      "selectJsonFile": "Selecteer een JSON-bestand",
+      "questionnaireUploadedSuccess": "Vragenlijst \"{{ name }}\" succesvol geüpload!",
+      "failedToUploadQuestionnaire": "Uploaden van vragenlijst mislukt",
+      "invalidJsonFile": "Ongeldig JSON-bestand",
+      "invalidJsonFileDetail": "Ongeldig JSON-bestand. Zorg ervoor dat het bestand geldige JSON bevat.",
+      "failedToReadFile": "Bestand kon niet worden gelezen",
+      "confirmDeleteQuestionnaire": "Weet u zeker dat u \"{{ name }}\" wilt verwijderen?",
+      "questionnaireDeletedSuccess": "Vragenlijst \"{{ name }}\" succesvol verwijderd",
+      "failedToDeleteQuestionnaire": "Verwijderen van vragenlijst mislukt",
+      "confirmDeleteAllQuestionnaires": "Weet u zeker dat u ALLE aangepaste vragenlijsten wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "allQuestionnairesDeletedSuccess": "Alle aangepaste vragenlijsten succesvol verwijderd",
+      "failedToDeleteQuestionnaires": "Verwijderen van vragenlijsten mislukt",
+      "icsrSubmittedSuccess": "ICSR-rapport {{ reportId }} succesvol ingediend bij {{ organization }}. Referentie-ID: {{ referenceId }}",
+      "demoNotice": "Dit is een demonstratie. Er zijn geen werkelijke gegevens ingediend bij een regelgevende instantie.",
+      "submissionFailed": "Indiening mislukt. Controleer uw verbinding en probeer het opnieuw.",
+      "questionnaireResponseSaved": "Vragenlijstrespons succesvol opgeslagen",
+      "openEhrCompositionSaved": "openEHR-compositie succesvol opgeslagen",
+      "warningNoDataToSave": "Waarschuwing: geen gegevens om op te slaan. Vul minimaal één veld in.",
+      "warningNoPatientSelected": "Waarschuwing: geen patiënt geselecteerd. Compositie niet opgeslagen.",
+      "allergyDocumented": "Allergie/intolerantie gedocumenteerd: {{ display }}",
+      "allergySavedWithReactions": "Allergie/intolerantie succesvol opgeslagen. {{ count }} reactie(s) toegevoegd aan probleemlijst.",
+      "allergySavedSuccess": "Allergie/intolerantie succesvol opgeslagen",
+      "allergyAlreadyExists": "Deze allergie bestaat al voor deze patiënt",
+      "failedToLoadQuestionnaire": "Laden van vragenlijst mislukt: {{ file }}",
+      "templateFileNotFound": "Sjabloonbestand niet gevonden voor: {{ formId }}",
+      "failedToLoadOpenEhrTemplate": "Laden van openEHR-sjabloon mislukt: {{ file }}. Fout: {{ error }}"
+    }
+  },
+  "adverseReactionForm": {
+    "sections": {
+      "title": "Individueel casuseiligheidsrapport (ICSR)",
+      "subtitle": "Meldingsformulier voor bijwerkingen - EU ADR / ICSR",
+      "caseIdentification": "Casusidentificatie en administratieve informatie",
+      "senderInformation": "Informatie over de afzender",
+      "patientInformation": "Patiëntgegevens",
+      "adverseReactionDetails": "Details van de bijwerking",
+      "selectAdverseReaction": "Bijwerking selecteren uit patiëntaandoeningen",
+      "meddraMappings": "MedDRA-koppelingen",
+      "suspectedMedicinalProduct": "Verdacht geneesmiddel",
+      "selectSuspectedMedication": "Verdachte medicatie selecteren uit patiëntmedicatie",
+      "snomedConceptId": "SNOMED-concept-ID",
+      "concomitantProducts": "Gelijktijdig gebruikte producten",
+      "otherMedicationsConcurrently": "Andere gelijktijdig gebruikte medicatie",
+      "followUpInformation": "Follow-up en aanvullende informatie",
+      "seriousnessCriteria": "Criteria voor ernst"
+    },
+    "fields": {
+      "reportId": "Rapport-ID",
+      "reportIdHint": "Automatisch gegenereerde unieke identificator",
+      "dateOfReceipt": "Ontvangstdatum",
+      "typeOfReport": "Type rapport",
+      "reporterType": "Type melder",
+      "name": "Naam",
+      "country": "Land",
+      "address": "Adres",
+      "qualification": "Kwalificatie",
+      "patientInitials": "Initialen patiënt",
+      "age": "Leeftijd",
+      "gender": "Geslacht",
+      "dateOfBirth": "Geboortedatum",
+      "relevantMedicalHistory": "Relevante medische voorgeschiedenis",
+      "chooseFromConditions": "Kiezen uit bestaande aandoeningen",
+      "selectConditionPlaceholder": "Selecteer een aandoening",
+      "descriptionOfAdverseEvent": "Beschrijving van de bijwerking",
+      "descriptionPlaceholder": "Beschrijf de bijwerking in detail",
+      "dateOfOnset": "Datum van aanvang",
+      "duration": "Duur",
+      "durationPlaceholder": "bijv. 2 dagen, 1 week",
+      "dateOfRecovery": "Datum van herstel",
+      "outcome": "Uitkomst",
+      "chooseFromMedications": "Kiezen uit bestaande medicatie",
+      "selectMedicationPlaceholder": "Selecteer een medicatie",
+      "productName": "Productnaam",
+      "activeSubstance": "Werkzame stof",
+      "dose": "Dosis",
+      "dosePlaceholder": "bijv. 10 mg",
+      "frequency": "Frequentie",
+      "frequencyPlaceholder": "bijv. eenmaal daags",
+      "productDurationPlaceholder": "bijv. 5 dagen",
+      "routeOfAdministration": "Toedieningsweg",
+      "selectRoute": "Selecteer toedieningsweg",
+      "startDate": "Startdatum",
+      "stopDate": "Stopdatum",
+      "batchLotNumber": "Batch-/lotnummer",
+      "countryOfReaction": "Land van reactie",
+      "countryOfReporter": "Land van melder",
+      "therapeuticMeasuresTaken": "Genomen therapeutische maatregelen",
+      "therapeuticMeasuresPlaceholder": "Beschrijf eventuele behandelingen of interventies ter beheersing van de bijwerking",
+      "relevantLaboratoryData": "Relevante laboratoriumgegevens",
+      "laboratoryDataPlaceholder": "Vermeld relevante testresultaten, laboratoriumwaarden of beeldvormingsbevindingen",
+      "literatureReference": "Literatuurreferentie",
+      "literatureReferencePlaceholder": "Vermeld indien van toepassing een literatuurreferentie",
+      "caseNarrative": "Casusnarratief",
+      "caseNarrativePlaceholder": "Geef een uitgebreid narratief van de casus, inclusief tijdlijn, klinisch verloop en alle andere relevante details",
+      "caseNarrativeHint": "Dit narratief moet een volledig beeld van de casus bieden voor regulatoire beoordeling"
+    },
+    "labels": {
+      "patient": "Patiënt:",
+      "age": "Leeftijd",
+      "male": "Man",
+      "female": "Vrouw",
+      "other": "Anders",
+      "unknownCondition": "Onbekende aandoening",
+      "unknownMedication": "Onbekende medicatie",
+      "concomitantProductN": "Gelijktijdig gebruikt product"
+    },
+    "actions": {
+      "addConcomitantProduct": "Gelijktijdig gebruikt product toevoegen",
+      "cancel": "Annuleren",
+      "submitIcsr": "ICSR-rapport indienen"
+    },
+    "status": {
+      "loadingMeddraMappings": "MedDRA-koppelingen laden..."
+    },
+    "messages": {
+      "selectConditionForMeddra": "Selecteer een aandoening om MedDRA-koppelingen te bekijken",
+      "noMeddraMappings": "Geen MedDRA-koppelingen gevonden voor deze aandoening",
+      "noMeddraMappingsHint": "Voor deze aandoening zijn mogelijk geen bijbehorende MedDRA-termen beschikbaar",
+      "selectMedicationForSnomed": "Selecteer een medicatie om het SNOMED-concept-ID te bekijken",
+      "noConcomitantProducts": "Geen gelijktijdig gebruikte producten toegevoegd. Klik op \"Gelijktijdig gebruikt product toevoegen\" om andere medicatie te vermelden.",
+      "selectAllThatApply": "Selecteer alles wat van toepassing is:"
+    }
+  },
+  "dentistryRecord": {
+    "sections": {
+      "odontogram": "Odontogram"
+    },
+    "tabs": {
+      "anatomicView": "Anatomisch aanzicht",
+      "odontogramView": "Odontogramweergave",
+      "selectedTooth": "Geselecteerde tand",
+      "allRecords": "Alle records"
+    },
+    "labels": {
+      "odontogramViewSelector": "Odontogramweergaveselectie"
+    },
+    "tooltips": {
+      "viewDentalFhir": "Tandheelkundige FHIR-resources bekijken"
+    },
+    "actions": {
+      "close": "Sluiten"
+    },
+    "messages": {
+      "couldNotGenerateExpression": "Kan geen postgecoördineerde expressie genereren voor dit record.",
+      "expressionCopied": "Postgecoördineerde expressie naar klembord gekopieerd.",
+      "unableToCopy": "Kan expressie niet naar klembord kopiëren.",
+      "extractingDentalSites": "Tandheelkundige locaties extraheren uit postcoördinatie-expressies ({{ count }})"
+    }
+  },
+  "dentistryDataEntry": {
+    "sections": {
+      "currentRecords": "Huidige records voor deze tand"
+    },
+    "tabs": {
+      "findings": "Bevindingen",
+      "procedures": "Verrichtingen"
+    },
+    "fields": {
+      "affectedSites": "Aangetaste locatie(s) *",
+      "toothInGeneral": "Tand in het algemeen",
+      "periodontalTissues": "Parodontaal weefsel",
+      "finding": "Bevinding *",
+      "procedure": "Verrichting *",
+      "searchFindings": "Typ om bevindingen te zoeken",
+      "searchProcedures": "Typ om verrichtingen te zoeken"
+    },
+    "labels": {
+      "selected": "Geselecteerd",
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universeel",
+      "palmer": "Palmer",
+      "snomed": "SNOMED",
+      "notMapped": "Niet gekoppeld",
+      "addNewRecord": "Nieuw record toevoegen",
+      "entryTypeSelector": "Invoertype-selectie",
+      "rootSurfaces": "Worteloppervlakken"
+    },
+    "actions": {
+      "save": "Opslaan"
+    },
+    "messages": {
+      "noRecordsForTooth": "Nog geen records opgeslagen voor deze tand.",
+      "entrySaved": "Invoer opgeslagen voor tand {{ fdi }}.",
+      "clickToPin": "Klik op een tand om deze hier vast te zetten voor gegevensinvoer."
+    }
+  },
+  "dentistryFhirDialog": {
+    "tooltips": {
+      "download": "FHIR-resource downloaden",
+      "copy": "FHIR-resource kopiëren"
+    },
+    "actions": {
+      "close": "Sluiten"
+    },
+    "messages": {
+      "copied": "FHIR JSON naar klembord gekopieerd"
+    }
+  },
+  "odontogramAnatomic": {
+    "sections": {
+      "title": "Anatomisch aanzicht",
+      "subtitle": "Natuurlijke tandcontouren met oppervlakoverlay."
+    },
+    "tabs": {
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universeel"
+    },
+    "labels": {
+      "toothNumberingSelector": "Tandnummeringsselectie",
+      "interactiveOdontogram": "Interactief odontogram",
+      "maxillaryArch": "Bovenkaakboog",
+      "mandibularArch": "Onderkaakboog",
+      "tooth": "Tand",
+      "surfaceColorLegend": "Legenda oppervlaktekleuren"
+    },
+    "legend": {
+      "findings": "Bevindingen",
+      "plannedProcedures": "Geplande verrichtingen",
+      "completedProcedures": "Uitgevoerde verrichtingen"
+    }
+  },
+  "odontogramRootSurface": {
+    "sections": {
+      "title": "Odontogramweergave",
+      "subtitle": "Gesegmenteerde oppervlakken met groter centraal veelhoek voor molaren."
+    },
+    "tabs": {
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universeel"
+    },
+    "labels": {
+      "showRootSurfaces": "Worteloppervlakken tonen",
+      "toothNumberingSelector": "Tandnummeringsselectie",
+      "interactiveOdontogram": "Interactief worteloppervlak-odontogram",
+      "tooth": "Tand",
+      "surfaceColorLegend": "Legenda oppervlaktekleuren"
+    },
+    "legend": {
+      "findings": "Bevindingen",
+      "plannedProcedures": "Geplande verrichtingen",
+      "completedProcedures": "Uitgevoerde verrichtingen"
+    }
+  },
+  "dentistryRecordItem": {
+    "labels": {
+      "toothFdi": "Tand FDI {{ fdi }} - Univ. {{ universal }}"
+    },
+    "actions": {
+      "deleteRecord": "Record verwijderen",
+      "copyPostcoordinated": "Postgecoördineerde expressie kopiëren"
+    },
+    "tooltips": {
+      "deleteRecord": "Record verwijderen",
+      "setAsPlanned": "Als gepland instellen",
+      "setAsCompleted": "Als voltooid instellen",
+      "setAsActive": "Als actief instellen",
+      "setAsResolved": "Als opgelost instellen"
+    }
+  },
+  "dentistryAllFindings": {
+    "sections": {
+      "title": "Alle records"
+    },
+    "messages": {
+      "noRecords": "Nog geen tandheelkundige records opgeslagen voor deze patiënt."
+    }
+  },
+  "aiAssistedEntry": {
+    "sections": {
+      "title": "AI-ondersteunde gegevensinvoer",
+      "description": "Intelligente klinische gegevensinvoer aangedreven door AI om documentatie te stroomlijnen en nauwkeurigheid te verbeteren.",
+      "encounterDetails": "Contactdetails",
+      "encounterDescription": "Configureer de contactdetails voor deze klinische sessie",
+      "detectedEntities": "Gedetecteerde klinische entiteiten",
+      "detectedEntitiesDescription": "Door AI gedetecteerde aandoeningen, verrichtingen en medicatie"
+    },
+    "fields": {
+      "reasonForEncounter": "Reden voor contact",
+      "selectReasonForEncounter": "Selecteer reden voor contact",
+      "diagnosis": "Diagnose",
+      "selectDiagnosis": "Selecteer diagnose",
+      "procedure": "Verrichting",
+      "selectProcedure": "Selecteer verrichting"
+    },
+    "labels": {
+      "none": "Geen",
+      "conditions": "Aandoeningen",
+      "procedures": "Verrichtingen",
+      "medications": "Medicatie",
+      "confidence": "Betrouwbaarheid",
+      "unknownError": "Onbekende fout"
+    },
+    "actions": {
+      "addSampleText": "Voorbeeldtekst toevoegen",
+      "saveAllToPatient": "Alles opslaan voor patiënt",
+      "close": "Sluiten"
+    },
+    "status": {
+      "savingToFhir": "Opslaan op FHIR-server...",
+      "analyzingText": "AI analyseert tekst...",
+      "savingClinicalResources": "Klinische resources opslaan...",
+      "alreadyExistsInProblemsList": "Bestaat al in probleemlijst"
+    },
+    "tooltips": {
+      "remove": "Verwijderen uit gedetecteerd",
+      "removeExisting": "Verwijderen uit gedetecteerd (wordt niet opgeslagen als nieuwe klinische gebeurtenis)"
+    },
+    "messages": {
+      "placeholderLine1": "Dit is een gebruikerservaringsdemo; er is geen echt AI-model en slechts een paar gesimuleerde detecties worden getoond.",
+      "placeholderLine2": "Voeg voorbeeldtekst in via de onderstaande knop om een simulatie van AI-ondersteunde detectie van klinische entiteiten te zien.",
+      "emptyStateHint": "Begin klinische notities te typen om entiteiten te detecteren",
+      "emptyStateExample": "Probeer: \"Patiënt heeft astma, heeft operatie nodig, neemt aspirine\"",
+      "errorDetectingEntities": "Fout bij detecteren van entiteiten: {{ message }}",
+      "procedureLinkedToEncounter": "Verrichting \"{{ name }}\" bestond al en is gekoppeld aan het nieuwe contact.",
+      "procedureAlreadyExists": "Verrichting \"{{ name }}\" bestaat al voor deze patiënt.",
+      "savedClinicalResources": "{{ count }} klinische resources succesvol opgeslagen.",
+      "failedToSave": "Opslaan van klinische resources mislukt: {{ message }}"
+    }
+  },
+  "nursingRecord": {
+    "sections": {
+      "nursing": "Verpleging"
+    }
+  },
+  "nursingVitalCard": {
+    "labels": {
+      "last": "Laatste"
+    },
+    "fields": {
+      "systolic": "Systolisch",
+      "diastolic": "Diastolisch"
+    },
+    "actions": {
+      "addNew": "Nieuw toevoegen",
+      "save": "Opslaan",
+      "cancel": "Annuleren"
+    }
+  },
+  "nursingVitalSigns": {
+    "sections": {
+      "vitalSigns": "Vitale functies"
+    },
+    "tooltips": {
+      "viewVitalFhir": "Vitale FHIR-resources bekijken"
+    }
+  },
+  "nursingNutritionalCareplan": {
+    "sections": {
+      "nutritionalEvaluation": "Voedingsevaluatie",
+      "anthropometry": "Antropometrie",
+      "nutritionalGoals": "Voedingsdoelen",
+      "interventions": "Interventies"
+    },
+    "labels": {
+      "bmi": "BMI"
+    },
+    "actions": {
+      "save": "Opslaan",
+      "close": "Sluiten",
+      "removeIntervention": "Interventie verwijderen",
+      "addIntervention": "Interventie toevoegen"
+    },
+    "messages": {
+      "noDataRecorded": "Geen gegevens geregistreerd",
+      "noChangesToSave": "Geen wijzigingen om op te slaan voor BMI",
+      "assessmentSaved": "Voedingsbeoordeling opgeslagen (BMI)"
+    }
+  },
+  "problemsList": {
+    "sections": {
+      "title": "Probleemlijst"
+    },
+    "labels": {
+      "consolidatedView": "Geconsolideerd overzicht"
+    },
+    "messages": {
+      "noProblemsRecorded": "Geen problemen geregistreerd"
+    }
+  },
+  "clinicalTimeline": {
+    "sections": {
+      "title": "Tijdlijn",
+      "overview": "Overzicht"
+    },
+    "labels": {
+      "status": "Status",
+      "snomedCt": "SNOMED CT"
+    },
+    "messages": {
+      "zoomPan": "Zoom en verschuif om de chronologie van geregistreerde gebeurtenissen te verkennen.",
+      "noEvents": "Geen tijdlijngebeurtenissen",
+      "noEventsHint": "Klinische gebeurtenissen verschijnen hier wanneer aandoeningen, allergieën, verrichtingen, medicatie of vaccinaties met datums worden toegevoegd."
+    }
+  },
+  "questionnaireForm": {
+    "labels": {
+      "prePopulated": "Vooraf ingevuld vanuit patiëntendossier"
+    },
+    "actions": {
+      "submitResponse": "Respons indienen",
+      "cancel": "Annuleren"
+    },
+    "messages": {
+      "loading": "Vragenlijst laden...",
+      "noQuestionnaire": "Geen vragenlijst geladen",
+      "noQuestionnaireHint": "Selecteer een vragenlijst uit het vervolgkeuzemenu hierboven"
+    }
+  },
+  "openehrForm": {
+    "labels": {
+      "defaultTitle": "openEHR-formulier"
+    },
+    "actions": {
+      "submitComposition": "Compositie indienen",
+      "cancel": "Annuleren"
+    },
+    "messages": {
+      "loading": "openEHR-formulier laden...",
+      "noTemplate": "Geen openEHR-sjabloon geladen",
+      "noTemplateHint": "Selecteer een sjabloon uit het vervolgkeuzemenu hierboven"
+    }
+  },
+  "smartHealthLinks": {
+    "sections": {
+      "title": "Smart Health Links",
+      "description": "Statische demo voor het genereren van SHLinks en downloadbare QR-codes uit FHIR JSON-resources in assets/data."
+    },
+    "table": {
+      "label": "Label",
+      "sourceJson": "Bron-JSON",
+      "manifest": "Manifest",
+      "qrPreview": "QR-voorvertoning",
+      "actions": "Acties"
+    },
+    "labels": {
+      "qrPreviewAlt": "QR-voorvertoning voor"
+    },
+    "actions": {
+      "copyShLink": "SHLink kopiëren",
+      "downloadSvg": "SVG downloaden",
+      "downloadPng": "PNG downloaden"
+    }
+  },
+  "allergyFormDialog": {
+    "sections": {
+      "title": "Allergie / Intolerantie toevoegen"
+    },
+    "actions": {
+      "close": "Allergievenster sluiten"
+    }
+  },
+  "batchPatientDialog": {
+    "sections": {
+      "title": "Meerdere patiënten genereren"
+    },
+    "fields": {
+      "numberOfPatients": "Aantal patiënten",
+      "numberOfPatientsHint": "Voer een getal in tussen 1 en 500",
+      "timeframeYears": "Tijdsbestek klinische gegevens (jaren)",
+      "timeframeYearsHint": "Gegenereerde datums worden standaard willekeurig verdeeld over de afgelopen 2 jaar",
+      "genderDistribution": "Geslachtsverdeling",
+      "genderDistributionHint": "Pas de kans aan voor het genereren van mannelijke versus vrouwelijke patiënten",
+      "ageDistribution": "Leeftijdsverdeling",
+      "ageDistributionHint": "Selecteer percentages in stappen van 10%. Totaal moet gelijk zijn aan 100%.",
+      "children": "Kinderen (0-18)",
+      "adults": "Volwassenen (18-65)",
+      "elderly": "Ouderen (65+)",
+      "diagnosesPerPatient": "Aantal diagnoses per patiënt",
+      "diagnosesRangeHint": "Stel beide in op 0 om patiënten zonder diagnoses te genereren. Elke patiënt krijgt een willekeurig aantal diagnoses tussen deze waarden.",
+      "minimum": "Minimum",
+      "maximum": "Maximum"
+    },
+    "labels": {
+      "female": "Vrouw",
+      "male": "Man",
+      "total": "Totaal",
+      "to": "tot"
+    },
+    "actions": {
+      "cancel": "Annuleren",
+      "generatePatients": "Patiënten genereren"
+    },
+    "messages": {
+      "description": "Genereer synthetische patiëntgegevens op basis van reële gezondheidsstatistieken uit de",
+      "gbdStudy": "Global Burden of Disease (GBD)-studie",
+      "descriptionSuffix": "Deze kunstmatige patiënten weerspiegelen ziekteprevalentiepatronen naar leeftijd en geslacht, waardoor u uw EPD-systeem kunt vullen met realistische testgegevens.",
+      "mustEqual100": "Moet gelijk zijn aan 100%",
+      "generating": "Patiënten genereren..."
+    }
+  },
+  "deathRegistrationDialog": {
+    "sections": {
+      "title": "Overlijdensregistratie",
+      "titleUpdate": "Overlijdensregistratie bijwerken",
+      "subtitle": "Leg het overlijdensattest vast en markeer deze patiënt als overleden.",
+      "causeOfDeath": "Doodsoorzaak",
+      "part1Subtitle": "Deel I. Voer de keten van gebeurtenissen in die direct de dood hebben veroorzaakt.",
+      "part2Subtitle": "Deel II. Andere significante aandoeningen die hebben bijgedragen aan de dood."
+    },
+    "fields": {
+      "dateOfDeath": "Datum van overlijden",
+      "time": "Tijdstip",
+      "interval": "Interval",
+      "intervalPlaceholder": "bijv. 3 dagen",
+      "selectCondition": "Selecteer aandoening",
+      "existingCondition": "Bestaande aandoening",
+      "snomedCondition": "SNOMED-aandoening"
+    },
+    "table": {
+      "line": "Regel",
+      "causeCondition": "Oorzaak/aandoening",
+      "approximateInterval": "Geschat interval"
+    },
+    "labels": {
+      "id": "ID",
+      "dob": "Geboortedatum",
+      "unknown": "Onbekend"
+    },
+    "actions": {
+      "searchInSnomed": "Zoeken in SNOMED",
+      "useExistingCondition": "Bestaande aandoening gebruiken",
+      "clearLine": "Regel wissen",
+      "addContributingCondition": "Bijdragende aandoening toevoegen",
+      "deleteRecord": "Overlijdensattest verwijderen",
+      "cancel": "Annuleren",
+      "updateRecord": "Overlijdensrecord bijwerken",
+      "saveRecord": "Overlijdensrecord opslaan"
+    },
+    "messages": {
+      "errorEnterDateTime": "Voer de datum en het tijdstip van overlijden in.",
+      "errorAtLeastOneCause": "Voer minimaal één doodsoorzaak in voordat u opslaat.",
+      "errorUnableToSave": "Het overlijdensrecord kan niet worden opgeslagen.",
+      "errorSelectCondition": "Selecteer een bestaande aandoening voor elke ingevulde regel via die optie.",
+      "errorNoSnomedCode": "De geselecteerde aandoening \"{{ name }}\" heeft geen SNOMED CT-code. Gebruik de SNOMED-zoekoptie voor die regel.",
+      "errorSelectSnomedConcept": "Selecteer een SNOMED CT-concept voor elke ingevulde regel via SNOMED-zoekopdracht."
+    }
+  }
+}

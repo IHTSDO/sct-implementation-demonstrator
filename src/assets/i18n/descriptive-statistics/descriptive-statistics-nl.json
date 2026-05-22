@@ -1,0 +1,101 @@
+{
+  "common": {
+    "id": "ID:",
+    "label": "Label:",
+    "value": "Waarde:",
+    "labelCount": "Aantal labels:",
+    "parent": "Bovenliggend:",
+    "root": "Wortel",
+    "loading": "Laden...",
+    "updatingChart": "Grafiek bijwerken...",
+    "selectedItemDetails": "Details geselecteerd item",
+    "clickToSeeDetails": "Klik op een segment om details te bekijken",
+    "navigation": {
+      "title": "Navigatie",
+      "onlyChildren": "Alleen knooppunten met onderliggende elementen kunnen worden ingezoomd"
+    },
+    "search": {
+      "results": "Resultaten ({{count}})",
+      "noResults": "Geen knooppunten gevonden die overeenkomen met \"{{term}}\""
+    }
+  },
+  "d3Sunburst": {
+    "title": "D3 Sunburst-grafiek - Lui laden (3 niveaus)",
+    "resetToRoot": "Terugzetten naar wortel",
+    "navigation": {
+      "drillDown": "Klik op segmenten om in te zoomen (maximaal 3 niveaus zichtbaar)",
+      "breadcrumb": "Gebruik broodkruimelnavigatie om terug te gaan"
+    }
+  },
+  "sunburstChart": {
+    "title": "Plotly Sunburst-grafiek - Niveaubeperkt ({{maxLevels}} niveaus)",
+    "backToRoot": "Terug naar wortel",
+    "current": "Huidig:",
+    "searchNodes": {
+      "title": "Knooppunten zoeken",
+      "placeholder": "Zoeken op knooppuntnaam...",
+      "startTyping": "Begin te typen om door alle knooppunten in de dataset te zoeken"
+    },
+    "navigation": {
+      "drillDown": "Klik op segmenten om in te zoomen (maximaal {{maxLevels}} niveaus zichtbaar)",
+      "drillUp": "Klik op het centersegment om uit te zoomen",
+      "backToRoot": "Gebruik \"Terug naar wortel\" om terug te keren naar het hoogste niveau"
+    }
+  },
+  "plotlyTreemap": {
+    "title": "Beschrijvende populatieanalyse",
+    "backToEhrLab": "Terug naar EHR Lab",
+    "loadingPatientData": "Patiëntgegevens laden...",
+    "processingPatientData": "Patiëntgegevens verwerken...",
+    "stats": {
+      "totalPopulation": "Totale populatie",
+      "allPatientsInRepository": "Alle patiënten in de repository",
+      "patientsSelected": "Geselecteerde patiënten",
+      "afterApplyingFilters": "Na toepassen van filters"
+    },
+    "filters": {
+      "gender": "Geslacht",
+      "all": "Alle",
+      "female": "Vrouw",
+      "male": "Man",
+      "ageRange": "Leeftijdsbereik: {{min}} - {{max}} jaar"
+    },
+    "chart": {
+      "title": "Aantal patiënten per klinische gebeurtenis"
+    },
+    "search": {
+      "placeholder": "Klinische gebeurtenissen zoeken (bijv. 'resp fin')",
+      "startTyping": "Begin te typen om te zoeken door alle SNOMED CT-concepten die de klinische gebeurtenissen in de dataset identificeren",
+      "useMultiplePrefixes": "Gebruik meerdere voorvoegsels gescheiden door spaties (bijv. \"resp fin\" vindt items met woorden die beginnen met zowel \"resp\" als \"fin\")"
+    },
+    "patients": {
+      "selectedClinicalEvent": "Geselecteerde klinische gebeurtenis:",
+      "loadPatients": "{{count}} patiënten laden",
+      "showingResultsFor": "Resultaten weergeven voor {{filters}}",
+      "clinicalEventDistribution": "Verdeling klinische gebeurtenissen naar leeftijd en geslacht ({{count}} patiënten)",
+      "events": "({{count}} gebeurtenissen)",
+      "openClinicalRecord": "Klinisch dossier openen in nieuw venster",
+      "openClinicalRecordAria": "Klinisch dossier openen",
+      "noPatients": "Geen patiënten gevonden voor dit concept",
+      "selectClinicalEvent": "Selecteer een klinische gebeurtenis en klik op \"Patiënten laden\" om gedetailleerde patiëntinformatie te bekijken"
+    },
+    "navigation": {
+      "title": "Navigatie",
+      "drillDown": "Klik op treemap-vakken om in te zoomen in de hiërarchie van klinische gebeurtenissen en details te openen (maximaal {{maxLevels}} niveaus zichtbaar)",
+      "onlyChildren": "Alleen vakken met onderliggende elementen kunnen worden ingezoomd",
+      "drillUp": "Klik op het huidige worteltvak om terug te navigeren naar het bovenliggende niveau",
+      "backToRoot": "Gebruik \"Terug naar wortel\" om terug te keren naar het hoogste niveau (SNOMED CT-concept)",
+      "hoverInfo": "Beweeg de muisaanwijzer over vakken voor gedetailleerde informatie",
+      "boxSize": "De vakgrootte geeft het relatieve aantal patiënten per item weer"
+    },
+    "filtersDescription": {
+      "allGenders": "alle geslachten",
+      "malePatients": "mannelijke patiënten",
+      "femalePatients": "vrouwelijke patiënten",
+      "allAges": "alle leeftijden",
+      "agesUpTo": "leeftijden tot {{max}} jaar",
+      "agesAndAbove": "leeftijden {{min}} jaar en ouder",
+      "agesBetween": "leeftijden {{min}}-{{max}} jaar"
+    }
+  }
+}
