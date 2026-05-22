@@ -1,0 +1,129 @@
+{
+  "ui": {
+    "title": "SNOMED CT Implementeringsdemonstrationer",
+    "intro1Before": "Välkommen till vår samling av SNOMED CT Implementeringsdemonstrationer! Detta noggrant utvalda urval av demonstrationer visar de många sätt på vilka SNOMED CT kan implementeras inom olika användningsområden. Varje demonstration är ",
+    "intro1Link": "öppen källkod",
+    "intro1After": ", fri att utforska och enkel att återskapa, och erbjuder en praktisk inlärningsupplevelse för utvecklare, implementatörer och vårdprofessionella.",
+    "intro2Before": "Dessa implementeringsdemonstrationer har skapats genom samarbete och expertis från ",
+    "intro2Link": "det globala SNOMED CT-samfundet av kliniska experter",
+    "intro2After": ", och återspeglar bästa praxis och innovativa användningsfall. Oavsett om du precis har börjat med SNOMED CT eller vill fördjupa din förståelse kommer du att hitta värdefulla insikter här. Utforska, lär dig och hjälp oss att förbättra interoperabiliteten inom hälso- och sjukvården.",
+    "demoShown": "1 demo visas",
+    "demosShown": "{{count}} demonstrationer visas",
+    "removeFilters": "Ta bort filter",
+    "filterPlaceholder": "Skriv för att filtrera...",
+    "openButton": "ÖPPNA"
+  },
+  "subtitles": {
+    "clinicalDemo": "Klinisk demo",
+    "tool": "Verktyg",
+    "learningDemo": "Inlärningsdemo",
+    "game": "Spel",
+    "analyticsDemo": "Analysdemo"
+  },
+  "menu": {
+    "encountersUiDemo": {
+      "name": "Encounters UI Demo",
+      "description": "En simulering av klinisk datainmatning för kliniska möten via SNOMED FHIR-terminologitjänster. Den klassiska SNOMED UI Demo."
+    },
+    "ehrLab": {
+      "name": "SNOMED EHR Lab",
+      "description": "En komplett journalsystemsimulering med genererade persistenta patienter, kliniska, tandvårds- och omvårdnadsjournaler, AI-stödd inmatning, CDS, analys, interoperabilitetsverktyg och Smart Health Links baserade på FHIR och SNOMED CT."
+    },
+    "allergies": {
+      "name": "Allergier",
+      "description": "En SNOMED / FHIR-implementeringsdemo för registrering av allergi- och intoleransuppgifter, framtagen av Clinical Reference Group för allergier."
+    },
+    "loincSnomed": {
+      "name": "LOINC & SNOMED CT",
+      "description": "En implementeringsdemo av LOINC-ontologin som täcker laboratorieremisser, provsvar och FHIR-resurser."
+    },
+    "ncptRefset": {
+      "name": "NCPT Refset",
+      "description": "En klinisk demonstration av NCPT (Nutrition Care Process Terminology) referensuppsättning."
+    },
+    "maturityFramework": {
+      "name": "Ramverk för Implementationsmognad",
+      "description": "Ett webbaserat mognadsbedömningsverktyg och en instrumentpanel för att sammanställa och analysera samlingar av mognadsbedömningsresultat."
+    },
+    "bindingsSandbox": {
+      "name": "Sandlåda för Terminologibindningar",
+      "description": "En sandlådemiljö för att lära sig och testa terminologibindningar."
+    },
+    "snomedMaps": {
+      "name": "SNOMED Maps Demonstrator",
+      "description": "En demonstration av SNOMED / ICD-10-mappningar, inklusive körning av komplexa mappningsregler."
+    },
+    "postcoordination": {
+      "name": "Postkoordineringsdemonstation",
+      "description": "En demonstration av SNOMED-postkoordinering med den nya prototypen av postkoordineringsterminologiservern SNOWSTORM X."
+    },
+    "ipsTerminology": {
+      "name": "IPS Terminologidemonstrator",
+      "description": "En demonstration av terminologin för International Patient Summary (IPS), inklusive IPS SNOMED CT-referensuppsättningen."
+    },
+    "questionnairesManager": {
+      "name": "Hanteringsapplikation för SNOMED & FHIR-frågeformulär",
+      "description": "En applikation för att hantera ett FHIR-frågeformulärslager med SNOMED CT-bindningar."
+    },
+    "questionnairesUtilities": {
+      "name": "Verktyg för SNOMED & FHIR-frågeformulär",
+      "description": "Verktyg för att arbeta med FHIR-frågeformulär, inklusive SNOMED CT-bindningar."
+    },
+    "contextTransformations": {
+      "name": "Kontextrepresentationstransformationer",
+      "description": "En demonstration av transformationen av kontextrepresentationer från SNOMED till FHIR-resurser."
+    },
+    "snomedLlms": {
+      "name": "SNOMED och LLMs (AI Demo)",
+      "description": "Den här demon använder OpenAI ChatGPT API för att demonstrera användningen av SNOMED CT med stora språkmodeller (LLMs). En utvecklar-API-nyckel för OpenAI krävs."
+    },
+    "snoguess": {
+      "name": "Snoguess (Ett SNOMED-spel)",
+      "description": "Ett SNOMED-gissningsspel: lär dig om SNOMED-innehåll medan du har kul och tävlar om högsta poäng."
+    },
+    "roadmapGenerator": {
+      "name": "SNOMED Implementerings-färdplansgenerator",
+      "description": "Ett verktyg utformat för att främja och stödja skapandet av implementeringsfärdplaner för införandet av SNOMED CT i länder, regioner eller organisationer."
+    },
+    "evolvingTerminology": {
+      "name": "SNOMED CT som en Föränderlig Terminologi",
+      "description": "En samling utbildningsmaterial och ändringsrapporter för att förstå hur SNOMED förändras vid varje release och underlätta planering av implementeringar i enlighet med detta."
+    },
+    "descriptiveAnalytics": {
+      "name": "Deskriptiv analysdemo",
+      "description": "En demo av deskriptiv analys för SNOMED CT, inklusive en trädkartsvisualisering med nästlade rutor för hierarkisk datautforskning."
+    },
+    "integrationsHub": {
+      "name": "SNOMED Integrationshub",
+      "description": "En demonstration av SNOMED CT-integrationer med livedata. Utforska integrationshubben för att se de olika integrationerna med andra klassifikationer, terminologier och kodsystem."
+    },
+    "valueSetUtility": {
+      "name": "ValueSet-verktyg",
+      "description": "Ett verktyg för att omvandla SNOMED CT-värdemängder från icke-standardformat (Excel, CSV, Snap2SNOMED-mappningar) till standardenliga FHIR ValueSet-resurser och -paket."
+    },
+    "extensionsSearch": {
+      "name": "Sökverktyg för Utökningar",
+      "description": "Ett verktyg för att köra ECL-sökningar i de senaste SNOMED CT-utökningarna och jämföra begreppsmatchningar per utgåva."
+    },
+    "snolytical": {
+      "name": "Analys med Snolytical",
+      "description": "En demonstrator för hälsodataanalys som utnyttjar SNOMED CT-hierarkin. Demon visar hur kliniker kan arbeta direkt med sin SNOMED-kodade data genom att skapa och köra egna grundläggande datavetenskapsrapporter."
+    },
+    "mdrsViewer": {
+      "name": "Module Dependency Reference Set Viewer",
+      "description": "En grafisk visare för Module Dependency Reference Set (MDRS) som visar beroenden mellan SNOMED CT-moduler och anger vilka modulversioner som är beroende av vilka andra versioner."
+    },
+    "drugStrengthRounding": {
+      "name": "Avrundningsregler för Läkemedelsstyrka",
+      "description": "En demonstration av avrundningsregler för läkemedelsstyrka avseende signifikanta siffror i farmaceutiska beräkningar."
+    },
+    "medicinalProductClasses": {
+      "name": "Klasser av Läkemedelsprodukter",
+      "description": "En demonstrator för terminologibindningar av klasser för läkemedelsprodukter, kliniska läkemedel och förpackade kliniska läkemedel med hjälp av återanvändbara kodningsspecifikationsflikar."
+    },
+    "fhirInternationalizer": {
+      "name": "FHIR Resurs Internationaliseringsverktyg",
+      "description": "Ladda upp en FHIR-resurs, ersätt utökningskodningar med deras närmaste förfäder från den internationella utgåvan, anpassa begreppsvisningar till språket och terminologin för din målutgåva, och hitta historiska ersättningar för inaktiva begrepp."
+    }
+  }
+}

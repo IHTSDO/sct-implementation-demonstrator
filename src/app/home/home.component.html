@@ -1,25 +1,18 @@
-<div class="main-panel">
-  <h1>SNOMED CT Implementation Demonstrators</h1>
-  <p class="intro">Welcome to our collection of SNOMED CT Implementation Demonstrators!
-    This curated selection of demos showcases the diverse ways SNOMED CT can be implemented across different use cases.
-    Each demonstration is <a href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" (click)="trackExternalLinkClick('https://github.com/IHTSDO/sct-implementation-demonstrator', 'GitHub Repository', $event)">open source</a>,
-    free to explore, and easy to replicate, providing a hands-on learning experience for
-  developers, implementers, and healthcare professionals.</p>
-  <p class="intro">These implementation demos have been created through the collaboration and expertise of the
-    <a href="https://confluence.ihtsdotools.org/display/CP/Clinical+Engagement" target="_blank" (click)="trackExternalLinkClick('https://confluence.ihtsdotools.org/display/CP/Clinical+Engagement', 'SNOMED CT Community', $event)">global SNOMED CT community of clinical experts</a>,
-    reflecting best practices and innovative use cases. Whether you're just getting started with SNOMED CT or looking to deepen
-  your understanding, you'll find valuable insights here. Explore, learn, and join us in advancing healthcare interoperability.</p>
+<div class="main-panel" *transloco="let t; scope: 'home'; prefix: 'home'">
+  <h1>{{ t('ui.title') }}</h1>
+  <p class="intro">{{ t('ui.intro1Before') }}<a href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" (click)="trackExternalLinkClick('https://github.com/IHTSDO/sct-implementation-demonstrator', 'GitHub Repository', $event)">{{ t('ui.intro1Link') }}</a>{{ t('ui.intro1After') }}</p>
+  <p class="intro">{{ t('ui.intro2Before') }}<a href="https://confluence.ihtsdotools.org/display/CP/Clinical+Engagement" target="_blank" (click)="trackExternalLinkClick('https://confluence.ihtsdotools.org/display/CP/Clinical+Engagement', 'SNOMED CT Community', $event)">{{ t('ui.intro2Link') }}</a>{{ t('ui.intro2After') }}</p>
 
   <!-- Filter Row -->
   <div class="filter-panel">
-    <span class="demo-count">{{ getFilteredCount() }} {{ getFilteredCount() === 1 ? 'demo' : 'demos' }} shown</span>
+    <span class="demo-count">{{ getFilteredCount() === 1 ? t('ui.demoShown') : t('ui.demosShown', { count: getFilteredCount() }) }}</span>
     <div class="badge-container">
       @for (subtype of uniqueSubtypes; track subtype) {
         <span
           class="subtype-badge"
           [class.active]="selectedSubtype === subtype"
           (click)="onSubtypeClick(subtype)">
-          {{ subtype }} <span class="badge-count">({{ getSubtypeCount(subtype) }})</span>
+          {{ t('subtitles.' + subtype) }} <span class="badge-count">({{ getSubtypeCount(subtype) }})</span>
         </span>
       }
     </div>
@@ -28,11 +21,11 @@
         mat-button
         class="clear-filters-btn"
         (click)="clearFilters()">
-        Remove filters
+        {{ t('ui.removeFilters') }}
       </button>
     }
     <mat-form-field class="search-field" appearance="fill">
-      <input matInput [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Type to filter...">
+      <input matInput [(ngModel)]="searchText" (input)="onSearchChange()" [placeholder]="t('ui.filterPlaceholder')">
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
   </div>
@@ -42,14 +35,14 @@
       <div class="demo-card-wrapper">
         <mat-card class="demo-card">
           <mat-card-header>
-            <mat-card-subtitle>{{ demo.subtitle }}</mat-card-subtitle>
-            <mat-card-title>{{ demo.name }}</mat-card-title>
+            <mat-card-subtitle>{{ t('subtitles.' + demo.subtitle) }}</mat-card-subtitle>
+            <mat-card-title>{{ t('menu.' + demo.key + '.name') }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <p>{{ demo.description }}</p>
+            <p>{{ t('menu.' + demo.key + '.description') }}</p>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button color="accent" (click)="navigate(demo)">OPEN</button>
+            <button mat-button color="accent" (click)="navigate(demo)">{{ t('ui.openButton') }}</button>
           </mat-card-actions>
         </mat-card>
       </div>
