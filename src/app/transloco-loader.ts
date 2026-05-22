@@ -7,6 +7,10 @@ export class TranslocoHttpLoader implements TranslocoLoader {
   private http = inject(HttpClient);
 
   getTranslation(lang: string) {
+    if (lang.includes('/')) {
+      const [scope, locale] = lang.split('/');
+      return this.http.get<Translation>(`/assets/i18n/${scope}/${scope}-${locale}.json`);
+    }
     return this.http.get<Translation>(`/assets/i18n/${lang}.json`);
   }
 }

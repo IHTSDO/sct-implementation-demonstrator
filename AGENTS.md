@@ -111,14 +111,15 @@
 ### Translation files
 
 - Global (app-level) strings live in `src/assets/i18n/{lang}.json`.
-- Feature scopes live in `src/assets/i18n/{scope-name}/{lang}.json`, e.g. `src/assets/i18n/benefits-demo/en.json`.
+- Feature scopes live in `src/assets/i18n/{scope-name}/{scope-name}-{lang}.json`, e.g. `src/assets/i18n/benefits-demo/benefits-demo-en.json`.
 - Scope file keys use a flat namespace per component, e.g. `createPatient.title`, `clinicalRecord.actions.close`.
-- Both `en.json` and `es.json` must exist for every scope; Transloco will 404 without the active-language file.
+- Both `{scope}-en.json` and `{scope}-es.json` must exist for every scope; Transloco will 404 without the active-language file.
+- The `{scope-name}` prefix in the filename makes the file self-describing when shared for external translation, since the folder context is not visible in isolation.
 
 ### Adding i18n to a new feature module
 
 1. Import `TranslocoModule` in the feature module.
-2. Decide on a scope name, e.g. `my-feature`. Create `src/assets/i18n/my-feature/en.json` and `es.json`.
+2. Decide on a scope name, e.g. `my-feature`. Create `src/assets/i18n/my-feature/my-feature-en.json` and `my-feature-es.json`.
 3. Choose the loading strategy based on whether the module contains `@ViewChild` references used in chart / D3 initialisation:
 
    **A — Template-only components (no chart ViewChild)**
