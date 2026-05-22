@@ -1,0 +1,101 @@
+{
+  "common": {
+    "id": "ID:",
+    "label": "Etiket:",
+    "value": "Værdi:",
+    "labelCount": "Etikettælling:",
+    "parent": "Overordnet:",
+    "root": "Rod",
+    "loading": "Indlæser...",
+    "updatingChart": "Opdaterer diagram...",
+    "selectedItemDetails": "Detaljer om valgt element",
+    "clickToSeeDetails": "Klik på et segment for at se detaljer",
+    "navigation": {
+      "title": "Navigation",
+      "onlyChildren": "Kun noder med underordnede kan dykkes ned i"
+    },
+    "search": {
+      "results": "Resultater ({{count}})",
+      "noResults": "Ingen noder fundet, der matcher \"{{term}}\""
+    }
+  },
+  "d3Sunburst": {
+    "title": "D3 Sunburst-diagram – Lazy Loading (3 niveauer)",
+    "resetToRoot": "Nulstil til rod",
+    "navigation": {
+      "drillDown": "Klik på segmenter for at dykke ned (maks. 3 niveauer synlige)",
+      "breadcrumb": "Brug brødkrumme-navigation til at gå tilbage"
+    }
+  },
+  "sunburstChart": {
+    "title": "Plotly Sunburst-diagram – Niveaubegrænset ({{maxLevels}} niveauer)",
+    "backToRoot": "Tilbage til rod",
+    "current": "Aktuel:",
+    "searchNodes": {
+      "title": "Søg noder",
+      "placeholder": "Søg efter nodenavn...",
+      "startTyping": "Begynd at skrive for at søge gennem alle noder i datasættet"
+    },
+    "navigation": {
+      "drillDown": "Klik på segmenter for at dykke ned (maks. {{maxLevels}} niveauer synlige)",
+      "drillUp": "Klik på det midterste segment for at gå op",
+      "backToRoot": "Brug \"Tilbage til rod\" for at vende tilbage til det øverste niveau"
+    }
+  },
+  "plotlyTreemap": {
+    "title": "Deskriptiv populationsanalyse",
+    "backToEhrLab": "Tilbage til EHR Lab",
+    "loadingPatientData": "Indlæser patientdata...",
+    "processingPatientData": "Behandler patientdata...",
+    "stats": {
+      "totalPopulation": "Samlet population",
+      "allPatientsInRepository": "Alle patienter i lageret",
+      "patientsSelected": "Valgte patienter",
+      "afterApplyingFilters": "Efter anvendelse af filtre"
+    },
+    "filters": {
+      "gender": "Køn",
+      "all": "Alle",
+      "female": "Kvinde",
+      "male": "Mand",
+      "ageRange": "Aldersgruppe: {{min}} – {{max}} år"
+    },
+    "chart": {
+      "title": "Patientantal pr. klinisk hændelse"
+    },
+    "search": {
+      "placeholder": "Søg kliniske hændelser (f.eks. 'resp fin')",
+      "startTyping": "Begynd at skrive for at søge gennem alle SNOMED CT-begreber, der identificerer de kliniske hændelser i datasættet",
+      "useMultiplePrefixes": "Brug flere præfikser adskilt af mellemrum (f.eks. \"resp fin\" finder elementer, der indeholder ord, der starter med både \"resp\" og \"fin\")"
+    },
+    "patients": {
+      "selectedClinicalEvent": "Valgt klinisk hændelse:",
+      "loadPatients": "Indlæs {{count}} patienter",
+      "showingResultsFor": "Viser resultater for {{filters}}",
+      "clinicalEventDistribution": "Fordeling af kliniske hændelser efter alder og køn ({{count}} patienter)",
+      "events": "({{count}} hændelser)",
+      "openClinicalRecord": "Åbn klinisk journal i nyt vindue",
+      "openClinicalRecordAria": "Åbn klinisk journal",
+      "noPatients": "Ingen patienter fundet for dette begreb",
+      "selectClinicalEvent": "Vælg en klinisk hændelse og klik på \"Indlæs patienter\" for at se detaljerede patientoplysninger"
+    },
+    "navigation": {
+      "title": "Navigation",
+      "drillDown": "Klik på treemap-bokse for at dykke ned i hierarkiet for kliniske hændelser og åbne detaljer (maksimalt {{maxLevels}} niveauer er synlige)",
+      "onlyChildren": "Kun bokse med underordnede kan dykkes ned i",
+      "drillUp": "Klik på den aktuelle rodboks for at navigere tilbage til den overordnede",
+      "backToRoot": "Brug \"Tilbage til rod\" for at vende tilbage til det øverste niveau (SNOMED CT-begreb)",
+      "hoverInfo": "Hold musen over bokse for at se detaljerede oplysninger",
+      "boxSize": "Boksens størrelse repræsenterer det relative antal patienter for hvert element"
+    },
+    "filtersDescription": {
+      "allGenders": "alle køn",
+      "malePatients": "mandlige patienter",
+      "femalePatients": "kvindelige patienter",
+      "allAges": "alle aldre",
+      "agesUpTo": "aldre op til {{max}} år",
+      "agesAndAbove": "aldre {{min}} år og derover",
+      "agesBetween": "aldre {{min}}–{{max}} år"
+    }
+  }
+}

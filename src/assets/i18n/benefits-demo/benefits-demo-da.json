@@ -1,0 +1,1281 @@
+{
+  "main": {
+    "header": {
+      "title": "SNOMED EHR Lab",
+      "subtitle": "En hands-on demosuite, der viser, hvordan man designer kliniske arbejdsgange, som producerer rene, forbundne og beregnbare data klar til sikkerhedstjek, analyser og udveksling. Drevet af FHIR og SNOMED CT, men med fokus på informationskvalitet fra ende til anden.",
+      "phiWarning": "Indtast ikke beskyttede helbredsoplysninger (PHI) eller rigtige patientidentificerbare oplysninger i dette demosystem."
+    },
+    "dataMenu": {
+      "label": "Data",
+      "useLocalStorage": "Brug lokal lagring",
+      "useFhirServer": "Brug FHIR-server",
+      "fhirServerSettings": "FHIR-serverindstillinger",
+      "connectedServer": "Tilsluttet server",
+      "cdsHooksServers": "CDS Hooks-servere",
+      "smartHealthLinks": "Smart Health Links",
+      "downloadPatientData": "Download patientdata",
+      "uploadPatientData": "Upload patientdata",
+      "clearAllData": "Slet alle patientdata"
+    },
+    "patientList": {
+      "title": "Patienter",
+      "fhirMode": "FHIR-tilstand",
+      "localStorageMode": "Lokal lagringstilstand",
+      "refreshAriaLabel": "Opdater patienter fra FHIR-server",
+      "refreshTooltip": "Opdater patienter fra FHIR-server",
+      "loading": "Indlæser..."
+    },
+    "actions": {
+      "analytics": "Analyser",
+      "interoperability": "Interoperabilitet",
+      "createPatient": "Opret patient"
+    },
+    "createMenu": {
+      "manualEntry": "Manuel indtastning",
+      "generateRandom": "Generer tilfældig",
+      "creatingPatient": "Opretter patient...",
+      "generateWithDiagnoses": "Generer med diagnoser",
+      "creatingWithDiagnoses": "Opretter med diagnoser...",
+      "generateMultiple": "Generer flere patienter"
+    },
+    "search": {
+      "label": "Søg patienter",
+      "placeholder": "Søg efter for- eller efternavn",
+      "clearAriaLabel": "Ryd søgning"
+    },
+    "patientCard": {
+      "deceased": "Afdød",
+      "idPrefix": "ID"
+    },
+    "noResults": {
+      "title": "Ingen patienter fundet",
+      "message": "Ingen patienter matcher dine søgekriterier.",
+      "clearSearch": "Ryd søgning"
+    },
+    "noPatients": {
+      "title": "Ingen patienter endnu",
+      "message": "Kom i gang ved at oprette patientjournaler til dit EPJ-system.",
+      "creating": "Opretter...",
+      "createSingle": "Opret én patient",
+      "generateMultiple": "Generer flere patienter",
+      "hint": "Eller upload eksisterende patientdata via menuen Data ovenfor"
+    },
+    "pagination": {
+      "previous": "Forrige",
+      "next": "Næste"
+    },
+    "selectedPatient": {
+      "title": "Valgt patient",
+      "removeBookmark": "Fjern bogmærke",
+      "bookmarkPatient": "Bogmærk patient",
+      "openClinicalRecord": "Åbn klinisk journal",
+      "agePrefix": "Alder",
+      "contactInformation": "Kontaktoplysninger",
+      "address": "Adresse",
+      "demographics": "Demografiske oplysninger",
+      "birthDate": "Fødselsdato",
+      "loading": "Indlæser...",
+      "deleting": "Sletter...",
+      "deletePatient": "Slet patient",
+      "noSelection": "Vælg en patient fra listen for at se detaljer.",
+      "registerDeath": "Registrer dødsfald",
+      "updateDeathRecord": "Opdater dødsregistrering",
+      "recordedAsDeceased": "Registreret som afdød",
+      "deceasedOn": "Afdød den {{date}}"
+    },
+    "analytics": {
+      "title": "Klinisk dataanalyse",
+      "titleIcd10": "ICD-10-analyser",
+      "backToPatients": "Tilbage til patienter"
+    }
+  },
+  "createPatient": {
+    "title": "Opret ny patient",
+    "subtitle": "Indtast patientoplysninger for at oprette en ny patientjournal",
+    "sections": {
+      "personalInformation": "Personlige oplysninger",
+      "contactInformation": "Kontaktoplysninger",
+      "addressInformation": "Adresseoplysninger"
+    },
+    "fields": {
+      "firstName": "Fornavn",
+      "lastName": "Efternavn",
+      "dateOfBirth": "Fødselsdato",
+      "gender": "Køn",
+      "phoneNumber": "Telefonnummer",
+      "emailAddress": "E-mailadresse",
+      "streetAddress": "Vejadresse",
+      "city": "By",
+      "state": "Region",
+      "postalCode": "Postnummer",
+      "country": "Land"
+    },
+    "placeholders": {
+      "firstName": "Indtast fornavn",
+      "lastName": "Indtast efternavn",
+      "streetAddress": "Hovedgaden 1",
+      "city": "København",
+      "state": "Hovedstaden",
+      "postalCode": "1000",
+      "country": "DK"
+    },
+    "genderOptions": {
+      "male": "Mand",
+      "female": "Kvinde",
+      "other": "Andet",
+      "unknown": "Ukendt"
+    },
+    "errors": {
+      "firstNameRequired": "Fornavn er påkrævet",
+      "firstNameMinlength": "Fornavn skal være mindst 2 tegn",
+      "lastNameRequired": "Efternavn er påkrævet",
+      "lastNameMinlength": "Efternavn skal være mindst 2 tegn",
+      "birthDateRequired": "Fødselsdato er påkrævet",
+      "genderRequired": "Køn er påkrævet",
+      "phoneInvalid": "Indtast venligst et gyldigt telefonnummer",
+      "emailInvalid": "Indtast venligst en gyldig e-mailadresse",
+      "fieldRequired": "Dette felt er påkrævet",
+      "minlength": "Minimum længde er {{requiredLength}} tegn"
+    },
+    "actions": {
+      "cancel": "Annuller",
+      "createPatient": "Opret patient",
+      "creating": "Opretter..."
+    }
+  },
+  "clinicalRecord": {
+    "actions": {
+      "backToPatientList": "Tilbage til patientliste",
+      "returnToPatientList": "Tilbage til patientliste",
+      "view": "Vis",
+      "addCondition": "Tilføj tilstand",
+      "addAllergy": "Tilføj allergi",
+      "addProcedure": "Tilføj procedure",
+      "addMedication": "Tilføj medicin",
+      "addImmunization": "Tilføj vaccination",
+      "close": "Luk"
+    },
+    "labels": {
+      "id": "ID",
+      "dob": "Fødselsdato",
+      "age": "Alder",
+      "workspaceTitle": "EHR Lab",
+      "cdsAlert": "CDS-advarsel",
+      "cdsAlertPlural": "er",
+      "criticality": "Kritikalitet",
+      "reaction": "Reaktion",
+      "reactions": "Reaktioner",
+      "systemic": "Systemisk",
+      "icd10": "ICD-10",
+      "loinc": "LOINC",
+      "determination": "afgørelse",
+      "determinationPlural": "r",
+      "specimens": "Prøver"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "nav": {
+      "clinical": "Klinisk",
+      "summary": "Oversigt",
+      "problemsList": "Problemliste",
+      "clinicalOrders": "Kliniske ordrer",
+      "encounters": "Konsultationer",
+      "aiAssistedDataEntry": "AI-assisteret dataindtastning",
+      "clinicalForms": "Kliniske formularer",
+      "alerts": "Advarsler",
+      "dental": "Dental",
+      "odontogram": "Odontogram",
+      "nursing": "Sygepleje",
+      "vitalSigns": "Vitale parametre",
+      "nutritionalCareplan": "Ernæringsplejeplan",
+      "dataSectionLabel": "Data",
+      "data": "Data",
+      "fhirRepository": "FHIR-lager"
+    },
+    "tooltips": {
+      "expandSidebar": "Udvid sidepanel",
+      "collapseSidebar": "Fold sidepanel sammen",
+      "dentalOdontogram": "Dental: Odontogram",
+      "nursingVitalSigns": "Sygepleje: Vitale parametre",
+      "nursingNutritionalCareplan": "Sygepleje: Ernæringsplejeplan",
+      "dataFhirRepository": "Data: FHIR-lager",
+      "mappedTo": "Mappet til",
+      "deleteCondition": "Slet tilstand",
+      "deleteAllergy": "Slet allergi",
+      "deleteProcedure": "Slet procedure",
+      "deleteMedication": "Slet medicin",
+      "deleteImmunization": "Slet vaccination",
+      "deleteOrder": "Slet ordre"
+    },
+    "sections": {
+      "summary": "Oversigt",
+      "conditions": "Tilstande",
+      "procedures": "Procedurer",
+      "medications": "Medicin",
+      "immunizations": "Vaccinationer",
+      "allergicTo": "Allergisk over for:",
+      "allergies": "Allergier",
+      "cds": "CDS",
+      "addProblem": "Tilføj problem",
+      "clinicalOrders": "Kliniske ordrer",
+      "savedOrders": "Gemte ordrer"
+    },
+    "messages": {
+      "loadingClinicalData": "Indlæser kliniske data fra FHIR-server...",
+      "updatingEventMappings": "Opdaterer hændelsesmappinger...",
+      "patientDeceased": "Patient markeret som afdød.",
+      "noConditions": "Ingen tilstande registreret",
+      "noProcedures": "Ingen procedurer registreret",
+      "noMedications": "Ingen medicin registreret",
+      "noImmunizations": "Ingen vaccinationer registreret",
+      "noAllergies": "Ingen allergier registreret",
+      "noOrders": "Ingen ordrer registreret",
+      "noPatientSelected": "Ingen patient valgt",
+      "noPatientSelectedDescription": "Vælg venligst en patient fra patientlisten for at se vedkommendes kliniske journal.",
+      "addProblemDescription": "Et problem er ethvert helbredsrelateret problem, diagnose, procedure eller løbende behandling, der skal spores som del af patientens pleje.",
+      "clinicalOrdersDescription": "Opbyg en laboratorieordre med flere afgørelser, gennemgå den i højre kolonne, og gem den som et bundt af ServiceRequest-ressourcer.",
+      "failedToLoadClinicalData": "Det lykkedes ikke at indlæse kliniske data fra FHIR-serveren.",
+      "failedToMapIcd10": "Kunne ikke mappe til ICD-10. Fejl: {{ error }}",
+      "unknownError": "Ukendt fejl",
+      "duplicateCondition": "Denne tilstand eksisterer allerede for denne patient (duplikeret SNOMED CT-kode registreret).",
+      "duplicateProcedure": "Denne procedure eksisterer allerede for denne patient (duplikeret SNOMED CT-kode registreret).",
+      "duplicateMedication": "Denne medicin eksisterer allerede for denne patient (duplikeret SNOMED CT-kode registreret).",
+      "duplicateImmunization": "Denne vaccination eksisterer allerede for denne patient (samme vaccine og dato).",
+      "duplicateEncounter": "Denne konsultation eksisterer allerede for denne patient.",
+      "orderSaved": "Ordre gemt.",
+      "allergyUpdatedWithReactions": "Allergi opdateret. Oversigt og {{ count }} reaktion(er) mappet til kropsdiagram.",
+      "allergyRecordUpdated": "Allergiregistrering opdateret",
+      "questionnaireSaved": "Spørgeskema \"{{ name }}\" gemt",
+      "questionnaireDefaultName": "Besvarelse",
+      "questionnaireItemsExtracted": "{{ count }} element(er) udtrukket.",
+      "questionnaireSaveError": "Fejl ved gemning af spørgeskemabesvarelse",
+      "noEventsToDelete": "Ingen kliniske hændelser at slette.",
+      "allEventsDeleted": "Alle kliniske hændelser er slettet.",
+      "failedToDeleteAllEvents": "Kunne ikke slette alle kliniske hændelser.",
+      "fhirDataLoaded": "FHIR-data indlæst: {{ total }} {{ resourceLabel }} fordelt på {{ groups }} {{ groupLabel }}."
+    },
+    "dialogs": {
+      "deleteAllEventsTitle": "Slet alle kliniske hændelser",
+      "deleteAllEventsMessage": "Dette vil permanent slette {{ count }} kliniske hændelser for {{ patient }}.\n\nDette inkluderer tilstande, procedurer, medicin, vaccinationer, allergier, konsultationer, observationer, spørgeskemaer og relaterede bundter.\n\nDenne handling kan ikke fortrydes.",
+      "deleteAllEventsConfirm": "Slet alle hændelser",
+      "cancel": "Annuller"
+    }
+  },
+  "encounterRecord": {
+    "sections": {
+      "currentEncounter": "Aktuel konsultation",
+      "notes": "Noter",
+      "previousEncounters": "Tidligere konsultationer"
+    },
+    "fields": {
+      "dateTime": "Dato/Tid",
+      "reasonForEncounter": "Konsultationsårsag",
+      "diagnosis": "Diagnose",
+      "diagnosisNote": "Diagnosenotat",
+      "diagnosisNotePlaceholder": "Valgfri note",
+      "procedure": "Procedure",
+      "laterality": "Lateralitet",
+      "lateralityPlaceholder": "Vælg lateralitet",
+      "notes": "Noter",
+      "notesPlaceholder": "Generelle noter om denne konsultation..."
+    },
+    "actions": {
+      "add": "Tilføj",
+      "saving": "Gemmer...",
+      "saveEncounter": "Gem konsultation",
+      "reset": "Nulstil"
+    },
+    "tooltips": {
+      "clickForMoreInfo": "Klik for mere information",
+      "remove": "Fjern",
+      "deleteEncounter": "Slet konsultation"
+    },
+    "labels": {
+      "reasons": "Årsag(er):",
+      "diagnosis": "Diagnose:",
+      "procedures": "Procedure(r):",
+      "notes": "Noter:"
+    },
+    "messages": {
+      "lateralityNotApplicable": "Lateralitet er ikke relevant for denne procedure",
+      "noProcedures": "Ingen procedurer registreret",
+      "saveError": "Fejl ved gemning af konsultationsjournal. Prøv venligst igen.",
+      "deleteConfirm": "Er du sikker på, at du vil slette denne konsultation?",
+      "deleteSuccess": "Konsultation slettet"
+    },
+    "infoMenus": {
+      "reasonForEncounter": {
+        "title": "Konsultationsårsag",
+        "p1": "Feltet Konsultationsårsag bruger SNOMED CT Expression Constraint Language (ECL) til at hente alle muligheder fra en FHIR-baseret SNOMED CT-terminologiserver.",
+        "p2Pre": "Muligheder for konsultationsårsag hentes her ved brug af",
+        "p3": "Mulighederne filtreres baseret på brugerinput, og feltet er implementeret med en autofuldførelse-komponent for at begrænse brugerindtastning.",
+        "p4Pre": "Hvis terminologiserveren understøtter det, kan returnerede resultater begrænses ved at bruge",
+        "p4Post": ". Dette kan forhindre serveren i at svare med en 'too costly'-fejl og forbedre opslags- og renderingsydelsen."
+      },
+      "diagnosis": {
+        "title": "Diagnose",
+        "p1": "Diagnosefeltet bruger SNOMED CT Expression Constraint Language (ECL) til at hente alle muligheder fra en FHIR-baseret SNOMED CT-terminologiserver.",
+        "p2Pre": "Diagnosemuligheder hentes her ved brug af",
+        "p3": "Mulighederne filtreres baseret på brugerinput, og feltet er implementeret med en autofuldførelse-komponent for at begrænse brugerindtastning.",
+        "p4Pre": "Hvis terminologiserveren understøtter det, kan returnerede resultater begrænses ved at bruge",
+        "p4Post": ". Dette kan forhindre serveren i at svare med en 'too costly'-fejl og forbedre opslags- og renderingsydelsen."
+      },
+      "diagnosisNote": {
+        "title": "Diagnosenotat",
+        "p1": "Feltet Diagnosenotat giver brugeren mulighed for at kvalificere SNOMED CT-begrebet i diagnosefeltet, dvs. tilføje yderligere detaljer til SNOMED CT-begrebet om nødvendigt.",
+        "p2": "Dette felt er ét eksempel på, hvordan man håndterer et SNOMED CT-begreb, der måske ikke er specifikt nok. Denne tilgang giver brugeren mulighed for at vælge det nærmeste tilgængelige SNOMED CT-begreb og derefter angive de nødvendige yderligere detaljer."
+      },
+      "procedure": {
+        "title": "Procedure",
+        "p1": "Procedurefeltet bruger SNOMED CT Expression Constraint Language (ECL) til at hente alle muligheder fra en FHIR-baseret SNOMED CT-terminologiserver.",
+        "p2Pre": "Proceduremuligheder hentes her ved brug af",
+        "p3": "Mulighederne filtreres baseret på brugerinput, og feltet er implementeret med en autofuldførelse-komponent for at begrænse brugerindtastning.",
+        "p4Pre": "Hvis terminologiserveren understøtter det, kan returnerede resultater begrænses ved at bruge",
+        "p4Post": ". Dette kan forhindre serveren i at svare med en 'too costly'-fejl og forbedre opslags- og renderingsydelsen.",
+        "p5Pre": "Dette felt er et eksempel på, hvor man kan bruge",
+        "p5Bold": "modelleringen",
+        "p5Post": " i et SNOMED CT-begreb til at forudfylde eller aktivere andre felter. Lateralitetsfeltet forudfyldes, hvis du vælger et begreb, hvis procedurested er modelleret med en lateralitet (f.eks. 735085002 | Excision of left breast lump |).",
+        "p6": "Lateraliteten aktiveres også for brugerinput, når et begreb har et procedurested, men ingen lateralitet er angivet (f.eks. 392021009 | Lumpectomy of breast |). Dette vil blive yderligere afgrænset til at begrænse aktivering til proceduresteder i SNOMED CT's lateraliserbare begrebsreferencesæt."
+      },
+      "laterality": {
+        "title": "Lateralitet",
+        "p1": "Lateralitetsfeltet bruger SNOMED CT Expression Constraint Language (ECL) til at hente alle muligheder fra en FHIR-baseret SNOMED CT-terminologiserver.",
+        "p2Pre": "Lateralitetsmuligheder hentes her ved brug af",
+        "p3Pre": "Dette felt er et eksempel på et felt, der udfyldes baseret på",
+        "p3Bold": "modelleringen",
+        "p3Post": " af et begreb i et andet felt. Procedurefeltet styrer aktiveringen og tilgængelige valg i dette lateralitetsfelt.",
+        "p4": "Lateralitetsfeltet forudfyldes, hvis du vælger et procedurebegreb, hvis procedurested er modelleret med en lateralitet (f.eks. 735085002 | Excision of left breast lump |).",
+        "p5": "Lateraliteten aktiveres også for brugerinput, når et procedurebegreb har et procedurested, men ingen lateralitet er angivet (f.eks. 392021009 | Lumpectomy of breast |). Dette vil blive yderligere afgrænset til at begrænse aktivering til proceduresteder i SNOMED CT's lateraliserbare begrebsreferencesæt."
+      }
+    }
+  },
+  "interoperability": {
+    "sections": {
+      "pageTitle": "IPS-afstemningsguide",
+      "pageSubtitle": "Indlæs en IPS, identificer patienten, gennemgå hvert klinisk afsnit, og importer kun de elementer, du ønsker at beholde.",
+      "scannerTitle": "Scan Smart Health Link",
+      "scannerSubtitle": "Peg kameraet mod en SHL QR-kode for at indlæse IPS-bundtet.",
+      "welcomeTitle": "Afstem en indkommende IPS trin for trin",
+      "welcomeDescription": "Dette modul guider klinikeren gennem patientidentifikation først, derefter ét afstemnings-trin pr. IPS-afsnit med indhold, og endelig en opsummering før import.",
+      "reconciliationSteps": "Afstemningsskridt",
+      "importSummary": "Importoversigt"
+    },
+    "actions": {
+      "backToEhrLab": "Tilbage til SNOMED EHR Lab",
+      "backToInteroperabilityHome": "Tilbage til interoperabilitetshjem",
+      "uploadIpsFile": "Upload IPS-fil",
+      "scanShlQr": "Scan SHL QR",
+      "tryExampleIps": "Prøv eksempel-IPS",
+      "tryExampleIpsBundle": "Prøv eksempel-IPS-bundt",
+      "uploadYourOwnIpsFile": "Upload din egen IPS-fil",
+      "stopScanner": "Stop scanner",
+      "retryWithExample": "Prøv igen med eksempel-IPS",
+      "useThisPatient": "Brug denne patient",
+      "dismiss": "Afvis",
+      "createNewPatient": "Opret ny patient",
+      "back": "Tilbage",
+      "next": "Næste",
+      "importSelectedItems": "Importer valgte elementer ({{ count }})",
+      "createPatientOnly": "Opret kun patient",
+      "openRecord": "Åbn journal",
+      "remove": "Fjern",
+      "add": "Tilføj",
+      "addAnyway": "Tilføj alligevel"
+    },
+    "labels": {
+      "workflowEyebrow": "Arbejdsgang",
+      "stepOf": "Trin {{ current }} af {{ total }}",
+      "ipsPatient": "IPS-patient",
+      "identifyOrCreatePatient": "Identificer eller opret patient",
+      "name": "Navn",
+      "dateOfBirth": "Fødselsdato",
+      "gender": "Køn",
+      "suggestedMatch": "Foreslået automatisk match",
+      "match": "match",
+      "selectExistingPatient": "Vælg eksisterende patient",
+      "noPatientSelected": "Ingen patient valgt",
+      "newPatientDraft": "Ny patientkladde",
+      "linkedTargetRecord": "Tilknyttet måljournal",
+      "willBeCreated": "Oprettes ved import",
+      "ready": "Klar",
+      "ipsItems": "IPS-elementer",
+      "alreadyInRecord": "Allerede i journalen",
+      "selectedToImport": "Valgt til import",
+      "skipped": "Sprunget over",
+      "fromIps": "Fra IPS",
+      "existingClinicalRecord": "Eksisterende klinisk journal",
+      "targetClinicalRecord": "Målklinisk journal",
+      "selectedCount": "{{ count }} valgt",
+      "skippedCount": "{{ count }} sprunget over",
+      "nothingToAdd": "Intet at tilføje",
+      "ipsLogoAlt": "IPS-logo",
+      "snomedLogoAlt": "SNOMED CT-logo",
+      "codeSelected": "kode valgt",
+      "codesSelected": "koder valgt"
+    },
+    "messages": {
+      "resolvingShl": "Løser SHL og downloader IPS...",
+      "loadingTitle": "Indlæser IPS-bundt",
+      "loadingSubtitle": "Vi analyserer patientoversigten og forbereder guidetrinnene.",
+      "errorTitle": "Kunne ikke indlæse IPS",
+      "noAutoMatch": "Intet automatisk match med eksisterende patienter. Du kan vælge én manuelt eller oprette en ny patient.",
+      "allAlreadyExist": "Alle IPS-{{ section }} synes allerede at eksistere i den kliniske journal.",
+      "noExistingItems": "Der er ingen {{ section }} i den tilknyttede kliniske journal.",
+      "noneSelectedForImport": "Ingen {{ section }} valgt til import.",
+      "importingTitle": "Importerer valgte IPS-elementer",
+      "importingSubtitle": "Gemmer de valgte begreber i den kliniske journal og åbner patientjournalen."
+    },
+    "wizardSteps": {
+      "patient": {
+        "title": "Identificer patient",
+        "description": "Match IPS-patienten til en eksisterende journal eller opret en ny."
+      },
+      "conditions": {
+        "title": "Flet tilstande",
+        "description": "Gennemgå IPS-tilstande i forhold til den aktuelle kliniske journal."
+      },
+      "procedures": {
+        "title": "Flet procedurer",
+        "description": "Gennemgå IPS-procedurer i forhold til den aktuelle kliniske journal."
+      },
+      "medications": {
+        "title": "Flet medicin",
+        "description": "Gennemgå IPS-medicin i forhold til den aktuelle kliniske journal."
+      },
+      "immunizations": {
+        "title": "Flet vaccinationer",
+        "description": "Gennemgå IPS-vaccinationer i forhold til den aktuelle kliniske journal."
+      },
+      "allergies": {
+        "title": "Flet allergier",
+        "description": "Gennemgå IPS-allergier i forhold til den aktuelle kliniske journal."
+      },
+      "summary": {
+        "title": "Oversigt",
+        "description": "Bekræft de valgte IPS-elementer inden import."
+      }
+    },
+    "sectionTitles": {
+      "conditions": "Tilstande",
+      "procedures": "Procedurer",
+      "medications": "Medicin",
+      "immunizations": "Vaccinationer",
+      "allergies": "Allergier"
+    },
+    "datLabels": {
+      "onset": "Debut",
+      "performed": "Udført",
+      "effective": "Gyldig",
+      "occurrence": "Forekomst",
+      "recorded": "Registreret"
+    },
+    "validation": {
+      "checkingHierarchyTitle": "Kontrollerer SNOMED-hierarki",
+      "preparingValidation": "Forbereder validering af begrebshierarki...",
+      "hierarchyReviewRequiredTitle": "Hierarkigennemgang påkrævet",
+      "hierarchyCheckCompleteTitle": "Hierarkikontrol fuldført",
+      "hierarchyConflictMessage": "Det valgte begreb overlapper hierarkisk med et eller flere begreber, der allerede findes i journalen. Gennemgå relationerne, inden du beslutter, om du vil tilføje det.",
+      "hierarchyNoConflictMessage": "Ingen hierarkisk overlapning blev fundet med de eksisterende begreber i dette afsnit.",
+      "hierarchyCheckFailed": "Vi kunne ikke fuldføre hierarkikontrollen. Du kan stadig tilføje begrebet, hvis du vil fortsætte.",
+      "relationExactMatch": "Præcist match",
+      "relationBroader": "Valgt begreb er bredere",
+      "relationNarrower": "Valgt begreb er smallere"
+    }
+  },
+  "conceptValidationDialog": {
+    "labels": {
+      "overlappingConcepts": "Begreber i patientjournal med overlappende betydning"
+    },
+    "actions": {
+      "cancel": "Annuller"
+    }
+  },
+  "formRecords": {
+    "sections": {
+      "title": "Formularregistreringer",
+      "subtitle": "Vis udfyldte spørgeskemaer og kliniske formularer",
+      "questionsAndAnswers": "Spørgsmål og svar",
+      "responseData": "Svardata ({{ format }}-format)"
+    },
+    "status": {
+      "loading": "Indlæser formularregistreringer...",
+      "emptyTitle": "Ingen formularregistreringer",
+      "emptyMessage": "Udfyld spørgeskemaer og kliniske formularer for at se dem her.",
+      "completed": "Fuldført"
+    },
+    "actions": {
+      "view": "Vis",
+      "export": "Eksporter",
+      "delete": "Slet",
+      "viewJson": "Vis {{ format }} JSON",
+      "viewReadable": "Vis læsbart format",
+      "copyJson": "Kopiér JSON",
+      "exportJson": "Eksporter JSON",
+      "close": "Luk"
+    },
+    "labels": {
+      "date": "Dato",
+      "status": "Status",
+      "type": "Type",
+      "id": "ID",
+      "resourceType": "Ressourcetype",
+      "format": "Format",
+      "openehrComposition": "openEHR Composition",
+      "vrdrBundle": "VRDR FHIR Document Bundle",
+      "fhirDeathCertBundle": "FHIR Death Certificate Bundle",
+      "fhirQR": "FHIR QuestionnaireResponse",
+      "openehrFlat": "openEHR FLAT",
+      "containsSubItems": "indeholder underelementer"
+    },
+    "messages": {
+      "noAnswers": "Ingen svar fundet i dette besvarelsessæt",
+      "errorLoading": "Fejl ved indlæsning af formularregistreringer",
+      "deleteSuccess": "Formularregistrering slettet",
+      "exportSuccess": "Formularregistrering eksporteret",
+      "errorExporting": "Fejl ved eksport af formularregistrering",
+      "copySuccess": "JSON kopieret til udklipsholder",
+      "errorCopying": "Fejl ved kopiering til udklipsholder",
+      "errorCopyingManual": "Fejl ved kopiering til udklipsholder. Kopiér venligst manuelt."
+    }
+  },
+  "cdsPanel": {
+    "sections": {
+      "title": "Beslutningsstøtte",
+      "description": "Dette panel viser de seneste standardiserede CDS Hooks-resultater returneret af de aktive CDS-servere for den aktuelle kliniske arbejdsgang."
+    },
+    "actions": {
+      "refresh": "Opdater",
+      "viewSource": "Vis kilde",
+      "close": "Luk"
+    },
+    "status": {
+      "requesting": "Anmoder om {{ hook }}-resultater fra aktive CDS-servere...",
+      "noRequestAvailable": "Ingen CDS-anmodning tilgængelig",
+      "error": "Fejl",
+      "recommendationCount": "{{ count }} anbefaling(er) for {{ hook }}",
+      "completedNoRecommendations": "{{ hook }} fuldført uden anbefalinger.",
+      "noSpecificRecommendations": "Ingen specifikke anbefalinger",
+      "noRecommendationsDetail": "Ingen CDS-anbefalinger blev returneret for {{ hook }} fra de aktive servere."
+    },
+    "tooltips": {
+      "viewSource": "Vis kilde"
+    },
+    "info": {
+      "intro": "Denne demo bruger denne open source-ressource:",
+      "serviceTitle": "SNOMED FHIR Clinical Decision Support Service",
+      "overview": "Denne demo præsenterer SNOMED FHIR CDS-tjenesten og er udelukkende beregnet til demonstrationsformål, ikke til klinisk brug i den virkelige verden. Bygget på FHIR-standarder og SNOMED CT analyserer den medicinordinationer for at registrere kontraindikationer, lægemiddelinteraktioner, unormal dosering og valideringsfejl.",
+      "keyComponentsTitle": "Nøglekomponenter",
+      "rulesEngineLabel": "Regelmotor",
+      "rulesEngineText": "Indlæser regler for medicin-tilstand og lægemiddel-lægemiddel-interaktioner.",
+      "fhirIntegrationLabel": "FHIR-integration",
+      "fhirIntegrationText": "Accepterer MedicationRequest-, Condition-, AllergyIntolerance- og Patient-ressourcer.",
+      "knowledgeBasesLabel": "Vidensgrundlag",
+      "interactionsLabel": "Interaktioner",
+      "interactionsText": "En begrænset liste over lægemiddelinteraktionsrisici udarbejdet fra offentligt tilgængelige ressourcer til demonstrationen.",
+      "contraindicationsLabel": "Kontraindikationer",
+      "contraindicationsText": "En begrænset liste over medicin-tilstand-kontraindikationer udarbejdet fra offentligt tilgængelige ressourcer til demonstrationen.",
+      "dddLabel": "DDD",
+      "dddText": "Bruger WHO ATC-definerede daglige doser til at estimere advarsler om overdosering.",
+      "thresholdsLabel": "Tærskler",
+      "thresholdsText": "Understøtter justerbare grænser for doseringsadvarsler.",
+      "alertTypesTitle": "Advarselstyper",
+      "contraindicationAlertsLabel": "Kontraindikationsadvarsler",
+      "contraindicationAlertsText": "Markerer, når et lægemiddel er usikkert for en patients eksisterende medicinske tilstande. ADVARSEL angiver en kritisk kontraindikation, mens INFO foreslår forsigtighed.",
+      "allergyAlertsLabel": "Lægemiddelallergiadvarsel",
+      "allergyAlertsText": "Markerer, når et lægemiddel er i konflikt med registrerede allergioplysninger.",
+      "highDosageAlertsLabel": "Høj-doserings-advarsler",
+      "highDosageAlertsText": "Identificerer, hvornår den ordinerede daglige dosis overstiger WHO's definerede daglige dosis-reference. INFO angiver 2-4x DDD, og ADVARSEL angiver 4x DDD eller derover.",
+      "formulaLabel": "Formel",
+      "formulaText": "Ordineret daglig dosis / DDD-reference = Advarselsgrænse",
+      "configurationLabel": "Konfiguration",
+      "configurationText": "Acceptabel grænse 2x DDD, maksimal grænse 4x DDD.",
+      "drugInteractionAlertsLabel": "Lægemiddel-lægemiddel-interaktionsadvarsler",
+      "drugInteractionAlertsText": "Registrerer risikable lægemiddelkombinationer med INFO-, ADVARSEL- og KRITISK-alvorlighed baseret på interaktionsstyrke.",
+      "validationErrorAlertsLabel": "Valideringsfejladvarsler",
+      "validationErrorAlertsText": "Markerer ufuldstændige eller ugyldige receptdata som f.eks. ugyldige dosisenheder, manglende hyppighed eller ufuldstændige oplysninger.",
+      "severityTitle": "Alvorlighedsindikatorer for advarsler",
+      "severityInfo": "INFO",
+      "severityInfoText": "Informativ",
+      "severityWarning": "ADVARSEL",
+      "severityWarningText": "Vigtigt sikkerhedsmæssigt hensyn",
+      "severityCritical": "KRITISK",
+      "severityCriticalText": "Alvorligt sikkerhedsproblem"
+    }
+  },
+  "clinicalEntry": {
+    "fields": {
+      "indicationReason": "Vælg årsagen til indikationen",
+      "noneGeneral": "Ingen – Generel medicin",
+      "conditionsGroup": "Tilstande",
+      "proceduresGroup": "Procedurer",
+      "conditionDate": "Tilstandsdato",
+      "procedureDate": "Proceduredato",
+      "immunizationDate": "Vaccinationsdato",
+      "medicationStartDate": "Medicinens startdato",
+      "doseValue": "Dosisværdi",
+      "doseUnit": "Dosisenhed",
+      "every": "Hver",
+      "periodUnit": "Periodenhed",
+      "hours": "Timer",
+      "days": "Dage",
+      "weeks": "Uger",
+      "immunizationStatus": "Vaccinationsstatus",
+      "statusCompleted": "Fuldført",
+      "statusNotDone": "Ikke udført",
+      "statusEnteredInError": "Indtastet ved fejl"
+    },
+    "actions": {
+      "saving": "Gemmer...",
+      "cancel": "Annuller"
+    },
+    "tooltips": {
+      "infoButton": "Klik for mere information om dette felt"
+    },
+    "info": {
+      "terminologyBindingTitle": "Terminologibinding",
+      "terminologyBindingDesc": "Dette felt bruger SNOMED CT Expression Constraint Language (ECL) til at hente muligheder fra en FHIR-baseret SNOMED CT-terminologiserver.",
+      "eclExpressionIntro": "ECL-udtrykket brugt til denne binding er:",
+      "autocompleteDesc": "Mulighederne filtreres baseret på brugerinput, og feltet er implementeret med en autofuldførelse-komponent for at begrænse brugerindtastning og forbedre valgoplevelsen.",
+      "countDesc": "Hvis terminologiserveren understøtter det, kan returnerede resultater begrænses ved at bruge count=X. Dette kan forhindre serveren i at svare med en 'too costly'-fejl og forbedre opslags- og renderingsydelsen.",
+      "associationNote": "Bemærk: Du kan knytte dette lægemiddel til en eksisterende tilstand eller procedure ved at vælge indikationsårsagen fra rullemenuen."
+    }
+  },
+  "fhirData": {
+    "sections": {
+      "fhirResources": "FHIR-ressourcer"
+    },
+    "status": {
+      "deletingEvents": "Sletter kliniske hændelser...",
+      "deletingEventsSubtitle": "Fjerner patientressourcer fra hukommelsen og den aktive FHIR-server.",
+      "noResources": "Ingen ressourcer",
+      "noFhirResources": "Ingen FHIR-ressourcer fundet for denne patient.",
+      "noPatientSelected": "Ingen patient valgt."
+    },
+    "actions": {
+      "exportingBundle": "Eksporterer bundt...",
+      "exportAllBundle": "Eksporter alt som bundt",
+      "generatingLocalIps": "Genererer lokal IPS...",
+      "generateLocalIps": "Generer lokal IPS",
+      "requestingIpsFromServer": "Anmoder om IPS fra server...",
+      "checkingIpsSupport": "Kontrollerer IPS-understøttelse...",
+      "requestIpsToServer": "Anmod serveren om IPS-generering",
+      "deleteAllEvents": "Slet alle hændelser",
+      "openOnServer": "Åbn på server",
+      "close": "Luk"
+    },
+    "labels": {
+      "fhirResource": "FHIR-ressource",
+      "selectToInspect": "Vælg en ressource for at inspicere JSON"
+    },
+    "tooltips": {
+      "exportBundle": "Download den fulde patientjournal som et transaktionsbundt til import i en anden FHIR-server",
+      "generateLocalIps": "Generer et lokalt IPS-dokument fra de aktuelle kliniske data",
+      "summaryFhirOnly": "$summary er kun tilgængelig i FHIR-tilstand",
+      "checkingCapabilities": "Kontrollerer FHIR-serverkapaciteter...",
+      "ipsNotSupported": "IPS-generering understøttes ikke på serveren",
+      "requestIpsGeneration": "Anmod serveren om IPS-generering via Patient/$summary",
+      "deleteAllEvents": "Slet alle kliniske hændelser for denne patient",
+      "openOnServer": "Åbn denne ressource på FHIR-serveren",
+      "downloadJson": "Download JSON",
+      "copyJson": "Kopiér JSON"
+    },
+    "messages": {
+      "jsonCopied": "FHIR JSON kopieret til udklipsholder",
+      "bundleExported": "Patientjournal eksporteret som et transaktionsbundt.",
+      "localIpsGenerated": "IPS-dokument genereret fra lokale kliniske data.",
+      "serverIpsLoaded": "Patientoversigt indlæst fra FHIR-server.",
+      "serverIpsNotSupported": "Denne FHIR-server understøtter ikke Patient/$summary.",
+      "errorLoadingServerIps": "Kunne ikke indlæse patientoversigt fra FHIR-serveren."
+    }
+  },
+  "clinicalForms": {
+    "sections": {
+      "title": "Kliniske formularer",
+      "customQuestionnaires": "Brugerdefinerede spørgeskemaer",
+      "uploadNewQuestionnaire": "Upload nyt spørgeskema",
+      "uploadedQuestionnaires": "Uploadede spørgeskemaer"
+    },
+    "tabs": {
+      "dataEntry": "Dataindtastning",
+      "formRecords": "Formularregistreringer",
+      "manageQuestionnaires": "Administrer spørgeskemaer"
+    },
+    "fields": {
+      "selectClinicalForm": "Vælg klinisk formular"
+    },
+    "labels": {
+      "builtInForms": "Indbyggede formularer",
+      "uploadedForms": "Uploadede formularer",
+      "formSuffix": "Formular",
+      "requirements": "Krav:",
+      "uploaded": "Uploadet",
+      "id": "ID",
+      "unknown": "Ukendt"
+    },
+    "actions": {
+      "chooseFile": "Vælg fil",
+      "deleteAll": "Slet alle",
+      "useForm": "Brug formular",
+      "delete": "Slet",
+      "close": "Luk",
+      "ok": "OK"
+    },
+    "status": {
+      "uploading": "Uploader...",
+      "submittingIcsr": "Indsender ICSR-rapport...",
+      "submittingWait": "Vent venligst, mens vi indsender din rapport til myndighederne.",
+      "submittingMoment": "Dette kan tage et øjeblik."
+    },
+    "messages": {
+      "noLocalFormsUploaded": "Ingen lokale formularer uploadet endnu",
+      "formUnderDevelopment": "Denne formular er i øjeblikket under udvikling.",
+      "comingSoon": "Kommer snart...",
+      "selectFormTitle": "Vælg en klinisk formular",
+      "selectFormHint": "Vælg en formular fra rullemenuen ovenfor for at begynde at dokumentere kliniske oplysninger.",
+      "manageQuestionnairesDesc": "Upload og administrer brugerdefinerede FHIR Questionnaire-ressourcer",
+      "uploadDescription": "Upload en FHIR Questionnaire-ressource i JSON-format. Spørgeskemaet vil være tilgængeligt for alle patienter.",
+      "requirementFhir": "Gyldig FHIR Questionnaire-ressource (resourceType: \"Questionnaire\")",
+      "requirementJson": "JSON-format (.json-fil)",
+      "requirementTitle": "Skal indeholde et titel- eller navnefelt",
+      "noCustomQuestionnaires": "Ingen brugerdefinerede spørgeskemaer uploadet endnu",
+      "uploadToGetStarted": "Upload en FHIR Questionnaire JSON-fil for at komme i gang",
+      "selectJsonFile": "Vælg venligst en JSON-fil",
+      "questionnaireUploadedSuccess": "Spørgeskema \"{{ name }}\" uploadet!",
+      "failedToUploadQuestionnaire": "Kunne ikke uploade spørgeskema",
+      "invalidJsonFile": "Ugyldig JSON-fil",
+      "invalidJsonFileDetail": "Ugyldig JSON-fil. Sørg for, at filen indeholder gyldig JSON.",
+      "failedToReadFile": "Kunne ikke læse fil",
+      "confirmDeleteQuestionnaire": "Er du sikker på, at du vil slette \"{{ name }}\"?",
+      "questionnaireDeletedSuccess": "Spørgeskema \"{{ name }}\" slettet",
+      "failedToDeleteQuestionnaire": "Kunne ikke slette spørgeskema",
+      "confirmDeleteAllQuestionnaires": "Er du sikker på, at du vil slette ALLE brugerdefinerede spørgeskemaer? Denne handling kan ikke fortrydes.",
+      "allQuestionnairesDeletedSuccess": "Alle brugerdefinerede spørgeskemaer slettet",
+      "failedToDeleteQuestionnaires": "Kunne ikke slette spørgeskemaer",
+      "icsrSubmittedSuccess": "ICSR-rapport {{ reportId }} indsendt til {{ organization }}. Reference-ID: {{ referenceId }}",
+      "demoNotice": "Dette er en demonstration. Der er ikke indsendt faktiske data til nogen myndighed.",
+      "submissionFailed": "Indsendelse mislykkedes. Kontrollér din forbindelse og prøv igen.",
+      "questionnaireResponseSaved": "Spørgeskemabesvarelse gemt",
+      "openEhrCompositionSaved": "openEHR-komposition gemt",
+      "warningNoDataToSave": "Advarsel: Ingen data at gemme. Udfyld mindst ét felt.",
+      "warningNoPatientSelected": "Advarsel: Ingen patient valgt. Komposition ikke gemt.",
+      "allergyDocumented": "Allergi/intolerans dokumenteret: {{ display }}",
+      "allergySavedWithReactions": "Allergi/intolerans gemt. {{ count }} reaktion(er) tilføjet til problemliste.",
+      "allergySavedSuccess": "Allergi/intolerans gemt",
+      "allergyAlreadyExists": "Denne allergi eksisterer allerede for denne patient",
+      "failedToLoadQuestionnaire": "Kunne ikke indlæse spørgeskema: {{ file }}",
+      "templateFileNotFound": "Skabelonfil ikke fundet for: {{ formId }}",
+      "failedToLoadOpenEhrTemplate": "Kunne ikke indlæse openEHR-skabelon: {{ file }}. Fejl: {{ error }}"
+    }
+  },
+  "adverseReactionForm": {
+    "sections": {
+      "title": "Individuel sikkerhedsrapport (ICSR)",
+      "subtitle": "Rapporteringsskema for bivirkninger – EU ADR / ICSR",
+      "caseIdentification": "Sagsidentifikation og administrative oplysninger",
+      "senderInformation": "Afsenderoplysninger",
+      "patientInformation": "Patientoplysninger",
+      "adverseReactionDetails": "Oplysninger om bivirkning",
+      "selectAdverseReaction": "Vælg bivirkning fra patientens tilstande",
+      "meddraMappings": "MedDRA-mappinger",
+      "suspectedMedicinalProduct": "Mistænkt lægemiddel",
+      "selectSuspectedMedication": "Vælg mistænkt medicin fra patientens medicin",
+      "snomedConceptId": "SNOMED-begrebsID",
+      "concomitantProducts": "Samtidige produkter",
+      "otherMedicationsConcurrently": "Anden medicin taget samtidigt",
+      "followUpInformation": "Opfølgning og yderligere oplysninger",
+      "seriousnessCriteria": "Alvorlighedskriterier"
+    },
+    "fields": {
+      "reportId": "Rapport-ID",
+      "reportIdHint": "Automatisk genereret unik identifikator",
+      "dateOfReceipt": "Modtagelsesdato",
+      "typeOfReport": "Rapporttype",
+      "reporterType": "Indberettertype",
+      "name": "Navn",
+      "country": "Land",
+      "address": "Adresse",
+      "qualification": "Kvalifikation",
+      "patientInitials": "Patientinitialer",
+      "age": "Alder",
+      "gender": "Køn",
+      "dateOfBirth": "Fødselsdato",
+      "relevantMedicalHistory": "Relevant sygehistorie",
+      "chooseFromConditions": "Vælg fra eksisterende tilstande",
+      "selectConditionPlaceholder": "Vælg en tilstand",
+      "descriptionOfAdverseEvent": "Beskrivelse af bivirkning",
+      "descriptionPlaceholder": "Beskriv bivirkningen i detaljer",
+      "dateOfOnset": "Debutdato",
+      "duration": "Varighed",
+      "durationPlaceholder": "f.eks. 2 dage, 1 uge",
+      "dateOfRecovery": "Bedringsdato",
+      "outcome": "Udfald",
+      "chooseFromMedications": "Vælg fra eksisterende medicin",
+      "selectMedicationPlaceholder": "Vælg et lægemiddel",
+      "productName": "Produktnavn",
+      "activeSubstance": "Aktivt stof",
+      "dose": "Dosis",
+      "dosePlaceholder": "f.eks. 10 mg",
+      "frequency": "Hyppighed",
+      "frequencyPlaceholder": "f.eks. én gang dagligt",
+      "productDurationPlaceholder": "f.eks. 5 dage",
+      "routeOfAdministration": "Administrationsvej",
+      "selectRoute": "Vælg administrationsvej",
+      "startDate": "Startdato",
+      "stopDate": "Slutdato",
+      "batchLotNumber": "Batch-/lotnummer",
+      "countryOfReaction": "Land for bivirkning",
+      "countryOfReporter": "Indberetterens land",
+      "therapeuticMeasuresTaken": "Iværksatte terapeutiske foranstaltninger",
+      "therapeuticMeasuresPlaceholder": "Beskriv eventuelle behandlinger eller interventioner iværksat for at håndtere bivirkningen",
+      "relevantLaboratoryData": "Relevante laboratoriedata",
+      "laboratoryDataPlaceholder": "Inkluder relevante testresultater, laboratorieværdier eller billeddiagnostiske fund",
+      "literatureReference": "Litteraturreference",
+      "literatureReferencePlaceholder": "Angiv litteraturreference, hvis relevant",
+      "caseNarrative": "Sagsberetning",
+      "caseNarrativePlaceholder": "Giv en fyldestgørende beretning om sagen, herunder tidslinje, klinisk forløb og andre relevante detaljer",
+      "caseNarrativeHint": "Denne beretning skal give et fuldstændigt billede af sagen til myndighedernes gennemgang"
+    },
+    "labels": {
+      "patient": "Patient:",
+      "age": "Alder",
+      "male": "Mand",
+      "female": "Kvinde",
+      "other": "Andet",
+      "unknownCondition": "Ukendt tilstand",
+      "unknownMedication": "Ukendt lægemiddel",
+      "concomitantProductN": "Samtidigt produkt"
+    },
+    "actions": {
+      "addConcomitantProduct": "Tilføj samtidigt produkt",
+      "cancel": "Annuller",
+      "submitIcsr": "Indsend ICSR-rapport"
+    },
+    "status": {
+      "loadingMeddraMappings": "Indlæser MedDRA-mappinger..."
+    },
+    "messages": {
+      "selectConditionForMeddra": "Vælg en tilstand for at se MedDRA-mappinger",
+      "noMeddraMappings": "Ingen MedDRA-mappinger fundet for denne tilstand",
+      "noMeddraMappingsHint": "Denne tilstand har muligvis ingen tilsvarende MedDRA-termer",
+      "selectMedicationForSnomed": "Vælg et lægemiddel for at se SNOMED-begrebsID",
+      "noConcomitantProducts": "Ingen samtidige produkter tilføjet. Klik på \"Tilføj samtidigt produkt\" for at inkludere andre lægemidler.",
+      "selectAllThatApply": "Vælg alle der gælder:"
+    }
+  },
+  "dentistryRecord": {
+    "sections": {
+      "odontogram": "Odontogram"
+    },
+    "tabs": {
+      "anatomicView": "Anatomisk visning",
+      "odontogramView": "Odontogramvisning",
+      "selectedTooth": "Valgt tand",
+      "allRecords": "Alle registreringer"
+    },
+    "labels": {
+      "odontogramViewSelector": "Odontogramvisningsvælger"
+    },
+    "tooltips": {
+      "viewDentalFhir": "Vis dentale FHIR-ressourcer"
+    },
+    "actions": {
+      "close": "Luk"
+    },
+    "messages": {
+      "couldNotGenerateExpression": "Kunne ikke generere postkoordineret udtryk for denne registrering.",
+      "expressionCopied": "Postkoordineret udtryk kopieret til udklipsholder.",
+      "unableToCopy": "Kunne ikke kopiere udtryk til udklipsholder.",
+      "extractingDentalSites": "Udtrækker dentale sites fra postkoordinationsudtryk ({{ count }})"
+    }
+  },
+  "dentistryDataEntry": {
+    "sections": {
+      "currentRecords": "Aktuelle registreringer for denne tand"
+    },
+    "tabs": {
+      "findings": "Fund",
+      "procedures": "Procedurer"
+    },
+    "fields": {
+      "affectedSites": "Påvirkede site(r) *",
+      "toothInGeneral": "Tand generelt",
+      "periodontalTissues": "Parodontalt væv",
+      "finding": "Fund *",
+      "procedure": "Procedure *",
+      "searchFindings": "Skriv for at søge fund",
+      "searchProcedures": "Skriv for at søge procedurer"
+    },
+    "labels": {
+      "selected": "Valgt",
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universal",
+      "palmer": "Palmer",
+      "snomed": "SNOMED",
+      "notMapped": "Ikke mappet",
+      "addNewRecord": "Tilføj ny registrering",
+      "entryTypeSelector": "Registreringstypevælger",
+      "rootSurfaces": "Rodfladerne"
+    },
+    "actions": {
+      "save": "Gem"
+    },
+    "messages": {
+      "noRecordsForTooth": "Ingen registreringer gemt for denne tand endnu.",
+      "entrySaved": "Registrering gemt for tand {{ fdi }}.",
+      "clickToPin": "Klik på en tand for at fastgøre den her til dataindtastning."
+    }
+  },
+  "dentistryFhirDialog": {
+    "tooltips": {
+      "download": "Download FHIR-ressource",
+      "copy": "Kopiér FHIR-ressource"
+    },
+    "actions": {
+      "close": "Luk"
+    },
+    "messages": {
+      "copied": "FHIR JSON kopieret til udklipsholder"
+    }
+  },
+  "odontogramAnatomic": {
+    "sections": {
+      "title": "Anatomisk visning",
+      "subtitle": "Naturlige tandkonturer med overflade-overlays."
+    },
+    "tabs": {
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universal"
+    },
+    "labels": {
+      "toothNumberingSelector": "Tandnummereringsvælger",
+      "interactiveOdontogram": "Interaktivt odontogram",
+      "maxillaryArch": "Overkæbebue",
+      "mandibularArch": "Underkæbebue",
+      "tooth": "Tand",
+      "surfaceColorLegend": "Farveforklaring for overflader"
+    },
+    "legend": {
+      "findings": "Fund",
+      "plannedProcedures": "Planlagte procedurer",
+      "completedProcedures": "Udførte procedurer"
+    }
+  },
+  "odontogramRootSurface": {
+    "sections": {
+      "title": "Odontogramvisning",
+      "subtitle": "Segmenterede overflader med større centralt polygon for kindtænder."
+    },
+    "tabs": {
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universal"
+    },
+    "labels": {
+      "showRootSurfaces": "Vis rodfladerne",
+      "toothNumberingSelector": "Tandnummereringsvælger",
+      "interactiveOdontogram": "Interaktivt rodfladeodontogram",
+      "tooth": "Tand",
+      "surfaceColorLegend": "Farveforklaring for overflader"
+    },
+    "legend": {
+      "findings": "Fund",
+      "plannedProcedures": "Planlagte procedurer",
+      "completedProcedures": "Udførte procedurer"
+    }
+  },
+  "dentistryRecordItem": {
+    "labels": {
+      "toothFdi": "Tand FDI {{ fdi }} – Univ. {{ universal }}"
+    },
+    "actions": {
+      "deleteRecord": "Slet registrering",
+      "copyPostcoordinated": "Kopiér postkoordineret udtryk"
+    },
+    "tooltips": {
+      "deleteRecord": "Slet registrering",
+      "setAsPlanned": "Sæt som planlagt",
+      "setAsCompleted": "Sæt som udført",
+      "setAsActive": "Sæt som aktiv",
+      "setAsResolved": "Sæt som afsluttet"
+    }
+  },
+  "dentistryAllFindings": {
+    "sections": {
+      "title": "Alle registreringer"
+    },
+    "messages": {
+      "noRecords": "Ingen gemte dentalregistreringer for denne patient endnu."
+    }
+  },
+  "aiAssistedEntry": {
+    "sections": {
+      "title": "AI-assisteret dataindtastning",
+      "description": "Intelligent klinisk dataindtastning drevet af AI for at strømline dokumentation og forbedre nøjagtighed.",
+      "encounterDetails": "Konsultationsdetaljer",
+      "encounterDescription": "Konfigurer konsultationsdetaljerne for denne kliniske session",
+      "detectedEntities": "Registrerede kliniske enheder",
+      "detectedEntitiesDescription": "AI-registrerede tilstande, procedurer og medicin"
+    },
+    "fields": {
+      "reasonForEncounter": "Konsultationsårsag",
+      "selectReasonForEncounter": "Vælg konsultationsårsag",
+      "diagnosis": "Diagnose",
+      "selectDiagnosis": "Vælg diagnose",
+      "procedure": "Procedure",
+      "selectProcedure": "Vælg procedure"
+    },
+    "labels": {
+      "none": "Ingen",
+      "conditions": "Tilstande",
+      "procedures": "Procedurer",
+      "medications": "Medicin",
+      "confidence": "Sikkerhed",
+      "unknownError": "Ukendt fejl"
+    },
+    "actions": {
+      "addSampleText": "Tilføj eksempeltekst",
+      "saveAllToPatient": "Gem alt til patient",
+      "close": "Luk"
+    },
+    "status": {
+      "savingToFhir": "Gemmer til FHIR-server...",
+      "analyzingText": "AI analyserer tekst...",
+      "savingClinicalResources": "Gemmer kliniske ressourcer...",
+      "alreadyExistsInProblemsList": "Findes allerede i problemlisten"
+    },
+    "tooltips": {
+      "remove": "Fjern fra registrerede",
+      "removeExisting": "Fjern fra registrerede (gemmes ikke som ny klinisk hændelse)"
+    },
+    "messages": {
+      "placeholderLine1": "Dette er en brugeroplevelsesdemo; der er ingen rigtig AI-model, og kun få simulerede registreringer vises.",
+      "placeholderLine2": "Indsæt eksempeltekst ved hjælp af knappen nedenfor for at se en simulation af AI-assisteret registrering af kliniske enheder.",
+      "emptyStateHint": "Begynd at skrive kliniske noter for at registrere enheder",
+      "emptyStateExample": "Prøv: \"Patienten har astma, har brug for operation, tager aspirin\"",
+      "errorDetectingEntities": "Fejl ved registrering af enheder: {{ message }}",
+      "procedureLinkedToEncounter": "Procedure \"{{ name }}\" eksisterede allerede og blev knyttet til den nye konsultation.",
+      "procedureAlreadyExists": "Procedure \"{{ name }}\" eksisterer allerede for denne patient.",
+      "savedClinicalResources": "{{ count }} kliniske ressourcer gemt.",
+      "failedToSave": "Kunne ikke gemme kliniske ressourcer: {{ message }}"
+    }
+  },
+  "nursingRecord": {
+    "sections": {
+      "nursing": "Sygepleje"
+    }
+  },
+  "nursingVitalCard": {
+    "labels": {
+      "last": "Seneste"
+    },
+    "fields": {
+      "systolic": "Systolisk",
+      "diastolic": "Diastolisk"
+    },
+    "actions": {
+      "addNew": "Tilføj ny",
+      "save": "Gem",
+      "cancel": "Annuller"
+    }
+  },
+  "nursingVitalSigns": {
+    "sections": {
+      "vitalSigns": "Vitale parametre"
+    },
+    "tooltips": {
+      "viewVitalFhir": "Vis vitale FHIR-ressourcer"
+    }
+  },
+  "nursingNutritionalCareplan": {
+    "sections": {
+      "nutritionalEvaluation": "Ernæringsvurdering",
+      "anthropometry": "Antropometri",
+      "nutritionalGoals": "Ernæringsmål",
+      "interventions": "Interventioner"
+    },
+    "labels": {
+      "bmi": "BMI"
+    },
+    "actions": {
+      "save": "Gem",
+      "close": "Luk",
+      "removeIntervention": "Fjern intervention",
+      "addIntervention": "Tilføj intervention"
+    },
+    "messages": {
+      "noDataRecorded": "Ingen data registreret",
+      "noChangesToSave": "Ingen ændringer at gemme for BMI",
+      "assessmentSaved": "Ernæringsvurdering gemt (BMI)"
+    }
+  },
+  "problemsList": {
+    "sections": {
+      "title": "Problemliste"
+    },
+    "labels": {
+      "consolidatedView": "Konsolideret visning"
+    },
+    "messages": {
+      "noProblemsRecorded": "Ingen problemer registreret"
+    }
+  },
+  "clinicalTimeline": {
+    "sections": {
+      "title": "Tidslinje",
+      "overview": "Oversigt"
+    },
+    "labels": {
+      "status": "Status",
+      "snomedCt": "SNOMED CT"
+    },
+    "messages": {
+      "zoomPan": "Zoom og panorér for at udforske kronologien over registrerede hændelser.",
+      "noEvents": "Ingen tidslinjebegivenheder",
+      "noEventsHint": "Kliniske hændelser vises her, når tilstande, allergier, procedurer, medicin eller vaccinationer tilføjes med datoer."
+    }
+  },
+  "questionnaireForm": {
+    "labels": {
+      "prePopulated": "Forudfyldt fra patientjournalen"
+    },
+    "actions": {
+      "submitResponse": "Indsend besvarelse",
+      "cancel": "Annuller"
+    },
+    "messages": {
+      "loading": "Indlæser spørgeskema...",
+      "noQuestionnaire": "Intet spørgeskema indlæst",
+      "noQuestionnaireHint": "Vælg et spørgeskema fra rullemenuen ovenfor"
+    }
+  },
+  "openehrForm": {
+    "labels": {
+      "defaultTitle": "openEHR-formular"
+    },
+    "actions": {
+      "submitComposition": "Indsend komposition",
+      "cancel": "Annuller"
+    },
+    "messages": {
+      "loading": "Indlæser openEHR-formular...",
+      "noTemplate": "Ingen openEHR-skabelon indlæst",
+      "noTemplateHint": "Vælg en skabelon fra rullemenuen ovenfor"
+    }
+  },
+  "smartHealthLinks": {
+    "sections": {
+      "title": "Smart Health Links",
+      "description": "Statisk demo til generering af SHLinks og downloadbare QR-koder fra FHIR JSON-ressourcer i assets/data."
+    },
+    "table": {
+      "label": "Etiket",
+      "sourceJson": "Kilde-JSON",
+      "manifest": "Manifest",
+      "qrPreview": "QR-forhåndsvisning",
+      "actions": "Handlinger"
+    },
+    "labels": {
+      "qrPreviewAlt": "QR-forhåndsvisning for"
+    },
+    "actions": {
+      "copyShLink": "Kopiér SHLink",
+      "downloadSvg": "Download SVG",
+      "downloadPng": "Download PNG"
+    }
+  },
+  "allergyFormDialog": {
+    "sections": {
+      "title": "Tilføj allergi / intolerans"
+    },
+    "actions": {
+      "close": "Luk allergidialog"
+    }
+  },
+  "batchPatientDialog": {
+    "sections": {
+      "title": "Generer flere patienter"
+    },
+    "fields": {
+      "numberOfPatients": "Antal patienter",
+      "numberOfPatientsHint": "Indtast et tal mellem 1 og 500",
+      "timeframeYears": "Klinisk data-tidsramme (år)",
+      "timeframeYearsHint": "Genererede datoer randomiseres inden for de seneste 2 år som standard",
+      "genderDistribution": "Kønsfordeling",
+      "genderDistributionHint": "Juster sandsynligheden for at generere mandlige vs. kvindelige patienter",
+      "ageDistribution": "Aldersfordeling",
+      "ageDistributionHint": "Vælg procentdele i 10%-trin. Totalen skal være 100%.",
+      "children": "Børn (0-18)",
+      "adults": "Voksne (18-65)",
+      "elderly": "Ældre (65+)",
+      "diagnosesPerPatient": "Antal diagnoser per patient",
+      "diagnosesRangeHint": "Sæt begge til 0 for at generere patienter uden diagnoser. Hver patient vil have et tilfældigt antal diagnoser mellem disse værdier.",
+      "minimum": "Minimum",
+      "maximum": "Maksimum"
+    },
+    "labels": {
+      "female": "Kvinde",
+      "male": "Mand",
+      "total": "Total",
+      "to": "til"
+    },
+    "actions": {
+      "cancel": "Annuller",
+      "generatePatients": "Generer patienter"
+    },
+    "messages": {
+      "description": "Generer syntetiske patientdata baseret på virkelighedsnære sundhedsstatistikker fra",
+      "gbdStudy": "Global Burden of Disease (GBD) Study",
+      "descriptionSuffix": "Disse kunstige patienter afspejler sygdomsprævalensmønstre efter alder og køn og giver dig mulighed for at udfylde dit EPJ-system med realistiske testdata.",
+      "mustEqual100": "Skal være lig med 100%",
+      "generating": "Genererer patienter..."
+    }
+  },
+  "deathRegistrationDialog": {
+    "sections": {
+      "title": "Dødsregistrering",
+      "titleUpdate": "Opdater dødsregistrering",
+      "subtitle": "Registrer dødsattesten og marker denne patient som afdød.",
+      "causeOfDeath": "Dødsårsag",
+      "part1Subtitle": "Del I. Angiv kæden af begivenheder, der direkte forårsagede døden.",
+      "part2Subtitle": "Del II. Andre væsentlige tilstande, der bidrog til døden."
+    },
+    "fields": {
+      "dateOfDeath": "Dødsdato",
+      "time": "Tidspunkt",
+      "interval": "Interval",
+      "intervalPlaceholder": "f.eks. 3 dage",
+      "selectCondition": "Vælg tilstand",
+      "existingCondition": "Eksisterende tilstand",
+      "snomedCondition": "SNOMED-tilstand"
+    },
+    "table": {
+      "line": "Linje",
+      "causeCondition": "Årsag/tilstand",
+      "approximateInterval": "Omtrentligt interval"
+    },
+    "labels": {
+      "id": "ID",
+      "dob": "Fødselsdato",
+      "unknown": "Ukendt"
+    },
+    "actions": {
+      "searchInSnomed": "Søg i SNOMED",
+      "useExistingCondition": "Brug eksisterende tilstand",
+      "clearLine": "Ryd linje",
+      "addContributingCondition": "Tilføj bidragende tilstand",
+      "deleteRecord": "Slet dødsattest",
+      "cancel": "Annuller",
+      "updateRecord": "Opdater dødsregistrering",
+      "saveRecord": "Gem dødsregistrering"
+    },
+    "messages": {
+      "errorEnterDateTime": "Angiv venligst dato og tidspunkt for dødsfald.",
+      "errorAtLeastOneCause": "Angiv mindst én dødsårsag inden gemning.",
+      "errorUnableToSave": "Kunne ikke gemme dødsregistreringen.",
+      "errorSelectCondition": "Vælg en eksisterende tilstand for hver udfyldt linje ved hjælp af den mulighed.",
+      "errorNoSnomedCode": "Den valgte tilstand \"{{ name }}\" har ikke en SNOMED CT-kode. Brug SNOMED-søgningsindstillingen for den linje.",
+      "errorSelectSnomedConcept": "Vælg et SNOMED CT-begreb for hver udfyldt linje ved hjælp af SNOMED-søgning."
+    }
+  }
+}
