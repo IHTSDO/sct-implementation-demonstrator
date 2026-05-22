@@ -32,6 +32,40 @@ a {
     overflow-x: hidden !important;
 }
 
+::ng-deep .language-root-menu.mat-mdc-menu-panel {
+    width: 300px !important;
+    max-width: 300px !important;
+}
+
+::ng-deep .language-root-menu .mat-mdc-menu-item-submenu-trigger {
+    padding-right: 48px;
+}
+
+::ng-deep .language-root-menu .language-root-menu-item {
+    min-height: 64px;
+    line-height: normal;
+}
+
+::ng-deep .language-root-menu .mat-mdc-menu-item-text {
+    display: block;
+}
+
+.language-root-menu-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.language-root-menu-label {
+    font-weight: 700;
+}
+
+.language-root-menu-value {
+    color: rgba(0, 0, 0, 0.56);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
 .mat-mdc-unelevated-button>.mat-icon, .mat-mdc-raised-button>.mat-icon, .mat-mdc-outlined-button>.mat-icon {
     margin: 0px !important;
 }

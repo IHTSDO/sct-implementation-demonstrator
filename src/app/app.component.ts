@@ -259,6 +259,18 @@ export class AppComponent {
     this.cdRef.detectChanges();
 }
 
+  get selectedTerminologyMenuValue(): string {
+    if (this.selectedLanguageContext) {
+      return this.selectedLanguageContext.name;
+    }
+
+    if (this.selectedLanRefsetConcept) {
+      return this.selectedLanRefsetConcept.display;
+    }
+
+    return this.selectedLanguageDisplayLabel;
+  }
+
   setContext(context: any) {
     this.terminologyService.setContext(context);
   }
