@@ -308,7 +308,7 @@
                 @if (isPatientDeceased(selectedPatient)) {
                   <div class="death-status-badge">
                     <mat-icon>bed</mat-icon>
-                    {{ selectedPatient?.deceasedDateTime ? t('main.selectedPatient.deceasedOn', { date: (selectedPatient.deceasedDateTime | date:'medium') }) : t('main.selectedPatient.recordedAsDeceased') }}
+                    {{ selectedPatient.deceasedDateTime ? t('main.selectedPatient.deceasedOn', { date: (selectedPatient.deceasedDateTime | date:'medium') }) : t('main.selectedPatient.recordedAsDeceased') }}
                   </div>
                 }
               </div>
