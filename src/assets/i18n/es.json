@@ -1,4 +1,10 @@
 {
+  "siteLanguageSync": {
+    "snackbar": {
+      "message": "El idioma del sitio cambio a {{lang}} para coincidir con el idioma de terminologia.",
+      "action": "OK"
+    }
+  },
   "translationCoverage": {
     "snackbar": {
       "message": "Este modulo esta disponible solo en ingles por ahora.",

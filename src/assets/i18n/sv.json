@@ -1,4 +1,10 @@
 {
+  "siteLanguageSync": {
+    "snackbar": {
+      "message": "Site language switched to {{lang}} to match the terminology language.",
+      "action": "OK"
+    }
+  },
   "translationCoverage": {
     "snackbar": {
       "message": "This module is currently available in English only.",

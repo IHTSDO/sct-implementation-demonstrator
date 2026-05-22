@@ -6,6 +6,7 @@ import { TerminologyService } from './services/terminology.service';
 import { Router, ActivatedRoute, RouteConfigLoadStart, RouteConfigLoadEnd } from '@angular/router';
 import { MenuService } from './services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { LanguageConfigComponent } from './util/language-config/language-config.component';
 import { LicenseAgreementComponent } from './license-agreement/license-agreement.component';
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
@@ -53,6 +54,7 @@ export class AppComponent {
   demos: any[] = [];
 
   private updateCodeSystemOptionsTrigger$ = new Subject<string | undefined>();
+  private syncSiteLanguageAfterNextContextSetup = false;
 
   constructor( 
     private codingSpecService: CodingSpecService, 
@@ -61,6 +63,7 @@ export class AppComponent {
     public router: Router,
     private menuService: MenuService,
     private dialog: MatDialog,
+    private snackBar: MatSnackBar,
     private cdRef: ChangeDetectorRef,
     private http: HttpClient,
     private activatedRoute: ActivatedRoute,
@@ -80,10 +83,14 @@ export class AppComponent {
   }
 
   setSiteLanguage(lang: string): void {
+    this.applySiteLanguage(lang);
+    this.translationCoverageService.checkCurrentRoute();
+  }
+
+  private applySiteLanguage(lang: string): void {
     this.translocoService.setActiveLang(lang);
     this.activeSiteLang = lang;
     localStorage.setItem('ui-lang', lang);
-    this.translationCoverageService.checkCurrentRoute();
   }
 
   ngOnInit(): void {
@@ -155,13 +162,13 @@ export class AppComponent {
             if (preselectedEdition) {
               this.editions.forEach(loopEdition => {
                 if (loopEdition.resource.version === preselectedEdition) {
-                  this.setEdition(loopEdition);
+                  this.setEdition(loopEdition, false);
                 }
               });
             } else if (currentVerIndex >= 0) {
-              this.setEdition(this.editionsDetails[currentVerIndex].editions[0]);
+              this.setEdition(this.editionsDetails[currentVerIndex].editions[0], false);
             } else if (this.editions.length > 0) {
-              this.setEdition(this.editions[0]);
+              this.setEdition(this.editions[0], false);
             }
           })
         )
@@ -242,7 +249,9 @@ export class AppComponent {
       this.filteredLanguageMetadata = { contexts: [] };
     }
     this.filteredLanguageMetadata.contexts.push({ name: 'US English', languageDialects: 'en-X-900000000000509007' });
-    this.setContext(this.filteredLanguageMetadata.contexts[0]);
+    const syncSiteLanguage = this.syncSiteLanguageAfterNextContextSetup;
+    this.syncSiteLanguageAfterNextContextSetup = false;
+    this.setContext(this.filteredLanguageMetadata.contexts[0], syncSiteLanguage);
 
     // Push filteredLanguageMetadata to the service
     this.terminologyService.setFilteredLanguageMetadata(this.filteredLanguageMetadata);
@@ -275,8 +284,11 @@ export class AppComponent {
     return this.selectedLanguageDisplayLabel;
   }
 
-  setContext(context: any) {
+  setContext(context: any, syncSiteLanguage = true) {
     this.terminologyService.setContext(context);
+    if (syncSiteLanguage) {
+      this.syncSiteLanguageFromTerminology();
+    }
   }
 
   navigate(demo: any) {
@@ -340,8 +352,9 @@ export class AppComponent {
     return (url ?? '').trim().replace(/\/+$/, '');
   }
 
-  setEdition(edition: any) {
+  setEdition(edition: any, syncSiteLanguageAfterContextSetup = true) {
     this.selectedEdition = edition.resource.title?.replace('SNOMED CT release ','');
+    this.syncSiteLanguageAfterNextContextSetup = syncSiteLanguageAfterContextSetup;
     this.terminologyService.setFhirUrlParam(edition.resource.version);
     this.updateLanguageRefsets();
   }
@@ -415,6 +428,7 @@ export class AppComponent {
 
   setLanguageRefset(languageRefset: any) {
     this.terminologyService.setLanguageRefsetConcept(languageRefset);
+    this.syncSiteLanguageFromTerminology();
   }
 
   setLanguage(language: string) {
@@ -423,6 +437,28 @@ export class AppComponent {
     }
     this.selectedLanguage = language;
     this.terminologyService.setLang(language);
+    this.syncSiteLanguageFromTerminology();
+  }
+
+  private syncSiteLanguageFromTerminology(): void {
+    const siteLang = this.getSiteLanguageFromTerminology();
+    if (!siteLang || siteLang === this.activeSiteLang) {
+      return;
+    }
+
+    this.applySiteLanguage(siteLang);
+    this.snackBar.open(
+      this.translocoService.translate('siteLanguageSync.snackbar.message', { lang: siteLang.toUpperCase() }),
+      this.translocoService.translate('siteLanguageSync.snackbar.action'),
+      { duration: 5000 }
+    );
+    this.translationCoverageService.checkCurrentRoute();
+  }
+
+  private getSiteLanguageFromTerminology(): string | null {
+    const computedLanguage = this.terminologyService.getComputedLanguageContext();
+    const siteLang = computedLanguage?.trim().slice(0, 2).toLowerCase();
+    return siteLang && this.availableSiteLangs.includes(siteLang) ? siteLang : null;
   }
 
   openLanguageDialog(): void {
