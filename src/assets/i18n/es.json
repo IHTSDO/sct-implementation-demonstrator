@@ -1,2 +1,16 @@
 {
+  "translationCoverage": {
+    "snackbar": {
+      "message": "Este modulo esta disponible solo en ingles por ahora.",
+      "action": "Detalles"
+    },
+    "dialog": {
+      "title": "Cobertura de traduccion del sitio",
+      "intro": "El idioma del sitio seleccionado esta activo, pero este modulo todavia no fue traducido.",
+      "currentModule": "Modulo actual: {{route}}",
+      "currentScope": "Scope de traduccion esperado: {{scope}}",
+      "terminologyNote": "La configuracion de idioma de terminologia es independiente y puede seguir afectando las visualizaciones de SNOMED CT.",
+      "close": "Entendido"
+    }
+  }
 }

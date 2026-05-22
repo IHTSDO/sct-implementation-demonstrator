@@ -116,6 +116,13 @@
 - Both `{scope}-en.json` and `{scope}-es.json` must exist for every scope; Transloco will 404 without the active-language file.
 - The `{scope-name}` prefix in the filename makes the file self-describing when shared for external translation, since the folder context is not visible in isolation.
 
+#### `home` scope pattern (AppModule-declared component)
+
+- `HomeComponent` is declared in `AppModule` directly, so no module-level `TRANSLOCO_SCOPE` is provided; the directive carries both: `*transloco="let t; scope: 'home'; prefix: 'home'"`.
+- `menu.service.ts` demo items expose a `key` field (camelCase, e.g. `clinicalDemo`) used for translation lookup as `t('menu.' + demo.key + '.name')`, and a `subtitle` field (camelCase, e.g. `clinicalDemo`, `tool`) resolved as `t('subtitles.' + demo.subtitle)`.
+- Translation files live at `src/assets/i18n/home/home-en.json` and `home-es.json`; keys follow the `menu.<key>.name` / `subtitles.<subtitle>` structure.
+- Search in `home.component.ts` filters against the English `name`/`description` fields from the service (not translated values) — intentional first-iteration behaviour.
+
 ### Adding i18n to a new feature module
 
 1. Import `TranslocoModule` in the feature module.
@@ -148,6 +155,16 @@
 - Scope file folder: `kebab-case`, e.g. `benefits-demo`, `descriptive-statistics`.
 - Transloco auto-derives the camelCase alias used as the translation store key: `benefitsDemo`, `descriptiveStatistics`.
 - Use the camelCase alias as the prefix in `t()` calls and in programmatic `translate()` key paths.
+
+### Route-to-scope coverage indexing
+
+- User-facing feedback for untranslated modules is driven by route-to-scope coverage detection in `TranslationCoverageService`.
+- When adding i18n to a feature, create scope files in `src/assets/i18n/{scope}/{scope}-{lang}.json`.
+- Prefer naming the top-level route segment and i18n scope folder the same, so coverage detection works automatically, e.g. `/my-feature` maps to `src/assets/i18n/my-feature/my-feature-{lang}.json`.
+- If a route segment intentionally differs from the scope folder, add it to the translation coverage alias map in `src/app/services/translation-coverage.service.ts`.
+- When one translated feature module is exposed through several top-level routes, map each route segment to the same scope.
+- When adding a new Site language, add the global file and every translated scope file for that language.
+- New routes without matching scope assets are considered English-only and will trigger the user-facing coverage notice when a non-English Site language is active.
 
 ### Avoiding TRANSLOCO_SCOPE token conflicts
 

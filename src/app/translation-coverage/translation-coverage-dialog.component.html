@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>{{ t('title') }}</h2>
+
+<mat-dialog-content class="translation-coverage-dialog">
+  <p>{{ t('intro') }}</p>
+  <p>{{ t('currentModule', { route: data.routeSegment }) }}</p>
+  <p>{{ t('currentScope', { scope: data.scope }) }}</p>
+  <p>{{ t('terminologyNote') }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" type="button" (click)="close()">{{ t('close') }}</button>
+</mat-dialog-actions>

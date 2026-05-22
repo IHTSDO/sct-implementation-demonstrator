@@ -1,2 +1,16 @@
 {
+  "translationCoverage": {
+    "snackbar": {
+      "message": "This module is currently available in English only.",
+      "action": "Details"
+    },
+    "dialog": {
+      "title": "Site translation coverage",
+      "intro": "The selected Site language is active, but this module has not been translated yet.",
+      "currentModule": "Current module: {{route}}",
+      "currentScope": "Expected translation scope: {{scope}}",
+      "terminologyNote": "Terminology language settings are separate and may still affect SNOMED CT displays.",
+      "close": "Got it"
+    }
+  }
 }

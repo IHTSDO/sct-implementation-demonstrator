@@ -16,6 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { FhirServer } from '../environments/fhir-server.interface';
 import { CustomFhirTermServerDialogComponent, CustomFhirTermServerDialogData } from './util/custom-fhir-term-server-dialog/custom-fhir-term-server-dialog.component';
+import { TranslationCoverageService } from './services/translation-coverage.service';
 
 /** Must match the bottom menu item label in the Term Server menu. */
 const CUSTOM_FHIR_TERM_SERVER_MENU_LABEL = 'Local Server/Custom';
@@ -64,7 +65,8 @@ export class AppComponent {
     private http: HttpClient,
     private activatedRoute: ActivatedRoute,
     private cookieService: CookieService,
-    private googleAnalyticsService: GoogleAnalyticsService) { 
+    private googleAnalyticsService: GoogleAnalyticsService,
+    private translationCoverageService: TranslationCoverageService) { 
     // Google Analytics tracking is now handled automatically by GoogleAnalyticsService
     // which intercepts router events in its constructor
 
@@ -81,6 +83,7 @@ export class AppComponent {
     this.translocoService.setActiveLang(lang);
     this.activeSiteLang = lang;
     localStorage.setItem('ui-lang', lang);
+    this.translationCoverageService.checkCurrentRoute();
   }
 
   ngOnInit(): void {
@@ -89,6 +92,7 @@ export class AppComponent {
       this.translocoService.setActiveLang(savedLang);
       this.activeSiteLang = savedLang;
     }
+    this.translationCoverageService.start();
 
     // Check embedded mode immediately from snapshot
     const params = this.activatedRoute.snapshot.queryParams;
