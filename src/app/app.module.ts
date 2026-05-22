@@ -103,7 +103,7 @@ initializeApp(firebaseConfig);
     },
     provideTransloco({
       config: {
-        availableLangs: ['en', 'es', 'nl'],
+        availableLangs: ['en', 'es', 'nl', 'da'],
         defaultLang: 'en',
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),
