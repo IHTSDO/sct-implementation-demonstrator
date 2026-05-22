@@ -308,7 +308,7 @@
                 @if (isPatientDeceased(selectedPatient)) {
                   <div class="death-status-badge">
                     <mat-icon>bed</mat-icon>
-                    {{ getPatientDeceasedSummary(selectedPatient) }}
+                    {{ selectedPatient?.deceasedDateTime ? t('main.selectedPatient.deceasedOn', { date: (selectedPatient.deceasedDateTime | date:'medium') }) : t('main.selectedPatient.recordedAsDeceased') }}
                   </div>
                 }
               </div>
@@ -404,7 +404,7 @@
                 [disabled]="isDeletingPatient || isOpeningDeathDialog"
                 >
                 <mat-icon>{{ isOpeningDeathDialog ? 'hourglass_empty' : 'bed' }}</mat-icon>
-                {{ isOpeningDeathDialog ? t('main.selectedPatient.loading') : getDeathActionLabel(selectedPatient) }}
+                {{ isOpeningDeathDialog ? t('main.selectedPatient.loading') : (isPatientDeceased(selectedPatient) ? t('main.selectedPatient.updateDeathRecord') : t('main.selectedPatient.registerDeath')) }}
               </button>
               <button
                 mat-flat-button

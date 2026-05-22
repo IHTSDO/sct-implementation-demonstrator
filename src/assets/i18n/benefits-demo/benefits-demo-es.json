@@ -77,7 +77,11 @@
       "loading": "Cargando...",
       "deleting": "Eliminando...",
       "deletePatient": "Eliminar paciente",
-      "noSelection": "Seleccione un paciente de la lista para ver los detalles."
+      "noSelection": "Seleccione un paciente de la lista para ver los detalles.",
+      "registerDeath": "Registrar defunción",
+      "updateDeathRecord": "Actualizar registro de defunción",
+      "recordedAsDeceased": "Registrado como fallecido",
+      "deceasedOn": "Fallecido el {{date}}"
     },
     "analytics": {
       "title": "Analítica de datos clínicos",

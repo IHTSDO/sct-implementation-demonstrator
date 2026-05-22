@@ -77,7 +77,11 @@
       "loading": "Loading...",
       "deleting": "Deleting...",
       "deletePatient": "Delete Patient",
-      "noSelection": "Select a patient from the list to view details."
+      "noSelection": "Select a patient from the list to view details.",
+      "registerDeath": "Register Death",
+      "updateDeathRecord": "Update Death Record",
+      "recordedAsDeceased": "Recorded as deceased",
+      "deceasedOn": "Deceased on {{date}}"
     },
     "analytics": {
       "title": "Clinical Data Analytics",

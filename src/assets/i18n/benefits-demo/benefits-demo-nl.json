@@ -77,7 +77,11 @@
       "loading": "Laden...",
       "deleting": "Verwijderen...",
       "deletePatient": "Patiënt verwijderen",
-      "noSelection": "Selecteer een patiënt uit de lijst om de details te bekijken."
+      "noSelection": "Selecteer een patiënt uit de lijst om de details te bekijken.",
+      "registerDeath": "Overlijden registreren",
+      "updateDeathRecord": "Overlijdensregistratie bijwerken",
+      "recordedAsDeceased": "Geregistreerd als overleden",
+      "deceasedOn": "Overleden op {{date}}"
     },
     "analytics": {
       "title": "Analyse van klinische gegevens",
