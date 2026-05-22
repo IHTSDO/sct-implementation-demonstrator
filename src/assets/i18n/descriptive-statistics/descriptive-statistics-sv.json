@@ -1,0 +1,101 @@
+{
+  "common": {
+    "id": "ID:",
+    "label": "Etikett:",
+    "value": "Värde:",
+    "labelCount": "Antal etiketter:",
+    "parent": "Förälder:",
+    "root": "Rot",
+    "loading": "Läser in...",
+    "updatingChart": "Uppdaterar diagram...",
+    "selectedItemDetails": "Detaljer för valt objekt",
+    "clickToSeeDetails": "Klicka på ett segment för att se detaljer",
+    "navigation": {
+      "title": "Navigation",
+      "onlyChildren": "Bara noder med underordnade kan borras ner i"
+    },
+    "search": {
+      "results": "Resultat ({{count}})",
+      "noResults": "Inga noder hittades som matchar \"{{term}}\""
+    }
+  },
+  "d3Sunburst": {
+    "title": "D3 Sunburst-diagram – lat inläsning (3 nivåer)",
+    "resetToRoot": "Återställ till rot",
+    "navigation": {
+      "drillDown": "Klicka på segment för att borra ned (max 3 nivåer synliga)",
+      "breadcrumb": "Använd navigeringssökvägen för att gå tillbaka"
+    }
+  },
+  "sunburstChart": {
+    "title": "Plotly Sunburst-diagram – nivåbegränsat ({{maxLevels}} nivåer)",
+    "backToRoot": "Tillbaka till rot",
+    "current": "Aktuell:",
+    "searchNodes": {
+      "title": "Sök noder",
+      "placeholder": "Sök efter nodnamn...",
+      "startTyping": "Börja skriva för att söka igenom alla noder i datamängden"
+    },
+    "navigation": {
+      "drillDown": "Klicka på segment för att borra ned (max {{maxLevels}} nivåer synliga)",
+      "drillUp": "Klicka på det centrala segmentet för att navigera uppåt",
+      "backToRoot": "Använd \"Tillbaka till rot\" för att återgå till toppnivån"
+    }
+  },
+  "plotlyTreemap": {
+    "title": "Deskriptiv populationsanalys",
+    "backToEhrLab": "Tillbaka till EHR Lab",
+    "loadingPatientData": "Läser in patientdata...",
+    "processingPatientData": "Bearbetar patientdata...",
+    "stats": {
+      "totalPopulation": "Total population",
+      "allPatientsInRepository": "Alla patienter i arkivet",
+      "patientsSelected": "Valda patienter",
+      "afterApplyingFilters": "Efter att filter tillämpats"
+    },
+    "filters": {
+      "gender": "Kön",
+      "all": "Alla",
+      "female": "Kvinna",
+      "male": "Man",
+      "ageRange": "Åldersintervall: {{min}}–{{max}} år"
+    },
+    "chart": {
+      "title": "Antal patienter per klinisk händelse"
+    },
+    "search": {
+      "placeholder": "Sök kliniska händelser (t.ex. \"resp fin\")",
+      "startTyping": "Börja skriva för att söka igenom alla SNOMED CT-begrepp som identifierar kliniska händelser i datamängden",
+      "useMultiplePrefixes": "Använd flera prefix separerade med mellanslag (t.ex. \"resp fin\" hittar objekt med ord som börjar med både \"resp\" och \"fin\")"
+    },
+    "patients": {
+      "selectedClinicalEvent": "Vald klinisk händelse:",
+      "loadPatients": "Läs in {{count}} patienter",
+      "showingResultsFor": "Visar resultat för {{filters}}",
+      "clinicalEventDistribution": "Fördelning av kliniska händelser efter ålder och kön ({{count}} patienter)",
+      "events": "({{count}} händelser)",
+      "openClinicalRecord": "Öppna journal i nytt fönster",
+      "openClinicalRecordAria": "Öppna journal",
+      "noPatients": "Inga patienter hittades för det här begreppet",
+      "selectClinicalEvent": "Välj en klinisk händelse och klicka på \"Läs in patienter\" för att se detaljerad patientinformation"
+    },
+    "navigation": {
+      "title": "Navigation",
+      "drillDown": "Klicka på trädkartrutor för att borra ned i den kliniska händelsehierarkin och öppna detaljer (maximalt {{maxLevels}} nivåer är synliga)",
+      "onlyChildren": "Bara rutor med underordnade kan borras ned i",
+      "drillUp": "Klicka på den aktuella rotrutan för att navigera tillbaka till dess förälder",
+      "backToRoot": "Använd \"Tillbaka till rot\" för att återgå till toppnivån (SNOMED CT-begreppet)",
+      "hoverInfo": "Hovra över rutor för att se detaljerad information",
+      "boxSize": "Rutans storlek representerar det relativa antalet patienter för varje objekt"
+    },
+    "filtersDescription": {
+      "allGenders": "alla kön",
+      "malePatients": "manliga patienter",
+      "femalePatients": "kvinnliga patienter",
+      "allAges": "alla åldrar",
+      "agesUpTo": "åldrar upp till {{max}} år",
+      "agesAndAbove": "åldrar {{min}} år och äldre",
+      "agesBetween": "åldrar {{min}}–{{max}} år"
+    }
+  }
+}

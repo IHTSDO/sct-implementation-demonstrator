@@ -1,0 +1,1281 @@
+{
+  "main": {
+    "header": {
+      "title": "SNOMED EHR Lab",
+      "subtitle": "En interaktiv demoserie som visar hur man utformar kliniska arbetsflöden som producerar ren, sammankopplad och beräkningsbar data redo för säkerhetskontroller, analys och utbyte. Drivs av FHIR och SNOMED CT, men fokuserar på informationskvalitet från början till slut.",
+      "phiWarning": "Ange inte skyddad hälsoinformation (PHI) eller verkliga patientidentifierande uppgifter i det här demosystemet."
+    },
+    "dataMenu": {
+      "label": "Data",
+      "useLocalStorage": "Använd lokal lagring",
+      "useFhirServer": "Använd FHIR-server",
+      "fhirServerSettings": "FHIR-serverinställningar",
+      "connectedServer": "Ansluten server",
+      "cdsHooksServers": "CDS Hooks-servrar",
+      "smartHealthLinks": "Smart Health Links",
+      "downloadPatientData": "Ladda ner patientdata",
+      "uploadPatientData": "Ladda upp patientdata",
+      "clearAllData": "Rensa alla patientdata"
+    },
+    "patientList": {
+      "title": "Patienter",
+      "fhirMode": "FHIR-läge",
+      "localStorageMode": "Lokalt lagringsläge",
+      "refreshAriaLabel": "Uppdatera patienter från FHIR-server",
+      "refreshTooltip": "Uppdatera patienter från FHIR-server",
+      "loading": "Läser in..."
+    },
+    "actions": {
+      "analytics": "Analys",
+      "interoperability": "Interoperabilitet",
+      "createPatient": "Skapa patient"
+    },
+    "createMenu": {
+      "manualEntry": "Manuell inmatning",
+      "generateRandom": "Generera slumpmässig",
+      "creatingPatient": "Skapar patient...",
+      "generateWithDiagnoses": "Generera med diagnoser",
+      "creatingWithDiagnoses": "Skapar med diagnoser...",
+      "generateMultiple": "Generera flera patienter"
+    },
+    "search": {
+      "label": "Sök patienter",
+      "placeholder": "Sök på för- eller efternamn",
+      "clearAriaLabel": "Rensa sökning"
+    },
+    "patientCard": {
+      "deceased": "Avliden",
+      "idPrefix": "ID"
+    },
+    "noResults": {
+      "title": "Inga patienter hittades",
+      "message": "Inga patienter matchar dina sökkriterier.",
+      "clearSearch": "Rensa sökning"
+    },
+    "noPatients": {
+      "title": "Inga patienter ännu",
+      "message": "Kom igång genom att skapa patientjournaler för ditt journalsystem.",
+      "creating": "Skapar...",
+      "createSingle": "Skapa en patient",
+      "generateMultiple": "Generera flera patienter",
+      "hint": "Eller ladda upp befintliga patientdata via Data-menyn ovan"
+    },
+    "pagination": {
+      "previous": "Föregående",
+      "next": "Nästa"
+    },
+    "selectedPatient": {
+      "title": "Vald patient",
+      "removeBookmark": "Ta bort bokmärke",
+      "bookmarkPatient": "Bokmärk patient",
+      "openClinicalRecord": "Öppna journalen",
+      "agePrefix": "Ålder",
+      "contactInformation": "Kontaktinformation",
+      "address": "Adress",
+      "demographics": "Demografisk information",
+      "birthDate": "Födelsedatum",
+      "loading": "Läser in...",
+      "deleting": "Tar bort...",
+      "deletePatient": "Ta bort patient",
+      "noSelection": "Välj en patient i listan för att visa detaljer.",
+      "registerDeath": "Registrera dödsfall",
+      "updateDeathRecord": "Uppdatera dödsregistrering",
+      "recordedAsDeceased": "Registrerad som avliden",
+      "deceasedOn": "Avliden {{date}}"
+    },
+    "analytics": {
+      "title": "Klinisk dataanalys",
+      "titleIcd10": "ICD-10-analys",
+      "backToPatients": "Tillbaka till patienter"
+    }
+  },
+  "createPatient": {
+    "title": "Skapa ny patient",
+    "subtitle": "Ange patientuppgifter för att skapa en ny patientjournal",
+    "sections": {
+      "personalInformation": "Personlig information",
+      "contactInformation": "Kontaktinformation",
+      "addressInformation": "Adressinformation"
+    },
+    "fields": {
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "dateOfBirth": "Födelsedatum",
+      "gender": "Kön",
+      "phoneNumber": "Telefonnummer",
+      "emailAddress": "E-postadress",
+      "streetAddress": "Gatuadress",
+      "city": "Stad",
+      "state": "Län/stat",
+      "postalCode": "Postnummer",
+      "country": "Land"
+    },
+    "placeholders": {
+      "firstName": "Ange förnamn",
+      "lastName": "Ange efternamn",
+      "streetAddress": "Storgatan 1",
+      "city": "Stockholm",
+      "state": "AB",
+      "postalCode": "11122",
+      "country": "SE"
+    },
+    "genderOptions": {
+      "male": "Man",
+      "female": "Kvinna",
+      "other": "Annat",
+      "unknown": "Okänt"
+    },
+    "errors": {
+      "firstNameRequired": "Förnamn är obligatoriskt",
+      "firstNameMinlength": "Förnamnet måste vara minst 2 tecken",
+      "lastNameRequired": "Efternamn är obligatoriskt",
+      "lastNameMinlength": "Efternamnet måste vara minst 2 tecken",
+      "birthDateRequired": "Födelsedatum är obligatoriskt",
+      "genderRequired": "Kön är obligatoriskt",
+      "phoneInvalid": "Ange ett giltigt telefonnummer",
+      "emailInvalid": "Ange en giltig e-postadress",
+      "fieldRequired": "Det här fältet är obligatoriskt",
+      "minlength": "Minsta längd är {{requiredLength}} tecken"
+    },
+    "actions": {
+      "cancel": "Avbryt",
+      "createPatient": "Skapa patient",
+      "creating": "Skapar..."
+    }
+  },
+  "clinicalRecord": {
+    "actions": {
+      "backToPatientList": "Tillbaka till patientlistan",
+      "returnToPatientList": "Återgå till patientlistan",
+      "view": "Visa",
+      "addCondition": "Lägg till diagnos",
+      "addAllergy": "Lägg till allergi",
+      "addProcedure": "Lägg till åtgärd",
+      "addMedication": "Lägg till läkemedel",
+      "addImmunization": "Lägg till vaccination",
+      "close": "Stäng"
+    },
+    "labels": {
+      "id": "ID",
+      "dob": "Födelsedatum",
+      "age": "Ålder",
+      "workspaceTitle": "EHR Lab",
+      "cdsAlert": "CDS-avisering",
+      "cdsAlertPlural": "er",
+      "criticality": "Kritikalitet",
+      "reaction": "Reaktion",
+      "reactions": "Reaktioner",
+      "systemic": "Systemisk",
+      "icd10": "ICD-10",
+      "loinc": "LOINC",
+      "determination": "bedömning",
+      "determinationPlural": "ar",
+      "specimens": "Prover"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "nav": {
+      "clinical": "Klinisk",
+      "summary": "Sammanfattning",
+      "problemsList": "Problemlista",
+      "clinicalOrders": "Kliniska remisser",
+      "encounters": "Vårdkontakter",
+      "aiAssistedDataEntry": "AI-assisterad datainmatning",
+      "clinicalForms": "Kliniska formulär",
+      "alerts": "Aviseringar",
+      "dental": "Tandvård",
+      "odontogram": "Odontogram",
+      "nursing": "Omvårdnad",
+      "vitalSigns": "Vitalparametrar",
+      "nutritionalCareplan": "Nutritionsvårdplan",
+      "dataSectionLabel": "Data",
+      "data": "Data",
+      "fhirRepository": "FHIR-arkiv"
+    },
+    "tooltips": {
+      "expandSidebar": "Expandera sidofältet",
+      "collapseSidebar": "Minimera sidofältet",
+      "dentalOdontogram": "Tandvård: Odontogram",
+      "nursingVitalSigns": "Omvårdnad: Vitalparametrar",
+      "nursingNutritionalCareplan": "Omvårdnad: Nutritionsvårdplan",
+      "dataFhirRepository": "Data: FHIR-arkiv",
+      "mappedTo": "Mappad till",
+      "deleteCondition": "Ta bort diagnos",
+      "deleteAllergy": "Ta bort allergi",
+      "deleteProcedure": "Ta bort åtgärd",
+      "deleteMedication": "Ta bort läkemedel",
+      "deleteImmunization": "Ta bort vaccination",
+      "deleteOrder": "Ta bort remiss"
+    },
+    "sections": {
+      "summary": "Sammanfattning",
+      "conditions": "Diagnoser",
+      "procedures": "Åtgärder",
+      "medications": "Läkemedel",
+      "immunizations": "Vaccinationer",
+      "allergicTo": "Allergisk mot:",
+      "allergies": "Allergier",
+      "cds": "CDS",
+      "addProblem": "Lägg till problem",
+      "clinicalOrders": "Kliniska remisser",
+      "savedOrders": "Sparade remisser"
+    },
+    "messages": {
+      "loadingClinicalData": "Läser in kliniska data från FHIR-server...",
+      "updatingEventMappings": "Uppdaterar händelsemappningar...",
+      "patientDeceased": "Patienten markerad som avliden.",
+      "noConditions": "Inga diagnoser registrerade",
+      "noProcedures": "Inga åtgärder registrerade",
+      "noMedications": "Inga läkemedel registrerade",
+      "noImmunizations": "Inga vaccinationer registrerade",
+      "noAllergies": "Inga allergier registrerade",
+      "noOrders": "Inga remisser registrerade",
+      "noPatientSelected": "Ingen patient vald",
+      "noPatientSelectedDescription": "Välj en patient från patientlistan för att visa deras journal.",
+      "addProblemDescription": "Ett problem är ett hälsorelaterat tillstånd, en diagnos, åtgärd eller pågående behandling som behöver följas upp som en del av patientens vård.",
+      "clinicalOrdersDescription": "Bygg en laboratorierekvision med flera analyser, granska den i den högra kolumnen och spara den som ett paket med ServiceRequest-resurser.",
+      "failedToLoadClinicalData": "Det gick inte att läsa in kliniska data från FHIR-servern.",
+      "failedToMapIcd10": "Det gick inte att mappa till ICD-10. Fel: {{ error }}",
+      "unknownError": "Okänt fel",
+      "duplicateCondition": "Den här diagnosen finns redan för den här patienten (dubblerad SNOMED CT-kod identifierad).",
+      "duplicateProcedure": "Den här åtgärden finns redan för den här patienten (dubblerad SNOMED CT-kod identifierad).",
+      "duplicateMedication": "Det här läkemedlet finns redan för den här patienten (dubblerad SNOMED CT-kod identifierad).",
+      "duplicateImmunization": "Den här vaccinationen finns redan för den här patienten (samma vaccin och datum).",
+      "duplicateEncounter": "Den här vårdkontakten finns redan för den här patienten.",
+      "orderSaved": "Remiss sparad.",
+      "allergyUpdatedWithReactions": "Allergi uppdaterad. Sammanfattning och {{ count }} reaktion(er) mappade till kroppsdiagrammet.",
+      "allergyRecordUpdated": "Allergipost uppdaterad",
+      "questionnaireSaved": "Formuläret \"{{ name }}\" sparades",
+      "questionnaireDefaultName": "Svar",
+      "questionnaireItemsExtracted": "{{ count }} objekt extraherat(e).",
+      "questionnaireSaveError": "Fel vid sparande av formulärsvar",
+      "noEventsToDelete": "Inga kliniska händelser att ta bort.",
+      "allEventsDeleted": "Alla kliniska händelser har tagits bort.",
+      "failedToDeleteAllEvents": "Det gick inte att ta bort alla kliniska händelser.",
+      "fhirDataLoaded": "FHIR-data inläst: {{ total }} {{ resourceLabel }} i {{ groups }} {{ groupLabel }}."
+    },
+    "dialogs": {
+      "deleteAllEventsTitle": "Ta bort alla kliniska händelser",
+      "deleteAllEventsMessage": "Detta tar permanent bort {{ count }} kliniska händelser för {{ patient }}.\n\nDetta inkluderar diagnoser, åtgärder, läkemedel, vaccinationer, allergier, vårdkontakter, observationer, formulär och relaterade paket.\n\nÅtgärden kan inte ångras.",
+      "deleteAllEventsConfirm": "Ta bort alla händelser",
+      "cancel": "Avbryt"
+    }
+  },
+  "encounterRecord": {
+    "sections": {
+      "currentEncounter": "Aktuell vårdkontakt",
+      "notes": "Anteckningar",
+      "previousEncounters": "Tidigare vårdkontakter"
+    },
+    "fields": {
+      "dateTime": "Datum/tid",
+      "reasonForEncounter": "Besöksorsak",
+      "diagnosis": "Diagnos",
+      "diagnosisNote": "Diagnosanteckning",
+      "diagnosisNotePlaceholder": "Valfri anteckning",
+      "procedure": "Åtgärd",
+      "laterality": "Lateralitet",
+      "lateralityPlaceholder": "Välj lateralitet",
+      "notes": "Anteckningar",
+      "notesPlaceholder": "Allmänna anteckningar om den här vårdkontakten..."
+    },
+    "actions": {
+      "add": "Lägg till",
+      "saving": "Sparar...",
+      "saveEncounter": "Spara vårdkontakt",
+      "reset": "Återställ"
+    },
+    "tooltips": {
+      "clickForMoreInfo": "Klicka för mer information",
+      "remove": "Ta bort",
+      "deleteEncounter": "Ta bort vårdkontakt"
+    },
+    "labels": {
+      "reasons": "Orsak(er):",
+      "diagnosis": "Diagnos:",
+      "procedures": "Åtgärd(er):",
+      "notes": "Anteckningar:"
+    },
+    "messages": {
+      "lateralityNotApplicable": "Lateralitet ej tillämpligt för den här åtgärden",
+      "noProcedures": "Inga åtgärder registrerade",
+      "saveError": "Fel vid sparande av vårdkontakt. Försök igen.",
+      "deleteConfirm": "Är du säker på att du vill ta bort den här vårdkontakten?",
+      "deleteSuccess": "Vårdkontakt borttagen"
+    },
+    "infoMenus": {
+      "reasonForEncounter": {
+        "title": "Besöksorsak",
+        "p1": "Fältet Besöksorsak använder SNOMED CT Expression Constraint Language (ECL) för att hämta alla alternativ från en FHIR-baserad SNOMED CT-terminologiserver.",
+        "p2Pre": "Alternativ för besöksorsak hämtas här med",
+        "p3": "Alternativen filtreras utifrån användarens inmatning och fältet är implementerat med en autoifyllningskomponent för att begränsa manuell inmatning.",
+        "p4Pre": "Om terminologiservern stöder det kan returnerade resultat begränsas med",
+        "p4Post": ". Detta kan förhindra att servern svarar med ett 'too costly'-fel och förbättra prestandan vid sökning och rendering."
+      },
+      "diagnosis": {
+        "title": "Diagnos",
+        "p1": "Diagnosfältet använder SNOMED CT Expression Constraint Language (ECL) för att hämta alla alternativ från en FHIR-baserad SNOMED CT-terminologiserver.",
+        "p2Pre": "Diagnosalternativ hämtas här med",
+        "p3": "Alternativen filtreras utifrån användarens inmatning och fältet är implementerat med en autoifyllningskomponent för att begränsa manuell inmatning.",
+        "p4Pre": "Om terminologiservern stöder det kan returnerade resultat begränsas med",
+        "p4Post": ". Detta kan förhindra att servern svarar med ett 'too costly'-fel och förbättra prestandan vid sökning och rendering."
+      },
+      "diagnosisNote": {
+        "title": "Diagnosanteckning",
+        "p1": "Fältet Diagnosanteckning låter användaren kvalificera SNOMED CT-begreppet i Diagnosfältet, det vill säga lägga till mer detaljer till SNOMED CT-begreppet om det behövs.",
+        "p2": "Det här fältet är ett exempel på hur man hanterar ett SNOMED CT-begrepp som kanske inte är tillräckligt specifikt. Med den här metoden kan användaren välja det närmast tillgängliga SNOMED CT-begreppet och sedan ange de extra detaljer som krävs."
+      },
+      "procedure": {
+        "title": "Åtgärd",
+        "p1": "Åtgärdsfältet använder SNOMED CT Expression Constraint Language (ECL) för att hämta alla alternativ från en FHIR-baserad SNOMED CT-terminologiserver.",
+        "p2Pre": "Åtgärdsalternativ hämtas här med",
+        "p3": "Alternativen filtreras utifrån användarens inmatning och fältet är implementerat med en autoifyllningskomponent för att begränsa manuell inmatning.",
+        "p4Pre": "Om terminologiservern stöder det kan returnerade resultat begränsas med",
+        "p4Post": ". Detta kan förhindra att servern svarar med ett 'too costly'-fel och förbättra prestandan vid sökning och rendering.",
+        "p5Pre": "Det här fältet är ett exempel på där man kan använda",
+        "p5Bold": "modelleringen",
+        "p5Post": " i ett SNOMED CT-begrepp för att förifylla eller aktivera andra fält. Lateralitetsfältet fylls i automatiskt om du väljer ett begrepp vars procedurlokal har modellerats med lateralitet (t.ex. 735085002 | Excision av vänster bröstknöl |).",
+        "p6": "Lateraliteten aktiveras även för användarinmatning när ett begrepp har en procedurlokal men ingen lateralitet har angetts (t.ex. 392021009 | Lumpektomi av bröst |). Detta kommer att förfinas ytterligare för att begränsa aktiveringen till procedurplatser i SNOMED CT:s referensuppsättning för lateraliserbara begrepp."
+      },
+      "laterality": {
+        "title": "Lateralitet",
+        "p1": "Lateralitetsfältet använder SNOMED CT Expression Constraint Language (ECL) för att hämta alla alternativ från en FHIR-baserad SNOMED CT-terminologiserver.",
+        "p2Pre": "Lateralitetsalternativ hämtas här med",
+        "p3Pre": "Det här fältet är ett exempel på ett fält som fylls i baserat på",
+        "p3Bold": "modelleringen",
+        "p3Post": " av ett begrepp i ett annat fält. Åtgärdsfältet styr aktiveringen och de tillgängliga valen för det här Lateralitetsfältet.",
+        "p4": "Lateralitetsfältet fylls i automatiskt om du väljer ett åtgärdsbegrepp vars procedurlokal har modellerats med lateralitet (t.ex. 735085002 | Excision av vänster bröstknöl |).",
+        "p5": "Lateraliteten aktiveras även för användarinmatning när ett åtgärdsbegrepp har en procedurlokal men ingen lateralitet har angetts (t.ex. 392021009 | Lumpektomi av bröst |). Detta kommer att förfinas ytterligare för att begränsa aktiveringen till procedurplatser i SNOMED CT:s referensuppsättning för lateraliserbara begrepp."
+      }
+    }
+  },
+  "interoperability": {
+    "sections": {
+      "pageTitle": "IPS-avstämningsguide",
+      "pageSubtitle": "Läs in en IPS, identifiera patienten, granska varje klinisk sektion och importera enbart de objekt du vill behålla.",
+      "scannerTitle": "Skanna Smart Health Link",
+      "scannerSubtitle": "Rikta kameran mot en SHL QR-kod för att läsa in IPS-paketet.",
+      "welcomeTitle": "Stämma av inkommande IPS steg för steg",
+      "welcomeDescription": "Den här modulen vägleder klinikern genom patientidentifiering först, sedan ett avstämningssteg per IPS-sektion som innehåller innehåll, och slutligen en sammanfattning före import.",
+      "reconciliationSteps": "Avstämningssteg",
+      "importSummary": "Importsammanfattning"
+    },
+    "actions": {
+      "backToEhrLab": "Tillbaka till SNOMED EHR Lab",
+      "backToInteroperabilityHome": "Tillbaka till interoperabilitetsstarten",
+      "uploadIpsFile": "Ladda upp IPS-fil",
+      "scanShlQr": "Skanna SHL QR",
+      "tryExampleIps": "Testa exempel-IPS",
+      "tryExampleIpsBundle": "Testa exempel-IPS-paket",
+      "uploadYourOwnIpsFile": "Ladda upp din egen IPS-fil",
+      "stopScanner": "Stoppa skanner",
+      "retryWithExample": "Försök igen med exempel-IPS",
+      "useThisPatient": "Använd den här patienten",
+      "dismiss": "Avfärda",
+      "createNewPatient": "Skapa ny patient",
+      "back": "Tillbaka",
+      "next": "Nästa",
+      "importSelectedItems": "Importera valda objekt ({{ count }})",
+      "createPatientOnly": "Skapa enbart patient",
+      "openRecord": "Öppna journal",
+      "remove": "Ta bort",
+      "add": "Lägg till",
+      "addAnyway": "Lägg till ändå"
+    },
+    "labels": {
+      "workflowEyebrow": "Arbetsflöde",
+      "stepOf": "Steg {{ current }} av {{ total }}",
+      "ipsPatient": "IPS-patient",
+      "identifyOrCreatePatient": "Identifiera eller skapa patient",
+      "name": "Namn",
+      "dateOfBirth": "Födelsedatum",
+      "gender": "Kön",
+      "suggestedMatch": "Föreslagen automatisk matchning",
+      "match": "matchning",
+      "selectExistingPatient": "Välj befintlig patient",
+      "noPatientSelected": "Ingen patient vald",
+      "newPatientDraft": "Ny patientutkast",
+      "linkedTargetRecord": "Länkad måljournal",
+      "willBeCreated": "Skapas vid import",
+      "ready": "Klar",
+      "ipsItems": "IPS-objekt",
+      "alreadyInRecord": "Finns redan i journalen",
+      "selectedToImport": "Vald för import",
+      "skipped": "Hoppad över",
+      "fromIps": "Från IPS",
+      "existingClinicalRecord": "Befintlig journal",
+      "targetClinicalRecord": "Måljournal",
+      "selectedCount": "{{ count }} vald(a)",
+      "skippedCount": "{{ count }} hoppad(e) över",
+      "nothingToAdd": "Inget att lägga till",
+      "ipsLogoAlt": "IPS-logotyp",
+      "snomedLogoAlt": "SNOMED CT-logotyp",
+      "codeSelected": "kod vald",
+      "codesSelected": "koder valda"
+    },
+    "messages": {
+      "resolvingShl": "Löser SHL och laddar ner IPS...",
+      "loadingTitle": "Läser in IPS-paket",
+      "loadingSubtitle": "Vi tolkar patientsammanfattningen och förbereder guidestegen.",
+      "errorTitle": "Det gick inte att läsa in IPS",
+      "noAutoMatch": "Ingen automatisk matchning med befintliga patienter. Du kan välja en manuellt eller skapa en ny patient.",
+      "allAlreadyExist": "Alla IPS-{{ section }} verkar redan finnas i journalen.",
+      "noExistingItems": "Det finns inga {{ section }} i den länkade journalen.",
+      "noneSelectedForImport": "Ingen {{ section }} vald för import.",
+      "importingTitle": "Importerar valda IPS-objekt",
+      "importingSubtitle": "Sparar de valda begreppen i journalen och öppnar patientjournalen."
+    },
+    "wizardSteps": {
+      "patient": {
+        "title": "Identifiera patient",
+        "description": "Matcha IPS-patienten mot en befintlig journal eller skapa en ny."
+      },
+      "conditions": {
+        "title": "Slå samman diagnoser",
+        "description": "Granska IPS-diagnoser mot den aktuella journalen."
+      },
+      "procedures": {
+        "title": "Slå samman åtgärder",
+        "description": "Granska IPS-åtgärder mot den aktuella journalen."
+      },
+      "medications": {
+        "title": "Slå samman läkemedel",
+        "description": "Granska IPS-läkemedel mot den aktuella journalen."
+      },
+      "immunizations": {
+        "title": "Slå samman vaccinationer",
+        "description": "Granska IPS-vaccinationer mot den aktuella journalen."
+      },
+      "allergies": {
+        "title": "Slå samman allergier",
+        "description": "Granska IPS-allergier mot den aktuella journalen."
+      },
+      "summary": {
+        "title": "Sammanfattning",
+        "description": "Bekräfta valda IPS-objekt innan de importeras."
+      }
+    },
+    "sectionTitles": {
+      "conditions": "Diagnoser",
+      "procedures": "Åtgärder",
+      "medications": "Läkemedel",
+      "immunizations": "Vaccinationer",
+      "allergies": "Allergier"
+    },
+    "datLabels": {
+      "onset": "Debut",
+      "performed": "Utförd",
+      "effective": "Giltig",
+      "occurrence": "Förekomst",
+      "recorded": "Registrerad"
+    },
+    "validation": {
+      "checkingHierarchyTitle": "Kontrollerar SNOMED-hierarki",
+      "preparingValidation": "Förbereder hierarkivalidering av begrepp...",
+      "hierarchyReviewRequiredTitle": "Hierarkigranskning krävs",
+      "hierarchyCheckCompleteTitle": "Hierarkikontroll slutförd",
+      "hierarchyConflictMessage": "Det valda begreppet överlappar hierarkiskt med ett eller flera begrepp som redan finns i journalen. Granska relationerna innan du bestämmer dig för om det ska läggas till.",
+      "hierarchyNoConflictMessage": "Ingen hierarkisk överlappning hittades med befintliga begrepp i det här avsnittet.",
+      "hierarchyCheckFailed": "Vi kunde inte slutföra hierarkikontrollen. Du kan ändå lägga till begreppet om du vill fortsätta.",
+      "relationExactMatch": "Exakt matchning",
+      "relationBroader": "Valt begrepp är bredare",
+      "relationNarrower": "Valt begrepp är smalare"
+    }
+  },
+  "conceptValidationDialog": {
+    "labels": {
+      "overlappingConcepts": "Begrepp i patientjournalen med överlappande betydelse"
+    },
+    "actions": {
+      "cancel": "Avbryt"
+    }
+  },
+  "formRecords": {
+    "sections": {
+      "title": "Formulärposter",
+      "subtitle": "Visa ifyllda formulär och kliniska blanketter",
+      "questionsAndAnswers": "Frågor och svar",
+      "responseData": "Svarsdata ({{ format }}-format)"
+    },
+    "status": {
+      "loading": "Läser in formulärposter...",
+      "emptyTitle": "Inga formulärposter",
+      "emptyMessage": "Fyll i formulär och kliniska blanketter för att se dem listade här.",
+      "completed": "Slutförd"
+    },
+    "actions": {
+      "view": "Visa",
+      "export": "Exportera",
+      "delete": "Ta bort",
+      "viewJson": "Visa {{ format }} JSON",
+      "viewReadable": "Visa läsbart format",
+      "copyJson": "Kopiera JSON",
+      "exportJson": "Exportera JSON",
+      "close": "Stäng"
+    },
+    "labels": {
+      "date": "Datum",
+      "status": "Status",
+      "type": "Typ",
+      "id": "ID",
+      "resourceType": "Resurstyp",
+      "format": "Format",
+      "openehrComposition": "openEHR-komposition",
+      "vrdrBundle": "VRDR FHIR-dokumentpaket",
+      "fhirDeathCertBundle": "FHIR dödsattestpaket",
+      "fhirQR": "FHIR QuestionnaireResponse",
+      "openehrFlat": "openEHR FLAT",
+      "containsSubItems": "innehåller underobjekt"
+    },
+    "messages": {
+      "noAnswers": "Inga svar hittades i det här svaret",
+      "errorLoading": "Fel vid inläsning av formulärposter",
+      "deleteSuccess": "Formulärpost borttagen",
+      "exportSuccess": "Formulärpost exporterad",
+      "errorExporting": "Fel vid export av formulärpost",
+      "copySuccess": "JSON kopierat till urklipp",
+      "errorCopying": "Fel vid kopiering till urklipp",
+      "errorCopyingManual": "Fel vid kopiering till urklipp. Kopiera manuellt."
+    }
+  },
+  "cdsPanel": {
+    "sections": {
+      "title": "Beslutsstöd",
+      "description": "Den här panelen visar de senaste standardiserade CDS Hooks-resultaten från de aktiva CDS-servrarna för det aktuella kliniska arbetsflödet."
+    },
+    "actions": {
+      "refresh": "Uppdatera",
+      "viewSource": "Visa källa",
+      "close": "Stäng"
+    },
+    "status": {
+      "requesting": "Hämtar {{ hook }}-resultat från aktiva CDS-servrar...",
+      "noRequestAvailable": "Ingen CDS-förfrågan tillgänglig",
+      "error": "Fel",
+      "recommendationCount": "{{ count }} rekommendation(er) för {{ hook }}",
+      "completedNoRecommendations": "{{ hook }} slutförd utan rekommendationer.",
+      "noSpecificRecommendations": "Inga specifika rekommendationer",
+      "noRecommendationsDetail": "Inga CDS-rekommendationer returnerades för {{ hook }} från de aktiva servrarna."
+    },
+    "tooltips": {
+      "viewSource": "Visa källa"
+    },
+    "info": {
+      "intro": "Den här demon använder den här öppna källkodsresursen:",
+      "serviceTitle": "SNOMED FHIR klinisk beslutsstödstjänst",
+      "overview": "Den här demon visar SNOMED FHIR CDS-tjänsten och är avsedd enbart för demonstrationsändamål, inte för klinisk användning i verkligheten. Byggd på FHIR-standarder och SNOMED CT analyserar den läkemedelsordinationer för att detektera kontraindikationer, läkemedelsinteraktioner, onormal dosering och valideringsfel.",
+      "keyComponentsTitle": "Nyckelkomponenter",
+      "rulesEngineLabel": "Regelmotor",
+      "rulesEngineText": "Laddar regler för läkemedel-tillstånd och läkemedelsinteraktioner.",
+      "fhirIntegrationLabel": "FHIR-integration",
+      "fhirIntegrationText": "Accepterar resurserna MedicationRequest, Condition, AllergyIntolerance och Patient.",
+      "knowledgeBasesLabel": "Kunskapsbaser",
+      "interactionsLabel": "Interaktioner",
+      "interactionsText": "En begränsad lista över läkemedelsinteraktionsrisker skapad från offentligt tillgängliga resurser för demonstrationen.",
+      "contraindicationsLabel": "Kontraindikationer",
+      "contraindicationsText": "En begränsad lista över läkemedel-tillståndskontraindikationer skapad från offentligt tillgängliga resurser för demonstrationen.",
+      "dddLabel": "DDD",
+      "dddText": "Använder WHO ATC Defined Daily Doses för att uppskatta aviseringar om överdosering.",
+      "thresholdsLabel": "Tröskelvärden",
+      "thresholdsText": "Stöder justerbara doseringsaviserings­gränser.",
+      "alertTypesTitle": "Aviseringstyper",
+      "contraindicationAlertsLabel": "Kontraindikationsaviseringar",
+      "contraindicationAlertsText": "Flaggar när ett läkemedel är olämpligt för en patients befintliga medicinska tillstånd. WARNING indikerar en kritisk kontraindikation, medan INFO antyder försiktighet.",
+      "allergyAlertsLabel": "Läkemedelsallergiaviseringar",
+      "allergyAlertsText": "Flaggar när ett läkemedel är oförenligt med registrerad allergiinformation.",
+      "highDosageAlertsLabel": "Aviseringar om hög dosering",
+      "highDosageAlertsText": "Identifierar när den föreskrivna dygnsdosen överstiger WHO:s Defined Daily Dose-referens. INFO indikerar 2–4x DDD och WARNING indikerar 4x DDD eller mer.",
+      "formulaLabel": "Formel",
+      "formulaText": "Föreskriven dygnsdos / DDD-referens = Aviseringströskel",
+      "configurationLabel": "Konfiguration",
+      "configurationText": "Acceptabelt tröskelvärde 2x DDD, maximalt tröskelvärde 4x DDD.",
+      "drugInteractionAlertsLabel": "Läkemedelsinteraktionsaviseringar",
+      "drugInteractionAlertsText": "Detekterar riskfyllda läkemedelskombinationer med svårighetsgraderna INFO, WARNING och CRITICAL baserat på interaktionsstyrka.",
+      "validationErrorAlertsLabel": "Valideringsfelaviseringar",
+      "validationErrorAlertsText": "Flaggar ofullständiga eller ogiltiga receptdata, t.ex. ogiltiga dosenheter, saknad frekvens eller ofullständig information.",
+      "severityTitle": "Indikatorer för aviseringssvarighet",
+      "severityInfo": "INFO",
+      "severityInfoText": "Informationssyfte",
+      "severityWarning": "WARNING",
+      "severityWarningText": "Viktig säkerhetsaspekt",
+      "severityCritical": "CRITICAL",
+      "severityCriticalText": "Allvarlig säkerhetsrisk"
+    }
+  },
+  "clinicalEntry": {
+    "fields": {
+      "indicationReason": "Välj indikationsorsak",
+      "noneGeneral": "Ingen – Allmänt läkemedel",
+      "conditionsGroup": "Diagnoser",
+      "proceduresGroup": "Åtgärder",
+      "conditionDate": "Diagnos­datum",
+      "procedureDate": "Åtgärdsdatum",
+      "immunizationDate": "Vaccinationsdatum",
+      "medicationStartDate": "Startdatum för läkemedel",
+      "doseValue": "Dosvärde",
+      "doseUnit": "Dosenhet",
+      "every": "Var",
+      "periodUnit": "Periodenhet",
+      "hours": "Timmar",
+      "days": "Dagar",
+      "weeks": "Veckor",
+      "immunizationStatus": "Vaccinationsstatus",
+      "statusCompleted": "Utförd",
+      "statusNotDone": "Ej utförd",
+      "statusEnteredInError": "Inmatad av misstag"
+    },
+    "actions": {
+      "saving": "Sparar...",
+      "cancel": "Avbryt"
+    },
+    "tooltips": {
+      "infoButton": "Klicka för mer information om det här fältet"
+    },
+    "info": {
+      "terminologyBindingTitle": "Terminologibindning",
+      "terminologyBindingDesc": "Det här fältet använder SNOMED CT Expression Constraint Language (ECL) för att hämta alternativ från en FHIR-baserad SNOMED CT-terminologiserver.",
+      "eclExpressionIntro": "ECL-uttrycket som används för den här bindningen är:",
+      "autocompleteDesc": "Alternativen filtreras utifrån användarens inmatning och fältet är implementerat med en autoifyllningskomponent för att begränsa manuell inmatning och förbättra urvalupplevelsen.",
+      "countDesc": "Om terminologiservern stöder det kan returnerade resultat begränsas med count=X. Detta kan förhindra att servern svarar med ett 'too costly'-fel och förbättra prestandan vid sökning och rendering.",
+      "associationNote": "Obs: Du kan koppla det här läkemedlet till en befintlig diagnos eller åtgärd genom att välja indikationsorsak i listrutan."
+    }
+  },
+  "fhirData": {
+    "sections": {
+      "fhirResources": "FHIR-resurser"
+    },
+    "status": {
+      "deletingEvents": "Tar bort kliniska händelser...",
+      "deletingEventsSubtitle": "Tar bort patientresurser från minnet och den aktiva FHIR-servern.",
+      "noResources": "Inga resurser",
+      "noFhirResources": "Inga FHIR-resurser hittades för den här patienten.",
+      "noPatientSelected": "Ingen patient vald."
+    },
+    "actions": {
+      "exportingBundle": "Exporterar paket...",
+      "exportAllBundle": "Exportera allt som paket",
+      "generatingLocalIps": "Genererar lokal IPS...",
+      "generateLocalIps": "Generera lokal IPS",
+      "requestingIpsFromServer": "Hämtar IPS från server...",
+      "checkingIpsSupport": "Kontrollerar IPS-stöd...",
+      "requestIpsToServer": "Begär IPS-generering från server",
+      "deleteAllEvents": "Ta bort alla händelser",
+      "openOnServer": "Öppna på server",
+      "close": "Stäng"
+    },
+    "labels": {
+      "fhirResource": "FHIR-resurs",
+      "selectToInspect": "Välj en resurs för att inspektera JSON"
+    },
+    "tooltips": {
+      "exportBundle": "Ladda ner hela patientjournalen som ett transaktionspaket för import till en annan FHIR-server",
+      "generateLocalIps": "Generera ett lokalt IPS-dokument från aktuell klinisk data",
+      "summaryFhirOnly": "$summary är endast tillgängligt i FHIR-läge",
+      "checkingCapabilities": "Kontrollerar FHIR-serverfunktioner...",
+      "ipsNotSupported": "IPS-generering stöds inte av servern",
+      "requestIpsGeneration": "Begär IPS-generering från servern med Patient/$summary",
+      "deleteAllEvents": "Ta bort alla kliniska händelser för den här patienten",
+      "openOnServer": "Öppna den här resursen på FHIR-servern",
+      "downloadJson": "Ladda ner JSON",
+      "copyJson": "Kopiera JSON"
+    },
+    "messages": {
+      "jsonCopied": "FHIR JSON kopierat till urklipp",
+      "bundleExported": "Patientjournal exporterad som ett transaktionspaket.",
+      "localIpsGenerated": "IPS-dokument genererat från lokal klinisk data.",
+      "serverIpsLoaded": "Patientsammanfattning inläst från FHIR-server.",
+      "serverIpsNotSupported": "Den här FHIR-servern stöder inte Patient/$summary.",
+      "errorLoadingServerIps": "Det gick inte att läsa in patientsammanfattning från FHIR-servern."
+    }
+  },
+  "clinicalForms": {
+    "sections": {
+      "title": "Kliniska formulär",
+      "customQuestionnaires": "Anpassade enkäter",
+      "uploadNewQuestionnaire": "Ladda upp ny enkät",
+      "uploadedQuestionnaires": "Uppladdade enkäter"
+    },
+    "tabs": {
+      "dataEntry": "Datainmatning",
+      "formRecords": "Formulärposter",
+      "manageQuestionnaires": "Hantera enkäter"
+    },
+    "fields": {
+      "selectClinicalForm": "Välj kliniskt formulär"
+    },
+    "labels": {
+      "builtInForms": "Inbyggda formulär",
+      "uploadedForms": "Uppladdade formulär",
+      "formSuffix": "Formulär",
+      "requirements": "Krav:",
+      "uploaded": "Uppladdad",
+      "id": "ID",
+      "unknown": "Okänd"
+    },
+    "actions": {
+      "chooseFile": "Välj fil",
+      "deleteAll": "Ta bort alla",
+      "useForm": "Använd formulär",
+      "delete": "Ta bort",
+      "close": "Stäng",
+      "ok": "OK"
+    },
+    "status": {
+      "uploading": "Laddar upp...",
+      "submittingIcsr": "Skickar ICSR-rapport...",
+      "submittingWait": "Vänta medan vi skickar din rapport till tillsynsmyndigheten.",
+      "submittingMoment": "Det kan ta några ögonblick."
+    },
+    "messages": {
+      "noLocalFormsUploaded": "Inga lokala formulär uppladdade ännu",
+      "formUnderDevelopment": "Det här formuläret är för närvarande under utveckling.",
+      "comingSoon": "Kommer snart...",
+      "selectFormTitle": "Välj ett kliniskt formulär",
+      "selectFormHint": "Välj ett formulär i listrutan ovan för att börja dokumentera klinisk information.",
+      "manageQuestionnairesDesc": "Ladda upp och hantera anpassade FHIR Questionnaire-resurser",
+      "uploadDescription": "Ladda upp en FHIR Questionnaire-resurs i JSON-format. Enkäten blir tillgänglig för alla patienter.",
+      "requirementFhir": "Giltig FHIR Questionnaire-resurs (resourceType: \"Questionnaire\")",
+      "requirementJson": "JSON-format (.json-fil)",
+      "requirementTitle": "Måste innehålla fältet title eller name",
+      "noCustomQuestionnaires": "Inga anpassade enkäter uppladdade ännu",
+      "uploadToGetStarted": "Ladda upp en FHIR Questionnaire JSON-fil för att komma igång",
+      "selectJsonFile": "Välj en JSON-fil",
+      "questionnaireUploadedSuccess": "Enkäten \"{{ name }}\" laddades upp!",
+      "failedToUploadQuestionnaire": "Det gick inte att ladda upp enkäten",
+      "invalidJsonFile": "Ogiltig JSON-fil",
+      "invalidJsonFileDetail": "Ogiltig JSON-fil. Kontrollera att filen innehåller giltig JSON.",
+      "failedToReadFile": "Det gick inte att läsa filen",
+      "confirmDeleteQuestionnaire": "Är du säker på att du vill ta bort \"{{ name }}\"?",
+      "questionnaireDeletedSuccess": "Enkäten \"{{ name }}\" togs bort",
+      "failedToDeleteQuestionnaire": "Det gick inte att ta bort enkäten",
+      "confirmDeleteAllQuestionnaires": "Är du säker på att du vill ta bort ALLA anpassade enkäter? Åtgärden kan inte ångras.",
+      "allQuestionnairesDeletedSuccess": "Alla anpassade enkäter togs bort",
+      "failedToDeleteQuestionnaires": "Det gick inte att ta bort enkäterna",
+      "icsrSubmittedSuccess": "ICSR-rapport {{ reportId }} skickades till {{ organization }}. Referens-ID: {{ referenceId }}",
+      "demoNotice": "Det här är en demonstration. Inga faktiska data skickades till någon tillsynsmyndighet.",
+      "submissionFailed": "Inlämningen misslyckades. Kontrollera din anslutning och försök igen.",
+      "questionnaireResponseSaved": "Enkätsvar sparat",
+      "openEhrCompositionSaved": "openEHR-komposition sparad",
+      "warningNoDataToSave": "Varning: Inga data att spara. Fyll i minst ett fält.",
+      "warningNoPatientSelected": "Varning: Ingen patient vald. Komposition ej sparad.",
+      "allergyDocumented": "Allergi/intolerans dokumenterad: {{ display }}",
+      "allergySavedWithReactions": "Allergi/intolerans sparad. {{ count }} reaktion(er) tillagda i problemlistan.",
+      "allergySavedSuccess": "Allergi/intolerans sparad",
+      "allergyAlreadyExists": "Den här allergin finns redan för den här patienten",
+      "failedToLoadQuestionnaire": "Det gick inte att läsa in enkäten: {{ file }}",
+      "templateFileNotFound": "Mallfil hittades inte för: {{ formId }}",
+      "failedToLoadOpenEhrTemplate": "Det gick inte att läsa in openEHR-mallen: {{ file }}. Fel: {{ error }}"
+    }
+  },
+  "adverseReactionForm": {
+    "sections": {
+      "title": "Individuell fallsäkerhetsrapport (ICSR)",
+      "subtitle": "Rapportformulär för biverkningar – EU ADR / ICSR",
+      "caseIdentification": "Fallidentifiering och administrativ information",
+      "senderInformation": "Uppgifter om avsändare",
+      "patientInformation": "Patientuppgifter",
+      "adverseReactionDetails": "Detaljer om biverkning",
+      "selectAdverseReaction": "Välj biverkning från patientens diagnoser",
+      "meddraMappings": "MedDRA-mappningar",
+      "suspectedMedicinalProduct": "Misstänkt läkemedel",
+      "selectSuspectedMedication": "Välj misstänkt läkemedel från patientens läkemedel",
+      "snomedConceptId": "SNOMED-begrepp-ID",
+      "concomitantProducts": "Konkomitanta produkter",
+      "otherMedicationsConcurrently": "Andra läkemedel som tas samtidigt",
+      "followUpInformation": "Uppföljning och ytterligare information",
+      "seriousnessCriteria": "Allvarlighetskriterier"
+    },
+    "fields": {
+      "reportId": "Rapport-ID",
+      "reportIdHint": "Automatgenererad unik identifierare",
+      "dateOfReceipt": "Mottagningsdatum",
+      "typeOfReport": "Rapporttyp",
+      "reporterType": "Rapportörstyp",
+      "name": "Namn",
+      "country": "Land",
+      "address": "Adress",
+      "qualification": "Yrkeskvalifikation",
+      "patientInitials": "Patientinitialer",
+      "age": "Ålder",
+      "gender": "Kön",
+      "dateOfBirth": "Födelsedatum",
+      "relevantMedicalHistory": "Relevant sjukhistoria",
+      "chooseFromConditions": "Välj från befintliga diagnoser",
+      "selectConditionPlaceholder": "Välj en diagnos",
+      "descriptionOfAdverseEvent": "Beskrivning av biverkning",
+      "descriptionPlaceholder": "Beskriv biverkningen i detalj",
+      "dateOfOnset": "Debutdatum",
+      "duration": "Varaktighet",
+      "durationPlaceholder": "t.ex. 2 dagar, 1 vecka",
+      "dateOfRecovery": "Tillfrisknandedatum",
+      "outcome": "Utfall",
+      "chooseFromMedications": "Välj från befintliga läkemedel",
+      "selectMedicationPlaceholder": "Välj ett läkemedel",
+      "productName": "Produktnamn",
+      "activeSubstance": "Aktiv substans",
+      "dose": "Dos",
+      "dosePlaceholder": "t.ex. 10 mg",
+      "frequency": "Frekvens",
+      "frequencyPlaceholder": "t.ex. en gång dagligen",
+      "productDurationPlaceholder": "t.ex. 5 dagar",
+      "routeOfAdministration": "Administreringsväg",
+      "selectRoute": "Välj väg",
+      "startDate": "Startdatum",
+      "stopDate": "Slutdatum",
+      "batchLotNumber": "Batch-/lotnummer",
+      "countryOfReaction": "Land där reaktionen uppstod",
+      "countryOfReporter": "Rapportörens land",
+      "therapeuticMeasuresTaken": "Vidtagna terapeutiska åtgärder",
+      "therapeuticMeasuresPlaceholder": "Beskriv eventuella behandlingar eller åtgärder för att hantera biverkningen",
+      "relevantLaboratoryData": "Relevanta laboratoriedata",
+      "laboratoryDataPlaceholder": "Inkludera relevanta testresultat, laboratorievärden eller bilddiagnostikfynd",
+      "literatureReference": "Litteraturreferens",
+      "literatureReferencePlaceholder": "Ange litteraturreferens om tillämpligt",
+      "caseNarrative": "Fallbeskrivning",
+      "caseNarrativePlaceholder": "Ge en heltäckande beskrivning av fallet, inklusive tidsförlopp, kliniskt förlopp och övriga relevanta detaljer",
+      "caseNarrativeHint": "Denna beskrivning bör ge en fullständig bild av fallet för regulatorisk granskning"
+    },
+    "labels": {
+      "patient": "Patient:",
+      "age": "Ålder",
+      "male": "Man",
+      "female": "Kvinna",
+      "other": "Annat",
+      "unknownCondition": "Okänd diagnos",
+      "unknownMedication": "Okänt läkemedel",
+      "concomitantProductN": "Konkomitant produkt"
+    },
+    "actions": {
+      "addConcomitantProduct": "Lägg till konkomitant produkt",
+      "cancel": "Avbryt",
+      "submitIcsr": "Skicka ICSR-rapport"
+    },
+    "status": {
+      "loadingMeddraMappings": "Läser in MedDRA-mappningar..."
+    },
+    "messages": {
+      "selectConditionForMeddra": "Välj en diagnos för att visa MedDRA-mappningar",
+      "noMeddraMappings": "Inga MedDRA-mappningar hittades för den här diagnosen",
+      "noMeddraMappingsHint": "Den här diagnosen kanske inte har motsvarande MedDRA-termer",
+      "selectMedicationForSnomed": "Välj ett läkemedel för att visa SNOMED-begrepp-ID",
+      "noConcomitantProducts": "Inga konkomitanta produkter tillagda. Klicka på \"Lägg till konkomitant produkt\" för att inkludera andra läkemedel.",
+      "selectAllThatApply": "Välj alla som gäller:"
+    }
+  },
+  "dentistryRecord": {
+    "sections": {
+      "odontogram": "Odontogram"
+    },
+    "tabs": {
+      "anatomicView": "Anatomisk vy",
+      "odontogramView": "Odontogramvy",
+      "selectedTooth": "Vald tand",
+      "allRecords": "Alla poster"
+    },
+    "labels": {
+      "odontogramViewSelector": "Odontogramvyväljare"
+    },
+    "tooltips": {
+      "viewDentalFhir": "Visa tandvårdens FHIR-resurser"
+    },
+    "actions": {
+      "close": "Stäng"
+    },
+    "messages": {
+      "couldNotGenerateExpression": "Kunde inte generera postkoordinerat uttryck för den här posten.",
+      "expressionCopied": "Postkoordinerat uttryck kopierat till urklipp.",
+      "unableToCopy": "Det gick inte att kopiera uttrycket till urklipp.",
+      "extractingDentalSites": "Extraherar tandplatser från postkoordineringsuttryck ({{ count }})"
+    }
+  },
+  "dentistryDataEntry": {
+    "sections": {
+      "currentRecords": "Aktuella poster för den här tanden"
+    },
+    "tabs": {
+      "findings": "Fynd",
+      "procedures": "Åtgärder"
+    },
+    "fields": {
+      "affectedSites": "Berörda platser *",
+      "toothInGeneral": "Tanden generellt",
+      "periodontalTissues": "Parodontala vävnader",
+      "finding": "Fynd *",
+      "procedure": "Åtgärd *",
+      "searchFindings": "Skriv för att söka fynd",
+      "searchProcedures": "Skriv för att söka åtgärder"
+    },
+    "labels": {
+      "selected": "Vald",
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universell",
+      "palmer": "Palmer",
+      "snomed": "SNOMED",
+      "notMapped": "Ej mappad",
+      "addNewRecord": "Lägg till ny post",
+      "entryTypeSelector": "Inmatningstypväljare",
+      "rootSurfaces": "Rotytor"
+    },
+    "actions": {
+      "save": "Spara"
+    },
+    "messages": {
+      "noRecordsForTooth": "Inga poster sparade för den här tanden ännu.",
+      "entrySaved": "Post sparad för tand {{ fdi }}.",
+      "clickToPin": "Klicka på en tand för att fästa den här för datainmatning."
+    }
+  },
+  "dentistryFhirDialog": {
+    "tooltips": {
+      "download": "Ladda ner FHIR-resurs",
+      "copy": "Kopiera FHIR-resurs"
+    },
+    "actions": {
+      "close": "Stäng"
+    },
+    "messages": {
+      "copied": "FHIR JSON kopierat till urklipp"
+    }
+  },
+  "odontogramAnatomic": {
+    "sections": {
+      "title": "Anatomisk vy",
+      "subtitle": "Naturliga tandkonturer med ytöverlagringar."
+    },
+    "tabs": {
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universell"
+    },
+    "labels": {
+      "toothNumberingSelector": "Tandnumreringsväljare",
+      "interactiveOdontogram": "Interaktivt odontogram",
+      "maxillaryArch": "Överkäksbåge",
+      "mandibularArch": "Underkäksbåge",
+      "tooth": "Tand",
+      "surfaceColorLegend": "Färgförklaring för ytor"
+    },
+    "legend": {
+      "findings": "Fynd",
+      "plannedProcedures": "Planerade åtgärder",
+      "completedProcedures": "Utförda åtgärder"
+    }
+  },
+  "odontogramRootSurface": {
+    "sections": {
+      "title": "Odontogramvy",
+      "subtitle": "Segmenterade ytor med större centralt polygon för molarer."
+    },
+    "tabs": {
+      "fdiIso": "FDI (ISO)",
+      "universal": "Universell"
+    },
+    "labels": {
+      "showRootSurfaces": "Visa rotytor",
+      "toothNumberingSelector": "Tandnumreringsväljare",
+      "interactiveOdontogram": "Interaktivt rotytodontogram",
+      "tooth": "Tand",
+      "surfaceColorLegend": "Färgförklaring för ytor"
+    },
+    "legend": {
+      "findings": "Fynd",
+      "plannedProcedures": "Planerade åtgärder",
+      "completedProcedures": "Utförda åtgärder"
+    }
+  },
+  "dentistryRecordItem": {
+    "labels": {
+      "toothFdi": "Tand FDI {{ fdi }} - Univ. {{ universal }}"
+    },
+    "actions": {
+      "deleteRecord": "Ta bort post",
+      "copyPostcoordinated": "Kopiera postkoordinerat uttryck"
+    },
+    "tooltips": {
+      "deleteRecord": "Ta bort post",
+      "setAsPlanned": "Ange som planerad",
+      "setAsCompleted": "Ange som utförd",
+      "setAsActive": "Ange som aktiv",
+      "setAsResolved": "Ange som löst"
+    }
+  },
+  "dentistryAllFindings": {
+    "sections": {
+      "title": "Alla poster"
+    },
+    "messages": {
+      "noRecords": "Inga sparade tandvårdsposter för den här patienten ännu."
+    }
+  },
+  "aiAssistedEntry": {
+    "sections": {
+      "title": "AI-assisterad datainmatning",
+      "description": "Intelligent klinisk datainmatning driven av AI för att effektivisera dokumentation och förbättra noggrannheten.",
+      "encounterDetails": "Uppgifter om vårdkontakt",
+      "encounterDescription": "Konfigurera uppgifterna för den här kliniska sessionen",
+      "detectedEntities": "Identifierade kliniska entiteter",
+      "detectedEntitiesDescription": "AI-detekterade diagnoser, åtgärder och läkemedel"
+    },
+    "fields": {
+      "reasonForEncounter": "Besöksorsak",
+      "selectReasonForEncounter": "Välj besöksorsak",
+      "diagnosis": "Diagnos",
+      "selectDiagnosis": "Välj diagnos",
+      "procedure": "Åtgärd",
+      "selectProcedure": "Välj åtgärd"
+    },
+    "labels": {
+      "none": "Ingen",
+      "conditions": "Diagnoser",
+      "procedures": "Åtgärder",
+      "medications": "Läkemedel",
+      "confidence": "Konfidens",
+      "unknownError": "Okänt fel"
+    },
+    "actions": {
+      "addSampleText": "Lägg till exempeltext",
+      "saveAllToPatient": "Spara allt till patient",
+      "close": "Stäng"
+    },
+    "status": {
+      "savingToFhir": "Sparar till FHIR-server...",
+      "analyzingText": "AI analyserar text...",
+      "savingClinicalResources": "Sparar kliniska resurser...",
+      "alreadyExistsInProblemsList": "Finns redan i problemlistan"
+    },
+    "tooltips": {
+      "remove": "Ta bort från identifierade",
+      "removeExisting": "Ta bort från identifierade (sparas inte som ny klinisk händelse)"
+    },
+    "messages": {
+      "placeholderLine1": "Det här är en användargränssnittsdemo utan en riktig AI-modell – bara ett fåtal simulerade detektioner visas.",
+      "placeholderLine2": "Infoga exempeltext med knappen nedan för att se en simulering av AI-assisterad detektering av kliniska entiteter.",
+      "emptyStateHint": "Börja skriva kliniska anteckningar för att detektera entiteter",
+      "emptyStateExample": "Prova: \"Patienten har astma, behöver operation, tar aspirin\"",
+      "errorDetectingEntities": "Fel vid detektering av entiteter: {{ message }}",
+      "procedureLinkedToEncounter": "Åtgärden \"{{ name }}\" fanns redan och kopplades till den nya vårdkontakten.",
+      "procedureAlreadyExists": "Åtgärden \"{{ name }}\" finns redan för den här patienten.",
+      "savedClinicalResources": "{{ count }} kliniska resurser sparades.",
+      "failedToSave": "Det gick inte att spara kliniska resurser: {{ message }}"
+    }
+  },
+  "nursingRecord": {
+    "sections": {
+      "nursing": "Omvårdnad"
+    }
+  },
+  "nursingVitalCard": {
+    "labels": {
+      "last": "Senaste"
+    },
+    "fields": {
+      "systolic": "Systoliskt",
+      "diastolic": "Diastoliskt"
+    },
+    "actions": {
+      "addNew": "Lägg till ny",
+      "save": "Spara",
+      "cancel": "Avbryt"
+    }
+  },
+  "nursingVitalSigns": {
+    "sections": {
+      "vitalSigns": "Vitalparametrar"
+    },
+    "tooltips": {
+      "viewVitalFhir": "Visa vitalparametrars FHIR-resurser"
+    }
+  },
+  "nursingNutritionalCareplan": {
+    "sections": {
+      "nutritionalEvaluation": "Nutritionsbedömning",
+      "anthropometry": "Antropometri",
+      "nutritionalGoals": "Nutritionsmål",
+      "interventions": "Interventioner"
+    },
+    "labels": {
+      "bmi": "BMI"
+    },
+    "actions": {
+      "save": "Spara",
+      "close": "Stäng",
+      "removeIntervention": "Ta bort intervention",
+      "addIntervention": "Lägg till intervention"
+    },
+    "messages": {
+      "noDataRecorded": "Ingen data registrerad",
+      "noChangesToSave": "Inga ändringar att spara för BMI",
+      "assessmentSaved": "Nutritionsbedömning sparad (BMI)"
+    }
+  },
+  "problemsList": {
+    "sections": {
+      "title": "Problemlista"
+    },
+    "labels": {
+      "consolidatedView": "Konsoliderad vy"
+    },
+    "messages": {
+      "noProblemsRecorded": "Inga problem registrerade"
+    }
+  },
+  "clinicalTimeline": {
+    "sections": {
+      "title": "Tidslinje",
+      "overview": "Översikt"
+    },
+    "labels": {
+      "status": "Status",
+      "snomedCt": "SNOMED CT"
+    },
+    "messages": {
+      "zoomPan": "Zooma och panorera för att utforska kronologin över registrerade händelser.",
+      "noEvents": "Inga tidslinjehändelser",
+      "noEventsHint": "Kliniska händelser visas här när diagnoser, allergier, åtgärder, läkemedel eller vaccinationer läggs till med datum."
+    }
+  },
+  "questionnaireForm": {
+    "labels": {
+      "prePopulated": "Förifyllt från patientjournal"
+    },
+    "actions": {
+      "submitResponse": "Skicka svar",
+      "cancel": "Avbryt"
+    },
+    "messages": {
+      "loading": "Läser in enkät...",
+      "noQuestionnaire": "Ingen enkät inläst",
+      "noQuestionnaireHint": "Välj en enkät i listrutan ovan"
+    }
+  },
+  "openehrForm": {
+    "labels": {
+      "defaultTitle": "openEHR-formulär"
+    },
+    "actions": {
+      "submitComposition": "Skicka komposition",
+      "cancel": "Avbryt"
+    },
+    "messages": {
+      "loading": "Läser in openEHR-formulär...",
+      "noTemplate": "Ingen openEHR-mall inläst",
+      "noTemplateHint": "Välj en mall i listrutan ovan"
+    }
+  },
+  "smartHealthLinks": {
+    "sections": {
+      "title": "Smart Health Links",
+      "description": "Statisk demo för att generera SHLinks och nedladdningsbara QR-koder från FHIR JSON-resurser i assets/data."
+    },
+    "table": {
+      "label": "Etikett",
+      "sourceJson": "Käll-JSON",
+      "manifest": "Manifest",
+      "qrPreview": "QR-förhandsgranskning",
+      "actions": "Åtgärder"
+    },
+    "labels": {
+      "qrPreviewAlt": "QR-förhandsgranskning för"
+    },
+    "actions": {
+      "copyShLink": "Kopiera SHLink",
+      "downloadSvg": "Ladda ner SVG",
+      "downloadPng": "Ladda ner PNG"
+    }
+  },
+  "allergyFormDialog": {
+    "sections": {
+      "title": "Lägg till allergi / intolerans"
+    },
+    "actions": {
+      "close": "Stäng allergidialog"
+    }
+  },
+  "batchPatientDialog": {
+    "sections": {
+      "title": "Generera flera patienter"
+    },
+    "fields": {
+      "numberOfPatients": "Antal patienter",
+      "numberOfPatientsHint": "Ange ett tal mellan 1 och 500",
+      "timeframeYears": "Tidsram för kliniska data (år)",
+      "timeframeYearsHint": "Genererade datum slumpmässiggörs som standard inom de senaste 2 åren",
+      "genderDistribution": "Könsfördelning",
+      "genderDistributionHint": "Justera sannolikheten för att generera manliga respektive kvinnliga patienter",
+      "ageDistribution": "Åldersfördelning",
+      "ageDistributionHint": "Välj procentandelar i steg om 10 %. Summan måste vara 100 %.",
+      "children": "Barn (0–18)",
+      "adults": "Vuxna (18–65)",
+      "elderly": "Äldre (65+)",
+      "diagnosesPerPatient": "Antal diagnoser per patient",
+      "diagnosesRangeHint": "Ange 0 för båda för att generera patienter utan diagnoser. Varje patient får ett slumpmässigt antal diagnoser mellan dessa värden.",
+      "minimum": "Minimum",
+      "maximum": "Maximum"
+    },
+    "labels": {
+      "female": "Kvinna",
+      "male": "Man",
+      "total": "Totalt",
+      "to": "till"
+    },
+    "actions": {
+      "cancel": "Avbryt",
+      "generatePatients": "Generera patienter"
+    },
+    "messages": {
+      "description": "Generera syntetiska patientdata baserade på verkliga hälsostatistiker från",
+      "gbdStudy": "Global Burden of Disease (GBD) Study",
+      "descriptionSuffix": "Dessa artificiella patienter återspeglar sjukdomsprevalensmönster efter ålder och kön, vilket gör att du kan fylla ditt journalsystem med realistiska testdata.",
+      "mustEqual100": "Måste vara lika med 100 %",
+      "generating": "Genererar patienter..."
+    }
+  },
+  "deathRegistrationDialog": {
+    "sections": {
+      "title": "Dödsregistrering",
+      "titleUpdate": "Uppdatera dödsregistrering",
+      "subtitle": "Registrera dödsorsaksintygen och markera den här patienten som avliden.",
+      "causeOfDeath": "Dödsorsak",
+      "part1Subtitle": "Del I. Ange händelsekedjan som direkt orsakade dödsfallet.",
+      "part2Subtitle": "Del II. Andra betydande tillstånd som bidrog till dödsfallet."
+    },
+    "fields": {
+      "dateOfDeath": "Dödsdatum",
+      "time": "Tid",
+      "interval": "Intervall",
+      "intervalPlaceholder": "t.ex. 3 dagar",
+      "selectCondition": "Välj diagnos",
+      "existingCondition": "Befintlig diagnos",
+      "snomedCondition": "SNOMED-diagnos"
+    },
+    "table": {
+      "line": "Rad",
+      "causeCondition": "Orsak/tillstånd",
+      "approximateInterval": "Ungefärligt intervall"
+    },
+    "labels": {
+      "id": "ID",
+      "dob": "Födelsedatum",
+      "unknown": "Okänt"
+    },
+    "actions": {
+      "searchInSnomed": "Sök i SNOMED",
+      "useExistingCondition": "Använd befintlig diagnos",
+      "clearLine": "Rensa rad",
+      "addContributingCondition": "Lägg till bidragande tillstånd",
+      "deleteRecord": "Ta bort dödsattestpost",
+      "cancel": "Avbryt",
+      "updateRecord": "Uppdatera dödspost",
+      "saveRecord": "Spara dödspost"
+    },
+    "messages": {
+      "errorEnterDateTime": "Ange datum och tid för dödsfallet.",
+      "errorAtLeastOneCause": "Ange minst en dödsorsak innan du sparar.",
+      "errorUnableToSave": "Det gick inte att spara dödsposten.",
+      "errorSelectCondition": "Välj en befintlig diagnos för varje ifylld rad med det alternativet.",
+      "errorNoSnomedCode": "Den valda diagnosen \"{{ name }}\" har ingen SNOMED CT-kod. Använd SNOMED-sökalternativet för den raden.",
+      "errorSelectSnomedConcept": "Välj ett SNOMED CT-begrepp för varje ifylld rad med SNOMED-sökning."
+    }
+  }
+}
