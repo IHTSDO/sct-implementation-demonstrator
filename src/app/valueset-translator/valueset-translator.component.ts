@@ -590,12 +590,17 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       this.valueSetVersion = json.version;
     }
 
+    const composeConcepts = json.compose?.include?.[0]?.concept;
+    const composeSystem = json.compose?.include?.[0]?.system || '';
+    const expansionConcepts = json.expansion?.contains;
+    const concepts = composeConcepts ?? expansionConcepts ?? [];
+
     this.previewData = [
-      ['Code', 'Display', 'System'], // Headers
-      ...(json.compose?.include?.[0]?.concept || []).map((concept: any) => [
+      ['Code', 'Display', 'System'],
+      ...concepts.map((concept: any) => [
         concept.code || '',
         concept.display || '',
-        json.compose?.include?.[0]?.system || ''
+        concept.system || composeSystem
       ])
     ];
 
@@ -1826,13 +1831,31 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     ).toPromise();
   }
 
+  private normalizeValueSetToCompose(valueSet: any): any {
+    const { expansion, ...rest } = valueSet;
+    let compose = rest.compose;
+    if (!compose) {
+      const contains: any[] = expansion?.contains ?? [];
+      const bySystem = new Map<string, any[]>();
+      for (const c of contains) {
+        const sys = c.system ?? 'http://snomed.info/sct';
+        if (!bySystem.has(sys)) bySystem.set(sys, []);
+        bySystem.get(sys)!.push({ code: c.code, display: c.display });
+      }
+      compose = {
+        include: Array.from(bySystem.entries()).map(([system, concepts]) => ({ system, concept: concepts }))
+      };
+    }
+    return { ...rest, compose };
+  }
+
   private buildDownloadableTargetValueSet(): any | null {
     if (!this.targetValueSet || !this.hasValueSetMetadata()) {
       return null;
     }
 
     return {
-      ...this.targetValueSet,
+      ...this.normalizeValueSetToCompose(this.targetValueSet),
       resourceType: 'ValueSet',
       url: this.normalizeBaseUrl(this.valueSetUri),
       name: this.valueSetName.trim(),
@@ -1846,10 +1869,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     if (!cloned || cloned.resourceType !== 'ValueSet') {
       return cloned;
     }
-    cloned.url = this.normalizeBaseUrl(this.valueSetUri);
-    cloned.name = this.valueSetName.trim();
-    cloned.version = this.valueSetVersion.trim();
-    return cloned;
+    const normalized = this.normalizeValueSetToCompose(cloned);
+    normalized.url = this.normalizeBaseUrl(this.valueSetUri);
+    normalized.name = this.valueSetName.trim();
+    normalized.version = this.valueSetVersion.trim();
+    return normalized;
   }
 
   /** ValueSet from uploaded JSON, or nested resource if a Parameters wrapper is ever present. */
