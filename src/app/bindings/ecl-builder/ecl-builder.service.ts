@@ -43,7 +43,7 @@ export class EclBuilderService {
       );
   }
 
-  private readonly fallbackSnowstormBase = 'https://snowstorm.ihtsdotools.org/snowstorm/snomed-ct';
+  private readonly fallbackSnowstormBase = 'https://snomedbrowser.org/snowstorm/snomed-ct';
 
   modelToString(model: EclExpressionConstraint): Observable<string> {
     const clonedModel = this.deepClone(model);

@@ -41,7 +41,7 @@ export class ConceptLookupDialogComponent implements OnInit {
       if (this.data.system === 'http://loinc.org') {
         fhirBase = 'https://browser.loincsnomed.org/fhir';
       } else {
-        fhirBase = 'https://snowstorm.ihtsdotools.org/fhir';
+        fhirBase = 'https://snomedbrowser.org/fhir';
       }
     }
     

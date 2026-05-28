@@ -587,7 +587,7 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
   getExtensionForSelectableTypes() {
     return [{
       url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer',
-      valueUrl: 'https://snowstorm.ihtsdotools.org/fhir'
+      valueUrl: 'https://snomedbrowser.org/fhir'
     }];
   }
 
