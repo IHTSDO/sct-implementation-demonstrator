@@ -42,6 +42,15 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Local environment files and secrets
+.local/
+.env
+.env.*
+*.env
+!*.env.example
+docker-environment.txt
+snowstorm-lite.env
+
 # Python environment and data
 python/reports-updater/.env
 python/reports-updater/data/

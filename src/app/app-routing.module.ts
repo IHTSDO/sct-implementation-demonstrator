@@ -74,6 +74,7 @@ const routes: Routes = [
   { path: 'ehds-laboratory-demo', loadChildren: () => import('./ehds-laboratory-demo/ehds-laboratory-demo.module').then((m) => m.EhdsLaboratoryDemoModule) },
   { path: 'mdrs-viewer', loadChildren: () => import('./mdrs-viewer/mdrs-viewer.module').then((m) => m.MdrsViewerModule) },
   { path: 'cohort-workspace', loadChildren: () => import('./cohort-definition/cohort-definition.module').then((m) => m.CohortDefinitionModule) },
+  { path: 'icd-mappings', loadChildren: () => import('./icd-mappings/icd-mappings.module').then((m) => m.IcdMappingsModule) },
   { path: '**', redirectTo: '' },
 ];
 

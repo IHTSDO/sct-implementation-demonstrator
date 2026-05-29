@@ -755,7 +755,8 @@ export class TerminologyService {
   runEclLegacy(ecl: string) {
     // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=%5E%5B*%5D%20447562003%20%7CICD-10%20complex%20map%20reference%20set%7C%20%7B%7B%20M%20referencedComponentId%20%3D%20%22782513000%22%20%7D%7D
     // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=^[*]%20447562003%20|ICD-10%20complex%20map%20reference%20set|%20{{%20M%20referencedComponentId%20=%20%22195967001%22%20}}
-    let requestUrl = `https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=${encodeURIComponent(ecl)}`
+    const snowstormBase = this.snowstormFhirBase.replace('/fhir', '/snowstorm/snomed-ct');
+    let requestUrl = `${snowstormBase}/MAIN/concepts?offset=0&limit=100&termActive=true&ecl=${encodeURIComponent(ecl)}`
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });
@@ -774,6 +775,13 @@ export class TerminologyService {
       .pipe(
         catchError(this.handleError<any>('translate', {}))
       );
+  }
+
+  getSimpleMapTargets(code: string, targetSystem: string) {
+    let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&targetsystem=${targetSystem}`;
+    const headers = new HttpHeaders({ 'Accept-Language': this.lang });
+    return this.http.get<any>(requestUrl, { headers })
+      .pipe(catchError(this.handleError<any>('simpleMap', {})));
   }
 
   getMedraMapTargets(code: string) {

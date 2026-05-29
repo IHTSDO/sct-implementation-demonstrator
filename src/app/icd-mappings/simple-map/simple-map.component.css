@@ -1,0 +1,15 @@
+.code {
+  font-weight: bold;
+  color: rgb(184, 154, 43);
+}
+
+.centered-card {
+  width: 70%;
+  margin-left: 15%;
+}
+
+.selected-reason {
+  display: flex;
+  align-items: center;
+  height: 1.1rem;
+}

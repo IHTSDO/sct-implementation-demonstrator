@@ -1,0 +1,89 @@
+.code {
+  font-weight: bold;
+  color: rgb(184, 154, 43);
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.wide-card {
+  width: calc(100% - 10px);
+  margin-bottom: 20px;
+}
+
+.centered-card {
+  width: 70%;
+  margin-left: 15%;
+  margin-bottom: 40px;
+}
+
+mat-tab-group {
+  display: block;
+  margin-bottom: 48px;
+}
+
+.selected-reason {
+  display: flex;
+  align-items: center;
+  height: 1.1rem;
+}
+
+.selected-reason-big {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-pic {
+  height: 120px;
+  width: auto;
+  border-radius: 50%;
+}
+
+#pic-box {
+  flex: 0 0 auto;
+}
+
+.postcoordination {
+  margin-left: 50px;
+}
+
+.chips {
+  margin-bottom: 15px;
+}
+
+.icd10-header-image {
+  background-image: url('/assets/img/icd-10.jpg');
+  background-size: cover;
+}
+
+.icd11-header-image {
+  background-image: url('/assets/img/icd-11.jpg');
+  background-size: cover;
+}
+
+.icdo-header-image {
+  background-image: url('/assets/img/icd-o.png');
+  background-size: cover;
+}
+
+.ok-result {
+  color: green;
+}
+
+.format-selector {
+  margin-bottom: 16px;
+}
+
+h3 {
+  text-align: center;
+  margin-top: 30px;
+}
+
+table {
+  margin-bottom: 40px;
+}

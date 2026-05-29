@@ -66,8 +66,8 @@ export class MenuService {
       key: "snomedMaps",
       name: "SNOMED Maps Demonstrator",
       subtitle: "learningDemo",
-      type: "external",
-      url: "https://ihtsdo.github.io/iid-icd-maps",
+      type: "internal",
+      url: "/icd-mappings",
       description: "A SNOMED / ICD-10 maps demonstration, including complex map rules execution",
     },
     {

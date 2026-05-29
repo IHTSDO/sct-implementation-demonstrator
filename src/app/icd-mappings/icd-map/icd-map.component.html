@@ -1,0 +1,211 @@
+<div class="card-container">
+  <mat-card class="wide-card">
+    <mat-card-header>
+      <mat-card-title>Maps to the International Classification of Diseases</mat-card-title>
+      <mat-card-subtitle>Clinical mapping demonstration</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="selected-reason-big">
+        <div id="pic-box">
+          <img src="assets/img/user-male.svg" alt="image" class="user-pic" *ngIf="gender.display === 'Male'">
+          <img src="assets/img/user-female.svg" alt="image" class="user-pic" *ngIf="gender.display === 'Female'">
+          <img src="assets/img/user-no.svg" alt="image" class="user-pic" *ngIf="gender.display === 'No information'">
+        </div>
+        <div>
+          <p id="patient-name">Test, Patient</p>
+          <p>
+            Age:
+            <mat-form-field>
+              <input matInput [(ngModel)]="age">
+            </mat-form-field>
+            Gender:
+            <mat-form-field appearance="fill">
+              <mat-select [(ngModel)]="gender">
+                <mat-option *ngFor="let g of genders" [value]="g">{{ g.display }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </p>
+        </div>
+      </div>
+      <h4>Diagnosis</h4>
+      <app-autocomplete-binding [binding]="eclReason" [term]="term" (selectionChange)="updateReason($event)"></app-autocomplete-binding>
+      <div class="chips">
+        <mat-chip-listbox>
+          <mat-chip *ngFor="let item of chips" (click)="setChip(item)">{{ item.display }}</mat-chip>
+        </mat-chip-listbox>
+      </div>
+      <div *ngIf="selectedReasonSct?.code" class="codigos">
+        SNOMED CT Code: <span class="code">{{ selectedReasonSct.code }}</span> |{{ selectedReasonSct.display }}|
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button mat-flat-button color="primary" (click)="updateReason(selectedReasonSct)">Refresh maps</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
+
+  <!-- ICD-10 -->
+  <mat-tab>
+    <ng-template mat-tab-label><h2>ICD-10 Map</h2></ng-template>
+    <mat-card class="centered-card">
+      <mat-card-header>
+        <div mat-card-avatar class="icd10-header-image"></div>
+        <mat-card-title>ICD-10 Map</mat-card-title>
+        <mat-card-subtitle>WHO Version — 2019-covid-expanded</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-spinner diameter="35" *ngIf="loadingIcd10"></mat-spinner>
+        <div *ngIf="selectedReasonSct && !loadingIcd10 && !selectedReasonCIE.length">
+          <br>No suitable map found.
+        </div>
+        <div *ngIf="selectedReasonCIE.length">
+          <ng-container *ngIf="!loadingIcd10">
+            <p>
+              Codes:
+              <span *ngFor="let item of selectedReasonCIE; let ii = index">
+                <span *ngIf="ii > 0">,&nbsp;</span>
+                <span class="code">{{ item.code }}</span>
+              </span>
+            </p>
+            <p class="selected-reason" *ngFor="let item of selectedReasonCIE">
+              <span class="code">{{ item.code }}</span>&nbsp;&nbsp;{{ item.display }}
+              <a mat-icon-button color="accent"
+                 href="https://icd.who.int/browse10/2019/en#/{{ removeSecondDigitAfterDot(item.code) }}"
+                 target="_blank" *ngIf="item.code">
+                <mat-icon>open_in_new</mat-icon>
+              </a>
+            </p>
+            <h3>Rules</h3>
+            <table mat-table [dataSource]="icd10rules">
+              <ng-container matColumnDef="mapGroup">
+                <th mat-header-cell *matHeaderCellDef>mapGroup</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapGroup }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mapPriority">
+                <th mat-header-cell *matHeaderCellDef>mapPriority</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapPriority }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mapRule">
+                <th mat-header-cell *matHeaderCellDef>mapRule</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapRule }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mapAdvice">
+                <th mat-header-cell *matHeaderCellDef>mapAdvice</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapAdvice }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mapTarget">
+                <th mat-header-cell *matHeaderCellDef>mapTarget</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapTarget }}</td>
+              </ng-container>
+              <ng-container matColumnDef="link">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                  <a mat-icon-button color="accent"
+                     href="https://icd.who.int/browse10/2019/en#/{{ removeSecondDigitAfterDot(element.mapTarget) }}"
+                     target="_blank" *ngIf="element.mapTarget">
+                    <mat-icon>open_in_new</mat-icon>
+                  </a>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="result">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-icon *ngIf="element.result" class="ok-result">check_circle</mat-icon>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="icd10DisplayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: icd10DisplayedColumns;"></tr>
+            </table>
+          </ng-container>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <!-- ICD-11 (hidden unless unlocked via secret URL param) -->
+  <mat-tab *ngIf="showICD11Map">
+    <ng-template mat-tab-label><h2>ICD-11 Map</h2></ng-template>
+    <mat-card class="centered-card">
+      <mat-card-header>
+        <div mat-card-avatar class="icd11-header-image"></div>
+        <mat-card-title>ICD-11 Map</mat-card-title>
+        <mat-card-subtitle>ICD-11 MMS Linearization</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="format-selector">
+          <mat-button-toggle-group [value]="icd11FormatSelection" (change)="onFormatChange($event.value)">
+            <mat-button-toggle value="preview">Preview (March 2021)</mat-button-toggle>
+            <mat-button-toggle value="extended">Preview 2 (October 2024)</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        <mat-spinner diameter="35" *ngIf="loadingIcd11"></mat-spinner>
+        <div *ngIf="selectedReasonCIE11.length">
+          <ng-container *ngIf="!loadingIcd11">
+            <p>
+              Codes:
+              <ng-container *ngFor="let code of selectedReasonCIE11; let ii = index">
+                <span *ngIf="ii > 0">,&nbsp;</span>
+                <ng-container *ngFor="let part of code; let i = index">
+                  <span class="code">{{ part.code }}<ng-container *ngIf="i !== code.length - 1">&amp;</ng-container></span>
+                </ng-container>
+              </ng-container>
+            </p>
+            <ng-container *ngFor="let code of selectedReasonCIE11">
+              <ng-container *ngFor="let part of code; let i = index">
+                <p class="selected-reason" [class.postcoordination]="i > 0">
+                  <span class="code">{{ part.code }}</span>&nbsp;&nbsp;{{ part.display }}
+                  <a *ngIf="part.uri" mat-icon-button color="accent"
+                     href="https://icd.who.int/dev11/l-m/en#/{{ part.uri }}" target="_blank">
+                    <mat-icon>open_in_new</mat-icon>
+                  </a>
+                </p>
+              </ng-container>
+            </ng-container>
+            <h3>Rules</h3>
+            <table mat-table [dataSource]="icd11rules">
+              <ng-container matColumnDef="mapGroup">
+                <th mat-header-cell *matHeaderCellDef>mapGroup</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapGroup }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mapPriority">
+                <th mat-header-cell *matHeaderCellDef>mapPriority</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapPriority }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mapRule">
+                <th mat-header-cell *matHeaderCellDef>mapRule</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapRule }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mapAdvice">
+                <th mat-header-cell *matHeaderCellDef>mapAdvice</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapAdvice }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mapTarget">
+                <th mat-header-cell *matHeaderCellDef>mapTarget</th>
+                <td mat-cell *matCellDef="let element">{{ element.mapTarget }}</td>
+              </ng-container>
+              <ng-container matColumnDef="result">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-icon class="ok-result">check_circle</mat-icon>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="icd11DisplayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: icd11DisplayedColumns;"></tr>
+            </table>
+          </ng-container>
+        </div>
+        <div *ngIf="selectedReasonSct && !loadingIcd11 && !selectedReasonCIE11.length">
+          <br>No suitable map found.
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <!-- ICD-O -->
+  <mat-tab>
+    <ng-template mat-tab-label><h2>ICD-O Map</h2></ng-template>
+    <app-icd-simple-map [mapDefinition]="icdOMapDefinition" [concept]="selectedReasonSct"></app-icd-simple-map>
+  </mat-tab>
+
+</mat-tab-group>
