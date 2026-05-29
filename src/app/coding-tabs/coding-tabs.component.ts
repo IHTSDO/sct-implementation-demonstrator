@@ -13,6 +13,8 @@ export class CodingTabsComponent implements OnChanges {
   @Input() intro = '';
   @Input() specPaths: string[] = [];
   @Input() specs: CodingTabSpec[] = [];
+  // Optional edition URI forwarded to the bindings (e.g. pin a specific SNOMED edition).
+  @Input() editionUri?: string;
 
   tabs: CodingTabSpec[] = [];
   isLoading = false;

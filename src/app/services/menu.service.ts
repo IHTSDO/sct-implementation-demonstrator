@@ -82,8 +82,8 @@ export class MenuService {
       key: "ipsTerminology",
       name: "IPS Terminology Demonstrator",
       subtitle: "learningDemo",
-      type: "external",
-      url: "https://ihtsdo.github.io/iid-ips/",
+      type: "internal",
+      url: "/ips-terminology",
       description: "A demonstration of the International Patient Summary (IPS) terminology, including the IPS SNOMED CT refset",
     },
     {

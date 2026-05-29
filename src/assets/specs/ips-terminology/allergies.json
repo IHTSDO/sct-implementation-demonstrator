@@ -1,0 +1,20 @@
+{
+  "title": "Allergies and Intolerances",
+  "description": "This section documents the relevant allergies or intolerances (conditions) for a patient, describing the kind of reaction (e.g. rash, anaphylaxis,..); preferably the agents that cause it; and optionally the criticality and the certainty of the allergy. At a minimum, it should list currently active and any relevant historical allergies and adverse reactions. If no information about allergies is available, or if no allergies are known this should be clearly documented in the section.",
+  "bindings": [
+    {
+      "title": "Allergy intolerance substance (all SNOMED CT)",
+      "type": "autocomplete",
+      "ecl": "< 105590001 |Substance (substance)| OR < 373873005 |Pharmaceutical / biologic product (product)| OR < 418038007 |Propensity to adverse reactions to substance (finding)|",
+      "value": "",
+      "note": "Searching allergy intolerance substance codes using a complete edition of SNOMED CT."
+    },
+    {
+      "title": "Allergy intolerance substance (IPS Refset)",
+      "type": "autocomplete",
+      "ecl": "(< 105590001 |Substance (substance)| OR < 373873005 |Pharmaceutical / biologic product (product)| OR < 418038007 |Propensity to adverse reactions to substance (finding)|) AND (^816080008 |International Patient Summary|)",
+      "value": "",
+      "note": "Searching allergy intolerance substance codes using members of the IPS Refset only."
+    }
+  ]
+}

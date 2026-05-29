@@ -1,0 +1,66 @@
+<div class="ips-page">
+  <div class="page-header">
+    <h2>IPS Terminology</h2>
+    <p>{{ introText }}</p>
+  </div>
+
+  <div class="ips-banner warn" *ngIf="derivativesStatus === 'unavailable'">
+    <mat-icon>warning</mat-icon>
+    <span>
+      The International Derivatives edition (which contains the IPS reference set) was not found on
+      the selected terminology server. Falling back to the default edition &mdash; IPS reference set
+      queries may return no results.
+    </span>
+  </div>
+
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" class="ips-outer-tabs">
+    <mat-tab label="Bindings">
+      <app-coding-tabs
+        [editionUri]="editionUri"
+        [specPaths]="specPaths">
+      </app-coding-tabs>
+    </mat-tab>
+
+    <mat-tab label="Interoperability Demo">
+      <div class="interop-content">
+        <p>
+          This demo shows the use of ECL to convert from codes in a complete SNOMED CT edition to
+          codes in the IPS Terminology using the proximal common ancestors technique. An example use
+          case is sharing content between a member country and a non-member country.
+        </p>
+
+        <app-autocomplete-binding
+          [binding]="interopBinding"
+          (selectionChange)="conceptSelected($event)">
+        </app-autocomplete-binding>
+
+        <div class="interop-result">
+          <mat-spinner diameter="35" *ngIf="searching"></mat-spinner>
+
+          <p *ngIf="!searching && conceptIsPartOfIps" class="in-ips">
+            <mat-icon class="ok">check_circle</mat-icon>
+            The concept is already part of the IPS Terminology.
+          </p>
+
+          <ng-container *ngIf="!searching && ipsOptions.length > 0">
+            <p>Corresponding concept(s) in the IPS Terminology:</p>
+            <mat-list>
+              <mat-list-item *ngFor="let option of ipsOptions">
+                <span class="code">{{ option.code }}</span>&nbsp;|{{ option.display }}|
+              </mat-list-item>
+            </mat-list>
+          </ng-container>
+
+          <p *ngIf="!searching && selectedConcept && !conceptIsPartOfIps && ipsOptions.length === 0">
+            No corresponding IPS Terminology concept found.
+          </p>
+        </div>
+
+        <h3>Proximal common ancestor ECL query</h3>
+        <pre class="ecl"><code>(&gt; |FOCUS CONCEPT| AND ^816080008 |International Patient Summary|)
+MINUS
+(&gt; (&gt; |FOCUS CONCEPT| AND ^816080008 |International Patient Summary|))</code></pre>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

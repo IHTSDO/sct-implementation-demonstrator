@@ -12,6 +12,8 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
 
   @Input() spec: any;
   @Input() showTitle: boolean = true;
+  // Optional edition URI forwarded to terminology-backed bindings (pin a SNOMED edition).
+  @Input() editionUri?: string;
 
   output: any = {};
   outputStr: string = '{}';

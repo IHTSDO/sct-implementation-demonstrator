@@ -1,0 +1,20 @@
+{
+  "title": "Procedures",
+  "description": "In IPS, procedures are used to list and describe the history of clinical procedures performed in the patient, or the procedures for which results are reported.",
+  "bindings": [
+    {
+      "title": "Procedures (all SNOMED CT)",
+      "type": "autocomplete",
+      "ecl": "(< 71388002 |Procedure|) MINUS (<< 308335008 |Patient encounter procedure|)",
+      "value": "",
+      "note": "Searching procedure codes using a complete edition of SNOMED CT."
+    },
+    {
+      "title": "Procedures (IPS Refset)",
+      "type": "autocomplete",
+      "ecl": "((< 71388002 |Procedure|) MINUS (<< 308335008 |Patient encounter procedure|)) AND (^816080008 |International Patient Summary|)",
+      "value": "",
+      "note": "Searching procedure codes using members of the IPS Refset only."
+    }
+  ]
+}

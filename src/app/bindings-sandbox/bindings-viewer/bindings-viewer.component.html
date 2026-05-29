@@ -9,7 +9,7 @@
     @for (num of [].constructor(binding.count); track num; let i = $index) {
       <div class="row control">
         @if (getBindingType(binding) == 'Autocomplete') {
-          <app-autocomplete-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-autocomplete-binding>
+          <app-autocomplete-binding [binding]="binding" [editionUri]="editionUri" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-autocomplete-binding>
         }
         @if (getBindingType(binding) == 'Select (Single)' || getBindingType(binding) == 'Select (Multiple)') {
           <app-dropdown-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-dropdown-binding>
@@ -18,7 +18,7 @@
           <app-radios-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-radios-binding>
         }
         @if (getBindingType(binding) == 'Multi-prefix search select') {
-          <app-multi-prefix-select-binding [binding]="binding" [expansionCount]="500" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-multi-prefix-select-binding>
+          <app-multi-prefix-select-binding [binding]="binding" [editionUri]="editionUri" [expansionCount]="500" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-multi-prefix-select-binding>
         }
         @if (getBindingType(binding) == 'Section header') {
           <span class="title grow">{{ binding.title }}</span>

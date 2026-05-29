@@ -1,0 +1,20 @@
+{
+  "title": "Immunizations",
+  "description": "The Immunizations Section defines a patient's current immunization status and pertinent immunization history. The primary use case for the Immunization Section is to enable communication of a patient's immunization status. The section includes current immunization status and the entire clinically pertinent immunization history that is known.",
+  "bindings": [
+    {
+      "title": "Immunizations (all SNOMED CT)",
+      "type": "autocomplete",
+      "ecl": "(< 787859002 |Vaccine product|)",
+      "value": "",
+      "note": "Searching immunization codes using a complete edition of SNOMED CT."
+    },
+    {
+      "title": "Immunizations (IPS Refset)",
+      "type": "autocomplete",
+      "ecl": "(< 787859002 |Vaccine product|) AND (^816080008 |International Patient Summary|)",
+      "value": "",
+      "note": "Searching immunization codes using members of the IPS Refset only."
+    }
+  ]
+}

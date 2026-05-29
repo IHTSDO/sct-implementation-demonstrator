@@ -26,7 +26,7 @@
       @for (tab of tabs; track tab.title) {
         <mat-tab label="{{ tab.title }}">
           <div class="tab-panel">
-            <app-bindings-viewer [spec]="tab"></app-bindings-viewer>
+            <app-bindings-viewer [spec]="tab" [editionUri]="editionUri"></app-bindings-viewer>
           </div>
         </mat-tab>
       }

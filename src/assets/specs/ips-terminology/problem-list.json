@@ -1,0 +1,20 @@
+{
+  "title": "Problem List",
+  "description": "The IPS problem section lists and describes clinical problems or conditions currently being monitored for the patient.",
+  "bindings": [
+    {
+      "title": "Problem List Finding/Situation/Event (all SNOMED CT)",
+      "type": "autocomplete",
+      "ecl": "< 404684003 |Clinical finding (finding)| OR < 272379006 |Event (event)| OR < 243796009 |Situation with explicit context|",
+      "value": "",
+      "note": "Searching problem list codes using a complete edition of SNOMED CT."
+    },
+    {
+      "title": "Problem List Finding/Situation/Event (IPS Refset)",
+      "type": "autocomplete",
+      "ecl": "(< 404684003 |Clinical finding (finding)| OR < 272379006 |Event (event)| OR < 243796009 |Situation with explicit context|) AND (^816080008 |International Patient Summary|)",
+      "value": "",
+      "note": "Searching problem list codes using members of the IPS Refset only."
+    }
+  ]
+}

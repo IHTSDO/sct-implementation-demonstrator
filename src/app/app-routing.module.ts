@@ -75,6 +75,7 @@ const routes: Routes = [
   { path: 'mdrs-viewer', loadChildren: () => import('./mdrs-viewer/mdrs-viewer.module').then((m) => m.MdrsViewerModule) },
   { path: 'cohort-workspace', loadChildren: () => import('./cohort-definition/cohort-definition.module').then((m) => m.CohortDefinitionModule) },
   { path: 'icd-mappings', loadChildren: () => import('./icd-mappings/icd-mappings.module').then((m) => m.IcdMappingsModule) },
+  { path: 'ips-terminology', loadChildren: () => import('./ips-terminology/ips-terminology.module').then((m) => m.IpsTerminologyModule) },
   { path: '**', redirectTo: '' },
 ];
 

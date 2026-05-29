@@ -1,0 +1,20 @@
+{
+  "title": "Medications",
+  "description": "Medications are used to list and describe the history of medications prescribed or consumed by the patient.",
+  "bindings": [
+    {
+      "title": "Medications (all SNOMED CT)",
+      "type": "autocomplete",
+      "ecl": "(< 373873005 |Pharmaceutical / biologic product (product)|) MINUS (<< 787859002 |Vaccine product (medicinal product)|)",
+      "value": "",
+      "note": "Searching medication codes using a complete edition of SNOMED CT."
+    },
+    {
+      "title": "Medications (IPS Refset)",
+      "type": "autocomplete",
+      "ecl": "((< 373873005 |Pharmaceutical / biologic product (product)|) MINUS (<< 787859002 |Vaccine product (medicinal product)|)) AND (^816080008 |International Patient Summary|)",
+      "value": "",
+      "note": "Searching medication codes using members of the IPS Refset only."
+    }
+  ]
+}

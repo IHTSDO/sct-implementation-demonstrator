@@ -1,0 +1,20 @@
+{
+  "title": "Devices",
+  "description": "A device used by or implanted on the patient is described in the patient summary.",
+  "bindings": [
+    {
+      "title": "Devices (all SNOMED CT)",
+      "type": "autocomplete",
+      "ecl": "(< 49062001 |Device (physical object)|)",
+      "value": "",
+      "note": "Searching device codes using a complete edition of SNOMED CT."
+    },
+    {
+      "title": "Devices (IPS Refset)",
+      "type": "autocomplete",
+      "ecl": "(< 49062001 |Device (physical object)|) AND (^816080008 |International Patient Summary|)",
+      "value": "",
+      "note": "Searching device codes using members of the IPS Refset only."
+    }
+  ]
+}

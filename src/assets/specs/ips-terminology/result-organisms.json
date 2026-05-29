@@ -1,0 +1,20 @@
+{
+  "title": "Result Organisms",
+  "description": "This is a value set of the SNOMED CT organism concepts for use in the Results section observation values.",
+  "bindings": [
+    {
+      "title": "Result Organisms (all SNOMED CT)",
+      "type": "autocomplete",
+      "ecl": "(< 409822003 |Domain Bacteria (organism)| OR < 414561005 |Kingdom Fungi (organism)| OR < 49872002 |Virus (organism)|)",
+      "value": "",
+      "note": "Searching result organism codes using a complete edition of SNOMED CT."
+    },
+    {
+      "title": "Result Organisms (IPS Refset)",
+      "type": "autocomplete",
+      "ecl": "(< 409822003 |Domain Bacteria (organism)| OR < 414561005 |Kingdom Fungi (organism)| OR < 49872002 |Virus (organism)|) AND (^816080008 |International Patient Summary|)",
+      "value": "",
+      "note": "Searching result organism codes using members of the IPS Refset only."
+    }
+  ]
+}
