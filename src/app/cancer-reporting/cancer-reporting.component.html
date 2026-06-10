@@ -46,7 +46,7 @@
           <div class="card-accent" [style.background-color]="q.color"></div>
           <mat-card-content class="card-body">
             <div class="card-icon-wrap" [style.background-color]="q.color + '1a'" [style.color]="q.color">
-              <mat-icon>{{ q.icon }}</mat-icon>
+              <app-health-icon [category]="q.iconCategory" [name]="q.iconName" [size]="28" />
             </div>
             <h3 class="card-title">{{ q.title }}</h3>
             <p class="card-description">{{ q.description }}</p>

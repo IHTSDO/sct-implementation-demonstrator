@@ -21,19 +21,20 @@ interface CancerQuestionnaire {
   filename: string;
   title: string;
   description: string;
-  icon: string;
+  iconCategory: string;
+  iconName: string;
   color: string;
 }
 
 const QUESTIONNAIRES: CancerQuestionnaire[] = [
-  { filename: 'Breast-Cancer.R5_20250611.json',       title: 'Breast Cancer',       description: 'Synoptic reporting form example for breast cancer',       icon: 'favorite',         color: '#e91e63' },
-  { filename: 'Colorectal-Cancers.R5_20250611.json',  title: 'Colorectal Cancers',  description: 'Synoptic reporting form example for colorectal cancers',  icon: 'medical_services', color: '#8bc34a' },
-  { filename: 'Esophagus-cancer.R5_20250611.json',    title: 'Esophagus Cancer',    description: 'Synoptic reporting form example for esophagus cancer',    icon: 'medical_services', color: '#ff9800' },
-  { filename: 'Lung-cancer.R5_20250611.json',         title: 'Lung Cancer',         description: 'Synoptic reporting form example for lung cancer',         icon: 'air',              color: '#03a9f4' },
-  { filename: 'Melanoma.R5_20250611.json',            title: 'Melanoma',            description: 'Synoptic reporting form example for melanoma',            icon: 'wb_sunny',         color: '#795548' },
-  { filename: 'Pancreas-Cancer.R5_20250611.json',     title: 'Pancreas Cancer',     description: 'Synoptic reporting form example for pancreas cancer',     icon: 'biotech',          color: '#9c27b0' },
-  { filename: 'Stomach-cancer.R5_20250611.json',      title: 'Stomach Cancer',      description: 'Synoptic reporting form example for stomach cancer',      icon: 'medical_services', color: '#f44336' },
-  { filename: 'Testis_-Orchiectomy.R5_20250611.json', title: 'Testis: Orchiectomy', description: 'Synoptic reporting form example for testis orchiectomy',  icon: 'medical_services', color: '#2196f3' },
+  { filename: 'Breast-Cancer.R5_20250611.json',       title: 'Breast Cancer',       description: 'Synoptic reporting form example for breast cancer',       iconCategory: 'body',       iconName: 'breasts',               color: '#e91e63' },
+  { filename: 'Colorectal-Cancers.R5_20250611.json',  title: 'Colorectal Cancers',  description: 'Synoptic reporting form example for colorectal cancers',  iconCategory: 'conditions', iconName: 'colorectal-cancer',     color: '#8bc34a' },
+  { filename: 'Esophagus-cancer.R5_20250611.json',    title: 'Esophagus Cancer',    description: 'Synoptic reporting form example for esophagus cancer',    iconCategory: 'conditions', iconName: 'oesophagus-cancer',     color: '#ff9800' },
+  { filename: 'Lung-cancer.R5_20250611.json',         title: 'Lung Cancer',         description: 'Synoptic reporting form example for lung cancer',         iconCategory: 'body',       iconName: 'lungs',                 color: '#03a9f4' },
+  { filename: 'Melanoma.R5_20250611.json',            title: 'Melanoma',            description: 'Synoptic reporting form example for melanoma',            iconCategory: 'conditions', iconName: 'skin-cancer',           color: '#795548' },
+  { filename: 'Pancreas-Cancer.R5_20250611.json',     title: 'Pancreas Cancer',     description: 'Synoptic reporting form example for pancreas cancer',     iconCategory: 'conditions', iconName: 'pancreatic-cancer',     color: '#9c27b0' },
+  { filename: 'Stomach-cancer.R5_20250611.json',      title: 'Stomach Cancer',      description: 'Synoptic reporting form example for stomach cancer',      iconCategory: 'conditions', iconName: 'stomach-cancer',        color: '#f44336' },
+  { filename: 'Testis_-Orchiectomy.R5_20250611.json', title: 'Testis: Orchiectomy', description: 'Synoptic reporting form example for testis orchiectomy',  iconCategory: 'body',       iconName: 'testicles',             color: '#2196f3' },
 ];
 
 @Component({

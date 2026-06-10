@@ -39,6 +39,7 @@ import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
 import { CancerReportingComponent } from './cancer-reporting/cancer-reporting.component';
 import { ResponseDialogComponent } from './cancer-reporting/response-dialog/response-dialog.component';
+import { HealthIconComponent } from './shared/health-icon/health-icon.component';
 import { firebaseConfig } from '../environments/firebase.config';
 import { AllergiesModule } from './shared/allergies.module';
 import { AppMaterialModule } from './shared/app-material.module';
@@ -91,6 +92,7 @@ initializeApp(firebaseConfig);
     AppMaterialModule,
     CustomFhirTermServerDialogComponent,
     AppRoutingModule,
+    HealthIconComponent,
     AllergiesModule,
     BindingsModule,
     LoincModule,

@@ -172,6 +172,15 @@
 - Do **not** add `TRANSLOCO_SCOPE` to shared feature modules that are imported by other feature modules.
 - Use the directive's `scope:` input or the component `t()` method pattern instead.
 
+## Static SVG Icon Assets (Health Icons)
+
+- The project uses a subset of [Health Icons](https://healthicons.org/) (CC0) committed directly to `src/assets/healthicons/svg/outline/`.
+- **Only commit the specific SVG files actually used by the app.** Do not commit the full icon library (~2 000 files, 25 MB).
+- Icons are fetched lazily at runtime via `HttpClient` in `HealthIconComponent` (`src/app/shared/health-icon/`). No build step or npm package is required.
+- To add a new icon: copy the relevant SVG from the [healthicons GitHub repo](https://github.com/resolvetosavelives/healthicons) into the matching `svg/outline/<category>/` folder and commit it.
+- `scripts/sync-healthicons.js` (`npm run sync:healthicons`) downloads the full library locally for browsing. It is a dev-only utility; never add it to CI.
+- Icon color is driven by the parent element's CSS `color` property via `fill: currentColor` on the inline SVG — no `fill` attribute needed on the icon itself.
+
 ## Terminology Server Rate Limiting
 
 - Minimize HTTP requests to terminology servers; they have rate limits and cold-start latency.
