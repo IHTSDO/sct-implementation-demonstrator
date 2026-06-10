@@ -73,7 +73,7 @@
 
         <h4 class="section-subtitle">{{ t('nursingNutritionalCareplan.sections.interventions') }}</h4>
         <div class="interventions-list">
-          <div class="intervention-row" *ngFor="let _ of selectedInterventions; let i = index">
+          <div class="intervention-row" *ngFor="let _ of selectedInterventions; let i = index; trackBy: trackByIndex">
             <app-multi-prefix-select-binding
               class="intervention-select"
               [binding]="interventionsBinding"

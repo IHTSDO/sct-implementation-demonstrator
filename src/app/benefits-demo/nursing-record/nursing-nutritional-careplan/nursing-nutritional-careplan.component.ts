@@ -157,6 +157,10 @@ export class NursingNutritionalCareplanComponent implements OnInit, OnChanges, O
     return this.selectedInterventions.some((intervention) => !!intervention);
   }
 
+  trackByIndex(index: number): number {
+    return index;
+  }
+
   ngOnDestroy(): void {
     this.observationsChangedSub?.unsubscribe();
   }
