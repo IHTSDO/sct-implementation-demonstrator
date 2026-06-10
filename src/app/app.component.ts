@@ -12,8 +12,8 @@ import { LicenseAgreementComponent } from './license-agreement/license-agreement
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 import { CookieService } from './services/cookie.service';
 import { GoogleAnalyticsService } from './services/google-analytics.service';
-import { catchError, filter, of, skip, Subject, switchMap, tap } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { catchError, filter, map, of, skip, Subject, switchMap, tap } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { FhirServer } from '../environments/fhir-server.interface';
 import { CustomFhirTermServerDialogComponent, CustomFhirTermServerDialogData } from './util/custom-fhir-term-server-dialog/custom-fhir-term-server-dialog.component';
@@ -55,6 +55,7 @@ export class AppComponent {
 
   private updateCodeSystemOptionsTrigger$ = new Subject<string | undefined>();
   private syncSiteLanguageAfterNextContextSetup = false;
+  private skipNextEditionFetch = false;
 
   constructor( 
     private codingSpecService: CodingSpecService, 
@@ -130,19 +131,28 @@ export class AppComponent {
     this.terminologyService.setLanguages(this.languages);
 
     this.updateCodeSystemOptionsTrigger$.pipe(
-      switchMap((preselectedEdition) =>
-        this.terminologyService.getCodeSystems().pipe(
+      switchMap((preselectedEdition) => {
+        const currentBase = this.terminologyService.getSnowstormFhirBase();
+        const currentIndex = this.fhirServers.findIndex(
+          s => this.normalizeTerminologyServerBaseUrl(s.url) === currentBase
+        );
+        const startIndex = currentIndex >= 0 ? currentIndex : environment.defaultFhirServerIndex;
+        return this.tryGetCodeSystemsWithFallback(startIndex).pipe(
           catchError(err => {
-            console.error('Failed to update code systems:', err);
+            console.error('All FHIR servers failed:', err);
             return of(null);
           }),
-          tap((response: any) => {
-            if (!response) return;
+          tap((result: { response: any; serverIndex: number } | null) => {
+            if (!result) return;
+            const { response, serverIndex } = result;
+            const server = this.fhirServers[serverIndex];
+            const serverUrl = this.normalizeTerminologyServerBaseUrl(server.url);
+
             this.editionsDetails = [];
             this.editions = response.entry?.filter((el: any) => el.resource?.url?.includes('snomed.info')) || [];
             const editionNames = new Set<string>();
 
-            this.editions.forEach(loopEdition => {
+            this.editions.forEach((loopEdition: any) => {
               editionNames.add(loopEdition.resource.title);
             });
 
@@ -150,17 +160,22 @@ export class AppComponent {
               this.editionsDetails.push({
                 editionName,
                 editions: this.editions
-                  .filter(el => el.resource?.title?.includes(editionName))
+                  .filter((el: any) => el.resource?.title?.includes(editionName))
                   .sort(this.compare),
               });
             });
 
-            // Push editionsDetails to the service
             this.terminologyService.setEditionsDetails(this.editionsDetails);
+
+            if (serverUrl !== currentBase) {
+              this.skipNextEditionFetch = true;
+              this.terminologyService.setSnowstormFhirBase(serverUrl);
+              this.selectedServer = { name: server.name, url: serverUrl };
+            }
 
             const currentVerIndex = this.editionsDetails.findIndex(x => x.editionName === 'International Edition');
             if (preselectedEdition) {
-              this.editions.forEach(loopEdition => {
+              this.editions.forEach((loopEdition: any) => {
                 if (loopEdition.resource.version === preselectedEdition) {
                   this.setEdition(loopEdition, false);
                 }
@@ -171,8 +186,8 @@ export class AppComponent {
               this.setEdition(this.editions[0], false);
             }
           })
-        )
-      )
+        );
+      })
     )
     .subscribe();
 
@@ -220,6 +235,10 @@ export class AppComponent {
       );
       this.selectedServer = predefined ?? { name: CUSTOM_FHIR_TERM_SERVER_MENU_LABEL, url: normalized };
       this.cdRef.detectChanges();
+      if (this.skipNextEditionFetch) {
+        this.skipNextEditionFetch = false;
+        return;
+      }
       this.updateCodeSystemOptions();
     });
     this.setFhirServer(this.selectedServer);
@@ -301,6 +320,25 @@ export class AppComponent {
 
   openInNewTab(url: string) {
     window.open(url, '_blank');
+  }
+
+  private tryGetCodeSystemsWithFallback(startIndex: number): import('rxjs').Observable<{ response: any; serverIndex: number } | null> {
+    if (startIndex >= this.fhirServers.length) {
+      return of(null);
+    }
+    const serverUrl = this.normalizeTerminologyServerBaseUrl(this.fhirServers[startIndex].url);
+    const isOntoserver = serverUrl.toLowerCase().includes('ontoserver');
+    const requestUrl = isOntoserver
+      ? `${serverUrl}/CodeSystem?system=http://snomed.info/sct`
+      : `${serverUrl}/CodeSystem`;
+    const headers = new HttpHeaders({ 'Accept-Language': this.terminologyService.getLang() });
+    return this.http.get<any>(requestUrl, { headers }).pipe(
+      map(response => {
+        if (!response?.entry?.length) throw new Error('empty response');
+        return { response, serverIndex: startIndex };
+      }),
+      catchError(() => this.tryGetCodeSystemsWithFallback(startIndex + 1))
+    );
   }
 
   updateCodeSystemOptions(preselectedEdition?: string) {
