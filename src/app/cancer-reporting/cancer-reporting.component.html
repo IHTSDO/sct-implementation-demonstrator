@@ -1,0 +1,171 @@
+<!-- Gallery view -->
+@if (!selected) {
+  <div class="page-container">
+
+    <div class="hero">
+      <h2 class="hero-title">Cancer Synoptic Reporting</h2>
+      <p class="hero-subtitle">
+        FHIR Questionnaire resources implementing structured, standardised cancer pathology
+        reporting forms using <strong>SNOMED CT</strong> terminology bindings.
+      </p>
+    </div>
+
+    <mat-card class="collab-notice" appearance="outlined">
+      <mat-card-content>
+        <div class="collab-inner">
+          <mat-icon class="collab-icon">handshake</mat-icon>
+          <div>
+            <strong>SNOMED International &amp; ICCR Collaboration</strong><br>
+            These questionnaires are the result of a terminology alignment effort between
+            SNOMED International and the
+            <a href="https://www.iccr-cancer.org/" target="_blank" rel="noopener">
+              International Collaboration on Cancer Reporting (ICCR)
+            </a>.
+            Content is released under the
+            <a href="https://www.iccr-cancer.org/copyright/" target="_blank" rel="noopener">
+              ICCR copyright notice
+            </a>.
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="draft-banner">
+      <mat-icon>warning</mat-icon>
+      <span>
+        All questionnaires below are <strong>draft content</strong> and are intended for
+        demonstration and evaluation purposes only. They are not validated for clinical use.
+      </span>
+    </div>
+
+    <div class="section-label">Select a cancer type to preview its reporting questionnaire</div>
+
+    <div class="card-grid">
+      @for (q of questionnaires; track q.filename) {
+        <mat-card class="q-card" appearance="outlined" (click)="preview(q)">
+          <div class="card-accent" [style.background-color]="q.color"></div>
+          <mat-card-content class="card-body">
+            <div class="card-icon-wrap" [style.background-color]="q.color + '1a'" [style.color]="q.color">
+              <mat-icon>{{ q.icon }}</mat-icon>
+            </div>
+            <h3 class="card-title">{{ q.title }}</h3>
+            <p class="card-description">{{ q.description }}</p>
+            <div class="card-tags">
+              <span class="tag tag-draft">Draft</span>
+              <span class="tag tag-fhir">FHIR R5</span>
+              <span class="tag tag-snomed">SNOMED CT</span>
+            </div>
+          </mat-card-content>
+          <mat-card-actions class="card-actions">
+            <button mat-stroked-button [style.color]="q.color" [style.border-color]="q.color">
+              <mat-icon>open_in_new</mat-icon> Preview
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+
+  </div>
+}
+
+<!-- Preview view -->
+@if (selected) {
+  <div class="page-container">
+
+    <div class="breadcrumb">
+      <a href="javascript:void(0)" (click)="backToGallery()">Cancer Synoptic Reporting</a>
+      <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+      <span>{{ selected.title }}</span>
+    </div>
+
+    <div class="preview-header">
+      <button mat-stroked-button (click)="backToGallery()">
+        <mat-icon>arrow_back</mat-icon> Back to list
+      </button>
+      <h3 class="preview-title">{{ selected.title }}</h3>
+      <mat-chip class="draft-chip">Draft</mat-chip>
+    </div>
+
+    <div class="draft-banner">
+      <mat-icon>warning</mat-icon>
+      <span>
+        Draft content — SNOMED International &amp; ICCR collaboration.
+        See <a href="https://www.iccr-cancer.org/copyright/" target="_blank" rel="noopener">ICCR copyright notice</a>.
+      </span>
+    </div>
+
+    @if (loading) {
+      <div class="loading-area">
+        <mat-spinner diameter="48"></mat-spinner>
+        <span>Loading questionnaire…</span>
+      </div>
+    }
+
+    @if (!loading && questionnaire) {
+      <mat-tab-group #previewTabs mat-align-tabs="start" (selectedIndexChange)="onTabChange($event)">
+
+        <mat-tab label="Questionnaire Preview">
+          <div class="tab-content">
+            <div id="cancerFormContainer"></div>
+            <div class="response-btn-row">
+              <button mat-stroked-button color="primary" (click)="showResponse()">
+                <mat-icon>code</mat-icon> Show response
+              </button>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="SNOMED Coding">
+          <div class="tab-content">
+            <div class="coding-panel-header">
+              <mat-icon class="coding-panel-icon">local_offer</mat-icon>
+              <span>SNOMED CT Codes</span>
+              <span class="coding-count">{{ codingDataSource.data.length }} entries</span>
+            </div>
+            <mat-table [dataSource]="codingDataSource" class="coding-table">
+
+              <ng-container matColumnDef="type">
+                <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                <mat-cell *matCellDef="let row">
+                  @if (row.type === 'question') {
+                    <span class="tag tag-question">Question</span>
+                  } @else {
+                    <span class="tag tag-answer">Answer</span>
+                  }
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="text">
+                <mat-header-cell *matHeaderCellDef>Label</mat-header-cell>
+                <mat-cell *matCellDef="let row" [class.answer-row]="row.type === 'answer'">
+                  <span class="cell-text">{{ row.text }}</span>
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="code">
+                <mat-header-cell *matHeaderCellDef>SNOMED CT Concept</mat-header-cell>
+                <mat-cell *matCellDef="let row">
+                  <div class="code-cell">
+                    <a class="snomed-code-link"
+                       href="https://browser.ihtsdotools.org/?perspective=full&conceptId1={{ row.code }}"
+                       target="_blank" rel="noopener"
+                       (click)="$event.stopPropagation()">{{ row.code }}</a>
+                    <span class="snomed-display">{{ row.display }}</span>
+                  </div>
+                </mat-cell>
+              </ng-container>
+
+              <mat-header-row *matHeaderRowDef="codingColumns"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: codingColumns;"
+                       [class.question-row]="row.type === 'question'"></mat-row>
+            </mat-table>
+            <mat-paginator #codingPaginator [pageSize]="15" [pageSizeOptions]="[15, 30, 50]"
+                           showFirstLastButtons></mat-paginator>
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+    }
+
+  </div>
+}

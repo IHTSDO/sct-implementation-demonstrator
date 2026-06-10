@@ -17,6 +17,7 @@ import { QuestionnaireService } from 'src/app/services/questionnaire.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { QuestionnaireHistoryComponent } from '../questionnaire-history/questionnaire-history.component';
 import { ActivatedRoute } from '@angular/router';
+import { LformsService } from 'src/app/services/lforms.service';
 
 
 @Component({
@@ -47,11 +48,12 @@ export class QuestionnairesMainComponent implements OnInit{
   mode = "step1";
   step1Response: any;
 
-  constructor(private http: HttpClient, 
+  constructor(private http: HttpClient,
     private terminologyService: TerminologyService,
     private fhirService: FhirService,
     private questionnaireService: QuestionnaireService,
     private activatedRoute: ActivatedRoute,
+    private lformsService: LformsService,
     public dialog: MatDialog,
     private _snackBar: MatSnackBar) { }
 
@@ -69,28 +71,7 @@ export class QuestionnairesMainComponent implements OnInit{
         this.mode = 'step1';
       }
     });
-    this.loadScript();
-  }
-
-  loadScript() {
-    // Check if LForms is already loaded
-    if (typeof LForms !== 'undefined') {
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/36.3.2/webcomponent/lhc-forms.js';
-    script.onload = () => {
-      const script2 = document.createElement('script');
-      script2.src = 'https://clinicaltables.nlm.nih.gov/lforms-versions/36.3.2/fhir/R4/lformsFHIR.min.js';
-      script2.onload = () => {
-        // Script has loaded
-        // Initialize or use the library here, if necessary
-      };
-      document.head.appendChild(script2);
-    };
-    document.head.appendChild(script);
-
+    this.lformsService.preloadCore();
   }
 
   toggleMode() {
@@ -115,13 +96,9 @@ export class QuestionnairesMainComponent implements OnInit{
     }
   }
 
-  previewForm() {
+  async previewForm() {
     if (this.getCurrentTabName() == "Preview") {
-      if (this.questionnaire) {
-        LForms.Util.addFormToPage(this.questionnaire, 'myFormContainer');
-      } else {
-        LForms.Util.addFormToPage({}, 'myFormContainer');
-      }
+      await this.lformsService.renderQuestionnaire(this.questionnaire ?? {}, 'myFormContainer');
     }
   }
 

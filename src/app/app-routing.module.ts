@@ -27,6 +27,7 @@ import { QuestionnairesMainComponent } from './questionnaires/questionnaires-mai
 import { ValidateQuestionnaireComponent } from './questionnaires/validate-questionnaire/validate-questionnaire.component';
 import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
+import { CancerReportingComponent } from './cancer-reporting/cancer-reporting.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -50,6 +51,7 @@ const routes: Routes = [
   { path: 'ncpt', component: NcptComponent },
   { path: 'loinc', component: LoincMainComponent },
   { path: 'sv-demo', component: SvDemoComponent },
+  { path: 'cancer-reporting', component: CancerReportingComponent },
   { path: 'snomed-integrations', component: SnomedHubComponent },
   { path: 'expo-quiz-2025', component: ExpoQuiz2025Component },
   { path: 'crs-batch-generator', component: CrsBatchGeneratorComponent },

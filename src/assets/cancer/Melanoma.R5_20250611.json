@@ -1,0 +1,3640 @@
+{
+  "resourceType": "Questionnaire",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/5.0/StructureDefinition/Questionnaire"
+    ]
+  },
+  "title": "Melanoma",
+  "status": "draft",
+  "description": "2nd edition Version 2.0 Published October 2019 ",
+  "item": [
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "4278391610553",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "399687005",
+              "display": "Anatomic location of primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Specified tumor site - Anatomic location of primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "3736843116125",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Specified"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "3736843116125",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "399687005",
+          "display": "Anatomic location of primary malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Tumor site - Anatomic location of primary malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Specified"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "5703947960621",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "384727002",
+          "display": "Specimen laterality (observable entity)"
+        }
+      ],
+      "text": "Specimen laterality - Specimen laterality (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "7771000",
+            "display": "Left - Left (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "399488007",
+            "display": "Middle - Midline (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "24028007",
+            "display": "Right - Right (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "3630004582746",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008",
+                  "code": "371439000",
+                  "display": "Specimen type (observable entity)"
+                }
+              ],
+              "text": "Specified submitted lymph node specimen - Specimen type (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "7100258717591",
+                  "operator": "=",
+                  "answerCoding": {
+                    "display": "submitted"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "7100258717591",
+          "code": [
+            {
+              "system": "http://snomed.info/sct/900000000000207008",
+              "code": "2620001000004108",
+              "display": "Specimen type (observable entity)"
+            }
+          ],
+          "text": "Submitted lymph node specimen - Specimen type (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "1220561009",
+                "display": "Not specified - Not recorded (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "258589002",
+                "display": "Submitted - Lymph node specimen (specimen)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "4045339475484",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "2620001000004108",
+          "display": "Specimen collection procedure (observable entity)"
+        }
+      ],
+      "text": "Specimen submitted - Specimen collection procedure (observable entity)",
+      "required": true,
+      "answerConstraint": "optionsOrString",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "302399005",
+            "display": "Punch technique - Punch biopsy of skin lesion (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "302400003",
+            "display": "Shave technique (superficial) - Shave biopsy of skin lesion (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "display": "Saucerization/scoop/deep shave technique - "
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "87591000",
+            "display": "Curette - Curettage of skin lesion (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "25662004",
+            "display": "Fusiform/ellipitical/disc (full-thickness) - Elliptical excision of skin lesion (procedure)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "7419658427342",
+      "code": [
+        {
+          "system": "http://snomed.info/sct/900000000000207008",
+          "code": "396406008",
+          "display": "Status of specimen involvement by satellite nodule(s) (observable entity)"
+        }
+      ],
+      "text": "Macroscopic satellite lesions - Status of specimen involvement by satellite nodule(s) (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct/900000000000207008",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct/900000000000207008",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct/900000000000207008",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "6128324725634",
+          "code": [
+            {
+              "system": "http://snomed.info/sct/900000000000207008",
+              "code": "1264489001",
+              "display": "Presence of melanoma in situ at surgical margin in excised specimen of skin (observable entity)"
+            }
+          ],
+          "text": "Margin status of melanoma in situ - Presence of melanoma in situ at surgical margin in excised specimen of skin (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "2502460411132",
+          "code": [
+            {
+              "system": "http://snomed.info/sct/900000000000207008",
+              "code": "1264485007",
+              "display": "Presence of malignant melanoma at surgical margin in excised specimen of skin (observable entity)"
+            }
+          ],
+          "text": "Margin status of invasive melanoma - Presence of malignant melanoma at surgical margin in excised specimen of skin (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "9693294125915",
+      "text": "Surgical margin status"
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "mm",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "8308220075542",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "106243009",
+              "display": "Breslow depth staging for melanoma of skin (observable entity)"
+            }
+          ],
+          "text": "Specified Breslow thickness - Breslow depth staging for melanoma of skin (observable entity)",
+          "enableWhen": [
+            {
+              "question": "3194890097422",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Determined"
+              }
+            }
+          ],
+          "required": true
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "3194890097422",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "106243009",
+          "display": "Breslow depth staging for melanoma of skin (observable entity)"
+        }
+      ],
+      "text": "Breslow thickness - Breslow depth staging for melanoma of skin (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "display": "Specified"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "623417676945",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "6270001000004106",
+          "display": "Presence of ulcer in primary malignant melanoma of skin (observable entity)"
+        }
+      ],
+      "text": "Ulceration - Presence of ulcer in primary malignant melanoma of skin (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "mm2",
+                "display": "square millimeter"
+              }
+            }
+          ],
+          "linkId": "7213566677084",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "443158003",
+              "display": "Number of mitotic figures per square millimeter (observable entity)"
+            }
+          ],
+          "text": "Number of mitoses - Number of mitotic figures per square millimeter (observable entity)",
+          "enableWhen": [
+            {
+              "question": "730837542271",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Speficied"
+              }
+            }
+          ],
+          "required": true
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "730837542271",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "443158003",
+          "display": "Number of mitotic figures per square millimeter (observable entity)"
+        }
+      ],
+      "text": "Mitotic count - Number of mitotic figures per square millimeter (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Speficied"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "drop-down",
+                    "display": "Drop down"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "1146891815519",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1264485007",
+              "display": "Presence of malignant melanoma at surgical margin in excised specimen of skin (observable entity)"
+            }
+          ],
+          "text": "Microsatellites margins - Presence of malignant melanoma at surgical margin in excised specimen of skin (observable entity)",
+          "enableWhen": [
+            {
+              "question": "763722736177",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "52101004",
+                "display": "Present"
+              }
+            }
+          ],
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "763722736177",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1264484006",
+          "display": "Presence of microsatellite of malignant melanoma (observable entity)"
+        }
+      ],
+      "text": "Microsatellites - Presence of microsatellite of malignant melanoma (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "1530537021713",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1264482005",
+          "display": "Presence of direct invasion by malignant melanoma of skin to lymphatic vessel and/or small blood vessel (observable entity)"
+        }
+      ],
+      "text": "Lymphatic and venous invasion - Presence of direct invasion by malignant melanoma of skin to lymphatic vessel and/or small blood vessel (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Present - Present (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "drop-down",
+                "display": "Drop down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "2421798864108",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1264483000",
+          "display": "Presence of neurotropism in malignant melanoma of skin (observable entity)"
+        }
+      ],
+      "text": "Neurotropism - Presence of neurotropism in malignant melanoma of skin (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "2374303257989",
+          "text": "Type of desmoplastic melanoma**",
+          "enableWhen": [
+            {
+              "question": "2153218161659",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct/900000000000207008",
+                "code": "52101004",
+                "display": "Present"
+              }
+            }
+          ],
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "51757004",
+                "display": "Pure (>90% desmoplastic melanoma) - Desmoplastic melanoma, malignant (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "51757004",
+                "display": "Mixed desmoplastic/non-desmoplastic melanoma - Desmoplastic melanoma, malignant (morphologic abnormality)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "2153218161659",
+      "text": "Desmoplastic melanoma component**",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct/900000000000207008",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct/900000000000207008",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "integer",
+              "linkId": "5545049599670",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "444411008",
+                  "display": "Number of sentinel lymph nodes examined by microscopy in excised tissue specimen (observable entity)"
+                }
+              ],
+              "text": "Number of sentinel nodes examined - Number of sentinel lymph nodes examined by microscopy in excised tissue specimen (observable entity)",
+              "required": true
+            },
+            {
+              "item": [
+                {
+                  "type": "integer",
+                  "linkId": "7717842415947",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1264491009",
+                      "display": "Number of sentinel lymph nodes containing metastatic neoplasm in excised specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Number of positive sentinel nodes - Number of sentinel lymph nodes containing metastatic neoplasm in excised specimen (observable entity)"
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "1889647548958",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1264491009",
+                  "display": "Number of sentinel lymph nodes containing metastatic neoplasm in excised specimen (observable entity)"
+                }
+              ],
+              "text": "Number of positive sentinel nodes - Number of sentinel lymph nodes containing metastatic neoplasm in excised specimen (observable entity)",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Can be determined"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "6933071470702",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008",
+                  "code": "1365756008",
+                  "display": "Presence of direct invasion by metastatic neoplasm of sentinel lymph node to perilymphatic tissue (observable entity)|"
+                }
+              ],
+              "text": "Extranodal extension for sentinel node - Presence of direct invasion by metastatic neoplasm of sentinel lymph node to perilymphatic tissue (observable entity)|",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "47492008",
+                    "display": "Not identified - Not seen (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "52101004",
+                    "display": "Present - Present (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "1156316003",
+                    "display": "Indeterminate - Cannot be determined (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "decimal",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mm",
+                    "display": "millimeter"
+                  }
+                }
+              ],
+              "linkId": "1096775218457",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008",
+                  "code": "1363522002",
+                  "display": "Length of largest metastatic neoplasm in sentinel lymph node in excised specimen (observable entity)"
+                }
+              ],
+              "text": "Maximum dimension of largest metastasis in sentinel node - Length of largest metastatic neoplasm in sentinel lymph node in excised specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "7717842415947",
+                  "operator": "exists",
+                  "answerBoolean": true
+                }
+              ],
+              "required": true
+            }
+          ],
+          "type": "group",
+          "linkId": "5787457795338",
+          "text": "Sentinel nodes"
+        },
+        {
+          "item": [
+            {
+              "type": "integer",
+              "linkId": "5403744958905",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008"
+                }
+              ],
+              "text": "Number of non-sentinel nodes examined - ",
+              "required": true
+            },
+            {
+              "item": [
+                {
+                  "type": "string",
+                  "linkId": "252818115433",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct/900000000000207008"
+                    }
+                  ],
+                  "text": "Number of positive non-sentinel nodes - "
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "2601847725449",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008"
+                }
+              ],
+              "text": "Number of positive non-sentinel nodes - ",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "1156316003",
+                    "display": "Cannot be determined"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "6664788706105",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008"
+                }
+              ],
+              "text": "Extranodal extension for non-sentinel node - ",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "47492008",
+                    "display": "Not identified - Not seen (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "52101004",
+                    "display": "Present - Present (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "1156316003",
+                    "display": "Indeterminate - Cannot be determined (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "decimal",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mm",
+                    "display": "millimeter"
+                  }
+                }
+              ],
+              "linkId": "6559826803406",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008"
+                }
+              ],
+              "text": "Maximum dimension of largest metastasis in a non-sentinel node - ",
+              "enableWhen": [
+                {
+                  "question": "252818115433",
+                  "operator": "exists",
+                  "answerBoolean": true
+                }
+              ],
+              "required": true
+            }
+          ],
+          "type": "group",
+          "linkId": "6448164323774",
+          "text": "Non-sentinel lymph nodes"
+        },
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "4387384736497",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008"
+                }
+              ],
+              "text": "Clinically number of non-sentinel nodes examined - ",
+              "required": true
+            },
+            {
+              "item": [
+                {
+                  "type": "integer",
+                  "linkId": "7491999821317",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct/900000000000207008"
+                    }
+                  ],
+                  "text": "Clinically number of positive non-sentinel nodes - "
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "3989787994627",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008"
+                }
+              ],
+              "text": "Clinically number of positive non-sentinel nodes - ",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "1156316003",
+                    "display": "Cannot be determined"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Can be determined"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "7909354736658",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008"
+                }
+              ],
+              "text": "Clinically extranodal extension - ",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "47492008",
+                    "display": "Not identified - Not seen (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "52101004",
+                    "display": "Present - Present (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "1156316003",
+                    "display": "Indeterminate -Cannot be determined (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "decimal",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "code": "mm",
+                    "display": "mm"
+                  }
+                }
+              ],
+              "linkId": "5005493739350",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008"
+                }
+              ],
+              "text": "Clinically maximum dimension of largest metastasis in a non-sentinel node - ",
+              "enableWhen": [
+                {
+                  "question": "7491999821317",
+                  "operator": "exists",
+                  "answerBoolean": true
+                }
+              ],
+              "required": true
+            }
+          ],
+          "type": "group",
+          "linkId": "2742825229808",
+          "text": "Clinically apparent lymph nodes"
+        }
+      ],
+      "type": "group",
+      "linkId": "9648623773497",
+      "text": "Lymph node status"
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "1676227722782",
+          "text": "TNM Descriptors",
+          "required": false,
+          "repeats": true,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "277318003",
+                "display": "m - (m) (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - Tumor staging descriptor r (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "y - Tumor staging descriptor y (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "sn"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "775084596654",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT1 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1228957006",
+                        "display": "T1"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352560003",
+                        "display": "pT1a - Union for International Cancer Control pT1a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352543008",
+                        "display": "pT1b - Union for International Cancer Control pT1b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "942396140264",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT2 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229852009",
+                        "display": "T2"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352564007",
+                        "display": "pT2a - Union for International Cancer Control pT2a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352547009",
+                        "display": "pT2b - Union for International Cancer Control pT2b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "580538952505",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT3 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229859000",
+                        "display": "T3"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352551006",
+                        "display": "pT3a - Union for International Cancer Control pT3a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352534004",
+                        "display": "pT3b - Union for International Cancer Control pT3b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "227655125524",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT4 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229864001",
+                        "display": "T4"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352538001",
+                        "display": "pT4a - Union for International Cancer Control pT4a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352561004",
+                        "display": "pT4b - Union for International Cancer Control pT4b (qualifier value)"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "480540900215",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Primary tumor (pT) - pT category (observable entity)",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352532000",
+                    "display": "pTX - Union for International Cancer Control pTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352552004",
+                    "display": "pT0 - Union for International Cancer Control pT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352558000",
+                    "display": "pTis - Union for International Cancer Control pTis (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352559008",
+                    "display": "pT1 - Union for International Cancer Control pT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352545001",
+                    "display": "pT2 - Union for International Cancer Control pT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352533005",
+                    "display": "pT3 - Union for International Cancer Control pT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352553009",
+                    "display": "pT4 - Union for International Cancer Control pT4 (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "366864084530",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN1"
+                    }
+                  ],
+                  "text": "pN1",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229951001",
+                        "display": "N1"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352619004",
+                        "display": "pN1a - Union for International Cancer Control pN1a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352616006",
+                        "display": "pN1b - Union for International Cancer Control pN1b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352617002",
+                        "display": "pN1c - Union for International Cancer Control pN1c (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "144275409930",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN2"
+                    }
+                  ],
+                  "text": "pN2",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229957002",
+                        "display": "N2"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352608002",
+                        "display": "pN2a - Union for International Cancer Control pN2a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352612008",
+                        "display": "pN2b - Union for International Cancer Control pN2b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352613003",
+                        "display": "pN2c - Union for International Cancer Control pN2c (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "945130953599",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN3"
+                    }
+                  ],
+                  "text": "pN3",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229962001",
+                        "display": "N3"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352618007",
+                        "display": "pN3a - Union for International Cancer Control pN3a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352623007",
+                        "display": "pN3b - Union for International Cancer Control pN3b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352606003",
+                        "display": "pN3c - Union for International Cancer Control pN3c (qualifier value)"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "456924205536",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "Regional lymph nodes (pN)"
+                }
+              ],
+              "text": "Regional lymph nodes (pN)",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "385432009",
+                    "display": "No nodes submitted or found - Not applicable (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352605004",
+                    "display": "pNX - Union for International Cancer Control pNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352621009",
+                    "display": "pN0 - Union for International Cancer Control pN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352614009",
+                    "display": "pN1 - Union for International Cancer Control pN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352610000",
+                    "display": "pN2 - Union for International Cancer Control pN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352622002",
+                    "display": "pN3 - Union for International Cancer Control pN3 (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "string",
+          "linkId": "842715623720",
+          "text": "Pathological"
+        },
+        {
+          "item": [
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "601629846555",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT1 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1228957006",
+                        "display": "T1"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352669007",
+                        "display": "pT1a - Union for International Cancer Control rpT1a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352687005",
+                        "display": "pT1b - Union for International Cancer Control rpT1b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "240994700824",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT2 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229852009",
+                        "display": "T2"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352700002",
+                        "display": "pT2a - Union for International Cancer Control rpT2a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352681006",
+                        "display": "pT2b - Union for International Cancer Control rpT2b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "853925698948",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT3 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229859000",
+                        "display": "T3"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352685002",
+                        "display": "pT3a - Union for International Cancer Control rpT3a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352673005",
+                        "display": "pT3b - Union for International Cancer Control rpT3b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "693426668328",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT4 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229864001",
+                        "display": "T4"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352674004",
+                        "display": "pT4a - Union for International Cancer Control rpT4a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352686001",
+                        "display": "pT4b - Union for International Cancer Control rpT4b (qualifier value)"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "922311108933",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Primary tumor (pT) - pT category (observable entity)",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352688000",
+                    "display": "pTX - Union for International Cancer Control rpTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352699003",
+                    "display": "pT0 - Union for International Cancer Control rpT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352666000",
+                    "display": "pTis - Union for International Cancer Control rpTis (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352698006",
+                    "display": "pT1 - Union for International Cancer Control rpT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352678001",
+                    "display": "pT2 - Union for International Cancer Control rpT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352668004",
+                    "display": "pT3 - Union for International Cancer Control rpT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352690004",
+                    "display": "pT4 - Union for International Cancer Control rpT4 (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "232533875230",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN1 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229951001",
+                        "display": "N1"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352602001",
+                        "display": "pN1a - Union for International Cancer Control rpN1a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352598003",
+                        "display": "pN1b - Union for International Cancer Control rpN1b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352603006",
+                        "display": "pN1c - Union for International Cancer Control rpN1c (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "336423688762",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN2 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229957002",
+                        "display": "N2"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352590005",
+                        "display": "pN2a - Union for International Cancer Control rpN2a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352593007",
+                        "display": "pN2b - Union for International Cancer Control rpN2b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352597008",
+                        "display": "pN2c - Union for International Cancer Control rpN2c (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "803996274173",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN3 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229962001",
+                        "display": "N3"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352592002",
+                        "display": "pN3a - Union for International Cancer Control rpN3a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352591009",
+                        "display": "pN3b - Union for International Cancer Control rpN3b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352595000",
+                        "display": "pN3c - Union for International Cancer Control rpN3c (qualifier value)"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "924457672997",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Regional lymph nodes (pN) - pN category (observable entity)",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "385432009",
+                    "display": "No nodes submitted or found - Not applicable (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352601008",
+                    "display": "pNX - Union for International Cancer Control rpNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352585007",
+                    "display": "pN0 - Union for International Cancer Control rpN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352588009",
+                    "display": "pN1 - Union for International Cancer Control rpN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352587004",
+                    "display": "pN2 - Union for International Cancer Control rpN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352594001",
+                    "display": "pN3 - Union for International Cancer Control rpN3 (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "string",
+          "linkId": "476836577663",
+          "text": "Recurrent"
+        },
+        {
+          "item": [
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "7551225885922",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT1 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1228957006",
+                        "display": "T1"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352644007",
+                        "display": "pT1a - Union for International Cancer Control ypT1a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352639000",
+                        "display": "pT1b - Union for International Cancer Control ypT1b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "4856228725748",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT2 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229852009",
+                        "display": "T2"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352659001",
+                        "display": "pT2a - Union for International Cancer Control ypT2a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352655007",
+                        "display": "pT2b - Union for International Cancer Control ypT2b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "3220433444008",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT3 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229859000",
+                        "display": "T3"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352654006",
+                        "display": "pT3a - Union for International Cancer Control ypT3a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352630001",
+                        "display": "pT3b - Union for International Cancer Control ypT3b (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "7125607095404",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT4 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229864001",
+                        "display": "T4"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352626004",
+                        "display": "pT4a - Union for International Cancer Control ypT4a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352648005",
+                        "display": "pT4b - Union for International Cancer Control ypT4b (qualifier value)"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "6857284462457",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Primary tumor (pT) - pT category (observable entity)",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352631002",
+                    "display": "pTX - Union for International Cancer Control ypTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352650002",
+                    "display": "pT0 - Union for International Cancer Control ypT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352653000",
+                    "display": "pTis - Union for International Cancer Control ypTis (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352640003",
+                    "display": "pT1 - Union for International Cancer Control ypT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352635006",
+                    "display": "pT2 - Union for International Cancer Control ypT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352657004",
+                    "display": "pT3 - Union for International Cancer Control ypT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352649002",
+                    "display": "pT4 - Union for International Cancer Control ypT4 (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "2053153639856",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN1 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229951001",
+                        "display": "N1"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352795002",
+                        "display": "pN1a - Union for International Cancer Control ypN1a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352803009",
+                        "display": "pN1b - Union for International Cancer Control ypN1b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352812006",
+                        "display": "pN1c - Union for International Cancer Control ypN1c (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "2637881791800",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN2 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229957002",
+                        "display": "N2"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352805002",
+                        "display": "pN2a - Union for International Cancer Control ypN2a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352810003",
+                        "display": "pN2b - Union for International Cancer Control ypN2b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352809008",
+                        "display": "pN2c - Union for International Cancer Control ypN2c (qualifier value)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "6017444201875",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN3 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229962001",
+                        "display": "N3"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352804003",
+                        "display": "pN3a - Union for International Cancer Control ypN3a (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352807005",
+                        "display": "pN3b - Union for International Cancer Control ypN3b (qualifier value)"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1352802004",
+                        "display": "pN3c - Union for International Cancer Control ypN3c (qualifier value)"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "2953020444470",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Regional lymph nodes (pN) - pN category (observable entity)",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "385432009",
+                    "display": "No nodes submitted or found - Not applicable (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352813001",
+                    "display": "pNX - Union for International Cancer Control ypNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352797005",
+                    "display": "pN0 - Union for International Cancer Control ypN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352794003",
+                    "display": "pN1 - Union for International Cancer Control ypN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352808000",
+                    "display": "pN2 - Union for International Cancer Control ypN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352806001",
+                    "display": "pN3 - Union for International Cancer Control ypN3 (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "string",
+          "linkId": "919506442554",
+          "text": "Post therapy"
+        },
+        {
+          "item": [
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "919980448334",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT1 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1228957006",
+                        "display": "T1"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pT1a"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pT1b"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "454301976308",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT2 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229852009",
+                        "display": "T2"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pT2a"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pT2b"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "896284942624",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT3 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229859000",
+                        "display": "T3"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pT3a"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pT3b"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "663092171755",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "384625004",
+                      "display": "pT category (observable entity)"
+                    }
+                  ],
+                  "text": "pT4 - pT category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "6857284462457",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229864001",
+                        "display": "T4"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pT4a"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pT4b"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "646128976627",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Primary tumor (pT) - pT category (observable entity)",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pTX"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pT0"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pTis"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pT1"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pT2"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pT3"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pT4"
+                  }
+                }
+              ]
+            },
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "699906995454",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN1 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229951001",
+                        "display": "N1"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN1a"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN1b"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN1c"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "684951499830",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN2 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229957002",
+                        "display": "N2"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN2a"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN2b"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN2c"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "drop-down",
+                            "display": "Drop down"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "723442916053",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "371494008",
+                      "display": "pN category (observable entity)"
+                    }
+                  ],
+                  "text": "pN3 - pN category (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2953020444470",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct/900000000000207008",
+                        "code": "1229962001",
+                        "display": "N3"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN3a"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN3b"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "display": "pN3c"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "drop-down",
+                        "display": "Drop down"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "484202852459",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Regional lymph nodes (pN) - pN category (observable entity)",
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "No nodes submitted or found"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pNX"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pN0"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pN1"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pN2"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "pN3"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "813415330202",
+          "text": "Sentinel node biopsy"
+        }
+      ],
+      "type": "group",
+      "linkId": "9791674187038",
+      "text": "Pathological staging"
+    }
+  ]
+}

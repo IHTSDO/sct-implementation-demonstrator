@@ -1,0 +1,22 @@
+<h2 mat-dialog-title class="dialog-title">
+  QuestionnaireResponse — {{ data.title }}
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="json-wrap">
+    <div class="floating-toolbar">
+      <button mat-icon-button (click)="copy()" matTooltip="Copy to clipboard">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+      <button mat-icon-button (click)="download()" matTooltip="Download JSON">
+        <mat-icon>cloud_download</mat-icon>
+      </button>
+    </div>
+    <textarea highlight-js [options]="{}" [lang]="'json'"
+              class="json-output" [innerHTML]="data.responseJson" wrap="off"></textarea>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-actions">
+  <button mat-stroked-button (click)="dialogRef.close()">Close</button>
+</mat-dialog-actions>

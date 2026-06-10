@@ -1,0 +1,3728 @@
+{
+  "resourceType": "Questionnaire",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/5.0/StructureDefinition/Questionnaire"
+    ]
+  },
+  "title": "Lung cancer",
+  "status": "draft",
+  "description": "Version 4.0 Published April 2023",
+  "item": [
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "check-box",
+                "display": "Check-box"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "1404422102319",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "2620001000004108",
+          "display": "Specimen collection procedure (observable entity)"
+        }
+      ],
+      "text": "Operative procedure - Specimen collection procedure (observable entity)",
+      "required": true,
+      "repeats": true,
+      "answerConstraint": "optionsOrString",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "232632009",
+            "display": "Wedge resection - Wedge excision of lung (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "173172000",
+            "display": "Segmentectomy - Excision of segment of lung (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "173171007",
+            "display": "Lobectomy - Lobectomy of lung (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "173170008",
+            "display": "Bilobectomy - Bilobectomy of lung (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "49795001",
+            "display": "Pneumonectomy - Total pneumonectomy (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "232647000",
+            "display": "Sleeve resection - Pneumonectomy with tracheobronchoplasty (procedure)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "8829314896712",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "384727002",
+          "display": "Specimen laterality (observable entity)"
+        }
+      ],
+      "text": "Specimen laterality - Specimen laterality (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "7771000",
+            "display": "Left - Left (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "24028007",
+            "display": "Right - Right (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "8527351788316",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "396274005",
+              "display": "Organ present in surgical specimen (observable entity)"
+            }
+          ],
+          "text": "Submitted attached anatomical structures - Organ present in surgical specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "3551744942230",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Submitted - Present (qualifier value)"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "3551744942230",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "396274005",
+          "display": "Organ present in surgical specimen (observable entity)"
+        }
+      ],
+      "text": "Attached anatomical structures - Organ present in surgical specimen (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "None submitted - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Submitted - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "646261716371",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "396274005",
+              "display": "Organ present in surgical specimen (observable entity)"
+            }
+          ],
+          "text": "Submitted accompanying specimens - Organ present in surgical specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "2683399134704",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Submitted - Present (qualifier value)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": true,
+          "readOnly": false,
+          "answerConstraint": "optionsOrString",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "59441001",
+                "display": "Lymph node(s) - Structure of lymph node (body structure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "2683399134704",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "396274005",
+          "display": "Organ present in surgical specimen (observable entity)"
+        }
+      ],
+      "text": "Accompanying specimens - Organ present in surgical specimen (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "None submitted - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Submitted - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "1639861293003",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "399687005",
+              "display": "Anatomic location of primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Specified bronchus site - Anatomic location of primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7702731893567",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "955009",
+                "display": "Bronchus - Bronchial structure (body structure)"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "check-box",
+                "display": "Check-box"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "7702731893567",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "399687005",
+          "display": "Anatomic location of primary malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Tumor site - Anatomic location of primary malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": true,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "45653009",
+            "display": "Upper lobe - Structure of upper lobe of lung (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "72481006",
+            "display": "Middle lobe - Structure of middle lobe of right lung (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "90572001",
+            "display": "Lower lobe - Structure of lower lobe of lung (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "955009",
+            "display": "Bronchus - Bronchial structure (body structure)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "integer",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+                  "valueInteger": 1
+                }
+              ],
+              "linkId": "4195671535891",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1285326006",
+                  "display": "Number of metastatic neoplasms in excised tissue specimen (observable entity)"
+                }
+              ],
+              "text": "Number of intra pulmonary metastasis - Number of metastatic neoplasms in excised tissue specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "809747090542",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "Intra pulmonary metastasis"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "check-box",
+                        "display": "Check-box"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "6252867382857",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1285324009",
+                  "display": "Relative intrapulmonary location of metastatic neoplasms of lung (observable entity)"
+                }
+              ],
+              "text": "Site of intra pulmonary metastasis - Relative intrapulmonary location of metastatic neoplasms of lung (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "809747090542",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "display": "Intra pulmonary metastasis"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": true,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1363295008",
+                    "display": "Same lobe - Unilobar (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1363296009",
+                    "display": "Different ipsilateral lobe - Ipsilateral multilobar (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "255209002",
+                    "display": "Contralateral lung - Contralateral (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "7663113422073",
+              "text": "Further evaluation pending",
+              "enableWhen": [
+                {
+                  "question": "809747090542",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Indeterminate"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "display": "Yes"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "No"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "809747090542",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1157111009",
+              "display": "Qualitative distribution of primary malignant neoplasm of lung in resected lung specimen (observable entity)"
+            }
+          ],
+          "text": "Classification of multiple tumour nodules - Qualitative distribution of primary malignant neoplasm of lung in resected lung specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9386362926840",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "524008",
+                "display": "Present - Multifocal (qualifier value)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "255237009",
+                "display": "Synchronous primary - Synchronous (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "display": "Intra pulmonary metastasis"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Indeterminate - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "9386362926840",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1157111009",
+          "display": "Qualitative distribution of primary malignant neoplasm of lung in resected lung specimen (observable entity)"
+        }
+      ],
+      "text": "Multiple tumor nodules - Qualitative distribution of primary malignant neoplasm of lung in resected lung specimen (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "87017008",
+            "display": "Absent - Focal (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "524008",
+            "display": "Present - Multifocal (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "3500484680900",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1363298005",
+          "display": "Presence of atelectasis and/or obstructive pneumonitis extending to hilar structure of resected lung specimen (observable entity)"
+        }
+      ],
+      "text": "Atelectasis/Obstructive pneumonitis extending to hilar region - Presence of atelectasis and/or obstructive pneumonitis extending to hilar structure of resected lung specimen (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Not assessable - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Absent - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "mm",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "8662245036969",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "200001000004104",
+              "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Maximum invasive size - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "4977612486817",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "mm",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "3172461570094",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1363210004",
+              "display": "Greatest length dimension of excised malignant neoplasm and lepidic component (observable entity)"
+            }
+          ],
+          "text": "Total tumour size - Greatest length dimension of excised malignant neoplasm and lepidic component (observable entity)",
+          "enableWhen": [
+            {
+              "question": "4977612486817",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "4977612486817",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "200001000004104",
+          "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Tumor dimensions - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Can be assessed"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "6145736330610",
+      "code": [
+        {
+          "system": "http://snomed.info/sct"
+        }
+      ],
+      "text": "Tumor involves main bronchus",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "Not applicable - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "2619333433550",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "911750741000004104",
+                  "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+                }
+              ],
+              "text": "Classification of adenocarcinoma in situ (AIS) - Histologic type of primary malignant neoplasm of lung (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6214738153293",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "51642000",
+                    "display": "Adenocarcinoma in situ (AIS) - Adenocarcinoma in situ (morphologic abnormality)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "733883005",
+                    "display": "Non-mucinous - Non-mucinous adenocarcinoma in situ (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "733882000",
+                    "display": "Mucinous - Mucinous adenocarcinoma in situ (morphologic abnormality)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "check-box",
+                        "display": "Check-box"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "9747029270925",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "911750741000004104",
+                  "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+                }
+              ],
+              "text": "Classification of minimally invasive adenocarcinoma - Histologic type of primary malignant neoplasm of lung (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6214738153293",
+                  "operator": "=",
+                  "answerCoding": {
+                    "display": "Minimally invasive adenocarcinoma"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": true,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "733885003",
+                    "display": "Non-mucinous - Non-mucinous minimally invasive adenocarcinoma (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "733884004",
+                    "display": "Mucinous - Mucinous minimally invasive adenocarcinoma (morphologic abnormality)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "4984047145579",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1255765003",
+                  "display": "Histologic architectural pattern in adenocarcinoma of lung (observable entity)"
+                }
+              ],
+              "text": "Predominant subtype of invasive non-mucinous adenocarcinoma - Histologic architectural pattern in adenocarcinoma of lung (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6214738153293",
+                  "operator": "=",
+                  "answerCoding": {
+                    "display": "Invasive non-mucinous adenocarcinoma"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerConstraint": "optionsOrString",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1255713000",
+                    "display": "Lepidic - Lepidic histologic pattern (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1255711003",
+                    "display": "Acinar - Acinar histologic pattern (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1255712005",
+                    "display": "Papillary - Papillary histologic pattern (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1255715007",
+                    "display": "Micropapillary - Micropapillary histologic pattern (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1255714006",
+                    "display": "Solid - Solid histologic pattern (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "item": [
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "%",
+                        "display": "%"
+                      }
+                    }
+                  ],
+                  "linkId": "178782807103",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1363297000",
+                      "display": "Percent lepidic histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Lepidic - Percent lepidic histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                },
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "%",
+                        "display": "%"
+                      }
+                    }
+                  ],
+                  "linkId": "675796035328",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1363492009",
+                      "display": "Percent acinar histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Acinar - Percent acinar histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                },
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "%",
+                        "display": "%"
+                      }
+                    }
+                  ],
+                  "linkId": "188275737847",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1363493004",
+                      "display": "Percent papillary histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Papillary - Percent papillary histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                },
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "%",
+                        "display": "%"
+                      }
+                    }
+                  ],
+                  "linkId": "349730485446",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1363494005",
+                      "display": "Percent micropapillary histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Micropapillary - Percent micropapillary histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                },
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "%",
+                        "display": "%"
+                      }
+                    }
+                  ],
+                  "linkId": "102390650347",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1363495006",
+                      "display": "Percent solid histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Solid - Percent solid histologic architectural pattern in adenocarcinoma of lung in excised lung specimen (observable entity)"
+                }
+              ],
+              "type": "group",
+              "linkId": "3694580540424",
+              "text": "Subtype percentages of invasive non-mucinous adenocarcinoma",
+              "enableWhen": [
+                {
+                  "question": "6214738153293",
+                  "operator": "=",
+                  "answerCoding": {
+                    "display": "Invasive non-mucinous adenocarcinoma"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "4153452081956",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008",
+                  "code": "911750741000004104",
+                  "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+                }
+              ],
+              "text": "Classification of mucinous adenocarcinoma - Histologic type of primary malignant neoplasm of lung (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6214738153293",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "128660005",
+                    "display": "Invasive mucinous adenocarcinoma - Bronchiolo-alveolar carcinoma, mucinous (morphologic abnormality)"
+                  }
+                }
+              ],
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "128661009",
+                    "display": "Mixed invasive mucinous and non-mucinous adenocarcinoma - Bronchiolo-alveolar carcinoma, mixed mucinous and non-mucinous (morphologic abnormality)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "6214738153293",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "911750741000004104",
+              "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+            }
+          ],
+          "text": "Classification of adenocarcinoma - Histologic type of primary malignant neoplasm of lung (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7463763385203",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1187332001",
+                "display": "Adenocarcinoma - Adenocarcinoma (morphologic abnormality)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": true,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "51642000",
+                "display": "Adenocarcinoma in situ (AIS) - Adenocarcinoma in situ (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "Minimally invasive adenocarcinoma"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "Invasive non-mucinous adenocarcinoma"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "128660005",
+                "display": "Invasive mucinous adenocarcinoma - Bronchiolo-alveolar carcinoma, mucinous (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "72495009",
+                "display": "Colloid adenocarcinoma - Mucinous adenocarcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "128893004",
+                "display": "Fetal adenocarcinoma - Fetal adenocarcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "25190001",
+                "display": "Enteric-type adenocarcinoma - Adenocarcinoma, intestinal type (morphologic abnormality)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "546447132773",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "911750741000004104",
+                  "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+                }
+              ],
+              "text": "Classification of squamous cell carcinoma NOS - Histologic type of primary malignant neoplasm of lung (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "2682000572740",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1162767002",
+                    "display": "Squamous cell carcinoma, NOS - Squamous cell carcinoma (morphologic abnormality)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "18048008",
+                    "display": "Squamous cell carcinoma, keratinizing - Squamous cell carcinoma, keratinizing (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "45490001",
+                    "display": "Squamous cell carcinoma, non-keratinizing - Squamous cell carcinoma, large cell, nonkeratinizing (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "128634009",
+                    "display": "Basaloid squamous cell carcinoma - Basaloid squamous cell carcinoma (morphologic abnormality)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "2682000572740",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "911750741000004104",
+              "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+            }
+          ],
+          "text": "Classification of squamous cell carcinoma - Histologic type of primary malignant neoplasm of lung (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7463763385203",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1162767002",
+                "display": "Squamous cell carcinoma - Squamous cell carcinoma (morphologic abnormality)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1162767002",
+                "display": "Squamous cell carcinoma, NOS - Squamous cell carcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "7300000",
+                "display": "Lymphoepithelial carcinoma - Lymphoepithelial carcinoma (morphologic abnormality)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "8522507496175",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "911750741000004104",
+              "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+            }
+          ],
+          "text": "Classification of neuroendocrine carcinoma - Histologic type of primary malignant neoplasm of lung (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7463763385203",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1286767006",
+                "display": "Neuroendocrine carcinoma - Neuroendocrine carcinoma (morphologic abnormality)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "74364000",
+                "display": "Small cell carcinoma - Small cell carcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "128628002",
+                "display": "Large cell neuroendocrine carcinoma - Large cell neuroendocrine carcinoma (morphologic abnormality)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "4733611365835",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "911750741000004104",
+              "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+            }
+          ],
+          "text": "Classification of neuroendocrine tumor - Histologic type of primary malignant neoplasm of lung (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7463763385203",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1286768001",
+                "display": "Neuroendocrine tumor - Well-differentiated neuroendocrine tumor (morphologic abnormality)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1286769009",
+                "display": "Typical carcinoid - Well-differentiated neuroendocrine tumor grade 1 (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "128658008",
+                "display": "Atypical carcinoid - Well-differentiated neuroendocrine tumor grade 2 (morphologic abnormality)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "check-box",
+                "display": "Check-box"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "7463763385203",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "911750741000004104",
+          "display": "Histologic type of primary malignant neoplasm of lung (observable entity)"
+        }
+      ],
+      "text": "Histological tumor type - Histologic type of primary malignant neoplasm of lung (observable entity)",
+      "required": true,
+      "repeats": true,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1187332001",
+            "display": "Adenocarcinoma - Adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1162767002",
+            "display": "Squamous cell carcinoma - Squamous cell carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1286767006",
+            "display": "Neuroendocrine carcinoma - Neuroendocrine carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1286768001",
+            "display": "Neuroendocrine tumor - Well-differentiated neuroendocrine tumor (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "22687000",
+            "display": "Large cell carcinoma - Large cell carcinoma (morphologic abnormality)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "mm",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "3864014998134",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "384891002",
+              "display": "Distance of tumour to closest resection margin"
+            }
+          ],
+          "text": "Distance of tumor to closest resection margin -Distance of malignant neoplasm from closest surgical margin in excised specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9975218985876",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "9975218985876",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "384891002",
+          "display": "Distance of malignant neoplasm from closest surgical margin in excised specimen (observable entity)"
+        }
+      ],
+      "text": "Distance of tumor to closest resection margin - Distance of malignant neoplasm from closest surgical margin in excised specimen (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Can be assessed"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "5238035510913",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1149042002",
+          "display": "Histologic grade of primary malignant neoplasm of lung (observable entity)"
+        }
+      ],
+      "text": "Histological tumor grade - Histologic grade of primary malignant neoplasm of lung (observable entity)",
+      "enableWhen": [
+        {
+          "question": "6214738153293",
+          "operator": "=",
+          "answerCoding": {
+            "display": "Invasive non-mucinous adenocarcinoma"
+          }
+        }
+      ],
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1155701009",
+            "display": "Grade 1 - G1: Well differentiated histologic grade (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1155703007",
+            "display": "Grade 2 - G2: Moderately differentiated histologic grade (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1155704001",
+            "display": "Grade 3 - G3: Poorly differentiated histologic grade (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "%",
+                "display": "%"
+              }
+            }
+          ],
+          "linkId": "7879937394003",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1285327002",
+              "display": "Percent viable malignant neoplasm after neoadjuvant antineoplastic therapy (observable entity)"
+            }
+          ],
+          "text": "Vible tumor as a % of tumor bed - Percent viable malignant neoplasm after neoadjuvant antineoplastic therapy (observable entity)",
+          "enableWhen": [
+            {
+              "question": "4554360957233",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "398166005",
+                "display": "Administered - Performed (qualifier value)|"
+              }
+            }
+          ],
+          "required": true
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "4554360957233",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1279827005",
+          "display": "Neoadjuvant antineoplastic therapy procedure prior to surgery (observable entity)"
+        }
+      ],
+      "text": "Response to neoadjuvant therapy - Neoadjuvant antineoplastic therapy procedure prior to surgery (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "261665006",
+            "display": "Prior neoadjuvant therapy not known - Unknown (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "260413007",
+            "display": "No prior neoadjuvant therapy - None (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "398166005",
+            "display": "Known neoadjuvant therapy - Performed (qualifier value)|"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "4088047197548",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1155925005",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of lung (observable entity)"
+            }
+          ],
+          "text": "Anatomical location of direct invasion - Anatomic location directly invaded by primary malignant neoplasm of lung (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9563052362327",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": true,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "78904004",
+                "display": "Chest wall - Chest wall structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "50230006",
+                "display": "Phrenic nerve - Structure of phrenic nerve (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "61067001",
+                "display": "Parietal pericardium - Structure of parietal pericardium (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "5798000",
+                "display": "Diaphragm - Diaphragm structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "72410000",
+                "display": "Mediastinum - Mediastinal structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "871736002",
+                "display": "Mediastinal fat - Structure of space and/or soft connective tissue within mediastinal cavity (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "27416003",
+                "display": "Mediastinal pleura - Mediastinal pleura structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "3711007",
+                "display": "Great vessels - Structure of great blood vessel (organ) (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "44567001",
+                "display": "Trachea - Tracheal structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "24227007",
+                "display": "Recurrent laryngeal nerve - Structure of recurrent laryngeal nerve (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "32849002",
+                "display": "Oesophagus - Esophageal structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "3572006",
+                "display": "Vertebral body - Structure of body of vertebra (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "80891009",
+                "display": "Heart - Structure of body of vertebra (body structure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "9563052362327",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1155925005",
+          "display": "Anatomic location directly invaded by primary malignant neoplasm of lung (observable entity)"
+        }
+      ],
+      "text": "Direct invasion of adjacent structures - Anatomic location directly invaded by primary malignant neoplasm of lung (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "Not applicable - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "1902854941882",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1546621000004103",
+          "display": "Presence of direct invasion by primary malignant neoplasm of lung to lymphatic vessel and/or small blood vessel (observable entity)"
+        }
+      ],
+      "text": "Lymphatic and venous invasion - Presence of direct invasion by primary malignant neoplasm of lung to lymphatic vessel and/or small blood vessel (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "7684437603262",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1155925005",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of lung (observable entity)"
+            }
+          ],
+          "text": "Extent of pleural involvement - Anatomic location directly invaded by primary malignant neoplasm of lung (observable entity)",
+          "enableWhen": [
+            {
+              "question": "4428706822947",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1363490001",
+                "display": "PL1 - Visceral pleura elastic layer structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1363488002",
+                "display": "PL2 - Visceral pleura surface structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "80338007",
+                "display": "PL3 - Parietal pleura structure (body structure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "4428706822947",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1155979001",
+          "display": "Presence of direct invasion by primary malignant neoplasm of lung to visceral pleura (observable entity)"
+        }
+      ],
+      "text": "Visceral pleural invasion - Presence of direct invasion by primary malignant neoplasm of lung to visceral pleura (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "82334004",
+            "display": "Indeterminate - Indeterminate (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "9081353275511",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1363306004",
+          "display": "Presence of adenocarcinoma in air spaces of pulmonary alveoli in resected lung specimen (observable entity)"
+        }
+      ],
+      "text": "Spread through air spaces (STAS) - Presence of adenocarcinoma in air spaces of pulmonary alveoli in resected lung specimen (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "8759093019480",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1156621005",
+              "display": "Presence of primary malignant neoplasm of lung at bronchial surgical margin in resected lung specimen (observable entity)"
+            }
+          ],
+          "text": "Bronchial margin by malignant neoplasm - Presence of primary malignant neoplasm of lung at bronchial surgical margin in resected lung specimen (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not applicable - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Only peribronchial soft tissue involved - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "8858403736233",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1285527003",
+              "display": "Presence of carcinoma in situ at bronchial surgical margin in resected specimen of lung (observable entity)"
+            }
+          ],
+          "text": "Bronchial margin by carcinoma in situ - Presence of carcinoma in situ at bronchial surgical margin in resected specimen of lung (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not applicable - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "5313685719105",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1156622003",
+              "display": "Presence of primary malignant neoplasm of lung at vascular surgical margin in resected lung specimen (observable entity)"
+            }
+          ],
+          "text": "Vascular margin - Presence of primary malignant neoplasm of lung at vascular surgical margin in resected lung specimen (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not applicable - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Only perivascular soft tissue involved - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "3097324109465",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1156492001",
+                  "display": "Presence of primary malignant neoplasm of lung at surgical margin in resected lung specimen (observable entity)"
+                }
+              ],
+              "text": "Status of other margin 1 - Presence of primary malignant neoplasm of lung at surgical margin in resected lung specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "7257939893590",
+                  "operator": "exists",
+                  "answerBoolean": true
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "385432009",
+                    "display": "Not applicable - Not applicable (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Involved - Present (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "string",
+          "linkId": "7257939893590",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1156122004",
+              "display": "Surgical margin involved by primary malignant neoplasm of lung in resected lung specimen (observable entity)"
+            }
+          ],
+          "text": "Other margin 1 - Surgical margin involved by primary malignant neoplasm of lung in resected lung specimen (observable entity)",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "2018292751246",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct/900000000000207008",
+                  "code": "1156492001",
+                  "display": "Presence of primary malignant neoplasm of lung at surgical margin in resected lung specimen (observable entity)"
+                }
+              ],
+              "text": "Status of other margin 2 - Presence of primary malignant neoplasm of lung at surgical margin in resected lung specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "7474273674919",
+                  "operator": "exists",
+                  "answerBoolean": true
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "385432009",
+                    "display": "Not applicable - Not applicable (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct/900000000000207008",
+                    "code": "52101004",
+                    "display": "Involved - Present (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "string",
+          "linkId": "7474273674919",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1156122004",
+              "display": "Surgical margin involved by primary malignant neoplasm of lung in resected lung specimen (observable entity)"
+            }
+          ],
+          "text": "Other margin 2 - Surgical margin involved by primary malignant neoplasm of lung in resected lung specimen (observable entity)"
+        }
+      ],
+      "type": "group",
+      "linkId": "7001582923955",
+      "text": "Surgical margin status"
+    },
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "3842187906154",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1279931003",
+              "display": "Anatomic location of lymph node microscopically examined (observable entity)"
+            }
+          ],
+          "text": "Station(s) examined - Anatomic location of lymph node microscopically examined (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "item": [
+            {
+              "type": "text",
+              "linkId": "2484970636486",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "397440000",
+                  "display": "Anatomic location of excised lymph node containing metastatic neoplasm (observable entity)"
+                }
+              ],
+              "text": "Stations involved - Anatomic location of excised lymph node containing metastatic neoplasm (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "7947688898765",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Involved - Present (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "any",
+              "required": true,
+              "readOnly": false
+            },
+            {
+              "type": "integer",
+              "linkId": "549719805990",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "372309006",
+                  "display": "Number of regional lymph nodes examined by microscopy in excised specimen (observable entity)"
+                }
+              ],
+              "text": "Number of lymph nodes examined - Number of regional lymph nodes examined by microscopy in excised specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "7947688898765",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Involved - Present (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "item": [
+                {
+                  "type": "integer",
+                  "linkId": "9813844691244",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "444384007",
+                      "display": "Number of regional lymph nodes containing metastatic neoplasm in excised specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Total number of involved lymph nodes - Number of regional lymph nodes containing metastatic neoplasm in excised specimen (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2882055084423",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Can be determined"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "any",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "2882055084423",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "444384007",
+                  "display": "Number of regional lymph nodes containing metastatic neoplasm in excised specimen (observable entity)"
+                }
+              ],
+              "text": "Number of involved lymph nodes - Number of regional lymph nodes containing metastatic neoplasm in excised specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "7947688898765",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Involved - Present (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Can be determined"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "7947688898765",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1268302004",
+              "display": "Presence of metastatic neoplasm in lymph node in excised tissue specimen (observable entity)"
+            }
+          ],
+          "text": "Station status - Presence of metastatic neoplasm in lymph node in excised tissue specimen (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "display": "Involved by micrometastasis only"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "1882980891813",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct"
+                }
+              ],
+              "text": "Site of extracapsular extension",
+              "enableWhen": [
+                {
+                  "question": "9835753801022",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Present - Present (qualifier value)"
+                  }
+                }
+              ],
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "9835753801022",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "396642005",
+              "display": "Presence of direct invasion by metastatic neoplasm of lymph node to perilymphatic tissue (observable entity)"
+            }
+          ],
+          "text": "Extracapsular extension - Presence of direct invasion by metastatic neoplasm of lymph node to perilymphatic tissue (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7947688898765",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not identified - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "5707545342507",
+      "text": "Lymph node status"
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "item": [
+                {
+                  "type": "string",
+                  "linkId": "359110300608",
+                  "text": "Positive antibodies"
+                },
+                {
+                  "type": "string",
+                  "linkId": "32720846225",
+                  "text": "Negative antibodies"
+                },
+                {
+                  "type": "string",
+                  "linkId": "1673829705862",
+                  "text": "Equivocal antibodies"
+                },
+                {
+                  "type": "text",
+                  "linkId": "3416944220030",
+                  "text": "Conclusions "
+                }
+              ],
+              "type": "group",
+              "linkId": "289285951498",
+              "text": "Results of immunohistochemical markers",
+              "enableWhen": [
+                {
+                  "question": "5153086644155",
+                  "operator": "=",
+                  "answerCoding": {
+                    "display": "Performed"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "5153086644155",
+          "text": "Immunohistochemical markers",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260413007",
+                "display": "Not performed - None (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "398166005",
+                "display": "Performed - Performed (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "629879898064",
+      "text": "Ancillary studies"
+    },
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "8308883724697",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "385421009",
+              "display": "Anatomic location of metastatic spread of malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Site of distant metastases - Anatomic location of metastatic spread of malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "844699762861",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "844699762861",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "385421009",
+          "display": "Anatomic location of metastatic spread of malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Histologically confirmed distant metastasis - Anatomic location of metastatic spread of malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "7556778785670",
+          "text": "TNM Descriptors",
+          "required": false,
+          "repeats": true,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "277318003",
+                "display": "m - (m) (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - Tumor staging descriptor r (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "y - Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "466781736481",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Pathological primary tumor (pT) - pT category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352532000",
+                    "display": "pTX - Union for International Cancer Control pTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352552004",
+                    "display": "pT0 - Union for International Cancer Control pT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352558000",
+                    "display": "pTis - Union for International Cancer Control pTis (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352559008",
+                    "display": "pT1 - Union for International Cancer Control pT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352562006",
+                    "display": "pT1mi - Union for International Cancer Control pT1mi (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352560003",
+                    "display": "pT1a - Union for International Cancer Control pT1a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352543008",
+                    "display": "pT1b - Union for International Cancer Control pT1b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352537006",
+                    "display": "pT1c - Union for International Cancer Control pT1c (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352545001",
+                    "display": "pT2 - Union for International Cancer Control pT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352564007",
+                    "display": "pT2a - Union for International Cancer Control pT2a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352547009",
+                    "display": "pT2b - Union for International Cancer Control pT2b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352533005",
+                    "display": "pT3 - Union for International Cancer Control pT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352553009",
+                    "display": "pT4 - Union for International Cancer Control pT4 (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "592597892134",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Pathological regional lymph nodes (pN) - pN category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352605004",
+                    "display": "pNX - Union for International Cancer Control pNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352621009",
+                    "display": "pN0 - Union for International Cancer Control pN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352614009",
+                    "display": "pN1 - Union for International Cancer Control pN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352610000",
+                    "display": "pN2 - Union for International Cancer Control pN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352622002",
+                    "display": "pN3 - Union for International Cancer Control pN3 (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "401471985034",
+          "text": "Pathological",
+          "enableWhen": [
+            {
+              "question": "7556778785670",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - Tumor staging descriptor r (tumor staging)"
+              }
+            },
+            {
+              "question": "7556778785670",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "y - Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ],
+          "enableBehavior": "all"
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "3517501385950",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Recurrent pathological primary tumor (rpT) - pT category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352688000",
+                    "display": "rpTX - Union for International Cancer Control rpTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352699003",
+                    "display": "rpT0 - Union for International Cancer Control rpT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352699003",
+                    "display": "rpTis - Union for International Cancer Control rpT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352698006",
+                    "display": "rpT1 - Union for International Cancer Control rpT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352680007",
+                    "display": "rpT1mi - Union for International Cancer Control rpT1mi (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352669007",
+                    "display": "rpT1a - Union for International Cancer Control rpT1a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352687005",
+                    "display": "rpT1b - Union for International Cancer Control rpT1b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352692007",
+                    "display": "rpT1c - Union for International Cancer Control rpT1c (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352678001",
+                    "display": "rpT2 - Union for International Cancer Control rpT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352700002",
+                    "display": "rpT2a - Union for International Cancer Control rpT2a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352681006",
+                    "display": "rpT2b - Union for International Cancer Control rpT2b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352668004",
+                    "display": "rpT3 - Union for International Cancer Control rpT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352690004",
+                    "display": "rpT4 - Union for International Cancer Control rpT4 (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "1951348026904",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Recurrent pathological regional lymph nodes (rpN) - pN category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352601008",
+                    "display": "rpNX - Union for International Cancer Control rpNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352585007",
+                    "display": "rpN0 - Union for International Cancer Control rpN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352588009",
+                    "display": "rpN1 - Union for International Cancer Control rpN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352587004",
+                    "display": "rpN2 - Union for International Cancer Control rpN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352594001",
+                    "display": "rpN3 - Union for International Cancer Control rpN3 (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "853102382983",
+          "text": "Recurrent",
+          "enableWhen": [
+            {
+              "question": "7556778785670",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - Tumor staging descriptor r (tumor staging)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "297855725324",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Post-therapy pathological primary tumor (ypT) - pT category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352631002",
+                    "display": "ypTX - Union for International Cancer Control ypTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352650002",
+                    "display": "ypT0 - Union for International Cancer Control ypT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352653000",
+                    "display": "ypTis - Union for International Cancer Control ypTis (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352640003",
+                    "display": "ypT1 - Union for International Cancer Control ypT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352637003",
+                    "display": "ypT1mi - Union for International Cancer Control ypT1mi (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352644007",
+                    "display": "ypT1a - Union for International Cancer Control ypT1a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352639000",
+                    "display": "ypT1b - Union for International Cancer Control ypT1b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352641004",
+                    "display": "ypT1c - Union for International Cancer Control ypT1c (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352635006",
+                    "display": "ypT2 - Union for International Cancer Control ypT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352659001",
+                    "display": "ypT2a - Union for International Cancer Control ypT2a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352655007",
+                    "display": "ypT2b - Union for International Cancer Control ypT2b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352657004",
+                    "display": "ypT3 - Union for International Cancer Control ypT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352649002",
+                    "display": "ypT4 - Union for International Cancer Control ypT4 (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "727293571684",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Post-therapy pathological regional lymph nodes (ypN) - pN category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352813001",
+                    "display": "ypNX - Union for International Cancer Control ypNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352797005",
+                    "display": "ypN0 - Union for International Cancer Control ypN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352794003",
+                    "display": "ypN1 - Union for International Cancer Control ypN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352808000",
+                    "display": "ypN2 - Union for International Cancer Control ypN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352806001",
+                    "display": "ypN3 - Union for International Cancer Control ypN3 (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "991552625006",
+          "text": "Post-therapy",
+          "enableWhen": [
+            {
+              "question": "7556778785670",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "y - Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "9701149905040",
+      "text": "Pathological staging"
+    }
+  ]
+}

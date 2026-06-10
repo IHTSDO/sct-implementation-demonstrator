@@ -1,0 +1,1503 @@
+{
+  "resourceType": "Questionnaire",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/5.0/StructureDefinition/Questionnaire"
+    ]
+  },
+  "title": "Testis: Orchiectomy",
+  "status": "draft",
+  "description": "Version 2.0 Published November 2024 ",
+  "item": [
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "690815314179",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2620001000004108",
+              "display": "Specimen collection procedure (observable entity)"
+            }
+          ],
+          "text": "Partial orchidectomy - Specimen collection procedure (observable entity)",
+          "enableWhen": [
+            {
+              "question": "282216242586",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Orchidectomy, partial"
+              }
+            }
+          ],
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "735027008",
+                "display": "Left - Excision of left testis (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "735028003",
+                "display": "Right - Excision of right testis (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "120001005",
+                "display": "Laterality not specified - Testis excision (procedure)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "669414420937",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2620001000004108",
+              "display": "Specimen collection procedure (observable entity)"
+            }
+          ],
+          "text": "Radical orchidectomy",
+          "enableWhen": [
+            {
+              "question": "282216242586",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "396692006",
+                "display": "Orchidectomy, radical - Radical orchiectomy (procedure)"
+              }
+            }
+          ],
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "767337004",
+                "display": "Left - Excision of entire left testis and entire left spermatic cord (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "767339001",
+                "display": "Right - Excision of entire right testis and entire right spermatic cord (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "396692006",
+                "display": "Laterality not specified - Radical orchiectomy (procedure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "282216242586",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "2620001000004108",
+          "display": "Specimen collection procedure (observable entity)"
+        }
+      ],
+      "text": "Operative procedure - Specimen collection procedure (observable entity)",
+      "required": true,
+      "answerConstraint": "optionsOrString",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "120001005",
+            "display": "Orchiectomy, partial - Testis excision (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "396692006",
+            "display": "Orchiectomy, radical - Radical orchiectomy (procedure)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "integer",
+          "linkId": "477427957070",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "246214002",
+              "display": "Number of neoplasms in excised tissue specimen (observable entity)"
+            }
+          ],
+          "text": "Number of tumors - Number of neoplasms in excised tissue specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "214304536787",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "524008",
+                "display": "Multifocal - Multifocal (qualifier value)"
+              }
+            }
+          ],
+          "required": true
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "214304536787",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1157117008",
+          "display": "Qualitative distribution of primary malignant neoplasm of testis in orchidectomy specimen (observable entity)"
+        }
+      ],
+      "text": "Tumor focality - Qualitative distribution of primary malignant neoplasm of testis in orchidectomy specimen (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "261034003",
+            "display": "Unifocal - Unifocal (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "524008",
+            "display": "Multifocal - Multifocal (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "mm",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "719254212763",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "200001000004104",
+              "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Maximum tumor dimension - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "389286190593",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "required": true
+        },
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "mm",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "904105575127",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "640001000004105",
+              "display": "Second greatest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Second greatest tumor dimension - Second greatest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "389286190593",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ]
+        },
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "mm",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "405316326700",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1620001000004107",
+              "display": "Smallest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Smallest tumor dimension - Smallest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "389286190593",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "389286190593",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "200001000004104",
+          "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Tumor dimensions - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Can be assessed"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "477407748361",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1287212000",
+              "display": "Anatomic location directly invaded macroscopically by primary malignant neoplasm of testis (observable entity)"
+            }
+          ],
+          "text": "Location of macroscopic extent of invasion - Anatomic location directly invaded macroscopically by primary malignant neoplasm of testis (observable entity)",
+          "enableWhen": [
+            {
+              "question": "595919236255",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Beyond testis"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": true,
+          "answerConstraint": "optionsOrString",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "87644002",
+                "display": "Invades epididymis - Epididymis structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "12817009",
+                "display": "Invades tunica vaginalis - Tunica vaginalis structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "86671006",
+                "display": "Invades hilar structures - Structure of mediastinum of testis (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "49957000",
+                "display": "Invades spermatic cord - Spermatic cord structure (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "20233005",
+                "display": "Invades scrotum - Scrotal structure (body structure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "check-box",
+                "display": "Check-box"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "595919236255",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1287212000",
+          "display": "Anatomic location directly invaded macroscopically by primary malignant neoplasm of testis (observable entity)"
+        }
+      ],
+      "text": "Macroscopic extent of invasion - Anatomic location directly invaded macroscopically by primary malignant neoplasm of testis (observable entity)",
+      "repeats": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "40689003",
+            "display": "Confined to testis - Testis structure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Beyond testis"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "855282947519",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "911753781000004104",
+                  "display": "Histologic type of primary malignant neoplasm of testis (observable entity)"
+                }
+              ],
+              "text": "Type of mixed germ cell tumor - Histologic type of primary malignant neoplasm of testis (observable entity)",
+              "required": true
+            },
+            {
+              "type": "decimal",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "code": "%",
+                    "display": "%"
+                  }
+                }
+              ],
+              "linkId": "942362736323",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1287132008",
+                  "display": "Percent of neoplasm in primary malignant mixed germ cell tumor of testis (observable entity)"
+                }
+              ],
+              "text": "Percentage - Percent of neoplasm in primary malignant mixed germ cell tumor of testis (observable entity)",
+              "required": true
+            }
+          ],
+          "type": "group",
+          "linkId": "338628646780",
+          "text": "Type and percentage of germ cell tumor",
+          "enableWhen": [
+            {
+              "question": "916888420212",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "713582000",
+                "display": "Germ cell tumor - Malignant germ cell neoplasm (morphologic abnormality)"
+              }
+            }
+          ],
+          "repeats": true
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "916888420212",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "911753781000004104",
+          "display": "Histologic type of primary malignant neoplasm of testis (observable entity)"
+        }
+      ],
+      "text": "Histological tumor type - Histologic type of primary malignant neoplasm of testis (observable entity)",
+      "required": true,
+      "answerConstraint": "optionsOrString",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "32844007",
+            "display": "Mixed germ cell tumor - Mixed germ cell tumor (morphologic abnormality)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "240116100026",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1155896004",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)"
+            }
+          ],
+          "text": "Rete testis of stromal/interstitial type - Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not submitted - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "14221007",
+                "display": "Involved - Structure of rete testis (body structure)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "126450467353",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1155896004",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)"
+            }
+          ],
+          "text": "Epididymis - Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not submitted - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "87644002",
+                "display": "Involved - Epididymis structure (body structure)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "989224327326",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1155896004",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)"
+            }
+          ],
+          "text": "Hilar soft tissue - Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not submitted - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "display": "Involved"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "690693132007",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1155896004",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)"
+            }
+          ],
+          "text": "Tunica vaginalis - Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not submitted - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "12817009",
+                "display": "Involved - Tunica vaginalis structure (body structure)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "887168516912",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1155896004",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)"
+            }
+          ],
+          "text": "Spermatic cord - Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not submitted - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "49957000",
+                "display": "Involved - Spermatic cord structure (body structure)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "827298300695",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1155896004",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)"
+            }
+          ],
+          "text": "Scrotal wall - Anatomic location directly invaded by primary malignant neoplasm of testis (observable entity)",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not submitted - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "279584000",
+                "display": "Involved - Scrotal wall structure (body structure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "660283690561",
+      "text": "Microscopic extent of invasion"
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "492839143137",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1155895000",
+          "display": "Presence of direct invasion by primary malignant neoplasm of testis to lymphatic vessel and/or small blood vessel (observable entity)"
+        }
+      ],
+      "text": "Lymphovascular invasion - Presence of direct invasion by primary malignant neoplasm of testis to lymphatic vessel and/or small blood vessel (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "814925946166",
+          "text": "Germ cell neoplasia in situ",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not identified - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "999446636033",
+      "text": "In situ and intratubular lesions"
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "409841386071",
+          "text": "Partial orchidectomy",
+          "enableWhen": [
+            {
+              "question": "282216242586",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Orchidectomy, partial"
+              }
+            }
+          ],
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "check-box",
+                        "display": "Check-box"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "217833137436",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1156121006",
+                  "display": "Surgical margin involved by primary malignant neoplasm of testis in orchidectomy specimen (observable entity)"
+                }
+              ],
+              "text": "Involved margin - Surgical margin involved by primary malignant neoplasm of testis in orchidectomy specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "698865557668",
+                  "operator": "=",
+                  "answerCoding": {
+                    "display": "Can be assessed"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": true,
+              "answerConstraint": "optionsOrString",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156998009",
+                    "display": "Spermatic cord - Spermatic cord surgical margin (morphologic abnormality)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "698865557668",
+          "text": "Radical orchidectomy",
+          "enableWhen": [
+            {
+              "question": "282216242586",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "396692006",
+                "display": "Orchidectomy, radical - Radical orchiectomy (procedure)"
+              }
+            }
+          ],
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "806493214774",
+      "text": "Margin status"
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "816273045442",
+          "text": "TNM descriptors",
+          "repeats": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "277318003",
+                "display": "m - multiple primary tumors - (m) (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - recurrent - Tumor staging descriptor r (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "y - post-therapy - Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "761330390980",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "384625004",
+              "display": "pT category (observable entity)"
+            }
+          ],
+          "text": "Pathological primary tumor (pT) - pT category (observable entity)",
+          "enableWhen": [
+            {
+              "question": "816273045442",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - recurrent - Tumor staging descriptor r (tumor staging)"
+              }
+            },
+            {
+              "question": "816273045442",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "y - post-therapy - Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352532000",
+                "display": "pTX - Union for International Cancer Control pTX (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352552004",
+                "display": "pT0 - Union for International Cancer Control pT0 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352558000",
+                "display": "pTis - Union for International Cancer Control pTis (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352559008",
+                "display": "pT1 - Union for International Cancer Control pT1 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352545001",
+                "display": "pT2 - Union for International Cancer Control pT2 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352533005",
+                "display": "pT3 - Union for International Cancer Control pT3 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352553009",
+                "display": "pT4 - Union for International Cancer Control pT4 (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "427873346277",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "384625004",
+              "display": "pT category (observable entity)"
+            }
+          ],
+          "text": "Recurrent pathological primary tumor (rpT) - pT category (observable entity)",
+          "enableWhen": [
+            {
+              "question": "816273045442",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - recurrent - Tumor staging descriptor r (tumor staging)"
+              }
+            }
+          ],
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352688000",
+                "display": "rpTX - Union for International Cancer Control rpTX (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352699003",
+                "display": "rpT0 - Union for International Cancer Control rpT0 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352666000",
+                "display": "rpTis - Union for International Cancer Control rpTis (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352698006",
+                "display": "rpT1 - Union for International Cancer Control rpT1 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352678001",
+                "display": "rpT2 - Union for International Cancer Control rpT2 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352668004",
+                "display": "rpT3 - Union for International Cancer Control rpT3 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352690004",
+                "display": "rpT4 - Union for International Cancer Control rpT4 (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "422215150069",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "384625004",
+              "display": "pT category (observable entity)"
+            }
+          ],
+          "text": "Post-therapy pathological primary tumor (ypT) - pT category (observable entity)",
+          "enableWhen": [
+            {
+              "question": "816273045442",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "y - post-therapy - Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ],
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352631002",
+                "display": "rpTX - Union for International Cancer Control ypTX (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352650002",
+                "display": "rpT0 - Union for International Cancer Control ypT0 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352653000",
+                "display": "rpTis - Union for International Cancer Control ypTis (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352640003",
+                "display": "rpT1 - Union for International Cancer Control ypT1 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352635006",
+                "display": "rpT2 - Union for International Cancer Control ypT2 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352657004",
+                "display": "rpT3 - Union for International Cancer Control ypT3 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352649002",
+                "display": "rpT4 - Union for International Cancer Control ypT4 (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "137822779681",
+      "text": "Pathological staging"
+    }
+  ]
+}

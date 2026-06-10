@@ -1,0 +1,3002 @@
+{
+  "resourceType": "Questionnaire",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/5.0/StructureDefinition/Questionnaire"
+    ]
+  },
+  "url": "https://www.iccr-cancer.org/datasets/published-datasets/digestive-tract/colorectal/",
+  "title": "Colorectal Cancers",
+  "status": "draft",
+  "description": "ICCR-Colorectal-1st-edn-v1.0",
+  "item": [
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "7905003324223",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1279827005",
+              "display": "Neoadjuvant antineoplastic therapy procedure prior to surgery (observable entity)"
+            }
+          ],
+          "text": "Type of neoadjuvant therapy - Neoadjuvant antineoplastic therapy procedure prior to surgery (observable entity)",
+          "enableWhen": [
+            {
+              "question": "8937332503874",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "398166005",
+                "display": "Performed (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "8937332503874",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1279827005",
+          "display": "Neoadjuvant antineoplastic therapy procedure prior to surgery (observable entity)"
+        }
+      ],
+      "text": "Neoadjuvant therapy - Neoadjuvant antineoplastic therapy procedure prior to surgery (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "261665006",
+            "display": "Information not provided - Unknown (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "260413007",
+            "display": "Not administered - None (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "398166005",
+            "display": "Administered - Performed (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3477988805022",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2620001000004108",
+              "display": "Specimen collection procedure (observable entity)"
+            }
+          ],
+          "text": "Anterior resection type - Specimen collection procedure (observable entity)",
+          "enableWhen": [
+            {
+              "question": "517884594815",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "4558008",
+                "display": "Anterior resection of rectum (procedure)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "400988008",
+                "display": "High anterior resection - High anterior resection of rectum (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "314592008",
+                "display": "Low anterior resection - Low anterior resection of rectum (procedure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "517884594815",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "2620001000004108",
+          "display": "Specimen collection procedure (observable entity)"
+        }
+      ],
+      "text": "Operative procedure - Specimen collection procedure (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "26390003",
+            "display": "Total colectomy - Total colectomy (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "174059005",
+            "display": "Proctocolectomy - Excision of colon and rectum (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "359571009",
+            "display": "Right hemicolectomy - Right colectomy (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "174071004",
+            "display": "Extended right hemicolectomy - Extended right hemicolectomy (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "26925005",
+            "display": "Transverse colectomy - Transverse colectomy (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "82619000",
+            "display": "Left hemicolectomy - Left colectomy (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "84604002",
+            "display": "Sigmoid colectomy - Sigmoid colectomy (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "4558008",
+            "display": "Anterior resection - Anterior resection of rectum (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "16564004",
+            "display": "Hartmann’s procedure - Hartmann operation, rectal resection (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "265414003",
+            "display": "Abdominoperineal resection - Abdominoperineal resection of rectum (procedure)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "7439266701711",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "399687005",
+          "display": "Anatomic location of primary malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Tumor site - Anatomic location of primary malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "32713005",
+            "display": "Caecum - Cecum structure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "9040008",
+            "display": "Ascending colon - Ascending colon structure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "48338005",
+            "display": "Hepatic flexure - Structure of right colic flexure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "485005",
+            "display": "Transverse colon - Transverse colon structure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "72592005",
+            "display": "Splenic flexure - Structure of left colic flexure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "32622004",
+            "display": "Descending colon - Descending colon structure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "60184004",
+            "display": "Sigmoid colon - Sigmoid colon structure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "81922002",
+            "display": "Rectosigmoid - Rectosigmoid structure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "34402009",
+            "display": "Rectum - Rectum structure (body structure)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "integer",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "mm",
+                "display": "mm"
+              }
+            }
+          ],
+          "linkId": "6049687014005",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "200001000004104",
+              "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Maximum tumor dimension - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7193014196508",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "integer",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "mm",
+                "display": "mm"
+              }
+            }
+          ],
+          "linkId": "8058364870999",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "640001000004105",
+              "display": "Second greatest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Second greatest tumor dimension - Second greatest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7193014196508",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "integer",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "mm",
+                "display": "mm"
+              }
+            }
+          ],
+          "linkId": "8622611156006",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1620001000004107",
+              "display": "Smallest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Smallest tumor dimension - Smallest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7193014196508",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "7193014196508",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "200001000004104",
+          "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Tumor dimensions - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Can be assessed"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3227639393793",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1300184003",
+              "display": "Presence of macroscopic perforation of cecum and/or colon and/or rectum by primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)"
+            }
+          ],
+          "text": "Tumor perforation - Presence of macroscopic perforation of cecum and/or colon and/or rectum by primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)",
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not identified - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3532704153212",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1306911009",
+              "display": "Presence of macroscopic perforation of cecum and/or colon and/or rectum (observable entity)"
+            }
+          ],
+          "text": "Perforation, not involving tumor - Presence of macroscopic perforation of cecum and/or colon and/or rectum by primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not identified - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "9521335996863",
+      "text": "Perforation"
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "157789522819",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1279556000",
+          "display": "Site of excised primary malignant neoplasm of rectum relative to peritoneal reflection (observable entity)"
+        }
+      ],
+      "text": "Relation of tumor to anterior peritoneal reflection - Site of excised primary malignant neoplasm of rectum relative to peritoneal reflection (observable entity)",
+      "enableWhen": [
+        {
+          "question": "517884594815",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "4558008",
+            "display": "Anterior resection of rectum (procedure)"
+          }
+        },
+        {
+          "question": "517884594815",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "265414003",
+            "display": "Abdominoperineal resection of rectum (procedure)"
+          }
+        },
+        {
+          "question": "517884594815",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "174059005",
+            "display": "Excision of colon and rectum (procedure)"
+          }
+        }
+      ],
+      "enableBehavior": "any",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "Not applicable - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "352730000",
+            "display": "Entirely above - Supra- (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "351726001",
+            "display": "Entirely below - Below (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "84177009",
+            "display": "Astride - Straddling (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "6394565319188",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "408655002",
+          "display": "Status of intactness of mesorectal specimen (observable entity)"
+        }
+      ],
+      "text": "Plane of mesorectal excision - Status of intactness of mesorectal specimen (observable entity)",
+      "enableWhen": [
+        {
+          "question": "517884594815",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "4558008",
+            "display": "Anterior resection of rectum (procedure)"
+          }
+        },
+        {
+          "question": "517884594815",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "265414003",
+            "display": "Abdominoperineal resection of rectum (procedure)"
+          }
+        },
+        {
+          "question": "517884594815",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "174059005",
+            "display": "Excision of colon and rectum (procedure)"
+          }
+        }
+      ],
+      "enableBehavior": "any",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "Not applicable - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "255594003",
+            "display": "Mesorectal fascia (complete) - Complete (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1990001000004102",
+            "display": "Intramesorectal (near complete) - Near complete (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "255599008",
+            "display": "Muscularis propria (incomplete) - Incomplete (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3243566921084",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1284862009",
+              "display": "Histologic type of primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)"
+            }
+          ],
+          "text": "Type of neuroendocrine carcinoma - Histologic type of primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)",
+          "enableWhen": [
+            {
+              "question": "7529272110509",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1286767006",
+                "display": "Neuroendocrine carcinoma (morphologic abnormality)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "74364000",
+                "display": "Small cell type - Small cell carcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "128628002",
+                "display": "Large cell type - Large cell neuroendocrine carcinoma (morphologic abnormality)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "7529272110509",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1284862009",
+          "display": "Histologic type of primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)"
+        }
+      ],
+      "text": "Histological tumor type - Histologic type of primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "41647002",
+            "display": "No evidence of residual tumour - No evidence of (contextual qualifier) (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1187332001",
+            "display": "Adenocarcinoma not otherwise specified (NOS) - Adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "72495009",
+            "display": "Mucinous adenocarcinoma - Mucinous adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "87737001",
+            "display": "Signet-ring cell adenocarcinoma - Signet ring cell carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "32913002",
+            "display": "Medullary carcinoma - Medullary carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "450948005",
+            "display": "Serrated adenocarcinoma - Serrated adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "450895005",
+            "display": "Micropapillary adenocarcinoma - Micropapillary carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "28558000",
+            "display": "Adenoma-like adenocarcinoma - Villous adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1286767006",
+            "display": "Neuroendocrine carcinoma - Neuroendocrine carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "785766008",
+            "display": "Mixed neuroendocrine-non-neuroendocrine neoplasm (MiNEN) - Mixed neuroendocrine-non neuroendocrine neoplasm (morphologic abnormality)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "drop-down",
+                "display": "Drop down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "8956375213636",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1285736001",
+          "display": "Histologic grade of primary malignant neoplasm of cecum and/or colon and/or rectum using World Health Organization classification of tumors system fifth edition method (observable entity)"
+        }
+      ],
+      "text": "Histological tumor grade - Histologic grade of primary malignant neoplasm of cecum and/or colon and/or rectum using World Health Organization classification of tumors system fifth edition method (observable entity)",
+      "enableWhen": [
+        {
+          "question": "7529272110509",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1187332001",
+            "display": "Adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "question": "7529272110509",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "72495009",
+            "display": "Mucinous adenocarcinoma (morphologic abnormality)"
+          }
+        }
+      ],
+      "enableBehavior": "any",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "Not applicable - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1155708003",
+            "display": "Low grade (formerly well to moderately differentiated) - Low histologic grade (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1155707008",
+            "display": "High grade (formerly poorly differentiated) - High histologic grade (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "7895222057342",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1286757001",
+          "display": "Anatomic location directly invaded by primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)"
+        }
+      ],
+      "text": "Extent of invasion - Anatomic location directly invaded by primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "41647002",
+            "display": "No evidence of primary tumour - No evidence of (contextual qualifier) (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "68502009",
+            "display": "High grade dysplasia/non-invasive neoplasia - Colonic mucous membrane structure (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "61647009",
+            "display": "Invasion into submucosa - Structure of submucosa of colon (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "41948009",
+            "display": "Invasion into muscularis propria - Structure of muscularis propria of colon (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "84860006",
+            "display": "Invasion into subserosa or into pericolic or perirectal connective tissues - Structure of pericolic tissue (body structure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "50703002",
+            "display": "Invasion onto the surface of the visceral peritoneum - Structure of visceral serous membrane of peritoneum (body structure)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "5832794083348",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1286964009",
+              "display": "Presence of direct invasion by primary malignant neoplasm of cecum and/or colon and/or rectum to lymphatic vessel and/or small blood vessel (observable entity)"
+            }
+          ],
+          "text": "Lymphatic and small vessel invasion - Presence of direct invasion by primary malignant neoplasm of cecum and/or colon and/or rectum to lymphatic vessel and/or small blood vessel (observable entity)",
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not identified - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "1319800295730",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1286753002",
+              "display": "Presence of direct invasion by primary malignant neoplasm of cecum and/or colon and/or rectum to blood vessel of colonic submucosa and/or colonic muscularis propria (observable entity)"
+            }
+          ],
+          "text": "Large vessel (intramural) invasion - Presence of direct invasion by primary malignant neoplasm of cecum and/or colon and/or rectum to blood vessel of colonic submucosa and/or colonic muscularis propria (observable entity)",
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not identified - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "2450489133084",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1286755009",
+              "display": "Presence of direct invasion by primary malignant neoplasm of cecum and/or colon and/or rectum to blood vessel in pericolic tissue (observable entity)"
+            }
+          ],
+          "text": "Large vessel (extramural) invasion - Presence of direct invasion by primary malignant neoplasm of cecum and/or colon and/or rectum to blood vessel in pericolic tissue (observable entity)",
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not identified - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "6978916754699",
+      "text": "Lymphatic and venous invasion"
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "5323079219364",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1286965005",
+          "display": "Presence of direct invasion by primary malignant neoplasm of cecum and/or colon and/or rectum to nerve (observable entity)"
+        }
+      ],
+      "text": "Perineural invasion - Presence of direct invasion by primary malignant neoplasm of cecum and/or colon and/or rectum to nerve (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "integer",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+              "valueInteger": 1
+            }
+          ],
+          "linkId": "4329074412288",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "372309006",
+              "display": "Number of regional lymph nodes examined by microscopy in excised specimen (observable entity)"
+            }
+          ],
+          "text": "Number lymph nodes examined - Number of regional lymph nodes examined by microscopy in excised specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "8662907722425",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not applicable (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "integer",
+          "linkId": "4993096102381",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "396414002",
+              "display": "Number of regional lymph nodes containing metastatic neoplasm identified by microscopy in excised specimen (observable entity)"
+            }
+          ],
+          "text": "Number of involved lymph nodes - Number of regional lymph nodes containing metastatic neoplasm identified by microscopy in excised specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "8662907722425",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "8662907722425",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1268302004",
+          "display": "Presence of metastatic neoplasm in lymph node in excised tissue specimen (observable entity)"
+        }
+      ],
+      "text": "Lymph node status - Presence of metastatic neoplasm in lymph node in excised tissue specimen (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "No nodes submitted or found - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not involved - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Involved - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "integer",
+          "linkId": "870100560227",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1286756005",
+              "display": "Number of metastatic discontinuous tumor deposits of primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)"
+            }
+          ],
+          "text": "Number of tumor deposits - Number of metastatic discontinuous tumor deposits of primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)",
+          "enableWhen": [
+            {
+              "question": "619296941406",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "619296941406",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1286759003",
+          "display": "Presence of metastatic discontinuous spread of malignant neoplasm of cecum and/or colon and/or rectum to pericolic tissue (observable entity)"
+        }
+      ],
+      "text": "Tumor deposits - Presence of metastatic discontinuous spread of malignant neoplasm of cecum and/or colon and/or rectum to pericolic tissue (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "linkId": "4109644153041",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1286758006",
+              "display": "Number of tumor buds in primary malignant neoplasm of cecum and/or colon and/or rectum in microscopic field 0.785 square millimeter (observable entity)"
+            }
+          ],
+          "text": "Number of tumor buds - Number of tumor buds in primary malignant neoplasm of cecum and/or colon and/or rectum in microscopic field 0.785 square millimeter (observable entity)",
+          "enableWhen": [
+            {
+              "question": "1286281330120",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "5205286987266",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1286754008",
+              "display": "Tumor bud score in primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)"
+            }
+          ],
+          "text": "Tumor budding score - Tumor bud score in primary malignant neoplasm of cecum and/or colon and/or rectum (observable entity)",
+          "enableWhen": [
+            {
+              "question": "1286281330120",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "62482003",
+                "display": "Bd1 - low budding (0-4 buds) - Low (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "11896004",
+                "display": "Bd2 - intermediate budding (5-9 buds) - Intermediate (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "75540009",
+                "display": "Bd3 - high budding (≥10 buds) - High (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "1286281330120",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1286758006",
+          "display": "Number of tumor buds in primary malignant neoplasm of cecum and/or colon and/or rectum in microscopic field 0.785 square millimeter (observable entity)"
+        }
+      ],
+      "text": "Tumor budding - Number of tumor buds in primary malignant neoplasm of cecum and/or colon and/or rectum in microscopic field 0.785 square millimeter (observable entity)",
+      "required": false,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Can be assessed"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "7368403332307",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1286761007",
+              "display": "Presence of regression of primary malignant neoplasm of cecum and/or colon and/or rectum after neoadjuvant antineoplastic therapy (observable entity)"
+            }
+          ],
+          "text": "Cannot be assessed, specify - Presence of regression of primary malignant neoplasm of cecum and/or colon and/or rectum after neoadjuvant antineoplastic therapy (observable entity)",
+          "enableWhen": [
+            {
+              "question": "6945244033663",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "6945244033663",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1286761007",
+          "display": "Presence of regression of primary malignant neoplasm of cecum and/or colon and/or rectum after neoadjuvant antineoplastic therapy (observable entity)"
+        }
+      ],
+      "text": "Response to neoadjuvant therapy - Presence of regression of primary malignant neoplasm of cecum and/or colon and/or rectum after neoadjuvant antineoplastic therapy (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "No neoadjuvant treatment - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1285139003",
+            "display": "Complete response (score 0) - Complete response of neoplasm to antineoplastic neoadjuvant therapy (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1285140001",
+            "display": "Near complete response (score 1) - Near complete response of neoplasm to antineoplastic neoadjuvant therapy (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1285141002",
+            "display": "Partial response (score 2) - Partial response of neoplasm to antineoplastic neoadjuvant therapy (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1285417007",
+            "display": "Poor or no response (score 3) - No response of neoplasm to antineoplastic neoadjuvant therapy (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "integer",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "code": "mm",
+                    "display": "mm"
+                  }
+                }
+              ],
+              "linkId": "3116226916868",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384891002",
+                  "display": "Distance of malignant neoplasm from closest surgical margin in excised specimen (observable entity)"
+                }
+              ],
+              "text": "Distance to closer margin - Distance of malignant neoplasm from closest surgical margin in excised specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6810847174496",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not seen (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "7931602048394",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1287787004",
+                  "display": "Surgical margin involved by primary malignant neoplasm of cecum and/or colon and/or rectum in colectomy specimen (observable entity)"
+                }
+              ],
+              "text": "Involved margin - Surgical margin involved by primary malignant neoplasm of cecum and/or colon and/or rectum in colectomy specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6810847174496",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Present (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1370001000004102",
+                    "display": "Proximal surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "880001000004108",
+                    "display": "Distal surgical margin (morphologic abnormality)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "6810847174496",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1156512002",
+              "display": "Presence of primary malignant neoplasm of colon at surgical margin in excised tissue specimen (observable entity)"
+            }
+          ],
+          "text": "Longitudinal margin status - Presence of primary malignant neoplasm of colon at surgical margin in excised tissue specimen (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "integer",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "code": "mm",
+                    "display": "mm"
+                  }
+                }
+              ],
+              "linkId": "8119961017749",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384891002",
+                  "display": "Distance of malignant neoplasm from closest surgical margin in excised specimen (observable entity)"
+                }
+              ],
+              "text": "Specify distance - Distance of malignant neoplasm from closest surgical margin in excised specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "9888114886963",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "item": [
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "radio-button",
+                            "display": "Radio Button"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "7112851035119",
+                  "text": "Involved by",
+                  "enableWhen": [
+                    {
+                      "question": "9888114886963",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "52101004",
+                        "display": "Present (qualifier value)"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "display": "By primary tumor"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "integer",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "code": "mm",
+                    "display": "mm"
+                  }
+                }
+              ],
+              "linkId": "8370789882488",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1095791000004105",
+                  "display": "Distance of malignant neoplasm of colon from radial surgical margin in colectomy specimen (observable entity)"
+                }
+              ],
+              "text": "Distance to nearest margin - Distance of malignant neoplasm of colon from radial surgical margin in colectomy specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "9888114886963",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Present (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "9888114886963",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1156375006",
+              "display": "Presence of primary malignant neoplasm of colon at radial surgical margin in colectomy specimen (observable entity)"
+            }
+          ],
+          "text": "Circumferential margin status - Presence of primary malignant neoplasm of colon at radial surgical margin in colectomy specimen (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "1908339263327",
+      "text": "Margin status"
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "8176610675481",
+              "text": "Neuroendocrine makers, specify result(s)",
+              "enableWhen": [
+                {
+                  "question": "5795881429607",
+                  "operator": "=",
+                  "answerCoding": {
+                    "display": "Neuroendocrine markers"
+                  }
+                }
+              ],
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "decimal",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "code": "%",
+                    "display": "%"
+                  }
+                }
+              ],
+              "linkId": "257980222379",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1286760008",
+                  "display": "Percent of cell nuclei positive for proliferation marker protein Ki-67 in primary malignant neoplasm of cecum and/or colon and/or rectum by immunohistochemistry (observable entity)"
+                }
+              ],
+              "text": "Ki-67 proliferation index - Percent of cell nuclei positive for proliferation marker protein Ki-67 in primary malignant neoplasm of cecum and/or colon and/or rectum by immunohistochemistry (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "5795881429607",
+                  "operator": "=",
+                  "answerCoding": {
+                    "display": "Neuroendocrine markers"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "5795881429607",
+          "text": "Neuroendocrine makers",
+          "enableBehavior": "any",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "display": "Not applicable"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "Neuroendocrine markers"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "176712302444",
+      "text": "Ancillary studies"
+    },
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "1131880161660",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "385421009",
+              "display": "Anatomic location of metastatic spread of malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Distant metastases site - Anatomic location of metastatic spread of malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "217203924975",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "217203924975",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "385421009",
+          "display": "Anatomic location of metastatic spread of malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Histologically confirmed distant metastases - Anatomic location of metastatic spread of malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "9541260344604",
+          "text": "TNM Descriptors",
+          "repeats": true,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "277318003",
+                "display": "m - multiple primary tumours - (m) (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - recurrent - Tumor staging descriptor r (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "y - post-therapy - Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "797335374567",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Pathological primary tumor (pT) - pT category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352532000",
+                    "display": "TX - Union for International Cancer Control pTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352552004",
+                    "display": "T0 - Union for International Cancer Control pT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352558000",
+                    "display": "Tis - Union for International Cancer Control pTis (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352559008",
+                    "display": "T1 - Union for International Cancer Control pT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352545001",
+                    "display": "T2- Union for International Cancer Control pT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352533005",
+                    "display": "T3- Union for International Cancer Control pT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352553009",
+                    "display": "T4- Union for International Cancer Control pT4 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352538001",
+                    "display": "T4a- Union for International Cancer Control pT4a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352561004",
+                    "display": "T4b- Union for International Cancer Control pT4b (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "897043274245",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Pathological regional lymph nodes (pN) - pN category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352605004",
+                    "display": "NX - Union for International Cancer Control pNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352621009",
+                    "display": "N0 - Union for International Cancer Control pN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352614009",
+                    "display": "N1 - Union for International Cancer Control pN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352619004",
+                    "display": "N1a - Union for International Cancer Control pN1a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352616006",
+                    "display": "N1b - Union for International Cancer Control pN1b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352617002",
+                    "display": "N1c - Union for International Cancer Control pN1c (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352610000",
+                    "display": "N2 - Union for International Cancer Control pN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352608002",
+                    "display": "N2a - Union for International Cancer Control pN2a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352612008",
+                    "display": "N2b - Union for International Cancer Control pN2b (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "703588482625",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371497001",
+                  "display": "pM category (observable entity)"
+                }
+              ],
+              "text": "Pathological distant metastasis (pM) - pM category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352512001",
+                    "display": "M0 - Union for International Cancer Control cM0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352583000",
+                    "display": "M1 - Union for International Cancer Control pM1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352573004",
+                    "display": "M1a - Union for International Cancer Control pM1a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352578008",
+                    "display": "M1b - Union for International Cancer Control pM1b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352574005",
+                    "display": "M1c - Union for International Cancer Control pM1c (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "532198364175",
+          "text": "Pathological",
+          "enableWhen": [
+            {
+              "question": "9541260344604",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "Tumor staging descriptor r (tumor staging)"
+              }
+            },
+            {
+              "question": "9541260344604",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ],
+          "enableBehavior": "all"
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "8395864481959",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Recurrent pathological primary tumor (rpT) - pT category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352688000",
+                    "display": "TX - Union for International Cancer Control rpTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352699003",
+                    "display": "T0 - Union for International Cancer Control rpT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352666000",
+                    "display": "Tis - Union for International Cancer Control rpTis (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352698006",
+                    "display": "T1 - Union for International Cancer Control rpT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352678001",
+                    "display": "T2- Union for International Cancer Control rpT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352668004",
+                    "display": "T3- Union for International Cancer Control rpT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352690004",
+                    "display": "T4- Union for International Cancer Control rpT4 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352674004",
+                    "display": "T4a- Union for International Cancer Control rpT4a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352686001",
+                    "display": "T4b- Union for International Cancer Control rpT4b (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "787762462044",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Recurrent pathological regional lymph nodes (rpN) - pN category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352601008",
+                    "display": "NX - Union for International Cancer Control rpNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352585007",
+                    "display": "N0 - Union for International Cancer Control rpN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352588009",
+                    "display": "N1 - Union for International Cancer Control rpN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352602001",
+                    "display": "N1a - Union for International Cancer Control rpN1a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352598003",
+                    "display": "N1b - Union for International Cancer Control rpN1b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352603006",
+                    "display": "N1c - Union for International Cancer Control rpN1c (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352587004",
+                    "display": "N2 - Union for International Cancer Control rpN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352590005",
+                    "display": "N2a - Union for International Cancer Control rpN2a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352593007",
+                    "display": "N2b - Union for International Cancer Control rpN2b (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "5493433106408",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371497001",
+                  "display": "pM category (observable entity)"
+                }
+              ],
+              "text": "Recurrent pathological distant metastasis (rpM) - pM category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352708009",
+                    "display": "M0 - Union for International Cancer Control rcM0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352727003",
+                    "display": "M1 - Union for International Cancer Control rpM1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352714002",
+                    "display": "M1a - Union for International Cancer Control rpM1a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352706008",
+                    "display": "M1b - Union for International Cancer Control rpM1b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352717009",
+                    "display": "M1c - Union for International Cancer Control rpM1c (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "634599929637",
+          "text": "Recurrent",
+          "enableWhen": [
+            {
+              "question": "9541260344604",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "Tumor staging descriptor r (tumor staging)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "904046911024",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384625004",
+                  "display": "pT category (observable entity)"
+                }
+              ],
+              "text": "Post-therapy pathological primary tumor (ypT) - pT category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352631002",
+                    "display": "TX - Union for International Cancer Control ypTX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352650002",
+                    "display": "T0 - Union for International Cancer Control ypT0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352653000",
+                    "display": "Tis - Union for International Cancer Control ypTis (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352640003",
+                    "display": "T1 - Union for International Cancer Control ypT1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352635006",
+                    "display": "T2- Union for International Cancer Control ypT2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352657004",
+                    "display": "T3- Union for International Cancer Control ypT3 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352649002",
+                    "display": "T4- Union for International Cancer Control ypT4 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352626004",
+                    "display": "T4a- Union for International Cancer Control ypT4a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352648005",
+                    "display": "T4b- Union for International Cancer Control ypT4b (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "513493143636",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "371494008",
+                  "display": "pN category (observable entity)"
+                }
+              ],
+              "text": "Post-therapy pathological regional lymph nodes (ypN) - pN category (observable entity)",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352813001",
+                    "display": "NX - Union for International Cancer Control ypNX (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352797005",
+                    "display": "N0 - Union for International Cancer Control ypN0 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352794003",
+                    "display": "N1 - Union for International Cancer Control ypN1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352795002",
+                    "display": "N1a - Union for International Cancer Control ypN1a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352803009",
+                    "display": "N1b - Union for International Cancer Control ypN1b (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352812006",
+                    "display": "N1c - Union for International Cancer Control ypN1c (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352808000",
+                    "display": "N2 - Union for International Cancer Control ypN2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352805002",
+                    "display": "N2a - Union for International Cancer Control ypN2a (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1352810003",
+                    "display": "N2b - Union for International Cancer Control ypN2b (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "269104902040",
+          "text": "Post-therapy",
+          "enableWhen": [
+            {
+              "question": "9541260344604",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421755005",
+                "display": "Tumor staging descriptor y (tumor staging)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "2532305762267",
+      "text": "Pathological staging"
+    }
+  ]
+}

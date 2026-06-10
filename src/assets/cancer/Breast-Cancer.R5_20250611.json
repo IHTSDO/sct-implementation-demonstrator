@@ -1,0 +1,5181 @@
+{
+  "resourceType": "Questionnaire",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/5.0/StructureDefinition/Questionnaire"
+    ]
+  },
+  "title": "Breast Cancer",
+  "status": "draft",
+  "description": "ICCR-Invasive-breast-2nd-ed-2.1",
+  "item": [
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "6056601714726",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2620001000004108",
+              "display": "Specimen collection procedure (observable entity)"
+            }
+          ],
+          "text": "Type of excision - Specimen collection procedure (observable entity)",
+          "enableWhen": [
+            {
+              "question": "5019846309067",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1231734007",
+                "display": "Excision (less than total mastectomy) - Excision of breast (procedure)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1231734007",
+                "display": "Diagnostic excision/ Excision biopsy - Excision of breast (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "237371007",
+                "display": "Therapeutic wide local excision - Wide local excision of breast lesion (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "307796007",
+                "display": "Duct excision/ Microdochectomy - Microdochectomy (procedure)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "5639387882027",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2620001000004108",
+              "display": "Specimen collection procedure (observable entity)"
+            }
+          ],
+          "text": "Type of mastectomy - Specimen collection procedure (observable entity)",
+          "enableWhen": [
+            {
+              "question": "5019846309067",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "172043006",
+                "display": "Total mastectomy - Simple mastectomy (procedure)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "172043006",
+                "display": "Simple mastectomy - Simple mastectomy (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "70183006",
+                "display": "Nipple-sparing mastectomy - Subcutaneous mastectomy (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "428564008",
+                "display": "Skin-sparing mastectomy - Skin sparing mastectomy (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "406505007",
+                "display": "Modified radical mastectomy - Modified radical mastectomy (procedure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "384723003",
+                "display": "Radical mastectomy - Radical mastectomy (procedure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "5019846309067",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "2620001000004108",
+          "display": "Specimen collection procedure (observable entity)"
+        }
+      ],
+      "text": "Operative procedure - Specimen collection procedure (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerConstraint": "optionsOrString",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1231734007",
+            "display": "Excision (less than total mastectomy) - Excision of breast (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "395165008",
+            "display": "Re-excision - Re-excision of breast for clearance of tumor margins (procedure)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "172043006",
+            "display": "Total mastectomy - Simple mastectomy (procedure)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "1986352200814",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "384727002",
+          "display": "Specimen laterality (observable entity)"
+        }
+      ],
+      "text": "Specimen laterality - Specimen laterality (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "7771000",
+            "display": "Left - Left (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "24028007",
+            "display": "Right - Right (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "millimeter",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "8682468177317",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1240401000",
+              "display": "Distance of primary malignant neoplasm of breast to nipple in excised breast specimen (observable entity)"
+            }
+          ],
+          "text": "Distance from nipple - Distance of primary malignant neoplasm of breast to nipple in excised breast specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "935058353686",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Clock position"
+              }
+            },
+            {
+              "question": "935058353686",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Quadrant"
+              }
+            }
+          ],
+          "enableBehavior": "any",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "5456332095121",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3980001000004105",
+              "display": "Radial location of primary malignant neoplasm in excised breast specimen (observable entity)"
+            }
+          ],
+          "text": "Clock position - Radial location of primary malignant neoplasm in excised breast specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "935058353686",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Clock position"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": true,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260318004",
+                "display": "1 o'clock - 1 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260328008",
+                "display": "2 o'clock - 2 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260330005",
+                "display": "3 o'clock - 3 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260333007",
+                "display": "4 o'clock - 4 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260335000",
+                "display": "5 o'clock - 5 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260337008",
+                "display": "6 o'clock - 6 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260339006",
+                "display": "7 o'clock - 7 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260341007",
+                "display": "8 o'clock - 8 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260343005",
+                "display": "9 o'clock - 9 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260322009",
+                "display": "10 o'clock - 10 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260324005",
+                "display": "11 o'clock - 11 o'clock position (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260326007",
+                "display": "12 o'clock - 12 o'clock position (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "114980190404",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "399687005",
+              "display": "Anatomic location of primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Quadrant - Anatomic location of primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "935058353686",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Quadrant"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": true,
+          "readOnly": false,
+          "answerConstraint": "optionsOrString",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "76365002",
+                "display": "Upper outer quadrant - Structure of upper outer quadrant of breast (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "33564002",
+                "display": "Lower outer quadrant - Structure of lower outer quadrant of breast (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "77831004",
+                "display": "Upper inner quadrant - Structure of upper inner quadrant of breast (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "19100000",
+                "display": "Lower inner quadrant - Structure of lower inner quadrant of breast (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "49058007",
+                "display": "Central - Structure of central portion of breast (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "24142002",
+                "display": "Nipple - Nipple structure (body structure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "935058353686",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "399687005",
+          "display": "Anatomic location of primary malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Tumor site - Anatomic location of primary malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1220561009",
+            "display": "Not specified - Not recorded (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Clock position"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Quadrant"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "705534442770",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "443748007",
+              "display": "Number of malignant neoplasm foci (observable entity)"
+            }
+          ],
+          "text": "Number of foci - Number of malignant neoplasm foci (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9242047630564",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "524008",
+                "display": "Multiple foci of invasive carcinoma - Multifocal (qualifier value)"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ]
+        },
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+              "valueDecimal": 2
+            }
+          ],
+          "linkId": "343196217932",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "443748007",
+              "display": "Number of malignant neoplasm foci (observable entity)"
+            }
+          ],
+          "text": "Specified number of foci - Number of malignant neoplasm foci (observable entity)",
+          "enableWhen": [
+            {
+              "question": "705534442770",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Can be assessed"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "string",
+          "linkId": "711493923856",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3520001000004107",
+              "display": "Length of foci of invasive carcinoma in excised primary malignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Sizes of individual foci - Length of foci of invasive carcinoma in excised primary malignant neoplasm of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9242047630564",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "524008",
+                "display": "Multiple foci of invasive carcinoma - Multifocal (qualifier value)"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "9242047630564",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1157128007",
+          "display": "Qualitative distribution of primary malignant neoplasm of breast in excised breast specimen (observable entity)"
+        }
+      ],
+      "text": "Tumur focality - Qualitative distribution of primary malignant neoplasm of breast in excised breast specimen (observable entity)",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "261034003",
+            "display": "Single focus of invasive carcinoma - Unifocal (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "524008",
+            "display": "Multiple foci of invasive carcinoma - Multifocal (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "millimeter",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "9267251136947",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "200001000004104",
+              "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Greatest dimension - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "2030965998203",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Maximum dimension of largest invasive focus >1 mm - Present (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "item": [
+            {
+              "linkId": "9267251136947_helpText",
+              "type": "display",
+              "text": "Specify exact measurement rounded to nearest mm",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "help",
+                        "display": "Help-Button"
+                      }
+                    ],
+                    "text": "Help-Button"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "millimeter",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "1691265518399",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "640001000004105",
+              "display": "Second greatest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Second greatest dimension - Second greatest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "2030965998203",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Maximum dimension of largest invasive focus >1 mm - Present (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "decimal",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "millimeter",
+                "display": "millimeter"
+              }
+            }
+          ],
+          "linkId": "3776596341163",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1620001000004107",
+              "display": "Smallest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Smallest dimension - Smallest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "2030965998203",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Maximum dimension of largest invasive focus >1 mm - Present (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "string",
+          "linkId": "3113348204353",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "200001000004104",
+              "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+            }
+          ],
+          "text": "Cannot be assessed, specify - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+          "enableWhen": [
+            {
+              "question": "2030965998203",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "2030965998203",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "200001000004104",
+          "display": "Greatest length dimension of excised primary malignant neoplasm (observable entity)"
+        }
+      ],
+      "text": "Tumor dimensions - Greatest length dimension of excised primary malignant neoplasm (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "No residual invasive carcinoma - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "264550001",
+            "display": "Only microinvasion present (≤1 mm) - Microinvasive carcinoma (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Maximum dimension of largest invasive focus >1 mm - Present (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Cannot be assessed - Cannot be determined (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "string",
+          "linkId": "9256037836474",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1660001000004100",
+              "display": "Histologic type of primary malignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Subtype of mixed histological tumor - Histologic type of primary malignant neoplasm of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "431065617125",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "128662002",
+                "display": "Mixed - Adenocarcinoma with mixed subtypes (morphologic abnormality)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "431065617125",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1660001000004100",
+          "display": "Histologic type of primary malignant neoplasm of breast (observable entity)"
+        }
+      ],
+      "text": "Histological tumor type - Histologic type of primary malignant neoplasm of breast (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerConstraint": "optionsOrString",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "385432009",
+            "display": "No residual invasive carcinoma - Not applicable (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "82711006",
+            "display": "Invasive breast carcinoma of no special type (invasive ductal carcinoma, not otherwise specified) - Infiltrating duct carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "89740008",
+            "display": "Invasive lobular carcinoma - Lobular carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "4631006",
+            "display": "Tubular carcinoma - Tubular adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "30156004",
+            "display": "Cribriform carcinoma - Cribriform carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "72495009",
+            "display": "Mucinous carcinoma - Mucinous adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "703578005",
+            "display": "Invasive micropapillary carcinoma - Invasive micropapillary carcinoma of breast (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "57141000",
+            "display": "Carcinoma with apocrine differentiation - Apocrine adenocarcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "128705006",
+            "display": "Metaplastic carcinoma - Metaplastic carcinoma (morphologic abnormality)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "128662002",
+            "display": "Mixed - Adenocarcinoma with mixed subtypes (morphologic abnormality)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "9319059667250",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "372276001",
+                  "display": "Nottingham combined grade of primary malignant neoplasm of breast (observable entity)"
+                }
+              ],
+              "text": "Cannot be determined, specify - Nottingham combined grade of primary malignant neoplasm of breast (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "9258291349620",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "9258291349620",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "372276001",
+              "display": "Nottingham combined grade of primary malignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Overall histological tumor grade - Nottingham combined grade of primary malignant neoplasm of breast (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "No residual invasive carcinoma - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287024003",
+                "display": "Grade 1 (scores of 3, 4, or 5) - Nottingham combined histologic grade 1 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287025002",
+                "display": "Grade 2 (scores of 6 or 7) - Nottingham combined histologic grade 2 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287026001",
+                "display": "Grade 3 (scores of 8 or 9) - Nottingham combined histologic grade 3 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Only microinvasion present (not graded) - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "559111992333",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3720001000004106",
+              "display": "Nottingham glandular differentiation score of primary malignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Tubule score - Nottingham glandular differentiation score of primary malignant neoplasm of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287024003",
+                "display": "Grade 1 (scores of 3, 4, or 5) - Nottingham combined histologic grade 1 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287025002",
+                "display": "Grade 2 (scores of 6 or 7) - Nottingham combined histologic grade 2 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287026001",
+                "display": "Grade 3 (scores of 8 or 9) - Nottingham combined histologic grade 3 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "any",
+          "required": false,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287021006",
+                "display": "Score 1 - Nottingham scoring system for primary malignant neoplasm of breast score 1 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287022004",
+                "display": "Score 2 - Nottingham scoring system for primary malignant neoplasm of breast score 2 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287023009",
+                "display": "Score 3 - Nottingham scoring system for primary malignant neoplasm of breast score 3 (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "170449627638",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "4520001000004105",
+              "display": "Nottingham nuclear pleomorphism score of primary malignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Nuclear pleomorphism score - Nottingham nuclear pleomorphism score of primary malignant neoplasm of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287024003",
+                "display": "Grade 1 (scores of 3, 4, or 5) - Nottingham combined histologic grade 1 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287025002",
+                "display": "Grade 2 (scores of 6 or 7) - Nottingham combined histologic grade 2 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287026001",
+                "display": "Grade 3 (scores of 8 or 9) - Nottingham combined histologic grade 3 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "any",
+          "required": false,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287021006",
+                "display": "Score 1 - Nottingham scoring system for primary malignant neoplasm of breast score 1 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287022004",
+                "display": "Score 2 - Nottingham scoring system for primary malignant neoplasm of breast score 2 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287023009",
+                "display": "Score 3 - Nottingham scoring system for primary malignant neoplasm of breast score 3 (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "decimal",
+              "linkId": "925145094464",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "443158003",
+                  "display": "Number of mitotic figures per square millimeter (observable entity)"
+                }
+              ],
+              "text": "Mitotic count (square millimeter) - Number of mitotic figures per square millimeter (observable entity)",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "integer",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "/[HPF]",
+                    "display": "per high power field"
+                  }
+                }
+              ],
+              "linkId": "941136857059",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "406094009",
+                  "display": "Number of mitoses per 10 high power fields (observable entity)"
+                }
+              ],
+              "text": "Mitotic count (10 high power fields) - Number of mitoses per 10 high power fields (observable entity)",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "780452239294",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "2820001000004104",
+                  "display": "Nottingham mitotic rate score of primary malignant neoplasm of breast (observable entity)"
+                }
+              ],
+              "text": "Mitotic rate score - Nottingham mitotic rate score of primary malignant neoplasm of breast (observable entity)",
+              "required": false,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1287021006",
+                    "display": "Score 1 - Nottingham scoring system for primary malignant neoplasm of breast score 1 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1287022004",
+                    "display": "Score 2 - Nottingham scoring system for primary malignant neoplasm of breast score 2 (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1287023009",
+                    "display": "Score 3 - Nottingham scoring system for primary malignant neoplasm of breast score 3 (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "group",
+          "linkId": "876970324758",
+          "text": "Mitotic findings",
+          "enableWhen": [
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287024003",
+                "display": "Grade 1 (scores of 3, 4, or 5) - Nottingham combined histologic grade 1 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287025002",
+                "display": "Grade 2 (scores of 6 or 7) - Nottingham combined histologic grade 2 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287026001",
+                "display": "Grade 3 (scores of 8 or 9) - Nottingham combined histologic grade 3 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "any",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "string",
+          "linkId": "341586415085",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1287461000",
+              "display": "Nottingham total score of primary malignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Total score - Nottingham total score of primary malignant neoplasm of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287024003",
+                "display": "Grade 1 (scores of 3, 4, or 5) - Nottingham combined histologic grade 1 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287025002",
+                "display": "Grade 2 (scores of 6 or 7) - Nottingham combined histologic grade 2 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            },
+            {
+              "question": "9258291349620",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1287026001",
+                "display": "Grade 3 (scores of 8 or 9) - Nottingham combined histologic grade 3 for primary malignant neoplasm of breast (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "any"
+        }
+      ],
+      "type": "group",
+      "linkId": "921176685571",
+      "text": "Histological tumor grade",
+      "required": false,
+      "repeats": false,
+      "readOnly": false
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "6603112469044",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1287028000",
+              "display": "Histologic type of noninvasive premalignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Type of carcinoma in situ - Histologic type of noninvasive premalignant neoplasm of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "2605742308997",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": true,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1162814007",
+                "display": "Ductal carcinoma in situ (DCIS) - Non-infiltrating intraductal carcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "2985005",
+                "display": "Paget disease of the nipple - Paget's disease, mammary (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "703545003",
+                "display": "Encapsulated papillary carcinoma - Encapsulated papillary carcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "703546002",
+                "display": "Solid papillary carcinoma in situ - Solid papillary carcinoma in situ (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "77284006",
+                "display": "Lobular carcinoma in situ (LCIS) - Lobular carcinoma in situ (morphologic abnormality)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "9000596827139",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2890001000004108",
+              "display": "Nuclear grade of ductal carcinoma in situ of breast (observable entity)"
+            }
+          ],
+          "text": "Histological nuclear grade - Nuclear grade of ductal carcinoma in situ of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "6603112469044",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1162814007",
+                "display": "Ductal carcinoma in situ (DCIS) - Non-infiltrating intraductal carcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "question": "6603112469044",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "703545003",
+                "display": "Encapsulated papillary carcinoma - Encapsulated papillary carcinoma (morphologic abnormality)"
+              }
+            },
+            {
+              "question": "6603112469044",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "703546002",
+                "display": "Solid papillary carcinoma in situ - Solid papillary carcinoma in situ (morphologic abnormality)"
+              }
+            }
+          ],
+          "enableBehavior": "any",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "258351006",
+                "display": "Grade 1 (Low) - Grade 1 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "258352004",
+                "display": "Grade 2 (Intermediate) - Grade 2 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "258353009",
+                "display": "Grade 3 (High) - Grade 3 (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "337020934364",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1255767006",
+              "display": "Histologic architectural pattern in ductal carcinoma in situ of breast (observable entity)"
+            }
+          ],
+          "text": "Histological DCIS architectural pattern - Histologic architectural pattern in ductal carcinoma in situ of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "6603112469044",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1162814007",
+                "display": "Ductal carcinoma in situ (DCIS) - Non-infiltrating intraductal carcinoma (morphologic abnormality)"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": true,
+          "readOnly": false,
+          "answerConstraint": "optionsOrString",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1279783001",
+                "display": "Cribriform - Cribriform histologic pattern (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1255715007",
+                "display": "Micropapillary - Micropapillary histologic pattern (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1255712005",
+                "display": "Papillary - Papillary histologic pattern (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1255714006",
+                "display": "Solid - Solid histologic pattern (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "2048788645996",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1287179008",
+                  "display": "Presence of necrosis in ductal carcinoma in situ in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Necrosis type - Presence of necrosis in ductal carcinoma in situ in excised breast specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6853721772395",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Present - Present (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "26216008",
+                    "display": "Central (Comedo) necrosis - Central (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "87017008",
+                    "display": "Focal (Punctate) necrosis (<10% duct diameter) - Focal (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "6853721772395",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1287179008",
+              "display": "Presence of necrosis in ductal carcinoma in situ in excised breast specimen (observable entity)"
+            }
+          ],
+          "text": "Necrosis - Presence of necrosis in ductal carcinoma in situ in excised breast specimen (observable entity)",
+          "enableWhen": [
+            {
+              "question": "2605742308997",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not identified - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Present - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3639449075585",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1287028000",
+              "display": "Histologic type of noninvasive premalignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Classification of LCIS - Histologic type of noninvasive premalignant neoplasm of breast (observable entity)",
+          "enableWhen": [
+            {
+              "question": "6603112469044",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "77284006",
+                "display": "Lobular carcinoma in situ (LCIS) - Lobular carcinoma in situ (morphologic abnormality)"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": true,
+          "readOnly": false,
+          "answerConstraint": "optionsOrString",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "444739008",
+                "display": "Classical LCIS - Classic lobular carcinoma in situ (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "444591006",
+                "display": "Pleomorphic LCIS - Pleomorphic lobular carcinoma in situ (morphologic abnormality)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1290750006",
+                "display": "Florid LCIS - Florid lobular carcinoma in situ (morphologic abnormality)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "2605742308997",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1240396004",
+          "display": "Presence of ductal carcinoma in situ in excised breast specimen (observable entity)"
+        }
+      ],
+      "text": "Carcinoma in situ - Presence of ductal carcinoma in situ in excised breast specimen (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "8774028717706",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1363514009",
+                  "display": "Presence of ulcer of skin of breast due to direct invasion of primary neoplasm of breast (observable entity)"
+                }
+              ],
+              "text": "Skin ulceration - Presence of ulcer of skin of breast due to direct invasion of primary neoplasm of breast (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "9340435107169",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "82038008",
+                    "display": "Skin is present and involved - Skin structure of breast (body structure)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Invasive carcinoma directly invades into the dermis or epidermis without skin ulceration - Not seen (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Invasive carcinoma directly invades into the dermis or epidermis with skin ulceration - Present (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "1453848526837",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "385421009",
+                  "display": "Anatomic location of metastatic spread of malignant neoplasm (observable entity)"
+                }
+              ],
+              "text": "Satellite skin foci - Anatomic location of metastatic spread of malignant neoplasm (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "9340435107169",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "82038008",
+                    "display": "Skin is present and involved - Skin structure of breast (body structure)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Satellite foci not identified - Not seen (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "82038008",
+                    "display": "Satellite skin foci of invasive carcinoma are present - Skin structure of breast (body structure)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "9340435107169",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3280001000004106",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Skin - Anatomic location directly invaded by primary malignant neoplasm of breast (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Skin is not present - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Skin is present and uninvolved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "82038008",
+                "display": "Skin is present and involved - Skin structure of breast (body structure)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "2258182761668",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2900001000004101",
+              "display": "Presence of ductal carcinoma in situ in epidermis of nipple (observable entity)"
+            }
+          ],
+          "text": "Nipple (including areola complex) - Presence of ductal carcinoma in situ in epidermis of nipple (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Nipple tissue is not present - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "DCIS does not involve the nipple epidermis - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "DCIS involves nipple epidermis (Paget disease of the nipple) - Present (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3255969961397",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3280001000004106",
+              "display": "Anatomic location directly invaded by primary malignant neoplasm of breast (observable entity)"
+            }
+          ],
+          "text": "Skeletal muscle - Anatomic location directly invaded by primary malignant neoplasm of breast (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Skeletal muscle is not present - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Skeletal muscle is free of carcinoma - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "372074006",
+                "display": "Tumour involves skeletal muscle - Skeletal muscle structure of chest wall (body structure)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "78904004",
+                "display": "Tumour involves both skeletal muscle and chest wall - Chest wall structure (body structure)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "7817767128980",
+      "text": "Tumour extension"
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "check-box",
+                        "display": "Check-box"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "3609625995381",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1240395000",
+                  "display": "Surgical margin involved by primary malignant neoplasm of breast in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Involved margin of invasive carcinoma - Surgical margin involved by primary malignant neoplasm of breast in excised breast specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "1753741443110",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Involved - Present (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": true,
+              "readOnly": false,
+              "answerConstraint": "optionsOrString",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "3680001000004109",
+                    "display": "Anterior (superficial) - Anterior surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "4420001000004100",
+                    "display": "Posterior (deep) - Posterior surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "2190001000004100",
+                    "display": "Superior - Superior surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "3860001000004101",
+                    "display": "Inferior - Inferior surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "4130001000004104",
+                    "display": "Medial - Medial surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "2540001000004102",
+                    "display": "Lateral - Lateral surgical margin (morphologic abnormality)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "string",
+              "linkId": "3545863165743",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "170001000004107",
+                  "display": "Surgical margin closest to malignant neoplasm in excised specimen of breast (observable entity)"
+                }
+              ],
+              "text": "Closest margin - Surgical margin closest to malignant neoplasm in excised specimen of breast (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "1753741443110",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "item": [
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "millimeter",
+                        "display": "millimeter"
+                      }
+                    }
+                  ],
+                  "linkId": "7791303919906",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "373120008",
+                      "display": "Distance of invasive carcinoma to closest margin"
+                    }
+                  ],
+                  "text": "Distance of invasive carcinoma to closest margin - Distance of invasive carcinoma of breast from closest surgical margin in excised breast specimen (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "8601321471626",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Can be determined"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "string",
+                  "linkId": "3641854735979",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "373120008",
+                      "display": "Distance of invasive carcinoma to closest margin"
+                    }
+                  ],
+                  "text": "Cannot be determined, specify - Distance of invasive carcinoma of breast from closest surgical margin in excised breast specimen (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "8601321471626",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1156316003",
+                        "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": false,
+                  "repeats": false,
+                  "readOnly": false
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "8601321471626",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "373120008",
+                  "display": "Distance of invasive carcinoma of breast from closest surgical margin in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Distance of invasive carcinoma to closest margin - Distance of invasive carcinoma of breast from closest surgical margin in excised breast specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "1753741443110",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Can be determined"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "string",
+              "linkId": "971318629939",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1156344002",
+                  "display": "Presence of primary malignant neoplasm of breast at surgical margin in excised specimen of breast (observable entity)"
+                }
+              ],
+              "text": "Cannot be assessed, specify - Presence of primary malignant neoplasm of breast at surgical margin in excised specimen of breast (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "1753741443110",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                }
+              ],
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "1753741443110",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1156344002",
+              "display": "Presence of primary malignant neoplasm of breast at surgical margin in excised specimen of breast (observable entity)"
+            }
+          ],
+          "text": "Invasive carcinoma - Presence of primary malignant neoplasm of breast at surgical margin in excised specimen of breast (observable entity)",
+          "enableBehavior": "all",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "item": [
+                {
+                  "type": "string",
+                  "linkId": "7507814432443",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "399377002",
+                      "display": "Surgical margin involved by ductal carcinoma in situ in excised breast specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Other margin, specify - Surgical margin involved by ductal carcinoma in situ in excised breast specimen (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "8625329622865",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other margin - Other (qualifier value)"
+                      }
+                    }
+                  ],
+                  "required": false,
+                  "repeats": false,
+                  "readOnly": false
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "check-box",
+                        "display": "Check-box"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "8625329622865",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "399377002",
+                  "display": "Surgical margin involved by ductal carcinoma in situ in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Involved margin of DCIS - Surgical margin involved by ductal carcinoma in situ in excised breast specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "1924119124642",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Involved - Present (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": true,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "3680001000004109",
+                    "display": "Anterior (superficial) - Anterior surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "4420001000004100",
+                    "display": "Posterior (deep) - Posterior surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "2190001000004100",
+                    "display": "Superior - Superior surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "3860001000004101",
+                    "display": "Inferior - Inferior surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "4130001000004104",
+                    "display": "Medial - Medial surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "2540001000004102",
+                    "display": "Lateral - Lateral surgical margin (morphologic abnormality)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "74964007",
+                    "display": "Other margin - Other (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "string",
+              "linkId": "9558731366011",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "399663008",
+                  "display": "Surgical margin closest to ductal carcinoma in situ in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Closest margin - Surgical margin closest to ductal carcinoma in situ in excised breast specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "1924119124642",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "item": [
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "system": "http://unitsofmeasure.org",
+                        "code": "mm",
+                        "display": "millimeter"
+                      }
+                    }
+                  ],
+                  "linkId": "7253439356667",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "399496002",
+                      "display": "Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Distance of DCIS to closest margin - Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2535882443879",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Can be determined"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "string",
+                  "linkId": "7964320492177",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "399496002",
+                      "display": "Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Cannot be determined, specify - Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "2535882443879",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1156316003",
+                        "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": false,
+                  "repeats": false,
+                  "readOnly": false
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "2535882443879",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "399496002",
+                  "display": "Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Distance of DCIS to closest margin - Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "1924119124642",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Can be determined"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "string",
+              "linkId": "696725910083",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384705006",
+                  "display": "Presence of ductal carcinoma in situ at surgical margin in excised specimen of breast (observable entity)"
+                }
+              ],
+              "text": "Cannot be assessed, specify - Presence of ductal carcinoma in situ at surgical margin in excised specimen of breast (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "1924119124642",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                }
+              ],
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "1924119124642",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "384705006",
+              "display": "Presence of ductal carcinoma in situ at surgical margin in excised specimen of breast (observable entity)"
+            }
+          ],
+          "text": "DCIS - Presence of ductal carcinoma in situ at surgical margin in excised specimen of breast (observable entity)",
+          "enableBehavior": "any",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "5641301653619",
+      "text": "Margin status (For wide local excision specimens and similar non-complete mastectomy specimens)",
+      "enableWhen": [
+        {
+          "question": "5019846309067",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1231734007",
+            "display": "Excision (less than total mastectomy) - Excision of breast (procedure)"
+          }
+        },
+        {
+          "question": "5019846309067",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "395165008",
+            "display": "Re-excision - Re-excision of breast for clearance of tumor margins (procedure)"
+          }
+        }
+      ],
+      "enableBehavior": "any",
+      "required": true,
+      "repeats": false,
+      "readOnly": false
+    },
+    {
+      "item": [
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "4903414879278",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1240395000",
+                  "display": "Surgical margin involved by primary malignant neoplasm of breast in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Involved margin of invasive carcinoma - Surgical margin involved by primary malignant neoplasm of breast in excised breast specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "3278144380945",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Involved - Present (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "linkId": "6800254265185",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "170001000004107",
+                  "display": "Surgical margin closest to malignant neoplasm in excised specimen of breast (observable entity)"
+                }
+              ],
+              "text": "Closest margin - Surgical margin closest to malignant neoplasm in excised specimen of breast (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "3278144380945",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "item": [
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "millimeter",
+                        "display": "millimeter"
+                      }
+                    }
+                  ],
+                  "linkId": "9872728541753",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "373120008",
+                      "display": "Distance of invasive carcinoma to closest margin"
+                    }
+                  ],
+                  "text": "Distance of invasive carcinoma to closest margin - Distance of invasive carcinoma of breast from closest surgical margin in excised breast specimen (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "105090922568",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Can be determined"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "string",
+                  "linkId": "1880212408982",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "373120008",
+                      "display": "Distance of invasive carcinoma of breast from closest surgical margin in excised breast specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Cannot be determined, specify - Distance of invasive carcinoma of breast from closest surgical margin in excised breast specimen (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "105090922568",
+                      "operator": "=",
+                      "answerCoding": {
+                        "system": "http://snomed.info/sct",
+                        "code": "1156316003",
+                        "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": false,
+                  "repeats": false,
+                  "readOnly": false
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "105090922568",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "373120008",
+                  "display": "Distance of invasive carcinoma to closest margin"
+                }
+              ],
+              "text": "Distance of invasive carcinoma to closest margin - Distance of invasive carcinoma of breast from closest surgical margin in excised breast specimen (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "3278144380945",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Not involved - Not seen (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Can be determined"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "string",
+              "linkId": "785906970875",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1156344002",
+                  "display": "Presence of primary malignant neoplasm of breast at surgical margin in excised specimen of breast (observable entity)"
+                }
+              ],
+              "text": "Cannot be assessed, specify - Presence of primary malignant neoplasm of breast at surgical margin in excised specimen of breast (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "3278144380945",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                }
+              ],
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3278144380945",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1156344002",
+              "display": "Presence of primary malignant neoplasm of breast at surgical margin in excised specimen of breast (observable entity)"
+            }
+          ],
+          "text": "Invasive carcinoma - Presence of primary malignant neoplasm of breast at surgical margin in excised specimen of breast (observable entity)",
+          "enableBehavior": "any",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "2110091749872",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "399377002",
+                  "display": "Surgical margin involved by ductal carcinoma in situ in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Involved margin of DCIS - Surgical margin involved by ductal carcinoma in situ in excised breast specimen (observable entity)",
+              "enableBehavior": "all",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "linkId": "4947916891055",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "399663008",
+                  "display": "Surgical margin closest to ductal carcinoma in situ in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Closest margin - Surgical margin closest to ductal carcinoma in situ in excised breast specimen (observable entity)",
+              "enableBehavior": "all",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "item": [
+                {
+                  "type": "decimal",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "millimeter",
+                        "display": "millimeter"
+                      }
+                    }
+                  ],
+                  "linkId": "1633711322091",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "399496002",
+                      "display": "Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Distance of DCIS to closest margin - Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)",
+                  "enableBehavior": "all",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "string",
+                  "linkId": "2885103915235",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "399496002",
+                      "display": "Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)"
+                    }
+                  ],
+                  "text": "Cannot be determined, specify - Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)",
+                  "enableBehavior": "all",
+                  "required": false,
+                  "repeats": false,
+                  "readOnly": false
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "8686737448543",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "399496002",
+                  "display": "Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)"
+                }
+              ],
+              "text": "Distance of DCIS to closest margin - Distance of ductal carcinoma in situ of breast from closest surgical margin in excised breast specimen (observable entity)",
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Can be determined"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "string",
+              "linkId": "852822944090",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "384705006",
+                  "display": "Presence of ductal carcinoma in situ at surgical margin in excised specimen of breast (observable entity)"
+                }
+              ],
+              "text": "Cannot be assessed, specify - Presence of ductal carcinoma in situ at surgical margin in excised specimen of breast (observable entity)",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "7321989438097",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "384705006",
+              "display": "Presence of ductal carcinoma in situ at surgical margin in excised specimen of breast (observable entity)"
+            }
+          ],
+          "text": "DCIS - Presence of ductal carcinoma in situ at surgical margin in excised specimen of breast (observable entity)",
+          "enableBehavior": "any",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "52101004",
+                "display": "Involved - Present (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "47492008",
+                "display": "Not involved - Not seen (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "103468509505",
+      "text": "Margin status (For complete mastectomy specimens)",
+      "enableWhen": [
+        {
+          "question": "5019846309067",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "172043006",
+            "display": "Total mastectomy - Simple mastectomy (procedure)"
+          }
+        }
+      ],
+      "required": true,
+      "repeats": false,
+      "readOnly": false
+    },
+    {
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "1809824186089",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1336111006",
+          "display": "Presence of direct invasion by primary malignant neoplasm of breast to lymphatic vessel and/or small vessel (observable entity)"
+        }
+      ],
+      "text": "Lymphovascular invasion in primary breast carcinoma - Presence of direct invasion by primary malignant neoplasm of breast to lymphatic vessel and/or small vessel (observable entity)",
+      "required": true,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "47492008",
+            "display": "Not identified - Not seen (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "52101004",
+            "display": "Present - Present (qualifier value)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "1156316003",
+            "display": "Indeterminate - Cannot be determined (qualifier value)"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "2700463740007",
+          "text": "Testing performed on",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "display": "Core biopsy"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "Current specimen"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "item": [
+                {
+                  "type": "integer",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "%",
+                        "display": "%"
+                      }
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+                      "valueInteger": 1
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/maxValue",
+                      "valueInteger": 100
+                    }
+                  ],
+                  "linkId": "7857825231385",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1234804006",
+                      "display": "Percentage of cells with nuclear positivity"
+                    }
+                  ],
+                  "text": "Percentage of cells with nuclear positivity (Specify) - Percent of cells with estrogen receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "979786237701",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Specify"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "any",
+                  "required": true
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "radio-button",
+                            "display": "Radio Button"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "161344006679",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1234804006",
+                      "display": "Percentage of cells with nuclear positivity"
+                    }
+                  ],
+                  "text": "Percentage of cells with nuclear positivity (Range) - Percent of cells with estrogen receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "979786237701",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Range"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "any",
+                  "required": true,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "display": "1-10%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "11-20%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "21-30%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "31-40%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "41-50%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "51-60%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "61-70%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "71-80%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "81-90%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "91-100%"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "979786237701",
+              "text": "Percentage of cells with nuclear positivity",
+              "enableWhen": [
+                {
+                  "question": "6708169644303",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "10828004",
+                    "display": "Positive - Positive (qualifier value)"
+                  }
+                },
+                {
+                  "question": "6708169644303",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "260408008",
+                    "display": "Low positive - Weakly positive (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "any",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "display": "Specify"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Range"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "4761247748767",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1236874005",
+                  "display": "Intensity of stain of estrogen receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)"
+                }
+              ],
+              "text": "Average intensity of staining - Intensity of stain of estrogen receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6708169644303",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "10828004",
+                    "display": "Positive - Positive (qualifier value)"
+                  }
+                },
+                {
+                  "question": "6708169644303",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "260408008",
+                    "display": "Low positive - Weakly positive (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "any",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "260407003",
+                    "display": "Weak - Weak (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1255665007",
+                    "display": "Moderate - Moderate (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "260404005",
+                    "display": "Strong - Strong (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "4260704802281",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "4600001000004108",
+                  "display": "Status of estrogen receptor stain in control cells by immunohistochemistry (observable entity)"
+                }
+              ],
+              "text": "Internal control cells - Status of estrogen receptor stain in control cells by immunohistochemistry (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6708169644303",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "260385009",
+                    "display": "Negative (less than 1% nuclear positivity) - Negative (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerConstraint": "optionsOrString",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Internal control cells present and stain as expected - Present (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Internal control cells absent - Not seen (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "3134069456627",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "4600001000004108",
+                  "display": "Status of estrogen receptor stain in control cells by immunohistochemistry (observable entity)"
+                }
+              ],
+              "text": "Internal control cells - Status of estrogen receptor stain in control cells by immunohistochemistry (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "6708169644303",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerConstraint": "optionsOrString",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Internal control cells present but no immunoreactivity of either tumour cells or internal controls - Present (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "6708169644303",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1234805007",
+              "display": "Presence of estrogen receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)"
+            }
+          ],
+          "text": "Results - Presence of estrogen receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "10828004",
+                "display": "Positive - Positive (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260408008",
+                "display": "Low positive - Weakly positive (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260385009",
+                "display": "Negative (less than 1% nuclear positivity) - Negative (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "8363375844115",
+      "text": "Estrogen receptor (ER)"
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3479785248586",
+          "text": "Testing performed on",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "display": "Core biopsy"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "Current specimen"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "item": [
+                {
+                  "type": "integer",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                      "valueCoding": {
+                        "code": "%",
+                        "display": "%"
+                      }
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+                      "valueInteger": 1
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/maxValue",
+                      "valueInteger": 100
+                    }
+                  ],
+                  "linkId": "9041529078392",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1234803000",
+                      "display": "Percentage of cells with nuclear positivity"
+                    }
+                  ],
+                  "text": "Percent of cells with nuclear positivity (specify) - Percent of cells with progesterone receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "947098409333",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Specify"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "coding",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://hl7.org/fhir/questionnaire-item-control",
+                            "code": "radio-button",
+                            "display": "Radio Button"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "linkId": "850143180759",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1234803000",
+                      "display": "Percentage of cells with nuclear positivity"
+                    }
+                  ],
+                  "text": "Percent of cells with nuclear positivity (Range) - Percent of cells with progesterone receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "947098409333",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Range"
+                      }
+                    }
+                  ],
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false,
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "display": "1-10%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "11-20%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "21-30%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "31-40%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "41-50%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "51-60%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "61-70%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "71-80%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "81-90%"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "display": "91-100%"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "947098409333",
+              "text": "Percentage of cells with nuclear positivity",
+              "enableWhen": [
+                {
+                  "question": "8193398872374",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "10828004",
+                    "display": "Positive - Positive (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "any",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "display": "Specify"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Range"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "6554690565730",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1237278006",
+                  "display": "Intensity of stain of progesterone receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)"
+                }
+              ],
+              "text": "Average intensity of staining - Intensity of stain of progesterone receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "8193398872374",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "10828004",
+                    "display": "Positive - Positive (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "260407003",
+                    "display": "Weak - Weak (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1255665007",
+                    "display": "Moderate - Moderate (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "260404005",
+                    "display": "Strong - Strong (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "2672259660516",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "4050001000004108",
+                  "display": "Status of progesterone receptor stain in control cells by immunohistochemistry (observable entity)"
+                }
+              ],
+              "text": "Internal control cells - Status of progesterone receptor stain in control cells by immunohistochemistry (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "8193398872374",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "260385009",
+                    "display": "Negative (less than 1% nuclear positivity) - Negative (qualifier value)"
+                  }
+                }
+              ],
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerConstraint": "optionsOrString",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Internal control cells present and stain as expected - Present (qualifier value)"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "47492008",
+                    "display": "Internal control cells absent - Not seen (qualifier value)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "8214351368748",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "4050001000004108",
+                  "display": "Status of progesterone receptor stain in control cells by immunohistochemistry (observable entity)"
+                }
+              ],
+              "text": "Internal control cells - Status of progesterone receptor stain in control cells by immunohistochemistry (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "8193398872374",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false,
+              "answerConstraint": "optionsOrString",
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "52101004",
+                    "display": "Internal control cells present; no immunoreactivity of either tumour cells or internal controls - Present (qualifier value)"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "8193398872374",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1234801003",
+              "display": "Presence of progesterone receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)"
+            }
+          ],
+          "text": "Results - Presence of progesterone receptor in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "10828004",
+                "display": "Positive - Positive (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260385009",
+                "display": "Negative (less than 1% nuclear positivity) - Negative (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "1222036057127",
+      "text": "Progesterone receptor (PR)"
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "4229886968165",
+          "text": "Testing performed on",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "display": "Core biopsy"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "Current specimen"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "892998507304",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "3550001000004108",
+                  "display": "Presence of receptor tyrosine-protein kinase erbB-2 in primary malignant neoplasm of breast by immunohistochemistry (observable entity)|"
+                }
+              ],
+              "text": "Specify cannot be determined - Presence of receptor tyrosine-protein kinase erbB-2 in primary malignant neoplasm of breast by immunohistochemistry (observable entity)|",
+              "enableWhen": [
+                {
+                  "question": "7986592834009",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                }
+              ],
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "7986592834009",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3550001000004108",
+              "display": "Presence of receptor tyrosine-protein kinase erbB-2 in primary malignant neoplasm of breast by immunohistochemistry (observable entity)"
+            }
+          ],
+          "text": "By immunohistochemistry - Presence of receptor tyrosine-protein kinase erbB-2 in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not performed - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260385009",
+                "display": "Negative (Score 0) - Negative (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260385009",
+                "display": "Negative (Score 1+) - Negative (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "42425007",
+                "display": "Equivocal (Score 2+) - Equivocal (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "10828004",
+                "display": "Positive (Score 3+) - Positive (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "item": [
+            {
+              "type": "string",
+              "linkId": "8047367827181",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1340169005",
+                  "display": "Presence of receptor tyrosine-protein kinase erbB-2 in primary malignant neoplasm of breast by fluorescence in situ hybridization (observable entity)"
+                }
+              ],
+              "text": "Cannot be determined, specify - Presence of receptor tyrosine-protein kinase erbB-2 in primary malignant neoplasm of breast by fluorescence in situ hybridization (observable entity)",
+              "enableWhen": [
+                {
+                  "question": "3385344302318",
+                  "operator": "=",
+                  "answerCoding": {
+                    "system": "http://snomed.info/sct",
+                    "code": "1156316003",
+                    "display": "Cannot be determined - Cannot be determined (qualifier value)"
+                  }
+                }
+              ],
+              "enableBehavior": "all",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "integer",
+              "linkId": "5350161292161",
+              "text": "Number of invasive tumour cells counted",
+              "enableBehavior": "all",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "item": [
+                {
+                  "type": "integer",
+                  "linkId": "7353376437356",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1365742006",
+                      "display": "Average number of erb-b2 receptor tyrosine kinase 2 signals per cell in malignant neoplasm of breast in excised tissue specimen by in situ hybridization (observable entity)"
+                    }
+                  ],
+                  "text": "Average number of HER2 signals per cell - Average number of erb-b2 receptor tyrosine kinase 2 signals per cell in malignant neoplasm of breast in excised tissue specimen by in situ hybridization (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "8876918354443",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Dual probe assay"
+                      }
+                    },
+                    {
+                      "question": "8876918354443",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Single probe assay"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "any",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "integer",
+                  "linkId": "3183147998463",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1365743001",
+                      "display": "Average number of chromosome 17 centromere signals per cell in malignant neoplasm of breast in excised tissue specimen by in situ hybridization (observable entity)"
+                    }
+                  ],
+                  "text": "Average number of CEP17 signals per cell - Average number of chromosome 17 centromere signals per cell in malignant neoplasm of breast in excised tissue specimen by in situ hybridization (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "8876918354443",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Dual probe assay"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "string",
+                  "linkId": "9424123984057",
+                  "code": [
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "1365744007",
+                      "display": "Ratio of erb-b2 receptor tyrosine kinase 2 to chromosome 17 centromere signals per cell in malignant neoplasm of breast in excised tissue specimen by in situ hybridization technique (observable entity)"
+                    }
+                  ],
+                  "text": "HER2/CEP17 ratio - Ratio of erb-b2 receptor tyrosine kinase 2 to chromosome 17 centromere signals per cell in malignant neoplasm of breast in excised tissue specimen by in situ hybridization technique (observable entity)",
+                  "enableWhen": [
+                    {
+                      "question": "8876918354443",
+                      "operator": "=",
+                      "answerCoding": {
+                        "display": "Dual probe assay"
+                      }
+                    }
+                  ],
+                  "enableBehavior": "all",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                }
+              ],
+              "type": "coding",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                        "code": "radio-button",
+                        "display": "Radio Button"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "linkId": "8876918354443",
+              "text": "Probe assay",
+              "enableBehavior": "all",
+              "repeats": false,
+              "readOnly": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "display": "Dual probe assay"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "Single probe assay"
+                  }
+                }
+              ]
+            }
+          ],
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "3385344302318",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1340169005",
+              "display": "Presence of receptor tyrosine-protein kinase erbB-2 in primary malignant neoplasm of breast by fluorescence in situ hybridization (observable entity)"
+            }
+          ],
+          "text": "By in situ hybridization - Presence of receptor tyrosine-protein kinase erbB-2 in primary malignant neoplasm of breast by fluorescence in situ hybridization (observable entity)",
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "385432009",
+                "display": "Not performed - Not applicable (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "260385009",
+                "display": "Negative (not amplified) - Negative (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "10828004",
+                "display": "Positive (amplified) - Positive (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373068000",
+                "display": "Pending - Undetermined (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1156316003",
+                "display": "Cannot be determined - Cannot be determined (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "618383030350",
+      "text": "HER2"
+    },
+    {
+      "item": [
+        {
+          "type": "integer",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "code": "%",
+                "display": "%"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+              "valueInteger": 0
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/maxValue",
+              "valueInteger": 100
+            }
+          ],
+          "linkId": "843603580998",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1237281001",
+              "display": "Percent of cell nuclei positive for proliferation marker protein Ki-67 in primary malignant neoplasm of breast by immunohistochemistry (observable entity)"
+            }
+          ],
+          "text": "Ki-67 proliferation index - Percent of cell nuclei positive for proliferation marker protein Ki-67 in primary malignant neoplasm of breast by immunohistochemistry (observable entity)",
+          "enableWhen": [
+            {
+              "question": "761771214088",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Performed"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "text",
+          "linkId": "625681126260",
+          "text": "Other, specify test(s) and result(s)",
+          "enableWhen": [
+            {
+              "question": "761771214088",
+              "operator": "=",
+              "answerCoding": {
+                "display": "Performed"
+              }
+            }
+          ],
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ],
+      "type": "coding",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "761771214088",
+      "text": "Ancillary studies",
+      "required": false,
+      "repeats": false,
+      "readOnly": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "display": "Not performed"
+          }
+        },
+        {
+          "valueCoding": {
+            "display": "Performed"
+          }
+        }
+      ]
+    },
+    {
+      "item": [
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "check-box",
+                    "display": "Check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "9550595026931",
+          "text": "TNM Descriptors",
+          "required": false,
+          "repeats": true,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "277318003",
+                "display": "m - (m) (tumor staging)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - Tumor staging descriptor r (tumor staging)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "903502473518",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "384625004",
+              "display": "pT category (observable entity)"
+            }
+          ],
+          "text": "Pathological primary tumor (pT) - pT category (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9550595026931",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - Tumor staging descriptor r (tumor staging)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352532000",
+                "display": "pTX - Union for International Cancer Control pTX (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352552004",
+                "display": "pT0 - Union for International Cancer Control pT0 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352559008",
+                "display": "pT1 - Union for International Cancer Control pT1 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352560003",
+                "display": "pT1a - Union for International Cancer Control pT1a (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352543008",
+                "display": "pT1b - Union for International Cancer Control pT1b (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352537006",
+                "display": "pT1c - Union for International Cancer Control pT1c (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352545001",
+                "display": "pT2 - Union for International Cancer Control pT2 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352533005",
+                "display": "pT3 - Union for International Cancer Control pT3 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352538001",
+                "display": "pT4a - Union for International Cancer Control pT4a (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352561004",
+                "display": "pT4b - Union for International Cancer Control pT4b (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352540006",
+                "display": "pT4c - Union for International Cancer Control pT4c (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352557005",
+                "display": "pT4d - Union for International Cancer Control pT4d (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352553009",
+                "display": "pT4 - Union for International Cancer Control pT4 (qualifier value)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "coding",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "4320251415525",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "384625004",
+              "display": "pT category (observable entity)"
+            }
+          ],
+          "text": "Recurrent pathological primary tumor (rpT) - pT category (observable entity)",
+          "enableWhen": [
+            {
+              "question": "9550595026931",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "421188008",
+                "display": "r - Tumor staging descriptor r (tumor staging)"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": false,
+          "readOnly": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352688000",
+                "display": "rpTX - Union for International Cancer Control rpTX (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352699003",
+                "display": "rpT0 - Union for International Cancer Control rpT0 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352698006",
+                "display": "rpT1 - Union for International Cancer Control rpT1 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352669007",
+                "display": "rpT1a - Union for International Cancer Control rpT1a (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352687005",
+                "display": "rpT1b - Union for International Cancer Control rpT1b (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352692007",
+                "display": "rpT1c - Union for International Cancer Control rpT1c (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352678001",
+                "display": "rpT2 - Union for International Cancer Control rpT2 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352668004",
+                "display": "rpT3 - Union for International Cancer Control rpT3 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352690004",
+                "display": "rpT4 - Union for International Cancer Control rpT4 (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352674004",
+                "display": "rpT4a - Union for International Cancer Control rpT4a (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352686001",
+                "display": "rpT4b - Union for International Cancer Control rpT4b (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352671007",
+                "display": "rpT4c - Union for International Cancer Control rpT4c (qualifier value)"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "1352691000",
+                "display": "rpT4d - Union for International Cancer Control rpT4d (qualifier value)"
+              }
+            }
+          ]
+        }
+      ],
+      "type": "group",
+      "linkId": "5575701008724",
+      "text": "Pathological staging",
+      "required": false,
+      "repeats": false,
+      "readOnly": false
+    }
+  ]
+}

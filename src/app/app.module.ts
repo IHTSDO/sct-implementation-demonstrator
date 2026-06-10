@@ -37,6 +37,8 @@ import { QuestionnairesMainComponent } from './questionnaires/questionnaires-mai
 import { ValidateQuestionnaireComponent } from './questionnaires/validate-questionnaire/validate-questionnaire.component';
 import { SnomedHubComponent } from './snomed-hub/snomed-hub.component';
 import { SvDemoComponent } from './sv-demo/sv-demo.component';
+import { CancerReportingComponent } from './cancer-reporting/cancer-reporting.component';
+import { ResponseDialogComponent } from './cancer-reporting/response-dialog/response-dialog.component';
 import { firebaseConfig } from '../environments/firebase.config';
 import { AllergiesModule } from './shared/allergies.module';
 import { AppMaterialModule } from './shared/app-material.module';
@@ -80,6 +82,8 @@ initializeApp(firebaseConfig);
     ValidateQuestionnaireComponent,
     SnomedHubComponent,
     SvDemoComponent,
+    CancerReportingComponent,
+    ResponseDialogComponent,
   ],
   imports: [
     BrowserModule,
