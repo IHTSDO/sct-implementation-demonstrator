@@ -124,6 +124,10 @@
     "fhirInternationalizer": {
       "name": "FHIR Resource Internationalizer",
       "description": "Upload a FHIR resource, replace extension codings with their closest International Edition ancestors, adapt concept displays to the language and terminology of your target edition, and find historical replacements for any inactive concepts."
+    },
+    "cancerReporting": {
+      "name": "Cancer Synoptic Reporting",
+      "description": "FHIR questionnaires for cancer synoptic reporting, developed in collaboration between SNOMED International and ICCR (International Collaboration on Cancer Reporting)."
     }
   }
 }

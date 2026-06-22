@@ -124,6 +124,10 @@
     "fhirInternationalizer": {
       "name": "Internacionalizador de Recursos FHIR",
       "description": "Carga un recurso FHIR, reemplaza las codificaciones de extensiones por sus ancestros más cercanos de la Edición Internacional, adapta los textos de visualización de conceptos al idioma y terminología de tu edición de destino, y encuentra reemplazos históricos para cualquier concepto inactivo."
+    },
+    "cancerReporting": {
+      "name": "Reporte Sinóptico de Cáncer",
+      "description": "Cuestionarios FHIR para reporte sinóptico de cáncer, desarrollados en colaboración entre SNOMED International y la ICCR (Colaboración Internacional en Reporte de Cáncer)."
     }
   }
 }

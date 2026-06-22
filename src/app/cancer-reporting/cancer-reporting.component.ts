@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTabGroup } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
+import { saveAs } from 'file-saver';
 
 declare var LForms: any;
 import { LformsService } from '../services/lforms.service';
@@ -34,7 +34,7 @@ const QUESTIONNAIRES: CancerQuestionnaire[] = [
   { filename: 'Melanoma.R5_20250611.json',            title: 'Melanoma',            description: 'Synoptic reporting form example for melanoma',            iconCategory: 'conditions', iconName: 'skin-cancer',           color: '#795548' },
   { filename: 'Pancreas-Cancer.R5_20250611.json',     title: 'Pancreas Cancer',     description: 'Synoptic reporting form example for pancreas cancer',     iconCategory: 'conditions', iconName: 'pancreatic-cancer',     color: '#9c27b0' },
   { filename: 'Stomach-cancer.R5_20250611.json',      title: 'Stomach Cancer',      description: 'Synoptic reporting form example for stomach cancer',      iconCategory: 'conditions', iconName: 'stomach-cancer',        color: '#f44336' },
-  { filename: 'Testis_-Orchiectomy.R5_20250611.json', title: 'Testis: Orchiectomy', description: 'Synoptic reporting form example for testis orchiectomy',  iconCategory: 'body',       iconName: 'testicles',             color: '#2196f3' },
+  { filename: 'Testis_-Orchiectomy.R5_20250611.json', title: 'Testicular Cancer',   description: 'Synoptic reporting form example for testicular cancer',  iconCategory: 'body',       iconName: 'testicles',             color: '#2196f3' },
 ];
 
 @Component({
@@ -51,9 +51,6 @@ export class CancerReportingComponent implements OnInit {
   codingDataSource = new MatTableDataSource<SnomedEntry>([]);
   codingColumns = ['type', 'text', 'code'];
 
-  @ViewChild('codingPaginator') set codingPaginator(p: MatPaginator) {
-    if (p) this.codingDataSource.paginator = p;
-  }
   @ViewChild('previewTabs') previewTabs!: MatTabGroup;
 
   constructor(private http: HttpClient, private lformsService: LformsService, private dialog: MatDialog) {}
@@ -118,6 +115,12 @@ export class CancerReportingComponent implements OnInit {
       height: '84vh',
       data: { title: this.selected!.title, responseJson: JSON.stringify(qr, null, 2) }
     });
+  }
+
+  downloadQuestionnaire() {
+    const json = JSON.stringify(this.questionnaire, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    saveAs(blob, this.selected!.filename);
   }
 
   backToGallery() {

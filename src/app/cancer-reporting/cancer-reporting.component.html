@@ -84,6 +84,10 @@
       </button>
       <h3 class="preview-title">{{ selected.title }}</h3>
       <mat-chip class="draft-chip">Draft</mat-chip>
+      <span class="preview-header-spacer"></span>
+      <button mat-stroked-button [disabled]="!questionnaire" (click)="downloadQuestionnaire()" matTooltip="Download FHIR Questionnaire JSON">
+        <mat-icon>download</mat-icon> Download
+      </button>
     </div>
 
     <div class="draft-banner">
@@ -159,8 +163,6 @@
               <mat-row *matRowDef="let row; columns: codingColumns;"
                        [class.question-row]="row.type === 'question'"></mat-row>
             </mat-table>
-            <mat-paginator #codingPaginator [pageSize]="15" [pageSizeOptions]="[15, 30, 50]"
-                           showFirstLastButtons></mat-paginator>
           </div>
         </mat-tab>
 

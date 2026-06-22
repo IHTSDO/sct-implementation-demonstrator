@@ -214,6 +214,14 @@ export class MenuService {
       type: "internal",
       url: "/fhir-internationalizer",
       description: "Upload a FHIR resource, replace extension codings with their closest International Edition ancestors, adapt concept displays to the language and terminology of your target edition, and find historical replacements for any inactive concepts."
+    },
+    {
+      key: "cancerReporting",
+      name: "Cancer Synoptic Reporting",
+      subtitle: "clinicalDemo",
+      type: "internal",
+      url: "/cancer-reporting",
+      description: "FHIR questionnaires for cancer synoptic reporting, developed in collaboration between SNOMED International and ICCR (International Collaboration on Cancer Reporting)."
     }
 
   ];
