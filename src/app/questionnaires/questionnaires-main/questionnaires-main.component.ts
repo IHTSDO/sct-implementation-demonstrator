@@ -153,18 +153,28 @@ export class QuestionnairesMainComponent implements OnInit{
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const jsonData = JSON.parse(e.target?.result as string);
           if (jsonData.resourceType === "Questionnaire") {
-            this.loadQuestionnaire(jsonData);
-              setTimeout(() => {
-                if (this.mode === "Manager") {
+            const version = this.lformsService.detectVersion(jsonData);
+            let questionnaire = jsonData;
+            if (version !== 'R4') {
+              this._snackBar.openFromComponent(SnackAlertComponent, {
+                duration: 3 * 1000,
+                data: `Converting ${version} questionnaire to R4...`,
+                panelClass: ['green-snackbar']
+              });
+              questionnaire = await this.lformsService.convertToR4(jsonData);
+            }
+            this.loadQuestionnaire(questionnaire);
+            setTimeout(() => {
+              if (this.mode === "Manager") {
                 this.postCurrentQuestionnaire();
-                } else {
-                  this.tabGroup.selectedIndex = 1;
-                }
-              }, 1000);
+              } else {
+                this.tabGroup.selectedIndex = 1;
+              }
+            }, 1000);
           } else {
             this._snackBar.openFromComponent(SnackAlertComponent, {
               duration: 5 * 1000,
@@ -242,7 +252,7 @@ export class QuestionnairesMainComponent implements OnInit{
     }
   }
 
-  saveQuestionnaire(questionnaire: any) {
+  saveQuestionnaire(questionnaire: any, isRetry = false) {
     if (!questionnaire) {
       this._snackBar.openFromComponent(SnackAlertComponent, {
         duration: 5 * 1000,
@@ -294,6 +304,9 @@ export class QuestionnairesMainComponent implements OnInit{
           data: "Error saving questionnaire",
           panelClass: ['red-snackbar']
         });
+        if (isRetry) {
+          return;
+        }
         const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
           width: '400px',
           data: {
@@ -301,12 +314,11 @@ export class QuestionnairesMainComponent implements OnInit{
             message: 'This could be an ID conflict. Post again as a new questionnaire?'
           }
         });
-    
+
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
-            // remove id from the questionnaire object
             delete questionnaire.id;
-            this.saveQuestionnaire(questionnaire);
+            this.saveQuestionnaire(questionnaire, true);
           } else {
             this._snackBar.openFromComponent(SnackAlertComponent, {
               duration: 5 * 1000,

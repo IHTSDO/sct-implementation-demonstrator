@@ -1,29 +1,63 @@
-.form-container {
-    margin: auto; /* Centers the form container */
-    padding: 20px; /* Optional padding for aesthetics */
-  }
-  
-  mat-form-field {
-    width: 100%; /* Makes each form field occupy full width */
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* Adjusts the space between form fields */
-  }
-  
-  .button-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end; /* This will align the items to the right */
-    gap: 1rem;
-    margin-right: 2rem;
-    align-items: center;
-  }
+.description {
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 16px;
+}
 
-  .warning {
-    color: rgb(255, 149, 0);
-    font-weight: lighter;
-    font-style: italic;
-  }
+.warning-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: #fff8e1;
+  border-left: 4px solid #f9a825;
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+}
+
+.warning-card p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #5d4037;
+  line-height: 1.4;
+}
+
+.warning-icon {
+  color: #f9a825;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 420px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-dialog-actions {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px 16px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.default-server-btn {
+  font-size: 0.8rem;
+}
+
+.default-server-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}

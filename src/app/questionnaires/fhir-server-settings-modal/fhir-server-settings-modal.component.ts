@@ -34,6 +34,10 @@ export class FhirServerSettingsModalComponent implements OnInit {
     this.userTag = this.fhirService.getUserTag();
   }
 
+  useDefaultServer() {
+    this.baseUrl = 'http://hapi.fhir.org/baseR4';
+  }
+
   updateSettings() {
     if (this.settingsForm.valid) {
       this.fhirService.setBaseUrl(this.baseUrl);

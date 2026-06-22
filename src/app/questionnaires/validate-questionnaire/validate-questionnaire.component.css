@@ -54,10 +54,25 @@
     border-radius: 20px;
     text-align: center;
     font-weight: bold;
-    /* display: inline-block; */
     font-size: 0.9rem;
     margin-right: 2rem;
     float: right;
+    cursor: pointer;
+    transition: opacity 0.2s, outline 0.2s;
+    user-select: none;
+  }
+
+  .mini-pill:hover {
+    opacity: 0.85;
+  }
+
+  .mini-pill.filter-active {
+    outline: 3px solid rgba(0, 0, 0, 0.4);
+    outline-offset: 2px;
+  }
+
+  .mini-pill.filter-dim {
+    opacity: 0.4;
   }
   
 /* Styles for different pill types */

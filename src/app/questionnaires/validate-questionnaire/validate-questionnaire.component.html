@@ -25,13 +25,13 @@
   <p  class="header" id="tab-header">
     <b>Questionnaire:</b> {{questionnaire.title}} (<i>{{questionnaire.url}}</i>) - <span class="bindingsCount">{{dataSource.data.length}} bindings</span> - - Version: {{ questionnaire.meta.versionId }} ({{ questionnaire.meta.lastUpdated | date:'fullDate' }})
     @if (loadResults.total > 0) {
-      <span class="mini-pill Error">Error: {{loadResults.error}}</span>
+      <span class="mini-pill Error" [class.filter-active]="activeFilter === 'Error'" [class.filter-dim]="activeFilter && activeFilter !== 'Error'" (click)="toggleFilter('Error')" matTooltip="Filter by errors">Error: {{loadResults.error}}</span>
     }
     @if (loadResults.total > 0) {
-      <span class="mini-pill Inactive">Inactive: {{loadResults.inactive}}</span>
+      <span class="mini-pill Inactive" [class.filter-active]="activeFilter === 'Inactive'" [class.filter-dim]="activeFilter && activeFilter !== 'Inactive'" (click)="toggleFilter('Inactive')" matTooltip="Filter by inactive">Inactive: {{loadResults.inactive}}</span>
     }
     @if (loadResults.total > 0) {
-      <span class="mini-pill Active">Active: {{loadResults.active}}</span>
+      <span class="mini-pill Active" [class.filter-active]="activeFilter === 'Active'" [class.filter-dim]="activeFilter && activeFilter !== 'Active'" (click)="toggleFilter('Active')" matTooltip="Filter by active">Active: {{loadResults.active}}</span>
     }
   </p>
 }

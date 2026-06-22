@@ -37,8 +37,12 @@ export class ValidateQuestionnaireComponent implements OnChanges {
   };
 
   requiresSave = false;
+  activeFilter: string | null = null;
 
-  constructor(private terminologyService: TerminologyService, private _snackBar: MatSnackBar) { }
+  constructor(private terminologyService: TerminologyService, private _snackBar: MatSnackBar) {
+    this.dataSource.filterPredicate = (data: any, filter: string) =>
+      !filter || data.status === filter;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['questionnaire']) {
@@ -53,6 +57,8 @@ export class ValidateQuestionnaireComponent implements OnChanges {
   clearQuestionnaire() {
     this.questionnaire = null;
     this.dataSource.data = [];
+    this.dataSource.filter = '';
+    this.activeFilter = null;
     this.orderCounter = 0;
     this.validatingProgress = 0;
     this.loadResults = {
@@ -76,6 +82,11 @@ export class ValidateQuestionnaireComponent implements OnChanges {
     }, 700);
   }
 
+  toggleFilter(status: string) {
+    this.activeFilter = this.activeFilter === status ? null : status;
+    this.dataSource.filter = this.activeFilter ?? '';
+  }
+
   validate() {
     this.loadResults = {
       total: 0,
@@ -97,7 +108,7 @@ export class ValidateQuestionnaireComponent implements OnChanges {
       count++;
       this.validatingProgress = Math.round((count / length) * 100);
       try {
-        const data = await this.terminologyService.lookupConcept(item.code, item.system).pipe(first()).toPromise();
+        const data = await this.terminologyService.lookupConcept(item.code, item.system, true).pipe(first()).toPromise();
         let designations: string[] = [];
         let fsn: string = "";
         for (const param of data.parameter) {
@@ -152,7 +163,7 @@ export class ValidateQuestionnaireComponent implements OnChanges {
 
   async getHistoricalAssociationsTarget(mapId: string, code: string) {
     let result: any[] = [];
-    const response = this.terminologyService.translate(mapId, code);
+    const response = this.terminologyService.translate(mapId, code, undefined, true);
     let lastValue = await lastValueFrom(response.pipe(map(res => res)));
     if (lastValue.parameter) {
       for (const parameter of lastValue.parameter) {

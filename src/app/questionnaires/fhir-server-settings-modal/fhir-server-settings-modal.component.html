@@ -1,10 +1,15 @@
-<div class="form-container">
-  <h2>FHIR Server Connection</h2>
-  <p>Manager mode allows you to store questionnares in a FHIR Server. Enter the FHIR server URL and your <b>User Tag</b>, this value will be used to identify your questionnaires.</p>
-  <p class="warning">Warning: using the default public FHIR server will not ensure the persistence of your information, always save your questionnaires to your computer as a backup.</p>
-  <form (ngSubmit)="updateSettings()" #settingsForm="ngForm">
+<h2 mat-dialog-title>FHIR Server Connection</h2>
 
-    <mat-form-field>
+<mat-dialog-content>
+  <p class="description">Manager mode allows you to store questionnaires in a FHIR Server. Enter the FHIR server URL and your <strong>User Tag</strong> — this value will be used to identify your questionnaires.</p>
+
+  <div class="warning-card">
+    <mat-icon class="warning-icon">warning</mat-icon>
+    <p>Using a public FHIR server does not guarantee persistence. Always save your questionnaires locally as a backup.</p>
+  </div>
+
+  <form (ngSubmit)="updateSettings()" #settingsForm="ngForm" id="settings-form">
+    <mat-form-field appearance="outline">
       <mat-label>Base URL of the FHIR Server</mat-label>
       <input matInput [(ngModel)]="baseUrl" name="baseUrl" required #baseUrlField="ngModel">
       @if (baseUrlField.invalid && baseUrlField.touched) {
@@ -12,18 +17,22 @@
       }
     </mat-form-field>
 
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-label>User Tag</mat-label>
       <input matInput [(ngModel)]="userTag" name="userTag" required minlength="3" #userTagField="ngModel">
       @if (userTagField.invalid && userTagField.touched) {
         <mat-error>User Tag is required and must be at least 3 characters</mat-error>
       }
     </mat-form-field>
-
-    <div class="button-container">
-      <button mat-flat-button color="accent" type="submit" [disabled]="!settingsForm.valid">Open FHIR Repository</button>
-      <button mat-flat-button color="primary" mat-dialog-close>Close</button>
-    </div>
   </form>
-</div>
+</mat-dialog-content>
 
+<mat-dialog-actions>
+  <button mat-stroked-button type="button" (click)="useDefaultServer()" class="default-server-btn">
+    <mat-icon>restore</mat-icon>
+    Use Default Server
+  </button>
+  <span class="spacer"></span>
+  <button mat-button mat-dialog-close>Close</button>
+  <button mat-flat-button color="accent" type="submit" form="settings-form" [disabled]="!settingsForm.valid">Open FHIR Repository</button>
+</mat-dialog-actions>

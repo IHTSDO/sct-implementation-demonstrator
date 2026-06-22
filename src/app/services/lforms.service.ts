@@ -50,6 +50,15 @@ export class LformsService {
     this.loadCore();
   }
 
+  async convertToR4(questionnaire: any): Promise<any> {
+    const version = this.detectVersion(questionnaire);
+    if (version === 'R4') return questionnaire;
+    await this.loadPlugin('R5');
+    const lformsData = LForms.Util.convertFHIRQuestionnaireToLForms(questionnaire, 'R5');
+    await this.loadPlugin('R4');
+    return LForms.Util.getFormFHIRData('Questionnaire', 'R4', lformsData);
+  }
+
   async renderQuestionnaire(questionnaire: any, containerId: string): Promise<void> {
     if (!questionnaire || Object.keys(questionnaire).length === 0) {
       await this.loadCore();

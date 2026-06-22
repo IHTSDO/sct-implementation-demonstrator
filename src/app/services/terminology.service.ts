@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
+import { catchError, finalize, map, Observable, of, shareReplay, tap, throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 import { BehaviorSubject } from 'rxjs';
@@ -511,7 +511,7 @@ export class TerminologyService {
       }
     }
 
-  translate(conceptMapId: string, code: string, system?: string) {
+  translate(conceptMapId: string, code: string, system?: string, silent = false) {
     if (!system) system = this.defaultFhirUrlParam;
     let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?url=http://snomed.info/sct?fhir_cm=${conceptMapId}&code=${code}&system=${system}`;
     const headers = new HttpHeaders({
@@ -519,7 +519,7 @@ export class TerminologyService {
     });
     return this.http.get<any>(requestUrl, { headers })
       .pipe(
-        catchError(this.handleError<any>('translate', {}))
+        catchError(silent ? (err) => throwError(() => err) : this.handleError<any>('translate', {}))
       );
   }
 
@@ -699,7 +699,7 @@ export class TerminologyService {
 
   private conceptCache = new Map<string, any>();
 
-  lookupConcept(conceptId: string, version?: string) {
+  lookupConcept(conceptId: string, version?: string, silent = false) {
     if (!version) version = this.fhirUrlParam;
     const cacheKey = `${version}:${conceptId}`;
     const cachedConcept = this.conceptCache.get(cacheKey);
@@ -710,18 +710,17 @@ export class TerminologyService {
     if (version != 'http://snomed.info/sct') {
       requestUrl += `&version=${version}`;
     }
-    // Define HttpHeaders, including Accept-Language
     const httpOptions = {
       headers: new HttpHeaders({
-        'Accept-Language': this.lang // Set the desired language here
+        'Accept-Language': this.lang
       })
     };
-  
-    return this.http.get<any>(requestUrl, httpOptions).pipe( // Add httpOptions to the request
+
+    return this.http.get<any>(requestUrl, httpOptions).pipe(
       tap((concept: any) => {
         this.conceptCache.set(cacheKey, concept);
       }),
-      catchError(this.handleError<any>('lookupConcept', {}))
+      catchError(silent ? (err) => throwError(() => err) : this.handleError<any>('lookupConcept', {}))
     );
   }
   
