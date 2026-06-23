@@ -1,54 +1,148 @@
 <div class="main-panel" *transloco="let t; scope: 'home'; prefix: 'home'">
-  <h1>{{ t('ui.title') }}</h1>
-  <p class="intro">{{ t('ui.intro1Before') }}<a href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" (click)="trackExternalLinkClick('https://github.com/IHTSDO/sct-implementation-demonstrator', 'GitHub Repository', $event)">{{ t('ui.intro1Link') }}</a>{{ t('ui.intro1After') }}</p>
-  <p class="intro">{{ t('ui.intro2Before') }}<a href="https://confluence.ihtsdotools.org/display/CP/Clinical+Engagement" target="_blank" (click)="trackExternalLinkClick('https://confluence.ihtsdotools.org/display/CP/Clinical+Engagement', 'SNOMED CT Community', $event)">{{ t('ui.intro2Link') }}</a>{{ t('ui.intro2After') }}</p>
 
-  <!-- Filter Row -->
-  <div class="filter-panel">
-    <span class="demo-count">{{ getFilteredCount() === 1 ? t('ui.demoShown') : t('ui.demosShown', { count: getFilteredCount() }) }}</span>
-    <div class="badge-container">
-      @for (subtype of uniqueSubtypes; track subtype) {
-        <span
-          class="subtype-badge"
-          [class.active]="selectedSubtype === subtype"
-          (click)="onSubtypeClick(subtype)">
-          {{ t('subtitles.' + subtype) }} <span class="badge-count">({{ getSubtypeCount(subtype) }})</span>
-        </span>
-      }
+  <div class="page-header">
+    <h1>{{ t('ui.title') }}</h1>
+    <div class="filter-bar">
+      <div class="badge-container">
+        @for (subtype of uniqueSubtypes; track subtype) {
+          <span
+            class="subtype-badge"
+            [class.active]="selectedSubtype === subtype"
+            [style.--badge-color]="getSectionColor(subtype)"
+            (click)="onSubtypeClick(subtype)">
+            {{ t('subtitles.' + subtype) }}
+          </span>
+        }
+      </div>
+      <div class="search-wrap" [class.search-active]="searchText">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          class="search-input"
+          type="text"
+          [(ngModel)]="searchText"
+          (input)="onSearchChange()"
+          [placeholder]="t('ui.filterPlaceholder')">
+        @if (searchText) {
+          <button class="search-clear" (click)="clearFilters()" aria-label="Clear">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
     </div>
-    @if (hasActiveFilters()) {
-      <button
-        mat-button
-        class="clear-filters-btn"
-        (click)="clearFilters()">
-        {{ t('ui.removeFilters') }}
-      </button>
-    }
-    <mat-form-field class="search-field" appearance="fill">
-      <input matInput [(ngModel)]="searchText" (input)="onSearchChange()" [placeholder]="t('ui.filterPlaceholder')">
-      <mat-icon matPrefix>search</mat-icon>
-    </mat-form-field>
   </div>
 
-  <div class="demos-panel">
-    @for (demo of filteredDemos; track demo) {
-      <div class="demo-card-wrapper">
-        <mat-card class="demo-card">
-          <mat-card-header>
-            <mat-card-subtitle>{{ t('subtitles.' + demo.subtitle) }}</mat-card-subtitle>
-            <mat-card-title>{{ t('menu.' + demo.key + '.name') }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <p>{{ t('menu.' + demo.key + '.description') }}</p>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-button color="accent" (click)="navigate(demo)">{{ t('ui.openButton') }}</button>
-          </mat-card-actions>
-        </mat-card>
+  <p class="intro">{{ t('ui.intro1Before') }}<a href="https://github.com/IHTSDO/sct-implementation-demonstrator" target="_blank" (click)="trackExternalLinkClick('https://github.com/IHTSDO/sct-implementation-demonstrator', 'GitHub Repository', $event)">{{ t('ui.intro1Link') }}</a>{{ t('ui.intro1After') }}</p>
+
+  @if (!hasActiveFilters()) {
+
+    <!-- Featured / Highlighted -->
+    <div class="section" [style.--accent]="getSectionColor('highlighted')">
+      <div class="section-header">
+        <mat-icon class="section-icon">{{ getSectionIcon('highlighted') }}</mat-icon>
+        <span class="section-title">{{ t('subtitles.highlighted') }}</span>
+        <span class="section-count">{{ highlightedDemos.length }}</span>
+      </div>
+      <div class="tiles-grid tiles-featured">
+        @for (demo of highlightedDemos; track demo.key) {
+          <div class="tile tile-featured" (click)="navigate(demo)" role="button" tabindex="0" (keyup.enter)="navigate(demo)">
+            <div class="tile-top">
+              @if (isNew(demo)) { <span class="new-dot"></span> }
+              @if (demo.type === 'external') { <mat-icon class="ext-icon">open_in_new</mat-icon> }
+            </div>
+            <div class="tile-title">{{ t('menu.' + demo.key + '.name') }}</div>
+            <div class="tile-desc">{{ t('menu.' + demo.key + '.description') }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recently Added -->
+    @if (newDemos.length > 0) {
+      <div class="section" [style.--accent]="getSectionColor('recentlyAdded')">
+        <div class="section-header">
+          <mat-icon class="section-icon">{{ getSectionIcon('recentlyAdded') }}</mat-icon>
+          <span class="section-title">{{ t('subtitles.recentlyAdded') }}</span>
+          <span class="section-count">{{ newDemos.length }}</span>
+        </div>
+        <div class="tiles-grid">
+          @for (demo of newDemos; track demo.key) {
+            <div class="tile tile-new" (click)="navigate(demo)" role="button" tabindex="0" (keyup.enter)="navigate(demo)">
+              <div class="tile-top">
+                <span class="new-badge">New</span>
+                <span class="tile-category">{{ t('subtitles.' + demo.subtitle) }}</span>
+                @if (demo.type === 'external') { <mat-icon class="ext-icon">open_in_new</mat-icon> }
+              </div>
+              <div class="tile-title">{{ t('menu.' + demo.key + '.name') }}</div>
+              <div class="tile-desc">{{ t('menu.' + demo.key + '.description') }}</div>
+            </div>
+          }
+        </div>
       </div>
     }
-  </div>
-  <div class="center-image">
+
+    <!-- Category sections -->
+    @for (category of demosByCategory; track category.subtitle) {
+      <div class="section" [style.--accent]="getSectionColor(category.subtitle)">
+        <div class="section-header">
+          <mat-icon class="section-icon">{{ getSectionIcon(category.subtitle) }}</mat-icon>
+          <span class="section-title">{{ t('subtitles.' + category.subtitle) }}</span>
+          <span class="section-count">{{ category.demos.length }}</span>
+        </div>
+        <div class="tiles-grid">
+          @for (demo of category.demos; track demo.key) {
+            <div class="tile tile-sectioned" (click)="navigate(demo)" role="button" tabindex="0" (keyup.enter)="navigate(demo)">
+              <div class="tile-top">
+                @if (isNew(demo)) { <span class="new-dot"></span> }
+                <span class="tile-top-spacer"></span>
+                @if (demo.highlighted) { <mat-icon class="star-icon">star</mat-icon> }
+                @if (demo.type === 'external') { <mat-icon class="ext-icon">open_in_new</mat-icon> }
+              </div>
+              <div class="tile-title">{{ t('menu.' + demo.key + '.name') }}</div>
+              <div class="tile-desc">{{ t('menu.' + demo.key + '.description') }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  } @else {
+
+    <!-- Search / filter results -->
+    <div class="search-results-header">
+      <span>{{ getFilteredCount() === 1 ? t('ui.demoShown') : t('ui.demosShown', { count: getFilteredCount() }) }}</span>
+      <button mat-button class="clear-btn" (click)="clearFilters()">{{ t('ui.removeFilters') }}</button>
+    </div>
+    @if (filteredDemos.length === 0) {
+      <p class="no-results">No demos match your search.</p>
+    }
+    @for (group of filteredDemosByCategory; track group.subtitle) {
+      <div class="section" [style.--accent]="getSectionColor(group.subtitle)">
+        <div class="section-header">
+          <mat-icon class="section-icon">{{ getSectionIcon(group.subtitle) }}</mat-icon>
+          <span class="section-title">{{ t('subtitles.' + group.subtitle) }}</span>
+          <span class="section-count">{{ group.demos.length }}</span>
+        </div>
+        <div class="tiles-grid">
+          @for (demo of group.demos; track demo.key) {
+            <div class="tile tile-sectioned" (click)="navigate(demo)" role="button" tabindex="0" (keyup.enter)="navigate(demo)">
+              <div class="tile-top">
+                @if (isNew(demo)) { <span class="new-dot"></span> }
+                <span class="tile-top-spacer"></span>
+                @if (demo.highlighted) { <mat-icon class="star-icon">star</mat-icon> }
+                @if (demo.type === 'external') { <mat-icon class="ext-icon">open_in_new</mat-icon> }
+              </div>
+              <div class="tile-title">{{ t('menu.' + demo.key + '.name') }}</div>
+              <div class="tile-desc">{{ t('menu.' + demo.key + '.description') }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  }
+
+  <div class="footer">
     <img src="assets/img/SI_CT_Logo_Delivered_By.png" alt="SNOMED Logo" class="transparent-image">
   </div>
+
 </div>

@@ -1,133 +1,132 @@
 {
   "ui": {
     "title": "SNOMED CT Implementation Demonstrators",
-    "intro1Before": "Welcome to our collection of SNOMED CT Implementation Demonstrators! This curated selection of demos showcases the diverse ways SNOMED CT can be implemented across different use cases. Each demonstration is ",
-    "intro1Link": "open source",
-    "intro1After": ", free to explore, and easy to replicate, providing a hands-on learning experience for developers, implementers, and healthcare professionals.",
-    "intro2Before": "These implementation demos have been created through the collaboration and expertise of the ",
-    "intro2Link": "global SNOMED CT community of clinical experts",
-    "intro2After": ", reflecting best practices and innovative use cases. Whether you're just getting started with SNOMED CT or looking to deepen your understanding, you'll find valuable insights here. Explore, learn, and join us in advancing healthcare interoperability.",
+    "intro1Before": "A curated collection of open-source SNOMED CT implementation demos. Each is ",
+    "intro1Link": "free to explore on GitHub",
+    "intro1After": ", and designed for developers, implementers, and healthcare professionals.",
     "demoShown": "1 demo shown",
     "demosShown": "{{count}} demos shown",
     "removeFilters": "Remove filters",
-    "filterPlaceholder": "Type to filter...",
+    "filterPlaceholder": "Search demos...",
     "openButton": "OPEN"
   },
   "subtitles": {
-    "clinicalDemo": "Clinical demo",
+    "highlighted": "Featured Demos",
+    "recentlyAdded": "Recently Added",
+    "clinicalDemo": "Clinical Demo",
     "tool": "Tool",
-    "learningDemo": "Learning demo",
+    "learningDemo": "Learning Demo",
     "game": "Game",
-    "analyticsDemo": "Analytics demo"
+    "analyticsDemo": "Analytics Demo"
   },
   "menu": {
     "encountersUiDemo": {
       "name": "Encounters UI Demo",
-      "description": "A simulation of clinical data entry for clinical encounters SNOMED FHIR Terminology services. The classic SNOMED UI Demo."
+      "description": "Classic simulation of clinical data entry using SNOMED FHIR terminology services."
     },
     "ehrLab": {
       "name": "SNOMED EHR Lab",
-      "description": "A complete EHR simulation with generated persistent patients, clinical, dental, and nursing records, AI-assisted entry, CDS, analytics, interoperability tools, and Smart Health Links powered by FHIR and SNOMED CT."
+      "description": "Full EHR simulation with AI-assisted entry, CDS, analytics, and FHIR Smart Health Links."
     },
     "allergies": {
       "name": "Allergies",
-      "description": "A SNOMED / FHIR implementation demo of recording Allergy / Intolerance details, from Allergies Clinical Reference Group"
+      "description": "Record allergy and intolerance details using SNOMED CT and FHIR resources."
     },
     "loincSnomed": {
       "name": "LOINC & SNOMED CT",
-      "description": "A LOINC Ontology implementation demo, covering laboratory orders, results and FHIR resources."
+      "description": "Laboratory orders and results using LOINC ontology integrated with SNOMED CT."
     },
     "ncptRefset": {
       "name": "NCPT Refset",
-      "description": "A clinical demonstration of the NCPT (Nutrition Care Process Terminology) reference set."
+      "description": "Demonstrates the NCPT (Nutrition Care Process Terminology) reference set."
     },
     "maturityFramework": {
       "name": "Implementation Maturity Framework",
-      "description": "An online maturity assessment tool and a dashboard for compiling and analyzing collections of maturity results."
+      "description": "Online assessment tool and dashboard for SNOMED CT implementation maturity."
     },
     "bindingsSandbox": {
       "name": "Terminology Bindings Sandbox",
-      "description": "A sandbox for learning and testing terminology bindings"
+      "description": "Interactive sandbox for learning and testing SNOMED CT terminology bindings."
     },
     "snomedMaps": {
       "name": "SNOMED Maps Demonstrator",
-      "description": "A SNOMED / ICD-10 maps demonstration, including complex map rules execution"
+      "description": "Maps SNOMED CT concepts to ICD-10 and ICD-11, including complex mapping rules."
     },
     "postcoordination": {
       "name": "Post-coordination Demonstrator",
-      "description": "A SNOMED post-coordination demonstration, with new prototype Postcoordination Terminology server SNOWSTORM X"
+      "description": "SNOMED CT post-coordination demo using the prototype SNOWSTORM X terminology server."
     },
     "ipsTerminology": {
       "name": "IPS Terminology Demonstrator",
-      "description": "A demonstration of the International Patient Summary (IPS) terminology, including the IPS SNOMED CT refset"
+      "description": "Explores International Patient Summary (IPS) terminology and the IPS SNOMED CT refset."
     },
     "questionnairesManager": {
-      "name": "SNOMED & FHIR Questionnaires Manager Application",
-      "description": "An application to manage a FHIR Questionnaires repository, with SNOMED CT bindings"
+      "name": "SNOMED & FHIR Questionnaires Manager",
+      "description": "Manage a FHIR Questionnaires repository with SNOMED CT coded bindings."
     },
     "questionnairesUtilities": {
       "name": "SNOMED & FHIR Questionnaires Utilities",
-      "description": "Utilities for working with FHIR Questionnaires, including SNOMED CT bindings"
+      "description": "Utilities for editing and validating FHIR Questionnaires with SNOMED CT bindings."
     },
     "contextTransformations": {
       "name": "Context Representation Transformations",
-      "description": "A demonstration of the transformation of context representations from SNOMED to FHIR Resources"
+      "description": "Transform clinical context representations between SNOMED CT and FHIR resources."
     },
     "snomedLlms": {
       "name": "SNOMED and LLMs (AI Demo)",
-      "description": "This demo uses OpenAI ChatGPT API to demonstrate the use of SNOMED CT with Language Model Models (LLMs). A developer key for the OpenAI API is required."
+      "description": "Demonstrates SNOMED CT paired with LLMs via the OpenAI ChatGPT API."
     },
     "snoguess": {
-      "name": "Snoguess (A SNOMED game)",
-      "description": "A SNOMED term guessing game, learn about SNOMED content while having fun and competing to achieve the highest score"
+      "name": "Snoguess",
+      "description": "Guess SNOMED CT terms and compete for the highest score."
     },
     "roadmapGenerator": {
       "name": "SNOMED Implementation Roadmap Generator",
-      "description": "A tool designed to promote and support the creation of implementation roadmaps for the adoption of SNOMED CT in countries, regions or organizations."
+      "description": "Create SNOMED CT adoption roadmaps for countries, regions, or organizations."
     },
     "evolvingTerminology": {
       "name": "SNOMED CT as an Evolving Terminology",
-      "description": "A collection of educational material and changes reports to understand how SNOMED changes on each release and help plan implementations accordingly."
+      "description": "Release change reports and educational material for SNOMED CT implementers."
     },
     "descriptiveAnalytics": {
-      "name": "Descriptive analytics demo",
-      "description": "A demo of descriptive analytics for SNOMED CT, including a treemap visualization with nested boxes for hierarchical data exploration."
+      "name": "Descriptive Analytics",
+      "description": "Treemap and hierarchical analytics for exploring SNOMED CT content and structure."
     },
     "integrationsHub": {
       "name": "SNOMED Integrations Hub",
-      "description": "A demonstration of SNOMED CT integrations with live data. Navigate the integrations hub to explore the different integrations with other classifications, terminologies, and code systems."
+      "description": "Explore SNOMED CT integrations with ICD, LOINC, and other classifications and code systems."
     },
     "valueSetUtility": {
       "name": "ValueSet Utility",
-      "description": "A utility for transforming SNOMED CT value sets from non-standard formats (Excel, CSV, Snap2SNOMED maps) into standards-compliant FHIR ValueSet resources and packages."
+      "description": "Convert SNOMED CT value sets from Excel or CSV into FHIR ValueSet packages."
     },
     "extensionsSearch": {
       "name": "Extensions Search Utility",
-      "description": "A utility for running ECL searches across the latest SNOMED CT extensions and comparing concept matches by edition."
+      "description": "Run ECL searches across SNOMED CT extensions and compare results by edition."
     },
     "snolytical": {
       "name": "Analytics with Snolytical",
-      "description": "A health data analytics demonstrator leveraging the SNOMED CT hierarchy. The demo shows how clinicians can get hands-on and engage with their SNOMED coded data directly, by building and running their own basic data-science reports."
+      "description": "Build health analytics reports from SNOMED CT coded data using Snolytical."
     },
     "mdrsViewer": {
       "name": "Module Dependency Reference Set Viewer",
-      "description": "A graphical viewer for the Module Dependency Reference Set (MDRS) that displays dependencies between SNOMED CT modules, showing which module versions depend on which other module versions."
+      "description": "Graphical viewer for dependencies between SNOMED CT module versions."
     },
     "drugStrengthRounding": {
       "name": "Drug Strength Rounding Rules",
-      "description": "A demonstration of drug strength rounding rules for significant figures in pharmaceutical calculations"
+      "description": "Demonstrates drug strength rounding rules for pharmaceutical calculations."
     },
     "medicinalProductClasses": {
       "name": "Medicinal Product Classes",
-      "description": "A terminology bindings demonstrator for medicinal product, clinical drug, and packaged clinical drug classes using reusable coding spec tabs."
+      "description": "Bindings demonstrator for medicinal product, clinical drug, and packaged drug classes."
     },
     "fhirInternationalizer": {
       "name": "FHIR Resource Internationalizer",
-      "description": "Upload a FHIR resource, replace extension codings with their closest International Edition ancestors, adapt concept displays to the language and terminology of your target edition, and find historical replacements for any inactive concepts."
+      "description": "Adapt FHIR resources to a target SNOMED CT edition, replacing codings and inactive concepts."
     },
     "cancerReporting": {
       "name": "Cancer Synoptic Reporting",
-      "description": "FHIR questionnaires for cancer synoptic reporting, developed in collaboration between SNOMED International and ICCR (International Collaboration on Cancer Reporting)."
+      "description": "FHIR questionnaires for cancer synoptic reporting, in collaboration with ICCR."
     }
   }
 }

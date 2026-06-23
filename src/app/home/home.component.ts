@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { GoogleAnalyticsService } from '../services/google-analytics.service';
@@ -9,19 +9,39 @@ import { GoogleAnalyticsService } from '../services/google-analytics.service';
     styleUrl: './home.component.css',
     standalone: false
 })
-export class HomeComponent implements OnInit{
+export class HomeComponent implements OnInit {
   allDemos: any[] = [];
   filteredDemos: any[] = [];
-  demoTypes: Record<string, number> = {};
   uniqueSubtypes: string[] = [];
   subtypeCounts: Record<string, number> = {};
   selectedSubtype: string | null = null;
   searchText: string = '';
   embeddedMode: boolean = false;
 
+
+  readonly sectionColors: Record<string, string> = {
+    highlighted:    '#1565c0',
+    recentlyAdded:  '#2e7d32',
+    clinicalDemo:   '#c62828',
+    learningDemo:   '#6a1b9a',
+    tool:           '#006064',
+    analyticsDemo:  '#e65100',
+    game:           '#ad1457'
+  };
+
+  readonly sectionIcons: Record<string, string> = {
+    highlighted:    'star',
+    recentlyAdded:  'new_releases',
+    clinicalDemo:   'medical_services',
+    learningDemo:   'school',
+    tool:           'build',
+    analyticsDemo:  'analytics',
+    game:           'sports_esports'
+  };
+
   constructor(
-    public router: Router, 
-    public route: ActivatedRoute, 
+    public router: Router,
+    public route: ActivatedRoute,
     private menuService: MenuService,
     private gaService: GoogleAnalyticsService
   ) { }
@@ -29,55 +49,63 @@ export class HomeComponent implements OnInit{
   ngOnInit(): void {
     this.allDemos = this.menuService.getDemos();
     this.filteredDemos = [...this.allDemos];
-    
+
     this.route.queryParams.subscribe(params => {
-      if (params['embedded'] === 'true') {
-        this.embeddedMode = true;
-      } else {
-        this.embeddedMode = false;
-      }
+      this.embeddedMode = params['embedded'] === 'true';
     });
-    
-    // Generate a list of all demo.type in demos with counts
-    this.demoTypes = this.allDemos.reduce((acc: any, demo: any) => {
-      if (!acc[demo.type]) {
-        acc[demo.type] = 0;
-      }
-      acc[demo.type]++;
-      return acc;
-    }, {});
-    
-    // Extract unique subtypes from subtitles and count them
+
     const subtypesSet = new Set<string>();
     this.subtypeCounts = {};
     this.allDemos.forEach(demo => {
       if (demo.subtitle) {
         subtypesSet.add(demo.subtitle);
-        if (!this.subtypeCounts[demo.subtitle]) {
-          this.subtypeCounts[demo.subtitle] = 0;
-        }
-        this.subtypeCounts[demo.subtitle]++;
+        this.subtypeCounts[demo.subtitle] = (this.subtypeCounts[demo.subtitle] || 0) + 1;
       }
     });
-    // Sort by count (descending), then alphabetically if counts are equal
     this.uniqueSubtypes = Array.from(subtypesSet).sort((a, b) => {
-      const countA = this.subtypeCounts[a] || 0;
-      const countB = this.subtypeCounts[b] || 0;
-      if (countB !== countA) {
-        return countB - countA; // Descending order by count
-      }
-      return a.localeCompare(b); // Alphabetical if counts are equal
+      const diff = (this.subtypeCounts[b] || 0) - (this.subtypeCounts[a] || 0);
+      return diff !== 0 ? diff : a.localeCompare(b);
     });
   }
 
-  onSubtypeClick(subtype: string): void {
-    if (this.selectedSubtype === subtype) {
-      // Deselect if clicking the same badge
-      this.selectedSubtype = null;
-    } else {
-      this.selectedSubtype = subtype;
-    }
-    this.applyFilters();
+  get highlightedDemos(): any[] {
+    return this.allDemos.filter(d => d.highlighted);
+  }
+
+  get newDemos(): any[] {
+    return this.allDemos
+      .filter(d => this.isNew(d))
+      .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime());
+  }
+
+  get demosByCategory(): { subtitle: string; demos: any[] }[] {
+    return this.uniqueSubtypes.map(sub => ({
+      subtitle: sub,
+      demos: this.allDemos.filter(d => d.subtitle === sub)
+    }));
+  }
+
+  get filteredDemosByCategory(): { subtitle: string; demos: any[] }[] {
+    return this.uniqueSubtypes
+      .map(sub => ({
+        subtitle: sub,
+        demos: this.filteredDemos.filter(d => d.subtitle === sub)
+      }))
+      .filter(g => g.demos.length > 0);
+  }
+
+  isNew(demo: any): boolean {
+    if (!demo.addedAt) return false;
+    const diffDays = (Date.now() - new Date(demo.addedAt).getTime()) / (1000 * 60 * 60 * 24);
+    return diffDays <= 90;
+  }
+
+  getSectionColor(type: string): string {
+    return this.sectionColors[type] || '#555555';
+  }
+
+  getSectionIcon(type: string): string {
+    return this.sectionIcons[type] || 'folder';
   }
 
   onSearchChange(): void {
@@ -86,22 +114,13 @@ export class HomeComponent implements OnInit{
 
   applyFilters(): void {
     this.filteredDemos = this.allDemos.filter(demo => {
-      // Filter by subtype badge
-      if (this.selectedSubtype && demo.subtitle !== this.selectedSubtype) {
-        return false;
-      }
-      
-      // Filter by search text
+      if (this.selectedSubtype && demo.subtitle !== this.selectedSubtype) return false;
       if (this.searchText.trim()) {
-        const searchLower = this.searchText.toLowerCase();
-        const matchesName = demo.name.toLowerCase().includes(searchLower);
-        const matchesDescription = demo.description.toLowerCase().includes(searchLower);
-        const matchesSubtitle = demo.subtitle?.toLowerCase().includes(searchLower);
-        if (!matchesName && !matchesDescription && !matchesSubtitle) {
-          return false;
-        }
+        const q = this.searchText.toLowerCase();
+        return demo.name.toLowerCase().includes(q)
+          || demo.description.toLowerCase().includes(q)
+          || demo.subtitle?.toLowerCase().includes(q);
       }
-      
       return true;
     });
   }
@@ -110,17 +129,18 @@ export class HomeComponent implements OnInit{
     return this.filteredDemos.length;
   }
 
-  getSubtypeCount(subtype: string): number {
-    return this.subtypeCounts[subtype] || 0;
+  onSubtypeClick(subtype: string): void {
+    this.selectedSubtype = this.selectedSubtype === subtype ? null : subtype;
+    this.applyFilters();
   }
 
   hasActiveFilters(): boolean {
-    return this.selectedSubtype !== null || this.searchText.trim().length > 0;
+    return this.searchText.trim().length > 0 || this.selectedSubtype !== null;
   }
 
   clearFilters(): void {
-    this.selectedSubtype = null;
     this.searchText = '';
+    this.selectedSubtype = null;
     this.applyFilters();
   }
 
@@ -128,15 +148,11 @@ export class HomeComponent implements OnInit{
     if (demo.type === 'internal') {
       if (!this.embeddedMode) {
         let queryParams = demo.queryParams;
-        let currentParams = this.route.snapshot.queryParams;
-        if (queryParams) {
-          queryParams = { ...currentParams, ...queryParams };
-        } else {
-          queryParams = currentParams;
-        }
-        this.router.navigate([demo.url], { queryParams: queryParams });
+        const currentParams = this.route.snapshot.queryParams;
+        queryParams = queryParams ? { ...currentParams, ...queryParams } : currentParams;
+        this.router.navigate([demo.url], { queryParams });
       } else {
-        this.openInNewTab('https://ihtsdo.github.io/sct-implementation-demonstrator/#' + demo.url, demo.name || 'External Demo');
+        this.openInNewTab('https://ihtsdo.github.io/sct-implementation-demonstrator/#' + demo.url, demo.name);
       }
     } else {
       this.openInNewTab(demo.url, demo.name || 'External Link');
@@ -144,31 +160,23 @@ export class HomeComponent implements OnInit{
   }
 
   openInNewTab(url: string, linkText?: string) {
-    // Track external link click
     this.gaService.trackEvent('click', {
       event_category: 'External Link',
       event_label: linkText || url,
       link_url: url,
       link_text: linkText || url
     });
-    
     window.open(url, '_blank');
   }
 
   trackExternalLinkClick(url: string, linkText: string, event?: Event) {
-    if (event) {
-      event.preventDefault();
-    }
-    
-    // Track external link click
+    if (event) event.preventDefault();
     this.gaService.trackEvent('click', {
       event_category: 'External Link',
       event_label: linkText,
       link_url: url,
       link_text: linkText
     });
-    
     window.open(url, '_blank');
   }
-
 }

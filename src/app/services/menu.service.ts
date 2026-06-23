@@ -16,6 +16,7 @@ export class MenuService {
     },
     {
       key: "ehrLab",
+      highlighted: true,
       name: "SNOMED EHR Lab",
       subtitle: "clinicalDemo",
       type: "internal",
@@ -24,6 +25,7 @@ export class MenuService {
     },
     {
       key: "allergies",
+      highlighted: true,
       name: "Allergies",
       subtitle: "clinicalDemo",
       type: "internal",
@@ -32,6 +34,7 @@ export class MenuService {
     },
     {
       key: "loincSnomed",
+      highlighted: true,
       name: "LOINC & SNOMED CT",
       subtitle: "clinicalDemo",
       type: "internal",
@@ -64,6 +67,7 @@ export class MenuService {
     },
     {
       key: "snomedMaps",
+      highlighted: true,
       name: "SNOMED Maps Demonstrator",
       subtitle: "learningDemo",
       type: "internal",
@@ -80,6 +84,7 @@ export class MenuService {
     },
     {
       key: "ipsTerminology",
+      addedAt: "2026-05-29",
       name: "IPS Terminology Demonstrator",
       subtitle: "learningDemo",
       type: "internal",
@@ -169,6 +174,7 @@ export class MenuService {
     },
     {
       key: "extensionsSearch",
+      addedAt: "2026-04-12",
       name: "Extensions Search Utility",
       subtitle: "tool",
       type: "internal",
@@ -177,6 +183,7 @@ export class MenuService {
     },
     {
       key: "snolytical",
+      addedAt: "2025-11-07",
       name: "Analytics with Snolytical",
       subtitle: "analyticsDemo",
       type: "external",
@@ -185,6 +192,7 @@ export class MenuService {
     },
     {
       key: "mdrsViewer",
+      addedAt: "2025-12-01",
       name: "Module Dependency Reference Set Viewer",
       subtitle: "learningDemo",
       type: "internal",
@@ -193,6 +201,7 @@ export class MenuService {
     },
     {
       key: "drugStrengthRounding",
+      addedAt: "2026-01-29",
       name: "Drug Strength Rounding Rules",
       subtitle: "learningDemo",
       type: "internal",
@@ -201,6 +210,7 @@ export class MenuService {
     },
     {
       key: "medicinalProductClasses",
+      addedAt: "2026-03-13",
       name: "Medicinal Product Classes",
       subtitle: "learningDemo",
       type: "internal",
@@ -209,6 +219,7 @@ export class MenuService {
     },
     {
       key: "fhirInternationalizer",
+      addedAt: "2026-04-14",
       name: "FHIR Resource Internationalizer",
       subtitle: "tool",
       type: "internal",
@@ -217,6 +228,7 @@ export class MenuService {
     },
     {
       key: "cancerReporting",
+      addedAt: "2026-06-22",
       name: "Cancer Synoptic Reporting",
       subtitle: "clinicalDemo",
       type: "internal",

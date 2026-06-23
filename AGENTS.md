@@ -181,6 +181,14 @@
 - `scripts/sync-healthicons.js` (`npm run sync:healthicons`) downloads the full library locally for browsing. It is a dev-only utility; never add it to CI.
 - Icon color is driven by the parent element's CSS `color` property via `fill: currentColor` on the inline SVG — no `fill` attribute needed on the icon itself.
 
+## Adding a New Demo
+
+- Always append new demos to the **end** of the `demos` array in `src/app/services/menu.service.ts`. The home page uses array order to determine which demos are newest.
+- Always include `addedAt: "YYYY-MM-DD"` with today's date when adding a demo entry.
+- The home page displays a "New" badge on any demo whose `addedAt` is within the last 90 days. No manual cleanup needed — the badge expires automatically.
+- Register the route in `src/app/app-routing.module.ts` (lazy-loaded unless genuinely trivial).
+- Add the demo name, description, and subtitle translations to `src/assets/i18n/home/home-en.json` and `home-es.json`.
+
 ## Terminology Server Rate Limiting
 
 - Minimize HTTP requests to terminology servers; they have rate limits and cold-start latency.
