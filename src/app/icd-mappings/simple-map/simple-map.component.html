@@ -1,6 +1,7 @@
 <mat-card class="centered-card">
   <mat-card-header>
-    <div mat-card-avatar [ngClass]="mapDefinition.headerClass"></div>
+    <div mat-card-avatar class="header-image"
+         [style.background-image]="mapDefinition.headerImage ? 'url(' + mapDefinition.headerImage + ')' : null"></div>
     <mat-card-title>{{ mapDefinition.title }}</mat-card-title>
     <mat-card-subtitle>{{ mapDefinition.subtitle }}</mat-card-subtitle>
   </mat-card-header>

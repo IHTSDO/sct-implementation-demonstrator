@@ -70,7 +70,7 @@ export class IcdMapComponent implements OnInit {
     title: 'ICD-O-3',
     subtitle: 'International Classification of Diseases for Oncology, Third Edition',
     codeSystem: 'http://hl7.org/fhir/sid/icd-o',
-    headerClass: 'icdo-header-image',
+    headerImage: 'assets/img/icd-o.png',
   };
 
   constructor(
@@ -173,32 +173,111 @@ export class IcdMapComponent implements OnInit {
     this.loadingIcd10 = true;
     this.icd10rules = [];
     this.selectedReasonCIE = [];
+    // Strategy: FHIR ConceptMap/$translate first (works on FHIR-only servers that block
+    // the native API). If it errors or returns nothing (e.g. servers where $translate is
+    // unavailable), fall back to the native complex-map query.
+    this.terminologyService.getIcd10MapTargets(event.code).subscribe({
+      next: (response) => {
+        const items = this.parseIcd10TranslateResponse(response);
+        if (items.length > 0) {
+          this.applyIcd10Rules(items);
+          this.loadingIcd10 = false;
+        } else {
+          this.matchIcd10ViaNativeApi(event);
+        }
+      },
+      error: () => this.matchIcd10ViaNativeApi(event),
+    });
+  }
+
+  /** Fallback for servers whose FHIR $translate is unavailable but expose the native API. */
+  private matchIcd10ViaNativeApi(event: any) {
     this.terminologyService
       .runEclLegacy(`^[*] 447562003 |ICD-10 complex map reference set| {{ M referencedComponentId = ${event.code} }}`)
-      .subscribe((result) => {
-        result.items.sort((a: any, b: any) => {
-          if (a.mapGroup !== b.mapGroup) return a.mapGroup < b.mapGroup ? -1 : 1;
-          if (a.mapPriority !== b.mapPriority) return a.mapPriority < b.mapPriority ? -1 : 1;
-          return a.mapTarget < b.mapTarget ? -1 : 1;
-        });
-        this.icd10rules = result.items;
-        let group = 0;
-        result.items.forEach((element: any) => {
-          const passesMapRules = this.evaluateMapRule(element.mapRule);
-          if (passesMapRules && element.mapGroup !== group) {
-            element.result = true;
-            group = element.mapGroup;
-            if (element.mapTarget) {
-              const searchCode = this.removeSecondDigitAfterDot(element.mapTarget);
-              const cieCode = { code: element.mapTarget, display: this.getDisplayFromICD10Data(searchCode) };
-              this.selectedReasonCIE.push(cieCode);
-            } else {
-              this.selectedReasonCIE.push({ code: element.mapTarget, display: element.mapAdvice });
-            }
-          }
-        });
-        this.loadingIcd10 = false;
+      .subscribe({
+        next: (result) => {
+          this.applyIcd10Rules(result?.items ?? []);
+          this.loadingIcd10 = false;
+        },
+        error: () => {
+          this.loadingIcd10 = false;
+        },
       });
+  }
+
+  /** Sorts the map rules, evaluates them against the patient context and builds the results. */
+  private applyIcd10Rules(items: any[]) {
+    items.sort((a: any, b: any) => {
+      if (a.mapGroup !== b.mapGroup) return a.mapGroup < b.mapGroup ? -1 : 1;
+      if (a.mapPriority !== b.mapPriority) return a.mapPriority < b.mapPriority ? -1 : 1;
+      return a.mapTarget < b.mapTarget ? -1 : 1;
+    });
+    this.icd10rules = items;
+    let group = 0;
+    items.forEach((element: any) => {
+      const passesMapRules = this.evaluateMapRule(element.mapRule);
+      if (passesMapRules && element.mapGroup !== group) {
+        element.result = true;
+        group = element.mapGroup;
+        if (element.mapTarget) {
+          const searchCode = this.removeSecondDigitAfterDot(element.mapTarget);
+          const cieCode = { code: element.mapTarget, display: this.getDisplayFromICD10Data(searchCode) };
+          this.selectedReasonCIE.push(cieCode);
+        } else {
+          this.selectedReasonCIE.push({ code: element.mapTarget, display: element.mapAdvice });
+        }
+      }
+    });
+  }
+
+  /**
+   * Parses a FHIR ConceptMap/$translate response for the ICD-10 complex map into
+   * map-rule rows. Each "match" parameter is preceded by a "message" parameter that
+   * carries the rule details, e.g.:
+   *   "...Group:1, Priority:2, Rule:IFA 248153007 | Male (finding) |, Advice:'...', Map Category:'null'."
+   */
+  private parseIcd10TranslateResponse(response: any): any[] {
+    const params: any[] = response?.parameter ?? [];
+    const rows: any[] = [];
+    let pendingMessage = '';
+    for (const p of params) {
+      if (p.name === 'message') {
+        pendingMessage = p.valueString ?? '';
+      } else if (p.name === 'match') {
+        const concept = (p.part ?? []).find((part: any) => part.name === 'concept');
+        const mapTarget = concept?.valueCoding?.code ?? '';
+        rows.push({ ...this.parseMapAdviceMessage(pendingMessage), mapTarget });
+        pendingMessage = '';
+      }
+    }
+    return rows;
+  }
+
+  /** Extracts mapGroup/mapPriority/mapRule/mapAdvice from a $translate advice message. */
+  private parseMapAdviceMessage(message: string): any {
+    const group = message.match(/Group:(\d+)/);
+    const priority = message.match(/Priority:(\d+)/);
+
+    let mapRule = 'TRUE';
+    const ruleStart = message.indexOf('Rule:');
+    const adviceMarker = message.indexOf(", Advice:'");
+    if (ruleStart >= 0 && adviceMarker > ruleStart) {
+      mapRule = message.substring(ruleStart + 'Rule:'.length, adviceMarker).trim();
+    }
+
+    let mapAdvice = '';
+    const adviceStart = message.indexOf("Advice:'");
+    const catMarker = message.indexOf("', Map Category");
+    if (adviceStart >= 0 && catMarker > adviceStart) {
+      mapAdvice = message.substring(adviceStart + "Advice:'".length, catMarker);
+    }
+
+    return {
+      mapGroup: group ? parseInt(group[1], 10) : 1,
+      mapPriority: priority ? parseInt(priority[1], 10) : 1,
+      mapRule,
+      mapAdvice,
+    };
   }
 
   private evaluateMapRule(rule: string): boolean {

@@ -56,19 +56,9 @@ mat-tab-group {
   margin-bottom: 15px;
 }
 
-.icd10-header-image {
-  background-image: url('/assets/img/icd-10.jpg');
+.header-image {
   background-size: cover;
-}
-
-.icd11-header-image {
-  background-image: url('/assets/img/icd-11.jpg');
-  background-size: cover;
-}
-
-.icdo-header-image {
-  background-image: url('/assets/img/icd-o.png');
-  background-size: cover;
+  background-position: center;
 }
 
 .ok-result {

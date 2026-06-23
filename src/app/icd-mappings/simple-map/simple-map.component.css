@@ -8,6 +8,11 @@
   margin-left: 15%;
 }
 
+.header-image {
+  background-size: cover;
+  background-position: center;
+}
+
 .selected-reason {
   display: flex;
   align-items: center;
