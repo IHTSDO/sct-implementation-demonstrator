@@ -176,7 +176,7 @@ export class IcdMapComponent implements OnInit {
     // Strategy: FHIR ConceptMap/$translate first (works on FHIR-only servers that block
     // the native API). If it errors or returns nothing (e.g. servers where $translate is
     // unavailable), fall back to the native complex-map query.
-    this.terminologyService.getIcd10MapTargets(event.code).subscribe({
+    this.terminologyService.getIcd10MapTargets(event.code, true).subscribe({
       next: (response) => {
         const items = this.parseIcd10TranslateResponse(response);
         if (items.length > 0) {
@@ -193,7 +193,7 @@ export class IcdMapComponent implements OnInit {
   /** Fallback for servers whose FHIR $translate is unavailable but expose the native API. */
   private matchIcd10ViaNativeApi(event: any) {
     this.terminologyService
-      .runEclLegacy(`^[*] 447562003 |ICD-10 complex map reference set| {{ M referencedComponentId = ${event.code} }}`)
+      .runEclLegacy(`^[*] 447562003 |ICD-10 complex map reference set| {{ M referencedComponentId = ${event.code} }}`, true)
       .subscribe({
         next: (result) => {
           this.applyIcd10Rules(result?.items ?? []);

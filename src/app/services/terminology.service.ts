@@ -751,7 +751,7 @@ export class TerminologyService {
     );
   }
 
-  runEclLegacy(ecl: string) {
+  runEclLegacy(ecl: string, silent = false) {
     // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=%5E%5B*%5D%20447562003%20%7CICD-10%20complex%20map%20reference%20set%7C%20%7B%7B%20M%20referencedComponentId%20%3D%20%22782513000%22%20%7D%7D
     // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=^[*]%20447562003%20|ICD-10%20complex%20map%20reference%20set|%20{{%20M%20referencedComponentId%20=%20%22195967001%22%20}}
     const snowstormBase = this.snowstormFhirBase.replace('/fhir', '/snowstorm/snomed-ct');
@@ -759,28 +759,27 @@ export class TerminologyService {
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });
-    return this.http.get<any>(requestUrl, { headers })
-      .pipe(
-        catchError(this.handleError<any>('expandValueSet', {}))
-      );
+    const request = this.http.get<any>(requestUrl, { headers });
+    // When silent, let errors propagate so the caller can handle them without a snackbar.
+    return silent ? request : request.pipe(catchError(this.handleError<any>('expandValueSet', {})));
   }
 
-  getIcd10MapTargets(code: string) {
+  getIcd10MapTargets(code: string, silent = false) {
     let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&targetSystem=http://hl7.org/fhir/sid/icd-10`
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });
-    return this.http.get<any>(requestUrl, { headers })
-      .pipe(
-        catchError(this.handleError<any>('translate', {}))
-      );
+    const request = this.http.get<any>(requestUrl, { headers });
+    // When silent, let errors propagate so the caller can handle them without a snackbar.
+    return silent ? request : request.pipe(catchError(this.handleError<any>('translate', {})));
   }
 
   getSimpleMapTargets(code: string, targetSystem: string) {
     let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&targetsystem=${targetSystem}`;
     const headers = new HttpHeaders({ 'Accept-Language': this.lang });
-    return this.http.get<any>(requestUrl, { headers })
-      .pipe(catchError(this.handleError<any>('simpleMap', {})));
+    // Let errors propagate so SimpleMapComponent shows "No suitable map found"
+    // instead of a global error snackbar (e.g. servers without ICD-O support).
+    return this.http.get<any>(requestUrl, { headers });
   }
 
   getMedraMapTargets(code: string) {
