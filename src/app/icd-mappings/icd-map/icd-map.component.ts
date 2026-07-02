@@ -114,6 +114,14 @@ export class IcdMapComponent implements OnInit {
     }
   }
 
+  /** Re-evaluate the maps when the patient age/gender changes (rules are context-dependent). */
+  onContextChange() {
+    if (this.selectedReasonSct?.code) {
+      this.matchIcd10(this.selectedReasonSct);
+      this.matchIcd11(this.selectedReasonSct);
+    }
+  }
+
   onFormatChange(format: 'preview' | 'extended') {
     this.icd11FormatSelection = format;
     this.reloadIcd11MapData(format);
@@ -306,10 +314,10 @@ export class IcdMapComponent implements OnInit {
     if (conceptId === '248152002') return this.gender.code === '248152002'; // Female
 
     if (conceptId === '445518008') {
-      // Age condition: ">= 15 years", "< 65 years", etc.
-      const ageMatch = remainder.match(/^(>=|<=|>|<|=)\s*(\d+)\s*years?$/i);
+      // Age condition, e.g. ">= 65.0 years", "<= 18.0 years", "< 65 years".
+      const ageMatch = remainder.match(/^(>=|<=|>|<|=)\s*(\d+(?:\.\d+)?)\s*years?$/i);
       if (!ageMatch) return true;
-      const value = parseInt(ageMatch[2], 10);
+      const value = parseFloat(ageMatch[2]);
       switch (ageMatch[1]) {
         case '>=': return this.age >= value;
         case '<=': return this.age <= value;

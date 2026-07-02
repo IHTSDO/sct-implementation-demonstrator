@@ -16,11 +16,11 @@
           <p>
             Age:
             <mat-form-field>
-              <input matInput [(ngModel)]="age">
+              <input matInput type="number" [(ngModel)]="age" (change)="onContextChange()">
             </mat-form-field>
             Gender:
             <mat-form-field appearance="fill">
-              <mat-select [(ngModel)]="gender">
+              <mat-select [(ngModel)]="gender" (selectionChange)="onContextChange()">
                 <mat-option *ngFor="let g of genders" [value]="g">{{ g.display }}</mat-option>
               </mat-select>
             </mat-form-field>
