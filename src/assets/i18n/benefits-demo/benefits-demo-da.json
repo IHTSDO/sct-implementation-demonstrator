@@ -551,13 +551,13 @@
       "close": "Luk"
     },
     "status": {
-      "requesting": "Anmoder om {{ hook }}-resultater fra aktive CDS-servere...",
+      "requesting": "Anmoder om resultater fra aktive CDS-servere...",
       "noRequestAvailable": "Ingen CDS-anmodning tilgængelig",
       "error": "Fejl",
-      "recommendationCount": "{{ count }} anbefaling(er) for {{ hook }}",
-      "completedNoRecommendations": "{{ hook }} fuldført uden anbefalinger.",
+      "recommendationCount": "{{ count }} anbefaling(er) fundet",
+      "completedNoRecommendations": "Fuldført uden anbefalinger.",
       "noSpecificRecommendations": "Ingen specifikke anbefalinger",
-      "noRecommendationsDetail": "Ingen CDS-anbefalinger blev returneret for {{ hook }} fra de aktive servere."
+      "noRecommendationsDetail": "Ingen CDS-anbefalinger blev returneret fra de aktive servere for de aktuelle kliniske data."
     },
     "tooltips": {
       "viewSource": "Vis kilde"

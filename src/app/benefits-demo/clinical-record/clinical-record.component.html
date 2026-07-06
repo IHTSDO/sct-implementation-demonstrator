@@ -266,8 +266,6 @@
         [conditions]="conditions"
         [medications]="medications"
         [allergies]="allergies"
-        [showHookSelector]="false"
-        stateMode="latest"
         (stateChange)="onCdsStateChange($event)">
       </app-cds-panel>
 
@@ -892,9 +890,7 @@
                   [patient]="patient"
                   [conditions]="conditions"
                   [medications]="medications"
-                  [allergies]="allergies"
-                  [showHookSelector]="true"
-                  stateMode="selected">
+                  [allergies]="allergies">
                 </app-cds-panel>
               </div>
               <aside class="problems-pane">

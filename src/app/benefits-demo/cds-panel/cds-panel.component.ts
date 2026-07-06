@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
 import {
+  CDSCard,
   CdsService,
   CDSServerExecutionResult,
   HookExecutionSnapshot,
-  STANDARD_CDS_HOOK_LABELS,
   StandardCdsHook
 } from '../../services/cds.service';
 import type { AllergyIntolerance, Condition, MedicationStatement, Patient } from '../../model';
@@ -20,6 +20,11 @@ export interface CdsState {
   noDataMessage: string | null;
 }
 
+export interface ServerCardGroup {
+  server: CDSServerExecutionResult['server'];
+  cards: CDSCard[];
+}
+
 @Component({
   selector: 'app-cds-panel',
   templateUrl: './cds-panel.component.html',
@@ -32,13 +37,8 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   @Input() medications: MedicationStatement[] = [];
   @Input() allergies: AllergyIntolerance[] = [];
   @Input() autoTrigger: boolean = false;
-  @Input() showHookSelector: boolean = true;
-  @Input() stateMode: 'selected' | 'latest' = 'selected';
   @Output() stateChange = new EventEmitter<CdsState>();
 
-  readonly STANDARD_CDS_HOOK_LABELS = STANDARD_CDS_HOOK_LABELS;
-  readonly hookOptions: StandardCdsHook[] = ['patient-view', 'order-select', 'order-sign', 'problem-list-item-create', 'allergyintolerance-create'];
-  selectedHook: StandardCdsHook = 'patient-view';
   hookSnapshots: Record<StandardCdsHook, HookExecutionSnapshot> = this.createEmptySnapshotMap();
 
   private hooksSubscription?: Subscription;
@@ -52,12 +52,6 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
 
     if (!this.patient) {
       this.hookSnapshots = this.createEmptySnapshotMap();
-      this.emitStateChange();
-      return;
-    }
-
-    if (this.stateMode === 'latest') {
-      this.syncSelectedHookToLatest();
     }
 
     this.emitStateChange();
@@ -67,96 +61,84 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
     this.hooksSubscription?.unsubscribe();
   }
 
-  selectHook(hook: StandardCdsHook): void {
-    this.selectedHook = hook;
-    this.emitStateChange();
-  }
-
-  refreshSelectedHook(): void {
+  refreshAll(): void {
     if (!this.patient) {
       return;
     }
 
-    this.cdsService.rerunHook(this.patient.id, this.getDisplayedHook()).subscribe();
-  }
-
-  getDisplayedHook(): StandardCdsHook {
-    if (this.stateMode === 'latest') {
-      const latestHook = this.getLatestHook();
-      return latestHook || this.selectedHook;
-    }
-    return this.selectedHook;
-  }
-
-  getDisplayedHookLabel(): string {
-    return STANDARD_CDS_HOOK_LABELS[this.getDisplayedHook()];
-  }
-
-  getDisplayedSnapshot(): HookExecutionSnapshot {
-    return this.hookSnapshots[this.getDisplayedHook()];
+    this.cdsService.rerunAllHooks(this.patient.id).subscribe();
   }
 
   isCdsLoading(): boolean {
-    return this.getDisplayedSnapshot().isLoading;
+    return this.getAllSnapshots().some((snapshot) => snapshot.isLoading);
   }
 
   getCdsError(): string | null {
-    return this.getDisplayedSnapshot().errorMessage;
+    const messages = Array.from(new Set(this.getAllSnapshots().map((snapshot) => snapshot.errorMessage).filter((message): message is string => !!message)));
+    return messages.length > 0 ? messages.join(' ') : null;
   }
 
   getCdsNoDataMessage(): string | null {
-    return this.getDisplayedSnapshot().noDataMessage;
+    if (this.hasAnyServerResponse() || this.isCdsLoading()) {
+      return null;
+    }
+    const messages = Array.from(new Set(this.getAllSnapshots().map((snapshot) => snapshot.noDataMessage).filter((message): message is string => !!message)));
+    return messages.length > 0 ? messages.join(' ') : null;
   }
 
   getTotalRecommendationCount(): number {
-    return this.getDisplayedSnapshot().results.reduce((total, result) => total + (result.response?.cards?.length || 0), 0);
+    return this.getServerCardGroups().reduce((total, group) => total + group.cards.length, 0);
   }
 
-  getSuccessfulServerResults(): CDSServerExecutionResult[] {
-    return this.getDisplayedSnapshot().results.filter((result) => !result.error && !!result.response);
+  getServerGroupsWithCards(): ServerCardGroup[] {
+    return this.getServerCardGroups().filter((group) => group.cards.length > 0);
   }
 
-  getServerResultsWithCards(): CDSServerExecutionResult[] {
-    return this.getSuccessfulServerResults().filter((result) => (result.response?.cards?.length || 0) > 0);
-  }
-
-  getServerResultsWithoutCards(): CDSServerExecutionResult[] {
-    return this.getSuccessfulServerResults().filter((result) => (result.response?.cards?.length || 0) === 0);
+  getServerGroupsWithoutCards(): ServerCardGroup[] {
+    return this.getServerCardGroups().filter((group) => group.cards.length === 0);
   }
 
   getErroredServerResults(): CDSServerExecutionResult[] {
-    return this.getDisplayedSnapshot().results.filter((result) => !!result.error);
+    const seen = new Set<string>();
+    return this.getAllResults().filter((result) => !!result.error).filter((result) => {
+      const key = `${result.server.id || result.server.baseUrl}|${result.error}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
   }
 
   hasAnyServerResponse(): boolean {
-    return this.getDisplayedSnapshot().results.length > 0;
+    return this.getAllResults().length > 0;
   }
 
   showGroupedResults(): boolean {
-    return this.hasAnyServerResponse() && (this.getServerResultsWithCards().length > 0 || this.getErroredServerResults().length > 0);
+    return this.hasAnyServerResponse() && (this.getServerGroupsWithCards().length > 0 || this.getErroredServerResults().length > 0);
   }
 
   showNoRecommendations(): boolean {
     return this.hasAnyServerResponse()
-      && this.getSuccessfulServerResults().length > 0
+      && this.getServerCardGroups().length > 0
       && this.getErroredServerResults().length === 0
       && this.getTotalRecommendationCount() === 0;
   }
 
-  getServerDisplayName(result: CDSServerExecutionResult): string {
-    return result.server.name || result.server.baseUrl;
+  getServerDisplayName(entry: { server: CDSServerExecutionResult['server'] }): string {
+    return entry.server.name || entry.server.baseUrl;
   }
 
-  getServerStatusLabel(result: CDSServerExecutionResult): string {
-    return result.mode === 'legacy' ? 'legacy fallback' : result.serviceTitle;
+  getServerGroupKey(group: ServerCardGroup): string {
+    return group.server.id || group.server.baseUrl;
   }
 
-  getHookLastUpdatedLabel(hook: StandardCdsHook): string {
-    const snapshot = this.hookSnapshots[hook];
-    if (!snapshot.lastUpdated) {
-      return 'No run yet';
-    }
-    return new Date(snapshot.lastUpdated).toLocaleTimeString();
+  getLastUpdatedLabel(): string {
+    const lastUpdated = this.getAllSnapshots()
+      .map((snapshot) => snapshot.lastUpdated)
+      .filter((value): value is string => !!value)
+      .sort((a, b) => b.localeCompare(a))[0];
+    return lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : 'No run yet';
   }
 
   getCardIcon(indicator: string): string {
@@ -196,37 +178,59 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
 
     this.hooksSubscription = this.cdsService.watchPatientHooks(this.patient.id).subscribe((snapshots) => {
       this.hookSnapshots = snapshots;
-      if (this.stateMode === 'latest') {
-        this.syncSelectedHookToLatest();
-      }
       this.emitStateChange();
     });
   }
 
-  private syncSelectedHookToLatest(): void {
-    const latestHook = this.getLatestHook();
-    if (latestHook) {
-      this.selectedHook = latestHook;
-    }
+  private getAllSnapshots(): HookExecutionSnapshot[] {
+    return Object.values(this.hookSnapshots);
   }
 
-  private getLatestHook(): StandardCdsHook | null {
-    return [...this.hookOptions]
-      .sort((a, b) => (this.hookSnapshots[b].lastUpdated || '').localeCompare(this.hookSnapshots[a].lastUpdated || ''))[0] || null;
+  private getAllResults(): CDSServerExecutionResult[] {
+    return this.getAllSnapshots().flatMap((snapshot) => snapshot.results);
+  }
+
+  private getServerCardGroups(): ServerCardGroup[] {
+    const groups = new Map<string, ServerCardGroup>();
+
+    for (const result of this.getAllResults()) {
+      if (result.error || !result.response) {
+        continue;
+      }
+
+      const key = result.server.id || result.server.baseUrl;
+      const group = groups.get(key) || { server: result.server, cards: [] };
+      const seenSignatures = new Set(group.cards.map((card) => this.getCardSignature(card)));
+
+      for (const card of result.response.cards || []) {
+        const signature = this.getCardSignature(card);
+        if (!seenSignatures.has(signature)) {
+          seenSignatures.add(signature);
+          group.cards.push(card);
+        }
+      }
+
+      groups.set(key, group);
+    }
+
+    return Array.from(groups.values());
+  }
+
+  private getCardSignature(card: CDSCard): string {
+    return [card.indicator, card.summary, card.detail || '', card.source?.label || '', card.source?.url || ''].join('|');
   }
 
   private emitStateChange(): void {
-    const snapshot = this.getDisplayedSnapshot();
     const recommendationCount = this.getTotalRecommendationCount();
     this.stateChange.emit({
-      isLoading: snapshot.isLoading,
-      hasError: !!snapshot.errorMessage,
-      hasNoData: !!snapshot.noDataMessage,
+      isLoading: this.isCdsLoading(),
+      hasError: !!this.getCdsError(),
+      hasNoData: !!this.getCdsNoDataMessage(),
       hasRecommendations: recommendationCount > 0,
-      hasExecuted: !!snapshot.lastUpdated || snapshot.results.length > 0 || snapshot.isLoading,
+      hasExecuted: this.getAllSnapshots().some((snapshot) => !!snapshot.lastUpdated || snapshot.results.length > 0 || snapshot.isLoading),
       recommendationCount,
-      errorMessage: snapshot.errorMessage,
-      noDataMessage: snapshot.noDataMessage
+      errorMessage: this.getCdsError(),
+      noDataMessage: this.getCdsNoDataMessage()
     });
   }
 

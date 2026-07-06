@@ -551,13 +551,13 @@
       "close": "Sluiten"
     },
     "status": {
-      "requesting": "{{ hook }}-resultaten opvragen bij actieve CDS-servers...",
+      "requesting": "Resultaten opvragen bij actieve CDS-servers...",
       "noRequestAvailable": "Geen CDS-aanvraag beschikbaar",
       "error": "Fout",
-      "recommendationCount": "{{ count }} aanbeveling(en) voor {{ hook }}",
-      "completedNoRecommendations": "{{ hook }} voltooid zonder aanbevelingen.",
+      "recommendationCount": "{{ count }} aanbeveling(en) gevonden",
+      "completedNoRecommendations": "Voltooid zonder aanbevelingen.",
       "noSpecificRecommendations": "Geen specifieke aanbevelingen",
-      "noRecommendationsDetail": "Er zijn geen CDS-aanbevelingen geretourneerd voor {{ hook }} op de actieve servers."
+      "noRecommendationsDetail": "Er zijn geen CDS-aanbevelingen geretourneerd door de actieve servers voor de huidige klinische gegevens."
     },
     "tooltips": {
       "viewSource": "Bron bekijken"

@@ -368,7 +368,7 @@ export type ClinicalCdsEvent =
 
 type PatientHookStore = Record<StandardCdsHook, HookExecutionSnapshot>;
 
-const STANDARD_HOOKS: StandardCdsHook[] = ['patient-view', 'order-select', 'order-sign', 'problem-list-item-create', 'allergyintolerance-create'];
+export const STANDARD_HOOKS: StandardCdsHook[] = ['patient-view', 'order-select', 'order-sign', 'problem-list-item-create', 'allergyintolerance-create'];
 const EXCLUDED_SERVICE_IDS = new Set(['hello-test']);
 
 const EMPTY_HOOK_SNAPSHOT = (hook: StandardCdsHook): HookExecutionSnapshot => ({
@@ -483,6 +483,10 @@ export class CdsService {
     }
 
     return this.invokeHook(hook, snapshot.context);
+  }
+
+  rerunAllHooks(patientId: string): Observable<HookExecutionSnapshot[]> {
+    return forkJoin(STANDARD_HOOKS.map((hook) => this.rerunHook(patientId, hook)));
   }
 
   private invokeHook(hook: StandardCdsHook, context: HookExecutionContextSnapshot): Observable<HookExecutionSnapshot> {

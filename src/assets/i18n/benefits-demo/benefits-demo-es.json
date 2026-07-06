@@ -551,13 +551,13 @@
       "close": "Cerrar"
     },
     "status": {
-      "requesting": "Solicitando resultados de {{ hook }} desde servidores CDS activos...",
+      "requesting": "Solicitando resultados de los servidores CDS activos...",
       "noRequestAvailable": "No hay solicitud CDS disponible",
       "error": "Error",
-      "recommendationCount": "{{ count }} recomendación(es) para {{ hook }}",
-      "completedNoRecommendations": "{{ hook }} completado sin recomendaciones.",
+      "recommendationCount": "{{ count }} recomendación(es) encontradas",
+      "completedNoRecommendations": "Completado sin recomendaciones.",
       "noSpecificRecommendations": "Sin recomendaciones específicas",
-      "noRecommendationsDetail": "No se devolvieron recomendaciones CDS para {{ hook }} en los servidores activos."
+      "noRecommendationsDetail": "No se devolvieron recomendaciones CDS en los servidores activos para los datos clínicos actuales."
     },
     "tooltips": {
       "viewSource": "Ver fuente"

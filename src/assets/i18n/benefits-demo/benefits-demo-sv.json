@@ -551,13 +551,13 @@
       "close": "Stäng"
     },
     "status": {
-      "requesting": "Hämtar {{ hook }}-resultat från aktiva CDS-servrar...",
+      "requesting": "Hämtar resultat från aktiva CDS-servrar...",
       "noRequestAvailable": "Ingen CDS-förfrågan tillgänglig",
       "error": "Fel",
-      "recommendationCount": "{{ count }} rekommendation(er) för {{ hook }}",
-      "completedNoRecommendations": "{{ hook }} slutförd utan rekommendationer.",
+      "recommendationCount": "{{ count }} rekommendation(er) hittades",
+      "completedNoRecommendations": "Slutförd utan rekommendationer.",
       "noSpecificRecommendations": "Inga specifika rekommendationer",
-      "noRecommendationsDetail": "Inga CDS-rekommendationer returnerades för {{ hook }} från de aktiva servrarna."
+      "noRecommendationsDetail": "Inga CDS-rekommendationer returnerades från de aktiva servrarna för aktuell klinisk data."
     },
     "tooltips": {
       "viewSource": "Visa källa"

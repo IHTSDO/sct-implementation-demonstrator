@@ -6,28 +6,9 @@
   </p>
 
   <div class="cds-status">
-    @if (showHookSelector) {
-      <div class="cds-hook-selector">
-        @for (hook of hookOptions; track hook) {
-          <button
-            mat-stroked-button
-            type="button"
-            [color]="getDisplayedHook() === hook ? 'primary' : undefined"
-            [class.is-selected]="getDisplayedHook() === hook"
-            (click)="selectHook(hook)">
-            <span>{{ STANDARD_CDS_HOOK_LABELS[hook] }}</span>
-            <small>{{ getHookLastUpdatedLabel(hook) }}</small>
-          </button>
-        }
-      </div>
-    }
-
     <div class="cds-status-header">
-      <div>
-        <strong>{{ getDisplayedHookLabel() }}</strong>
-        <span>{{ getHookLastUpdatedLabel(getDisplayedHook()) }}</span>
-      </div>
-      <button mat-stroked-button color="primary" (click)="refreshSelectedHook()" [disabled]="isCdsLoading() || !patient">
+      <span class="cds-last-updated">{{ getLastUpdatedLabel() }}</span>
+      <button mat-stroked-button color="primary" (click)="refreshAll()" [disabled]="isCdsLoading() || !patient">
         {{ t('cdsPanel.actions.refresh') }}
       </button>
     </div>
@@ -35,7 +16,7 @@
     @if (isCdsLoading()) {
       <div class="cds-loading">
         <mat-spinner diameter="24"></mat-spinner>
-        <span>{{ t('cdsPanel.status.requesting', { hook: getDisplayedHookLabel().toLowerCase() }) }}</span>
+        <span>{{ t('cdsPanel.status.requesting') }}</span>
       </div>
     }
 
@@ -63,25 +44,21 @@
       <div class="cds-recommendations">
         <div class="recommendations-header">
           <mat-icon color="primary">lightbulb</mat-icon>
-          <span>{{ t('cdsPanel.status.recommendationCount', { count: getTotalRecommendationCount(), hook: getDisplayedHookLabel().toLowerCase() }) }}</span>
+          <span>{{ t('cdsPanel.status.recommendationCount', { count: getTotalRecommendationCount() }) }}</span>
         </div>
 
         <div class="cds-server-groups">
-          @for (result of getServerResultsWithCards(); track result.server.id + '-' + result.serviceId) {
+          @for (group of getServerGroupsWithCards(); track getServerGroupKey(group)) {
             <div class="cds-server-group">
               <div class="cds-server-group-header">
                 <div class="cds-server-title-group">
-                  <strong>{{ getServerDisplayName(result) }}</strong>
-                  <span class="cds-server-group-url">{{ result.server.baseUrl }}</span>
-                </div>
-                <div class="cds-server-meta">
-                  <span class="cds-server-hook">{{ getDisplayedHookLabel() }}</span>
-                  <span class="cds-server-group-mode">{{ getServerStatusLabel(result) }}</span>
+                  <strong>{{ getServerDisplayName(group) }}</strong>
+                  <span class="cds-server-group-url">{{ group.server.baseUrl }}</span>
                 </div>
               </div>
 
               <div class="cds-cards">
-                @for (card of result.response?.cards || []; track $index) {
+                @for (card of group.cards; track $index) {
                   <mat-card class="cds-card" [ngClass]="'indicator-' + card.indicator">
                     <mat-card-header>
                       <mat-card-title>
@@ -118,12 +95,12 @@
             </div>
           }
 
-          @if (getServerResultsWithoutCards().length > 0) {
+          @if (getServerGroupsWithoutCards().length > 0) {
             <div class="cds-server-muted-list">
-              @for (result of getServerResultsWithoutCards(); track result.server.id + '-' + result.serviceId) {
+              @for (group of getServerGroupsWithoutCards(); track getServerGroupKey(group)) {
                 <div class="cds-server-muted-item">
-                  <strong>{{ getServerDisplayName(result) }}</strong>
-                  <span>{{ t('cdsPanel.status.completedNoRecommendations', { hook: getDisplayedHookLabel() }) }}</span>
+                  <strong>{{ getServerDisplayName(group) }}</strong>
+                  <span>{{ t('cdsPanel.status.completedNoRecommendations') }}</span>
                 </div>
               }
             </div>
@@ -148,7 +125,7 @@
         <mat-icon color="accent">check_circle</mat-icon>
         <div class="no-recommendations-content">
           <strong>{{ t('cdsPanel.status.noSpecificRecommendations') }}</strong>
-          <span>{{ t('cdsPanel.status.noRecommendationsDetail', { hook: getDisplayedHookLabel().toLowerCase() }) }}</span>
+          <span>{{ t('cdsPanel.status.noRecommendationsDetail') }}</span>
         </div>
       </div>
     }
