@@ -419,6 +419,67 @@ export class CdsService {
     return snapshots[0] || null;
   }
 
+  watchAggregatedCards(patientId: string): Observable<CDSCard[]> {
+    return this.watchPatientHooks(patientId).pipe(
+      map((store) => this.aggregateCards(Object.values(store)))
+    );
+  }
+
+  getCardsForMedicationText(cards: CDSCard[], medicationText: string): CDSCard[] {
+    const drugName = this.extractDrugName(medicationText);
+    if (!drugName) {
+      return [];
+    }
+
+    const pattern = new RegExp(`\\b${this.escapeRegExp(drugName)}\\b`, 'i');
+    return cards.filter((card) => pattern.test(card.summary) || (!!card.detail && pattern.test(card.detail)));
+  }
+
+  getHighestIndicator(cards: CDSCard[]): 'critical' | 'warning' | 'info' | null {
+    if (cards.some((card) => card.indicator === 'critical')) {
+      return 'critical';
+    }
+    if (cards.some((card) => card.indicator === 'warning')) {
+      return 'warning';
+    }
+    if (cards.some((card) => card.indicator === 'info')) {
+      return 'info';
+    }
+    return null;
+  }
+
+  private aggregateCards(snapshots: HookExecutionSnapshot[]): CDSCard[] {
+    const seen = new Set<string>();
+    const cards: CDSCard[] = [];
+
+    for (const snapshot of snapshots) {
+      for (const result of snapshot.results) {
+        if (result.error || !result.response) {
+          continue;
+        }
+
+        for (const card of result.response.cards || []) {
+          const signature = [card.indicator, card.summary, card.detail || '', card.source?.label || ''].join('|');
+          if (!seen.has(signature)) {
+            seen.add(signature);
+            cards.push(card);
+          }
+        }
+      }
+    }
+
+    return cards;
+  }
+
+  private extractDrugName(text: string): string {
+    const match = text.match(/^[^\d]+/);
+    return (match ? match[0] : text).trim();
+  }
+
+  private escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   invokePatientView(context: HookExecutionContextSnapshot): Observable<HookExecutionSnapshot> {
     return this.invokeHook('patient-view', context);
   }

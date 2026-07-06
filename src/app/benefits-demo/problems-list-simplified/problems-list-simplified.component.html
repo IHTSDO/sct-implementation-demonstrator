@@ -16,7 +16,16 @@
         {{ item.kind }}
       </span>
       <div class="problem-main">
-        <div class="problem-name">{{ item.name }}</div>
+        <div class="problem-name">
+          {{ item.name }}
+          <mat-icon
+              *ngIf="item.alertIndicator"
+              class="cds-alert-badge"
+              [ngClass]="'indicator-' + item.alertIndicator"
+              [matTooltip]="item.alertTooltip || ''">
+            {{ getAlertIcon(item.alertIndicator) }}
+          </mat-icon>
+        </div>
         <div class="problem-detail" *ngIf="item.detail">{{ item.detail }}</div>
         <div class="problem-meta">
           <span>{{ item.status }}</span>

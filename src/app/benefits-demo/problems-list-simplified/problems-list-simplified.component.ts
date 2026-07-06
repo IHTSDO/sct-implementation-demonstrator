@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CDSCard, CdsService } from '../../services/cds.service';
 import type { AllergyIntolerance, Condition, Immunization, MedicationStatement, Procedure } from '../../model';
 
 type ProblemKind = 'Condition' | 'Procedure' | 'Medication' | 'Immunization' | 'Allergy';
+type CdsIndicator = 'critical' | 'warning' | 'info';
 
 interface ProblemItem {
   id: string;
@@ -11,6 +13,8 @@ interface ProblemItem {
   detail?: string;
   recordedOn?: string;
   sortDate: number;
+  alertIndicator?: CdsIndicator | null;
+  alertTooltip?: string;
 }
 
 @Component({
@@ -25,7 +29,10 @@ export class ProblemsListSimplifiedComponent {
   @Input() medications: MedicationStatement[] = [];
   @Input() immunizations: Immunization[] = [];
   @Input() allergies: AllergyIntolerance[] = [];
+  @Input() cdsCards: CDSCard[] = [];
   @Output() openProblemsList = new EventEmitter<void>();
+
+  constructor(private cdsService: CdsService) {}
 
   get problemItems(): ProblemItem[] {
     const conditionItems = this.conditions.map((condition) => ({
@@ -46,15 +53,22 @@ export class ProblemsListSimplifiedComponent {
       sortDate: this.toSortDate(procedure.performedDateTime)
     }));
 
-    const medicationItems = this.medications.map((medication) => ({
-      id: medication.id,
-      kind: 'Medication' as const,
-      name: medication.medicationCodeableConcept?.text || medication.medicationReference?.display || 'Medication',
-      status: medication.status || 'Unknown',
-      detail: medication.dosage?.[0]?.text,
-      recordedOn: medication.effectiveDateTime || medication.dateAsserted,
-      sortDate: this.toSortDate(medication.effectiveDateTime || medication.dateAsserted)
-    }));
+    const medicationItems = this.medications.map((medication) => {
+      const name = medication.medicationCodeableConcept?.text || medication.medicationReference?.display || 'Medication';
+      const alerts = this.cdsCards.length > 0 ? this.cdsService.getCardsForMedicationText(this.cdsCards, name) : [];
+
+      return {
+        id: medication.id,
+        kind: 'Medication' as const,
+        name,
+        status: medication.status || 'Unknown',
+        detail: medication.dosage?.[0]?.text,
+        recordedOn: medication.effectiveDateTime || medication.dateAsserted,
+        sortDate: this.toSortDate(medication.effectiveDateTime || medication.dateAsserted),
+        alertIndicator: this.cdsService.getHighestIndicator(alerts),
+        alertTooltip: alerts.map((card) => card.summary).join('\n')
+      };
+    });
 
     const immunizationItems = this.immunizations.map((immunization) => ({
       id: immunization.id,
@@ -120,6 +134,18 @@ export class ProblemsListSimplifiedComponent {
         return 'vaccines';
       default:
         return 'description';
+    }
+  }
+
+  getAlertIcon(indicator: CdsIndicator): string {
+    switch (indicator) {
+      case 'critical':
+        return 'error';
+      case 'warning':
+        return 'warning';
+      case 'info':
+      default:
+        return 'info';
     }
   }
 

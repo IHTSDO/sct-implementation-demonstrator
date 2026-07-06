@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService } from '../../services/patient.service';
 import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
-import { CdsService } from '../../services/cds.service';
+import { CdsService, CDSCard } from '../../services/cds.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent, ClinicalEntryType } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
@@ -88,6 +88,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   isSidebarCollapsed = false;
   dataVersion = 0;
   private subscriptions: Subscription[] = [];
+  private cdsCardsSubscription?: Subscription;
   private readonly DENTAL_CATEGORY_SYSTEM = 'http://example.org/fhir/CodeSystem/condition-category';
   private readonly DENTAL_CONDITION_CATEGORY_CODE = 'dental';
   private readonly DENTAL_PROCEDURE_CATEGORY_CODE = 'dental-procedure';
@@ -116,6 +117,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     errorMessage: null,
     noDataMessage: null
   };
+  cdsCards: CDSCard[] = [];
 
   // No separate cache needed - we'll add location directly to the clinical events
 
@@ -251,6 +253,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.cdsCardsSubscription?.unsubscribe();
     if (this.medicationOrderSelectPreviewTimeout) {
       clearTimeout(this.medicationOrderSelectPreviewTimeout);
       this.medicationOrderSelectPreviewTimeout = null;
@@ -452,6 +455,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async loadClinicalData(patientId: string): Promise<void> {
+    this.subscribeToCdsCards(patientId);
+
     if (this.patientService.getCurrentPersistenceMode() === 'fhir') {
       this.isLoadingClinicalData = true;
 
@@ -493,6 +498,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   onCdsStateChange(state: CdsState): void {
     this.cdsState = state;
+  }
+
+  private subscribeToCdsCards(patientId: string): void {
+    this.cdsCardsSubscription?.unsubscribe();
+    this.cdsCardsSubscription = this.cdsService.watchAggregatedCards(patientId).subscribe((cards) => {
+      this.cdsCards = cards;
+    });
   }
 
   getCdsNoticeClass(): string {
@@ -853,6 +865,35 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   getMedicationDosageText(medication: MedicationStatement): string | null {
     return medication.dosage?.[0]?.text || null;
+  }
+
+  getMedicationCdsAlerts(medication: MedicationStatement): CDSCard[] {
+    const medicationText = medication.medicationCodeableConcept?.text || medication.medicationCodeableConcept?.coding?.[0]?.display;
+    if (!medicationText || this.cdsCards.length === 0) {
+      return [];
+    }
+    return this.cdsService.getCardsForMedicationText(this.cdsCards, medicationText);
+  }
+
+  getMedicationCdsIndicator(medication: MedicationStatement): 'critical' | 'warning' | 'info' | null {
+    return this.cdsService.getHighestIndicator(this.getMedicationCdsAlerts(medication));
+  }
+
+  getMedicationCdsTooltip(medication: MedicationStatement): string {
+    return this.getMedicationCdsAlerts(medication).map((card) => card.summary).join('\n');
+  }
+
+  getMedicationCdsIcon(indicator: 'critical' | 'warning' | 'info' | null): string {
+    switch (indicator) {
+      case 'critical':
+        return 'error';
+      case 'warning':
+        return 'warning';
+      case 'info':
+        return 'info';
+      default:
+        return '';
+    }
   }
 
   /**

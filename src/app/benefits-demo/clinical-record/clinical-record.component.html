@@ -364,7 +364,16 @@
                       [attr.data-medication-id]="medication.id"
                       (mouseenter)="onMedicationHover(medication, $event)"
                       (mouseleave)="onConditionHoverEnd()">
-                    <div class="item-name">{{ medication.medicationCodeableConcept?.text }}</div>
+                    <div class="item-name">
+                      {{ medication.medicationCodeableConcept?.text }}
+                      <mat-icon
+                          *ngIf="getMedicationCdsIndicator(medication)"
+                          class="cds-alert-badge"
+                          [ngClass]="'indicator-' + getMedicationCdsIndicator(medication)"
+                          [matTooltip]="getMedicationCdsTooltip(medication)">
+                        {{ getMedicationCdsIcon(getMedicationCdsIndicator(medication)) }}
+                      </mat-icon>
+                    </div>
                   </div>
                 </div>
                 <ng-template #noMedications>
@@ -454,6 +463,7 @@
                   [medications]="medications"
                   [immunizations]="immunizations"
                   [allergies]="allergies"
+                  [cdsCards]="cdsCards"
                   (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
               </aside>
@@ -480,6 +490,7 @@
                   [medications]="medications"
                   [immunizations]="immunizations"
                   [allergies]="allergies"
+                  [cdsCards]="cdsCards"
                   (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
               </aside>
@@ -729,7 +740,16 @@
                         <div class="clinical-list compact" *ngIf="medications.length > 0; else noMedications">
                           <div class="clinical-item compact" *ngFor="let medication of getSortedMedications()">
                             <div class="item-header compact">
-                              <span class="item-title compact">{{ medication.medicationCodeableConcept?.text }}</span>
+                              <span class="item-title compact">
+                                {{ medication.medicationCodeableConcept?.text }}
+                                <mat-icon
+                                    *ngIf="getMedicationCdsIndicator(medication)"
+                                    class="cds-alert-badge"
+                                    [ngClass]="'indicator-' + getMedicationCdsIndicator(medication)"
+                                    [matTooltip]="getMedicationCdsTooltip(medication)">
+                                  {{ getMedicationCdsIcon(getMedicationCdsIndicator(medication)) }}
+                                </mat-icon>
+                              </span>
                               <div class="item-header-actions compact">
                                 <span class="anchor-category-indicator compact"
                                       [style.background-color]="findBestAnchorPointForConcept(getMappingConceptId(medication))?.defaultColor"
@@ -879,6 +899,7 @@
                   [medications]="medications"
                   [immunizations]="immunizations"
                   [allergies]="allergies"
+                  [cdsCards]="cdsCards"
                   (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
               </aside>
@@ -900,6 +921,7 @@
                   [medications]="medications"
                   [immunizations]="immunizations"
                   [allergies]="allergies"
+                  [cdsCards]="cdsCards"
                   (openProblemsList)="selectClinicalView('problems')">
                 </app-problems-list-simplified>
               </aside>

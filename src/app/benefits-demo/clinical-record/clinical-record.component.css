@@ -814,6 +814,13 @@
   color: #2c3e50;
 }
 
+.clinical-summary-item .cds-alert-badge {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+}
+
 .first-condition {
   position: relative;
 }
@@ -1047,6 +1054,32 @@
   font-weight: 600;
   color: #2c3e50;
   font-size: 1rem;
+}
+
+.cds-alert-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  position: relative;
+  top: -1.5px;
+  margin-left: 4px;
+  cursor: default;
+}
+
+.cds-alert-badge.indicator-info {
+  color: #0dcaf0;
+}
+
+.cds-alert-badge.indicator-warning {
+  color: #ffc107;
+}
+
+.cds-alert-badge.indicator-critical {
+  color: #dc3545;
 }
 
 .item-status {

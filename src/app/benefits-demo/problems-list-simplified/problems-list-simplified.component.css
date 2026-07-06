@@ -162,6 +162,32 @@
   word-break: break-word;
 }
 
+.cds-alert-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  vertical-align: middle;
+  position: relative;
+  top: -1.5px;
+  margin-left: 3px;
+  cursor: default;
+}
+
+.cds-alert-badge.indicator-info {
+  color: #0dcaf0;
+}
+
+.cds-alert-badge.indicator-warning {
+  color: #ffc107;
+}
+
+.cds-alert-badge.indicator-critical {
+  color: #dc3545;
+}
+
 .problem-detail {
   font-size: 0.74rem;
   color: #526273;
