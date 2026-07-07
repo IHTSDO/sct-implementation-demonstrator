@@ -44,7 +44,10 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
   sortedEvents: TimelineEvent[] = [];
   readonly timelineTrackOrder: TimelineEvent['type'][] = ['encounter', 'allergy', 'immunization', 'medication', 'procedure', 'condition'];
   private plotlyInitialized = false;
+  private destroyed = false;
   private renderRetryHandle: ReturnType<typeof setTimeout> | null = null;
+  private resizeTimeoutHandle: ReturnType<typeof setTimeout> | null = null;
+  private resizeAnimationFrame: number | null = null;
 
   readonly eventColors = {
     condition: '#8e44ad',
@@ -75,9 +78,18 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     if (this.renderRetryHandle) {
       clearTimeout(this.renderRetryHandle);
       this.renderRetryHandle = null;
+    }
+    if (this.resizeTimeoutHandle) {
+      clearTimeout(this.resizeTimeoutHandle);
+      this.resizeTimeoutHandle = null;
+    }
+    if (this.resizeAnimationFrame !== null) {
+      cancelAnimationFrame(this.resizeAnimationFrame);
+      this.resizeAnimationFrame = null;
     }
     this.purgeOverviewTimeline();
   }
@@ -89,9 +101,14 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
 
   @HostListener('window:resize')
   onWindowResize(): void {
-    if (this.plotlyInitialized && this.overviewTimelineChart?.nativeElement) {
-      Plotly.Plots.resize(this.overviewTimelineChart.nativeElement);
+    const element = this.overviewTimelineChart?.nativeElement;
+    if (this.plotlyInitialized && element && this.isChartDisplayed(element)) {
+      Plotly.Plots.resize(element);
     }
+  }
+
+  private isChartDisplayed(element: HTMLDivElement): boolean {
+    return !this.destroyed && element.isConnected && element.offsetParent !== null;
   }
 
   get overviewTrackLegend(): Array<{ type: TimelineEvent['type']; label: string; color: string }> {
@@ -244,14 +261,18 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
     Plotly.react(chartElement, data, layout, config)
       .then(() => {
         this.plotlyInitialized = true;
-        requestAnimationFrame(() => {
-          if (this.overviewTimelineChart?.nativeElement) {
-            Plotly.Plots.resize(this.overviewTimelineChart.nativeElement);
+        this.resizeAnimationFrame = requestAnimationFrame(() => {
+          this.resizeAnimationFrame = null;
+          const element = this.overviewTimelineChart?.nativeElement;
+          if (element && this.isChartDisplayed(element)) {
+            Plotly.Plots.resize(element);
           }
         });
-        setTimeout(() => {
-          if (this.overviewTimelineChart?.nativeElement) {
-            Plotly.Plots.resize(this.overviewTimelineChart.nativeElement);
+        this.resizeTimeoutHandle = setTimeout(() => {
+          this.resizeTimeoutHandle = null;
+          const element = this.overviewTimelineChart?.nativeElement;
+          if (element && this.isChartDisplayed(element)) {
+            Plotly.Plots.resize(element);
           }
         }, 120);
       })
