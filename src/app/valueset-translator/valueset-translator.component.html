@@ -321,6 +321,15 @@
             </button>
             <button
               mat-raised-button
+              color="primary"
+              (click)="selectAction('validate-codes')"
+              class="action-button"
+              >
+              <mat-icon>verified</mat-icon>
+              <span>Validate codes and terms</span>
+            </button>
+            <button
+              mat-raised-button
               color="accent"
               (click)="selectAction('source-valueset')"
               class="action-button"
@@ -477,22 +486,114 @@
       }
       <!-- Execute Action Button -->
       @if (selectedAction && selectedAction !== 'code-display-excel') {
-        <div class="execute-action">
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="executeAction()"
-            [disabled]="isLoading || !canExecuteAction()"
-            class="execute-button"
+        @if (selectedAction === 'validate-codes') {
+          <div class="validation-options">
+            <mat-checkbox
+              [(ngModel)]="inactiveCodesAreInvalid"
+              [disabled]="isValidationLoading"
             >
+              Inactive codes are invalid
+            </mat-checkbox>
+          </div>
+          <div class="validation-context-banner">
+            <mat-icon>info</mat-icon>
+            <span>
+              Validating against {{ terminologyContext.editionName }} ({{ getEditionReleaseDate() }}) using the selected FHIR terminology server.
+            </span>
+          </div>
+        }
+        <div class="execute-action">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="executeAction()"
+              [disabled]="isLoading || isValidationLoading || !canExecuteAction()"
+              class="execute-button"
+              >
             <mat-icon>{{ getActionIcon() }}</mat-icon>
             <span>{{ getActionButtonText() }}</span>
           </button>
         </div>
       }
-      @if (selectedAction || targetPreviewData.length > 0 || targetValueSet) {
+      @if (selectedAction || targetPreviewData.length > 0 || targetValueSet || validationResults.length > 0 || isValidationLoading) {
         <div class="step-divider">
           <h3>Step 4: Review and Download</h3>
+        </div>
+      }
+      <!-- Validation Results Table -->
+      @if (validationResults.length > 0 || isValidationLoading) {
+        <div class="validation-results-table">
+          <h3 class="validation-results-title">
+            <mat-icon>verified</mat-icon>
+            Validation Results ({{ visibleValidationRows.length }} of {{ validationResults.length }} rows)
+          </h3>
+          <p class="validation-summary">
+            Validated: {{ validationCompletedCount }} / {{ validationResults.length }} —
+            Valid: {{ validationValidCount }}, Invalid: {{ validationInvalidCount }}
+          </p>
+          @if (isValidationLoading) {
+            <div class="validation-progress">
+              <mat-progress-bar mode="determinate" [value]="validationProgressPercent"></mat-progress-bar>
+              <p class="loading-text">
+                Validating row {{ validationProgress.current }} of {{ validationProgress.total }}
+              </p>
+            </div>
+          }
+          <div class="validation-table-container">
+            <table mat-table [dataSource]="visibleValidationRows" class="validation-data-table">
+              <ng-container matColumnDef="code">
+                <th mat-header-cell *matHeaderCellDef>Code</th>
+                <td mat-cell *matCellDef="let row">{{ row.code }}</td>
+              </ng-container>
+              <ng-container matColumnDef="display">
+                <th mat-header-cell *matHeaderCellDef>Display</th>
+                <td mat-cell *matCellDef="let row">{{ row.display || '—' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="validation-status" [class]="'validation-status-' + row.status">
+                    @if (row.status === 'validating') {
+                      <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+                    } @else {
+                      <mat-icon
+                        [color]="row.status === 'invalid' || row.status === 'error' ? 'warn' : (row.status === 'valid' ? 'primary' : undefined)"
+                      >{{ getValidationStatusIcon(row.status) }}</mat-icon>
+                    }
+                    <span>{{ getValidationStatusLabel(row.status) }}</span>
+                  </span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="result">
+                <th mat-header-cell *matHeaderCellDef>Result</th>
+                <td mat-cell *matCellDef="let row">
+                  @if (row.status === 'pending' || row.status === 'validating') {
+                    —
+                  } @else {
+                    {{ row.result ? 'true' : 'false' }}
+                  }
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="message">
+                <th mat-header-cell *matHeaderCellDef>Message</th>
+                <td mat-cell *matCellDef="let row">{{ row.message || '—' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="serverDisplay">
+                <th mat-header-cell *matHeaderCellDef>Server Display</th>
+                <td mat-cell *matCellDef="let row">{{ row.serverDisplay || '—' }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['code', 'display', 'status', 'result', 'message', 'serverDisplay']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['code', 'display', 'status', 'result', 'message', 'serverDisplay']"></tr>
+            </table>
+          </div>
+          @if (canLoadMoreValidationRows) {
+            <div class="preview-actions">
+              <button mat-stroked-button color="primary" (click)="loadMoreValidationRows()">
+                <mat-icon>expand_more</mat-icon>
+                <span>Load more</span>
+              </button>
+            </div>
+          }
         </div>
       }
       <!-- Target Preview Table -->

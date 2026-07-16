@@ -31,6 +31,21 @@ export interface ValueSetSummary {
   title: string;
 }
 
+/** Parsed outcome from CodeSystem/$validate-code. */
+export interface ValidateCodeResult {
+  result: boolean;
+  inactive?: boolean;
+  message?: string;
+  display?: string;
+  requestError?: boolean;
+}
+
+/** Active replacement concept from inactive association translate. */
+export interface SnomedReplacementConcept {
+  code: string;
+  display: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -873,6 +888,109 @@ export class TerminologyService {
       .pipe(
         catchError(this.handleError<any>('lookupConceptFromServer', {}))
       );
+  }
+
+  validateCode(code: string, display?: string, version?: string, fhirBase?: string): Observable<ValidateCodeResult> {
+    if (!fhirBase) fhirBase = this.snowstormFhirBase;
+    if (!version) version = this.fhirUrlParam;
+
+    const parameter: Array<{ name: string; valueUri?: string; valueString?: string; valueCode?: string }> = [
+      { name: 'url', valueUri: 'http://snomed.info/sct' },
+      { name: 'version', valueString: version },
+      { name: 'code', valueCode: code },
+    ];
+
+    const trimmedDisplay = display?.trim();
+    if (trimmedDisplay) {
+      parameter.push({ name: 'display', valueString: trimmedDisplay });
+    }
+
+    const body = {
+      resourceType: 'Parameters',
+      parameter,
+    };
+
+    const requestUrl = `${fhirBase}/CodeSystem/$validate-code`;
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/fhir+json',
+        'Accept': 'application/fhir+json',
+        'Accept-Language': this.getComputedLanguageContext(),
+      }),
+    };
+
+    return this.http.post<any>(requestUrl, body, httpOptions).pipe(
+      map((response) => this.parseValidateCodeResponse(response)),
+      catchError((error) => of({
+        result: false,
+        message: error?.error?.issue?.[0]?.details?.text || error?.message || 'Validation request failed',
+        requestError: true,
+      }))
+    );
+  }
+
+  private parseValidateCodeResponse(response: any): ValidateCodeResult {
+    const params = response?.parameter ?? [];
+    const getParam = (name: string) => params.find((param: any) => param.name === name);
+
+    const resultParam = getParam('result');
+    const messageParam = getParam('message');
+    const displayParam = getParam('display');
+    const inactiveParam = getParam('inactive');
+
+    return {
+      result: resultParam?.valueBoolean === true,
+      inactive: inactiveParam ? inactiveParam.valueBoolean === true : undefined,
+      message: messageParam?.valueString,
+      display: displayParam?.valueString,
+    };
+  }
+
+  translateInactiveSnomedReplacements(code: string, fhirBase?: string): Observable<SnomedReplacementConcept[]> {
+    if (!fhirBase) fhirBase = this.snowstormFhirBase;
+
+    const requestUrl = `${fhirBase}/ConceptMap/$translate?code=${encodeURIComponent(code)}&system=http://snomed.info/sct&targetsystem=http://snomed.info/sct`;
+    const headers = new HttpHeaders({
+      'Accept': 'application/fhir+json',
+      'Accept-Language': this.getComputedLanguageContext(),
+    });
+
+    return this.http.get<any>(requestUrl, { headers }).pipe(
+      map((response) => this.parseInactiveReplacementTranslateResponse(response)),
+      catchError(() => of([]))
+    );
+  }
+
+  private parseInactiveReplacementTranslateResponse(response: any): SnomedReplacementConcept[] {
+    const params: any[] = response?.parameter ?? [];
+    const resultParam = params.find((param) => param.name === 'result');
+    if (resultParam?.valueBoolean !== true) {
+      return [];
+    }
+
+    const seenCodes = new Set<string>();
+    const replacements: SnomedReplacementConcept[] = [];
+
+    for (const param of params) {
+      if (param.name !== 'match') {
+        continue;
+      }
+
+      const conceptPart = (param.part ?? []).find((part: any) => part.name === 'concept');
+      const coding = conceptPart?.valueCoding;
+      const replacementCode = coding?.code;
+      if (!replacementCode || seenCodes.has(replacementCode)) {
+        continue;
+      }
+
+      seenCodes.add(replacementCode);
+      replacements.push({
+        code: replacementCode,
+        display: coding?.display ?? '',
+      });
+    }
+
+    return replacements;
   }
 
   getNormalForm(concept: any): string {

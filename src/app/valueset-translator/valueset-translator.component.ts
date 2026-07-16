@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as XLSX from 'xlsx';
-import { TerminologyService } from '../services/terminology.service';
+import { TerminologyService, SnomedReplacementConcept, ValidateCodeResult } from '../services/terminology.service';
 import { Subscription, combineLatest } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { saveAs } from 'file-saver';
@@ -91,6 +91,18 @@ interface ConceptRow {
   system?: string;
 }
 
+type ValidationRowStatus = 'pending' | 'validating' | 'valid' | 'invalid' | 'error';
+
+interface ValidationResultRow {
+  code: string;
+  display?: string;
+  status: ValidationRowStatus;
+  result?: boolean;
+  inactive?: boolean;
+  message?: string;
+  serverDisplay?: string;
+}
+
 @Component({
   selector: 'app-valueset-translator',
   templateUrl: './valueset-translator.component.html',
@@ -159,6 +171,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   public languageRefsets: any[] = [];
   public isFileLoading = false;
   public isTranslationLoading = false;
+  public isValidationLoading = false;
+  validationResults: ValidationResultRow[] = [];
+  validationProgress = { current: 0, total: 0 };
+  validationPreviewVisibleCount = 100;
+  validationPreviewIncrement = 100;
+  inactiveCodesAreInvalid = true;
+  private validationCancelled = false;
   totalCount: number = 0;
   generatedPackage: FHIRPackage | null = null;
   private outputSettingsInitialized = false;
@@ -233,6 +252,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngOnDestroy() {
+    this.validationCancelled = true;
     this.subscriptions.unsubscribe();
     this.workflowProgressObserver?.disconnect();
   }
@@ -794,6 +814,12 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.targetPreviewData = [];
     this.targetPreviewVisibleCount = 10;
     this.previewVisibleCount = 5;
+    this.validationResults = [];
+    this.validationPreviewVisibleCount = 100;
+    this.validationProgress = { current: 0, total: 0 };
+    this.isValidationLoading = false;
+    this.validationCancelled = true;
+    this.inactiveCodesAreInvalid = true;
     
     // Reset UI state
     this.error = null;
@@ -843,6 +869,12 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.targetPreviewData = [];
     this.targetPreviewVisibleCount = 10;
     this.previewVisibleCount = 5;
+    this.validationResults = [];
+    this.validationPreviewVisibleCount = 100;
+    this.validationProgress = { current: 0, total: 0 };
+    this.isValidationLoading = false;
+    this.validationCancelled = true;
+    this.inactiveCodesAreInvalid = true;
     
     // Reset UI state
     this.error = null;
@@ -1461,6 +1493,212 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
+  async validateCodesAndTerms(): Promise<void> {
+    this.validationCancelled = false;
+    this.isValidationLoading = true;
+    this.error = null;
+
+    try {
+      const codes = await this.getCodesForPreview();
+      if (!codes.length) {
+        this.error = 'No codes found to validate.';
+        return;
+      }
+
+      this.validationResults = codes.map((codeItem) => ({
+        code: codeItem.code,
+        display: codeItem.display,
+        status: 'pending' as ValidationRowStatus,
+      }));
+      this.validationProgress = { current: 0, total: codes.length };
+      this.validationPreviewVisibleCount = 100;
+
+      const fhirBase = this.terminologyService.getSnowstormFhirBase();
+      const version = this.terminologyContext.fhirUrlParam;
+
+      for (let i = 0; i < codes.length; i++) {
+        if (this.validationCancelled) {
+          break;
+        }
+
+        if (i > 0) {
+          await this.delay(1000);
+          if (this.validationCancelled) {
+            break;
+          }
+        }
+
+        this.validationResults[i] = {
+          ...this.validationResults[i],
+          status: 'validating',
+        };
+        this.validationProgress = { current: i + 1, total: codes.length };
+
+        const codeItem = codes[i];
+        const response = await this.terminologyService.validateCode(
+          codeItem.code,
+          codeItem.display,
+          version,
+          fhirBase
+        ).toPromise();
+
+        if (this.validationCancelled) {
+          break;
+        }
+
+        const resolved = this.resolveValidationRow(response);
+        let rowUpdate = { ...resolved };
+
+        if (response?.inactive === true && !this.validationCancelled) {
+          const replacements = await this.terminologyService
+            .translateInactiveSnomedReplacements(codeItem.code, fhirBase)
+            .toPromise();
+          if (replacements?.length) {
+            rowUpdate = {
+              ...rowUpdate,
+              message: this.appendReplacementConcepts(rowUpdate.message, replacements),
+            };
+          }
+        }
+
+        this.validationResults[i] = {
+          ...this.validationResults[i],
+          ...rowUpdate,
+        };
+      }
+    } catch (error: any) {
+      this.error = `Error validating codes: ${error.message || error}`;
+      this.snackBar.open(this.error, 'Close', { duration: 5000 });
+    } finally {
+      this.isValidationLoading = false;
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private resolveValidationRow(response?: ValidateCodeResult): Pick<
+    ValidationResultRow,
+    'status' | 'result' | 'inactive' | 'message' | 'serverDisplay'
+  > {
+    if (!response || response.requestError) {
+      return {
+        status: 'error',
+        result: false,
+        message: response?.message || 'Validation request failed',
+        serverDisplay: response?.display,
+      };
+    }
+
+    const inactive = response.inactive === true;
+    const treatInactiveAsInvalid = this.inactiveCodesAreInvalid && inactive;
+    const isValid = response.result === true && !treatInactiveAsInvalid;
+
+    return {
+      status: isValid ? 'valid' : 'invalid',
+      result: isValid,
+      inactive,
+      message: inactive ? this.prependInactiveMessage(response.message) : response.message,
+      serverDisplay: response.display,
+    };
+  }
+
+  private prependInactiveMessage(message?: string): string {
+    const prefix = 'Code is inactive';
+    const trimmedMessage = message?.trim();
+    if (!trimmedMessage) {
+      return prefix;
+    }
+    if (trimmedMessage.startsWith(prefix)) {
+      return trimmedMessage;
+    }
+    return `${prefix}. ${trimmedMessage}`;
+  }
+
+  private appendReplacementConcepts(
+    message: string | undefined,
+    replacements: SnomedReplacementConcept[]
+  ): string {
+    const lines = replacements.map((replacement) => `- ${replacement.code} |${replacement.display}|`);
+    const block = ['---', 'Replacement concepts:', ...lines].join('\n');
+    return message?.trim() ? `${message}\n${block}` : block;
+  }
+
+  get validationCompletedCount(): number {
+    return this.validationResults.filter(
+      (row) => row.status !== 'pending' && row.status !== 'validating'
+    ).length;
+  }
+
+  get validationValidCount(): number {
+    return this.validationResults.filter((row) => row.status === 'valid').length;
+  }
+
+  get validationInvalidCount(): number {
+    return this.validationResults.filter(
+      (row) => row.status === 'invalid' || row.status === 'error'
+    ).length;
+  }
+
+  get sortedValidationResults(): ValidationResultRow[] {
+    const rank = (status: ValidationRowStatus): number => {
+      if (status === 'invalid' || status === 'error') return 0;
+      if (status === 'validating') return 1;
+      if (status === 'pending') return 2;
+      return 3;
+    };
+
+    return [...this.validationResults]
+      .map((row, index) => ({ row, index }))
+      .sort((a, b) => rank(a.row.status) - rank(b.row.status) || a.index - b.index)
+      .map(({ row }) => row);
+  }
+
+  getValidationStatusLabel(status: ValidationRowStatus): string {
+    switch (status) {
+      case 'pending': return 'Pending';
+      case 'validating': return 'Validating';
+      case 'valid': return 'Valid';
+      case 'invalid': return 'Invalid';
+      case 'error': return 'Error';
+      default: return status;
+    }
+  }
+
+  getValidationStatusIcon(status: ValidationRowStatus): string {
+    switch (status) {
+      case 'pending': return 'hourglass_empty';
+      case 'validating': return 'sync';
+      case 'valid': return 'check_circle';
+      case 'invalid': return 'cancel';
+      case 'error': return 'error';
+      default: return 'help';
+    }
+  }
+
+  get visibleValidationRows(): ValidationResultRow[] {
+    return this.sortedValidationResults.slice(0, this.validationPreviewVisibleCount);
+  }
+
+  get canLoadMoreValidationRows(): boolean {
+    return this.validationResults.length > this.validationPreviewVisibleCount;
+  }
+
+  loadMoreValidationRows(): void {
+    this.validationPreviewVisibleCount = Math.min(
+      this.validationPreviewVisibleCount + this.validationPreviewIncrement,
+      this.validationResults.length
+    );
+  }
+
+  get validationProgressPercent(): number {
+    if (!this.validationProgress.total) {
+      return 0;
+    }
+    return (this.validationProgress.current / this.validationProgress.total) * 100;
+  }
+
   async generateTargetPreview(): Promise<void> {
     if (!this.previewData.length && !this.isValueSetFile && !this.isEclResult) {
       this.error = 'No preview data available.';
@@ -1505,6 +1743,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   }
 
   selectAction(action: string) {
+    this.validationCancelled = true;
     this.selectedAction = action;
     if (action !== 'code-display-excel') {
       this.codeDisplayExported = false;
@@ -1513,6 +1752,10 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.targetPreviewData = [];
     this.targetPreviewVisibleCount = 10;
     this.targetValueSet = null;
+    this.validationResults = [];
+    this.validationPreviewVisibleCount = 100;
+    this.validationProgress = { current: 0, total: 0 };
+    this.isValidationLoading = false;
     // Don't clear sourceValueSet as it's needed for JSON ValueSet operations
     // this.sourceValueSet = null;
 
@@ -1569,7 +1812,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     }
 
     // Translation-only preview does not require metadata.
-    if (this.selectedAction === 'translate' || this.selectedAction === 'translate-target') {
+    if (this.selectedAction === 'translate' || this.selectedAction === 'translate-target' || this.selectedAction === 'validate-codes') {
       return true;
     }
 
@@ -1606,6 +1849,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       case 'translate-target': return 'swap_horiz';
       case 'fhir-package': return 'archive';
       case 'code-display-excel': return 'table_view';
+      case 'validate-codes': return 'verified';
       default: return 'play_arrow';
     }
   }
@@ -1618,6 +1862,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       case 'translate-target': return 'Translate Target Column';
       case 'fhir-package': return 'Generate FHIR Package';
       case 'code-display-excel': return 'Generate code/display Excel';
+      case 'validate-codes': return 'Validate Codes and Terms';
       default: return 'Execute Action';
     }
   }
@@ -1644,6 +1889,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           break;
         case 'code-display-excel':
           await this.downloadCodeDisplayAsExcel();
+          break;
+        case 'validate-codes':
+          await this.validateCodesAndTerms();
           break;
       }
     } finally {
@@ -1925,12 +2173,12 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   }
 
   get hasResultData(): boolean {
-    return this.targetPreviewData.length > 0 || !!this.targetValueSet;
+    return this.targetPreviewData.length > 0 || !!this.targetValueSet || this.validationResults.length > 0;
   }
 
   get currentWorkflowStep(): number {
     if (this.codeDisplayExported) return 4;
-    if (this.hasResultData || this.isTranslationLoading) return 4;
+    if (this.hasResultData || this.isTranslationLoading || this.isValidationLoading) return 4;
     if (this.selectedAction) return 3;
     if (this.hasInputReady) return 2;
     return 1;

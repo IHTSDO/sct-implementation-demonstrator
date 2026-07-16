@@ -943,6 +943,146 @@ mat-progress-bar {
   }
 }
 
+.validation-options {
+  margin: 16px 0 0;
+}
+
+.validation-context-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 14px;
+
+  mat-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+.validation-results-table {
+  margin: 24px 0;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .validation-results-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px 0;
+    color: #495057;
+    font-size: 18px;
+    font-weight: 600;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .validation-summary {
+    margin: 0 0 16px 0;
+    color: #6c757d;
+    font-size: 14px;
+  }
+
+  .validation-progress {
+    margin-bottom: 16px;
+
+    mat-progress-bar {
+      margin-bottom: 8px;
+    }
+
+    .loading-text {
+      margin: 0;
+      text-align: center;
+      color: #6c757d;
+      font-size: 14px;
+    }
+  }
+
+  .validation-table-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .validation-data-table {
+    width: 100%;
+    margin: 0;
+
+    th {
+      background-color: #f8f9fa;
+      color: #495057;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 16px 12px;
+      border-bottom: 2px solid #dee2e6;
+      text-align: left;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 14px;
+      color: #495057;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .mat-column-status {
+      min-width: 150px;
+    }
+
+    .mat-column-message {
+      white-space: pre-wrap;
+    }
+  }
+
+  .validation-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    mat-progress-spinner {
+      display: inline-block;
+    }
+  }
+
+  .validation-status-pending {
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+  .validation-status-validating {
+    color: rgba(0, 0, 0, 0.7);
+  }
+}
+
 .action-selection {
   margin: 24px 0;
   padding: 24px;
