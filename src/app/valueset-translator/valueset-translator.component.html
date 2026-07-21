@@ -213,6 +213,24 @@
           <h3>Step 2: Configure Input</h3>
         </div>
       }
+      @if (showPreview && availableSheetNames.length > 1 && !isLoading) {
+        <div #sheetSelectorAnchor class="column-form sheet-form">
+          <h3 class="column-form-title">
+            <mat-icon>layers</mat-icon>
+            Select Worksheet
+          </h3>
+          <div class="column-selection-row">
+            <mat-form-field appearance="fill">
+              <mat-label>Worksheet</mat-label>
+              <mat-select [value]="selectedSheetName" (selectionChange)="onSheetChange($event.value)">
+                @for (sheetName of availableSheetNames; track sheetName) {
+                  <mat-option [value]="sheetName">{{ sheetName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      }
       @if (isLoading && showEclInput && isEclResult) {
         <div class="preview-table preview-skeleton">
           <h3 class="preview-title">

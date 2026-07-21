@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, Subject } from 'rxjs';
+import * as XLSX from 'xlsx';
 import { EclBuilderDialogService } from '../bindings/ecl-builder/ecl-builder-dialog.service';
 import { TerminologyService, SnomedReplacementConcept } from '../services/terminology.service';
 import { ValuesetTranslatorComponent } from './valueset-translator.component';
@@ -259,5 +260,95 @@ describe('ValuesetTranslatorComponent', () => {
 
     expect(component.validationPreviewVisibleCount).toBe(200);
     expect(component.visibleValidationRows.length).toBe(200);
+  });
+
+  it('loads the first worksheet by default for multi-sheet workbooks', () => {
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([['code', 'display'], ['111', 'Sheet1 term']]),
+      'Sheet1'
+    );
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([['code', 'display'], ['222', 'Sheet2 term']]),
+      'Sheet2'
+    );
+
+    (component as any).loadSpreadsheetPreviewFromWorkbook(workbook);
+
+    expect(component.availableSheetNames).toEqual(['Sheet1', 'Sheet2']);
+    expect(component.selectedSheetName).toBe('Sheet1');
+    expect(component.previewData[1][0]).toBe('111');
+    expect(component.showPreview).toBeTrue();
+  });
+
+  it('switches preview data and clears downstream state when worksheet changes', () => {
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([['code', 'display'], ['111', 'Sheet1 term']]),
+      'Sheet1'
+    );
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([['code', 'display'], ['222', 'Sheet2 term']]),
+      'Sheet2'
+    );
+
+    (component as any).loadSpreadsheetPreviewFromWorkbook(workbook);
+    component.selectedAction = 'validate-codes';
+    component.validationResults = [{ code: '111', status: 'valid', result: true }];
+
+    component.onSheetChange('Sheet2');
+
+    expect(component.selectedSheetName).toBe('Sheet2');
+    expect(component.previewData[1][0]).toBe('222');
+    expect(component.selectedAction).toBeNull();
+    expect(component.validationResults.length).toBe(0);
+  });
+
+  it('reads cached workbook data from the selected worksheet', async () => {
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([['code', 'display'], ['111', 'Sheet1 term']]),
+      'Sheet1'
+    );
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([['source code', 'target code'], ['A', '222']]),
+      'Sheet2'
+    );
+
+    component.uploadedWorkbook = workbook;
+    component.selectedSheetName = 'Sheet2';
+
+    const data = await (component as any).readExcelFile({ name: 'test.xlsx' } as File);
+
+    expect(data.length).toBe(1);
+    expect(data[0]['target code']).toBe('222');
+  });
+
+  it('scrolls to the worksheet selector after multi-sheet file load', () => {
+    const scrollToElementSpy = spyOn<any>(component, 'scrollToElementAfterRender');
+    const scrollToBottomSpy = spyOn<any>(component, 'scrollToBottomAfterRender');
+
+    component.availableSheetNames = ['Sheet1', 'Sheet2'];
+    (component as any).scrollAfterSuccessfulFileLoad();
+
+    expect(scrollToElementSpy).toHaveBeenCalled();
+    expect(scrollToBottomSpy).not.toHaveBeenCalled();
+  });
+
+  it('scrolls to the page bottom after single-sheet file load', () => {
+    const scrollToElementSpy = spyOn<any>(component, 'scrollToElementAfterRender');
+    const scrollToBottomSpy = spyOn<any>(component, 'scrollToBottomAfterRender');
+
+    component.availableSheetNames = ['Sheet1'];
+    (component as any).scrollAfterSuccessfulFileLoad();
+
+    expect(scrollToBottomSpy).toHaveBeenCalled();
+    expect(scrollToElementSpy).not.toHaveBeenCalled();
   });
 });

@@ -114,6 +114,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
 
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('workflowProgressAnchor') workflowProgressAnchor!: ElementRef<HTMLElement>;
+  @ViewChild('sheetSelectorAnchor') sheetSelectorAnchor?: ElementRef<HTMLElement>;
   private workflowProgressObserver?: IntersectionObserver;
   
   file: File | null = null;
@@ -181,6 +182,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   totalCount: number = 0;
   generatedPackage: FHIRPackage | null = null;
   private outputSettingsInitialized = false;
+  uploadedWorkbook: XLSX.WorkBook | null = null;
+  availableSheetNames: string[] = [];
+  selectedSheetName: string | null = null;
 
 
   constructor(
@@ -291,7 +295,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       return;
     }
 
-    const topOffset = window.innerWidth <= 768 ? 64 : 72;
+    const topOffset = this.getScrollTopOffset();
     const rect = anchor.getBoundingClientRect();
     this.showFloatingWorkflowProgress = rect.bottom <= topOffset;
   }
@@ -322,6 +326,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.originalData    = [];
     this.isMap = false;
     this.isRf2Refset = false;
+    this.uploadedWorkbook = null;
+    this.availableSheetNames = [];
+    this.selectedSheetName = null;
 
     try {
       if (!this.file) { return; }
@@ -425,34 +432,93 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
         }
 
         const wb = XLSX.read(buf);            // should be safe now
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        this.previewData  = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        this.originalData = [...this.previewData];
-
-        /* ---------- build table preview ---------- */
-        if (this.previewData.length) {
-          this.columns = this.previewData[0].map(
-            (h: string, i: number) => ({ header: h || `Column ${i + 1}`, index: i })
-          );
-          this.displayedColumns = this.columns.map((_, i) => `${i}`);
-          this.showPreview      = true;
-
-          // Check for file types based on headers
-          this.detectFileTypeFromHeaders();
-
-          // keep current "skip header" checkbox state
-          const keepSkip = this.importForm.get('skipHeader')!.value;
-          this.importForm.reset({ skipHeader: keepSkip });
-        }
+        this.loadSpreadsheetPreviewFromWorkbook(wb);
       }
     } catch (err: any) {
       this.error = `Error reading file: ${err.message || err}`;
     } finally {
       this.isFileLoading = false;
       if (this.showPreview && !this.error) {
-        this.scrollToBottomAfterRender();
+        this.scrollAfterSuccessfulFileLoad();
       }
     }
+  }
+
+  private loadSpreadsheetPreviewFromWorkbook(workbook: XLSX.WorkBook): void {
+    this.uploadedWorkbook = workbook;
+    this.availableSheetNames = [...workbook.SheetNames];
+    this.selectedSheetName = workbook.SheetNames[0] ?? null;
+    if (this.selectedSheetName) {
+      this.applySelectedSheet(this.selectedSheetName);
+    }
+  }
+
+  private applySelectedSheet(sheetName: string): void {
+    if (!this.uploadedWorkbook) {
+      return;
+    }
+
+    const ws = this.uploadedWorkbook.Sheets[sheetName];
+    if (!ws) {
+      this.error = `Worksheet "${sheetName}" was not found in the workbook.`;
+      this.previewData = [];
+      this.originalData = [];
+      this.columns = [];
+      this.displayedColumns = [];
+      this.showPreview = false;
+      return;
+    }
+
+    this.previewData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    this.originalData = [...this.previewData];
+    this.previewVisibleCount = 5;
+
+    if (this.previewData.length) {
+      this.columns = this.previewData[0].map(
+        (h: string, i: number) => ({ header: h || `Column ${i + 1}`, index: i })
+      );
+      this.displayedColumns = this.columns.map((_, i) => `${i}`);
+      this.showPreview = true;
+
+      this.detectFileTypeFromHeaders();
+
+      const keepSkip = this.importForm.get('skipHeader')!.value;
+      this.importForm.reset({ skipHeader: keepSkip });
+    } else {
+      this.columns = [];
+      this.displayedColumns = [];
+      this.showPreview = false;
+    }
+  }
+
+  onSheetChange(sheetName: string): void {
+    if (sheetName === this.selectedSheetName) {
+      return;
+    }
+
+    this.selectedSheetName = sheetName;
+    this.clearDownstreamStateForSheetChange();
+    this.applySelectedSheet(sheetName);
+    this.scrollToBottomAfterRender();
+  }
+
+  private clearDownstreamStateForSheetChange(): void {
+    this.selectedAction = null;
+    this.codeDisplayExported = false;
+    this.codeDisplayExportedCount = 0;
+    this.targetPreviewData = [];
+    this.targetPreviewVisibleCount = 10;
+    this.targetValueSet = null;
+    this.sourceValueSet = null;
+    this.validationResults = [];
+    this.validationPreviewVisibleCount = 100;
+    this.validationProgress = { current: 0, total: 0 };
+    this.isValidationLoading = false;
+    this.validationCancelled = true;
+    this.isLoading = false;
+    this.isTranslationLoading = false;
+    this.error = null;
+    this.successMessage = null;
   }
 
   private detectFileTypeFromHeaders(): void {
@@ -769,6 +835,34 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
+  private getScrollTopOffset(): number {
+    return window.innerWidth <= 768 ? 64 : 72;
+  }
+
+  private scrollToElement(element: HTMLElement): void {
+    const top = element.getBoundingClientRect().top + window.scrollY - this.getScrollTopOffset();
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+
+  private scrollToElementAfterRender(getElement: () => HTMLElement | null | undefined): void {
+    const scroll = () => {
+      const element = getElement();
+      if (element) {
+        this.scrollToElement(element);
+      }
+    };
+    setTimeout(scroll, 0);
+    setTimeout(scroll, 260);
+  }
+
+  private scrollAfterSuccessfulFileLoad(): void {
+    if (this.availableSheetNames.length > 1) {
+      this.scrollToElementAfterRender(() => this.sheetSelectorAnchor?.nativeElement ?? null);
+    } else {
+      this.scrollToBottomAfterRender();
+    }
+  }
+
   private scrollToBottom(): void {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
@@ -806,6 +900,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.isValueSetFile = false;
     this.isMap = false;
     this.isRf2Refset = false;
+    this.uploadedWorkbook = null;
+    this.availableSheetNames = [];
+    this.selectedSheetName = null;
     
     // Reset action state
     this.selectedAction = null;
@@ -861,6 +958,9 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.isValueSetFile = false;
     this.isMap = false;
     this.isRf2Refset = false;
+    this.uploadedWorkbook = null;
+    this.availableSheetNames = [];
+    this.selectedSheetName = null;
     
     // Reset action state
     this.selectedAction = null;
@@ -1475,6 +1575,13 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   }
 
   private async readExcelFile(file: File): Promise<any[]> {
+    if (this.uploadedWorkbook && this.selectedSheetName) {
+      const ws = this.uploadedWorkbook.Sheets[this.selectedSheetName];
+      if (ws) {
+        return XLSX.utils.sheet_to_json(ws);
+      }
+    }
+
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e: any) => {
