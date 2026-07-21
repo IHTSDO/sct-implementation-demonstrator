@@ -594,6 +594,18 @@
               </button>
             </div>
           }
+          @if (validationResults.length > 0 && !isValidationLoading) {
+            <div class="preview-actions">
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="downloadValidationResultsAsExcel()"
+              >
+                <mat-icon>table_view</mat-icon>
+                <span>Download as Excel</span>
+              </button>
+            </div>
+          }
         </div>
       }
       <!-- Target Preview Table -->

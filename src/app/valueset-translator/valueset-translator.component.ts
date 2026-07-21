@@ -1692,6 +1692,47 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     );
   }
 
+  downloadValidationResultsAsExcel(): void {
+    if (!this.validationResults.length) {
+      return;
+    }
+
+    const data = [
+      ['Code', 'Display', 'Status', 'Result', 'Message', 'Server Display'],
+      ...this.validationResults.map((row) => [
+        row.code || '',
+        row.display || '',
+        this.getValidationStatusLabel(row.status),
+        row.status === 'pending' || row.status === 'validating'
+          ? ''
+          : (row.result ? 'true' : 'false'),
+        row.message || '',
+        row.serverDisplay || '',
+      ]),
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [
+      { wch: 15 },
+      { wch: 40 },
+      { wch: 12 },
+      { wch: 8 },
+      { wch: 60 },
+      { wch: 40 },
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, 'ValidationResults');
+
+    const originalExt = this.file?.name.split('.').pop() || 'xlsx';
+    const filename = this.file?.name.replace(
+      `.${originalExt}`,
+      '_validation_results.xlsx'
+    ) || 'validation-results.xlsx';
+
+    XLSX.writeFile(wb, filename);
+    this.successMessage = `Exported ${this.validationResults.length} validation rows to ${filename}`;
+  }
+
   get validationProgressPercent(): number {
     if (!this.validationProgress.total) {
       return 0;
