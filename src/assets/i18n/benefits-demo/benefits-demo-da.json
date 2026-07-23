@@ -153,7 +153,9 @@
       "addProcedure": "Tilføj procedure",
       "addMedication": "Tilføj medicin",
       "addImmunization": "Tilføj vaccination",
-      "close": "Luk"
+      "close": "Luk",
+      "seedDiagnosticDemoData": "Generer diagnostiske demodata",
+      "addResult": "Tilføj resultat"
     },
     "labels": {
       "id": "ID",
@@ -170,7 +172,10 @@
       "loinc": "LOINC",
       "determination": "afgørelse",
       "determinationPlural": "r",
-      "specimens": "Prøver"
+      "specimens": "Prøver",
+      "date": "Dato",
+      "term": "Term",
+      "result": "Resultat"
     },
     "status": {
       "active": "Aktiv",
@@ -180,7 +185,6 @@
       "clinical": "Klinisk",
       "summary": "Oversigt",
       "problemsList": "Problemliste",
-      "clinicalOrders": "Kliniske ordrer",
       "encounters": "Konsultationer",
       "aiAssistedDataEntry": "AI-assisteret dataindtastning",
       "clinicalForms": "Kliniske formularer",
@@ -192,7 +196,8 @@
       "nutritionalCareplan": "Ernæringsplejeplan",
       "dataSectionLabel": "Data",
       "data": "Data",
-      "fhirRepository": "FHIR-lager"
+      "fhirRepository": "FHIR-lager",
+      "laboratory": "Laboratorium"
     },
     "tooltips": {
       "expandSidebar": "Udvid sidepanel",
@@ -207,7 +212,9 @@
       "deleteProcedure": "Slet procedure",
       "deleteMedication": "Slet medicin",
       "deleteImmunization": "Slet vaccination",
-      "deleteOrder": "Slet ordre"
+      "deleteOrder": "Slet ordre",
+      "seedDiagnosticDemoData": "Tilføjer et fastende glukoseresultat og en klinisk blodtryksmåling designet til at udløse de nye SNOMED CT diagnostiske beslutningsstøttekort for diabetes og hypertension.",
+      "deleteResult": "Slet resultat"
     },
     "sections": {
       "summary": "Oversigt",
@@ -220,7 +227,9 @@
       "cds": "CDS",
       "addProblem": "Tilføj problem",
       "clinicalOrders": "Kliniske ordrer",
-      "savedOrders": "Gemte ordrer"
+      "savedOrders": "Gemte ordrer",
+      "addResult": "Tilføj resultat",
+      "savedResults": "Gemte resultater"
     },
     "messages": {
       "loadingClinicalData": "Indlæser kliniske data fra FHIR-server...",
@@ -254,13 +263,22 @@
       "noEventsToDelete": "Ingen kliniske hændelser at slette.",
       "allEventsDeleted": "Alle kliniske hændelser er slettet.",
       "failedToDeleteAllEvents": "Kunne ikke slette alle kliniske hændelser.",
-      "fhirDataLoaded": "FHIR-data indlæst: {{ total }} {{ resourceLabel }} fordelt på {{ groups }} {{ groupLabel }}."
+      "fhirDataLoaded": "FHIR-data indlæst: {{ total }} {{ resourceLabel }} fordelt på {{ groups }} {{ groupLabel }}.",
+      "diagnosticDemoDataSeeded": "Der er genereret diagnostiske demodata: fastende glukose og klinisk blodtryk. Genkontrollerer CDS.",
+      "diagnosticDemoDataAlreadyPresent": "Diagnostiske demodata findes allerede for denne patient. Genkontrollerer CDS.",
+      "addResultDescription": "Registrer hurtigt et almindeligt laboratorieresultat uden først at oprette en fuld rekvisition.",
+      "noLabResults": "Ingen laboratorieresultater registreret",
+      "labResultAdded": "Laboratorieresultat tilføjet."
     },
     "dialogs": {
       "deleteAllEventsTitle": "Slet alle kliniske hændelser",
       "deleteAllEventsMessage": "Dette vil permanent slette {{ count }} kliniske hændelser for {{ patient }}.\n\nDette inkluderer tilstande, procedurer, medicin, vaccinationer, allergier, konsultationer, observationer, spørgeskemaer og relaterede bundter.\n\nDenne handling kan ikke fortrydes.",
       "deleteAllEventsConfirm": "Slet alle hændelser",
       "cancel": "Annuller"
+    },
+    "labViews": {
+      "orders": "Rekvisitioner",
+      "results": "Resultater"
     }
   },
   "encounterRecord": {

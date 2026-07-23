@@ -4,10 +4,12 @@ import {
   CDSCard,
   CdsService,
   CDSServerExecutionResult,
+  HookExecutionContextSnapshot,
   HookExecutionSnapshot,
   StandardCdsHook
 } from '../../services/cds.service';
-import type { AllergyIntolerance, Condition, MedicationStatement, Patient } from '../../model';
+import { PatientService } from '../../services/patient.service';
+import type { Patient } from '../../model';
 
 export interface CdsState {
   isLoading: boolean;
@@ -33,9 +35,6 @@ export interface ServerCardGroup {
 })
 export class CdsPanelComponent implements OnChanges, OnDestroy {
   @Input() patient: Patient | null = null;
-  @Input() conditions: Condition[] = [];
-  @Input() medications: MedicationStatement[] = [];
-  @Input() allergies: AllergyIntolerance[] = [];
   @Input() autoTrigger: boolean = false;
   @Output() stateChange = new EventEmitter<CdsState>();
 
@@ -43,7 +42,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
 
   private hooksSubscription?: Subscription;
 
-  constructor(private cdsService: CdsService) {}
+  constructor(private cdsService: CdsService, private patientService: PatientService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['patient']) {
@@ -66,7 +65,15 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
       return;
     }
 
-    this.cdsService.rerunAllHooks(this.patient.id).subscribe();
+    const freshContext: HookExecutionContextSnapshot = {
+      patient: this.patient,
+      conditions: this.patientService.getPatientConditions(this.patient.id),
+      medications: this.patientService.getPatientMedications(this.patient.id),
+      allergies: this.patientService.getPatientAllergies(this.patient.id),
+      observations: this.patientService.getPatientObservations(this.patient.id)
+    };
+
+    this.cdsService.invokePatientView(freshContext).subscribe();
   }
 
   isCdsLoading(): boolean {

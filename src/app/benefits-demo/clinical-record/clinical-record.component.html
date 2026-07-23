@@ -97,7 +97,7 @@
               [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'"
               (click)="selectClinicalView('orders')">
               <mat-icon>biotech</mat-icon>
-              <span>{{ t('clinicalRecord.nav.clinicalOrders') }}</span>
+              <span>{{ t('clinicalRecord.nav.laboratory') }}</span>
             </button>
             <button
               mat-stroked-button
@@ -226,7 +226,7 @@
           <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'problems'" (click)="selectClinicalView('problems')" [matTooltip]="t('clinicalRecord.nav.problemsList')" matTooltipPosition="right">
             <mat-icon>list_alt</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'" (click)="selectClinicalView('orders')" [matTooltip]="t('clinicalRecord.nav.clinicalOrders')" matTooltipPosition="right">
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'orders'" (click)="selectClinicalView('orders')" [matTooltip]="t('clinicalRecord.nav.laboratory')" matTooltipPosition="right">
             <mat-icon>biotech</mat-icon>
           </button>
           <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'clinical' && selectedClinicalView === 'encounters'" (click)="selectClinicalView('encounters')" [matTooltip]="t('clinicalRecord.nav.encounters')" matTooltipPosition="right">
@@ -263,9 +263,6 @@
       <app-cds-panel
         class="cds-background-runner"
         [patient]="patient"
-        [conditions]="conditions"
-        [medications]="medications"
-        [allergies]="allergies"
         (stateChange)="onCdsStateChange($event)">
       </app-cds-panel>
 
@@ -821,64 +818,162 @@
             </div>
 
             <div *ngIf="selectedClinicalView === 'orders'" class="tab-content orders-tab-content">
-              <div class="orders-panel">
-                <div class="orders-header">
-                  <div>
-                    <h3>{{ t('clinicalRecord.sections.clinicalOrders') }}</h3>
-                    <p>{{ t('clinicalRecord.messages.clinicalOrdersDescription') }}</p>
-                  </div>
-                </div>
-
-                <app-loinc-order
-                  [patient]="patient"
-                  [showSaveAction]="true"
-                  (orderSaved)="onLabOrderSaved($event)">
-                </app-loinc-order>
+              <div class="lab-subnav">
+                <button
+                    type="button"
+                    mat-stroked-button
+                    [class.is-selected]="selectedLabView === 'results'"
+                    (click)="selectLabView('results')">
+                  <mat-icon>science</mat-icon>
+                  {{ t('clinicalRecord.labViews.results') }}
+                </button>
+                <button
+                    type="button"
+                    mat-stroked-button
+                    [class.is-selected]="selectedLabView === 'orders'"
+                    (click)="selectLabView('orders')">
+                  <mat-icon>receipt_long</mat-icon>
+                  {{ t('clinicalRecord.labViews.orders') }}
+                </button>
               </div>
 
-              <div class="orders-list-panel">
-                <div class="column-header">
-                  <h4><mat-icon>receipt_long</mat-icon> {{ t('clinicalRecord.sections.savedOrders') }}</h4>
-                  <span class="item-count">{{ labOrders.length }}</span>
+              <ng-container *ngIf="selectedLabView === 'orders'">
+                <div class="orders-panel">
+                  <div class="orders-header">
+                    <div>
+                      <h3>{{ t('clinicalRecord.sections.clinicalOrders') }}</h3>
+                      <p>{{ t('clinicalRecord.messages.clinicalOrdersDescription') }}</p>
+                    </div>
+                  </div>
+
+                  <app-loinc-order
+                    [patient]="patient"
+                    [showSaveAction]="true"
+                    (orderSaved)="onLabOrderSaved($event)">
+                  </app-loinc-order>
                 </div>
 
-                <div class="clinical-list compact" *ngIf="labOrders.length > 0; else noLabOrders">
-                  <div class="clinical-item compact order-item" *ngFor="let labOrder of getSortedLabOrders()">
-                    <div class="item-header compact">
-                      <span class="item-title compact">{{ getLabOrderDisplayName(labOrder) }}</span>
-                      <div class="item-header-actions compact">
-                        <button mat-icon-button
-                                class="delete-button compact"
-                                (click)="deleteLabOrder(labOrder.id)"
-                                [title]="t('clinicalRecord.tooltips.deleteOrder')">
-                          <mat-icon>delete_outline</mat-icon>
-                        </button>
+                <div class="orders-list-panel">
+                  <div class="column-header">
+                    <h4><mat-icon>receipt_long</mat-icon> {{ t('clinicalRecord.sections.savedOrders') }}</h4>
+                    <span class="item-count">{{ labOrders.length }}</span>
+                  </div>
+
+                  <div class="clinical-list compact" *ngIf="labOrders.length > 0; else noLabOrders">
+                    <div class="clinical-item compact order-item" *ngFor="let labOrder of getSortedLabOrders()">
+                      <div class="item-header compact">
+                        <span class="item-title compact">{{ getLabOrderDisplayName(labOrder) }}</span>
+                        <div class="item-header-actions compact">
+                          <button mat-icon-button
+                                  class="delete-button compact"
+                                  (click)="deleteLabOrder(labOrder.id)"
+                                  [title]="t('clinicalRecord.tooltips.deleteOrder')">
+                            <mat-icon>delete_outline</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="item-details compact inline">
+                        <span class="item-concept-id compact">
+                          {{ getLabOrderDeterminationCount(labOrder) }} {{ t('clinicalRecord.labels.determination') }}{{ getLabOrderDeterminationCount(labOrder) === 1 ? '' : t('clinicalRecord.labels.determinationPlural') }}
+                        </span>
+                        <span class="item-icd10-code compact" *ngIf="getLabOrderLoincCodes(labOrder).length">
+                          {{ t('clinicalRecord.labels.loinc') }}: {{ getLabOrderLoincCodes(labOrder).join(', ') }}
+                        </span>
+                        <span class="item-status compact">
+                          {{ labOrder.createdAt | date:'medium' }}
+                        </span>
+                      </div>
+                      <div class="allergy-reactions compact" *ngIf="getLabOrderSpecimenLabels(labOrder).length">
+                        <span class="reactions-label">{{ t('clinicalRecord.labels.specimens') }}:</span>
+                        <span class="reaction-item" *ngFor="let specimen of getLabOrderSpecimenLabels(labOrder); let last = last">
+                          {{ specimen }}<span *ngIf="!last">, </span>
+                        </span>
                       </div>
                     </div>
-                    <div class="item-details compact inline">
-                      <span class="item-concept-id compact">
-                        {{ getLabOrderDeterminationCount(labOrder) }} {{ t('clinicalRecord.labels.determination') }}{{ getLabOrderDeterminationCount(labOrder) === 1 ? '' : t('clinicalRecord.labels.determinationPlural') }}
-                      </span>
-                      <span class="item-icd10-code compact" *ngIf="getLabOrderLoincCodes(labOrder).length">
-                        {{ t('clinicalRecord.labels.loinc') }}: {{ getLabOrderLoincCodes(labOrder).join(', ') }}
-                      </span>
-                      <span class="item-status compact">
-                        {{ labOrder.createdAt | date:'medium' }}
-                      </span>
+                  </div>
+
+                  <ng-template #noLabOrders>
+                    <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noOrders') }}</div>
+                  </ng-template>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="selectedLabView === 'results'">
+                <div class="orders-panel">
+                  <div class="orders-header">
+                    <div>
+                      <h3>{{ t('clinicalRecord.sections.addResult') }}</h3>
+                      <p>{{ t('clinicalRecord.messages.addResultDescription') }}</p>
                     </div>
-                    <div class="allergy-reactions compact" *ngIf="getLabOrderSpecimenLabels(labOrder).length">
-                      <span class="reactions-label">{{ t('clinicalRecord.labels.specimens') }}:</span>
-                      <span class="reaction-item" *ngFor="let specimen of getLabOrderSpecimenLabels(labOrder); let last = last">
-                        {{ specimen }}<span *ngIf="!last">, </span>
-                      </span>
+                  </div>
+
+                  <div class="quick-lab-result-form">
+                    <div class="quick-lab-result-options">
+                      <button
+                          type="button"
+                          mat-stroked-button
+                          *ngFor="let option of quickLabResultOptions"
+                          [class.is-selected]="selectedQuickLabResultKey === option.key"
+                          (click)="selectQuickLabResult(option.key)">
+                        {{ option.label }}
+                      </button>
+                    </div>
+
+                    <div class="quick-lab-result-entry" *ngIf="getSelectedQuickLabResultOption() as selectedOption">
+                      <mat-form-field appearance="outline">
+                        <mat-label>{{ selectedOption.label }} ({{ selectedOption.unit }})</mat-label>
+                        <input matInput type="number" step="0.1" min="0" [(ngModel)]="quickLabResultValue">
+                      </mat-form-field>
+                      <button mat-flat-button color="primary" type="button" (click)="saveQuickLabResult()">
+                        {{ t('clinicalRecord.actions.addResult') }}
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                <ng-template #noLabOrders>
-                  <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noOrders') }}</div>
-                </ng-template>
-              </div>
+                <div class="orders-list-panel">
+                  <div class="column-header">
+                    <h4><mat-icon>science</mat-icon> {{ t('clinicalRecord.sections.savedResults') }}</h4>
+                    <span class="item-count">{{ getSortedLabResults().length }}</span>
+                  </div>
+
+                  <table class="lab-results-table" *ngIf="getSortedLabResults().length > 0; else noLabResults">
+                    <thead>
+                      <tr>
+                        <th>{{ t('clinicalRecord.labels.date') }}</th>
+                        <th>{{ t('clinicalRecord.labels.term') }}</th>
+                        <th>{{ t('clinicalRecord.labels.result') }}</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let result of getSortedLabResults()">
+                        <td class="lab-results-date">
+                          <div class="lab-results-date-day">{{ result.effectiveDateTime | date:'MMM d, y' }}</div>
+                          <div class="lab-results-date-time">{{ result.effectiveDateTime | date:'h:mm a' }}</div>
+                        </td>
+                        <td class="lab-results-term">
+                          <div class="lab-results-term-name">{{ getLabResultDisplayName(result) }}</div>
+                          <div class="lab-results-term-code" *ngIf="getLabResultConceptId(result)">{{ getLabResultConceptId(result) }}</div>
+                        </td>
+                        <td class="lab-results-value">{{ getLabResultValueText(result) }}</td>
+                        <td class="lab-results-actions">
+                          <button mat-icon-button
+                                  class="delete-button compact"
+                                  (click)="deleteLabResult(result.id)"
+                                  [title]="t('clinicalRecord.tooltips.deleteResult')">
+                            <mat-icon>delete_outline</mat-icon>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <ng-template #noLabResults>
+                    <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noLabResults') }}</div>
+                  </ng-template>
+                </div>
+              </ng-container>
             </div>
 
             <div *ngIf="selectedClinicalView === 'forms'" class="tab-content with-problems-layout">
@@ -907,11 +1002,18 @@
 
             <div *ngIf="selectedClinicalView === 'alerts'" class="tab-content with-problems-layout">
               <div class="main-pane">
+                <div class="diagnostic-demo-seed-bar">
+                  <button
+                      mat-stroked-button
+                      color="accent"
+                      (click)="seedDiagnosticDemoData()"
+                      [matTooltip]="t('clinicalRecord.tooltips.seedDiagnosticDemoData')">
+                    <mat-icon>science</mat-icon>
+                    {{ t('clinicalRecord.actions.seedDiagnosticDemoData') }}
+                  </button>
+                </div>
                 <app-cds-panel
-                  [patient]="patient"
-                  [conditions]="conditions"
-                  [medications]="medications"
-                  [allergies]="allergies">
+                  [patient]="patient">
                 </app-cds-panel>
               </div>
               <aside class="problems-pane">

@@ -14,12 +14,13 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() emoji = '🩺';
   @Input() label = '';
   @Input() unit = '';
-  @Input() code = '';
-  @Input() codeSystem = 'http://loinc.org';
   @Input() snomedCode = '';
+  @Input() loincCode = '';
   @Input() isBloodPressure = false;
   @Input() systolicSnomedCode = '271649006';
   @Input() diastolicSnomedCode = '271650006';
+  @Input() systolicLoincCode = '8480-6';
+  @Input() diastolicLoincCode = '8462-4';
   @Input() allowEntry = true;
   @Input() step = 0.1;
   @Input() min = 1;
@@ -44,7 +45,7 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['patient'] || changes['code']) {
+    if (changes['patient'] || changes['snomedCode']) {
       this.loadLatestObservation();
     }
   }
@@ -60,8 +61,8 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.isBloodPressure) {
-      const systolic = this.getComponentValue(obs, '8480-6');
-      const diastolic = this.getComponentValue(obs, '8462-4');
+      const systolic = this.getComponentValue(obs, this.systolicSnomedCode);
+      const diastolic = this.getComponentValue(obs, this.diastolicSnomedCode);
       if (systolic === null || diastolic === null) {
         return this.noDataLabel;
       }
@@ -106,7 +107,7 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   save(): void {
-    if (!this.patient || !this.allowEntry || !this.code) {
+    if (!this.patient || !this.allowEntry || !this.snomedCode) {
       return;
     }
 
@@ -133,20 +134,14 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
         component: [
           {
             code: {
-              coding: [
-                { system: 'http://loinc.org', code: '8480-6', display: 'Systolic blood pressure' },
-                { system: 'http://snomed.info/sct', code: this.systolicSnomedCode, display: 'Systolic blood pressure (observable entity)' }
-              ],
+              coding: this.buildComponentCodings('Systolic blood pressure', this.systolicSnomedCode, this.systolicLoincCode),
               text: 'Systolic blood pressure'
             },
             valueQuantity: { value: systolic, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' }
           },
           {
             code: {
-              coding: [
-                { system: 'http://loinc.org', code: '8462-4', display: 'Diastolic blood pressure' },
-                { system: 'http://snomed.info/sct', code: this.diastolicSnomedCode, display: 'Diastolic blood pressure (observable entity)' }
-              ],
+              coding: this.buildComponentCodings('Diastolic blood pressure', this.diastolicSnomedCode, this.diastolicLoincCode),
               text: 'Diastolic blood pressure'
             },
             valueQuantity: { value: diastolic, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' }
@@ -184,13 +179,13 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
 
   private loadLatestObservation(): void {
     this.latestObservation = null;
-    if (!this.patient || !this.code) {
+    if (!this.patient || !this.snomedCode) {
       return;
     }
 
     const observations = this.patientService.getPatientObservations(this.patient.id);
     const latest = observations
-      .filter((obs) => obs.code?.coding?.some((coding) => coding.code === this.code))
+      .filter((obs) => obs.code?.coding?.some((coding) => coding.code === this.snomedCode))
       .sort((a, b) => this.getTimestampMillis(b) - this.getTimestampMillis(a))[0];
 
     this.latestObservation = latest || null;
@@ -198,10 +193,20 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
 
   private buildPrimaryCodings(): Array<{ system: string; code: string; display: string }> {
     const codings: Array<{ system: string; code: string; display: string }> = [
-      { system: this.codeSystem, code: this.code, display: this.label }
+      { system: 'http://snomed.info/sct', code: this.snomedCode, display: `${this.label} (observable entity)` }
     ];
-    if (this.snomedCode) {
-      codings.push({ system: 'http://snomed.info/sct', code: this.snomedCode, display: `${this.label} (observable entity)` });
+    if (this.loincCode) {
+      codings.push({ system: 'http://loinc.org', code: this.loincCode, display: this.label });
+    }
+    return codings;
+  }
+
+  private buildComponentCodings(label: string, snomedCode: string, loincCode: string): Array<{ system: string; code: string; display: string }> {
+    const codings: Array<{ system: string; code: string; display: string }> = [
+      { system: 'http://snomed.info/sct', code: snomedCode, display: `${label} (observable entity)` }
+    ];
+    if (loincCode) {
+      codings.push({ system: 'http://loinc.org', code: loincCode, display: label });
     }
     return codings;
   }
@@ -215,8 +220,8 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
     return Number.isNaN(millis) ? 0 : millis;
   }
 
-  private getComponentValue(observation: FhirObservation, code: string): number | null {
-    const component = observation.component?.find((item) => item.code?.coding?.some((coding) => coding.code === code));
+  private getComponentValue(observation: FhirObservation, snomedCode: string): number | null {
+    const component = observation.component?.find((item) => item.code?.coding?.some((coding) => coding.code === snomedCode));
     const value = component?.valueQuantity?.value;
     if (value === undefined || value === null || Number.isNaN(value)) {
       return null;

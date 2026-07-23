@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
-import type { AllergyIntolerance, Condition, MedicationStatement, Patient } from '../model';
+import type { AllergyIntolerance, Condition, FhirObservation, MedicationStatement, Patient } from '../model';
 import { CdsHooksServerConfig, CdsHooksServerConfigService } from './cds-hooks-server-config.service';
 
 export type StandardCdsHook = 'patient-view' | 'order-select' | 'order-sign' | 'problem-list-item-create' | 'allergyintolerance-create';
@@ -142,6 +142,47 @@ export interface CDSMedicationRequest {
   }>;
 }
 
+export interface CDSObservationComponent {
+  code: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+  };
+  valueQuantity: {
+    value: number;
+    unit?: string;
+    system: string;
+    code: string;
+  };
+}
+
+export interface CDSObservation {
+  resourceType: 'Observation';
+  id: string;
+  status: string;
+  code: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text?: string;
+  };
+  subject: {
+    reference: string;
+  };
+  effectiveDateTime?: string;
+  valueQuantity?: {
+    value: number;
+    unit?: string;
+    system: string;
+    code: string;
+  };
+  component?: CDSObservationComponent[];
+}
+
 export interface CDSBundle<T> {
   resourceType: 'Bundle';
   id: string;
@@ -273,12 +314,14 @@ interface PatientViewRequest {
     patientId: string;
     encounterId?: string;
     userId: string;
+    abpmHbpUnavailableOrImpractical: boolean;
   };
   prefetch: {
     patient: CDSPatient;
     conditions: CDSBundle<CDSCondition>;
     medications: CDSBundle<CDSMedicationRequest>;
     allergies: CDSBundle<any>;
+    observations: CDSBundle<CDSObservation>;
   };
 }
 
@@ -336,12 +379,14 @@ export interface HookExecutionContextSnapshot {
   conditions: Condition[];
   medications: MedicationStatement[];
   allergies: AllergyIntolerance[];
+  observations: FhirObservation[];
   selectedMedications?: MedicationStatement[];
   draftMedications?: MedicationStatement[];
   newConditions?: Condition[];
   encounterId?: string;
   userId?: string;
   hookInstance?: string;
+  abpmHbpUnavailableOrImpractical?: boolean;
 }
 
 export interface HookExecutionSnapshot {
@@ -530,24 +575,6 @@ export class CdsService {
           draftMedications: [event.draftMedication]
         });
     }
-  }
-
-  rerunHook(patientId: string, hook: StandardCdsHook): Observable<HookExecutionSnapshot> {
-    const snapshot = this.getPatientHookSnapshot(patientId)[hook];
-    if (!snapshot?.context) {
-      const emptySnapshot: HookExecutionSnapshot = {
-        ...EMPTY_HOOK_SNAPSHOT(hook),
-        noDataMessage: `No recent ${STANDARD_CDS_HOOK_LABELS[hook]} context is available to rerun yet.`
-      };
-      this.updateHookSnapshot(patientId, hook, emptySnapshot);
-      return of(emptySnapshot);
-    }
-
-    return this.invokeHook(hook, snapshot.context);
-  }
-
-  rerunAllHooks(patientId: string): Observable<HookExecutionSnapshot[]> {
-    return forkJoin(STANDARD_HOOKS.map((hook) => this.rerunHook(patientId, hook)));
   }
 
   private invokeHook(hook: StandardCdsHook, context: HookExecutionContextSnapshot): Observable<HookExecutionSnapshot> {
@@ -753,9 +780,11 @@ export class CdsService {
     const conditions = this.convertConditionsToCdsFormat(context.conditions, encounterId);
     const medications = this.convertMedicationsToCdsFormat(context.medications, encounterId);
     const allergies = this.convertAllergiesToCdsFormat(context.allergies);
+    const observations = this.convertObservationsToCdsFormat(context.observations);
     const conditionsBundle = this.createConditionsBundle(context.patient.id, conditions);
     const medicationsBundle = this.createMedicationBundle(context.patient.id, medications);
     const allergiesBundle = this.createAllergyBundle(context.patient.id, allergies);
+    const observationsBundle = this.createObservationsBundle(context.patient.id, observations);
     const createLegacyCompatibilityRequest = (draftMedicationRequests: CDSBundle<CDSMedicationRequest>): LegacyOrderSelectRequest => ({
       hook: 'order-page',
       hookInstance,
@@ -782,13 +811,15 @@ export class CdsService {
           context: {
             patientId: context.patient.id,
             encounterId,
-            userId
+            userId,
+            abpmHbpUnavailableOrImpractical: context.abpmHbpUnavailableOrImpractical ?? false
           },
           prefetch: {
             patient,
             conditions: conditionsBundle,
             medications: medicationsBundle,
-            allergies: allergiesBundle
+            allergies: allergiesBundle,
+            observations: observationsBundle
           }
         },
         legacyRequest: createLegacyCompatibilityRequest(medicationsBundle)
@@ -1232,6 +1263,51 @@ export class CdsService {
     });
   }
 
+  private convertObservationsToCdsFormat(observations: FhirObservation[]): CDSObservation[] {
+    return observations.map((observation) => ({
+      resourceType: 'Observation',
+      id: observation.id || this.generateId(),
+      status: observation.status || 'final',
+      code: {
+        coding: (observation.code?.coding || []).map((coding) => ({
+          system: coding.system || 'http://snomed.info/sct',
+          code: coding.code || '',
+          display: coding.display || ''
+        })),
+        text: observation.code?.text
+      },
+      subject: {
+        reference: observation.subject?.reference || ''
+      },
+      effectiveDateTime: observation.effectiveDateTime,
+      ...(observation.valueQuantity ? {
+        valueQuantity: {
+          value: observation.valueQuantity.value ?? 0,
+          unit: observation.valueQuantity.unit,
+          system: observation.valueQuantity.system || 'http://unitsofmeasure.org',
+          code: observation.valueQuantity.code || ''
+        }
+      } : {}),
+      ...(observation.component && observation.component.length > 0 ? {
+        component: observation.component.map((component) => ({
+          code: {
+            coding: (component.code?.coding || []).map((coding) => ({
+              system: coding.system || 'http://snomed.info/sct',
+              code: coding.code || '',
+              display: coding.display || ''
+            }))
+          },
+          valueQuantity: {
+            value: component.valueQuantity?.value ?? 0,
+            unit: component.valueQuantity?.unit,
+            system: component.valueQuantity?.system || 'http://unitsofmeasure.org',
+            code: component.valueQuantity?.code || ''
+          }
+        }))
+      } : {})
+    }));
+  }
+
   private normalizeAllergyCategory(category: any): string[] {
     if (!category || !Array.isArray(category)) {
       return ['medication'];
@@ -1293,6 +1369,35 @@ export class CdsService {
         response: {
           status: '200 OK',
           etag: 'W/"4"'
+        }
+      }))
+    };
+  }
+
+  private createObservationsBundle(patientId: string, observations: CDSObservation[]): CDSBundle<CDSObservation> {
+    return {
+      resourceType: 'Bundle',
+      id: this.generateId(),
+      meta: {
+        lastUpdated: new Date().toISOString()
+      },
+      type: 'searchset',
+      total: observations.length,
+      link: [
+        {
+          relation: 'self',
+          url: `${this.fhirBaseUrl}/Observation?patient=${patientId}`
+        }
+      ],
+      entry: observations.map((observation) => ({
+        fullUrl: `${this.fhirBaseUrl}/Observation/${observation.id}`,
+        resource: observation,
+        search: {
+          mode: 'match'
+        },
+        response: {
+          status: '200 OK',
+          etag: 'W/"3"'
         }
       }))
     };

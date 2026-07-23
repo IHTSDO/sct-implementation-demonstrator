@@ -153,7 +153,9 @@
       "addProcedure": "Add Procedure",
       "addMedication": "Add Medication",
       "addImmunization": "Add Immunization",
-      "close": "Close"
+      "close": "Close",
+      "seedDiagnosticDemoData": "Seed Diagnostic Demo Data",
+      "addResult": "Add Result"
     },
     "labels": {
       "id": "ID",
@@ -170,7 +172,10 @@
       "loinc": "LOINC",
       "determination": "determination",
       "determinationPlural": "s",
-      "specimens": "Specimens"
+      "specimens": "Specimens",
+      "date": "Date",
+      "term": "Term",
+      "result": "Result"
     },
     "status": {
       "active": "Active",
@@ -180,7 +185,6 @@
       "clinical": "Clinical",
       "summary": "Summary",
       "problemsList": "Problems List",
-      "clinicalOrders": "Clinical Orders",
       "encounters": "Encounters",
       "aiAssistedDataEntry": "AI Assisted Data Entry",
       "clinicalForms": "Clinical Forms",
@@ -192,7 +196,8 @@
       "nutritionalCareplan": "Nutritional Careplan",
       "dataSectionLabel": "Data",
       "data": "Data",
-      "fhirRepository": "FHIR Repository"
+      "fhirRepository": "FHIR Repository",
+      "laboratory": "Laboratory"
     },
     "tooltips": {
       "expandSidebar": "Expand sidebar",
@@ -207,7 +212,9 @@
       "deleteProcedure": "Delete procedure",
       "deleteMedication": "Delete medication",
       "deleteImmunization": "Delete immunization",
-      "deleteOrder": "Delete order"
+      "deleteOrder": "Delete order",
+      "seedDiagnosticDemoData": "Adds a fasting glucose and a clinic blood pressure reading designed to trigger the new SNOMED CT diagnostic decision support cards for diabetes and hypertension.",
+      "deleteResult": "Delete result"
     },
     "sections": {
       "summary": "Summary",
@@ -220,7 +227,9 @@
       "cds": "CDS",
       "addProblem": "Add Problem",
       "clinicalOrders": "Clinical Orders",
-      "savedOrders": "Saved Orders"
+      "savedOrders": "Saved Orders",
+      "addResult": "Add Result",
+      "savedResults": "Saved Results"
     },
     "messages": {
       "loadingClinicalData": "Loading clinical data from FHIR server...",
@@ -254,13 +263,22 @@
       "noEventsToDelete": "No clinical events to delete.",
       "allEventsDeleted": "All clinical events have been deleted successfully.",
       "failedToDeleteAllEvents": "Unable to delete all clinical events.",
-      "fhirDataLoaded": "FHIR data loaded: {{ total }} {{ resourceLabel }} across {{ groups }} {{ groupLabel }}."
+      "fhirDataLoaded": "FHIR data loaded: {{ total }} {{ resourceLabel }} across {{ groups }} {{ groupLabel }}.",
+      "diagnosticDemoDataSeeded": "Seeded diagnostic demo data: a fasting glucose and a clinic blood pressure reading. Re-checking CDS.",
+      "diagnosticDemoDataAlreadyPresent": "Diagnostic demo data is already present for this patient. Re-checking CDS.",
+      "addResultDescription": "Quickly record a common lab result without creating a full order first.",
+      "noLabResults": "No lab results recorded",
+      "labResultAdded": "Lab result added."
     },
     "dialogs": {
       "deleteAllEventsTitle": "Delete All Clinical Events",
       "deleteAllEventsMessage": "This will permanently delete {{ count }} clinical events for {{ patient }}.\n\nThis includes conditions, procedures, medications, immunizations, allergies, encounters, observations, questionnaires, and related bundles.\n\nThis action cannot be undone.",
       "deleteAllEventsConfirm": "Delete All Events",
       "cancel": "Cancel"
+    },
+    "labViews": {
+      "orders": "Orders",
+      "results": "Results"
     }
   },
   "encounterRecord": {

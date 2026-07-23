@@ -153,7 +153,9 @@
       "addProcedure": "Verrichting toevoegen",
       "addMedication": "Medicatie toevoegen",
       "addImmunization": "Vaccinatie toevoegen",
-      "close": "Sluiten"
+      "close": "Sluiten",
+      "seedDiagnosticDemoData": "Diagnostische demogegevens genereren",
+      "addResult": "Resultaat toevoegen"
     },
     "labels": {
       "id": "ID",
@@ -170,7 +172,10 @@
       "loinc": "LOINC",
       "determination": "bepaling",
       "determinationPlural": "en",
-      "specimens": "Monsters"
+      "specimens": "Monsters",
+      "date": "Datum",
+      "term": "Term",
+      "result": "Resultaat"
     },
     "status": {
       "active": "Actief",
@@ -180,7 +185,6 @@
       "clinical": "Klinisch",
       "summary": "Samenvatting",
       "problemsList": "Probleemlijst",
-      "clinicalOrders": "Klinische opdrachten",
       "encounters": "Contacten",
       "aiAssistedDataEntry": "AI-ondersteunde gegevensinvoer",
       "clinicalForms": "Klinische formulieren",
@@ -192,7 +196,8 @@
       "nutritionalCareplan": "Voedingszorgplan",
       "dataSectionLabel": "Gegevens",
       "data": "Gegevens",
-      "fhirRepository": "FHIR-repository"
+      "fhirRepository": "FHIR-repository",
+      "laboratory": "Laboratorium"
     },
     "tooltips": {
       "expandSidebar": "Zijbalk uitvouwen",
@@ -207,7 +212,9 @@
       "deleteProcedure": "Verrichting verwijderen",
       "deleteMedication": "Medicatie verwijderen",
       "deleteImmunization": "Vaccinatie verwijderen",
-      "deleteOrder": "Opdracht verwijderen"
+      "deleteOrder": "Opdracht verwijderen",
+      "seedDiagnosticDemoData": "Voegt een nuchtere glucosewaarde en een klinische bloeddrukmeting toe, ontworpen om de nieuwe SNOMED CT diagnostische beslissingsondersteuningskaarten voor diabetes en hypertensie te activeren.",
+      "deleteResult": "Resultaat verwijderen"
     },
     "sections": {
       "summary": "Samenvatting",
@@ -220,7 +227,9 @@
       "cds": "CDS",
       "addProblem": "Probleem toevoegen",
       "clinicalOrders": "Klinische opdrachten",
-      "savedOrders": "Opgeslagen opdrachten"
+      "savedOrders": "Opgeslagen opdrachten",
+      "addResult": "Resultaat toevoegen",
+      "savedResults": "Opgeslagen resultaten"
     },
     "messages": {
       "loadingClinicalData": "Klinische gegevens laden van FHIR-server...",
@@ -254,13 +263,22 @@
       "noEventsToDelete": "Geen klinische gebeurtenissen om te verwijderen.",
       "allEventsDeleted": "Alle klinische gebeurtenissen zijn succesvol verwijderd.",
       "failedToDeleteAllEvents": "Niet alle klinische gebeurtenissen konden worden verwijderd.",
-      "fhirDataLoaded": "FHIR-gegevens geladen: {{ total }} {{ resourceLabel }} verdeeld over {{ groups }} {{ groupLabel }}."
+      "fhirDataLoaded": "FHIR-gegevens geladen: {{ total }} {{ resourceLabel }} verdeeld over {{ groups }} {{ groupLabel }}.",
+      "diagnosticDemoDataSeeded": "Diagnostische demogegevens toegevoegd: nuchtere glucose en klinische bloeddruk. CDS wordt opnieuw gecontroleerd.",
+      "diagnosticDemoDataAlreadyPresent": "Diagnostische demogegevens zijn al aanwezig voor deze patiënt. CDS wordt opnieuw gecontroleerd.",
+      "addResultDescription": "Leg snel een veelvoorkomend laboratoriumresultaat vast zonder eerst een volledige aanvraag aan te maken.",
+      "noLabResults": "Geen laboratoriumresultaten geregistreerd",
+      "labResultAdded": "Laboratoriumresultaat toegevoegd."
     },
     "dialogs": {
       "deleteAllEventsTitle": "Alle klinische gebeurtenissen verwijderen",
       "deleteAllEventsMessage": "Dit zal {{ count }} klinische gebeurtenissen voor {{ patient }} permanent verwijderen.\n\nDit omvat aandoeningen, verrichtingen, medicatie, vaccinaties, allergieën, contacten, observaties, vragenlijsten en gerelateerde bundels.\n\nDeze actie kan niet ongedaan worden gemaakt.",
       "deleteAllEventsConfirm": "Alle gebeurtenissen verwijderen",
       "cancel": "Annuleren"
+    },
+    "labViews": {
+      "orders": "Aanvragen",
+      "results": "Resultaten"
     }
   },
   "encounterRecord": {

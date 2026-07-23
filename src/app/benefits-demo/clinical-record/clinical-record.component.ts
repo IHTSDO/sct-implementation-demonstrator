@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService } from '../../services/patient.service';
 import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
-import { CdsService, CDSCard } from '../../services/cds.service';
+import { CdsService, CDSCard, HookExecutionContextSnapshot } from '../../services/cds.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent, ClinicalEntryType } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
@@ -46,6 +46,14 @@ interface VitalSignObservationConfig {
   bloodPressureComponentSnomed?: string;
 }
 
+interface QuickLabResultOption {
+  key: string;
+  label: string;
+  snomedCode: string;
+  unit: string;
+  unitCode: string;
+}
+
 type ClinicalModule = 'clinical' | 'dentistry' | 'nursing' | 'data';
 type ClinicalView = 'summary' | 'encounters' | 'ai-entry' | 'problems' | 'orders' | 'forms' | 'alerts';
 type DentalView = 'odontogram';
@@ -74,10 +82,20 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   immunizations: Immunization[] = [];
   labOrders: LaboratoryOrderGroup[] = [];
   allergies: AllergyIntolerance[] = [];
+  observations: FhirObservation[] = [];
   encounters: any[] = [];
+
+  readonly quickLabResultOptions: QuickLabResultOption[] = [
+    { key: 'fasting-glucose', label: 'Fasting Plasma Glucose', snomedCode: '271062006', unit: 'mmol/L', unitCode: 'mmol/L' },
+    { key: 'random-glucose', label: 'Random Plasma Glucose', snomedCode: '271061004', unit: 'mmol/L', unitCode: 'mmol/L' },
+    { key: 'ogtt-2h-glucose', label: 'OGTT (2-hour) Plasma Glucose', snomedCode: '113076002', unit: 'mmol/L', unitCode: 'mmol/L' }
+  ];
+  selectedQuickLabResultKey: string | null = null;
+  quickLabResultValue: number | null = null;
   currentDate = new Date();
   selectedModule: ClinicalModule = 'clinical';
   selectedClinicalView: ClinicalView = 'summary';
+  selectedLabView: 'orders' | 'results' = 'results';
   selectedDentalView: DentalView = 'odontogram';
   selectedNursingView: NursingView = 'vitals';
   selectedDataView: DataView = 'fhir';
@@ -334,6 +352,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.isDataNavExpanded = module === 'data';
   }
 
+  selectLabView(view: 'orders' | 'results'): void {
+    this.selectedLabView = view;
+  }
+
   selectClinicalView(view: ClinicalView): void {
     this.selectedModule = 'clinical';
     this.selectedClinicalView = view;
@@ -493,11 +515,196 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.immunizations = this.loadCachedOrFreshData('immunizations', patientId, () => this.patientService.getPatientImmunizations(patientId));
     this.labOrders = this.loadCachedOrFreshData('labOrders', patientId, () => this.patientService.getPatientLabOrders(patientId));
     this.allergies = this.loadCachedOrFreshData('allergies', patientId, () => this.patientService.getPatientAllergies(patientId));
+    this.observations = this.loadCachedOrFreshData('observations', patientId, () => this.patientService.getPatientObservations(patientId));
     this.encounters = this.patientService.getPatientEncounters(patientId);
   }
 
   onCdsStateChange(state: CdsState): void {
     this.cdsState = state;
+  }
+
+  seedDiagnosticDemoData(): void {
+    if (!this.patient) {
+      return;
+    }
+
+    const hasTriggeringGlucose = this.observations.some((observation) =>
+      observation.code.coding?.some((coding) => coding.code === '271062006')
+      && (observation.valueQuantity?.value ?? 0) >= 7.0
+    );
+    const hasTriggeringBloodPressure = this.observations.some((observation) =>
+      observation.code.coding?.some((coding) => coding.code === '75367002')
+      && observation.component?.some((component) =>
+        component.code.coding?.some((coding) => coding.code === '271649006') && (component.valueQuantity?.value ?? 0) >= 140
+      )
+    );
+
+    if (hasTriggeringGlucose && hasTriggeringBloodPressure) {
+      this.dispatchCdsEvent({ type: 'patient-view' });
+      this.showTranslatedSnackBar('diagnosticDemoDataAlreadyPresent');
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const subjectReference = `Patient/${this.patient.id}`;
+
+    if (!hasTriggeringGlucose) {
+      const fastingGlucose: FhirObservation = {
+        resourceType: 'Observation',
+        id: `observation-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        status: 'final',
+        category: [{
+          coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'laboratory', display: 'Laboratory' }],
+          text: 'Laboratory'
+        }],
+        subject: { reference: subjectReference },
+        effectiveDateTime: now,
+        issued: now,
+        code: {
+          coding: [{ system: 'http://snomed.info/sct', code: '271062006', display: 'Fasting blood glucose measurement' }],
+          text: 'Fasting blood glucose measurement'
+        },
+        valueQuantity: { value: 8.2, unit: 'mmol/L', system: 'http://unitsofmeasure.org', code: 'mmol/L' }
+      };
+      this.patientService.addPatientObservation(this.patient.id, fastingGlucose);
+    }
+
+    if (!hasTriggeringBloodPressure) {
+      const clinicBloodPressure: FhirObservation = {
+        resourceType: 'Observation',
+        id: `observation-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        status: 'final',
+        subject: { reference: subjectReference },
+        effectiveDateTime: now,
+        issued: now,
+        code: {
+          coding: [
+            { system: 'http://snomed.info/sct', code: '75367002', display: 'Blood pressure' },
+            { system: 'http://loinc.org', code: '85354-9', display: 'Blood pressure' }
+          ],
+          text: 'Blood pressure'
+        },
+        component: [
+          {
+            code: {
+              coding: [
+                { system: 'http://snomed.info/sct', code: '271649006', display: 'Systolic blood pressure (observable entity)' },
+                { system: 'http://loinc.org', code: '8480-6', display: 'Systolic blood pressure' }
+              ]
+            },
+            valueQuantity: { value: 150, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' }
+          },
+          {
+            code: {
+              coding: [
+                { system: 'http://snomed.info/sct', code: '271650006', display: 'Diastolic blood pressure (observable entity)' },
+                { system: 'http://loinc.org', code: '8462-4', display: 'Diastolic blood pressure' }
+              ]
+            },
+            valueQuantity: { value: 95, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' }
+          }
+        ]
+      };
+      this.patientService.addPatientObservation(this.patient.id, clinicBloodPressure);
+    }
+
+    this.observations = this.patientService.getPatientObservations(this.patient.id);
+    this.dispatchCdsEvent({ type: 'patient-view' });
+    this.showTranslatedSnackBar('diagnosticDemoDataSeeded');
+  }
+
+  private showTranslatedSnackBar(messageKey: string): void {
+    this.snackBar.open(
+      this.translocoService.translate(`benefitsDemo.clinicalRecord.messages.${messageKey}`),
+      this.translocoService.translate('benefitsDemo.clinicalRecord.actions.close'),
+      {
+        duration: 3200,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom'
+      }
+    );
+  }
+
+  selectQuickLabResult(key: string): void {
+    this.selectedQuickLabResultKey = key;
+    this.quickLabResultValue = null;
+  }
+
+  getSelectedQuickLabResultOption(): QuickLabResultOption | null {
+    return this.quickLabResultOptions.find((option) => option.key === this.selectedQuickLabResultKey) || null;
+  }
+
+  saveQuickLabResult(): void {
+    const option = this.getSelectedQuickLabResultOption();
+    if (!this.patient || !option || this.quickLabResultValue === null || !Number.isFinite(this.quickLabResultValue)) {
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const result: FhirObservation = {
+      resourceType: 'Observation',
+      id: `observation-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      status: 'final',
+      category: [{
+        coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'laboratory', display: 'Laboratory' }],
+        text: 'Laboratory'
+      }],
+      subject: { reference: `Patient/${this.patient.id}` },
+      effectiveDateTime: now,
+      issued: now,
+      code: {
+        coding: [{ system: 'http://snomed.info/sct', code: option.snomedCode, display: option.label }],
+        text: option.label
+      },
+      valueQuantity: { value: this.quickLabResultValue, unit: option.unit, system: 'http://unitsofmeasure.org', code: option.unitCode }
+    };
+
+    this.patientService.addPatientObservation(this.patient.id, result);
+    this.observations = this.patientService.getPatientObservations(this.patient.id);
+    this.dispatchCdsEvent({ type: 'patient-view' });
+    this.selectedQuickLabResultKey = null;
+    this.quickLabResultValue = null;
+    this.showTranslatedSnackBar('labResultAdded');
+  }
+
+  getSortedLabResults(): FhirObservation[] {
+    return this.observations
+      .filter((observation) => observation.category?.some((category) => category.coding?.some((coding) => coding.code === 'laboratory')))
+      .sort((a, b) => this.getObservationTimestamp(b) - this.getObservationTimestamp(a));
+  }
+
+  getLabResultDisplayName(result: FhirObservation): string {
+    return result.code?.text || result.code?.coding?.[0]?.display || 'Lab result';
+  }
+
+  getLabResultValueText(result: FhirObservation): string {
+    const value = result.valueQuantity?.value;
+    if (value === undefined || value === null) {
+      return '';
+    }
+    return `${value} ${result.valueQuantity?.unit || ''}`.trim();
+  }
+
+  getLabResultConceptId(result: FhirObservation): string {
+    return result.code?.coding?.find((coding) => coding.system === 'http://snomed.info/sct')?.code || '';
+  }
+
+  deleteLabResult(resultId: string): void {
+    if (!this.patient) {
+      return;
+    }
+    this.patientService.deletePatientObservation(this.patient.id, resultId);
+    this.observations = this.patientService.getPatientObservations(this.patient.id);
+    this.dispatchCdsEvent({ type: 'patient-view' });
+  }
+
+  private getObservationTimestamp(observation: FhirObservation): number {
+    const dateValue = observation.effectiveDateTime || observation.issued;
+    if (!dateValue) {
+      return 0;
+    }
+    const millis = new Date(dateValue).getTime();
+    return Number.isNaN(millis) ? 0 : millis;
   }
 
   private subscribeToCdsCards(patientId: string): void {
@@ -955,7 +1162,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       // and use the updated snapshot as the source of truth for hook execution.
       const createdCondition = event as Condition;
       this.conditions = [...this.conditions, createdCondition];
-      this.dispatchCdsEvent({ type: 'condition-added', newCondition: createdCondition, conditionsSnapshot: this.conditions });
+      this.dispatchCdsEvent({ type: 'condition-added', newCondition: createdCondition });
       this.conditionEntry?.resetAndCloseForm();
       this.touchDataVersion();
       
@@ -1679,6 +1886,11 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       code: {
         coding: [
           {
+            system: 'http://snomed.info/sct',
+            code: '75367002',
+            display: 'Blood pressure'
+          },
+          {
             system: 'http://loinc.org',
             code: '85354-9',
             display: 'Blood pressure'
@@ -1697,14 +1909,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         code: {
           coding: [
             {
-              system: 'http://loinc.org',
-              code: '8480-6',
-              display: 'Systolic blood pressure'
-            },
-            {
               system: 'http://snomed.info/sct',
               code: '271649006',
               display: 'Systolic blood pressure (observable entity)'
+            },
+            {
+              system: 'http://loinc.org',
+              code: '8480-6',
+              display: 'Systolic blood pressure'
             }
           ],
           text: 'Systolic blood pressure'
@@ -1723,14 +1935,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         code: {
           coding: [
             {
-              system: 'http://loinc.org',
-              code: '8462-4',
-              display: 'Diastolic blood pressure'
-            },
-            {
               system: 'http://snomed.info/sct',
               code: '271650006',
               display: 'Diastolic blood pressure (observable entity)'
+            },
+            {
+              system: 'http://loinc.org',
+              code: '8462-4',
+              display: 'Diastolic blood pressure'
             }
           ],
           text: 'Diastolic blood pressure'
@@ -1799,13 +2011,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     const now = new Date().toISOString();
     const subjectDisplay = this.patient?.name?.[0]?.text || `${this.patient?.name?.[0]?.given?.[0]} ${this.patient?.name?.[0]?.family}`;
 
-    const primaryCodings: Array<{ system: string; code: string; display: string }> = [
-      {
-        system: 'http://loinc.org',
-        code: vitalSign.bloodPressureParentCode || vitalSign.loincCode,
-        display: vitalSign.label
-      }
-    ];
+    const primaryCodings: Array<{ system: string; code: string; display: string }> = [];
 
     if (!vitalSign.bloodPressureParentCode && vitalSign.snomedCode) {
       primaryCodings.push({
@@ -1814,6 +2020,12 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         display: `${vitalSign.label} (observable entity)`
       });
     }
+
+    primaryCodings.push({
+      system: 'http://loinc.org',
+      code: vitalSign.bloodPressureParentCode || vitalSign.loincCode,
+      display: vitalSign.label
+    });
 
     const observation: FhirObservation = {
       resourceType: 'Observation',
@@ -2019,81 +2231,112 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return ''; // No concept ID found
   }
 
-  deleteCondition(conditionId: string): void {
+  async deleteCondition(conditionId: string): Promise<void> {
     if (!this.patient) return;
-    
+
     const condition = this.conditions.find(c => c.id === conditionId);
-    if (condition && confirm(`Are you sure you want to delete the condition "${condition.code.text}"?`)) {
-      this.patientService.deletePatientCondition(this.patient.id, conditionId);
-      // Reload conditions directly from service to ensure fresh data
-      this.conditions = this.patientService.getPatientConditions(this.patient.id);
-      this.dispatchCdsEvent({ type: 'condition-deleted' });
-      this.touchDataVersion();
-    }
+    if (!condition) return;
+
+    const confirmed = await this.confirmDeletion(`Are you sure you want to delete the condition "${condition.code.text}"?`);
+    if (!confirmed || !this.patient) return;
+
+    this.patientService.deletePatientCondition(this.patient.id, conditionId);
+    // Reload conditions directly from service to ensure fresh data
+    this.conditions = this.patientService.getPatientConditions(this.patient.id);
+    this.dispatchCdsEvent({ type: 'condition-deleted' });
+    this.touchDataVersion();
   }
 
-  deleteProcedure(procedureId: string): void {
+  async deleteProcedure(procedureId: string): Promise<void> {
     if (!this.patient) return;
-    
+
     const procedure = this.procedures.find(p => p.id === procedureId);
-    if (procedure && confirm(`Are you sure you want to delete the procedure "${procedure.code.text}"?`)) {
-      this.patientService.deletePatientProcedure(this.patient.id, procedureId);
-      // Reload procedures directly from service to ensure fresh data
-      this.procedures = this.patientService.getPatientProcedures(this.patient.id);
-      this.touchDataVersion();
-    }
+    if (!procedure) return;
+
+    const confirmed = await this.confirmDeletion(`Are you sure you want to delete the procedure "${procedure.code.text}"?`);
+    if (!confirmed || !this.patient) return;
+
+    this.patientService.deletePatientProcedure(this.patient.id, procedureId);
+    // Reload procedures directly from service to ensure fresh data
+    this.procedures = this.patientService.getPatientProcedures(this.patient.id);
+    this.touchDataVersion();
   }
 
-  deleteMedication(medicationId: string): void {
+  async deleteMedication(medicationId: string): Promise<void> {
     if (!this.patient) return;
-    
+
     const medication = this.medications.find(m => m.id === medicationId);
-    if (medication && confirm(`Are you sure you want to delete the medication "${medication.medicationCodeableConcept?.text}"?`)) {
-      this.patientService.deletePatientMedication(this.patient.id, medicationId);
-      // Reload medications directly from service to ensure fresh data
-      this.medications = this.patientService.getPatientMedications(this.patient.id);
-      this.dispatchCdsEvent({ type: 'medication-deleted' });
-      this.touchDataVersion();
-    }
+    if (!medication) return;
+
+    const confirmed = await this.confirmDeletion(`Are you sure you want to delete the medication "${medication.medicationCodeableConcept?.text}"?`);
+    if (!confirmed || !this.patient) return;
+
+    this.patientService.deletePatientMedication(this.patient.id, medicationId);
+    // Reload medications directly from service to ensure fresh data
+    this.medications = this.patientService.getPatientMedications(this.patient.id);
+    this.dispatchCdsEvent({ type: 'medication-deleted' });
+    this.touchDataVersion();
   }
 
-  deleteImmunization(immunizationId: string): void {
+  async deleteImmunization(immunizationId: string): Promise<void> {
     if (!this.patient) return;
 
     const immunization = this.immunizations.find(i => i.id === immunizationId);
-    if (immunization && confirm(`Are you sure you want to delete the immunization "${immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display}"?`)) {
-      this.patientService.deletePatientImmunization(this.patient.id, immunizationId);
-      this.immunizations = this.patientService.getPatientImmunizations(this.patient.id);
-      this.dispatchCdsEvent({ type: 'immunization-deleted' });
-      this.touchDataVersion();
-    }
+    if (!immunization) return;
+
+    const confirmed = await this.confirmDeletion(`Are you sure you want to delete the immunization "${immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display}"?`);
+    if (!confirmed || !this.patient) return;
+
+    this.patientService.deletePatientImmunization(this.patient.id, immunizationId);
+    this.immunizations = this.patientService.getPatientImmunizations(this.patient.id);
+    this.dispatchCdsEvent({ type: 'immunization-deleted' });
+    this.touchDataVersion();
   }
 
-  deleteAllergy(allergyId: string): void {
+  async deleteAllergy(allergyId: string): Promise<void> {
     if (!this.patient) return;
-    
+
     const allergy = this.allergies.find(a => a.id === allergyId);
-    if (allergy) {
-      const allergyName = this.getAllergyDisplayName(allergy);
-      if (confirm(`Are you sure you want to delete the allergy "${allergyName}"?`)) {
-        this.patientService.deletePatientAllergy(this.patient.id, allergyId);
-        // Reload allergies directly from service to ensure fresh data
-        this.allergies = this.patientService.getPatientAllergies(this.patient.id);
-        this.dispatchCdsEvent({ type: 'allergy-deleted' });
-        this.touchDataVersion();
-      }
-    }
+    if (!allergy) return;
+
+    const allergyName = this.getAllergyDisplayName(allergy);
+    const confirmed = await this.confirmDeletion(`Are you sure you want to delete the allergy "${allergyName}"?`);
+    if (!confirmed || !this.patient) return;
+
+    this.patientService.deletePatientAllergy(this.patient.id, allergyId);
+    // Reload allergies directly from service to ensure fresh data
+    this.allergies = this.patientService.getPatientAllergies(this.patient.id);
+    this.dispatchCdsEvent({ type: 'allergy-deleted' });
+    this.touchDataVersion();
   }
 
-  deleteLabOrder(labOrderId: string): void {
+  async deleteLabOrder(labOrderId: string): Promise<void> {
     if (!this.patient) return;
 
     const labOrder = this.labOrders.find(order => order.id === labOrderId);
-    if (labOrder && confirm(`Are you sure you want to delete the order "${this.getLabOrderDisplayName(labOrder)}"?`)) {
-      this.patientService.deletePatientLabOrder(this.patient.id, labOrderId);
-      this.labOrders = this.patientService.getPatientLabOrders(this.patient.id);
-      this.touchDataVersion();
-    }
+    if (!labOrder) return;
+
+    const confirmed = await this.confirmDeletion(`Are you sure you want to delete the order "${this.getLabOrderDisplayName(labOrder)}"?`);
+    if (!confirmed || !this.patient) return;
+
+    this.patientService.deletePatientLabOrder(this.patient.id, labOrderId);
+    this.labOrders = this.patientService.getPatientLabOrders(this.patient.id);
+    this.touchDataVersion();
+  }
+
+  private async confirmDeletion(message: string): Promise<boolean> {
+    const confirmed = await firstValueFrom(this.dialog.open(ConfirmationDialogComponent, {
+      width: '460px',
+      data: {
+        title: 'Confirm Deletion',
+        message,
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
+        confirmColor: 'warn'
+      }
+    }).afterClosed());
+
+    return !!confirmed;
   }
 
   /**
@@ -2660,7 +2903,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   private dispatchCdsEvent(
     event:
       | { type: 'patient-view' | 'condition-deleted' | 'allergy-deleted' | 'medication-deleted' | 'immunization-added' | 'immunization-deleted' }
-      | { type: 'condition-added'; newCondition: Condition; conditionsSnapshot?: Condition[] }
+      | { type: 'condition-added'; newCondition: Condition }
       | { type: 'allergy-added'; newAllergy: AllergyIntolerance }
       | { type: 'medication-draft-changed' | 'medication-signed'; draftMedication: MedicationStatement }
   ): void {
@@ -2668,11 +2911,16 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return;
     }
 
-    const baseContext = {
+    // Read straight from patientService (the single source of truth) rather than this
+    // component's own conditions/medications/allergies/observations arrays, which can go
+    // stale when another component (e.g. a Nursing vital card) writes through the service
+    // without this component knowing to refresh its local copies.
+    const baseContext: HookExecutionContextSnapshot = {
       patient: this.patient,
-      conditions: 'conditionsSnapshot' in event && event.conditionsSnapshot ? event.conditionsSnapshot : this.conditions,
-      medications: this.medications,
-      allergies: this.allergies
+      conditions: this.patientService.getPatientConditions(this.patient.id),
+      medications: this.patientService.getPatientMedications(this.patient.id),
+      allergies: this.patientService.getPatientAllergies(this.patient.id),
+      observations: this.patientService.getPatientObservations(this.patient.id)
     };
 
     switch (event.type) {
@@ -2693,6 +2941,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           context: baseContext,
           newCondition: event.newCondition
         }));
+        void firstValueFrom(this.cdsService.invokePatientView(baseContext));
         break;
       case 'allergy-added':
         void firstValueFrom(this.cdsService.handleClinicalEvent({
@@ -2700,6 +2949,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           context: baseContext,
           newAllergy: event.newAllergy
         }));
+        void firstValueFrom(this.cdsService.invokePatientView(baseContext));
         break;
       case 'medication-draft-changed':
       case 'medication-signed':

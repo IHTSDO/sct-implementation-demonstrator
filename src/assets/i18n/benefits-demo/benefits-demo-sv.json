@@ -153,7 +153,9 @@
       "addProcedure": "Lägg till åtgärd",
       "addMedication": "Lägg till läkemedel",
       "addImmunization": "Lägg till vaccination",
-      "close": "Stäng"
+      "close": "Stäng",
+      "seedDiagnosticDemoData": "Generera diagnostiska demodata",
+      "addResult": "Lägg till resultat"
     },
     "labels": {
       "id": "ID",
@@ -170,7 +172,10 @@
       "loinc": "LOINC",
       "determination": "bedömning",
       "determinationPlural": "ar",
-      "specimens": "Prover"
+      "specimens": "Prover",
+      "date": "Datum",
+      "term": "Term",
+      "result": "Resultat"
     },
     "status": {
       "active": "Aktiv",
@@ -180,7 +185,6 @@
       "clinical": "Klinisk",
       "summary": "Sammanfattning",
       "problemsList": "Problemlista",
-      "clinicalOrders": "Kliniska remisser",
       "encounters": "Vårdkontakter",
       "aiAssistedDataEntry": "AI-assisterad datainmatning",
       "clinicalForms": "Kliniska formulär",
@@ -192,7 +196,8 @@
       "nutritionalCareplan": "Nutritionsvårdplan",
       "dataSectionLabel": "Data",
       "data": "Data",
-      "fhirRepository": "FHIR-arkiv"
+      "fhirRepository": "FHIR-arkiv",
+      "laboratory": "Laboratorium"
     },
     "tooltips": {
       "expandSidebar": "Expandera sidofältet",
@@ -207,7 +212,9 @@
       "deleteProcedure": "Ta bort åtgärd",
       "deleteMedication": "Ta bort läkemedel",
       "deleteImmunization": "Ta bort vaccination",
-      "deleteOrder": "Ta bort remiss"
+      "deleteOrder": "Ta bort remiss",
+      "seedDiagnosticDemoData": "Lägger till ett fasteglukosresultat och en klinisk blodtrycksmätning utformade för att utlösa de nya SNOMED CT-diagnostiska beslutsstödskorten för diabetes och hypertoni.",
+      "deleteResult": "Ta bort resultat"
     },
     "sections": {
       "summary": "Sammanfattning",
@@ -220,7 +227,9 @@
       "cds": "CDS",
       "addProblem": "Lägg till problem",
       "clinicalOrders": "Kliniska remisser",
-      "savedOrders": "Sparade remisser"
+      "savedOrders": "Sparade remisser",
+      "addResult": "Lägg till resultat",
+      "savedResults": "Sparade resultat"
     },
     "messages": {
       "loadingClinicalData": "Läser in kliniska data från FHIR-server...",
@@ -254,13 +263,22 @@
       "noEventsToDelete": "Inga kliniska händelser att ta bort.",
       "allEventsDeleted": "Alla kliniska händelser har tagits bort.",
       "failedToDeleteAllEvents": "Det gick inte att ta bort alla kliniska händelser.",
-      "fhirDataLoaded": "FHIR-data inläst: {{ total }} {{ resourceLabel }} i {{ groups }} {{ groupLabel }}."
+      "fhirDataLoaded": "FHIR-data inläst: {{ total }} {{ resourceLabel }} i {{ groups }} {{ groupLabel }}.",
+      "diagnosticDemoDataSeeded": "Diagnostiska demodata genererades: fasteglukos och kliniskt blodtryck. Kontrollerar CDS igen.",
+      "diagnosticDemoDataAlreadyPresent": "Diagnostiska demodata finns redan för denna patient. Kontrollerar CDS igen.",
+      "addResultDescription": "Registrera snabbt ett vanligt laboratorieresultat utan att först skapa en fullständig beställning.",
+      "noLabResults": "Inga laboratorieresultat registrerade",
+      "labResultAdded": "Laboratorieresultat tillagt."
     },
     "dialogs": {
       "deleteAllEventsTitle": "Ta bort alla kliniska händelser",
       "deleteAllEventsMessage": "Detta tar permanent bort {{ count }} kliniska händelser för {{ patient }}.\n\nDetta inkluderar diagnoser, åtgärder, läkemedel, vaccinationer, allergier, vårdkontakter, observationer, formulär och relaterade paket.\n\nÅtgärden kan inte ångras.",
       "deleteAllEventsConfirm": "Ta bort alla händelser",
       "cancel": "Avbryt"
+    },
+    "labViews": {
+      "orders": "Beställningar",
+      "results": "Resultat"
     }
   },
   "encounterRecord": {

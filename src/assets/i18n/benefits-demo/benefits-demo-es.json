@@ -153,7 +153,9 @@
       "addProcedure": "Agregar procedimiento",
       "addMedication": "Agregar medicamento",
       "addImmunization": "Agregar inmunización",
-      "close": "Cerrar"
+      "close": "Cerrar",
+      "seedDiagnosticDemoData": "Generar datos de demo diagnóstica",
+      "addResult": "Agregar resultado"
     },
     "labels": {
       "id": "ID",
@@ -170,7 +172,10 @@
       "loinc": "LOINC",
       "determination": "determinación",
       "determinationPlural": "es",
-      "specimens": "Muestras"
+      "specimens": "Muestras",
+      "date": "Fecha",
+      "term": "Término",
+      "result": "Resultado"
     },
     "status": {
       "active": "Activo",
@@ -180,7 +185,6 @@
       "clinical": "Clínico",
       "summary": "Resumen",
       "problemsList": "Lista de problemas",
-      "clinicalOrders": "Órdenes clínicas",
       "encounters": "Encuentros clínicos",
       "aiAssistedDataEntry": "Entrada de datos asistida por IA",
       "clinicalForms": "Formularios clínicos",
@@ -192,7 +196,8 @@
       "nutritionalCareplan": "Plan de cuidado nutricional",
       "dataSectionLabel": "Datos",
       "data": "Datos",
-      "fhirRepository": "Repositorio FHIR"
+      "fhirRepository": "Repositorio FHIR",
+      "laboratory": "Laboratorio"
     },
     "tooltips": {
       "expandSidebar": "Expandir barra lateral",
@@ -207,7 +212,9 @@
       "deleteProcedure": "Eliminar procedimiento",
       "deleteMedication": "Eliminar medicamento",
       "deleteImmunization": "Eliminar inmunización",
-      "deleteOrder": "Eliminar orden"
+      "deleteOrder": "Eliminar orden",
+      "seedDiagnosticDemoData": "Agrega un resultado de glucosa en ayunas y una lectura de presión arterial clínica diseñados para disparar las nuevas tarjetas de soporte diagnóstico SNOMED CT para diabetes e hipertensión.",
+      "deleteResult": "Eliminar resultado"
     },
     "sections": {
       "summary": "Resumen",
@@ -220,7 +227,9 @@
       "cds": "CDS",
       "addProblem": "Agregar problema",
       "clinicalOrders": "Órdenes clínicas",
-      "savedOrders": "Órdenes guardadas"
+      "savedOrders": "Órdenes guardadas",
+      "addResult": "Agregar resultado",
+      "savedResults": "Resultados guardados"
     },
     "messages": {
       "loadingClinicalData": "Cargando datos clínicos desde el servidor FHIR...",
@@ -254,13 +263,22 @@
       "noEventsToDelete": "No hay eventos clínicos para eliminar.",
       "allEventsDeleted": "Todos los eventos clínicos han sido eliminados exitosamente.",
       "failedToDeleteAllEvents": "No se pudieron eliminar todos los eventos clínicos.",
-      "fhirDataLoaded": "Datos FHIR cargados: {{ total }} {{ resourceLabel }} en {{ groups }} {{ groupLabel }}."
+      "fhirDataLoaded": "Datos FHIR cargados: {{ total }} {{ resourceLabel }} en {{ groups }} {{ groupLabel }}.",
+      "diagnosticDemoDataSeeded": "Se generaron datos de demo diagnóstica: glucosa en ayunas y presión arterial clínica. Revisando CDS nuevamente.",
+      "diagnosticDemoDataAlreadyPresent": "Ya existen datos de demo diagnóstica para este paciente. Revisando CDS nuevamente.",
+      "addResultDescription": "Registrá rápidamente un resultado de laboratorio común sin necesidad de crear una orden completa.",
+      "noLabResults": "No hay resultados de laboratorio registrados",
+      "labResultAdded": "Resultado de laboratorio agregado."
     },
     "dialogs": {
       "deleteAllEventsTitle": "Eliminar todos los eventos clínicos",
       "deleteAllEventsMessage": "Esto eliminará permanentemente {{ count }} eventos clínicos de {{ patient }}.\n\nEsto incluye condiciones, procedimientos, medicamentos, inmunizaciones, alergias, encuentros, observaciones, cuestionarios y paquetes relacionados.\n\nEsta acción no se puede deshacer.",
       "deleteAllEventsConfirm": "Eliminar todos los eventos",
       "cancel": "Cancelar"
+    },
+    "labViews": {
+      "orders": "Órdenes",
+      "results": "Resultados"
     }
   },
   "encounterRecord": {

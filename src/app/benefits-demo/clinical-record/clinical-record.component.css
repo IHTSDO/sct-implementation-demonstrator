@@ -465,6 +465,17 @@
   display: none;
 }
 
+.diagnostic-demo-seed-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.diagnostic-demo-seed-bar button mat-icon {
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
 .record-section {
   background-color: #ffffff;
   border-radius: 12px;
@@ -2511,6 +2522,106 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.lab-subnav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.lab-subnav button.is-selected {
+  border-color: #3f51b5;
+  background-color: rgba(63, 81, 181, 0.08);
+  color: #3f51b5;
+}
+
+.quick-lab-result-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quick-lab-result-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.quick-lab-result-options button.is-selected {
+  border-color: #3f51b5;
+  background-color: rgba(63, 81, 181, 0.08);
+  color: #3f51b5;
+}
+
+.quick-lab-result-entry {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.lab-results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lab-results-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #7a8694;
+  padding: 0 0.75rem 0.5rem;
+  border-bottom: 1px solid #dfe6ee;
+}
+
+.lab-results-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #edf1f5;
+  vertical-align: middle;
+}
+
+.lab-results-table tr:last-child td {
+  border-bottom: none;
+}
+
+.lab-results-date {
+  white-space: nowrap;
+  width: 1%;
+}
+
+.lab-results-date-day {
+  color: #5b6675;
+  font-size: 0.85rem;
+}
+
+.lab-results-date-time {
+  color: #9aa5b1;
+  font-size: 0.72rem;
+  margin-top: 1px;
+}
+
+.lab-results-term-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.lab-results-term-code {
+  font-size: 0.75rem;
+  color: #8a94a3;
+  margin-top: 2px;
+}
+
+.lab-results-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #203247;
+  white-space: nowrap;
+}
+
+.lab-results-actions {
+  text-align: right;
+  width: 1%;
 }
 
 .orders-panel,
