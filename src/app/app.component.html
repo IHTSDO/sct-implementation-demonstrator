@@ -1,29 +1,59 @@
 <mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer mode="over" class="example-sidenav">
-    <div class="flex flex-col justify-center">
-      <button mat-button [matMenuTriggerFor]="demosMenuN">Select Demonstrator</button>
+  <mat-drawer #drawer mode="over" position="start" class="app-sidenav">
+    <div class="sidenav-header">
+      <img src="assets/img/small_logo.png" class="sidenav-logo" alt="">
+      <span class="sidenav-title">Implementation Demos</span>
+      <button mat-icon-button class="sidenav-close-button" (click)="drawer.close()" aria-label="Close menu">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="sidenav-content">
+      <button mat-button class="sidenav-item sidenav-item-primary" [matMenuTriggerFor]="demosMenuN">
+        <mat-icon>apps</mat-icon>
+        <span class="sidenav-item-text">
+          <span class="sidenav-item-label">Select Demonstrator</span>
+        </span>
+        <mat-icon class="sidenav-item-chevron">chevron_right</mat-icon>
+      </button>
       <mat-menu #demosMenuN="matMenu" class="wide-menu">
         @for (demo of demos; track demo) {
-          <button mat-menu-item (click)="navigate(demo)">{{demo.name}}</button>
+          <button mat-menu-item (click)="navigate(demo); drawer.close()">{{demo.name}}</button>
         }
       </mat-menu>
+
+      <div class="sidenav-divider"></div>
+      <div class="sidenav-section-label">Terminology settings</div>
 
       <button
         mat-button
+        class="sidenav-item"
         [matMenuTriggerFor]="serverMenuN"
         matTooltip="Select the FHIR Terminology Server to use"
-        matTooltipPosition="below"
+        matTooltipPosition="right"
         >
-        FHIR Term Server: {{selectedServer.name}}
+        <mat-icon>dns</mat-icon>
+        <span class="sidenav-item-text">
+          <span class="sidenav-item-label">FHIR Term Server</span>
+          <span class="sidenav-item-value">{{selectedServer.name}}</span>
+        </span>
+        <mat-icon class="sidenav-item-chevron">chevron_right</mat-icon>
       </button>
       <mat-menu #serverMenuN="matMenu">
         @for (server of fhirServers; track server) {
-          <button mat-menu-item (click)="setFhirServer(server)">{{server.name}}</button>
+          <button mat-menu-item (click)="setFhirServer(server); drawer.close()">{{server.name}}</button>
         }
-        <button mat-menu-item (click)="openCustomTerminologyServerDialog()">{{ customTermServerMenuLabel }}</button>
+        <button mat-menu-item (click)="openCustomTerminologyServerDialog(); drawer.close()">{{ customTermServerMenuLabel }}</button>
       </mat-menu>
 
-      <button mat-button [matMenuTriggerFor]="editionsMenuN">Edition: {{selectedEdition}}</button>
+      <button mat-button class="sidenav-item" [matMenuTriggerFor]="editionsMenuN">
+        <mat-icon>menu_book</mat-icon>
+        <span class="sidenav-item-text">
+          <span class="sidenav-item-label">Edition</span>
+          <span class="sidenav-item-value">{{selectedEdition}}</span>
+        </span>
+        <mat-icon class="sidenav-item-chevron">chevron_right</mat-icon>
+      </button>
       <mat-menu #editionsMenuN="matMenu" class="wide-menu">
         <div mat-menu-item style="padding: 12px 16px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; margin-bottom: 8px; cursor: default; pointer-events: none;">
           <div style="font-size: 11px; color: #6c757d !important; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Currently Selected</div>
@@ -35,19 +65,25 @@
           <mat-menu #sub_menu="matMenu">
             <span class="ml-4">Versions / Releases</span>
             @for (subItem of mainItem.editions; track subItem) {
-              <button mat-menu-item (click)="setEdition(subItem)">{{ subItem.resource.version }}</button>
+              <button mat-menu-item (click)="setEdition(subItem); drawer.close()">{{ subItem.resource.version }}</button>
             }
           </mat-menu>
         }
       </mat-menu>
 
-      <button mat-button [matMenuTriggerFor]="menuN">Language: {{selectedLanguage}}</button>
+      <button mat-button class="sidenav-item" [matMenuTriggerFor]="menuN">
+        <mat-icon>translate</mat-icon>
+        <span class="sidenav-item-text">
+          <span class="sidenav-item-label">Language</span>
+          <span class="sidenav-item-value">{{selectedLanguage}}</span>
+        </span>
+        <mat-icon class="sidenav-item-chevron">chevron_right</mat-icon>
+      </button>
       <mat-menu #menuN="matMenu">
         @for (language of languages; track language) {
-          <button mat-menu-item (click)="setLanguage(language)">{{language}}</button>
+          <button mat-menu-item (click)="setLanguage(language); drawer.close()">{{language}}</button>
         }
       </mat-menu>
-
     </div>
   </mat-drawer>
 

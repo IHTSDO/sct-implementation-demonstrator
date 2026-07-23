@@ -1,3 +1,113 @@
+.app-sidenav {
+    width: 300px;
+    max-width: 85vw;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidenav-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 8px 14px 18px;
+    background-color: #434a55;
+    color: white;
+}
+
+.sidenav-logo {
+    height: 2.2rem;
+    flex-shrink: 0;
+}
+
+.sidenav-title {
+    flex: 1 1 auto;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.sidenav-close-button {
+    color: white;
+    flex-shrink: 0;
+}
+
+.sidenav-content {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 2px;
+    overflow-y: auto;
+}
+
+.sidenav-section-label {
+    margin: 14px 12px 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #8a94a3;
+}
+
+.sidenav-divider {
+    margin: 8px 4px 0;
+    border-top: 1px solid #e5e8ec;
+}
+
+.sidenav-item {
+    width: 100%;
+    height: auto;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-align: left;
+    color: #2c3e50;
+}
+
+.sidenav-item:hover {
+    background-color: #f2f4f7;
+}
+
+.sidenav-item ::ng-deep .mdc-button__label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 14px;
+}
+
+.sidenav-item mat-icon:first-child {
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+.sidenav-item-primary mat-icon:first-child {
+    color: #3f51b5;
+}
+
+.sidenav-item-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+}
+
+.sidenav-item-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.sidenav-item-value {
+    font-size: 0.76rem;
+    color: #6c757d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidenav-item-chevron {
+    flex-shrink: 0;
+    color: #c3c9d1;
+}
+
 .mat-toolbar {
     background-color: #434a55;
     color: white; /* add this line to change the text color to white */
@@ -113,7 +223,7 @@ a {
     }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1600px) {
 
     .bar-button {
         display: none;
