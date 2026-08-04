@@ -43,6 +43,10 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   private baseUrlChanged = new Subject<string>();
   private userTagChanged = new Subject<string>();
 
+  // TODO (from Sept 2026): the NLM Form Builder redirects to https://lhncbc.nlm.nih.gov/formbuilder.
+  // Once the new origin serves the /window-open? endpoint, fbUrl can be switched to it to skip the
+  // redirect. The message handling below already works with both origins (it reads event.origin from
+  // the first message instead of hardcoding it), so this change is optional.
   fbUrl = 'https://formbuilder.nlm.nih.gov';
 
   blankQuestionnaire = {
@@ -276,13 +280,20 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
     const fbWin = window.open(
       this.fbUrl + '/window-open?referrer=' + encodeURIComponent(window.location.href) + '&fhirVersion=R4'
     );
+    // The Form Builder now redirects to a different origin (https://lhncbc.nlm.nih.gov).
+    // Don't hardcode the origin: verify the message comes from the window we opened, then
+    // capture the origin from the first message and reuse it as targetOrigin for replies.
+    let fbOrigin: string | null = null;
     const handleFormBuilderMessages = (event: any) => {
-      if (event.origin === this.fbUrl) {
+      if (event.source === fbWin) {
+        if (fbOrigin === null) {
+          fbOrigin = event.origin;
+        }
         const eventType = event.data.type;
         const receivedQuestionnaire = event.data.questionnaire;
         switch (eventType) {
           case 'initialized':
-            fbWin?.postMessage({ type: 'initialQuestionnaire', questionnaire: questionnaire }, this.fbUrl);
+            fbWin?.postMessage({ type: 'initialQuestionnaire', questionnaire: questionnaire }, fbOrigin!);
             break;
           case 'closed':
             window.removeEventListener('message', handleFormBuilderMessages, true);
