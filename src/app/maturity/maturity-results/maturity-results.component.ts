@@ -1,6 +1,7 @@
 import { Component, ElementRef, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { TranslocoService } from '@jsverse/transloco';
+import { MaturityScoringService } from '../maturity-scoring.service';
 import { Subscription } from 'rxjs';
 import { distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 Chart.register(...registerables);
@@ -22,6 +23,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   private chart!: Chart;
 
   private translocoService = inject(TranslocoService);
+  private scoring = inject(MaturityScoringService);
   private cdr = inject(ChangeDetectorRef);
   private langSub?: Subscription;
   private readonly translationScope = 'maturity';
@@ -37,14 +39,9 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   public kpaAverages: Record<string, number> = {};
   commentList: any[] = [];
 
-  resultsScale = [
-    { value: 1, label: 'Basic' },
-    { value: 2, label: 'Emerging' },
-    { value: 3, label: 'Advanced' },
-    { value: 4, label: 'Integrated' },
-    { value: 5, label: 'Optimizing' }
-  ]
-  
+  /** Ordered levels used to render the scale ticks/labels (from the shared service). */
+  resultsScale = this.scoring.resultsScale;
+
 
   ngAfterViewInit(): void {
     if (this.maturityResponse && !this.expoMode) {
@@ -452,14 +449,7 @@ export class MaturityResultsComponent implements OnChanges, AfterViewInit, OnIni
   }
 
   getScaleLabel(value: number): string {
-    let key: string;
-    if (value === 0) key = 'levelNone';
-    else if (value <= 1) key = 'levelBasic';
-    else if (value <= 2) key = 'levelEmerging';
-    else if (value <= 3) key = 'levelAdvanced';
-    else if (value <= 4) key = 'levelIntegrated';
-    else key = 'levelOptimizing';
-    this.level = this.t(`results.${key}`);
+    this.level = this.t(`results.${this.scoring.getLevelKey(value)}`);
     return this.level;
   }
 

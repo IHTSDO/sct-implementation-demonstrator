@@ -131,7 +131,7 @@
                       <tr (click)="openMaturityResultsDialog(stakeholder)" style="cursor: pointer;">
                         <td>{{ stakeholder.stakeHolderName }}</td>
                         <td>{{ stakeholder.name }}</td>
-                        <td>{{ stakeholder.overallScore }} - {{ stakeholder.level }}</td>
+                        <td>{{ stakeholder.overallScore }} - {{ getScaleLabel(stakeholder.overallScore) }}</td>
                         <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : t('dashboard.noLocation') }}</td>
                       </tr>
                     }

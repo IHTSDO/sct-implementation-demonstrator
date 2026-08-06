@@ -14,6 +14,7 @@ import { MaturityResultsDialogComponent } from '../maturity-results-dialog';
 import { TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
 import { distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
+import { MaturityScoringService } from '../maturity-scoring.service';
 
 @Component({
   selector: 'app-maturity-dashboard',
@@ -98,7 +99,8 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
+    private scoringService: MaturityScoringService
   ) {}
 
   ngOnInit(): void {
@@ -1963,16 +1965,9 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   }
 
   getScaleLabel(value: number): string {
-    const resultsScale = [
-      { value: 1, label: 'Basic' },
-      { value: 2, label: 'Emerging' },
-      { value: 3, label: 'Advanced' },
-      { value: 4, label: 'Integrated' },
-      { value: 5, label: 'Optimizing' }
-    ]
-    // round to the lowest whole number
-    value = Math.floor(value);
-    return resultsScale.find((scale) => scale.value === value)?.label || '';
+    // Delegates to the shared service so the dashboard and the results page
+    // bucket scores into levels identically (single source of truth).
+    return this.scoringService.getLevelLabel(value);
   }
 
   setScaleLabel(value: number): void {
