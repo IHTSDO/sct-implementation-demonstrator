@@ -35,3 +35,117 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Measurement history table */
+.vital-history {
+  margin-top: 22px;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.history-header h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.history-count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  background: #eef2f7;
+  color: #5f6b7a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.history-table-wrap {
+  border: 1px solid #e6ebf2;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.history-table thead th {
+  text-align: left;
+  padding: 8px 12px;
+  background: #f8fafc;
+  color: #6a7786;
+  font-weight: 600;
+  border-bottom: 1px solid #e6ebf2;
+  white-space: nowrap;
+}
+
+.history-table tbody td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #f0f3f7;
+  color: #37414d;
+  vertical-align: middle;
+}
+
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table tbody tr:hover {
+  background: #fafcff;
+}
+
+.col-date {
+  white-space: nowrap;
+  color: #6a7786;
+}
+
+.col-vital .history-emoji {
+  margin-right: 8px;
+}
+
+.col-value {
+  white-space: nowrap;
+}
+
+.history-value {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.history-unit {
+  margin-left: 4px;
+  color: #8a929c;
+  font-size: 0.8rem;
+}
+
+.col-actions {
+  width: 44px;
+  text-align: right;
+}
+
+.history-delete {
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+}
+
+.history-empty {
+  padding: 14px;
+  border: 1px dashed #dbe2ea;
+  border-radius: 10px;
+  color: #8a929c;
+  font-size: 0.85rem;
+  text-align: center;
+}

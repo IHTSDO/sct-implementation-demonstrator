@@ -63,8 +63,7 @@ import { CdsHooksServerConfig, CdsHooksServerConfigService } from '../../service
 
                 <mat-slide-toggle
                   [ngModel]="server.active"
-                  (ngModelChange)="toggleServer(server.id, $event)"
-                  [disabled]="!!server.isDefault && !server.active && activeServerCount <= 1">
+                  (ngModelChange)="toggleServer(server.id, $event)">
                   Active
                 </mat-slide-toggle>
               </div>
@@ -211,10 +210,6 @@ export class CdsHooksServersDialogComponent {
     private dialogRef: MatDialogRef<CdsHooksServersDialogComponent>
   ) {
     this.servers = this.cloneServers(this.cdsHooksServerConfigService.getServers());
-  }
-
-  get activeServerCount(): number {
-    return this.servers.filter((server) => server.active).length;
   }
 
   close(): void {

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { TRANSLOCO_SCOPE, TranslocoModule } from '@jsverse/transloco';
 import { AiAssistedEntryComponent } from './ai-assisted-entry/ai-assisted-entry.component';
+import { AlertToastHostComponent } from './alert-toast-host/alert-toast-host.component';
 import { AllergyFormDialogComponent } from './allergy-form-dialog/allergy-form-dialog.component';
 import { BatchPatientDialogComponent } from './batch-patient-dialog/batch-patient-dialog.component';
 import { BenefitsDemoComponent } from './benefits-demo.component';
@@ -78,6 +79,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     SmartHealthLinksComponent,
   ],
   imports: [
+    AlertToastHostComponent,
     AllergiesModule,
     AppMaterialModule,
     BindingsModule,

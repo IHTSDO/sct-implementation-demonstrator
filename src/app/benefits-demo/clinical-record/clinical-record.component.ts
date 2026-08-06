@@ -5,10 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService } from '../../services/patient.service';
 import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
 import { CdsService, CDSCard, HookExecutionContextSnapshot } from '../../services/cds.service';
+import { AlertToastService } from '../../services/alert-toast.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { ClinicalEntryComponent, ClinicalEntryType } from '../clinical-entry/clinical-entry.component';
 import { CdsState } from '../cds-panel/cds-panel.component';
 import { Subscription, forkJoin, of, delay, firstValueFrom } from 'rxjs';
+import { debounceTime, filter } from 'rxjs/operators';
 import { AllergyFormDialogComponent } from '../allergy-form-dialog/allergy-form-dialog.component';
 import { ConfirmationDialogComponent } from '../../questionnaires/confirmation-dialog/confirmation-dialog.component';
 import { TranslocoService } from '@jsverse/transloco';
@@ -107,6 +109,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   dataVersion = 0;
   private subscriptions: Subscription[] = [];
   private cdsCardsSubscription?: Subscription;
+  private newCardsSubscription?: Subscription;
   private readonly DENTAL_CATEGORY_SYSTEM = 'http://example.org/fhir/CodeSystem/condition-category';
   private readonly DENTAL_CONDITION_CATEGORY_CODE = 'dental';
   private readonly DENTAL_PROCEDURE_CATEGORY_CODE = 'dental-procedure';
@@ -132,10 +135,13 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     hasRecommendations: false,
     hasExecuted: false,
     recommendationCount: 0,
+    highestSeverity: null,
     errorMessage: null,
     noDataMessage: null
   };
   cdsCards: CDSCard[] = [];
+  medicationDraftAlerts: CDSCard[] = [];
+  private medicationDraftAlertsSubscription?: Subscription;
 
   // No separate cache needed - we'll add location directly to the clinical events
 
@@ -227,6 +233,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
 
   constructor(
     private cdsService: CdsService,
+    private alertToastService: AlertToastService,
     private patientService: PatientService,
     private route: ActivatedRoute,
     private router: Router,
@@ -267,11 +274,33 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         })
       );
     }
+
+    // Any observation change — from the nursing vitals cards, the vitals history delete,
+    // or the quick lab entry — refreshes the local list and re-runs patient-view CDS,
+    // since observations are part of the patient-view prefetch (diabetes/hypertension
+    // diagnostics). Centralizing here means components that write observations directly
+    // don't each have to remember to trigger CDS.
+    this.subscriptions.push(
+      this.patientService.getObservationsChanged().pipe(
+        filter((patientId) => !!this.patient && this.patient.id === patientId),
+        // Collapse bursts (seeding demo data, bulk imports, rapid edits) into one refresh.
+        debounceTime(50)
+      ).subscribe(() => {
+        if (!this.patient) {
+          return;
+        }
+        this.observations = this.patientService.getPatientObservations(this.patient.id);
+        this.dispatchCdsEvent({ type: 'patient-view' });
+      })
+    );
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.cdsCardsSubscription?.unsubscribe();
+    this.newCardsSubscription?.unsubscribe();
+    this.medicationDraftAlertsSubscription?.unsubscribe();
+    this.alertToastService.clear();
     if (this.medicationOrderSelectPreviewTimeout) {
       clearTimeout(this.medicationOrderSelectPreviewTimeout);
       this.medicationOrderSelectPreviewTimeout = null;
@@ -608,8 +637,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       this.patientService.addPatientObservation(this.patient.id, clinicBloodPressure);
     }
 
-    this.observations = this.patientService.getPatientObservations(this.patient.id);
-    this.dispatchCdsEvent({ type: 'patient-view' });
+    // Local list refresh + patient-view CDS are handled by the observations-changed
+    // subscription (debounced, so the two writes above collapse into one CDS run).
     this.showTranslatedSnackBar('diagnosticDemoDataSeeded');
   }
 
@@ -660,8 +689,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     };
 
     this.patientService.addPatientObservation(this.patient.id, result);
-    this.observations = this.patientService.getPatientObservations(this.patient.id);
-    this.dispatchCdsEvent({ type: 'patient-view' });
+    // Local list refresh + patient-view CDS are handled by the observations-changed
+    // subscription in ngOnInit.
     this.selectedQuickLabResultKey = null;
     this.quickLabResultValue = null;
     this.showTranslatedSnackBar('labResultAdded');
@@ -694,8 +723,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return;
     }
     this.patientService.deletePatientObservation(this.patient.id, resultId);
-    this.observations = this.patientService.getPatientObservations(this.patient.id);
-    this.dispatchCdsEvent({ type: 'patient-view' });
+    // Local list refresh + patient-view CDS are handled by the observations-changed
+    // subscription in ngOnInit.
   }
 
   private getObservationTimestamp(observation: FhirObservation): number {
@@ -712,6 +741,24 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.cdsCardsSubscription = this.cdsService.watchAggregatedCards(patientId).subscribe((cards) => {
       this.cdsCards = cards;
     });
+
+    // Drive toasts from card additions/removals across all hooks: a new alert drops a
+    // toast (info is ignored by the service), and a toast clears as soon as its card goes
+    // away — the draft is cancelled, the resource is deleted, or the hook stops returning
+    // it. Critical toasts otherwise stay until dismissed.
+    this.newCardsSubscription?.unsubscribe();
+    this.alertToastService.clear();
+    this.newCardsSubscription = this.cdsService.watchCardChanges(patientId).subscribe((changes) => {
+      changes.added.forEach((card) => this.alertToastService.show(card));
+      this.alertToastService.dismissBySignatures(changes.removedSignatures);
+    });
+
+    // Current draft's order-select alerts, surfaced inline on the medication form so the
+    // clinician sees the alert on the action buttons before saving.
+    this.medicationDraftAlertsSubscription?.unsubscribe();
+    this.medicationDraftAlertsSubscription = this.cdsService.watchHookCards(patientId, 'order-select').subscribe((cards) => {
+      this.medicationDraftAlerts = cards;
+    });
   }
 
   getCdsNoticeClass(): string {
@@ -720,7 +767,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     } else if (this.cdsState.hasError) {
       return 'cds-error';
     } else if (this.cdsState.hasRecommendations) {
-      return 'cds-has-recommendations';
+      return `cds-has-recommendations severity-${this.cdsState.highestSeverity || 'info'}`;
     } else if (this.cdsState.hasNoData) {
       return 'cds-no-data';
     } else if (this.cdsState.hasExecuted) {
@@ -781,6 +828,46 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return condition.clinicalStatus.coding[0].display || condition.clinicalStatus.coding[0].code || 'Unknown';
     }
     return 'Unknown';
+  }
+
+  // FHIR condition clinical status value set (condition-clinical), with a color per state
+  // for the status menu dots.
+  readonly conditionClinicalStatusOptions: { code: string; display: string; color: string }[] = [
+    { code: 'active', display: 'Active', color: '#28a745' },
+    { code: 'recurrence', display: 'Recurrence', color: '#e0a24a' },
+    { code: 'relapse', display: 'Relapse', color: '#d9822b' },
+    { code: 'inactive', display: 'Inactive', color: '#6c757d' },
+    { code: 'remission', display: 'Remission', color: '#17a2b8' },
+    { code: 'resolved', display: 'Resolved', color: '#4a6fa5' }
+  ];
+
+  getConditionStatusCode(condition: Condition): string {
+    const code = condition.clinicalStatus?.coding?.[0]?.code || condition.clinicalStatus?.text;
+    return (code || '').toLowerCase();
+  }
+
+  setConditionStatus(condition: Condition, option: { code: string; display: string }): void {
+    if (!this.patient || !condition.id || this.getConditionStatusCode(condition) === option.code) {
+      return;
+    }
+
+    const updatedCondition: Condition = {
+      ...condition,
+      clinicalStatus: {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+          code: option.code,
+          display: option.display
+        }],
+        text: option.display
+      }
+    };
+
+    this.patientService.updatePatientCondition(this.patient.id, condition.id, updatedCondition);
+    this.conditions = this.patientService.getPatientConditions(this.patient.id);
+    this.touchDataVersion();
+    // Status change alters the active problem set, so re-evaluate patient-view CDS.
+    this.dispatchCdsEvent({ type: 'patient-view' });
   }
 
   /**
@@ -1059,6 +1146,37 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return procedure.status || 'Unknown';
   }
 
+  // FHIR procedure status value set (event-status), with a color per state for the menu.
+  readonly procedureStatusOptions: { code: string; display: string; color: string }[] = [
+    { code: 'preparation', display: 'Preparation', color: '#7b8794' },
+    { code: 'in-progress', display: 'In progress', color: '#378add' },
+    { code: 'on-hold', display: 'On hold', color: '#e0a24a' },
+    { code: 'completed', display: 'Completed', color: '#17a2b8' },
+    { code: 'not-done', display: 'Not done', color: '#6c757d' },
+    { code: 'stopped', display: 'Stopped', color: '#d9822b' },
+    { code: 'entered-in-error', display: 'Entered in error', color: '#dc3545' },
+    { code: 'unknown', display: 'Unknown', color: '#adb5bd' }
+  ];
+
+  getProcedureStatusCode(procedure: Procedure): string {
+    return (procedure.status || '').toLowerCase();
+  }
+
+  setProcedureStatus(procedure: Procedure, option: { code: string; display: string }): void {
+    if (!this.patient || !procedure.id || this.getProcedureStatusCode(procedure) === option.code) {
+      return;
+    }
+
+    const updatedProcedure: Procedure = {
+      ...procedure,
+      status: option.code as Procedure['status']
+    };
+
+    this.patientService.updatePatientProcedure(this.patient.id, procedure.id, updatedProcedure);
+    this.procedures = this.patientService.getPatientProcedures(this.patient.id);
+    this.touchDataVersion();
+  }
+
   getMedicationStatus(medication: MedicationStatement): string {
     return medication.status || 'Unknown';
   }
@@ -1321,6 +1439,11 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     }
 
     if (!draftMedication) {
+      // Form was closed, cancelled, or the medication was just signed. The order-select
+      // preview is transient feedback for an in-progress draft, so clear its slot now
+      // that there is no draft — otherwise its card lingers in the CDS panel and header
+      // count until order-select happens to run again.
+      this.cdsService.clearHookSnapshots(this.patient.id, ['order-select']);
       return;
     }
 
@@ -2952,12 +3075,23 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
         void firstValueFrom(this.cdsService.invokePatientView(baseContext));
         break;
       case 'medication-draft-changed':
+        // Transient order-select preview while composing an order. Does NOT refresh
+        // patient-view: nothing has been committed to the record yet.
+        void firstValueFrom(this.cdsService.handleClinicalEvent({
+          type: event.type,
+          context: baseContext,
+          draftMedication: event.draftMedication
+        }));
+        break;
       case 'medication-signed':
         void firstValueFrom(this.cdsService.handleClinicalEvent({
           type: event.type,
           context: baseContext,
           draftMedication: event.draftMedication
         }));
+        // The medication is now part of the record, so re-run patient-view to refresh
+        // the persistent record-level alerts (mirrors condition-added / allergy-added).
+        void firstValueFrom(this.cdsService.invokePatientView(baseContext));
         break;
     }
   }

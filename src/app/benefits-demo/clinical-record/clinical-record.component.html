@@ -1,4 +1,5 @@
 <ng-container *transloco="let t; prefix: 'benefitsDemo'">
+<app-alert-toast-host></app-alert-toast-host>
 <div class="clinical-record-container">
   <!-- Header with patient info and navigation -->
   <div class="record-header">
@@ -31,6 +32,7 @@
         *ngIf="cdsState.hasRecommendations"
         type="button"
         class="patient-cds-alert-link"
+        [ngClass]="'severity-' + (cdsState.highestSeverity || 'info')"
         (click)="onCdsNoticeClick()">
         <mat-icon>shield</mat-icon>
         <span>{{ cdsState.recommendationCount }} {{ t('clinicalRecord.labels.cdsAlert') }}{{ cdsState.recommendationCount === 1 ? '' : t('clinicalRecord.labels.cdsAlertPlural') }} - {{ t('clinicalRecord.actions.view') }}</span>
@@ -576,6 +578,7 @@
                           entryType="medication"
                           [availableConditions]="conditions"
                           [availableProcedures]="procedures"
+                          [cdsAlerts]="medicationDraftAlerts"
                           [hideButton]="true"
                           [saving]="savingEntryType === 'medication'"
                           (itemAdded)="onMedicationAdded($event)"
@@ -629,12 +632,29 @@
                               <span class="item-icd10-code compact" *ngIf="getIcd10Code(condition)">
                                 {{ t('clinicalRecord.labels.icd10') }}: {{ getIcd10Code(condition) }}
                               </span>
-                              <span class="item-status compact" [class]="getConditionStatus(condition).toLowerCase()">
+                              <button type="button"
+                                      class="item-status compact status-trigger"
+                                      [ngClass]="getConditionStatusCode(condition)"
+                                      [matMenuTriggerFor]="conditionStatusMenu"
+                                      [matMenuTriggerData]="{ condition: condition }"
+                                      title="Change clinical status">
                                 {{ getConditionStatus(condition) }}
-                              </span>
+                                <mat-icon class="status-caret">arrow_drop_down</mat-icon>
+                              </button>
                             </div>
                           </div>
                         </div>
+                        <mat-menu #conditionStatusMenu="matMenu" class="status-select-menu">
+                          <ng-template matMenuContent let-condition="condition">
+                            <button mat-menu-item
+                                    *ngFor="let option of conditionClinicalStatusOptions"
+                                    (click)="setConditionStatus(condition, option)">
+                              <span class="status-dot" [style.background-color]="option.color"></span>
+                              <span class="status-menu-label">{{ option.display }}</span>
+                              <mat-icon *ngIf="getConditionStatusCode(condition) === option.code" class="status-menu-check">check</mat-icon>
+                            </button>
+                          </ng-template>
+                        </mat-menu>
 	                        <ng-template #noConditionsList>
 	                          <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noConditions') }}</div>
 	                        </ng-template>
@@ -717,12 +737,29 @@
                               <span class="item-concept-id compact" *ngIf="getConceptId(procedure)">
                                 {{ getConceptId(procedure) }}
                               </span>
-                              <span class="item-status compact" [class]="getProcedureStatus(procedure).toLowerCase()">
+                              <button type="button"
+                                      class="item-status compact status-trigger"
+                                      [ngClass]="getProcedureStatusCode(procedure)"
+                                      [matMenuTriggerFor]="procedureStatusMenu"
+                                      [matMenuTriggerData]="{ procedure: procedure }"
+                                      title="Change procedure status">
                                 {{ getProcedureStatus(procedure) }}
-                              </span>
+                                <mat-icon class="status-caret">arrow_drop_down</mat-icon>
+                              </button>
                             </div>
                           </div>
                         </div>
+                        <mat-menu #procedureStatusMenu="matMenu" class="status-select-menu">
+                          <ng-template matMenuContent let-procedure="procedure">
+                            <button mat-menu-item
+                                    *ngFor="let option of procedureStatusOptions"
+                                    (click)="setProcedureStatus(procedure, option)">
+                              <span class="status-dot" [style.background-color]="option.color"></span>
+                              <span class="status-menu-label">{{ option.display }}</span>
+                              <mat-icon *ngIf="getProcedureStatusCode(procedure) === option.code" class="status-menu-check">check</mat-icon>
+                            </button>
+                          </ng-template>
+                        </mat-menu>
                         <ng-template #noProcedures>
                           <div class="no-clinical-data compact">{{ t('clinicalRecord.messages.noProcedures') }}</div>
                         </ng-template>

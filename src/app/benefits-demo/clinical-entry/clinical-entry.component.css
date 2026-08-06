@@ -165,8 +165,17 @@
 
 .action-section {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-start;
+  width: 100%;
 }
 
 .action-section button {
@@ -175,6 +184,61 @@
 
 .action-section button:disabled {
   opacity: 0.6;
+}
+
+/* Inline CDS alert mark on the medication form's action area. */
+.cds-action-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.cds-action-alert mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.cds-severity-info .cds-action-alert {
+  color: #0e6f86;
+  background: #ecfbfe;
+  border-color: #b6ecf7;
+}
+
+.cds-severity-warning .cds-action-alert {
+  color: #8a5a00;
+  background: #fff8e1;
+  border-color: #f4d79a;
+}
+
+.cds-severity-critical .cds-action-alert {
+  color: #b3261e;
+  background: #fdecea;
+  border-color: #f5c3bf;
+}
+
+.entry-add-alert-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+/* Warning severity has no Material palette; tint the add button amber so the caution
+   reads on the button itself, not only in the note. Critical uses the warn palette. */
+.cds-severity-warning .entry-add-button {
+  --mdc-filled-button-container-color: #b26a00;
+  --mdc-filled-button-label-text-color: #ffffff;
+  background-color: #b26a00;
+  color: #ffffff;
 }
 
 .entry-button-label {
@@ -223,10 +287,10 @@
     grid-template-columns: 1fr;
   }
   
-  .action-section {
+  .action-buttons {
     flex-direction: column;
   }
-  
+
   .action-section button {
     width: 100%;
   }

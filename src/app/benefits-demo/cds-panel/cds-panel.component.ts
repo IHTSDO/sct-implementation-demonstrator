@@ -2,12 +2,14 @@ import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleCha
 import { Subscription } from 'rxjs';
 import {
   CDSCard,
+  cdsCardSignature,
   CdsService,
   CDSServerExecutionResult,
   HookExecutionContextSnapshot,
   HookExecutionSnapshot,
   StandardCdsHook
 } from '../../services/cds.service';
+import { AcknowledgedAlertsService } from '../../services/acknowledged-alerts.service';
 import { PatientService } from '../../services/patient.service';
 import type { Patient } from '../../model';
 
@@ -18,6 +20,7 @@ export interface CdsState {
   hasRecommendations: boolean;
   hasExecuted: boolean;
   recommendationCount: number;
+  highestSeverity: 'critical' | 'warning' | 'info' | null;
   errorMessage: string | null;
   noDataMessage: string | null;
 }
@@ -39,14 +42,21 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   @Output() stateChange = new EventEmitter<CdsState>();
 
   hookSnapshots: Record<StandardCdsHook, HookExecutionSnapshot> = this.createEmptySnapshotMap();
+  acknowledgedSignatures = new Set<string>();
 
   private hooksSubscription?: Subscription;
+  private acknowledgedSubscription?: Subscription;
 
-  constructor(private cdsService: CdsService, private patientService: PatientService) {}
+  constructor(
+    private cdsService: CdsService,
+    private acknowledgedAlertsService: AcknowledgedAlertsService,
+    private patientService: PatientService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['patient']) {
       this.subscribeToHookStore();
+      this.subscribeToAcknowledged();
     }
 
     if (!this.patient) {
@@ -58,6 +68,40 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.hooksSubscription?.unsubscribe();
+    this.acknowledgedSubscription?.unsubscribe();
+  }
+
+  isCardAcknowledged(card: CDSCard): boolean {
+    return this.acknowledgedSignatures.has(cdsCardSignature(card));
+  }
+
+  dismissCard(card: CDSCard): void {
+    if (this.patient) {
+      this.acknowledgedAlertsService.acknowledge(this.patient.id, card);
+    }
+  }
+
+  restoreCard(card: CDSCard): void {
+    if (this.patient) {
+      this.acknowledgedAlertsService.restore(this.patient.id, card);
+    }
+  }
+
+  // Acknowledged alerts across all servers, flattened and deduped, for the "Acknowledged"
+  // section. Active (non-acknowledged) cards are shown by getServerGroupsWithCards.
+  getAcknowledgedCards(): CDSCard[] {
+    const seen = new Set<string>();
+    const cards: CDSCard[] = [];
+    for (const group of this.getServerCardGroups()) {
+      for (const card of group.cards) {
+        const signature = cdsCardSignature(card);
+        if (this.acknowledgedSignatures.has(signature) && !seen.has(signature)) {
+          seen.add(signature);
+          cards.push(card);
+        }
+      }
+    }
+    return cards;
   }
 
   refreshAll(): void {
@@ -94,11 +138,14 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
   }
 
   getTotalRecommendationCount(): number {
-    return this.getServerCardGroups().reduce((total, group) => total + group.cards.length, 0);
+    // Acknowledged alerts do not count toward the recommendation total.
+    return this.getServerGroupsWithCards().reduce((total, group) => total + group.cards.length, 0);
   }
 
   getServerGroupsWithCards(): ServerCardGroup[] {
-    return this.getServerCardGroups().filter((group) => group.cards.length > 0);
+    return this.getServerCardGroups()
+      .map((group) => ({ server: group.server, cards: group.cards.filter((card) => !this.isCardAcknowledged(card)) }))
+      .filter((group) => group.cards.length > 0);
   }
 
   getServerGroupsWithoutCards(): ServerCardGroup[] {
@@ -160,6 +207,33 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
     }
   }
 
+  // Highest severity across all currently shown cards, used to color the summary header.
+  getHighestSeverity(): 'critical' | 'warning' | 'info' | null {
+    const indicators = this.getServerGroupsWithCards().flatMap((group) => group.cards.map((card) => card.indicator));
+    if (indicators.includes('critical')) {
+      return 'critical';
+    }
+    if (indicators.includes('warning')) {
+      return 'warning';
+    }
+    if (indicators.includes('info')) {
+      return 'info';
+    }
+    return null;
+  }
+
+  getSeverityLabel(indicator: string): string {
+    switch (indicator) {
+      case 'critical':
+        return 'Critical';
+      case 'warning':
+        return 'Warning';
+      case 'info':
+      default:
+        return 'Info';
+    }
+  }
+
   getCardIconColor(indicator: string): string {
     switch (indicator) {
       case 'critical':
@@ -174,6 +248,20 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
 
   openSourceUrl(url: string): void {
     window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  private subscribeToAcknowledged(): void {
+    this.acknowledgedSubscription?.unsubscribe();
+
+    if (!this.patient) {
+      this.acknowledgedSignatures = new Set<string>();
+      return;
+    }
+
+    this.acknowledgedSubscription = this.acknowledgedAlertsService.watchAcknowledged(this.patient.id).subscribe((signatures) => {
+      this.acknowledgedSignatures = signatures;
+      this.emitStateChange();
+    });
   }
 
   private subscribeToHookStore(): void {
@@ -236,6 +324,7 @@ export class CdsPanelComponent implements OnChanges, OnDestroy {
       hasRecommendations: recommendationCount > 0,
       hasExecuted: this.getAllSnapshots().some((snapshot) => !!snapshot.lastUpdated || snapshot.results.length > 0 || snapshot.isLoading),
       recommendationCount,
+      highestSeverity: this.getHighestSeverity(),
       errorMessage: this.getCdsError(),
       noDataMessage: this.getCdsNoDataMessage()
     });

@@ -23,5 +23,51 @@
       [isBloodPressure]="!!sign.isBloodPressure">
     </app-nursing-vital-card>
   </div>
+
+  <div class="vital-history" *ngIf="patient">
+    <div class="history-header">
+      <h4>Measurement history</h4>
+      <span class="history-count">{{ measurements.length }}</span>
+    </div>
+
+    <div class="history-table-wrap" *ngIf="measurements.length > 0; else noMeasurements">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th class="col-date">Date &amp; time</th>
+            <th class="col-vital">Vital sign</th>
+            <th class="col-value">Value</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of measurements; trackBy: trackByMeasurementId">
+            <td class="col-date">{{ m.dateLabel }}</td>
+            <td class="col-vital">
+              <span class="history-emoji" aria-hidden="true">{{ m.emoji }}</span>{{ m.label }}
+            </td>
+            <td class="col-value">
+              <span class="history-value">{{ m.valueDisplay }}</span>
+              <span class="history-unit">{{ m.unit }}</span>
+            </td>
+            <td class="col-actions">
+              <button
+                mat-icon-button
+                color="warn"
+                class="history-delete"
+                (click)="deleteMeasurement(m)"
+                matTooltip="Delete measurement">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noMeasurements>
+      <div class="history-empty">No measurements recorded yet.</div>
+    </ng-template>
+  </div>
 </div>
 </ng-container>

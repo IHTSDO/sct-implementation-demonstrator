@@ -129,6 +129,31 @@
   color: #b02a37;
 }
 
+/* The header alert link takes the color of the most severe alert in the list. */
+.patient-cds-alert-link.severity-info {
+  color: #0891b2;
+}
+
+.patient-cds-alert-link.severity-info:hover {
+  color: #0e6f86;
+}
+
+.patient-cds-alert-link.severity-warning {
+  color: #b26a00;
+}
+
+.patient-cds-alert-link.severity-warning:hover {
+  color: #8a5a00;
+}
+
+.patient-cds-alert-link.severity-critical {
+  color: #c62828;
+}
+
+.patient-cds-alert-link.severity-critical:hover {
+  color: #b02a37;
+}
+
 .current-date {
   color: #6c757d;
   font-size: 0.9rem;
@@ -764,6 +789,22 @@
   color: #dc3545;
 }
 
+/* The summary CDS notice takes the color of the most severe recommendation. */
+.cds-notice-section .cds-notice.cds-has-recommendations.severity-info .cds-notice-icon,
+.cds-notice-section .cds-notice.cds-has-recommendations.severity-info .cds-notice-text {
+  color: #0891b2;
+}
+
+.cds-notice-section .cds-notice.cds-has-recommendations.severity-warning .cds-notice-icon,
+.cds-notice-section .cds-notice.cds-has-recommendations.severity-warning .cds-notice-text {
+  color: #b26a00;
+}
+
+.cds-notice-section .cds-notice.cds-has-recommendations.severity-critical .cds-notice-icon,
+.cds-notice-section .cds-notice.cds-has-recommendations.severity-critical .cds-notice-text {
+  color: #c62828;
+}
+
 .cds-notice-section .cds-notice.cds-no-recommendations .cds-notice-icon {
   color: #28a745;
 }
@@ -1118,6 +1159,115 @@
 
 .item-status.unknown {
   background-color: #6c757d;
+  color: white;
+}
+
+/* FHIR condition clinical status colors. */
+.item-status.recurrence {
+  background-color: #e0a24a;
+  color: #3d2a06;
+}
+
+.item-status.relapse {
+  background-color: #d9822b;
+  color: white;
+}
+
+.item-status.inactive {
+  background-color: #6c757d;
+  color: white;
+}
+
+.item-status.remission {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.item-status.resolved {
+  background-color: #4a6fa5;
+  color: white;
+}
+
+/* Clickable status badge that opens the clinical-status menu. */
+/* .item-status.compact (defined later) forces display:inline-block; override it so the
+   flex row (label + caret) actually centers vertically. */
+.item-status.status-trigger {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1.2;
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+.item-status.status-trigger:hover {
+  filter: brightness(0.94);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+.item-status.status-trigger .status-caret {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: -4px;
+}
+
+/* Status menu items: color dot + label + current-selection check. */
+.status-select-menu .status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex: 0 0 auto;
+}
+
+.status-select-menu .status-menu-label {
+  flex: 1 1 auto;
+}
+
+.status-select-menu .status-menu-check {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-left: 12px;
+  color: #28a745;
+}
+
+/* FHIR procedure status (event-status) badge colors. */
+.item-status.preparation {
+  background-color: #7b8794;
+  color: white;
+}
+
+.item-status.in-progress {
+  background-color: #378add;
+  color: white;
+}
+
+.item-status.on-hold {
+  background-color: #e0a24a;
+  color: #3d2a06;
+}
+
+.item-status.not-done {
+  background-color: #6c757d;
+  color: white;
+}
+
+.item-status.stopped {
+  background-color: #d9822b;
+  color: white;
+}
+
+.item-status.entered-in-error {
+  background-color: #dc3545;
   color: white;
 }
 

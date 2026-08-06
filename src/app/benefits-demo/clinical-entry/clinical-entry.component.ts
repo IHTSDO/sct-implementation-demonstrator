@@ -2,8 +2,17 @@ import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterVie
 import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import type { Condition, Immunization, MedicationStatement, Procedure } from '../../model';
+import type { CDSCard } from '../../services/cds.service';
 
 export type ClinicalEntryType = 'condition' | 'procedure' | 'medication' | 'immunization';
+
+// Sensible starting posology so a common order (one tablet daily) is one click to save.
+const DEFAULT_MEDICATION_DOSAGE: { value: number; unit: string; period: number; periodUnit: 'h' | 'd' | 'wk' } = {
+  value: 1,
+  unit: 'tablet',
+  period: 1,
+  periodUnit: 'd'
+};
 
 @Component({
   selector: 'app-clinical-entry',
@@ -18,6 +27,43 @@ export class ClinicalEntryComponent implements AfterViewInit {
   @Input() saving: boolean = false;
   @Input() availableConditions: Condition[] = [];
   @Input() availableProcedures: Procedure[] = [];
+  @Input() cdsAlerts: CDSCard[] = [];
+
+  // Highest-severity CDS alert on the current medication draft, used to mark the form's
+  // action buttons so an alerted order isn't saved without a deliberate second look.
+  get cdsAlertSeverity(): 'critical' | 'warning' | 'info' | null {
+    if (this.entryType !== 'medication' || !this.cdsAlerts || this.cdsAlerts.length === 0) {
+      return null;
+    }
+    const indicators = this.cdsAlerts.map((card) => card.indicator);
+    if (indicators.includes('critical')) {
+      return 'critical';
+    }
+    if (indicators.includes('warning')) {
+      return 'warning';
+    }
+    if (indicators.includes('info')) {
+      return 'info';
+    }
+    return null;
+  }
+
+  get cdsAlertIcon(): string {
+    switch (this.cdsAlertSeverity) {
+      case 'critical':
+        return 'error';
+      case 'warning':
+        return 'warning';
+      default:
+        return 'info';
+    }
+  }
+
+  get cdsAlertNote(): string {
+    const count = this.cdsAlerts?.length || 0;
+    const noun = count === 1 ? 'CDS alert' : 'CDS alerts';
+    return `${count} ${noun} — review before saving`;
+  }
   @Output() itemAdded = new EventEmitter<any>();
   @Output() draftMedicationChanged = new EventEmitter<MedicationStatement | null>();
   @Output() formOpened = new EventEmitter<ClinicalEntryType>();
@@ -27,10 +73,10 @@ export class ClinicalEntryComponent implements AfterViewInit {
   selectedAssociation: {type: 'condition' | 'procedure', resource: Condition | Procedure} | null = null;
   term: string = '';
   entryDate: Date = this.getDefaultEntryDate();
-  medicationDoseValue: number | null = null;
-  medicationDoseUnit: string = '';
-  medicationPeriod: number | null = null;
-  medicationPeriodUnit: 'h' | 'd' | 'wk' = 'h';
+  medicationDoseValue: number | null = DEFAULT_MEDICATION_DOSAGE.value;
+  medicationDoseUnit: string = DEFAULT_MEDICATION_DOSAGE.unit;
+  medicationPeriod: number | null = DEFAULT_MEDICATION_DOSAGE.period;
+  medicationPeriodUnit: 'h' | 'd' | 'wk' = DEFAULT_MEDICATION_DOSAGE.periodUnit;
   immunizationStatus: Immunization['status'] = 'completed';
   loading = false;
   showAddForm = false;
@@ -225,10 +271,10 @@ export class ClinicalEntryComponent implements AfterViewInit {
     this.selectedConcept = null;
     this.selectedAssociation = null;
     this.entryDate = this.getDefaultEntryDate();
-    this.medicationDoseValue = null;
-    this.medicationDoseUnit = '';
-    this.medicationPeriod = null;
-    this.medicationPeriodUnit = 'h';
+    this.medicationDoseValue = DEFAULT_MEDICATION_DOSAGE.value;
+    this.medicationDoseUnit = DEFAULT_MEDICATION_DOSAGE.unit;
+    this.medicationPeriod = DEFAULT_MEDICATION_DOSAGE.period;
+    this.medicationPeriodUnit = DEFAULT_MEDICATION_DOSAGE.periodUnit;
     this.immunizationStatus = 'completed';
     this.showAddForm = false;
     this.medicationDraftId = '';

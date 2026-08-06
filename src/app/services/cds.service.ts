@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, forkJoin, of, throwError } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, forkJoin, of, throwError } from 'rxjs';
+import { catchError, filter, map, scan, shareReplay, switchMap, tap } from 'rxjs/operators';
 import type { AllergyIntolerance, Condition, FhirObservation, MedicationStatement, Patient } from '../model';
 import { CdsHooksServerConfig, CdsHooksServerConfigService } from './cds-hooks-server-config.service';
+import { AcknowledgedAlertsService } from './acknowledged-alerts.service';
 
 export type StandardCdsHook = 'patient-view' | 'order-select' | 'order-sign' | 'problem-list-item-create' | 'allergyintolerance-create';
 
@@ -231,6 +232,17 @@ export interface CDSResponse {
   cards: CDSCard[];
 }
 
+// Stable identity for a card, shared by the CDS store dedup and the toast lifecycle so
+// "this card appeared / disappeared" and "this toast belongs to that card" stay in sync.
+export function cdsCardSignature(card: CDSCard): string {
+  return [card.indicator, card.summary, card.detail || '', card.source?.label || ''].join('|');
+}
+
+export interface CdsCardChanges {
+  added: CDSCard[];
+  removedSignatures: string[];
+}
+
 export interface CDSDiscoveryService {
   id: string;
   hook?: string;
@@ -436,7 +448,8 @@ export class CdsService {
 
   constructor(
     private http: HttpClient,
-    private cdsServerConfigService: CdsHooksServerConfigService
+    private cdsServerConfigService: CdsHooksServerConfigService,
+    private acknowledgedAlertsService: AcknowledgedAlertsService
   ) {}
 
   getConfiguredServers(): CdsHooksServerConfig[] {
@@ -465,8 +478,113 @@ export class CdsService {
   }
 
   watchAggregatedCards(patientId: string): Observable<CDSCard[]> {
+    // Persistent, record-level alerts (medication list indicators, problem-list
+    // indicators, tooltips) are derived ONLY from the patient-view hook. That hook
+    // re-evaluates the full current record on every mutation, so its cards always
+    // reflect live state and can never go stale.
+    //
+    // The workflow-moment hooks (order-select, order-sign, allergyintolerance-create,
+    // problem-list-item-create) are transient feedback for an in-progress action and
+    // are intentionally excluded here: including them was the source of "ghost" cards
+    // that survived after the underlying medication/allergy/condition was removed,
+    // because those slots are only overwritten when their own hook runs again.
+    // Acknowledged alerts are excluded so dismissing one clears its record-level indicators.
+    return combineLatest([
+      this.watchPatientHooks(patientId),
+      this.acknowledgedAlertsService.watchAcknowledged(patientId)
+    ]).pipe(
+      map(([store, acknowledged]) =>
+        this.aggregateCards([store['patient-view']]).filter((card) => !acknowledged.has(this.cardSignature(card)))
+      )
+    );
+  }
+
+  // Union of cards across ALL hooks for a patient (deduped by signature), together with
+  // whether any hook is still loading. This is the source for transient/attention UX
+  // (toasts) — unlike watchAggregatedCards, it includes the workflow-moment hooks so an
+  // order-select contraindication surfaced while prescribing also counts.
+  private watchAllHookCards(patientId: string): Observable<{ cards: CDSCard[]; anyLoading: boolean }> {
     return this.watchPatientHooks(patientId).pipe(
-      map((store) => this.aggregateCards(Object.values(store)))
+      map((store) => {
+        const snapshots = Object.values(store);
+        return {
+          cards: this.aggregateCards(snapshots),
+          anyLoading: snapshots.some((snapshot) => snapshot.isLoading)
+        };
+      })
+    );
+  }
+
+  // Same as watchAllHookCards but excluding acknowledged alerts, so acknowledging a card
+  // makes it look "removed" to the toast lifecycle (its toast clears and it won't re-toast
+  // until restored).
+  private watchActiveHookCards(patientId: string): Observable<{ cards: CDSCard[]; anyLoading: boolean }> {
+    return combineLatest([
+      this.watchAllHookCards(patientId),
+      this.acknowledgedAlertsService.watchAcknowledged(patientId)
+    ]).pipe(
+      map(([{ cards, anyLoading }, acknowledged]) => ({
+        cards: cards.filter((card) => !acknowledged.has(this.cardSignature(card))),
+        anyLoading
+      }))
+    );
+  }
+
+  // Emits card ADDITIONS and REMOVALS (by signature) so callers can drive a transient
+  // notification that appears when an alert shows up and clears when it goes away (the
+  // draft is cancelled, the resource is deleted, or the hook stops returning it).
+  //
+  // - The alerts already present on the first settled load are primed as "seen" WITHOUT
+  //   emitting, so opening a record doesn't flood the user with toasts for pre-existing
+  //   alerts — only alerts added by a subsequent action are surfaced.
+  // - While any hook is loading, signatures are only added to the seen set, never pruned.
+  //   This prevents a false add/remove churn when a debounced hook (e.g. order-select)
+  //   briefly publishes an empty loading snapshot between keystrokes.
+  // - On a settled emission the seen set becomes exactly what is currently showing, so a
+  //   removed card emits a removal and a genuinely re-added card emits an addition again.
+  watchCardChanges(patientId: string): Observable<CdsCardChanges> {
+    return this.watchActiveHookCards(patientId).pipe(
+      scan<{ cards: CDSCard[]; anyLoading: boolean }, { seen: Set<string>; changes: CdsCardChanges; primed: boolean }>(
+        (state, { cards, anyLoading }) => {
+          const currentSignatures = new Set(cards.map((card) => this.cardSignature(card)));
+          const empty: CdsCardChanges = { added: [], removedSignatures: [] };
+
+          if (!state.primed) {
+            // Prime silently on the first settled emission; keep waiting while loading.
+            if (anyLoading) {
+              return { seen: state.seen, changes: empty, primed: false };
+            }
+            return { seen: currentSignatures, changes: empty, primed: true };
+          }
+
+          const added = cards.filter((card) => !state.seen.has(this.cardSignature(card)));
+
+          if (anyLoading) {
+            // Don't prune (no removals) while loading; just remember any new signatures.
+            const seen = new Set(state.seen);
+            currentSignatures.forEach((signature) => seen.add(signature));
+            return { seen, changes: { added, removedSignatures: [] }, primed: true };
+          }
+
+          const removedSignatures = [...state.seen].filter((signature) => !currentSignatures.has(signature));
+          return { seen: currentSignatures, changes: { added, removedSignatures }, primed: true };
+        },
+        { seen: new Set<string>(), changes: { added: [], removedSignatures: [] }, primed: false }
+      ),
+      map((state) => state.changes),
+      filter((changes) => changes.added.length > 0 || changes.removedSignatures.length > 0)
+    );
+  }
+
+  private cardSignature(card: CDSCard): string {
+    return cdsCardSignature(card);
+  }
+
+  // Cards from a single hook's latest snapshot (deduped). Used to surface the current
+  // draft's order-select alerts inline on the medication form.
+  watchHookCards(patientId: string, hook: StandardCdsHook): Observable<CDSCard[]> {
+    return this.watchPatientHooks(patientId).pipe(
+      map((store) => this.aggregateCards([store[hook]]))
     );
   }
 
@@ -504,7 +622,7 @@ export class CdsService {
         }
 
         for (const card of result.response.cards || []) {
-          const signature = [card.indicator, card.summary, card.detail || '', card.source?.label || ''].join('|');
+          const signature = this.cardSignature(card);
           if (!seen.has(signature)) {
             seen.add(signature);
             cards.push(card);
@@ -546,11 +664,20 @@ export class CdsService {
   }
 
   handleClinicalEvent(event: ClinicalCdsEvent): Observable<HookExecutionSnapshot> {
+    const patientId = event.context.patient.id;
     switch (event.type) {
-      case 'patient-view':
       case 'condition-deleted':
+        // The removed condition can no longer be the subject of a problem-list-item-create
+        // card, so drop that transient slot before re-evaluating steady state.
+        this.clearHookSnapshots(patientId, ['problem-list-item-create']);
+        return this.invokePatientView(event.context);
       case 'allergy-deleted':
+        this.clearHookSnapshots(patientId, ['allergyintolerance-create']);
+        return this.invokePatientView(event.context);
       case 'medication-deleted':
+        this.clearHookSnapshots(patientId, ['order-select', 'order-sign']);
+        return this.invokePatientView(event.context);
+      case 'patient-view':
       case 'immunization-added':
       case 'immunization-deleted':
         return this.invokePatientView(event.context);
@@ -956,6 +1083,29 @@ export class CdsService {
         )
       )
     };
+  }
+
+  // Resets the given transient hook slots back to empty for a patient. Used when the
+  // resource that produced a workflow-moment card is removed (e.g. deleting an allergy
+  // clears the allergyintolerance-create slot), so those cards don't linger in views
+  // that read the per-hook store (the CDS panel). patient-view is steady-state and is
+  // never cleared here — it is re-evaluated instead.
+  clearHookSnapshots(patientId: string, hooks: StandardCdsHook[]): void {
+    const currentStore = this.hookStore$.value;
+    const patientStore = currentStore[patientId];
+    if (!patientStore) {
+      return;
+    }
+
+    const updatedStore = { ...patientStore };
+    for (const hook of hooks) {
+      updatedStore[hook] = EMPTY_HOOK_SNAPSHOT(hook);
+    }
+
+    this.hookStore$.next({
+      ...currentStore,
+      [patientId]: updatedStore
+    });
   }
 
   private updateHookSnapshot(patientId: string, hook: StandardCdsHook, snapshot: HookExecutionSnapshot): void {

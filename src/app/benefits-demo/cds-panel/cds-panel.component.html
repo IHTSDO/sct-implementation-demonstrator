@@ -42,8 +42,8 @@
 
     @if (showGroupedResults()) {
       <div class="cds-recommendations">
-        <div class="recommendations-header">
-          <mat-icon color="primary">lightbulb</mat-icon>
+        <div class="recommendations-header" [ngClass]="'severity-' + (getHighestSeverity() || 'info')">
+          <mat-icon>lightbulb</mat-icon>
           <span>{{ t('cdsPanel.status.recommendationCount', { count: getTotalRecommendationCount() }) }}</span>
         </div>
 
@@ -61,9 +61,10 @@
                 @for (card of group.cards; track $index) {
                   <mat-card class="cds-card" [ngClass]="'indicator-' + card.indicator">
                     <mat-card-header>
+                      <span class="cds-severity-badge">{{ getSeverityLabel(card.indicator) }}</span>
                       <mat-card-title>
-                        <mat-icon [color]="getCardIconColor(card.indicator)">{{ getCardIcon(card.indicator) }}</mat-icon>
-                        {{ card.summary }}
+                        <mat-icon>{{ getCardIcon(card.indicator) }}</mat-icon>
+                        <span class="cds-card-summary">{{ card.summary }}</span>
                       </mat-card-title>
                       <mat-card-subtitle>{{ card.source.label }}</mat-card-subtitle>
                     </mat-card-header>
@@ -88,6 +89,14 @@
                           {{ t('cdsPanel.actions.viewSource') }}
                         </button>
                       }
+                      <button
+                        mat-button
+                        class="cds-dismiss-button"
+                        (click)="dismissCard(card)"
+                        title="Acknowledge this alert so it stops toasting and counting">
+                        <mat-icon>notifications_off</mat-icon>
+                        Dismiss
+                      </button>
                     </mat-card-actions>
                   </mat-card>
                 }
@@ -128,6 +137,29 @@
           <span>{{ t('cdsPanel.status.noRecommendationsDetail') }}</span>
         </div>
       </div>
+    }
+
+    @if (getAcknowledgedCards().length > 0) {
+      <details class="cds-acknowledged">
+        <summary>
+          <mat-icon>notifications_off</mat-icon>
+          Acknowledged ({{ getAcknowledgedCards().length }})
+        </summary>
+        <div class="cds-acknowledged-list">
+          @for (card of getAcknowledgedCards(); track $index) {
+            <div class="cds-acknowledged-item" [ngClass]="'indicator-' + card.indicator">
+              <div class="cds-acknowledged-copy">
+                <span class="cds-severity-badge">{{ getSeverityLabel(card.indicator) }}</span>
+                <span class="cds-acknowledged-summary">{{ card.summary }}</span>
+              </div>
+              <button mat-button color="primary" (click)="restoreCard(card)" title="Restore this alert">
+                <mat-icon>restore</mat-icon>
+                Restore
+              </button>
+            </div>
+          }
+        </div>
+      </details>
     }
   </div>
 

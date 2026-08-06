@@ -149,24 +149,41 @@
             </mat-form-field>
           </div>
         }
-        <div class="action-section">
-          <button mat-flat-button color="accent" (click)="addItem()" [disabled]="!selectedConcept || loading || saving">
-            <span class="entry-button-label">
-              @if (loading || saving) {
-                <span class="inline-button-spinner entry-inline-spinner" aria-hidden="true"></span>
-              }
-              <span>
-                @if (saving) {
-                  {{ t('clinicalEntry.actions.saving') }}
-                } @else {
-                  Add {{ entryType === 'medication' && selectedAssociation ? 'Associated ' : '' }}{{ sectionTitle.replace('Add ', '') }}
+        <div class="action-section" [ngClass]="cdsAlertSeverity ? 'has-cds-alert cds-severity-' + cdsAlertSeverity : ''">
+          @if (cdsAlertSeverity) {
+            <div class="cds-action-alert" role="status">
+              <mat-icon>{{ cdsAlertIcon }}</mat-icon>
+              <span>{{ cdsAlertNote }}</span>
+            </div>
+          }
+          <div class="action-buttons">
+            <button
+              mat-flat-button
+              [color]="cdsAlertSeverity === 'critical' ? 'warn' : 'accent'"
+              class="entry-add-button"
+              (click)="addItem()"
+              [disabled]="!selectedConcept || loading || saving">
+              <span class="entry-button-label">
+                @if (loading || saving) {
+                  <span class="inline-button-spinner entry-inline-spinner" aria-hidden="true"></span>
+                } @else if (cdsAlertSeverity) {
+                  <mat-icon class="entry-add-alert-icon">{{ cdsAlertIcon }}</mat-icon>
                 }
+                <span>
+                  @if (saving) {
+                    {{ t('clinicalEntry.actions.saving') }}
+                  } @else if (cdsAlertSeverity) {
+                    Add anyway
+                  } @else {
+                    Add {{ entryType === 'medication' && selectedAssociation ? 'Associated ' : '' }}{{ sectionTitle.replace('Add ', '') }}
+                  }
+                </span>
               </span>
-            </span>
-          </button>
-          <button mat-flat-button color="warn" (click)="toggleAddForm()" [disabled]="loading || saving">
-            {{ t('clinicalEntry.actions.cancel') }}
-          </button>
+            </button>
+            <button mat-flat-button color="warn" (click)="toggleAddForm()" [disabled]="loading || saving">
+              {{ t('clinicalEntry.actions.cancel') }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
