@@ -133,19 +133,27 @@ export class AppComponent {
     this.updateCodeSystemOptionsTrigger$.pipe(
       switchMap((preselectedEdition) => {
         const currentBase = this.terminologyService.getSnowstormFhirBase();
-        const currentIndex = this.fhirServers.findIndex(
+        // Always try the currently selected server first — including a Local/Custom
+        // URL that is not part of the predefined list — then fall back to the presets.
+        const predefined = this.fhirServers.find(
           s => this.normalizeTerminologyServerBaseUrl(s.url) === currentBase
         );
-        const startIndex = currentIndex >= 0 ? currentIndex : environment.defaultFhirServerIndex;
-        return this.tryGetCodeSystemsWithFallback(startIndex).pipe(
+        const currentServer: FhirServer = predefined ?? {
+          name: this.selectedServer?.name ?? CUSTOM_FHIR_TERM_SERVER_MENU_LABEL,
+          url: currentBase,
+        };
+        const fallbacks = this.fhirServers.filter(
+          s => this.normalizeTerminologyServerBaseUrl(s.url) !== currentBase
+        );
+        const candidates = [currentServer, ...fallbacks];
+        return this.tryGetCodeSystemsWithFallback(candidates, 0).pipe(
           catchError(err => {
             console.error('All FHIR servers failed:', err);
             return of(null);
           }),
-          tap((result: { response: any; serverIndex: number } | null) => {
+          tap((result: { response: any; server: FhirServer } | null) => {
             if (!result) return;
-            const { response, serverIndex } = result;
-            const server = this.fhirServers[serverIndex];
+            const { response, server } = result;
             const serverUrl = this.normalizeTerminologyServerBaseUrl(server.url);
 
             this.editionsDetails = [];
@@ -322,11 +330,12 @@ export class AppComponent {
     window.open(url, '_blank');
   }
 
-  private tryGetCodeSystemsWithFallback(startIndex: number): import('rxjs').Observable<{ response: any; serverIndex: number } | null> {
-    if (startIndex >= this.fhirServers.length) {
+  private tryGetCodeSystemsWithFallback(candidates: FhirServer[], startIndex: number): import('rxjs').Observable<{ response: any; server: FhirServer } | null> {
+    if (startIndex >= candidates.length) {
       return of(null);
     }
-    const serverUrl = this.normalizeTerminologyServerBaseUrl(this.fhirServers[startIndex].url);
+    const server = candidates[startIndex];
+    const serverUrl = this.normalizeTerminologyServerBaseUrl(server.url);
     const isOntoserver = serverUrl.toLowerCase().includes('ontoserver');
     const requestUrl = isOntoserver
       ? `${serverUrl}/CodeSystem?system=http://snomed.info/sct`
@@ -335,9 +344,9 @@ export class AppComponent {
     return this.http.get<any>(requestUrl, { headers }).pipe(
       map(response => {
         if (!response?.entry?.length) throw new Error('empty response');
-        return { response, serverIndex: startIndex };
+        return { response, server };
       }),
-      catchError(() => this.tryGetCodeSystemsWithFallback(startIndex + 1))
+      catchError(() => this.tryGetCodeSystemsWithFallback(candidates, startIndex + 1))
     );
   }
 
