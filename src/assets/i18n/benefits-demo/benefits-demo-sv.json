@@ -1089,12 +1089,15 @@
     },
     "fields": {
       "systolic": "Systoliskt",
-      "diastolic": "Diastoliskt"
+      "diastolic": "Diastoliskt",
+      "measuredOn": "Datum",
+      "measuredAt": "Tid"
     },
     "actions": {
       "addNew": "Lägg till ny",
       "save": "Spara",
-      "cancel": "Avbryt"
+      "cancel": "Avbryt",
+      "now": "Nu"
     }
   },
   "nursingVitalSigns": {

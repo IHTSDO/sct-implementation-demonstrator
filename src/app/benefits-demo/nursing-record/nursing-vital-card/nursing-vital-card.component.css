@@ -71,6 +71,27 @@
   width: 100%;
 }
 
+.datetime-inputs {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 8px;
+}
+
+.now-button {
+  min-height: 30px;
+  line-height: 30px;
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+}
+
+.now-button mat-icon {
+  font-size: 1rem;
+  height: 1rem;
+  width: 1rem;
+  margin-right: 2px;
+  vertical-align: middle;
+}
+
 .editor-actions {
   display: flex;
   justify-content: flex-end;

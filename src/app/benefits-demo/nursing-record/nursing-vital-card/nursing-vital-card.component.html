@@ -35,6 +35,25 @@
       </mat-form-field>
     </ng-template>
 
+    <div class="datetime-inputs">
+      <mat-form-field appearance="outline" class="datetime-date">
+        <mat-label>{{ t('nursingVitalCard.fields.measuredOn') }}</mat-label>
+        <input matInput [matDatepicker]="measuredDatePicker" [(ngModel)]="draftDate" [max]="today">
+        <mat-datepicker-toggle matIconSuffix [for]="measuredDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #measuredDatePicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="datetime-time">
+        <mat-label>{{ t('nursingVitalCard.fields.measuredAt') }}</mat-label>
+        <input matInput [matTimepicker]="measuredTimePicker" [(ngModel)]="draftTime" readonly>
+        <mat-timepicker-toggle matIconSuffix [for]="measuredTimePicker"></mat-timepicker-toggle>
+        <mat-timepicker #measuredTimePicker></mat-timepicker>
+      </mat-form-field>
+    </div>
+    <button mat-button type="button" class="now-button" (click)="resetDateTimeToNow()">
+      <mat-icon>schedule</mat-icon>
+      {{ t('nursingVitalCard.actions.now') }}
+    </button>
+
     <div class="editor-actions">
       <button mat-flat-button color="primary" type="button" (click)="save()">{{ t('nursingVitalCard.actions.save') }}</button>
       <button mat-button type="button" (click)="closeEditor()">{{ t('nursingVitalCard.actions.cancel') }}</button>

@@ -31,6 +31,11 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
   draftValue: number | null = null;
   draftSystolic: number | null = null;
   draftDiastolic: number | null = null;
+  // Measurement date & time, split for the Material datepicker/timepicker; default to "now" when the editor opens.
+  draftDate: Date | null = null;
+  draftTime: Date | null = null;
+  // Upper bound for the datepicker — a measurement cannot be recorded in the future.
+  readonly today = new Date();
 
   private observationsChangedSub: Subscription | null = null;
 
@@ -96,6 +101,7 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.allowEntry) {
       return;
     }
+    this.resetDateTimeToNow();
     this.editOpen = true;
   }
 
@@ -104,6 +110,15 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
     this.draftValue = null;
     this.draftSystolic = null;
     this.draftDiastolic = null;
+    this.draftDate = null;
+    this.draftTime = null;
+  }
+
+  /** Snap the measurement date & time back to the current moment. */
+  resetDateTimeToNow(): void {
+    const now = new Date();
+    this.draftDate = now;
+    this.draftTime = now;
   }
 
   save(): void {
@@ -111,6 +126,9 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
+    // effectiveDateTime = clinically relevant measurement time chosen by the user (defaults to now).
+    // issued = record creation time, always the actual "now".
+    const effective = this.buildEffectiveDateTime();
     const now = new Date().toISOString();
     let observation: FhirObservation | null = null;
 
@@ -125,7 +143,7 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
         id: `vital-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         status: 'final',
         subject: { reference: `Patient/${this.patient.id}` },
-        effectiveDateTime: now,
+        effectiveDateTime: effective,
         issued: now,
         code: {
           coding: this.buildPrimaryCodings(),
@@ -158,7 +176,7 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
         id: `vital-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         status: 'final',
         subject: { reference: `Patient/${this.patient.id}` },
-        effectiveDateTime: now,
+        effectiveDateTime: effective,
         issued: now,
         code: {
           coding: this.buildPrimaryCodings(),
@@ -227,6 +245,17 @@ export class NursingVitalCardComponent implements OnInit, OnChanges, OnDestroy {
       return null;
     }
     return value;
+  }
+
+  // Combines the picked calendar day (draftDate) with the picked time-of-day (draftTime) into an ISO string.
+  // Falls back to the current moment for whichever part the user left empty.
+  private buildEffectiveDateTime(): string {
+    const now = new Date();
+    const datePart = this.draftDate ?? now;
+    const timePart = this.draftTime ?? now;
+    const combined = new Date(datePart);
+    combined.setHours(timePart.getHours(), timePart.getMinutes(), timePart.getSeconds(), 0);
+    return combined.toISOString();
   }
 
   private toPositiveNumber(value: number | null | undefined): number | null {

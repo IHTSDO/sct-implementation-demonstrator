@@ -1089,12 +1089,15 @@
     },
     "fields": {
       "systolic": "Systolic",
-      "diastolic": "Diastolic"
+      "diastolic": "Diastolic",
+      "measuredOn": "Date",
+      "measuredAt": "Time"
     },
     "actions": {
       "addNew": "Add new",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "now": "Now"
     }
   },
   "nursingVitalSigns": {
