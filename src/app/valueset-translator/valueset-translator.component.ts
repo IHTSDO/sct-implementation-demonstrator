@@ -408,12 +408,14 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           this.displayedColumns = this.columns.map((_, i) => `${i}`);
           this.showPreview      = true;
 
-          // Check for file types based on headers
-          this.detectFileTypeFromHeaders();
-
           // keep current "skip header" checkbox state
           const keepSkip = this.importForm.get('skipHeader')!.value;
           this.importForm.reset({ skipHeader: keepSkip });
+
+          // Check for file types based on headers. Must run AFTER the reset:
+          // detection patches codeColumn/displayColumn (e.g. for Snap2Snomed maps),
+          // and resetting afterwards would wipe those values.
+          this.detectFileTypeFromHeaders();
         }
       }
 
@@ -480,10 +482,14 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       this.displayedColumns = this.columns.map((_, i) => `${i}`);
       this.showPreview = true;
 
-      this.detectFileTypeFromHeaders();
-
+      // keep current "skip header" checkbox state
       const keepSkip = this.importForm.get('skipHeader')!.value;
       this.importForm.reset({ skipHeader: keepSkip });
+
+      // Check for file types based on headers. Must run AFTER the reset:
+      // detection patches codeColumn/displayColumn (e.g. for Snap2Snomed maps),
+      // and resetting afterwards would wipe those values.
+      this.detectFileTypeFromHeaders();
     } else {
       this.columns = [];
       this.displayedColumns = [];
