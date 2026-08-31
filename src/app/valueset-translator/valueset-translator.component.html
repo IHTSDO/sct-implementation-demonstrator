@@ -327,75 +327,147 @@
             <mat-icon>play_circle</mat-icon>
             What would you like to do?
           </h3>
-          <div class="action-buttons">
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="selectAction('translate')"
-              class="action-button"
-              >
-              <mat-icon>translate</mat-icon>
-              <span>{{ isRf2Refset ? 'Assign descriptions to the set of concepts' : 'Translate the set of concepts' }}</span>
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="selectAction('validate-codes')"
-              class="action-button"
-              >
-              <mat-icon>verified</mat-icon>
-              <span>Validate codes and terms</span>
-            </button>
-            <button
-              mat-raised-button
-              color="accent"
-              (click)="selectAction('source-valueset')"
-              class="action-button"
-              >
-              <mat-icon>list_alt</mat-icon>
-              <span>Generate FHIR ValueSet (identical to uploaded concepts)</span>
-            </button>
-            <button
-              mat-raised-button
-              color="accent"
-              (click)="selectAction('target-valueset')"
-              class="action-button"
-              >
-              <mat-icon>language</mat-icon>
-              <span>Generate FHIR ValueSet (with translated display terms)</span>
-            </button>
-            @if (isMap) {
-              <button
-                mat-raised-button
-                color="warn"
-                (click)="selectAction('translate-target')"
-                class="action-button"
+          <p class="action-subtitle">Pick a goal. Each option shows what it produces.</p>
+          <div class="action-groups">
+
+            <!-- Translate / re-term -->
+            <section class="action-group">
+              <h4 class="action-group__label">
+                <mat-icon>translate</mat-icon>
+                {{ isRf2Refset ? 'Assign descriptions' : 'Translate / re-term' }}
+              </h4>
+              <div class="action-cards">
+                <button
+                  type="button"
+                  class="action-card"
+                  [class.selected]="selectedAction === 'translate'"
+                  (click)="selectAction('translate')"
                 >
-                <mat-icon>swap_horiz</mat-icon>
-                <span>Translate target column (Snap2Snomed Map)</span>
-              </button>
-            }
-            @if (isMap) {
-              <button
-                mat-raised-button
-                color="warn"
-                (click)="selectAction('fhir-package')"
-                class="action-button"
+                  <mat-icon class="action-card__icon">translate</mat-icon>
+                  <span class="action-card__body">
+                    <span class="action-card__title">{{ isRf2Refset ? 'Assign descriptions' : 'Translate concepts' }}</span>
+                    <span class="action-card__desc">{{ isRf2Refset ? 'Preview a description assigned to each concept from the selected edition.' : 'Preview each concept\'s display term in the selected edition or language.' }}</span>
+                  </span>
+                  <span class="action-card__badge action-card__badge--preview">Preview</span>
+                </button>
+
+                @if (isMap) {
+                  <button
+                    type="button"
+                    class="action-card"
+                    [class.selected]="selectedAction === 'translate-target'"
+                    (click)="selectAction('translate-target')"
+                  >
+                    <mat-icon class="action-card__icon">swap_horiz</mat-icon>
+                    <span class="action-card__body">
+                      <span class="action-card__title">Translate map target column</span>
+                      <span class="action-card__desc">Re-term the SNOMED target column and download the updated Snap2Snomed map.</span>
+                    </span>
+                    <span class="action-card__badge action-card__badge--file">Excel map</span>
+                  </button>
+                }
+              </div>
+            </section>
+
+            <!-- Validate -->
+            <section class="action-group">
+              <h4 class="action-group__label">
+                <mat-icon>verified</mat-icon>
+                Validate
+              </h4>
+              <div class="action-cards">
+                <button
+                  type="button"
+                  class="action-card"
+                  [class.selected]="selectedAction === 'validate-codes'"
+                  (click)="selectAction('validate-codes')"
                 >
-                <mat-icon>archive</mat-icon>
-                <span>Create FHIR Package (Snap2Snomed Map)</span>
-              </button>
-            }
+                  <mat-icon class="action-card__icon">verified</mat-icon>
+                  <span class="action-card__body">
+                    <span class="action-card__title">Validate codes &amp; terms</span>
+                    <span class="action-card__desc">Check every code and display term against the selected edition on the server.</span>
+                  </span>
+                  <span class="action-card__badge action-card__badge--preview">Preview</span>
+                </button>
+              </div>
+            </section>
+
+            <!-- Generate FHIR resources -->
+            <section class="action-group">
+              <h4 class="action-group__label">
+                <mat-icon>dataset</mat-icon>
+                Generate FHIR resources
+              </h4>
+              <div class="action-cards">
+                <button
+                  type="button"
+                  class="action-card"
+                  [class.selected]="selectedAction === 'source-valueset'"
+                  (click)="selectAction('source-valueset')"
+                >
+                  <mat-icon class="action-card__icon">list_alt</mat-icon>
+                  <span class="action-card__body">
+                    <span class="action-card__title">ValueSet — as uploaded</span>
+                    <span class="action-card__desc">Wrap the uploaded concepts unchanged into a FHIR ValueSet.</span>
+                  </span>
+                  <span class="action-card__badge action-card__badge--fhir">FHIR ValueSet</span>
+                </button>
+
+                <button
+                  type="button"
+                  class="action-card"
+                  [class.selected]="selectedAction === 'target-valueset'"
+                  (click)="selectAction('target-valueset')"
+                >
+                  <mat-icon class="action-card__icon">language</mat-icon>
+                  <span class="action-card__body">
+                    <span class="action-card__title">ValueSet — translated terms</span>
+                    <span class="action-card__desc">Expand the concepts and store display terms from the selected edition or language.</span>
+                  </span>
+                  <span class="action-card__badge action-card__badge--fhir">FHIR ValueSet</span>
+                </button>
+
+                @if (isMap) {
+                  <button
+                    type="button"
+                    class="action-card"
+                    [class.selected]="selectedAction === 'fhir-package'"
+                    (click)="selectAction('fhir-package')"
+                  >
+                    <mat-icon class="action-card__icon">archive</mat-icon>
+                    <span class="action-card__body">
+                      <span class="action-card__title">FHIR Package</span>
+                      <span class="action-card__desc">Bundle CodeSystem, ValueSets and ConceptMap from the map into a .tgz package.</span>
+                    </span>
+                    <span class="action-card__badge action-card__badge--fhir">FHIR Package</span>
+                  </button>
+                }
+              </div>
+            </section>
+
+            <!-- Export table (ECL only) -->
             @if (isEclResult) {
-              <button
-                mat-raised-button
-                color="accent"
-                (click)="selectAction('code-display-excel')"
-                class="action-button"
-                >
-                <mat-icon>table_view</mat-icon>
-                <span>Download code/display table (Excel)</span>
-              </button>
+              <section class="action-group">
+                <h4 class="action-group__label">
+                  <mat-icon>table_view</mat-icon>
+                  Export table
+                </h4>
+                <div class="action-cards">
+                  <button
+                    type="button"
+                    class="action-card"
+                    [class.selected]="selectedAction === 'code-display-excel'"
+                    (click)="selectAction('code-display-excel')"
+                  >
+                    <mat-icon class="action-card__icon">table_view</mat-icon>
+                    <span class="action-card__body">
+                      <span class="action-card__title">Code / display table</span>
+                      <span class="action-card__desc">Download the expanded concepts as an Excel code/display table.</span>
+                    </span>
+                    <span class="action-card__badge action-card__badge--file">Excel</span>
+                  </button>
+                </div>
+              </section>
             }
           </div>
         </div>
