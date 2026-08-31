@@ -1578,7 +1578,10 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     if (this.uploadedWorkbook && this.selectedSheetName) {
       const ws = this.uploadedWorkbook.Sheets[this.selectedSheetName];
       if (ws) {
-        return XLSX.utils.sheet_to_json(ws);
+        // defval:'' keeps every column key on every row. Without it, empty cells are
+        // omitted, so a row with a blank Target (e.g. a Snap2Snomed "no map" first row)
+        // drops those keys and Object.keys(data[0]) misses them entirely.
+        return XLSX.utils.sheet_to_json(ws, { defval: '' });
       }
     }
 
@@ -1589,7 +1592,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
           resolve(jsonData);
         } catch (error) {
           reject(error);
