@@ -114,6 +114,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
 
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('workflowProgressAnchor') workflowProgressAnchor!: ElementRef<HTMLElement>;
+  @ViewChild('executeActionAnchor') executeActionAnchor?: ElementRef<HTMLElement>;
   @ViewChild('sheetSelectorAnchor') sheetSelectorAnchor?: ElementRef<HTMLElement>;
   private workflowProgressObserver?: IntersectionObserver;
   
@@ -1615,11 +1616,21 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.error = null;
 
     try {
-      const codes = await this.getCodesForPreview();
-      if (!codes.length) {
+      const rawCodes = await this.getCodesForPreview();
+      if (!rawCodes.length) {
         this.error = 'No codes found to validate.';
         return;
       }
+
+      // Validate in alphabetical order (by display term, then code) so processing runs
+      // top-to-bottom through the table exactly as it is displayed — one row at a time,
+      // with no reshuffling. sortedValidationResults uses the same key, so the stored
+      // order and the visible order stay in sync.
+      const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+      const codes = [...rawCodes].sort((a, b) =>
+        collator.compare(a.display || '', b.display || '') ||
+        collator.compare(a.code || '', b.code || '')
+      );
 
       this.validationResults = codes.map((codeItem) => ({
         code: codeItem.code,
@@ -1628,6 +1639,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
       }));
       this.validationProgress = { current: 0, total: codes.length };
       this.validationPreviewVisibleCount = 100;
+
+      // Bring the execute button near the top of the viewport so the results list
+      // rendered below it stays visible while validation runs (instead of scrolling
+      // to the bottom of the document, which hides the list behind the button).
+      this.scrollToElementAfterRender(() => this.executeActionAnchor?.nativeElement ?? null);
 
       const fhirBase = this.terminologyService.getSnowstormFhirBase();
       const version = this.terminologyContext.fhirUrlParam;
@@ -1758,16 +1774,18 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   }
 
   get sortedValidationResults(): ValidationResultRow[] {
-    const rank = (status: ValidationRowStatus): number => {
-      if (status === 'invalid' || status === 'error') return 0;
-      if (status === 'validating') return 1;
-      if (status === 'pending') return 2;
-      return 3;
-    };
+    // Sort alphabetically by display term (falling back to code). Both fields are
+    // fixed when the run starts, so the order stays stable during validation instead
+    // of reshuffling as each row's status changes.
+    const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
 
     return [...this.validationResults]
       .map((row, index) => ({ row, index }))
-      .sort((a, b) => rank(a.row.status) - rank(b.row.status) || a.index - b.index)
+      .sort((a, b) =>
+        collator.compare(a.row.display || '', b.row.display || '') ||
+        collator.compare(a.row.code || '', b.row.code || '') ||
+        a.index - b.index
+      )
       .map(({ row }) => row);
   }
 
@@ -2052,7 +2070,11 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           break;
       }
     } finally {
-      this.scrollToBottomAfterRender();
+      // Validation manages its own scroll (keeps the button at the top so the results
+      // list stays visible); scrolling to the bottom here would jump past the list.
+      if (this.selectedAction !== 'validate-codes') {
+        this.scrollToBottomAfterRender();
+      }
     }
   }
 
