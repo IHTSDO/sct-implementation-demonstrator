@@ -38,7 +38,6 @@
     "bad-words": "^3.0.4",
     "chart.js": "^4.4.7",
     "d3": "^7.9.0",
-    "echarts": "^5.4.3",
     "file-saver": "^2.0.5",
     "firebase": "^10.14.1",
     "highlight.js": "^11.7.0",
@@ -64,19 +63,13 @@
     "zone.js": "~0.15.0"
   },
   "overrides": {
-    "immutable": "5.1.8",
-    "hono": "^4.12.27",
-    "@hono/node-server": "^1.19.11",
-    "express-rate-limit": "^8.3.0",
-    "dompurify": "^3.4.12",
     "path-to-regexp": "^8.4.0",
     "undici": "^6.28.0",
-    "protobufjs": "^7.6.5",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.23",
+    "nanoid": "^3.3.18",
     "webpack-dev-server": "^5.2.6",
     "@grpc/grpc-js": "^1.9.16",
-    "websocket-driver": "^0.7.5",
-    "js-yaml": "^4.3.0"
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "21.2.19",
@@ -98,7 +91,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.23",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.9.3"
   }
