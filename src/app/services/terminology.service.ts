@@ -329,6 +329,21 @@ export class TerminologyService {
       );
   }
 
+  /**
+   * Removes ECL term annotations — the human-readable |Term| written after a concept id.
+   * They are optional and cosmetic (the SCTID is authoritative), but their '|' characters
+   * collide with FHIR's canonical-URL version separator (url|version) when the ECL is
+   * embedded in the $expand `url` query parameter. Strict servers then either reject the
+   * request ("Invalid version format for SNOMED") or silently treat everything after the
+   * first '|' as a version and drop it — so "<< A |x| OR << B |y|" expands to just "<< A",
+   * losing the OR. Stripping the annotations keeps the request identical in meaning while
+   * making it safe across servers.
+   */
+  stripEclTermAnnotations(ecl: string): string {
+    if (!ecl) return ecl;
+    return ecl.replace(/\|[^|]*\|/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
   getValueSetExpansionUrl(ecl: string, terms: string, offset?: number, count?:number) {
     if (!offset) offset = 0;
     if (!count) count = 20;
@@ -336,7 +351,7 @@ export class TerminologyService {
       terms = '';
     }
     let langParam = this.getComputedLanguageContext();
-    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
   }
 
   getDerivativesValueSetExpansionUrl(ecl: string, terms: string, offset?: number, count?:number) {
@@ -347,7 +362,7 @@ export class TerminologyService {
     }
     let langParam = this.getComputedLanguageContext();
     const derivativesUri = 'http://snomed.info/sct/705115006';
-    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${derivativesUri}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${derivativesUri}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
   }
 
   expandDerivativesValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
