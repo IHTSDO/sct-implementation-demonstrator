@@ -143,8 +143,8 @@
   background: #f4f8fd;
   color: #34506e;
   border-radius: 999px;
-  padding: 5px 12px;
-  font-size: 0.82rem;
+  padding: 3px 9px;
+  font-size: 0.74rem;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -328,25 +328,155 @@
   border-radius: 12px;
   background: #282c34;
   overflow: hidden;
-  flex: 1 1 auto;
-  min-height: 0;
 }
 
-.ctx-json-viewer {
+/* The highlight-js directive hides our <pre> and injects a sibling `pre.hljs`
+   that is the visible one. It is created at runtime without this component's
+   view-encapsulation attribute, so reach it with ::ng-deep from the scoped
+   `.ctx-json` parent. */
+.ctx-json ::ng-deep pre.hljs {
   margin: 0;
   padding: 16px;
   max-height: 42rem;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   font-size: 0.82rem;
   line-height: 1.5;
-  white-space: pre;
+  /* Wrap long lines (e.g. system URIs) instead of showing a horizontal scrollbar. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
+
+/* Subtle scrollbar inside the dark JSON block. */
+.ctx-json ::ng-deep pre.hljs::-webkit-scrollbar { width: 10px; }
+.ctx-json ::ng-deep pre.hljs::-webkit-scrollbar-track { background: transparent; }
+.ctx-json ::ng-deep pre.hljs::-webkit-scrollbar-thumb {
+  background: #3f4653;
+  border-radius: 6px;
+  border: 2px solid #282c34;
+}
+.ctx-json ::ng-deep pre.hljs::-webkit-scrollbar-thumb:hover { background: #4c5563; }
 
 .ctx-json-placeholder {
   flex: 1 1 auto;
   border: 1px dashed #d5dfeb;
   border-radius: 12px;
   min-height: 12rem;
+}
+
+.ctx-rule-preset {
+  font-size: 0.72rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #0f7a42;
+  background: #d5f5e3;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* ---------- No-resource (deliberate) output state ---------- */
+.ctx-json-noresource {
+  border-color: #fbe0c0;
+  background: #fffaf3;
+}
+.ctx-json-noresource mat-icon { color: #c47a2c; }
+.ctx-noresource-note {
+  font-size: 0.78rem;
+  color: #9a5b17;
+  max-width: 30rem;
+}
+
+/* ---------- Decision table ---------- */
+.ctx-rules-section {
+  margin-top: 40px;
+}
+
+.ctx-rules-title {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #253648;
+}
+
+.ctx-rules-caption {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  color: #6c7f95;
+  max-width: 60rem;
+  line-height: 1.5;
+}
+
+.ctx-rules-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #dbe5f1;
+  border-radius: 12px;
+}
+
+.ctx-rules-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.ctx-rules-table thead th {
+  text-align: left;
+  padding: 10px 14px;
+  background: #f4f8fd;
+  color: #4a5b6d;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #dbe5f1;
+  white-space: nowrap;
+}
+
+.ctx-rules-table tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #eef2f7;
+  color: #34465a;
+  vertical-align: top;
+}
+
+.ctx-rules-table tbody tr:last-child td { border-bottom: none; }
+
+.ctx-rule-active {
+  background: #ecfdf3;
+}
+.ctx-rule-active td { color: #12603a; }
+
+.ctx-rules-situation { display: block; font-weight: 500; }
+.ctx-rules-code { font-size: 0.72rem; color: #8494a6; }
+
+.ctx-rules-resource {
+  font-weight: 600;
+  color: #1a5fb4;
+}
+.ctx-rules-noresource { color: #9aa9ba; font-style: italic; }
+
+.ctx-rules-preset {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem;
+  color: #55697e;
+}
+
+/* Uniform provenance badge for every rule row. */
+.ctx-source-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #0f7a42;
+  background: #d5f5e3;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.ctx-source-badge.ctx-source-example {
+  color: #9a5b17;
+  background: #fdefd9;
 }
 
 /* ---------- Responsive: stack the pipeline ---------- */

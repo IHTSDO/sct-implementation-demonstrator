@@ -12,9 +12,9 @@
 
   <div class="ctx-intro">
     <p>
-      This demo reads the normal form of a <strong>finding with explicit context</strong>, detects its
-      context axes (finding, subject relationship and temporal context) and applies the transformation
-      decision table to produce the matching FHIR resource.
+      This demo reads the normal form of a <strong>situation with explicit context</strong> — a finding or a
+      procedure — detects its context attributes (finding/procedure context, subject relationship and temporal
+      context) and applies the transformation decision table to produce the matching FHIR resource.
     </p>
     <p class="ctx-intro-links">
       <a href="https://docs.snomed.org/implementation-guides/context-representation-implementation-guide" target="_blank" rel="noopener">
@@ -35,7 +35,7 @@
         <span class="ctx-step-num">1</span>
         <div>
           <h3 class="ctx-step-title">Situation in SNOMED CT</h3>
-          <span class="ctx-step-hint">Finding with explicit context (situation)</span>
+          <span class="ctx-step-hint">Finding or procedure with explicit context</span>
         </div>
       </div>
 
@@ -43,6 +43,16 @@
         [binding]="situationsBinding"
         (selectionChange)="findingWithExplicitContextSelected($event)">
       </app-autocomplete-binding>
+
+      @if (selectedSituation?.code) {
+        <div class="ctx-selected">
+          <mat-icon>fingerprint</mat-icon>
+          <div>
+            <div class="ctx-selected-display">{{ selectedSituation.display }}</div>
+            <code class="ctx-selected-code">{{ selectedSituation.code }}</code>
+          </div>
+        </div>
+      }
 
       <div class="ctx-examples">
         <span class="ctx-examples-label">Examples</span>
@@ -57,16 +67,6 @@
           }
         </div>
       </div>
-
-      @if (selectedSituation?.code) {
-        <div class="ctx-selected">
-          <mat-icon>fingerprint</mat-icon>
-          <div>
-            <div class="ctx-selected-display">{{ selectedSituation.display }}</div>
-            <code class="ctx-selected-code">{{ selectedSituation.code }}</code>
-          </div>
-        </div>
-      }
     </mat-card>
 
     <mat-icon class="ctx-arrow">arrow_forward</mat-icon>
@@ -89,14 +89,14 @@
       } @else if (selectedSituation?.code) {
         <div class="ctx-axes">
           <div class="ctx-axis">
-            <mat-icon>coronavirus</mat-icon>
-            <span class="ctx-axis-label">Associated finding</span>
-            <span class="ctx-axis-value">{{ contextAxes.associatedFinding?.display || '—' }}</span>
+            <mat-icon>{{ contextAxes.domain === 'procedure' ? 'medical_services' : 'coronavirus' }}</mat-icon>
+            <span class="ctx-axis-label">{{ contextAxes.domain === 'procedure' ? 'Associated procedure' : 'Associated finding' }}</span>
+            <span class="ctx-axis-value">{{ contextAxes.associated?.display || '—' }}</span>
           </div>
           <div class="ctx-axis">
             <mat-icon>visibility</mat-icon>
-            <span class="ctx-axis-label">Finding context</span>
-            <span class="ctx-axis-value">{{ contextAxes.findingContext?.display || '—' }}</span>
+            <span class="ctx-axis-label">{{ contextAxes.domain === 'procedure' ? 'Procedure context' : 'Finding context' }}</span>
+            <span class="ctx-axis-value">{{ contextAxes.context?.display || '—' }}</span>
           </div>
           <div class="ctx-axis">
             <mat-icon>group</mat-icon>
@@ -110,19 +110,25 @@
           </div>
         </div>
 
-        @if (matchedRule) {
+        @if (matchedRule && matchedRule.resource) {
           <div class="ctx-rule">
             <span class="ctx-rule-tag">Rule matched</span>
-            <span class="ctx-rule-axes">{{ matchedRule.axes }}</span>
+            <span class="ctx-rule-axes">{{ matchedRule.contextSummary }}</span>
             <mat-icon>arrow_downward</mat-icon>
-            <span class="ctx-rule-result">
-              {{ matchedRule.resource }}@if (matchedRule.status) { <em>· {{ matchedRule.status }}</em> }
-            </span>
+            <span class="ctx-rule-result">{{ matchedRule.resource }}</span>
+            @if (presetLabel(matchedRule)) {
+              <span class="ctx-rule-preset">{{ presetLabel(matchedRule) }}</span>
+            }
+          </div>
+        } @else if (matchedRule && !matchedRule.resource) {
+          <div class="ctx-rule ctx-rule-none">
+            <mat-icon>rule</mat-icon>
+            <span>{{ matchedRule.note || 'Per the guide, this situation maps to no FHIR resource.' }}</span>
           </div>
         } @else if (noMappingFound) {
           <div class="ctx-rule ctx-rule-none">
             <mat-icon>rule</mat-icon>
-            <span>No decision-table rule matches this combination of context axes.</span>
+            <span>No decision-table rule matches this combination of context attributes.</span>
           </div>
         }
       } @else {
@@ -173,6 +179,12 @@
         <div class="ctx-json">
           <pre highlight-js [options]="{}" [lang]="'json'" class="ctx-json-viewer" [textContent]="fhirRepresentationString"></pre>
         </div>
+      } @else if (matchedRule && !matchedRule.resource) {
+        <div class="ctx-placeholder ctx-json-placeholder ctx-json-noresource">
+          <mat-icon>rule</mat-icon>
+          <p>This situation intentionally maps to no FHIR resource.</p>
+          <span class="ctx-noresource-note">{{ matchedRule.note }}</span>
+        </div>
       } @else if (noMappingFound) {
         <div class="ctx-placeholder ctx-json-placeholder">
           <mat-icon>block</mat-icon>
@@ -186,5 +198,55 @@
       }
     </mat-card>
 
+  </div>
+
+  <!-- Decision table -->
+  <div class="ctx-rules-section">
+    <h3 class="ctx-rules-title">Transformation rules</h3>
+    <p class="ctx-rules-caption">
+      A structured encoding of the guide's transformation rules. The row that matched the selected situation is
+      highlighted. <span class="ctx-source-badge">Decision table</span> rows reproduce §6.3.2;
+      <span class="ctx-source-badge ctx-source-example">Comparison table</span> rows come from the broader
+      FHIR &amp; SWEC comparison (procedures and negative family history), whose FHIR presets are an implementation choice.
+    </p>
+    <div class="ctx-rules-table-wrap">
+      <table class="ctx-rules-table">
+        <thead>
+          <tr>
+            <th>Situation subhierarchy</th>
+            <th>Context · Subject · Temporal</th>
+            <th>FHIR resource</th>
+            <th>Presets</th>
+            <th>Basis</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of rules; track rule.id) {
+            <tr [class.ctx-rule-active]="matchedRule?.id === rule.id">
+              <td>
+                <span class="ctx-rules-situation">{{ rule.situation.display }}</span>
+                <code class="ctx-rules-code">{{ rule.situation.code }}</code>
+              </td>
+              <td>{{ rule.contextSummary }}</td>
+              <td>
+                @if (rule.resource) {
+                  <span class="ctx-rules-resource">{{ rule.resource }}</span>
+                } @else {
+                  <span class="ctx-rules-noresource">none</span>
+                }
+              </td>
+              <td class="ctx-rules-preset">{{ presetLabel(rule) || '—' }}</td>
+              <td>
+                @if (rule.guideRef === '§6.3.2') {
+                  <span class="ctx-source-badge" title="Guide §6.3.2 · Transformations between SWEC and FHIR">Decision table</span>
+                } @else {
+                  <span class="ctx-source-badge ctx-source-example" title="Guide · FHIR &amp; SWEC comparison">Comparison table</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

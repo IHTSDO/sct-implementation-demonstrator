@@ -3,6 +3,17 @@ import { lastValueFrom } from 'rxjs';
 import { TerminologyService } from 'src/app/services/terminology.service';
 import { saveAs } from 'file-saver';
 import { Clipboard } from '@angular/cdk/clipboard';
+import {
+  CONTEXT_ATTRIBUTES,
+  CONTEXT_CONCEPTS,
+  ContextKey,
+  SituationDomain,
+  TRANSFORMATION_RULES,
+  TransformationRule,
+  buildFhirResource,
+} from './context-transformation-rules';
+
+const CONTEXT_DESCENDANTS_CACHE_KEY = 'ContextConceptDescendants_v1';
 
 @Component({
     selector: 'app-situation-map',
@@ -15,77 +26,81 @@ export class SituationMapComponent implements OnInit {
   selectedSituation: any;
   fhirRepresentation: any;
   fhirRepresentationString: string = '';
-  resourceType: 'Condition' | 'Observation' | 'FamilyMemberHistory' | undefined;
+  resourceType: string | undefined;
 
   loading = false;
   noMappingFound = false;
 
+  // The full decision table, exposed for the "transformation rules" view.
+  readonly rules: TransformationRule[] = TRANSFORMATION_RULES;
+
   // Structured context axes extracted from the situation's normal form, used to
   // render the "detected context" step of the transformation pipeline.
   contextAxes: {
-    associatedFinding?: any;
-    findingContext?: any;
+    domain?: SituationDomain;
+    associated?: any;        // associated finding or procedure
+    context?: any;           // finding context or procedure context value
     subjectRelationship?: any;
     temporalContext?: any;
   } = {};
 
-  // Which row of the transformation decision table fired for the current situation.
-  matchedRule: { resource: string; status?: string; axes: string } | null = null;
-
+  // Which row of the decision table fired for the current situation.
+  matchedRule: TransformationRule | null = null;
 
   situationsBinding: any = {
-    title: 'Finding with explicit context',
+    title: 'Situation with explicit context',
     type: 'Autocomplete',
-    ecl: `<< 413350009 |Finding with explicit context (situation)|`,
+    ecl: `<< 413350009 |Finding with explicit context (situation)| OR << 129125009 |Procedure with explicit context (situation)|`,
     value: '',
-    note: 'Select a finding with explicit context'
+    note: 'Select a situation with explicit context'
   };
 
-  SituationConstants: any = {
-    KnownPresent: { code: '410515003', display: 'Known present', selfAndDescendants: [] },
-    KnownAbsent: { code: '410516002', display: 'Known absent', selfAndDescendants: [] },
-    SubjectOfRecord: { code: '410604004', display: 'Subject of record', selfAndDescendants: [] },
-    PersonInTheFamily: { code: '303071001', display: 'Person in the family', selfAndDescendants: [] },
-    InThePast: { code: '410513005', display: 'In the past', selfAndDescendants: [] },
-    CurrentOrSpecifiedTime: { code: '410512000', display: 'Current or specified time', selfAndDescendants: [] },
-    KnownPossible: { code: '410590009', display: 'Known possible', selfAndDescendants: [] },
-  };
+  // selfAndDescendants code lists for each context concept, expanded from the server.
+  contextDescendants: Record<ContextKey, string[]> = {} as Record<ContextKey, string[]>;
 
   examples: any[] = [
-    { "code": "160377001", "display": "Family history of asthma" },
-    { "code": "12147341000119108", "display": "History of burn" },
-    { "code": "428942009", "display": "History of fall" },
-    { "code": "300890009", "display": "Swelling absent" },
-    { "code": "162057007", "display": "Nausea present" },
-    { "code": "401204006", "display": "Suspected autism" }
+    { code: '160377001', display: 'Family history of asthma' },
+    { code: '428942009', display: 'History of fall' },
+    { code: '300890009', display: 'Swelling absent' },
+    { code: '162057007', display: 'Nausea present' },
+    { code: '401204006', display: 'Suspected autism' },
+    { code: '428251008', display: 'History of appendectomy' },
+    { code: '164853006', display: 'ECG not done' },
+    { code: '160274005', display: 'No family history of diabetes mellitus' },
   ];
 
   constructor( private terminologyService: TerminologyService, private clipboard: Clipboard) { }
 
   ngOnInit(): void {
-    this.loadOrUpdateConstants();
+    this.loadOrUpdateContextDescendants();
   }
 
-  async loadOrUpdateConstants() {
-    let cachedConstants = localStorage.getItem('SituationConstants');
-    if (cachedConstants) {
-      this.SituationConstants = JSON.parse(cachedConstants);
-      console.log('Loaded constants from cache.');
+  async loadOrUpdateContextDescendants() {
+    const cached = localStorage.getItem(CONTEXT_DESCENDANTS_CACHE_KEY);
+    if (cached) {
+      this.contextDescendants = JSON.parse(cached);
     } else {
-      await this.updateConstantDescendants();
-      localStorage.setItem('SituationConstants', JSON.stringify(this.SituationConstants));
-      console.log('Updated constants and cached them.');
+      await this.updateContextDescendants();
+      localStorage.setItem(CONTEXT_DESCENDANTS_CACHE_KEY, JSON.stringify(this.contextDescendants));
     }
   }
 
-  async updateConstantDescendants() {
-    for (const key in this.SituationConstants) {
-      if (Object.prototype.hasOwnProperty.call(this.SituationConstants, key)) {
-        const constant = this.SituationConstants[key];
-        let descendants = await lastValueFrom(this.terminologyService.expandValueSet('<< ' + constant.code, '', 0, 1000));
-        constant.selfAndDescendants = descendants.expansion.contains.map((concept: any) => concept.code);
-      }
+  async updateContextDescendants() {
+    for (const key of Object.keys(CONTEXT_CONCEPTS) as ContextKey[]) {
+      const concept = CONTEXT_CONCEPTS[key];
+      const expansion = await lastValueFrom(
+        this.terminologyService.expandValueSet('<< ' + concept.code, '', 0, 1000)
+      );
+      this.contextDescendants[key] = expansion.expansion.contains.map((c: any) => c.code);
     }
+  }
+
+  /** True when `value` is subsumed by (self or descendant of) the given context concept. */
+  private isSubsumedBy(value: any, key: ContextKey | null): boolean {
+    if (!key) {
+      return true; // axis not constrained
+    }
+    return !!value && (this.contextDescendants[key] ?? []).includes(value.code);
   }
 
   async convertSituationToFhir(situation: any) {
@@ -99,71 +114,73 @@ export class SituationMapComponent implements OnInit {
     this.loading = true;
 
     try {
-      let concept = await lastValueFrom(this.terminologyService.lookupConcept(situation.code));
-      let normalForm = this.terminologyService.getNormalForm(concept);
-      let normalFormFhir = this.terminologyService.parseNormmalForm(normalForm);
+      const concept = await lastValueFrom(this.terminologyService.lookupConcept(situation.code));
+      const normalForm = this.terminologyService.getNormalForm(concept);
+      const normalFormFhir = this.terminologyService.parseNormmalForm(normalForm);
 
       let findingContextValue: any;
+      let procedureContextValue: any;
       let subjectRelationshipContextValue: any;
       let temporalContextValue: any;
       let associatedFinding: any;
+      let associatedProcedure: any;
 
       normalFormFhir.groups.forEach((group: any[]) => {
-        const subjectRelationshipContext = group.find((relationship) => relationship.type.code === "408732007");
-        if (subjectRelationshipContext) {
-          subjectRelationshipContextValue = subjectRelationshipContext.target;
-        }
-        const findingContext = group.find((relationship) => relationship.type.code === "408729009");
-        if (findingContext) {
-          findingContextValue = findingContext.target;
-        }
-        const temporalContext = group.find((relationship) => relationship.type.code === "408731000");
-        if (temporalContext) {
-          temporalContextValue = temporalContext.target;
-        }
-        const associatedFindingRelationship = group.find((relationship) => relationship.type.code === "246090004");
-        if (associatedFindingRelationship) {
-          associatedFinding = associatedFindingRelationship.target;
-        }
+        const byType = (code: string) => group.find((r) => r.type.code === code)?.target;
+        subjectRelationshipContextValue = byType(CONTEXT_ATTRIBUTES.subjectRelationshipContext) ?? subjectRelationshipContextValue;
+        temporalContextValue = byType(CONTEXT_ATTRIBUTES.temporalContext) ?? temporalContextValue;
+        findingContextValue = byType(CONTEXT_ATTRIBUTES.findingContext) ?? findingContextValue;
+        procedureContextValue = byType(CONTEXT_ATTRIBUTES.procedureContext) ?? procedureContextValue;
+        associatedFinding = byType(CONTEXT_ATTRIBUTES.associatedFinding) ?? associatedFinding;
+        associatedProcedure = byType(CONTEXT_ATTRIBUTES.associatedProcedure) ?? associatedProcedure;
       });
 
+      // Determine the domain from which associated concept is present.
+      const domain: SituationDomain | undefined = associatedProcedure
+        ? 'procedure'
+        : associatedFinding
+          ? 'finding'
+          : undefined;
+      const associated = domain === 'procedure' ? associatedProcedure : associatedFinding;
+      const contextValue = domain === 'procedure' ? procedureContextValue : findingContextValue;
+
       this.contextAxes = {
-        associatedFinding,
-        findingContext: findingContextValue,
+        domain,
+        associated,
+        context: contextValue,
         subjectRelationship: subjectRelationshipContextValue,
         temporalContext: temporalContextValue,
       };
 
-      if (associatedFinding) {
-        const isKnownPresent = this.SituationConstants.KnownPresent.selfAndDescendants.includes(findingContextValue?.code);
-        const isSubjectOfRecord = this.SituationConstants.SubjectOfRecord.selfAndDescendants.includes(subjectRelationshipContextValue?.code);
-        const isInThePast = this.SituationConstants.InThePast.selfAndDescendants.includes(temporalContextValue?.code);
-        const isKnownAbsent = this.SituationConstants.KnownAbsent.selfAndDescendants.includes(findingContextValue?.code);
-        const isKnownPossible = this.SituationConstants.KnownPossible.selfAndDescendants.includes(findingContextValue?.code);
-        const isCurrentOrSpecifiedTime = this.SituationConstants.CurrentOrSpecifiedTime.selfAndDescendants.includes(temporalContextValue?.code);
-        const isPersonInTheFamily = this.SituationConstants.PersonInTheFamily.selfAndDescendants.includes(subjectRelationshipContextValue?.code);
-
-        if (isKnownPresent && isSubjectOfRecord && isInThePast) {
-          this.matchedRule = { resource: 'Condition', status: 'inactive', axes: 'Known present · Subject of record · In the past' };
-          this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'inactive'));
-        } else if (isKnownPresent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-          this.matchedRule = { resource: 'Condition', status: 'active', axes: 'Known present · Subject of record · Current' };
-          this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'active'));
-        } else if (isKnownPossible && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-          this.matchedRule = { resource: 'Condition', status: 'unconfirmed', axes: 'Known possible · Subject of record · Current' };
-          this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'unconfirmed'));
-        } else if (isKnownPresent && isPersonInTheFamily) {  // Should be a member of the family
-          this.matchedRule = { resource: 'FamilyMemberHistory', axes: 'Known present · Person in the family' };
-          this.updateFhirRepresentation(this.createFamilyMemberHistoryForFinding(associatedFinding, subjectRelationshipContextValue));
-        } else if (isKnownAbsent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-          this.matchedRule = { resource: 'Observation', status: 'known absent', axes: 'Known absent · Subject of record · Current' };
-          this.updateFhirRepresentation(this.createFhirObservationForAbsentFinding(associatedFinding));
-        } else {
-          this.noMappingFound = true;
-        }
-      } else {
+      if (!domain || !associated) {
         this.noMappingFound = true;
+        return;
       }
+
+      const rule = this.rules.find((r) =>
+        r.domain === domain &&
+        this.isSubsumedBy(contextValue, r.match.context) &&
+        this.isSubsumedBy(subjectRelationshipContextValue, r.match.subject) &&
+        this.isSubsumedBy(temporalContextValue, r.match.temporal)
+      );
+
+      if (!rule) {
+        this.noMappingFound = true;
+        return;
+      }
+
+      this.matchedRule = rule;
+      const fhirResource = buildFhirResource(rule, {
+        associated,
+        subject: subjectRelationshipContextValue,
+      });
+
+      if (fhirResource) {
+        this.resourceType = rule.resource ?? undefined;
+        this.updateFhirRepresentation(fhirResource);
+      }
+      // When rule.resource is null the guide deliberately maps to no resource;
+      // matchedRule stays set so the UI can explain that outcome.
     } finally {
       this.loading = false;
     }
@@ -180,96 +197,16 @@ export class SituationMapComponent implements OnInit {
     }
   }
 
-  createFhirCondition( finding: any, status: string) {
-    this.resourceType = 'Condition';
-    let fhirCondition = {
-      resourceType: 'Condition',
-      subject: {
-        reference: `Patient/1234`
-      },
-      clinicalStatus: {
-        coding: [
-          {
-            system: "http://terminology.hl7.org/CodeSystem/condition-clinical",
-            code: status
-          }
-        ]
-      },
-      code: {
-        coding: [
-          {
-            system: 'http://snomed.info/sct',
-            code: finding.code,
-            display: finding.display
-          }
-        ]
-      }
-    };
-    return fhirCondition;
-  }
-
-  createFhirObservationForAbsentFinding( finding: any ) {
-    this.resourceType = 'Observation';
-    let fhirObservation = {
-      resourceType: 'Observation',
-      subject: {
-        reference: `Patient/1234`
-      },
-      status: 'registered',
-      code: {
-        coding: [
-          {
-            system: 'http://snomed.info/sct',
-            code: finding.code,
-            display: finding.display
-          }
-        ]
-      },
-      valueCodeableConcept: {
-        coding: [
-          {
-            system: 'http://snomed.info/sct',
-            code: '410516002',
-            display: 'Known absent'
-          }
-        ]
-      }
-    };
-    return fhirObservation;
-  }
-
-  createFamilyMemberHistoryForFinding( finding: any, subjet: any ) {
-    this.resourceType = 'FamilyMemberHistory';
-    let familyMemberHistory = {
-      resourceType: 'FamilyMemberHistory',
-      status: 'completed',
-      patient: {
-        reference: `Patient/1234`
-      },
-      relationship: {
-        coding: [
-          {
-            system: 'http://snomed.info/sct',
-            code: subjet.code,
-            display: subjet.display
-          }
-        ]
-      },
-      condition: [
-        {
-          code: {
-            coding: [
-              {
-                system: 'http://snomed.info/sct',
-                code: finding.code,
-                display: finding.display
-              }
-            ]
-          }
-        }
-      ]
-    };
-    return familyMemberHistory;
+  /** Short summary of a rule's FHIR element presets, e.g. "clinicalStatus: inactive". */
+  presetLabel(rule: TransformationRule): string {
+    const p = rule.presets ?? {};
+    const parts: string[] = [];
+    if (p.clinicalStatus) parts.push(`clinicalStatus: ${p.clinicalStatus}`);
+    if (p.verificationStatus) parts.push(`verificationStatus: ${p.verificationStatus}`);
+    if (p.observationStatus) parts.push(`status: ${p.observationStatus}`);
+    if (p.procedureStatus) parts.push(`status: ${p.procedureStatus}`);
+    if (p.familyHistoryStatus) parts.push(`status: ${p.familyHistoryStatus}`);
+    return parts.join(' · ');
   }
 
   saveOutput(text: string) {
