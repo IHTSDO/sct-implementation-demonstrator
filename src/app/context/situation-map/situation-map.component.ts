@@ -14,8 +14,24 @@ export class SituationMapComponent implements OnInit {
 
   selectedSituation: any;
   fhirRepresentation: any;
-  fhirRepresentationString: string = '{}';
+  fhirRepresentationString: string = '';
   resourceType: 'Condition' | 'Observation' | 'FamilyMemberHistory' | undefined;
+
+  loading = false;
+  noMappingFound = false;
+  showIntro = false;
+
+  // Structured context axes extracted from the situation's normal form, used to
+  // render the "detected context" step of the transformation pipeline.
+  contextAxes: {
+    associatedFinding?: any;
+    findingContext?: any;
+    subjectRelationship?: any;
+    temporalContext?: any;
+  } = {};
+
+  // Which row of the transformation decision table fired for the current situation.
+  matchedRule: { resource: string; status?: string; axes: string } | null = null;
 
 
   situationsBinding: any = {
@@ -44,9 +60,6 @@ export class SituationMapComponent implements OnInit {
     { "code": "162057007", "display": "Nausea present" },
     { "code": "401204006", "display": "Suspected autism" }
   ];
-
-  displayedColumns: string[] = ['type', 'targetCode', 'targetDisplay'];
-  dataSource: any[] = [];
 
   constructor( private terminologyService: TerminologyService, private clipboard: Clipboard) { }
 
@@ -79,66 +92,81 @@ export class SituationMapComponent implements OnInit {
   async convertSituationToFhir(situation: any) {
     this.selectedSituation = situation;
     this.fhirRepresentation = null;
-    this.fhirRepresentationString = 'Loading...';
-    this.dataSource = [];
+    this.fhirRepresentationString = '';
+    this.contextAxes = {};
+    this.matchedRule = null;
     this.resourceType = undefined;
+    this.noMappingFound = false;
+    this.loading = true;
 
-    let concept = await lastValueFrom(this.terminologyService.lookupConcept(situation.code));
-    let normalForm = this.terminologyService.getNormalForm(concept);
-    let normalFormFhir = this.terminologyService.parseNormmalForm(normalForm);
+    try {
+      let concept = await lastValueFrom(this.terminologyService.lookupConcept(situation.code));
+      let normalForm = this.terminologyService.getNormalForm(concept);
+      let normalFormFhir = this.terminologyService.parseNormmalForm(normalForm);
 
-    let findingContextValue: any;
-    let subjectRelationshipContextValue: any;
-    let temporalContextValue: any;
-    let associatedFinding: any;
+      let findingContextValue: any;
+      let subjectRelationshipContextValue: any;
+      let temporalContextValue: any;
+      let associatedFinding: any;
 
-    normalFormFhir.groups.forEach((group: any[]) => {
-      const subjectRelationshipContext = group.find((relationship) => relationship.type.code === "408732007");
-      if (subjectRelationshipContext) {
-        this.dataSource = [...this.dataSource, subjectRelationshipContext];
-        subjectRelationshipContextValue = subjectRelationshipContext.target;
-      }
-      const findingContext = group.find((relationship) => relationship.type.code === "408729009");
-      if (findingContext) {
-        this.dataSource = [...this.dataSource, findingContext];
-        findingContextValue = findingContext.target;
-      }
-      const temporalContext = group.find((relationship) => relationship.type.code === "408731000");
-      if (temporalContext) {
-        this.dataSource = [...this.dataSource, temporalContext];
-        temporalContextValue = temporalContext.target;
-      }
-      const associatedFindingRelationship = group.find((relationship) => relationship.type.code === "246090004");
-      if (associatedFindingRelationship) {
-        this.dataSource = [...this.dataSource, associatedFindingRelationship];
-        associatedFinding = associatedFindingRelationship.target;
-      }
-    });
+      normalFormFhir.groups.forEach((group: any[]) => {
+        const subjectRelationshipContext = group.find((relationship) => relationship.type.code === "408732007");
+        if (subjectRelationshipContext) {
+          subjectRelationshipContextValue = subjectRelationshipContext.target;
+        }
+        const findingContext = group.find((relationship) => relationship.type.code === "408729009");
+        if (findingContext) {
+          findingContextValue = findingContext.target;
+        }
+        const temporalContext = group.find((relationship) => relationship.type.code === "408731000");
+        if (temporalContext) {
+          temporalContextValue = temporalContext.target;
+        }
+        const associatedFindingRelationship = group.find((relationship) => relationship.type.code === "246090004");
+        if (associatedFindingRelationship) {
+          associatedFinding = associatedFindingRelationship.target;
+        }
+      });
 
-    if (associatedFinding) {
-      const isKnownPresent = this.SituationConstants.KnownPresent.selfAndDescendants.includes(findingContextValue?.code);
-      const isSubjectOfRecord = this.SituationConstants.SubjectOfRecord.selfAndDescendants.includes(subjectRelationshipContextValue?.code);
-      const isInThePast = this.SituationConstants.InThePast.selfAndDescendants.includes(temporalContextValue?.code);
-      const isKnownAbsent = this.SituationConstants.KnownAbsent.selfAndDescendants.includes(findingContextValue?.code);
-      const isKnownPossible = this.SituationConstants.KnownPossible.selfAndDescendants.includes(findingContextValue?.code);
-      const isCurrentOrSpecifiedTime = this.SituationConstants.CurrentOrSpecifiedTime.selfAndDescendants.includes(temporalContextValue?.code);
-      const isPersonInTheFamily = this.SituationConstants.PersonInTheFamily.selfAndDescendants.includes(subjectRelationshipContextValue?.code);
-    
-      if (isKnownPresent && isSubjectOfRecord && isInThePast) {
-        this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'inactive'));
-      } else if (isKnownPresent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-        this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'active'));
-      } else if (isKnownPossible && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-        this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'unconfirmed'));
-      } else if (isKnownPresent && isPersonInTheFamily) {  // Should be a mmember of the family
-        this.updateFhirRepresentation(this.createFamilyMemberHistoryForFinding(associatedFinding, subjectRelationshipContextValue));
-      } else if (isKnownAbsent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
-        this.updateFhirRepresentation(this.createFhirObservationForAbsentFinding(associatedFinding));
+      this.contextAxes = {
+        associatedFinding,
+        findingContext: findingContextValue,
+        subjectRelationship: subjectRelationshipContextValue,
+        temporalContext: temporalContextValue,
+      };
+
+      if (associatedFinding) {
+        const isKnownPresent = this.SituationConstants.KnownPresent.selfAndDescendants.includes(findingContextValue?.code);
+        const isSubjectOfRecord = this.SituationConstants.SubjectOfRecord.selfAndDescendants.includes(subjectRelationshipContextValue?.code);
+        const isInThePast = this.SituationConstants.InThePast.selfAndDescendants.includes(temporalContextValue?.code);
+        const isKnownAbsent = this.SituationConstants.KnownAbsent.selfAndDescendants.includes(findingContextValue?.code);
+        const isKnownPossible = this.SituationConstants.KnownPossible.selfAndDescendants.includes(findingContextValue?.code);
+        const isCurrentOrSpecifiedTime = this.SituationConstants.CurrentOrSpecifiedTime.selfAndDescendants.includes(temporalContextValue?.code);
+        const isPersonInTheFamily = this.SituationConstants.PersonInTheFamily.selfAndDescendants.includes(subjectRelationshipContextValue?.code);
+
+        if (isKnownPresent && isSubjectOfRecord && isInThePast) {
+          this.matchedRule = { resource: 'Condition', status: 'inactive', axes: 'Known present · Subject of record · In the past' };
+          this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'inactive'));
+        } else if (isKnownPresent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
+          this.matchedRule = { resource: 'Condition', status: 'active', axes: 'Known present · Subject of record · Current' };
+          this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'active'));
+        } else if (isKnownPossible && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
+          this.matchedRule = { resource: 'Condition', status: 'unconfirmed', axes: 'Known possible · Subject of record · Current' };
+          this.updateFhirRepresentation(this.createFhirCondition(associatedFinding, 'unconfirmed'));
+        } else if (isKnownPresent && isPersonInTheFamily) {  // Should be a member of the family
+          this.matchedRule = { resource: 'FamilyMemberHistory', axes: 'Known present · Person in the family' };
+          this.updateFhirRepresentation(this.createFamilyMemberHistoryForFinding(associatedFinding, subjectRelationshipContextValue));
+        } else if (isKnownAbsent && isSubjectOfRecord && isCurrentOrSpecifiedTime) {
+          this.matchedRule = { resource: 'Observation', status: 'known absent', axes: 'Known absent · Subject of record · Current' };
+          this.updateFhirRepresentation(this.createFhirObservationForAbsentFinding(associatedFinding));
+        } else {
+          this.noMappingFound = true;
+        }
       } else {
-        this.fhirRepresentationString = 'No FHIR representation for this situation';
+        this.noMappingFound = true;
       }
-    } else {
-      this.fhirRepresentationString = 'No FHIR representation for this situation';
+    } finally {
+      this.loading = false;
     }
   }
 

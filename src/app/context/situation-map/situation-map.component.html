@@ -1,73 +1,196 @@
-<div class="p-8">
-  <h2>Context Representation Transformations for Situations with Explicit Context
-    <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu">
-      <mat-icon>info</mat-icon>
+<div class="ctx-root p-8">
+
+  <!-- Header -->
+  <div class="ctx-header">
+    <div>
+      <h2 class="ctx-title">Context Representation Transformations</h2>
+      <p class="ctx-subtitle">
+        Transform SNOMED CT <em>situations with explicit context</em> into their FHIR resource representation.
+      </p>
+    </div>
+    <button mat-stroked-button color="primary" (click)="showIntro = !showIntro">
+      <mat-icon>{{ showIntro ? 'expand_less' : 'info' }}</mat-icon>
+      About this demo
     </button>
-    <mat-menu #substancePopoverMenu="matMenu" >
-      <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()" class="long-tooltip">
-        <p class="font-bold">Context representation Demo</p>
-        <p>This is a demonstration of context transformations between the terminiology model and the FHIR Information Model.</p>
-        <p>For more information check the <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG" target="_blank">SNOMED Implementation Guide for Context Representation</a>.</p>
-        <p>Transformations are produced following <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG/6.3.2+Transformations+between+SWEC+and+FHIR" target="_blank">this example decision table</a>.
-      </span>
-    </mat-menu>
-  </h2>
-  <br>
-    <div class="flex flex-wrap gap-4"> <!-- Flex container with gap -->
-      <div class="w-1/3"> <!-- First column: tight to its content, removed p-4 -->
-        <h3>Concepts with explicit context in the terminology</h3>
-        <app-autocomplete-binding [binding]="situationsBinding" class="w-auto" (selectionChange)="findingWithExplicitContextSelected($event)"></app-autocomplete-binding> <!-- Width auto to fit content -->
-        <h4 class="mt-8">Examples</h4>
-        <ul>
-          @for (example of examples; track example) {
-            <li><a href="javascript:void(0);" (click)="findingWithExplicitContextSelected(example)">{{example.display}}</a></li>
-          }
-        </ul>
-        @if (selectedSituation?.display) {
-          <div class="mt-8">
-            <h3>Relevant attributes ({{ selectedSituation.display }})</h3>
-            <table mat-table [dataSource]="dataSource">
-              <ng-container matColumnDef="type">
-                <th mat-header-cell *matHeaderCellDef> Type </th>
-                <td mat-cell *matCellDef="let element"> {{element.type.display}} </td>
-              </ng-container>
-              <ng-container matColumnDef="targetCode">
-                <th mat-header-cell *matHeaderCellDef> Target </th>
-                <td mat-cell *matCellDef="let element"> {{element.target.code}} </td>
-              </ng-container>
-              <ng-container matColumnDef="targetDisplay">
-                <th mat-header-cell *matHeaderCellDef> Target </th>
-                <td mat-cell *matCellDef="let element"> {{element.target.display}} </td>
-              </ng-container>
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
-          </div>
-        }
-        @if (resourceType) {
-          <div class="mt-8">
-            <h3>Resource Type</h3>
-            <a [href]="'https://hl7.org/fhir/R4/' + resourceType + '.html'" target="_blank" class="flex flex-row items-center gap-2">
-              <span>FHIR R4 {{resourceType}}</span>
-              <mat-icon>open_in_new</mat-icon>
-            </a>
-          </div>
-        }
-      </div>
-      <div class="flex-grow"> <!-- Second column: grows with min 50% width, removed p-4 -->
-        <h3>Context representation in the FHIR Information Model
-          <a href="https://confluence.ihtsdotools.org/display/DOCCTXSIG/6.3.2+Transformations+between+SWEC+and+FHIR" target="_blank" class="text-xs italic ml-4">See transformation table</a>
-        </h3>
-        <div class="output">
-          @if (fhirRepresentationString.length > 15) {
-            <div id="save">
-              <button mat-icon-button (click)="saveOutput(fhirRepresentationString)" matTooltip="Download"><mat-icon fontIcon="cloud_download"></mat-icon></button>
-              <button mat-icon-button (click)="copyOutputToClipboard(fhirRepresentationString)" matTooltip="Copy"><mat-icon fontIcon="content_copy"></mat-icon></button>
-            </div>
-          }
-          <textarea highlight-js [options]="{}" [lang]="'json'" id="output" [innerHTML]="fhirRepresentationString" wrap="soft">
-          </textarea>
+  </div>
+
+  @if (showIntro) {
+    <div class="ctx-intro">
+      <p>
+        This demo reads the normal form of a <strong>finding with explicit context</strong>, detects its
+        context axes (finding, subject relationship and temporal context) and applies the transformation
+        decision table to produce the matching FHIR resource.
+      </p>
+      <p class="ctx-intro-links">
+        <a href="https://docs.snomed.org/implementation-guides/context-representation-implementation-guide" target="_blank" rel="noopener">
+          <mat-icon>menu_book</mat-icon> Context Representation Implementation Guide
+        </a>
+        <a href="https://docs.snomed.org/implementation-guides/context-representation-implementation-guide/6-technical-application" target="_blank" rel="noopener">
+          <mat-icon>table_chart</mat-icon> Transformation decision table (§6.3)
+        </a>
+      </p>
+    </div>
+  }
+
+  <!-- Pipeline -->
+  <div class="ctx-pipeline">
+
+    <!-- Step 1: Source (SNOMED) -->
+    <mat-card appearance="outlined" class="ctx-card ctx-step">
+      <div class="ctx-step-head">
+        <span class="ctx-step-num">1</span>
+        <div>
+          <h3 class="ctx-step-title">Situation in SNOMED CT</h3>
+          <span class="ctx-step-hint">Finding with explicit context (situation)</span>
         </div>
       </div>
-    </div>
+
+      <app-autocomplete-binding
+        [binding]="situationsBinding"
+        (selectionChange)="findingWithExplicitContextSelected($event)">
+      </app-autocomplete-binding>
+
+      <div class="ctx-examples">
+        <span class="ctx-examples-label">Examples</span>
+        <div class="ctx-chips">
+          @for (example of examples; track example.code) {
+            <button type="button"
+                    class="ctx-chip"
+                    [class.ctx-chip-active]="selectedSituation?.code === example.code"
+                    (click)="findingWithExplicitContextSelected(example)">
+              {{ example.display }}
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (selectedSituation?.code) {
+        <div class="ctx-selected">
+          <mat-icon>fingerprint</mat-icon>
+          <div>
+            <div class="ctx-selected-display">{{ selectedSituation.display }}</div>
+            <code class="ctx-selected-code">{{ selectedSituation.code }}</code>
+          </div>
+        </div>
+      }
+    </mat-card>
+
+    <mat-icon class="ctx-arrow">arrow_forward</mat-icon>
+
+    <!-- Step 2: Detected context -->
+    <mat-card appearance="outlined" class="ctx-card ctx-step">
+      <div class="ctx-step-head">
+        <span class="ctx-step-num">2</span>
+        <div>
+          <h3 class="ctx-step-title">Detected context</h3>
+          <span class="ctx-step-hint">Relevant attributes in the normal form</span>
+        </div>
+      </div>
+
+      @if (loading) {
+        <div class="ctx-loading">
+          <mat-spinner [diameter]="22"></mat-spinner>
+          <span>Reading normal form…</span>
+        </div>
+      } @else if (selectedSituation?.code) {
+        <div class="ctx-axes">
+          <div class="ctx-axis">
+            <mat-icon>coronavirus</mat-icon>
+            <span class="ctx-axis-label">Associated finding</span>
+            <span class="ctx-axis-value">{{ contextAxes.associatedFinding?.display || '—' }}</span>
+          </div>
+          <div class="ctx-axis">
+            <mat-icon>visibility</mat-icon>
+            <span class="ctx-axis-label">Finding context</span>
+            <span class="ctx-axis-value">{{ contextAxes.findingContext?.display || '—' }}</span>
+          </div>
+          <div class="ctx-axis">
+            <mat-icon>group</mat-icon>
+            <span class="ctx-axis-label">Subject relationship</span>
+            <span class="ctx-axis-value">{{ contextAxes.subjectRelationship?.display || '—' }}</span>
+          </div>
+          <div class="ctx-axis">
+            <mat-icon>schedule</mat-icon>
+            <span class="ctx-axis-label">Temporal context</span>
+            <span class="ctx-axis-value">{{ contextAxes.temporalContext?.display || '—' }}</span>
+          </div>
+        </div>
+
+        @if (matchedRule) {
+          <div class="ctx-rule">
+            <span class="ctx-rule-tag">Rule matched</span>
+            <span class="ctx-rule-axes">{{ matchedRule.axes }}</span>
+            <mat-icon>arrow_downward</mat-icon>
+            <span class="ctx-rule-result">
+              {{ matchedRule.resource }}@if (matchedRule.status) { <em>· {{ matchedRule.status }}</em> }
+            </span>
+          </div>
+        } @else if (noMappingFound) {
+          <div class="ctx-rule ctx-rule-none">
+            <mat-icon>rule</mat-icon>
+            <span>No decision-table rule matches this combination of context axes.</span>
+          </div>
+        }
+      } @else {
+        <div class="ctx-placeholder">
+          <mat-icon>rule</mat-icon>
+          <p>Pick a situation to see its context axes.</p>
+        </div>
+      }
+    </mat-card>
+
+    <mat-icon class="ctx-arrow">arrow_forward</mat-icon>
+
+    <!-- Step 3: FHIR output -->
+    <mat-card appearance="outlined" class="ctx-card ctx-step ctx-output-step">
+      <div class="ctx-step-head">
+        <span class="ctx-step-num">3</span>
+        <div>
+          <h3 class="ctx-step-title">FHIR representation</h3>
+          <span class="ctx-step-hint">Context in the FHIR information model</span>
+        </div>
+        @if (resourceType) {
+          <div class="ctx-output-actions">
+            <button mat-icon-button (click)="saveOutput(fhirRepresentationString)" matTooltip="Download">
+              <mat-icon fontIcon="cloud_download"></mat-icon>
+            </button>
+            <button mat-icon-button (click)="copyOutputToClipboard(fhirRepresentationString)" matTooltip="Copy">
+              <mat-icon fontIcon="content_copy"></mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (resourceType) {
+        <a class="ctx-resource-badge"
+           [href]="'https://hl7.org/fhir/R4/' + resourceType + '.html'" target="_blank" rel="noopener">
+          <mat-icon>data_object</mat-icon>
+          <span>FHIR R4 {{ resourceType }}</span>
+          <mat-icon class="ctx-resource-ext">open_in_new</mat-icon>
+        </a>
+      }
+
+      @if (loading) {
+        <div class="ctx-placeholder ctx-json-placeholder">
+          <mat-spinner [diameter]="24"></mat-spinner>
+          <p>Building FHIR resource…</p>
+        </div>
+      } @else if (fhirRepresentation) {
+        <div class="ctx-json">
+          <pre highlight-js [options]="{}" [lang]="'json'" class="ctx-json-viewer" [textContent]="fhirRepresentationString"></pre>
+        </div>
+      } @else if (noMappingFound) {
+        <div class="ctx-placeholder ctx-json-placeholder">
+          <mat-icon>block</mat-icon>
+          <p>No FHIR representation for this situation.</p>
+        </div>
+      } @else {
+        <div class="ctx-placeholder ctx-json-placeholder">
+          <mat-icon>data_object</mat-icon>
+          <p>The resulting FHIR resource will appear here.</p>
+        </div>
+      }
+    </mat-card>
+
   </div>
+</div>
