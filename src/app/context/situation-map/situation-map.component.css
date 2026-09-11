@@ -1,6 +1,8 @@
 /* ---------- Layout ---------- */
 .ctx-root {
   max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .ctx-header {

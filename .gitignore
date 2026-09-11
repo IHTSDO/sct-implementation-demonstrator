@@ -61,3 +61,6 @@ python/reports-updater/data/
 python/reports-updater/output/
 python/**/__pycache__/
 data/**
+
+# Local artifact, not part of the project
+snoguess-itch.zip
