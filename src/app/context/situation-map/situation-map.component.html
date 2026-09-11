@@ -8,29 +8,23 @@
         Transform SNOMED CT <em>situations with explicit context</em> into their FHIR resource representation.
       </p>
     </div>
-    <button mat-stroked-button color="primary" (click)="showIntro = !showIntro">
-      <mat-icon>{{ showIntro ? 'expand_less' : 'info' }}</mat-icon>
-      About this demo
-    </button>
   </div>
 
-  @if (showIntro) {
-    <div class="ctx-intro">
-      <p>
-        This demo reads the normal form of a <strong>finding with explicit context</strong>, detects its
-        context axes (finding, subject relationship and temporal context) and applies the transformation
-        decision table to produce the matching FHIR resource.
-      </p>
-      <p class="ctx-intro-links">
-        <a href="https://docs.snomed.org/implementation-guides/context-representation-implementation-guide" target="_blank" rel="noopener">
-          <mat-icon>menu_book</mat-icon> Context Representation Implementation Guide
-        </a>
-        <a href="https://docs.snomed.org/implementation-guides/context-representation-implementation-guide/6-technical-application" target="_blank" rel="noopener">
-          <mat-icon>table_chart</mat-icon> Transformation decision table (§6.3)
-        </a>
-      </p>
-    </div>
-  }
+  <div class="ctx-intro">
+    <p>
+      This demo reads the normal form of a <strong>finding with explicit context</strong>, detects its
+      context axes (finding, subject relationship and temporal context) and applies the transformation
+      decision table to produce the matching FHIR resource.
+    </p>
+    <p class="ctx-intro-links">
+      <a href="https://docs.snomed.org/implementation-guides/context-representation-implementation-guide" target="_blank" rel="noopener">
+        <mat-icon>menu_book</mat-icon> Context Representation Implementation Guide
+      </a>
+      <a href="https://docs.snomed.org/implementation-guides/context-representation-implementation-guide/6-technical-application" target="_blank" rel="noopener">
+        <mat-icon>table_chart</mat-icon> Transformation decision table (§6.3)
+      </a>
+    </p>
+  </div>
 
   <!-- Pipeline -->
   <div class="ctx-pipeline">

@@ -19,7 +19,6 @@ export class SituationMapComponent implements OnInit {
 
   loading = false;
   noMappingFound = false;
-  showIntro = false;
 
   // Structured context axes extracted from the situation's normal form, used to
   // render the "detected context" step of the transformation pipeline.
