@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { TerminologyService } from 'src/app/services/terminology.service';
 import { saveAs } from 'file-saver';
@@ -13,15 +13,13 @@ import {
   buildFhirResource,
 } from './context-transformation-rules';
 
-const CONTEXT_DESCENDANTS_CACHE_KEY = 'ContextConceptDescendants_v2';
-
 @Component({
     selector: 'app-situation-map',
     templateUrl: './situation-map.component.html',
     styleUrls: ['./situation-map.component.css'],
     standalone: false
 })
-export class SituationMapComponent implements OnInit {
+export class SituationMapComponent {
 
   selectedSituation: any;
   fhirRepresentation: any;
@@ -55,9 +53,6 @@ export class SituationMapComponent implements OnInit {
     note: 'Select a situation with explicit context'
   };
 
-  // selfAndDescendants code lists for each context concept, expanded from the server.
-  contextDescendants: Record<ContextKey, string[]> = {} as Record<ContextKey, string[]>;
-
   examples: any[] = [
     { code: '160377001', display: 'Family history of asthma' },
     { code: '428942009', display: 'History of fall' },
@@ -72,36 +67,20 @@ export class SituationMapComponent implements OnInit {
 
   constructor( private terminologyService: TerminologyService, private clipboard: Clipboard) { }
 
-  ngOnInit(): void {
-    this.loadOrUpdateContextDescendants();
-  }
-
-  async loadOrUpdateContextDescendants() {
-    const cached = localStorage.getItem(CONTEXT_DESCENDANTS_CACHE_KEY);
-    if (cached) {
-      this.contextDescendants = JSON.parse(cached);
-    } else {
-      await this.updateContextDescendants();
-      localStorage.setItem(CONTEXT_DESCENDANTS_CACHE_KEY, JSON.stringify(this.contextDescendants));
-    }
-  }
-
-  async updateContextDescendants() {
-    for (const key of Object.keys(CONTEXT_CONCEPTS) as ContextKey[]) {
-      const concept = CONTEXT_CONCEPTS[key];
-      const expansion = await lastValueFrom(
-        this.terminologyService.expandValueSet('<< ' + concept.code, '', 0, 1000)
-      );
-      this.contextDescendants[key] = expansion.expansion.contains.map((c: any) => c.code);
-    }
-  }
-
-  /** True when `value` is subsumed by (self or descendant of) the given context concept. */
-  private isSubsumedBy(value: any, key: ContextKey | null): boolean {
+  /**
+   * True when `value` is subsumed by (self or descendant of) the given context
+   * concept. Resolved per pair via the terminology server's subsumption check
+   * (cached, with an exact-code fast path), so no bulk descendant expansion is
+   * needed.
+   */
+  private isSubsumedBy(value: any, key: ContextKey | null): Promise<boolean> {
     if (!key) {
-      return true; // axis not constrained
+      return Promise.resolve(true); // axis not constrained
     }
-    return !!value && (this.contextDescendants[key] ?? []).includes(value.code);
+    if (!value?.code) {
+      return Promise.resolve(false);
+    }
+    return lastValueFrom(this.terminologyService.isSubsumed(CONTEXT_CONCEPTS[key].code, value.code));
   }
 
   async convertSituationToFhir(situation: any) {
@@ -158,12 +137,15 @@ export class SituationMapComponent implements OnInit {
         return;
       }
 
-      const rule = this.rules.find((r) =>
-        r.domain === domain &&
-        this.isSubsumedBy(contextValue, r.match.context) &&
-        this.isSubsumedBy(subjectRelationshipContextValue, r.match.subject) &&
-        this.isSubsumedBy(temporalContextValue, r.match.temporal)
-      );
+      let rule: TransformationRule | undefined;
+      for (const candidate of this.rules) {
+        if (candidate.domain !== domain) continue;
+        if (!(await this.isSubsumedBy(contextValue, candidate.match.context))) continue;
+        if (!(await this.isSubsumedBy(subjectRelationshipContextValue, candidate.match.subject))) continue;
+        if (!(await this.isSubsumedBy(temporalContextValue, candidate.match.temporal))) continue;
+        rule = candidate;
+        break;
+      }
 
       if (!rule) {
         this.noMappingFound = true;

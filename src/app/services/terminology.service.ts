@@ -728,6 +728,34 @@ export class TerminologyService {
   }
 
   private conceptCache = new Map<string, any>();
+  private subsumptionCache = new Map<string, boolean>();
+
+  /**
+   * Lightweight subsumption check: is `code` equal to or a descendant of
+   * `parentCode`? Implemented as a constrained ECL expansion (`code AND <<
+   * parent`) with count 1 — a small request the terminology server tolerates —
+   * rather than expanding the parent's full descendant set. Results are cached;
+   * a failed/throttled response is never cached, so it is simply retried later.
+   */
+  isSubsumed(parentCode: string, code: string): Observable<boolean> {
+    if (!code || !parentCode) return of(false);
+    if (code === parentCode) return of(true);
+    const cacheKey = `${this.fhirUrlParam}:${parentCode}:${code}`;
+    const cached = this.subsumptionCache.get(cacheKey);
+    if (cached !== undefined) return of(cached);
+    return this.expandValueSet(`${code} AND << ${parentCode}`, '', 0, 1).pipe(
+      map((res: any) => {
+        const expansion = res?.expansion;
+        const subsumed = ((expansion?.total ?? expansion?.contains?.length ?? 0) as number) > 0;
+        // Only cache when the response was well-formed (an errored/throttled call
+        // returns {} with no expansion), so a transient failure is not cached.
+        if (expansion) {
+          this.subsumptionCache.set(cacheKey, subsumed);
+        }
+        return subsumed;
+      })
+    );
+  }
 
   lookupConcept(conceptId: string, version?: string, silent = false) {
     if (!version) version = this.fhirUrlParam;
