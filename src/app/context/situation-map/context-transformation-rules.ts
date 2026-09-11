@@ -35,7 +35,8 @@ export type ContextKey =
   | 'InThePast'
   | 'CurrentOrSpecifiedTime'
   | 'Done'
-  | 'NotDone';
+  | 'NotDone'
+  | 'Planned';
 
 /** Context axis values referenced by the rules, as SNOMED concepts. */
 export const CONTEXT_CONCEPTS: Record<ContextKey, { code: string; display: string }> = {
@@ -48,6 +49,7 @@ export const CONTEXT_CONCEPTS: Record<ContextKey, { code: string; display: strin
   CurrentOrSpecifiedTime: { code: '410512000', display: 'Current or specified time' },
   Done: { code: '385658003', display: 'Done' },
   NotDone: { code: '385660001', display: 'Not done' },
+  Planned: { code: '397943006', display: 'Planned' },
 };
 
 /** SNOMED CT concept-model attribute type codes used to read a situation's normal form. */
@@ -62,7 +64,7 @@ export const CONTEXT_ATTRIBUTES = {
 
 export type SituationDomain = 'finding' | 'procedure';
 
-export type FhirResourceType = 'Condition' | 'Observation' | 'FamilyMemberHistory' | 'Procedure';
+export type FhirResourceType = 'Condition' | 'Observation' | 'FamilyMemberHistory' | 'Procedure' | 'ServiceRequest';
 
 export interface ConceptRef {
   code: string;
@@ -95,6 +97,8 @@ export interface TransformationRule {
     observationStatus?: string;
     procedureStatus?: string;
     familyHistoryStatus?: string;
+    serviceRequestStatus?: string;
+    serviceRequestIntent?: string;
   };
   /** Human-readable summary of the context combination. */
   contextSummary: string;
@@ -204,6 +208,18 @@ export const TRANSFORMATION_RULES: TransformationRule[] = [
     guideRef: 'FHIR & SWEC comparison',
   },
   {
+    id: 'procedure-planned',
+    situation: { code: '405613005', display: 'Planned procedure' },
+    domain: 'procedure',
+    match: { context: 'Planned', subject: 'SubjectOfRecord', temporal: null },
+    resource: 'ServiceRequest',
+    presets: { serviceRequestStatus: 'active', serviceRequestIntent: 'plan' },
+    contextSummary: 'Planned · Subject of record',
+    note: 'A planned procedure maps to a ServiceRequest (intent = plan). This mapping is an extension beyond the guide\'s published tables.',
+    normative: false,
+    guideRef: 'extension',
+  },
+  {
     id: 'procedure-on-family-member',
     situation: { code: '439763000', display: 'Procedure on family member' },
     domain: 'procedure',
@@ -284,6 +300,15 @@ export function buildFhirResource(
         resourceType: 'Procedure',
         subject: { reference: patientReference },
         status: rule.presets?.procedureStatus ?? 'completed',
+        code: { coding: [sctCoding(input.associated)] },
+      };
+    }
+    case 'ServiceRequest': {
+      return {
+        resourceType: 'ServiceRequest',
+        subject: { reference: patientReference },
+        status: rule.presets?.serviceRequestStatus ?? 'active',
+        intent: rule.presets?.serviceRequestIntent ?? 'plan',
         code: { coding: [sctCoding(input.associated)] },
       };
     }

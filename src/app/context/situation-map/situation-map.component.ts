@@ -13,7 +13,7 @@ import {
   buildFhirResource,
 } from './context-transformation-rules';
 
-const CONTEXT_DESCENDANTS_CACHE_KEY = 'ContextConceptDescendants_v1';
+const CONTEXT_DESCENDANTS_CACHE_KEY = 'ContextConceptDescendants_v2';
 
 @Component({
     selector: 'app-situation-map',
@@ -66,6 +66,7 @@ export class SituationMapComponent implements OnInit {
     { code: '401204006', display: 'Suspected autism' },
     { code: '428251008', display: 'History of appendectomy' },
     { code: '164853006', display: 'ECG not done' },
+    { code: '703993001', display: 'Colonoscopy planned' },
     { code: '160274005', display: 'No family history of diabetes mellitus' },
   ];
 
@@ -206,6 +207,8 @@ export class SituationMapComponent implements OnInit {
     if (p.observationStatus) parts.push(`status: ${p.observationStatus}`);
     if (p.procedureStatus) parts.push(`status: ${p.procedureStatus}`);
     if (p.familyHistoryStatus) parts.push(`status: ${p.familyHistoryStatus}`);
+    if (p.serviceRequestIntent) parts.push(`intent: ${p.serviceRequestIntent}`);
+    if (p.serviceRequestStatus) parts.push(`status: ${p.serviceRequestStatus}`);
     return parts.join(' · ');
   }
 

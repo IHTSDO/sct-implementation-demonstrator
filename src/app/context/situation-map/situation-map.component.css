@@ -479,6 +479,11 @@
   background: #fdefd9;
 }
 
+.ctx-source-badge.ctx-source-extension {
+  color: #4a5b8c;
+  background: #e6ebf7;
+}
+
 /* ---------- Responsive: stack the pipeline ---------- */
 @media (max-width: 1100px) {
   .ctx-pipeline {

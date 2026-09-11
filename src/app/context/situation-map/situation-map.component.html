@@ -207,7 +207,9 @@
       A structured encoding of the guide's transformation rules. The row that matched the selected situation is
       highlighted. <span class="ctx-source-badge">Decision table</span> rows reproduce §6.3.2;
       <span class="ctx-source-badge ctx-source-example">Comparison table</span> rows come from the broader
-      FHIR &amp; SWEC comparison (procedures and negative family history), whose FHIR presets are an implementation choice.
+      FHIR &amp; SWEC comparison (procedures and negative family history);
+      <span class="ctx-source-badge ctx-source-extension">Extension</span> rows go beyond the guide's published tables
+      (e.g. planned procedures &rarr; ServiceRequest). FHIR presets on the latter two are an implementation choice.
     </p>
     <div class="ctx-rules-table-wrap">
       <table class="ctx-rules-table">
@@ -239,6 +241,8 @@
               <td>
                 @if (rule.guideRef === '§6.3.2') {
                   <span class="ctx-source-badge" title="Guide §6.3.2 · Transformations between SWEC and FHIR">Decision table</span>
+                } @else if (rule.guideRef === 'extension') {
+                  <span class="ctx-source-badge ctx-source-extension" title="Extension beyond the guide's published tables">Extension</span>
                 } @else {
                   <span class="ctx-source-badge ctx-source-example" title="Guide · FHIR &amp; SWEC comparison">Comparison table</span>
                 }
