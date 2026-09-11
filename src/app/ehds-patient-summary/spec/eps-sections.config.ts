@@ -109,13 +109,13 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
         key: 'severity',
         path: 'Condition.severity',
         label: 'Severity',
-        control: 'snomed',
+        control: 'dropdown',
         system: SCT,
-        binding: {
-          ecl: '24484000 |Severe| OR 6736007 |Moderate| OR 255604002 |Mild|',
-          title: 'Severity',
-          note: 'Mild / Moderate / Severe',
-        },
+        options: [
+          { code: '255604002', system: SCT, display: 'Mild' },
+          { code: '6736007', system: SCT, display: 'Moderate' },
+          { code: '24484000', system: SCT, display: 'Severe' },
+        ],
       },
       {
         key: 'onset',

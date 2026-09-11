@@ -121,15 +121,27 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         "key": "severity",
         "path": "Condition.severity",
         "label": "Severity",
-        "control": "snomed",
+        "control": "dropdown",
         "min": 0,
         "max": "1",
         "mustSupport": true,
-        "binding": {
-          "ecl": "24484000 |Severe| OR 6736007 |Moderate| OR 255604002 |Mild|",
-          "title": "Severity",
-          "note": "Mild / Moderate / Severe"
-        },
+        "options": [
+          {
+            "code": "255604002",
+            "system": "http://snomed.info/sct",
+            "display": "Mild"
+          },
+          {
+            "code": "6736007",
+            "system": "http://snomed.info/sct",
+            "display": "Moderate"
+          },
+          {
+            "code": "24484000",
+            "system": "http://snomed.info/sct",
+            "display": "Severe"
+          }
+        ],
         "system": "http://snomed.info/sct",
         "doc": {
           "short": "Subjective severity of condition",
@@ -151,7 +163,7 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "strength": "preferred",
           "valueSet": "http://hl7.org/fhir/ValueSet/condition-severity",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-condition-severity.html",
-          "isSct": true
+          "isSct": false
         }
       },
       {
