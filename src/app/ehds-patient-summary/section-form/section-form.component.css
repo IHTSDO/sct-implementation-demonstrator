@@ -1,0 +1,58 @@
+.section-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px 20px;
+  align-items: start;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.req {
+  color: #c62828;
+}
+
+.ms-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #00695c;
+  background: #e0f2f1;
+  border-radius: 4px;
+  padding: 0 4px;
+  line-height: 16px;
+}
+
+.field-hint {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.55);
+  margin-top: 2px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}

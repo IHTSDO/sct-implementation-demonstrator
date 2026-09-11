@@ -42,6 +42,26 @@ export class MenuService {
       description: "A LOINC Ontology implementation demo, covering laboratory orders, results and FHIR resources."
     },
     {
+      key: "ehdsLaboratory",
+      highlighted: true,
+      addedAt: "2026-09-11",
+      name: "EHDS Laboratory Report",
+      subtitle: "clinicalDemo",
+      type: "internal",
+      url: "/ehds-laboratory-demo",
+      description: "A demonstration of laboratory data implementation for the European Health Data Space (EHDS), covering service requests, specimens, observation results and diagnostic reports with SNOMED CT and FHIR."
+    },
+    {
+      key: "ehdsPatientSummary",
+      highlighted: true,
+      addedAt: "2026-09-11",
+      name: "EHDS Patient Summary",
+      subtitle: "clinicalDemo",
+      type: "internal",
+      url: "/ehds-patient-summary",
+      description: "A spec-driven demonstration of the European Patient Summary (EPS): form fields generated from the HL7 Europe EPS FHIR profiles, focusing on SNOMED CT–coded elements, assembling a conformant EPS document Bundle."
+    },
+    {
       key: "ncptRefset",
       name: "NCPT Refset",
       subtitle: "clinicalDemo",
@@ -131,6 +151,14 @@ export class MenuService {
       type: "internal",
       url: "/snoguess",
       description: "A SNOMED term guessing game, learn about SNOMED content while having fun and competing to achieve the highest score"
+    },
+    {
+      key: "attributeFall",
+      name: "Attribute Fall",
+      subtitle: "game",
+      type: "external",
+      url: "https://alopezo.github.io/attribute-fall/",
+      description: "A fast-paced SNOMED CT game: catch the falling attributes that belong to each concept and learn the concept model while you play."
     },
     {
       key: "roadmapGenerator",

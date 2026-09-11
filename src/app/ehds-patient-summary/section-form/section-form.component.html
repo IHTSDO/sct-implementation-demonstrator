@@ -1,0 +1,61 @@
+<form [formGroup]="form" class="section-form" *ngIf="section">
+  <div class="fields-grid">
+    <ng-container *ngFor="let field of section.fields">
+      <div class="field" [ngClass]="'field-' + field.control">
+        <!-- Generated FHIR/SNOMED + BINDING badges -->
+        <app-eps-field-badges [field]="field"></app-eps-field-badges>
+
+        <!-- Uniform field title (above every control, so fields align) -->
+        <label class="field-label">
+          {{ field.label }}
+          <span class="req" *ngIf="field.min >= 1">*</span>
+          <span class="ms-badge" *ngIf="field.mustSupport" matTooltip="Must-support in the EPS profile">MS</span>
+        </label>
+
+        <!-- SNOMED CT autocomplete -->
+        <ng-container *ngIf="field.control === 'snomed'">
+          <app-autocomplete-binding
+            [binding]="field.binding"
+            [formControlName]="field.key"
+            (selectionChange)="onSnomedSelected(field, $event)"
+            (cleared)="onSnomedSelected(field, null)">
+          </app-autocomplete-binding>
+          <div class="field-hint" *ngIf="field.hint">{{ field.hint }}</div>
+        </ng-container>
+
+        <!-- Fixed coded dropdown -->
+        <mat-form-field *ngIf="field.control === 'dropdown'" appearance="fill" class="full-width">
+          <mat-select [formControlName]="field.key" placeholder="Select">
+            <mat-option *ngFor="let opt of field.options" [value]="opt.code">{{ opt.display }}</mat-option>
+          </mat-select>
+          <mat-hint *ngIf="field.mustSupport">Must-support</mat-hint>
+        </mat-form-field>
+
+        <!-- Date -->
+        <mat-form-field *ngIf="field.control === 'date'" appearance="fill" class="full-width">
+          <input matInput [matDatepicker]="picker" [formControlName]="field.key" placeholder="Choose a date" />
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- Free text -->
+        <mat-form-field *ngIf="field.control === 'text'" appearance="fill" class="full-width">
+          <input matInput [formControlName]="field.key" [placeholder]="field.hint || 'Enter ' + field.label.toLowerCase()" />
+        </mat-form-field>
+
+        <!-- Multi-line text -->
+        <mat-form-field *ngIf="field.control === 'textarea'" appearance="fill" class="full-width">
+          <textarea matInput rows="2" [formControlName]="field.key" [placeholder]="field.hint || ''"></textarea>
+        </mat-form-field>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" mat-stroked-button (click)="reset()">Clear</button>
+    <button type="button" mat-flat-button color="primary" [disabled]="!canAdd" (click)="add()">
+      <mat-icon>add</mat-icon>
+      Add to {{ section.title }}
+    </button>
+  </div>
+</form>

@@ -80,6 +80,12 @@ export class AutocompleteBindingComponent implements OnInit, OnChanges, AfterVie
     } else {
         this.formControl.setValue(value, { emitEvent: false });
         this.selectedConcept = value && typeof value === 'object' ? value : {};
+        if (!value) {
+          // Programmatic clear/reset (e.g. form.reset()): a freshly emptied field
+          // should return to a pristine, untouched state so no validation error is shown.
+          this.formControl.markAsPristine({ onlySelf: true });
+          this.formControl.markAsUntouched({ onlySelf: true });
+        }
     }
   }
 

@@ -1,0 +1,71 @@
+<div class="fhir-badges-container" *ngIf="field">
+  <!-- Primary badge: always FHIR → shows the FHIR element definition popover (generated from the spec) -->
+  <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="docMenu">
+    FHIR
+  </button>
+
+  <!-- Terminology binding badge → value set page embedded in a dialog -->
+  <button
+    *ngIf="field.bindingMeta"
+    type="button"
+    mat-button
+    class="fhir-badge"
+    [ngClass]="field.bindingMeta.isSct ? 'sct-badge' : 'valueset-badge'"
+    (click)="openValueSet()">
+    {{ bindingLabel }}
+  </button>
+
+  <mat-menu #docMenu="matMenu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
+    <div class="fhir-menu-content" (click)="$event.stopPropagation()">
+      <div class="fhir-menu-header">
+        <h4>{{ field.path }}</h4>
+        <a *ngIf="field.doc?.definitionUrl" [href]="field.doc!.definitionUrl" target="_blank" rel="noopener noreferrer" class="fhir-menu-link">
+          <mat-icon>link</mat-icon>
+        </a>
+      </div>
+      <div class="fhir-menu-body" *ngIf="field.doc as doc">
+        <div class="fhir-menu-item" *ngIf="doc.definition">
+          <span class="fhir-label">Definition:</span>
+          <span class="fhir-value">{{ doc.definition }}</span>
+        </div>
+        <div class="fhir-menu-item" *ngIf="doc.short">
+          <span class="fhir-label">Short:</span>
+          <span class="fhir-value">{{ doc.short }}</span>
+        </div>
+        <div class="fhir-menu-item" *ngIf="doc.comment">
+          <span class="fhir-label">Comments:</span>
+          <span class="fhir-value">{{ doc.comment }}</span>
+        </div>
+        <div class="fhir-menu-item">
+          <span class="fhir-label">Control:</span>
+          <span class="fhir-value">{{ doc.control }}</span>
+        </div>
+        <div class="fhir-menu-item" *ngIf="doc.bindingText">
+          <span class="fhir-label">Binding:</span>
+          <span class="fhir-value">
+            {{ doc.bindingText }}
+            <a *ngIf="field.bindingMeta" [href]="field.bindingMeta.pageUrl" target="_blank" rel="noopener noreferrer" class="valueset-link">
+              {{ field.bindingMeta.valueSet }}
+            </a>
+          </span>
+        </div>
+        <div class="fhir-menu-item" *ngIf="doc.types.length">
+          <span class="fhir-label">Type:</span>
+          <span class="fhir-value">{{ doc.types.join(' | ') }}</span>
+        </div>
+        <div class="fhir-menu-item" *ngIf="doc.isModifier">
+          <span class="fhir-label">Is Modifier:</span>
+          <span class="fhir-value">true</span>
+        </div>
+        <div class="fhir-menu-item">
+          <span class="fhir-label">Summary:</span>
+          <span class="fhir-value">{{ doc.isSummary }}</span>
+        </div>
+        <div class="fhir-menu-item" *ngIf="doc.invariants.length">
+          <span class="fhir-label">Invariants:</span>
+          <span class="fhir-value">{{ doc.invariants.join(', ') }}</span>
+        </div>
+      </div>
+    </div>
+  </mat-menu>
+</div>

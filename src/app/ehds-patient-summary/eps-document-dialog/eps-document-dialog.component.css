@@ -1,0 +1,73 @@
+.doc {
+  padding: 8px 4px;
+}
+
+.doc-patient {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.doc-meta {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  text-transform: capitalize;
+}
+
+.doc-section {
+  margin-bottom: 12px;
+}
+
+.doc-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  margin: 8px 0 4px;
+  color: #1565c0;
+}
+
+.doc-section h3 mat-icon {
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+
+.doc-section ul {
+  margin: 0;
+  padding-left: 28px;
+}
+
+.doc-section li {
+  margin: 2px 0;
+}
+
+.doc-empty {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.json-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.json {
+  margin: 0;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: auto;
+  max-height: 55vh;
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* Fallback background before/while hljs applies its atom-one-dark theme */
+.json:not(.hljs) {
+  background: #282c34;
+  color: #abb2bf;
+}

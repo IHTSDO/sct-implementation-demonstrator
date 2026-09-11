@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>European Patient Summary</h2>
+
+<mat-dialog-content>
+  <mat-tab-group>
+    <!-- Human-readable document -->
+    <mat-tab label="Document">
+      <div class="doc">
+        <div class="doc-patient">
+          <strong>{{ data.patient.name }}</strong>
+          <span class="doc-meta">{{ data.patient.gender }} · born {{ data.patient.birthDate }}</span>
+        </div>
+
+        <section *ngFor="let s of nonEmptySections" class="doc-section">
+          <h3>
+            <mat-icon>{{ s.section.icon }}</mat-icon>
+            {{ s.section.title }}
+          </h3>
+          <ul *ngIf="s.section.kind !== 'narrative'">
+            <li *ngFor="let entry of s.entries">{{ entryLine(s.section, entry) }}</li>
+          </ul>
+          <p *ngIf="s.section.kind === 'narrative'" class="doc-narrative">{{ s.narrative }}</p>
+        </section>
+
+        <p class="doc-empty" *ngIf="!nonEmptySections.length">No entries captured.</p>
+      </div>
+    </mat-tab>
+
+    <!-- FHIR Bundle -->
+    <mat-tab label="FHIR Bundle">
+      <div class="json-actions">
+        <button mat-stroked-button (click)="copyJson()">
+          <mat-icon>content_copy</mat-icon> Copy
+        </button>
+        <button mat-stroked-button (click)="downloadJson()">
+          <mat-icon>download</mat-icon> Download
+        </button>
+      </div>
+      <pre class="json hljs"><code [innerHTML]="highlightedJson"></code></pre>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" mat-dialog-close>Close</button>
+</mat-dialog-actions>

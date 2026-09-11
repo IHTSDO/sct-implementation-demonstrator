@@ -1,0 +1,119 @@
+<div id="main-panel">
+  <div class="page-header">
+    <div class="page-header-text">
+      <h2 class="page-title">EHDS Patient Summary</h2>
+      <p class="page-subtitle">
+        HL7 Europe Patient Summary — generated from the EPS FHIR profiles
+        <button type="button" mat-button class="fhir-badge" (click)="openGuide()"
+                matTooltip="Open the full HL7 Europe EPS implementation guide">
+          FHIR
+        </button>
+      </p>
+    </div>
+    <button mat-icon-button color="primary" [matMenuTriggerFor]="infoMenu" aria-label="About">
+      <mat-icon>info</mat-icon>
+    </button>
+    <mat-menu #infoMenu="matMenu">
+      <div class="about-popover" (click)="$event.stopPropagation()">
+        <h4>EHDS Patient Summary</h4>
+        <p>
+          A spec-driven demonstrator of the European Patient Summary (EPS). The form fields are
+          generated from the HL7 Europe EPS FHIR profiles, focusing on the SNOMED CT–coded elements.
+          Capture entries per section and assemble a conformant EPS document Bundle.
+        </p>
+      </div>
+    </mat-menu>
+  </div>
+
+  <mat-card class="patient-card">
+    <mat-card-content class="patient-content">
+      <mat-icon class="patient-avatar">account_circle</mat-icon>
+      <div class="patient-picker">
+        <mat-form-field appearance="fill" class="patient-select">
+          <mat-label>Patient</mat-label>
+          <mat-select [(value)]="patient">
+            <mat-option *ngFor="let p of patients" [value]="p">{{ p.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <span class="patient-meta">{{ patient.gender }} · born {{ patient.birthDate }}</span>
+      </div>
+      <span class="spacer"></span>
+      <button mat-flat-button color="accent" [disabled]="totalEntries === 0" (click)="generateDocument()">
+        <mat-icon>description</mat-icon>
+        Generate EPS Document ({{ totalEntries }})
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-accordion multi class="sections">
+    <mat-expansion-panel *ngFor="let state of sections" [expanded]="state === sections[0]" class="section-panel">
+      <mat-expansion-panel-header class="section-header" collapsedHeight="68px" expandedHeight="68px">
+        <mat-panel-title class="section-title">
+          <span class="section-icon-badge">
+            <mat-icon>{{ state.section.icon }}</mat-icon>
+          </span>
+          <span class="section-title-text">{{ state.section.title }}</span>
+          <span class="entry-count" *ngIf="state.entries.length">{{ state.entries.length }}</span>
+          <mat-icon class="narrative-check" *ngIf="state.section.kind === 'narrative' && state.narrative.trim()">check_circle</mat-icon>
+        </mat-panel-title>
+        <mat-panel-description class="section-desc-meta">
+          <span class="resource-chip">{{ state.section.resourceType }}</span>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <p class="section-desc">
+        {{ state.section.description }}
+        <button type="button" mat-button class="fhir-badge" (click)="openSectionProfile(state.section)"
+                [matTooltip]="'Open the ' + state.section.resourceType + ' profile in the EPS guide'">
+          FHIR
+        </button>
+      </p>
+
+      <!-- Narrative section: a single free-text block -->
+      <ng-container *ngIf="state.section.kind === 'narrative'; else resourceSection">
+        <mat-form-field appearance="fill" class="narrative-field">
+          <mat-label>{{ state.section.title }} narrative</mat-label>
+          <textarea matInput rows="4" [(ngModel)]="state.narrative"
+                    placeholder="Write the section narrative…"></textarea>
+        </mat-form-field>
+      </ng-container>
+
+      <!-- Resource section: repeated coded entries -->
+      <ng-template #resourceSection>
+        <mat-list *ngIf="state.entries.length" class="entry-list">
+          <mat-list-item *ngFor="let entry of state.entries" class="entry-item">
+            <mat-icon matListItemIcon class="entry-bullet">check_circle</mat-icon>
+            <div matListItemTitle class="entry-title">{{ entryLabel(state, entry) }}</div>
+            <div matListItemLine class="entry-details">{{ entryDetails(state, entry) }}</div>
+            <button mat-icon-button matListItemMeta (click)="removeEntry(state, entry)" aria-label="Remove">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </mat-list-item>
+        </mat-list>
+
+        <mat-divider *ngIf="state.entries.length"></mat-divider>
+
+        <!-- Generic, metadata-driven form -->
+        <app-eps-section-form
+          class="add-form"
+          [section]="state.section"
+          (entryAdded)="onEntryAdded(state, $event)">
+        </app-eps-section-form>
+      </ng-template>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <!-- Sections of the EPS Composition still to be implemented -->
+  <div class="pending-note">
+    <mat-icon class="pending-icon">construction</mat-icon>
+    <div>
+      <strong>Sections pending implementation</strong>
+      <p>
+        The EPS Composition defines further sections not yet built here:
+        Results, Vital Signs, Social History, Functional Status, Pregnancy History,
+        Advance Directives and Plan of Care. These need extra capabilities
+        (quantities with units, heterogeneous sub-entries, or resource references).
+      </p>
+    </div>
+  </div>
+</div>

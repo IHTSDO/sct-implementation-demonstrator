@@ -29,6 +29,14 @@
       "name": "SNOMED EHR Lab",
       "description": "Een complete EPD-simulatie met gegenereerde persistente patiënten, klinische, tandheelkundige en verpleegkundige dossiers, AI-ondersteunde invoer, CDS, analyses, interoperabiliteitstools en Smart Health Links op basis van FHIR en SNOMED CT."
     },
+    "ehdsLaboratory": {
+      "name": "EHDS Laboratory Report",
+      "description": "Laboratory data for the European Health Data Space (EHDS): service requests, specimens, observation results and diagnostic reports with SNOMED CT and FHIR."
+    },
+    "ehdsPatientSummary": {
+      "name": "EHDS Patient Summary",
+      "description": "A spec-driven European Patient Summary (EPS): form fields generated from the HL7 Europe EPS FHIR profiles, focusing on SNOMED CT–coded elements, assembling a conformant EPS document Bundle."
+    },
     "allergies": {
       "name": "Allergieën",
       "description": "Een SNOMED / FHIR-implementatiedemo voor het vastleggen van allergie- en intolerantiedetails, ontwikkeld door de Clinical Reference Group voor Allergieën."
@@ -80,6 +88,10 @@
     "snoguess": {
       "name": "Snoguess (Een SNOMED-spel)",
       "description": "Een SNOMED-raadspel: leer over SNOMED-inhoud terwijl u plezier heeft en strijdt om de hoogste score."
+    },
+    "attributeFall": {
+      "name": "Attribute Fall",
+      "description": "A fast-paced SNOMED CT game: catch the falling attributes that belong to each concept and learn the concept model while you play."
     },
     "roadmapGenerator": {
       "name": "SNOMED Implementatie Routekaartgenerator",

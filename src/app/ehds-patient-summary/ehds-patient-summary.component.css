@@ -1,0 +1,250 @@
+#main-panel {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #1565c0;
+}
+
+.page-header-text {
+  flex: 1;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1565c0;
+  letter-spacing: 0.2px;
+}
+
+.page-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* FHIR badge (Laboratory style) — opens the guide / a profile in the dialog */
+.fhir-badge {
+  align-self: center;
+  min-width: auto;
+  height: auto;
+  line-height: 1.4;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background-color: #d32f2f !important;
+  color: #fff !important;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.fhir-badge:hover {
+  background-color: #b71c1c !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.about-popover {
+  max-width: 340px;
+  padding: 8px 16px;
+  white-space: normal;
+}
+
+.about-popover h4 {
+  margin: 4px 0;
+}
+
+.patient-card {
+  margin-bottom: 16px;
+}
+
+.patient-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.patient-avatar {
+  font-size: 44px;
+  height: 44px;
+  width: 44px;
+  color: #1565c0;
+}
+
+.patient-picker {
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-select {
+  width: 220px;
+  margin-bottom: -1.25em;
+}
+
+.patient-meta {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  text-transform: capitalize;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.sections {
+  display: block;
+}
+
+.section-panel {
+  margin-bottom: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 0 20px;
+}
+
+/* Title block: icon badge + larger blue title */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.section-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e3f2fd;
+  flex-shrink: 0;
+}
+
+.section-icon-badge mat-icon {
+  color: #1565c0;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.section-title-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1565c0;
+  letter-spacing: 0.2px;
+}
+
+.section-desc-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.resource-chip {
+  font-size: 12px;
+  font-weight: 500;
+  color: #546e7a;
+  background: #eceff1;
+  border-radius: 12px;
+  padding: 2px 10px;
+}
+
+.entry-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  background: #1565c0;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.section-desc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+  margin: 4px 0 12px;
+}
+
+.entry-list {
+  padding: 0;
+}
+
+.entry-bullet {
+  color: #2e7d32;
+}
+
+.entry-title {
+  font-weight: 500;
+}
+
+.entry-details {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.add-form {
+  display: block;
+  margin-top: 12px;
+}
+
+.narrative-field {
+  width: 100%;
+}
+
+.narrative-check {
+  color: #2e7d32;
+  margin-left: 8px;
+}
+
+.pending-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px dashed #b0bec5;
+  border-radius: 10px;
+  background: #f7f9fa;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.pending-icon {
+  color: #e65100;
+  flex-shrink: 0;
+}
+
+.pending-note strong {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.pending-note p {
+  margin: 4px 0 0;
+  font-size: 13px;
+}

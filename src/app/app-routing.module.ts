@@ -74,6 +74,7 @@ const routes: Routes = [
   { path: 'encounter-record', loadChildren: () => import('./benefits-demo/encounter-record-entry.module').then((m) => m.EncounterRecordEntryModule) },
   { path: 'interoperability', loadChildren: () => import('./benefits-demo/interoperability-entry.module').then((m) => m.InteroperabilityEntryModule) },
   { path: 'ehds-laboratory-demo', loadChildren: () => import('./ehds-laboratory-demo/ehds-laboratory-demo.module').then((m) => m.EhdsLaboratoryDemoModule) },
+  { path: 'ehds-patient-summary', loadChildren: () => import('./ehds-patient-summary/ehds-patient-summary.module').then((m) => m.EhdsPatientSummaryModule) },
   { path: 'mdrs-viewer', loadChildren: () => import('./mdrs-viewer/mdrs-viewer.module').then((m) => m.MdrsViewerModule) },
   { path: 'cohort-workspace', loadChildren: () => import('./cohort-definition/cohort-definition.module').then((m) => m.CohortDefinitionModule) },
   { path: 'icd-mappings', loadChildren: () => import('./icd-mappings/icd-mappings.module').then((m) => m.IcdMappingsModule) },
