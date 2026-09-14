@@ -1037,22 +1037,19 @@ export class TerminologyService {
   }
 
   getNormalForm(concept: any): string {
-    if (concept.parameter) {
-      for (let param of concept.parameter) {
-        let found = false;
-        if (param.name == 'property') {
-          for (let part of param.part) {
-            if (part.name == 'code' && part.valueString == 'normalForm') {
-              found = true;
-            }
-          }
-          if (found) {
-            for (let part of param.part) {
-              if (part.name == 'valueString') {
-                return part.valueString;
-              }
-            }
-          }
+    if (!concept?.parameter) return '';
+    for (const param of concept.parameter) {
+      if (param.name !== 'property' || !param.part) continue;
+      // The property code arrives as valueString (Snowstorm) or valueCode (Ontoserver).
+      const isNormalForm = param.part.some((p: any) =>
+        p.name === 'code' && (p.valueString === 'normalForm' || p.valueCode === 'normalForm'));
+      if (!isNormalForm) continue;
+      // The value sub-part is named 'value' (FHIR-standard, e.g. Ontoserver) or
+      // 'valueString' (Snowstorm); read whichever string value is present.
+      for (const p of param.part) {
+        if (p.name === 'value' || p.name === 'valueString') {
+          if (typeof p.valueString === 'string') return p.valueString;
+          if (typeof p.valueCode === 'string') return p.valueCode;
         }
       }
     }
@@ -1061,27 +1058,135 @@ export class TerminologyService {
 
   parseNormmalForm(input: string): NormalForm {
     const groups: Relationship[][] = [];
-    const relationshipBlocks = input.split('} {');
-  
-    relationshipBlocks.forEach((block) => {
-      const relationships = block.match(/\d+\|[^\|]+\|\s*=\s*\d+\|[^\|]+\|/g);
-      if (!relationships) return;
-  
-      const group: Relationship[] = relationships.map((relationship) => {
-        const [typePart, targetPart] = relationship.split('=').map(part => part.trim());
-        const [typeCode, typeDisplay] = typePart.split('|').map(part => part.trim());
-        const [targetCode, targetDisplay] = targetPart.split('|').map(part => part.trim());
-  
-        return {
-          type: { code: typeCode, display: typeDisplay.replace(/\(.*\)/, '').trim() },
-          target: { code: targetCode, display: targetDisplay } // .replace(/\(.*\)/, '').trim()
-        };
-      });
-  
-      groups.push(group);
-    });
-  
+    if (!input) return { groups };
+
+    // Strip a leading definition operator (=== , << , < , etc.), which servers
+    // such as Ontoserver emit but Snowstorm does not.
+    let expr = input.trim().replace(/^(===|==|<<<|<<|<|>>>|>>|>)\s*/, '');
+
+    // Everything after the top-level ':' is the focus concept's refinement.
+    const colonIdx = this.indexOfTopLevel(expr, ':');
+    if (colonIdx === -1) return { groups };
+    const refinement = expr.slice(colonIdx + 1).trim();
+
+    for (const block of this.extractAttributeGroups(refinement)) {
+      const group: Relationship[] = [];
+      for (const attr of this.splitTopLevel(block, ',')) {
+        const rel = this.parseAttribute(attr);
+        if (rel) group.push(rel);
+      }
+      if (group.length) groups.push(group);
+    }
+
     return { groups };
+  }
+
+  /**
+   * Split a refinement into attribute-group blocks: each top-level `{ ... }`
+   * plus any ungrouped attributes (treated as a single group). Brace matching is
+   * depth- and pipe-aware so nested compound values do not confuse it.
+   */
+  private extractAttributeGroups(refinement: string): string[] {
+    const groups: string[] = [];
+    let ungrouped = '';
+    let inPipe = false;
+    let i = 0;
+    while (i < refinement.length) {
+      const ch = refinement[i];
+      if (ch === '|') { inPipe = !inPipe; ungrouped += ch; i++; continue; }
+      if (!inPipe && ch === '{') {
+        let depth = 0, j = i, pipe = false;
+        for (; j < refinement.length; j++) {
+          const c = refinement[j];
+          if (c === '|') { pipe = !pipe; continue; }
+          if (pipe) continue;
+          if (c === '{') depth++;
+          else if (c === '}') { depth--; if (depth === 0) break; }
+        }
+        groups.push(refinement.slice(i + 1, j));
+        i = j + 1;
+      } else {
+        ungrouped += ch;
+        i++;
+      }
+    }
+    if (ungrouped.replace(/[,\s]/g, '')) groups.unshift(ungrouped);
+    return groups;
+  }
+
+  /** Parse a single `type|term| = value` attribute into a Relationship. */
+  private parseAttribute(attr: string): Relationship | null {
+    const eqIdx = this.indexOfTopLevel(attr, '=');
+    if (eqIdx === -1) return null;
+    const type = this.parseConceptReference(attr.slice(0, eqIdx));
+    if (!type) return null;
+    let valuePart = attr.slice(eqIdx + 1).trim();
+    // A compound value (e.g. an expanded definition in long normal form) — take
+    // its focus concept as the target.
+    if (valuePart.startsWith('(')) {
+      valuePart = this.focusConceptOfCompound(valuePart);
+    }
+    const target = this.parseConceptReference(valuePart);
+    if (!target) return null;
+    return {
+      type: { code: type.code, display: type.display.replace(/\(.*\)/, '').trim() },
+      target: { code: target.code, display: target.display },
+    };
+  }
+
+  /** Extract the first `code|term|` reference from a string. */
+  private parseConceptReference(s: string): { code: string; display: string } | null {
+    const withTerm = s.trim().match(/^(\d+)\s*\|([^|]*)\|/);
+    if (withTerm) return { code: withTerm[1], display: withTerm[2].trim() };
+    const codeOnly = s.trim().match(/^(\d+)/);
+    return codeOnly ? { code: codeOnly[1], display: '' } : null;
+  }
+
+  /** Given a compound expression `(A|..| + B|..| : { ... })`, return its first focus concept. */
+  private focusConceptOfCompound(s: string): string {
+    const inner = s.trim().replace(/^\(/, '');
+    let depth = 0, inPipe = false, out = '';
+    for (const ch of inner) {
+      if (ch === '|') { inPipe = !inPipe; out += ch; continue; }
+      if (!inPipe) {
+        if (ch === '(' || ch === '{') depth++;
+        else if (ch === ')' || ch === '}') { if (depth === 0) break; depth--; }
+        else if ((ch === '+' || ch === ':') && depth === 0) break;
+      }
+      out += ch;
+    }
+    return out.trim();
+  }
+
+  /** Index of the first `target` char at brace/paren depth 0 and outside a `|term|`. */
+  private indexOfTopLevel(s: string, target: string): number {
+    let depth = 0, inPipe = false;
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (c === '|') { inPipe = !inPipe; continue; }
+      if (inPipe) continue;
+      if (c === '(' || c === '{') depth++;
+      else if (c === ')' || c === '}') depth--;
+      else if (c === target && depth === 0) return i;
+    }
+    return -1;
+  }
+
+  /** Split `s` on `sep` at brace/paren depth 0 and outside a `|term|`. */
+  private splitTopLevel(s: string, sep: string): string[] {
+    const parts: string[] = [];
+    let depth = 0, inPipe = false, cur = '';
+    for (const ch of s) {
+      if (ch === '|') { inPipe = !inPipe; cur += ch; continue; }
+      if (!inPipe) {
+        if (ch === '(' || ch === '{') depth++;
+        else if (ch === ')' || ch === '}') depth--;
+        else if (ch === sep && depth === 0) { parts.push(cur); cur = ''; continue; }
+      }
+      cur += ch;
+    }
+    if (cur.trim()) parts.push(cur);
+    return parts;
   }
 
   getMemberships(conceptId: string) {
