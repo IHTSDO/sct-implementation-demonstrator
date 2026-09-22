@@ -29,11 +29,10 @@ def log(message, verbose=True):
         print(message)
 
 # Plotly >= 6 serializes numeric arrays as base64 "typed arrays"
-# ({"dtype": "i2", "bdata": "..."}) instead of JSON arrays. plotly.js 1.58.5
-# (what cdn.plot.ly/plotly-latest.min.js still resolves to) cannot read those,
-# and the report template does data.data[0].x.map(...), so the chart and the
-# click-to-details handler both break. requirements.txt pins plotly < 6, and
-# this decodes the typed arrays back to plain lists if that pin ever moves.
+# ({"dtype": "i2", "bdata": "..."}) instead of JSON arrays. The report template
+# does data.data[0].x.map(...) on them, which throws, so the year buttons and
+# the click-to-details handler stop working. requirements.txt holds plotly at
+# 5.x; this decodes the typed arrays back to plain lists if that pin moves.
 _TYPED_ARRAY_DTYPES = {
     "i1": "int8",
     "u1": "uint8",

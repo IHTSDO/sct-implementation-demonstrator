@@ -141,7 +141,7 @@ def generate_fsn_changes_report(
     html_template = """
     <html>
     <head>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
             body {

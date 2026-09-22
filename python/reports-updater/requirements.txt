@@ -1,12 +1,15 @@
 # Pinned on purpose: CI installs these from scratch on every run, so unpinned
 # versions drift away from the environment the published reports were built in.
 #
-# plotly must stay < 6: from plotly 6 onwards fig.to_dict() serializes numeric
+# plotly is held at 5.x. From plotly 6 onwards fig.to_dict() serializes numeric
 # arrays as base64 typed arrays ({"dtype": "i2", "bdata": "..."}) instead of
-# JSON arrays. The report template loads plotly.js from cdn.plot.ly (v1.58.5),
-# which cannot read those, and the click-to-details logic does
-# data.data[0].x.map(...) on them. The result is a green build that publishes a
-# report whose per-segment details never load. validate_reports.py guards it.
+# JSON arrays; that once shipped a report whose per-segment details never
+# loaded, because the templates then loaded a 2021 plotly.js that could not read
+# them and the click handler does data.data[0].x.map(...).
+# The templates now pin plotly.js 4.x, which does understand typed arrays, and
+# convert_numpy_types decodes them anyway, so raising this pin is a reasonable
+# change -- just make it deliberately and check the reports in a browser
+# afterwards. validate_reports.py covers the mechanical part.
 pandas==2.2.2
 numpy==2.0.0
 plotly==5.24.1

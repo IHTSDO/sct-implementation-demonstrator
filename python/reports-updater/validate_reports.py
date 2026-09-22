@@ -51,14 +51,20 @@ def check_report(path):
 
     if "cdn.plot.ly" not in html:
         problems.append(f"{name}: no plotly.js script tag")
+    elif "plotly-latest" in html:
+        # A dead alias: it still resolves to v1.58.5 (July 2021) and never moves.
+        problems.append(
+            f"{name}: loads plotly-latest.min.js, which is frozen at plotly.js "
+            "v1.58.5. Pin an explicit version in the report template."
+        )
 
     # plotly >= 6 emits {"dtype": ..., "bdata": ...} typed arrays, which the
     # plotly.js version this template loads cannot read.
     if '"bdata"' in html:
         problems.append(
-            f"{name}: contains base64 typed arrays (\"bdata\"). "
-            "The chart and the click-to-details handler will not work. "
-            "Check the installed plotly version against requirements.txt."
+            f"{name}: contains base64 typed arrays (\"bdata\") instead of plain "
+            "JSON arrays. Check the installed plotly version against "
+            "requirements.txt, and that convert_numpy_types still decodes them."
         )
 
     match = DATA_LINE.search(html)
