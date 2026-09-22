@@ -176,9 +176,9 @@ def generate_inactivation_report(
                     var examples = point.customdata.Examples;
 
                     if (point.y > point.customdata.heads_size) {
-                        titleDiv.textContent = `Details for ${point.customdata.SemanticTag} - ${point.x} (first ${point.customdata.heads_size} rows of ${point.y})`;
+                        titleDiv.textContent = `Details for ${point.customdata.InactivationReason} - ${point.x} (first ${point.customdata.heads_size} rows of ${point.y})`;
                     } else {
-                        titleDiv.textContent = `Details for ${point.customdata.SemanticTag} - ${point.x} (all ${point.y} rows)`;
+                        titleDiv.textContent = `Details for ${point.customdata.InactivationReason} - ${point.x} (all ${point.y} rows)`;
                     }
 
                     if (examples && examples.length > 0) {
