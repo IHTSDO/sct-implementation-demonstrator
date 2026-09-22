@@ -48,6 +48,7 @@ import { LoincModule } from './shared/loinc.module';
 import { QuestionnairesSharedModule } from './shared/questionnaires-shared.module';
 import { UiSharedModule } from './shared/ui-shared.module';
 import { FhirRateLimitInterceptor } from './interceptors/fhir-rate-limit.interceptor';
+import { ClientIdentityInterceptor } from './interceptors/client-identity.interceptor';
 
 initializeApp(firebaseConfig);
 
@@ -102,6 +103,11 @@ initializeApp(firebaseConfig);
   ],
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ClientIdentityInterceptor,
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: FhirRateLimitInterceptor,
