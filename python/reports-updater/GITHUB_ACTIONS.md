@@ -2,8 +2,9 @@
 
 ## Schedule
 
-The workflow runs **automatically** on:
-- **Day 2 of each month** at 3:00 AM UTC
+The workflow is **manual only** (`workflow_dispatch`). A monthly `schedule`
+trigger is present but commented out in `.github/workflows/generate-reports.yml`
+— uncomment it to run automatically on day 5 of each month at 3:00 AM UTC.
 
 ## Manual Execution
 
@@ -103,8 +104,9 @@ SNOMED_PASSWORD      •••••••••••••••   Updated X s
 3. ✅ Installs dependencies
 4. ✅ Downloads latest SNOMED International release
 5. ✅ Generates 3 HTML reports
-6. ✅ Commits HTML files to `src/assets/reports/`
-7. ✅ Pushes changes to repository
+6. ✅ Validates them (`validate_reports.py`) — fails the run instead of publishing a broken report
+7. ✅ Commits HTML files to `src/assets/reports/`
+8. ✅ Pushes changes to repository
 
 ## Viewing Results
 
@@ -126,6 +128,26 @@ After successful execution:
 3. Files are automatically served by your Angular app
 
 ## Troubleshooting
+
+### Workflow fails at "Validate generated reports"
+
+**Cause**: the generated HTML is not usable in the browser. The most common
+reason is a dependency version drift — plotly >= 6 serializes numeric arrays as
+base64 typed arrays (`{"dtype": ..., "bdata": ...}`), which the plotly.js build
+the reports load cannot read. The chart renders wrong and clicking a segment
+shows no details.
+
+**Solution**:
+1. Read the failure message — it names the file and the problem.
+2. Check the "Show installed versions" step against
+   `python/reports-updater/requirements.txt` (versions are pinned on purpose).
+3. Nothing is committed when validation fails, so the published reports are
+   untouched. Fix the cause and re-run.
+
+You can run the same check locally:
+```bash
+python python/reports-updater/validate_reports.py
+```
 
 ### Workflow fails with "401 Unauthorized"
 

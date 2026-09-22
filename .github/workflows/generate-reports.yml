@@ -3,13 +3,21 @@ name: Generate SNOMED Reports
 on:
   # Manual execution only via GitHub UI:
   # Actions -> Generate SNOMED Reports -> Run workflow
+  #
+  # To run it monthly instead, uncomment the schedule below (day 5, 03:00 UTC,
+  # a few days after the International release lands in MLDS). Note that GitHub
+  # disables scheduled workflows after 60 days without repository activity.
+  # schedule:
+  #   - cron: '0 3 5 * *'
   workflow_dispatch:
 
 jobs:
   build-reports:
     runs-on: ubuntu-latest
     environment: reports-updates  # Uses the GitHub environment with secrets
-    
+    permissions:
+      contents: write  # the job commits the regenerated reports back to main
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -17,12 +25,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install dependencies
         run: |
           pip install -r python/reports-updater/requirements.txt
+
+      - name: Show installed versions
+        run: |
+          pip list | grep -E '^(pandas|numpy|plotly|openpyxl|matplotlib) '
 
       - name: Run SNOMED Report Generator
         working-directory: ./python/reports-updater
@@ -31,6 +43,13 @@ jobs:
           SNOMED_PASSWORD: ${{ secrets.SNOMED_PASSWORD }}
         run: |
           python run-reports.py
+
+      # Guards against publishing a report that renders but whose per-segment
+      # details never load. Runs before the commit so a bad report is never pushed.
+      - name: Validate generated reports
+        working-directory: ./python/reports-updater
+        run: |
+          python validate_reports.py
 
       - name: Check for changes
         id: git-check

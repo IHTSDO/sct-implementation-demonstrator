@@ -1,8 +1,18 @@
-pandas
-tqdm
-halo
-matplotlib
-plotly
-openpyxl
-requests
-python-dotenv
+# Pinned on purpose: CI installs these from scratch on every run, so unpinned
+# versions drift away from the environment the published reports were built in.
+#
+# plotly must stay < 6: from plotly 6 onwards fig.to_dict() serializes numeric
+# arrays as base64 typed arrays ({"dtype": "i2", "bdata": "..."}) instead of
+# JSON arrays. The report template loads plotly.js from cdn.plot.ly (v1.58.5),
+# which cannot read those, and the click-to-details logic does
+# data.data[0].x.map(...) on them. The result is a green build that publishes a
+# report whose per-segment details never load. validate_reports.py guards it.
+pandas==2.2.2
+numpy==2.0.0
+plotly==5.24.1
+openpyxl==3.1.4
+matplotlib==3.10.0
+requests==2.32.5
+python-dotenv==1.0.1
+tqdm==4.66.4
+halo==0.0.31
