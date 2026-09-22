@@ -2,9 +2,14 @@
 
 ## Schedule
 
-The workflow is **manual only** (`workflow_dispatch`). A monthly `schedule`
-trigger is present but commented out in `.github/workflows/generate-reports.yml`
-— uncomment it to run automatically on day 5 of each month at 3:00 AM UTC.
+The workflow runs **automatically** on:
+- **Day 3 of each month** at 3:00 AM UTC
+
+It can also be run manually at any time (see below). When the reports change,
+the run deploys the site itself — see "What the Workflow Does".
+
+Note: GitHub disables scheduled workflows after 60 days without repository
+activity, so check the schedule is still active after a quiet period.
 
 ## Manual Execution
 
@@ -107,6 +112,7 @@ SNOMED_PASSWORD      •••••••••••••••   Updated X s
 6. ✅ Validates them (`validate_reports.py`) — fails the run instead of publishing a broken report
 7. ✅ Commits HTML files to `src/assets/reports/`
 8. ✅ Pushes changes to repository
+9. ✅ Deploys the site to GitHub Pages (a GITHUB_TOKEN push does not trigger the Pages workflow on its own)
 
 ## Viewing Results
 

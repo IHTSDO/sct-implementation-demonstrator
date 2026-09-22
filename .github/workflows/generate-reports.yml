@@ -1,14 +1,13 @@
 name: Generate SNOMED Reports
 
 on:
-  # Manual execution only via GitHub UI:
-  # Actions -> Generate SNOMED Reports -> Run workflow
-  #
-  # To run it monthly instead, uncomment the schedule below (day 5, 03:00 UTC,
-  # a few days after the International release lands in MLDS). Note that GitHub
-  # disables scheduled workflows after 60 days without repository activity.
-  # schedule:
-  #   - cron: '0 3 5 * *'
+  # Day 3 of each month at 03:00 UTC, once the International release is in MLDS.
+  # If there is no new release the run generates the same reports, finds no diff
+  # and commits nothing. GitHub disables scheduled workflows after 60 days
+  # without repository activity.
+  schedule:
+    - cron: '0 3 3 * *'
+  # Also runnable by hand: Actions -> Generate SNOMED Reports -> Run workflow
   workflow_dispatch:
 
 jobs:
