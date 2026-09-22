@@ -4,6 +4,17 @@ name: Build and Deploy to GitHub Pages
 on:
   push:
     branches: [ "main" ]
+  # Allows other workflows to publish the site. Needed by generate-reports.yml:
+  # a push made with the default GITHUB_TOKEN does not trigger workflows, so the
+  # auto-committed reports would otherwise sit on main without being deployed.
+  workflow_call:
+    inputs:
+      ref:
+        description: 'Git ref to build and deploy (defaults to the triggering ref)'
+        type: string
+        required: false
+        default: ''
+  workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -26,6 +37,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.ref }}
 
     - name: Setup Node.js
       uses: actions/setup-node@v6

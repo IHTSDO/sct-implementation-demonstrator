@@ -17,6 +17,8 @@ jobs:
     environment: reports-updates  # Uses the GitHub environment with secrets
     permissions:
       contents: write  # the job commits the regenerated reports back to main
+    outputs:
+      reports-changed: ${{ steps.git-check.outputs.changed }}
 
     steps:
       - name: Checkout repository
@@ -69,3 +71,18 @@ jobs:
         if: steps.git-check.outputs.changed != 'true'
         run: |
           echo "ℹ️ No changes detected in reports. Skipping commit."
+
+  # A push made with the default GITHUB_TOKEN does not trigger other workflows,
+  # so the commit above never starts the Pages deployment on its own. Call it
+  # explicitly, otherwise the new reports stay on main and the published site
+  # keeps serving the previous ones until someone else pushes.
+  deploy-site:
+    needs: build-reports
+    if: needs.build-reports.outputs.reports-changed == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/node.js.yml
+    with:
+      ref: main
