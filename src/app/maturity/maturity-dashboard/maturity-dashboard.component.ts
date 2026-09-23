@@ -603,7 +603,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
           <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
             ${entry.name || entry.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
             <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
-            <span style="font-weight: normal;">Maturity level: ${entry.level ?? ''}</span>
+            <span style="font-weight: normal;">Maturity level: ${this.getScaleLabel(score)}</span>
           </div>
         `;
         
@@ -1451,7 +1451,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
         ${data.name || data.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
         <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
-        <span style="font-weight: normal;">Maturity level: ${data.level ?? ''}</span>
+        <span style="font-weight: normal;">Maturity level: ${this.getScaleLabel(score)}</span>
       </div>
     `;
     
