@@ -152,7 +152,9 @@
     "expoRefresh": "Uppdatera Expo 2025-data",
     "assessmentDates": "Bedömningsdatum",
     "assessmentFrom": "Från",
-    "assessmentTo": "Till"
+    "assessmentTo": "Till",
+    "colInDashboard": "I panelen",
+    "toggleAll": "Markera alla / inga"
   },
   "editor": {
     "title": "Redigerare för mognadsspecifikation",

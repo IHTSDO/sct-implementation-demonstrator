@@ -30,6 +30,10 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   uploadedData: any[] = [];
   kpasNames: Record<string, string> = {};
 
+  // Summary table sorting state.
+  sortColumn: 'type' | 'name' | 'score' | 'location' | null = null;
+  sortDir: 'asc' | 'desc' = 'asc';
+
   private totalFilesCount = 0;
   private filesReadCount = 0;
   opened = false;
@@ -573,8 +577,8 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   
     const bounds = L.latLngBounds([]);
     let markersAdded = 0;
-  
-    this.uploadedData.forEach((entry, index) => {
+
+    this.activeData.forEach((entry, index) => {
       const location = entry.location || entry.responses?.location;
       
       if (location && typeof location.y === 'number' && typeof location.x === 'number') {
@@ -960,8 +964,8 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   private groupMarkersByContinent(): void {
     this.continentGroups.clear();
     this.continentOrder = [];
-    
-    this.uploadedData.forEach((entry, index) => {
+
+    this.activeData.forEach((entry, index) => {
       const location = entry.location || entry.responses?.location;
       if (!location || typeof location.y !== 'number' || typeof location.x !== 'number') {
         return;
@@ -1732,26 +1736,102 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     // Use setTimeout to ensure DOM is ready before initializing map
     setTimeout(() => {
       this.initMap();
-      
-      // Only generate charts in regular mode (not in Expo mode)
-      if (!this.expoMode) {
-        this.generateRadarChart();
-        this.generateOverallBarChart();
-      }
-      
-      // Set this.overallScore to the average of all overall scores
-      const overallScores = this.uploadedData.map(entry => entry.overallScore || 0);
-      const sum = overallScores.reduce((acc, val) => acc + val, 0);
-      this.overallScore = overallScores.length > 0 ? sum / overallScores.length : 0;
-      this.overallScore = Math.round(this.overallScore * 10) / 10;
-      
-      this.updateMapMarkers();
-      
-      // Only set scale label in regular mode
-      if (!this.expoMode) {
-        this.setScaleLabel(this.overallScore);
-      }
+      this.refreshDashboard();
     }, 100); // Small delay to ensure DOM is ready
+  }
+
+  /**
+   * Assessments currently included in the dashboard (checkbox in the summary
+   * table). Entries default to included; only an explicit `false` excludes one.
+   */
+  get activeData(): any[] {
+    return this.uploadedData.filter(entry => entry.included !== false);
+  }
+
+  /**
+   * Recomputes every aggregate view (overall gauge, radar, bar chart and map)
+   * from the currently included assessments. Called on load and whenever the
+   * inclusion checkboxes change.
+   */
+  private refreshDashboard(): void {
+    if (!this.expoMode) {
+      this.generateRadarChart();
+      this.generateOverallBarChart();
+    }
+
+    const scores = this.activeData.map(entry => entry.overallScore || 0);
+    const sum = scores.reduce((acc, val) => acc + val, 0);
+    this.overallScore = scores.length > 0 ? Math.round((sum / scores.length) * 10) / 10 : 0;
+
+    this.updateMapMarkers();
+
+    if (!this.expoMode) {
+      this.setScaleLabel(this.overallScore);
+    }
+  }
+
+  /** Toggles a single assessment's inclusion and refreshes the dashboard. */
+  onIncludeToggle(entry: any, included: boolean): void {
+    entry.included = included;
+    this.refreshDashboard();
+  }
+
+  /** Includes/excludes every assessment at once (header check-all/none). */
+  setAllIncluded(included: boolean): void {
+    this.uploadedData.forEach(entry => (entry.included = included));
+    this.refreshDashboard();
+  }
+
+  get allIncluded(): boolean {
+    return this.uploadedData.length > 0 && this.uploadedData.every(entry => entry.included !== false);
+  }
+
+  get someIncluded(): boolean {
+    const included = this.uploadedData.filter(entry => entry.included !== false).length;
+    return included > 0 && included < this.uploadedData.length;
+  }
+
+  /** Rows for the summary table, sorted by the active column/direction. */
+  get displayedRows(): any[] {
+    const rows = [...this.uploadedData];
+    if (!this.sortColumn) {
+      return rows;
+    }
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    const valueOf = (entry: any): string | number => {
+      switch (this.sortColumn) {
+        case 'type': return (entry.stakeHolderName || '').toString().toLowerCase();
+        case 'name': return (entry.name || '').toString().toLowerCase();
+        case 'score': return entry.overallScore ?? 0;
+        case 'location': return (entry.location?.label || '').toString().toLowerCase();
+        default: return '';
+      }
+    };
+    return rows.sort((a, b) => {
+      const va = valueOf(a);
+      const vb = valueOf(b);
+      if (va < vb) return -dir;
+      if (va > vb) return dir;
+      return 0;
+    });
+  }
+
+  /** Toggles sorting for a column (asc → desc → asc). */
+  sortBy(column: 'type' | 'name' | 'score' | 'location'): void {
+    if (this.sortColumn === column) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDir = 'asc';
+    }
+  }
+
+  /** Material icon name reflecting the sort state of a column. */
+  sortIcon(column: 'type' | 'name' | 'score' | 'location'): string {
+    if (this.sortColumn !== column) {
+      return 'unfold_more';
+    }
+    return this.sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
   private generateRadarChart(): void {
@@ -1759,15 +1839,16 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       this.chart.destroy();
     }
 
-    if (this.uploadedData.length === 0) {
+    const activeData = this.activeData;
+    if (activeData.length === 0) {
       return;
     }
-  
-    const selectedKpas = this.uploadedData[0].selectedKpas || {};
+
+    const selectedKpas = activeData[0].selectedKpas || {};
     const kpaIds = Object.keys(selectedKpas).filter(kpaId => selectedKpas[kpaId]);
     const kpaLabels = kpaIds.map(kpaId => this.kpasNames[kpaId] || kpaId);
-  
-    const datasets = this.uploadedData.map((entry, index) => {
+
+    const datasets = activeData.map((entry, index) => {
       const stakeholderLabel = entry.name || entry.stakeHolderName || 'Unnamed Stakeholder';
   
       const scores = kpaIds.map(kpaId => {
@@ -1789,7 +1870,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   
     // ➕ Compute average for each KPA
     const averageScores = kpaIds.map(kpaId => {
-      const validScores = this.uploadedData
+      const validScores = activeData
         .map(entry => entry.kpasScores?.[kpaId])
         .filter(score => typeof score === 'number');
   
@@ -1899,19 +1980,20 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       this.overallScoreChart.destroy();
     }
   
-    if (this.uploadedData.length === 0) {
+    const activeData = this.activeData;
+    if (activeData.length === 0) {
       return;
     }
-  
-    const labels = this.uploadedData.map(entry =>
+
+    const labels = activeData.map(entry =>
       entry.name || entry.stakeHolderName || 'Unnamed Stakeholder'
     );
-  
-    const scores = this.uploadedData.map(entry =>
+
+    const scores = activeData.map(entry =>
       typeof entry.overallScore === 'number' ? entry.overallScore : 0
     );
-  
-    const colors = this.uploadedData.map(entry => entry.color?.border || 'rgba(0,0,0,0.8)');
+
+    const colors = activeData.map(entry => entry.color?.border || 'rgba(0,0,0,0.8)');
   
     this.overallScoreChart = new Chart(this.overallScoreCanvas.nativeElement, {
       type: 'bar',
@@ -1971,7 +2053,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
    * the overall gauge. Both are null when no assessment carries a timestamp.
    */
   get assessmentDateRange(): { from: Date | null; to: Date | null } {
-    const times = this.uploadedData
+    const times = this.activeData
       .map(entry => (entry.timestamp ? new Date(entry.timestamp).getTime() : null))
       .filter((t): t is number => t !== null);
     if (times.length === 0) {

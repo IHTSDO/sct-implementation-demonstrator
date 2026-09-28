@@ -152,7 +152,9 @@
     "expoRefresh": "Expo 2025-gegevens vernieuwen",
     "assessmentDates": "Beoordelingsdatums",
     "assessmentFrom": "Van",
-    "assessmentTo": "Tot"
+    "assessmentTo": "Tot",
+    "colInDashboard": "In dashboard",
+    "toggleAll": "Alles / niets selecteren"
   },
   "editor": {
     "title": "Editor voor volwassenheidsspecificaties",

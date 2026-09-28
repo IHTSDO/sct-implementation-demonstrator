@@ -152,7 +152,9 @@
     "expoRefresh": "Actualizar Datos de Expo 2025",
     "assessmentDates": "Fechas de evaluación",
     "assessmentFrom": "Desde",
-    "assessmentTo": "Hasta"
+    "assessmentTo": "Hasta",
+    "colInDashboard": "En el panel",
+    "toggleAll": "Marcar / desmarcar todos"
   },
   "editor": {
     "title": "Editor de Especificación de Madurez",

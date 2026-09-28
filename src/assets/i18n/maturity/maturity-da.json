@@ -152,7 +152,9 @@
     "expoRefresh": "Opdater Expo 2025-data",
     "assessmentDates": "Vurderingsdatoer",
     "assessmentFrom": "Fra",
-    "assessmentTo": "Til"
+    "assessmentTo": "Til",
+    "colInDashboard": "På dashboard",
+    "toggleAll": "Vælg alle / ingen"
   },
   "editor": {
     "title": "Modenhedsspecifikationseditor",

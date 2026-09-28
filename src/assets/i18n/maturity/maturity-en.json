@@ -152,7 +152,9 @@
     "expoRefresh": "Refresh Expo 2025 Data",
     "assessmentDates": "Assessment dates",
     "assessmentFrom": "From",
-    "assessmentTo": "To"
+    "assessmentTo": "To",
+    "colInDashboard": "In dashboard",
+    "toggleAll": "Check all / none"
   },
   "editor": {
     "title": "Maturity Specification Editor",

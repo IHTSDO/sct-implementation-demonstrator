@@ -121,26 +121,64 @@
                 <h2>{{ t('dashboard.summaryTitle') }}</h2>
               }
               @if (uploadedData.length != 0) {
-                <table class="bordered-table">
-                  <thead>
-                    <tr>
-                      <th>{{ t('dashboard.colStakeholderType') }}</th>
-                      <th>{{ t('dashboard.colStakeholderName') }}</th>
-                      <th>{{ t('dashboard.colMaturityScore') }}</th>
-                      <th>{{ t('dashboard.colLocation') }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (stakeholder of uploadedData; track stakeholder) {
-                      <tr (click)="openMaturityResultsDialog(stakeholder)" style="cursor: pointer;">
-                        <td>{{ stakeholder.stakeHolderName }}</td>
-                        <td>{{ stakeholder.name }}</td>
-                        <td>{{ stakeholder.overallScore }} - {{ getScaleLabel(stakeholder.overallScore) }}</td>
-                        <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : t('dashboard.noLocation') }}</td>
+                <div class="summary-table-wrapper w-full px-6">
+                  <table class="summary-table">
+                    <thead>
+                      <tr>
+                        <th class="col-include">
+                          <div class="th-include">
+                            <mat-checkbox
+                              color="primary"
+                              [checked]="allIncluded"
+                              [indeterminate]="someIncluded"
+                              (change)="setAllIncluded($event.checked)"
+                              [matTooltip]="t('dashboard.toggleAll')"></mat-checkbox>
+                            <span>{{ t('dashboard.colInDashboard') }}</span>
+                          </div>
+                        </th>
+                        <th class="sortable" (click)="sortBy('type')">
+                          <span>{{ t('dashboard.colStakeholderType') }}</span>
+                          <mat-icon class="sort-icon" [class.active]="sortColumn === 'type'">{{ sortIcon('type') }}</mat-icon>
+                        </th>
+                        <th class="sortable" (click)="sortBy('name')">
+                          <span>{{ t('dashboard.colStakeholderName') }}</span>
+                          <mat-icon class="sort-icon" [class.active]="sortColumn === 'name'">{{ sortIcon('name') }}</mat-icon>
+                        </th>
+                        <th class="sortable" (click)="sortBy('score')">
+                          <span>{{ t('dashboard.colMaturityScore') }}</span>
+                          <mat-icon class="sort-icon" [class.active]="sortColumn === 'score'">{{ sortIcon('score') }}</mat-icon>
+                        </th>
+                        <th class="sortable" (click)="sortBy('location')">
+                          <span>{{ t('dashboard.colLocation') }}</span>
+                          <mat-icon class="sort-icon" [class.active]="sortColumn === 'location'">{{ sortIcon('location') }}</mat-icon>
+                        </th>
                       </tr>
-                    }
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      @for (stakeholder of displayedRows; track stakeholder) {
+                        <tr class="data-row" [class.excluded]="stakeholder.included === false"
+                            (click)="openMaturityResultsDialog(stakeholder)">
+                          <td class="col-include" (click)="$event.stopPropagation()">
+                            <mat-checkbox
+                              color="primary"
+                              [checked]="stakeholder.included !== false"
+                              (change)="onIncludeToggle(stakeholder, $event.checked)"></mat-checkbox>
+                          </td>
+                          <td>{{ stakeholder.stakeHolderName }}</td>
+                          <td>{{ stakeholder.name }}</td>
+                          <td>
+                            <span class="score-cell">
+                              <span class="score-dot" [style.background-color]="getScoreColor(stakeholder.overallScore)"></span>
+                              <span class="score-value">{{ stakeholder.overallScore }}</span>
+                              <span class="score-level">{{ getScaleLabel(stakeholder.overallScore) }}</span>
+                            </span>
+                          </td>
+                          <td>{{ (stakeholder.location?.label) ? stakeholder.location?.label : t('dashboard.noLocation') }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
               }
             </div>
           </div>

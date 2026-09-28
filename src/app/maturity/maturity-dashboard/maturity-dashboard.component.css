@@ -77,6 +77,114 @@
     width: 600px !important;
 }
 
+/* ---- Summary table (robust, sortable, selectable) ---- */
+.summary-table-wrapper {
+    max-height: 460px;
+    overflow: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+}
+
+.summary-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #f7f8fa;
+    color: #374151;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 2px solid #e5e7eb;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.summary-table th.sortable {
+    cursor: pointer;
+}
+
+.summary-table th.sortable:hover {
+    background-color: #eef1f5;
+}
+
+.summary-table th .sort-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-left: 4px;
+    color: #b0b6bf;
+    transition: color 0.15s ease;
+}
+
+.summary-table th .sort-icon.active {
+    color: #1976d2;
+}
+
+.summary-table th.col-include,
+.summary-table td.col-include {
+    width: 1%;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.th-include {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.summary-table tbody td {
+    padding: 8px 14px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.summary-table tbody tr.data-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.summary-table tbody tr.data-row:nth-child(even) {
+    background-color: #fbfcfd;
+}
+
+.summary-table tbody tr.data-row:hover {
+    background-color: #e3f2fd;
+}
+
+.summary-table tbody tr.excluded {
+    opacity: 0.45;
+}
+
+.score-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.score-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.score-value {
+    font-weight: 600;
+}
+
+.score-level {
+    color: #6b7280;
+}
+
 .dashboard-card {
     background-color: #fff;
     border: 1px solid #ccc;
