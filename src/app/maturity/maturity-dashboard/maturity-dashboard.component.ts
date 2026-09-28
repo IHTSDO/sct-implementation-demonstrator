@@ -58,14 +58,6 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   // Real-time listener properties
   private firebaseUnsubscribe: Unsubscribe | null = null;
   private markerDataMap: Map<string, { marker: L.Marker, data: any }> = new Map();
-  markers: any = { 
-    "1": { color: "#555", type: "triangle", size: 8, label: "Basic", font: "12px arial" },
-    "2": { color: "#555", type: "triangle", size: 8, label: "Emerging", font: "12px arial" },
-    "3": { color: "#555", type: "triangle", size: 8, label: "Advanced", font: "12px arial" },
-    "4": { color: "#555", type: "triangle", size: 8, label: "Integrated", font: "12px arial" },
-    "5": { color: "#555", type: "triangle", size: 8, label: "Optimizing", font: "12px arial" }  
-  };
-
   private chart!: Chart;
   private overallScoreChart!: Chart;
   private map!: L.Map;
@@ -1972,6 +1964,20 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
 
   setScaleLabel(value: number): void {
     this.level = this.getScaleLabel(value);
+  }
+
+  /**
+   * Earliest/latest assessment submission dates, for the date-range panel under
+   * the overall gauge. Both are null when no assessment carries a timestamp.
+   */
+  get assessmentDateRange(): { from: Date | null; to: Date | null } {
+    const times = this.uploadedData
+      .map(entry => (entry.timestamp ? new Date(entry.timestamp).getTime() : null))
+      .filter((t): t is number => t !== null);
+    if (times.length === 0) {
+      return { from: null, to: null };
+    }
+    return { from: new Date(Math.min(...times)), to: new Date(Math.max(...times)) };
   }
 
   openMaturityResultsDialog(stakeholder: any): void {

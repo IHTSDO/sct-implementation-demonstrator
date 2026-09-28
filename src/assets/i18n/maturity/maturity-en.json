@@ -149,7 +149,10 @@
     "allStakeholders": "All stakeholders",
     "none": "None",
     "reset": "Reset dashboard",
-    "expoRefresh": "Refresh Expo 2025 Data"
+    "expoRefresh": "Refresh Expo 2025 Data",
+    "assessmentDates": "Assessment dates",
+    "assessmentFrom": "From",
+    "assessmentTo": "To"
   },
   "editor": {
     "title": "Maturity Specification Editor",

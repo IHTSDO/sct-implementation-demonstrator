@@ -149,7 +149,10 @@
     "allStakeholders": "Todas las partes interesadas",
     "none": "Ninguno",
     "reset": "Restablecer panel",
-    "expoRefresh": "Actualizar Datos de Expo 2025"
+    "expoRefresh": "Actualizar Datos de Expo 2025",
+    "assessmentDates": "Fechas de evaluación",
+    "assessmentFrom": "Desde",
+    "assessmentTo": "Hasta"
   },
   "editor": {
     "title": "Editor de Especificación de Madurez",

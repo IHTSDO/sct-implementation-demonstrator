@@ -149,7 +149,10 @@
     "allStakeholders": "Alla intressenter",
     "none": "Ingen",
     "reset": "Återställ dashboard",
-    "expoRefresh": "Uppdatera Expo 2025-data"
+    "expoRefresh": "Uppdatera Expo 2025-data",
+    "assessmentDates": "Bedömningsdatum",
+    "assessmentFrom": "Från",
+    "assessmentTo": "Till"
   },
   "editor": {
     "title": "Redigerare för mognadsspecifikation",

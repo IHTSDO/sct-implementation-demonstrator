@@ -149,7 +149,10 @@
     "allStakeholders": "Alle belanghebbenden",
     "none": "Geen",
     "reset": "Dashboard resetten",
-    "expoRefresh": "Expo 2025-gegevens vernieuwen"
+    "expoRefresh": "Expo 2025-gegevens vernieuwen",
+    "assessmentDates": "Beoordelingsdatums",
+    "assessmentFrom": "Van",
+    "assessmentTo": "Tot"
   },
   "editor": {
     "title": "Editor voor volwassenheidsspecificaties",

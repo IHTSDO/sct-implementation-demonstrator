@@ -1,0 +1,40 @@
+<div class="gauge-wrap">
+  <svg class="gauge-svg" viewBox="-45 -18 310 195" preserveAspectRatio="xMidYMid meet" role="img">
+    <!-- Coloured level segments (always fully visible) -->
+    @for (seg of segments; track $index) {
+      <path
+        [attr.d]="seg.path"
+        [attr.stroke]="seg.color"
+        [attr.stroke-width]="thickness"
+        fill="none"
+        stroke-linecap="butt"></path>
+    }
+
+    <!-- Divider ticks at every segment limit -->
+    @for (b of boundaries; track $index) {
+      <line
+        [attr.x1]="b.x1" [attr.y1]="b.y1"
+        [attr.x2]="b.x2" [attr.y2]="b.y2"
+        stroke="#555" stroke-width="1"></line>
+    }
+
+    <!-- Level labels centred on each segment -->
+    @for (seg of segments; track $index) {
+      <text
+        [attr.x]="seg.labelX"
+        [attr.y]="seg.labelY"
+        [attr.text-anchor]="seg.labelAnchor"
+        class="gauge-label">{{ seg.label }}</text>
+    }
+
+    <!-- Needle (rotated to the value; CSS animates the rotation) + hub -->
+    <g class="gauge-needle" [style.transform]="'rotate(' + needleAngle + 'deg)'">
+      <polygon [attr.points]="needleShape" fill="#333"></polygon>
+    </g>
+    <circle [attr.cx]="cx" [attr.cy]="cy" r="7" fill="#333"></circle>
+
+    <!-- Score readout -->
+    <text [attr.x]="cx" [attr.y]="cy + 42" text-anchor="middle" class="gauge-score" [attr.fill]="scoreColor">{{ score | number:'1.1-1' }}</text>
+    <text [attr.x]="cx" [attr.y]="cy + 54" text-anchor="middle" class="gauge-level">{{ levelLabel }}</text>
+  </svg>
+</div>

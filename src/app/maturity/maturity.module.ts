@@ -3,6 +3,7 @@ import { TRANSLOCO_SCOPE, TranslocoModule } from '@jsverse/transloco';
 import { MaturityAdminComponent } from './maturity-admin/maturity-admin.component';
 import { MaturityDashboardComponent } from './maturity-dashboard/maturity-dashboard.component';
 import { MaturityEditorComponent } from './maturity-editor/maturity-editor.component';
+import { MaturityGaugeComponent } from './maturity-gauge/maturity-gauge.component';
 import { MaturityMainComponent } from './maturity-main/maturity-main.component';
 import { MaturityResultsDialogComponent } from './maturity-results-dialog';
 import { MaturityResultsComponent } from './maturity-results/maturity-results.component';
@@ -14,6 +15,7 @@ import { UiSharedModule } from '../shared/ui-shared.module';
     MaturityAdminComponent,
     MaturityDashboardComponent,
     MaturityEditorComponent,
+    MaturityGaugeComponent,
     MaturityMainComponent,
     MaturityResultsDialogComponent,
     MaturityResultsComponent,

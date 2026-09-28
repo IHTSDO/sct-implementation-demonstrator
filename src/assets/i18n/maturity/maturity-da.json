@@ -149,7 +149,10 @@
     "allStakeholders": "Alle interessenter",
     "none": "Ingen",
     "reset": "Nulstil dashboard",
-    "expoRefresh": "Opdater Expo 2025-data"
+    "expoRefresh": "Opdater Expo 2025-data",
+    "assessmentDates": "Vurderingsdatoer",
+    "assessmentFrom": "Fra",
+    "assessmentTo": "Til"
   },
   "editor": {
     "title": "Modenhedsspecifikationseditor",

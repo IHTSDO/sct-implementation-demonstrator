@@ -1,0 +1,43 @@
+.gauge-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.gauge-svg {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+}
+
+.gauge-needle {
+  /* Rotate around the dial hub (SVG user units) and animate the sweep. */
+  transform-box: view-box;
+  transform-origin: 110px 110px;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gauge-needle {
+    transition: none;
+  }
+}
+
+.gauge-label {
+  font-size: 9px;
+  font-weight: 600;
+  fill: #555;
+}
+
+.gauge-score {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.gauge-level {
+  font-size: 9px;
+  font-weight: 600;
+  fill: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
