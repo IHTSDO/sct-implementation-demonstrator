@@ -154,7 +154,10 @@
     "assessmentFrom": "Desde",
     "assessmentTo": "Hasta",
     "colInDashboard": "En el panel",
-    "toggleAll": "Marcar / desmarcar todos"
+    "toggleAll": "Marcar / desmarcar todos",
+    "colorBy": "Colorear por",
+    "colorBySeries": "Serie",
+    "colorByScore": "Puntaje"
   },
   "editor": {
     "title": "Editor de Especificación de Madurez",

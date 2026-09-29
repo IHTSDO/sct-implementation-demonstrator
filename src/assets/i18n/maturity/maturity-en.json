@@ -154,7 +154,10 @@
     "assessmentFrom": "From",
     "assessmentTo": "To",
     "colInDashboard": "In dashboard",
-    "toggleAll": "Check all / none"
+    "toggleAll": "Check all / none",
+    "colorBy": "Colour by",
+    "colorBySeries": "Series",
+    "colorByScore": "Score"
   },
   "editor": {
     "title": "Maturity Specification Editor",

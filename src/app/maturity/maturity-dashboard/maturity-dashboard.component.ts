@@ -34,6 +34,10 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   sortColumn: 'type' | 'name' | 'score' | 'location' | null = null;
   sortDir: 'asc' | 'desc' = 'asc';
 
+  // How the map marker callouts are coloured: by the stakeholder's series colour
+  // (the key shared with the charts) or by a discrete level colour like the gauge.
+  calloutColorMode: 'series' | 'score' = 'score';
+
   private totalFilesCount = 0;
   private filesReadCount = 0;
   opened = false;
@@ -590,13 +594,12 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
         const shortLocation = this.getShortLocationName(location);
         const locationText = shortLocation ? ` - ${shortLocation}` : '';
         
-        // Use stakeholder colors in expo mode for better contrast with white text
-        const calloutColor = this.expoMode ? 
-          this.getColorForStakeholder(entry.selectedStakeholder || entry.responses?.selectedStakeholder).border : 
-          entry.color.border;
-          
+        // Callout colour depends on the selected mode (series key vs. level score).
+        const calloutColor = this.getCalloutColor(entry, score);
+        const textColor = this.getContrastText(calloutColor);
+
         const label = `
-          <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
+          <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: ${textColor}; font-weight: bold; font-size: 13px;">
             ${entry.name || entry.stakeHolderName || 'Unnamed'}: ${score.toFixed(2)}<br/>
             <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
             <span style="font-weight: normal;">Maturity level: ${this.getScaleLabel(score)}</span>
@@ -1438,13 +1441,12 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     const shortLocation = this.getShortLocationName(location);
     const locationText = shortLocation ? ` - ${shortLocation}` : '';
     
-    // Use stakeholder colors in expo mode for better contrast with white text
-    const calloutColor = this.expoMode ? 
-      this.getColorForStakeholder(data.selectedStakeholder || data.responses?.selectedStakeholder).border : 
-      data.color.border;
-      
+    // Callout colour depends on the selected mode (series key vs. level score).
+    const calloutColor = this.getCalloutColor(data, score);
+    const textColor = this.getContrastText(calloutColor);
+
     const label = `
-      <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
+      <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: ${textColor}; font-weight: bold; font-size: 13px;">
         ${data.name || data.stakeHolderName || 'Unnamed'}: ${score.toFixed(2)}<br/>
         <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
         <span style="font-weight: normal;">Maturity level: ${this.getScaleLabel(score)}</span>
@@ -1768,6 +1770,44 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     if (!this.expoMode) {
       this.setScaleLabel(this.overallScore);
     }
+  }
+
+  /** Switches how the map callouts are coloured and redraws the markers. */
+  setCalloutColorMode(mode: 'series' | 'score'): void {
+    this.calloutColorMode = mode;
+    this.updateMapMarkers();
+  }
+
+  /**
+   * Callout background colour for an assessment, honouring the current mode:
+   * 'series' → the stakeholder's chart colour; 'score' → discrete level colour.
+   * In expo mode the series colour is derived from the stakeholder type.
+   */
+  private getCalloutColor(entry: any, score: number): string {
+    if (this.calloutColorMode === 'score') {
+      return this.scoringService.getLevelColor(score);
+    }
+    return this.expoMode
+      ? this.getColorForStakeholder(entry.selectedStakeholder || entry.responses?.selectedStakeholder).border
+      : entry.color.border;
+  }
+
+  /** Picks black or white text for legibility on a given background colour. */
+  private getContrastText(color: string): string {
+    let r = 0, g = 0, b = 0;
+    const rgb = color.match(/rgba?\(([^)]+)\)/);
+    if (rgb) {
+      const parts = rgb[1].split(',').map(s => parseFloat(s.trim()));
+      [r, g, b] = parts;
+    } else {
+      const hex = color.replace('#', '');
+      const full = hex.length === 3 ? hex.split('').map(c => c + c).join('') : hex;
+      r = parseInt(full.slice(0, 2), 16);
+      g = parseInt(full.slice(2, 4), 16);
+      b = parseInt(full.slice(4, 6), 16);
+    }
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6 ? '#1f2937' : '#ffffff';
   }
 
   /** Toggles a single assessment's inclusion and refreshes the dashboard. */

@@ -77,6 +77,66 @@
     width: 600px !important;
 }
 
+/* ---- Map callout colour toggle (floating over Leaflet) ---- */
+.map-color-toggle {
+    position: absolute;
+    bottom: 26px; /* sit just above the Leaflet attribution */
+    right: 10px;
+    z-index: 1000; /* above Leaflet panes/controls */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(2px);
+}
+
+.map-color-toggle__label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+}
+
+/* Plain-HTML segmented control (compact, no Material touch-target padding) */
+.map-color-toggle .seg {
+    display: inline-flex;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.map-color-toggle .seg__btn {
+    appearance: none;
+    border: none;
+    background: transparent;
+    margin: 0;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #4b5563;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.map-color-toggle .seg__btn + .seg__btn {
+    border-left: 1px solid #d1d5db;
+}
+
+.map-color-toggle .seg__btn:hover:not(.active) {
+    background: #f3f4f6;
+}
+
+.map-color-toggle .seg__btn.active {
+    background: #1976d2;
+    color: #fff;
+}
+
 /* ---- Summary table (robust, sortable, selectable) ---- */
 .summary-table-wrapper {
     max-height: 460px;

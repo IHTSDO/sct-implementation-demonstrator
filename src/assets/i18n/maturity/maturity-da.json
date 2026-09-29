@@ -154,7 +154,10 @@
     "assessmentFrom": "Fra",
     "assessmentTo": "Til",
     "colInDashboard": "På dashboard",
-    "toggleAll": "Vælg alle / ingen"
+    "toggleAll": "Vælg alle / ingen",
+    "colorBy": "Farve efter",
+    "colorBySeries": "Serie",
+    "colorByScore": "Score"
   },
   "editor": {
     "title": "Modenhedsspecifikationseditor",

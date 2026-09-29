@@ -154,7 +154,10 @@
     "assessmentFrom": "Från",
     "assessmentTo": "Till",
     "colInDashboard": "I panelen",
-    "toggleAll": "Markera alla / inga"
+    "toggleAll": "Markera alla / inga",
+    "colorBy": "Färga efter",
+    "colorBySeries": "Serie",
+    "colorByScore": "Poäng"
   },
   "editor": {
     "title": "Redigerare för mognadsspecifikation",

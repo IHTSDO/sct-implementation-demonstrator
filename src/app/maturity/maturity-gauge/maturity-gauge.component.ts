@@ -46,8 +46,8 @@ export class MaturityGaugeComponent implements OnInit, AfterViewInit, OnChanges,
   private readonly rCenter = this.rOuter - this.thickness / 2; // band centre-line
   private readonly rInner = this.rOuter - this.thickness;
 
-  // Vivid band colours, one per level (Basic → Optimizing).
-  private readonly bandColors = ['#e0400f', '#f38a00', '#f2c500', '#8bbd28', '#3f9142'];
+  // Vivid band colours, one per level (Basic → Optimizing) from the shared service.
+  private readonly bandColors = this.scoring.levelColors;
 
   // Precomputed view state.
   segments: GaugeSegment[] = [];
@@ -140,7 +140,7 @@ export class MaturityGaugeComponent implements OnInit, AfterViewInit, OnChanges,
     }
 
     const level = this.scoring.getLevel(this.score);
-    this.scoreColor = level.value === 0 ? '#808080' : (this.bandColors[level.value - 1] ?? '#333333');
+    this.scoreColor = this.scoring.getLevelColor(this.score);
     this.levelLabel = this.label(level.key, level.label);
   }
 

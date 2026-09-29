@@ -28,6 +28,12 @@ export class MaturityScoringService {
     { value: 5, label: 'Optimizing' }
   ];
 
+  /** Discrete colour per level (Basic → Optimizing); index = level value - 1. */
+  readonly levelColors = ['#e0400f', '#f38a00', '#f2c500', '#8bbd28', '#3f9142'];
+
+  /** Grey used for the "None" level (score 0). */
+  readonly noneColor = '#808080';
+
   /**
    * Maps a 0–5 maturity score to its level using threshold ranges.
    * A score of exactly 0 is `None`; otherwise the score is bucketed by its
@@ -50,5 +56,11 @@ export class MaturityScoringService {
   /** i18n key suffix (under `maturity.results`) for a 0–5 score. */
   getLevelKey(score: number): string {
     return this.getLevel(score).key;
+  }
+
+  /** Discrete level colour for a 0–5 score (grey for the None level). */
+  getLevelColor(score: number): string {
+    const value = this.getLevel(score).value;
+    return value === 0 ? this.noneColor : (this.levelColors[value - 1] ?? this.noneColor);
   }
 }

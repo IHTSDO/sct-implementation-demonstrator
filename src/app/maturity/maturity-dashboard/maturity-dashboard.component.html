@@ -76,8 +76,19 @@
             </div>
           </div>
           <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-4">
-            <div class="w-8/12 dashboard-card">
+            <div class="w-8/12 dashboard-card relative">
               <div id="map" style="height: 500px;"></div>
+              <div class="map-color-toggle">
+                <span class="map-color-toggle__label">{{ t('dashboard.colorBy') }}</span>
+                <div class="seg" role="group">
+                  <button type="button" class="seg__btn"
+                    [class.active]="calloutColorMode === 'series'"
+                    (click)="setCalloutColorMode('series')">{{ t('dashboard.colorBySeries') }}</button>
+                  <button type="button" class="seg__btn"
+                    [class.active]="calloutColorMode === 'score'"
+                    (click)="setCalloutColorMode('score')">{{ t('dashboard.colorByScore') }}</button>
+                </div>
+              </div>
             </div>
             <div class="w-4/12 flex flex-col dashboard-card overflow-hidden">
               <!-- Top 2/3: overall gauge -->
