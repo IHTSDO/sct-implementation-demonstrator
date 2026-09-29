@@ -87,9 +87,16 @@
 
 .summary-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: separate;
     border-spacing: 0;
     font-size: 0.9rem;
+}
+
+/* Let cell content wrap so the table always fits its container (no h-scroll). */
+.summary-table th,
+.summary-table td {
+    overflow-wrap: anywhere;
 }
 
 .summary-table thead th {
@@ -102,7 +109,7 @@
     text-align: left;
     padding: 10px 14px;
     border-bottom: 2px solid #e5e7eb;
-    white-space: nowrap;
+    white-space: normal;
     user-select: none;
 }
 
@@ -130,15 +137,17 @@
 
 .summary-table th.col-include,
 .summary-table td.col-include {
-    width: 1%;
-    white-space: nowrap;
+    width: 82px;
     text-align: center;
+    overflow-wrap: normal; /* keep "dashboard" from breaking mid-word */
 }
 
 .th-include {
     display: flex;
     align-items: center;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    line-height: 1.15;
 }
 
 .summary-table tbody td {
@@ -166,7 +175,8 @@
 .score-cell {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 4px 8px;
 }
 
 .score-dot {

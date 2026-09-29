@@ -597,7 +597,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
           
         const label = `
           <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
-            ${entry.name || entry.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
+            ${entry.name || entry.stakeHolderName || 'Unnamed'}: ${score.toFixed(2)}<br/>
             <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
             <span style="font-weight: normal;">Maturity level: ${this.getScaleLabel(score)}</span>
           </div>
@@ -1445,7 +1445,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       
     const label = `
       <div style="background-color:${calloutColor}; padding: 4px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 13px;">
-        ${data.name || data.stakeHolderName || 'Unnamed'}: ${score.toFixed(1)}<br/>
+        ${data.name || data.stakeHolderName || 'Unnamed'}: ${score.toFixed(2)}<br/>
         <span style="font-weight: normal; font-size: 11px; opacity: 0.9;">${stakeholderType}${locationText}</span><br/>
         <span style="font-weight: normal;">Maturity level: ${this.getScaleLabel(score)}</span>
       </div>
@@ -1761,7 +1761,7 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
 
     const scores = this.activeData.map(entry => entry.overallScore || 0);
     const sum = scores.reduce((acc, val) => acc + val, 0);
-    this.overallScore = scores.length > 0 ? Math.round((sum / scores.length) * 10) / 10 : 0;
+    this.overallScore = scores.length > 0 ? Math.round((sum / scores.length) * 100) / 100 : 0;
 
     this.updateMapMarkers();
 

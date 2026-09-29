@@ -14,7 +14,7 @@
           <h2 class="italic">{{ t('dashboard.expoSubtitle') }}</h2>
         }
         @if (uploadedData.length === 0 && !expoMode) {
-          <div class="flex flex-row gap-4">
+          <div class="flex flex-row flex-wrap justify-center gap-4">
             <input #fileInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none"/>
             <input #folderInput type="file" multiple accept=".json" (change)="onFilesSelected($event)" style="display: none" webkitdirectory/>
             <button mat-raised-button color="primary" (click)="fileInput.click()">
@@ -30,7 +30,7 @@
         }
 
         @if (expoMode && !loadingFirebaseData) {
-          <div class="flex flex-row gap-4">
+          <div class="flex flex-row flex-wrap justify-center gap-4">
             <button mat-raised-button color="primary" (click)="loadFirebaseData()">
               {{ t('dashboard.loadFirebase') }}
             </button>
@@ -61,17 +61,17 @@
       <!-- Regular Mode: Full dashboard -->
       @if (!expoMode && uploadedData.length > 0) {
         <div>
-          <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-8">
-            <div class="chart-container flex-1 dashboard-card text-2xl p-4 font-bold">
+          <div class="flex flex-row flex-wrap gap-4 w-full pl-8 pr-8 mt-8">
+            <div class="chart-container flex-1 min-w-[160px] dashboard-card text-base lg:text-xl xl:text-2xl p-4 font-bold">
               {{ uploadedData.length }} {{ t('dashboard.assessmentsLoaded') }}
             </div>
-            <div class="chart-container flex-1 dashboard-card text-2xl p-4 font-bold">
+            <div class="chart-container flex-1 min-w-[160px] dashboard-card text-base lg:text-xl xl:text-2xl p-4 font-bold">
               {{ t('dashboard.stakeholders') }} {{ uploadedData[0].stakeHolderName }}
             </div>
-            <div class="chart-container flex-1 dashboard-card text-2xl p-4 font-bold">
-              {{ t('dashboard.averageScore') }} {{ overallScore }}
+            <div class="chart-container flex-1 min-w-[160px] dashboard-card text-base lg:text-xl xl:text-2xl p-4 font-bold">
+              {{ t('dashboard.averageScore') }} {{ overallScore | number:'1.2-2' }}
             </div>
-            <div class="chart-container flex-1 dashboard-card text-2xl p-4 font-bold">
+            <div class="chart-container flex-1 min-w-[160px] dashboard-card text-base lg:text-xl xl:text-2xl p-4 font-bold">
               {{ t('dashboard.averageLevel') }} {{ level }}
             </div>
           </div>
@@ -116,12 +116,12 @@
             </div>
           </div>
           <div class="flex flex-row gap-4 w-full pl-8 pr-8 mt-4 items-center justify-center">
-            <div class="dashboard-card flex flex-col items-center justify-center w-2/3 pt-8 pb-8">
+            <div class="dashboard-card flex flex-col items-center justify-center w-full max-w-6xl mx-auto pt-8 pb-8">
               @if (uploadedData.length != 0) {
                 <h2>{{ t('dashboard.summaryTitle') }}</h2>
               }
               @if (uploadedData.length != 0) {
-                <div class="summary-table-wrapper w-full px-6">
+                <div class="summary-table-wrapper w-full px-2">
                   <table class="summary-table">
                     <thead>
                       <tr>
