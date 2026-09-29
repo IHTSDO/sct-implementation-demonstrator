@@ -15,6 +15,9 @@ import { TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
 import { distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { MaturityScoringService } from '../maturity-scoring.service';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-maturity-dashboard',
@@ -37,6 +40,9 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
   // How the map marker callouts are coloured: by the stakeholder's series colour
   // (the key shared with the charts) or by a discrete level colour like the gauge.
   calloutColorMode: 'series' | 'score' = 'score';
+
+  // True while a PDF export is being generated (disables the button).
+  generatingPdf = false;
 
   private totalFilesCount = 0;
   private filesReadCount = 0;
@@ -474,7 +480,8 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     }
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '&copy; OpenStreetMap contributors',
+      crossOrigin: true // allow rasterising the map into the PDF export
     }).addTo(this.map);
     
     // For Expo mode, add overlay and trigger a resize after a short delay to ensure proper rendering
@@ -1810,6 +1817,168 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
     return luminance > 0.6 ? '#1f2937' : '#ffffff';
   }
 
+  /**
+   * Exports the whole dashboard to a multi-page A4 PDF: a text header/summary,
+   * a full-width map snapshot, the overall gauge, the bar and radar charts, and
+   * the summary table (as selectable text via autoTable).
+   */
+  async downloadPdf(): Promise<void> {
+    if (this.generatingPdf || this.uploadedData.length === 0) {
+      return;
+    }
+    this.generatingPdf = true;
+    this.cdr.markForCheck();
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 14;
+      const contentW = pageW - margin * 2;
+      let y = margin;
+
+      const addPageIfNeeded = (h: number) => {
+        if (y + h > pageH - margin) {
+          pdf.addPage();
+          y = margin;
+        }
+      };
+
+      // ---- Header + summary ----
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(16);
+      pdf.setTextColor(30);
+      pdf.text('SNOMED Implementation Maturity Dashboard', margin, y);
+      y += 7;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      pdf.setTextColor(120);
+      pdf.text(`Generated ${new Date().toLocaleString()}`, margin, y);
+      y += 6;
+
+      const range = this.assessmentDateRange;
+      const fmtDate = (d: Date | null) => (d ? d.toLocaleDateString() : '—');
+      pdf.setFontSize(10);
+      pdf.setTextColor(40);
+      const level = this.getScaleLabel(this.overallScore);
+      const summary =
+        `Assessments included: ${this.activeData.length} of ${this.uploadedData.length}     ` +
+        `Average score: ${this.overallScore.toFixed(2)} - ${level}     ` +
+        `Dates: ${fmtDate(range.from)} to ${fmtDate(range.to)}`;
+      pdf.text(summary, margin, y);
+      y += 8;
+
+      // ---- Map (full width) ----
+      const mapEl = document.getElementById('map');
+      if (mapEl) {
+        const toggleEl = mapEl.parentElement?.querySelector('.map-color-toggle') as HTMLElement | null;
+        const controlsEl = mapEl.querySelector('.leaflet-control-container') as HTMLElement | null;
+        const prevToggle = toggleEl?.style.display;
+        const prevControls = controlsEl?.style.display;
+        if (toggleEl) toggleEl.style.display = 'none';
+        if (controlsEl) controlsEl.style.display = 'none';
+        try {
+          const canvas = await html2canvas(mapEl, { useCORS: true, scale: 2, logging: false });
+          const imgH = contentW * (canvas.height / canvas.width);
+          addPageIfNeeded(imgH + 4);
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin, y, contentW, imgH);
+          y += imgH + 6;
+        } catch (error) {
+          console.error('Map capture failed', error);
+        } finally {
+          if (toggleEl) toggleEl.style.display = prevToggle ?? '';
+          if (controlsEl) controlsEl.style.display = prevControls ?? '';
+        }
+      }
+
+      // ---- Overall gauge + its title (centred, ~half width) ----
+      const gaugeEl = document.querySelector('.gauge-section') as HTMLElement | null;
+      if (gaugeEl) {
+        const canvas = await html2canvas(gaugeEl, { useCORS: true, scale: 2, backgroundColor: '#ffffff', logging: false });
+        const w = contentW * 0.55;
+        const h = w * (canvas.height / canvas.width);
+        addPageIfNeeded(h + 4);
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin + (contentW - w) / 2, y, w, h);
+        y += h + 6;
+      }
+
+      // ---- Bar + radar charts (crisp, via chart.js) ----
+      const addChartImage = (chart: Chart | undefined, enlarge = false) => {
+        if (!chart) return;
+        let dataUrl: string;
+        let ratio: number;
+        if (enlarge) {
+          // The radar's plot is tiny on screen (legend + long axis labels
+          // dominate). Render it large and SQUARE for the export so the plot
+          // stays circular (undeformed); labels wrap (see wrapLabel) to fit.
+          const w = 1100;
+          const h = 1100;
+          chart.resize(w, h);
+          chart.update('none');
+          dataUrl = chart.toBase64Image('image/png', 1);
+          ratio = h / w;
+          chart.resize();
+          chart.update('none');
+        } else {
+          const c = chart.canvas;
+          ratio = c.height / c.width;
+          dataUrl = chart.toBase64Image('image/png', 1);
+        }
+        const imgH = contentW * ratio;
+        addPageIfNeeded(imgH + 4);
+        pdf.addImage(dataUrl, 'PNG', margin, y, contentW, imgH);
+        y += imgH + 6;
+      };
+      addChartImage(this.overallScoreChart);
+      addChartImage(this.chart, true);
+
+      // ---- Summary table (selectable text) ----
+      addPageIfNeeded(24);
+      autoTable(pdf, {
+        startY: y,
+        margin: { left: margin, right: margin },
+        head: [[
+          this.t('dashboard.colInDashboard'),
+          this.t('dashboard.colStakeholderType'),
+          this.t('dashboard.colStakeholderName'),
+          this.t('dashboard.colMaturityScore'),
+          this.t('dashboard.colLocation')
+        ]],
+        body: this.displayedRows.map(row => [
+          row.included === false ? this.t('dashboard.none') : 'Yes',
+          row.stakeHolderName || '',
+          row.name || '',
+          `${(row.overallScore ?? 0).toFixed(2)} - ${this.getScaleLabel(row.overallScore ?? 0)}`,
+          row.location?.label || this.t('dashboard.noLocation')
+        ]),
+        styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+        headStyles: { fillColor: [247, 248, 250], textColor: [55, 65, 81] },
+        theme: 'grid'
+      });
+
+      // ---- Footer (all pages) ----
+      const pageCount = pdf.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(8);
+        pdf.setTextColor(120);
+        pdf.text('Generated using the SNOMED International Maturity Assessment Tool', margin, pageH - 8);
+        pdf.text(`${i} / ${pageCount}`, pageW - margin, pageH - 8, { align: 'right' });
+      }
+
+      pdf.save('maturity-dashboard-report.pdf');
+    } catch (error) {
+      console.error('Could not generate the dashboard PDF', error);
+      this._snackBar.openFromComponent(SnackAlertComponent, {
+        duration: 5 * 1000,
+        data: 'Could not generate the PDF',
+        panelClass: ['red-snackbar']
+      });
+    } finally {
+      this.generatingPdf = false;
+      this.cdr.markForCheck();
+    }
+  }
+
   /** Toggles a single assessment's inclusion and refreshes the dashboard. */
   onIncludeToggle(entry: any, included: boolean): void {
     entry.included = included;
@@ -1872,6 +2041,23 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
       return 'unfold_more';
     }
     return this.sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  }
+
+  /** Wraps a radar axis label into multiple lines at word boundaries. */
+  private wrapLabel(label: string, maxChars: number): string | string[] {
+    const words = label.split(' ');
+    const lines: string[] = [];
+    let current = '';
+    for (const word of words) {
+      if (current && (current + ' ' + word).length > maxChars) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = current ? current + ' ' + word : word;
+      }
+    }
+    if (current) lines.push(current);
+    return lines.length > 1 ? lines : (lines[0] ?? '');
   }
 
   private generateRadarChart(): void {
@@ -1966,7 +2152,8 @@ export class MaturityDashboardComponent implements OnInit, AfterViewInit, OnDest
         scales: {
           r: {
             pointLabels: {
-              padding: 5
+              padding: 5,
+              callback: (label: string) => this.wrapLabel(String(label), 16)
             },
             suggestedMin: 0,
             suggestedMax: 5,

@@ -157,7 +157,8 @@
     "toggleAll": "Marcar / desmarcar todos",
     "colorBy": "Colorear por",
     "colorBySeries": "Serie",
-    "colorByScore": "Puntaje"
+    "colorByScore": "Puntaje",
+    "downloadPdf": "Descargar PDF"
   },
   "editor": {
     "title": "Editor de Especificación de Madurez",

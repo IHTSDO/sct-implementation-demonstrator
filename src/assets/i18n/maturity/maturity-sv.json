@@ -157,7 +157,8 @@
     "toggleAll": "Markera alla / inga",
     "colorBy": "Färga efter",
     "colorBySeries": "Serie",
-    "colorByScore": "Poäng"
+    "colorByScore": "Poäng",
+    "downloadPdf": "Ladda ner PDF"
   },
   "editor": {
     "title": "Redigerare för mognadsspecifikation",

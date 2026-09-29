@@ -92,7 +92,7 @@
             </div>
             <div class="w-4/12 flex flex-col dashboard-card overflow-hidden">
               <!-- Top 2/3: overall gauge -->
-              <div class="flex flex-col items-center justify-center" style="flex: 2 1 0; min-height: 0;">
+              <div class="gauge-section flex flex-col items-center justify-center" style="flex: 2 1 0; min-height: 0;">
                 <app-maturity-gauge [score]="overallScore"></app-maturity-gauge>
                 <h2>
                   {{ t('dashboard.overallMaturityScore') }}
@@ -195,7 +195,7 @@
           </div>
         </div>
       }
-      <div class="flex flex-row gap-4 w-full p-8 mt-4 items-center justify-center">
+      <div class="flex flex-row flex-wrap gap-4 w-full p-8 mt-4 items-center justify-center">
         @if (uploadedData.length != 0) {
           <button mat-raised-button color="primary" (click)="reset()">
             @if (!expoMode) {
@@ -205,6 +205,14 @@
               <span>{{ t('dashboard.expoRefresh') }}</span>
             }
           </button>
+          @if (!expoMode) {
+            <button mat-raised-button color="primary" (click)="downloadPdf()" [disabled]="generatingPdf">
+              @if (generatingPdf) {
+                <mat-spinner diameter="18" class="inline-spinner"></mat-spinner>
+              }
+              <span>{{ t('dashboard.downloadPdf') }}</span>
+            </button>
+          }
         }
       </div>
     </div>

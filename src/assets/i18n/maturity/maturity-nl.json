@@ -157,7 +157,8 @@
     "toggleAll": "Alles / niets selecteren",
     "colorBy": "Kleur op",
     "colorBySeries": "Serie",
-    "colorByScore": "Score"
+    "colorByScore": "Score",
+    "downloadPdf": "PDF downloaden"
   },
   "editor": {
     "title": "Editor voor volwassenheidsspecificaties",

@@ -157,7 +157,8 @@
     "toggleAll": "Check all / none",
     "colorBy": "Colour by",
     "colorBySeries": "Series",
-    "colorByScore": "Score"
+    "colorByScore": "Score",
+    "downloadPdf": "Download PDF"
   },
   "editor": {
     "title": "Maturity Specification Editor",

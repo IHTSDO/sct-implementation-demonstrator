@@ -157,7 +157,8 @@
     "toggleAll": "Vælg alle / ingen",
     "colorBy": "Farve efter",
     "colorBySeries": "Serie",
-    "colorByScore": "Score"
+    "colorByScore": "Score",
+    "downloadPdf": "Download PDF"
   },
   "editor": {
     "title": "Modenhedsspecifikationseditor",

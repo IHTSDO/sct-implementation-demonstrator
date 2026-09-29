@@ -77,6 +77,12 @@
     width: 600px !important;
 }
 
+.inline-spinner {
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
 /* ---- Map callout colour toggle (floating over Leaflet) ---- */
 .map-color-toggle {
     position: absolute;
