@@ -65,7 +65,7 @@
   },
   "overrides": {
     "path-to-regexp": "^8.4.0",
-    "undici": "^6.28.0",
+    "undici": "^6.28.1",
     "postcss": "^8.5.23",
     "nanoid": "^3.3.18",
     "webpack-dev-server": "^5.2.6",
@@ -88,7 +88,8 @@
     },
     "js-yaml": "^4.3.2",
     "hono": "^4.13.5",
-    "body-parser@2.2.2": "^2.3.0"
+    "body-parser@2.2.2": "^2.3.0",
+    "ip-address": "^10.5.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "21.2.20",
