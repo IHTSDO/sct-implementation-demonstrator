@@ -85,3 +85,14 @@ table {
   border-radius: 3px;
   background: color-mix(in srgb, currentColor 14%, transparent);
 }
+
+/* Tab labels behave like buttons: a double click should not select their text. */
+mat-tab-group ::ng-deep .mat-mdc-tab-header {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The theme's h2 bottom margin pushes the label text up inside the tab. */
+mat-tab-group ::ng-deep .mat-mdc-tab-header h2 {
+  margin: 0;
+}
