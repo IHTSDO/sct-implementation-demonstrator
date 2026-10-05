@@ -127,7 +127,7 @@ export class IcdMapComponent implements OnInit {
     this.selectedReasonSct = event;
     if (event && event.code) {
       this.matchIcd10(event);
-      this.matchIcd11(event);
+      if (this.showICD11Map) this.matchIcd11(event);
     }
   }
 
@@ -135,7 +135,7 @@ export class IcdMapComponent implements OnInit {
   onContextChange() {
     if (this.selectedReasonSct?.code) {
       this.matchIcd10(this.selectedReasonSct);
-      this.matchIcd11(this.selectedReasonSct);
+      if (this.showICD11Map) this.matchIcd11(this.selectedReasonSct);
     }
   }
 
@@ -424,12 +424,16 @@ export class IcdMapComponent implements OnInit {
     const icd11File =
       icd11Format === 'extended' ? this.RES.icd11Extended : this.RES.icd11Preview;
 
-    this.loadIcd11MapFile(icd11File, dialogRef)
-      .then(() =>
-        this.loadTextFile(this.RES.icd11Labels, dialogRef).then((body) => {
-          this.icd11Data = Papa.parse(body, { header: true }).data;
-        }),
-      )
+    // The ICD-11 map files are large and only needed by the hidden ICD-11 tab.
+    const icd11Files = this.showICD11Map
+      ? this.loadIcd11MapFile(icd11File, dialogRef).then(() =>
+          this.loadTextFile(this.RES.icd11Labels, dialogRef).then((body) => {
+            this.icd11Data = Papa.parse(body, { header: true }).data;
+          }),
+        )
+      : Promise.resolve();
+
+    icd11Files
       .then(() =>
         this.loadTextFile(this.RES.icd10Labels, dialogRef).then((body) => {
           this.icd10Data = Papa.parse(body, { header: true }).data;
