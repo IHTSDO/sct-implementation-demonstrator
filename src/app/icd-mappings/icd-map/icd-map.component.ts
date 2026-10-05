@@ -43,6 +43,7 @@ export class IcdMapComponent implements OnInit {
   showICD11Map = false;
 
   // Resource files (neutral names so the raw mapping data is not obvious).
+  private readonly ICD10_SYSTEM = 'http://hl7.org/fhir/sid/icd-10';
   private readonly RES = {
     icd11Preview: 'assets/res/ds1.dat',
     icd11Extended: 'assets/res/ds2.dat',
@@ -329,6 +330,11 @@ export class IcdMapComponent implements OnInit {
         pendingMessage = p.valueString ?? '';
       } else if (p.name === 'match') {
         const concept = (p.part ?? []).find((part: any) => part.name === 'concept');
+        // Some servers ignore targetSystem and answer with other maps (e.g. the ICD-O simple map).
+        if (concept?.valueCoding?.system !== this.ICD10_SYSTEM) {
+          pendingMessage = '';
+          continue;
+        }
         const mapTarget = concept?.valueCoding?.code ?? '';
         rows.push({ ...this.parseMapAdviceMessage(pendingMessage), mapTarget });
         pendingMessage = '';

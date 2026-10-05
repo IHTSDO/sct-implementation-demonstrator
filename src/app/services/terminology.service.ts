@@ -855,7 +855,13 @@ export class TerminologyService {
       const base = candidates[index];
       return this.getIcd10MapTargets(probeCode, true, base).pipe(
         timeout(5000),
-        map((response) => !!response?.parameter?.some((p: any) => p.name === 'match')),
+        map((response) =>
+          !!response?.parameter?.some(
+            (p: any) =>
+              p.name === 'match' &&
+              p.part?.some((part: any) => part.name === 'concept' && part.valueCoding?.system === 'http://hl7.org/fhir/sid/icd-10'),
+          ),
+        ),
         catchError(() => of(false)),
         concatMap((works) => (works ? of(base) : probe(index + 1))),
       );
