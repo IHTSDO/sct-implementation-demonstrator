@@ -18,5 +18,10 @@
       "terminologyNote": "La configuracion de idioma de terminologia es independiente y puede seguir afectando las visualizaciones de SNOMED CT.",
       "close": "Entendido"
     }
+  },
+  "termServerFallback": {
+    "snackbar": {
+      "message": "{{from}} no pudo expandir SNOMED CT, por eso se cambio el servidor a {{to}}."
+    }
   }
 }

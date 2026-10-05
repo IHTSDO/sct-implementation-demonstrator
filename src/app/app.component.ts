@@ -56,6 +56,9 @@ export class AppComponent {
   private updateCodeSystemOptionsTrigger$ = new Subject<string | undefined>();
   private syncSiteLanguageAfterNextContextSetup = false;
   private skipNextEditionFetch = false;
+  /** Servers whose `$expand` failed for every recent International release in the current auto-selection. */
+  private expandFailedServers = new Set<string>();
+  private pendingSwitchFromServer: string | null = null;
 
   constructor( 
     private codingSpecService: CodingSpecService, 
@@ -145,7 +148,9 @@ export class AppComponent {
         const fallbacks = this.fhirServers.filter(
           s => this.normalizeTerminologyServerBaseUrl(s.url) !== currentBase
         );
-        const candidates = [currentServer, ...fallbacks];
+        const candidates = [currentServer, ...fallbacks].filter(
+          c => !this.expandFailedServers.has(this.normalizeTerminologyServerBaseUrl(c.url))
+        );
         return this.tryGetCodeSystemsWithFallback(candidates, 0).pipe(
           catchError(err => {
             console.error('All FHIR servers failed:', err);
@@ -179,7 +184,18 @@ export class AppComponent {
               this.skipNextEditionFetch = true;
               this.terminologyService.setSnowstormFhirBase(serverUrl);
               this.selectedServer = { name: server.name, url: serverUrl };
+              if (this.pendingSwitchFromServer) {
+                this.snackBar.open(
+                  this.translocoService.translate('termServerFallback.snackbar.message', {
+                    from: this.pendingSwitchFromServer,
+                    to: server.name,
+                  }),
+                  this.translocoService.translate('siteLanguageSync.snackbar.action'),
+                  { duration: 8000 }
+                );
+              }
             }
+            this.pendingSwitchFromServer = null;
 
             const currentVerIndex = this.editionsDetails.findIndex(x => x.editionName === 'International Edition');
             if (preselectedEdition) {
@@ -192,7 +208,7 @@ export class AppComponent {
               // The newest release can be listed before the server can expand it (404),
               // so keep the older International releases as fallbacks for the default.
               const [latest, ...older] = this.editionsDetails[currentVerIndex].editions;
-              this.setEdition(latest, false, older.slice(0, 3));
+              this.setEdition(latest, false, older.slice(0, 3), true);
             } else if (this.editions.length > 0) {
               this.setEdition(this.editions[0], false);
             }
@@ -370,6 +386,7 @@ export class AppComponent {
   setFhirServer(server: FhirServer) {
     const url = this.normalizeTerminologyServerBaseUrl(server.url);
     this.selectedServer = { name: server.name, url };
+    this.expandFailedServers.clear();
     this.terminologyService.setSnowstormFhirBase(url);
     this.selectedEdition = 'Edition';
     this.editions = [];
@@ -402,11 +419,11 @@ export class AppComponent {
     return (url ?? '').trim().replace(/\/+$/, '');
   }
 
-  setEdition(edition: any, syncSiteLanguageAfterContextSetup = true, fallbackEditions: any[] = []) {
+  setEdition(edition: any, syncSiteLanguageAfterContextSetup = true, fallbackEditions: any[] = [], autoSelected = false) {
     this.selectedEdition = edition.resource.title?.replace('SNOMED CT release ','');
     this.syncSiteLanguageAfterNextContextSetup = syncSiteLanguageAfterContextSetup;
     this.terminologyService.setFhirUrlParam(edition.resource.version);
-    this.updateLanguageRefsets(fallbackEditions, syncSiteLanguageAfterContextSetup);
+    this.updateLanguageRefsets(fallbackEditions, syncSiteLanguageAfterContextSetup, autoSelected);
   }
 
   getCurrentVersionInfo(): { version: string, editionName: string } | null {
@@ -469,21 +486,36 @@ export class AppComponent {
 
   /**
    * Loads the language refsets of the current edition. This is also the first `$expand` made
-   * against it, so when it fails and fallback editions are given, the next one is tried
-   * (one request at a time) instead of leaving the app on an edition the server cannot expand.
+   * against it, so when it fails during the automatic edition selection the next older release
+   * is tried and, once those are exhausted, the next predefined server (one request at a time)
+   * instead of leaving the app on an edition the server cannot expand.
    */
-  updateLanguageRefsets(fallbackEditions: any[] = [], syncSiteLanguage = true) {
+  updateLanguageRefsets(fallbackEditions: any[] = [], syncSiteLanguage = true, autoSelected = false) {
     this.languageRefsets = [];
-    const hasFallback = fallbackEditions.length > 0;
-    this.terminologyService.getLanguageRefsets(undefined, hasFallback).subscribe({
+    const currentUrl = this.normalizeTerminologyServerBaseUrl(this.terminologyService.getSnowstormFhirBase());
+    const canSwitchServer = autoSelected && !this.isCustomTerminologyServerSelection() && this.fhirServers.some(
+      s => {
+        const url = this.normalizeTerminologyServerBaseUrl(s.url);
+        return url !== currentUrl && !this.expandFailedServers.has(url);
+      }
+    );
+    const silent = fallbackEditions.length > 0 || canSwitchServer;
+    this.terminologyService.getLanguageRefsets(undefined, silent).subscribe({
       next: (response: any) => {
+        this.expandFailedServers.clear();
         this.languageRefsets = response?.expansion?.contains ?? [];
         // sort by language display length
         this.languageRefsets.sort((a, b) => (a.display.length > b.display.length) ? 1 : -1);
       },
       error: () => {
-        const [next, ...rest] = fallbackEditions;
-        this.setEdition(next, syncSiteLanguage, rest);
+        if (fallbackEditions.length > 0) {
+          const [next, ...rest] = fallbackEditions;
+          this.setEdition(next, syncSiteLanguage, rest, autoSelected);
+        } else {
+          this.expandFailedServers.add(currentUrl);
+          this.pendingSwitchFromServer = this.selectedServer?.name ?? currentUrl;
+          this.updateCodeSystemOptions();
+        }
       },
     });
   }

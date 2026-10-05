@@ -18,5 +18,10 @@
       "terminologyNote": "Terminology language settings are separate and may still affect SNOMED CT displays.",
       "close": "Got it"
     }
+  },
+  "termServerFallback": {
+    "snackbar": {
+      "message": "{{from}} could not expand SNOMED CT, so the server was switched to {{to}}."
+    }
   }
 }
