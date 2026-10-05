@@ -48,8 +48,14 @@ export class IcdMapComponent implements OnInit {
     icd11Extended: 'assets/res/ds2.dat',
     icd11Labels: 'assets/res/lx-en.dat',
     icd10Labels: 'assets/res/lx10.dat',
+    icd10To11: 'assets/res/m1011.dat',
   };
   term: any = '';
+
+  /** WHO ICD-10 to ICD-11 map (multiple categories), indexed by ICD-10 code. */
+  private icd10To11Index = new Map<string, any[]>();
+  icd10To11Rows: any[] = [];
+  icd10To11DisplayedColumns: string[] = ['icd10', 'icd11', 'link'];
 
   icd10rules: any[] = [];
   icd10DisplayedColumns: string[] = ['mapGroup', 'mapPriority', 'mapRule', 'mapAdvice', 'mapTarget', 'link', 'result'];
@@ -192,6 +198,7 @@ export class IcdMapComponent implements OnInit {
     this.loadingIcd10 = true;
     this.icd10rules = [];
     this.selectedReasonCIE = [];
+    this.icd10To11Rows = [];
     // Strategy: FHIR ConceptMap/$translate first (works on FHIR-only servers that block
     // the native API). If it errors or returns nothing (e.g. servers where $translate is
     // unavailable), fall back to the native complex-map query.
@@ -257,6 +264,54 @@ export class IcdMapComponent implements OnInit {
         }
       }
     });
+    this.buildIcd10To11Rows();
+  }
+
+  /** Looks up the ICD-11 targets of the ICD-10 codes selected by the SNOMED CT map. */
+  private buildIcd10To11Rows() {
+    const rows: any[] = [];
+    this.selectedReasonCIE.forEach((item: any) => {
+      const code = (item.code ?? '').replace(/[†*]/g, '').trim();
+      if (!code) return;
+      const targets =
+        this.icd10To11Index.get(code) ?? this.icd10To11Index.get(this.removeSecondDigitAfterDot(code)) ?? [];
+      if (!targets.length) {
+        rows.push({ icd10Code: code, icd10Title: item.display, icd11Code: '', icd11Title: '', uri: '' });
+      }
+      const group = targets.map((t: any) => ({ ...t, icd10Code: code }));
+      this.markIcd11TitleDifferences(group);
+      rows.push(...group);
+    });
+    this.icd10To11Rows = rows;
+  }
+
+  /**
+   * When one ICD-10 code maps to several ICD-11 categories, splits each ICD-11 title into
+   * words and flags those that are not shared by all the titles, so the template can
+   * highlight what distinguishes the targets (e.g. "uncertain" vs "unknown").
+   */
+  private markIcd11TitleDifferences(group: any[]) {
+    const wordsOf = (title: string) => (title ?? '').split(/\s+/).filter(Boolean);
+    const norm = (word: string) => word.toLowerCase();
+    const shared = group.length > 1
+      ? group.map((r) => new Set(wordsOf(r.icd11Title).map(norm))).reduce((a, b) => new Set([...a].filter((w) => b.has(w))))
+      : null;
+    group.forEach((r) => {
+      r.icd11TitleParts = wordsOf(r.icd11Title).map((text) => ({ text, diff: !!shared && !shared.has(norm(text)) }));
+    });
+  }
+
+  private indexIcd10To11(data: any[]) {
+    this.icd10To11Index.clear();
+    data
+      .filter((r: any) => r.icd10Code && r.icd11Code)
+      .forEach((r: any) => {
+        const list = this.icd10To11Index.get(r.icd10Code) ?? [];
+        list.push(r);
+        this.icd10To11Index.set(r.icd10Code, list);
+      });
+    this.buildIcd10To11Rows();
+    this.cdr.detectChanges();
   }
 
   /**
@@ -378,6 +433,20 @@ export class IcdMapComponent implements OnInit {
       .then(() =>
         this.loadTextFile(this.RES.icd10Labels, dialogRef).then((body) => {
           this.icd10Data = Papa.parse(body, { header: true }).data;
+        }),
+      )
+      .then(() =>
+        this.loadTextFile(this.RES.icd10To11, dialogRef).then((body) => {
+          const parsed = Papa.parse(body, { header: true, delimiter: '\t', quoteChar: '\0' }).data as any[];
+          this.indexIcd10To11(
+            parsed.map((r: any) => ({
+              icd10Code: r['icd10Code'],
+              icd10Title: r['icd10Title'],
+              icd11Code: r['icd11Code'],
+              icd11Title: r['icd11Title'],
+              uri: r['ICD-11 Foundation URI'],
+            })),
+          );
           dialogRef.close();
         }),
       )

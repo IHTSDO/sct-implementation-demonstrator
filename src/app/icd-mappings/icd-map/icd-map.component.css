@@ -77,3 +77,11 @@ h3 {
 table {
   margin-bottom: 40px;
 }
+
+/* Words that distinguish one ICD-11 target from its siblings for the same ICD-10 code. */
+.diff-word {
+  font-weight: 600;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
