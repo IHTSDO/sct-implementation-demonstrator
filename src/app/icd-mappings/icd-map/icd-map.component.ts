@@ -2,6 +2,9 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import * as Papa from 'papaparse';
+import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 import { TerminologyService } from '../../services/terminology.service';
 import { IcdLoadingDialogComponent } from '../loading-dialog/loading-dialog.component';
 
@@ -73,6 +76,12 @@ export class IcdMapComponent implements OnInit {
     headerImage: 'assets/img/icd-o.png',
   };
 
+  /** Servers eligible for the maps: they need the native API, which Snowstorm Lite and Ontoserver lack. */
+  private readonly mapServerCandidates = environment.fhirServers
+    .map((server) => server.url.replace(/\/+$/, ''))
+    .filter((url) => !/snowstorm-lite|ontoserver/i.test(url));
+  mapServer$: Observable<string> = this.terminologyService.resolveMapServer(this.mapServerCandidates);
+
   constructor(
     private terminologyService: TerminologyService,
     private http: HttpClient,
@@ -83,6 +92,8 @@ export class IcdMapComponent implements OnInit {
   ngOnInit(): void {
     // Hidden feature: the mere presence of the ?icd11 param reveals the tab.
     this.showICD11Map = this.isIcd11Unlocked();
+    // Start probing the map servers now, in parallel with the resource files loading.
+    this.mapServer$.subscribe();
     this.fetchAllData('preview');
   }
 
@@ -184,24 +195,34 @@ export class IcdMapComponent implements OnInit {
     // Strategy: FHIR ConceptMap/$translate first (works on FHIR-only servers that block
     // the native API). If it errors or returns nothing (e.g. servers where $translate is
     // unavailable), fall back to the native complex-map query.
-    this.terminologyService.getIcd10MapTargets(event.code, true).subscribe({
-      next: (response) => {
-        const items = this.parseIcd10TranslateResponse(response);
-        if (items.length > 0) {
-          this.applyIcd10Rules(items);
-          this.loadingIcd10 = false;
-        } else {
-          this.matchIcd10ViaNativeApi(event);
-        }
-      },
-      error: () => this.matchIcd10ViaNativeApi(event),
-    });
+    this.mapServer$
+      .pipe(switchMap((base) => this.terminologyService.getIcd10MapTargets(event.code, true, base)))
+      .subscribe({
+        next: (response) => {
+          const items = this.parseIcd10TranslateResponse(response);
+          if (items.length > 0) {
+            this.applyIcd10Rules(items);
+            this.loadingIcd10 = false;
+          } else {
+            this.matchIcd10ViaNativeApi(event);
+          }
+        },
+        error: () => this.matchIcd10ViaNativeApi(event),
+      });
   }
 
   /** Fallback for servers whose FHIR $translate is unavailable but expose the native API. */
   private matchIcd10ViaNativeApi(event: any) {
-    this.terminologyService
-      .runEclLegacy(`^[*] 447562003 |ICD-10 complex map reference set| {{ M referencedComponentId = ${event.code} }}`, true)
+    this.mapServer$
+      .pipe(
+        switchMap((base) =>
+          this.terminologyService.runEclLegacy(
+            `^[*] 447562003 |ICD-10 complex map reference set| {{ M referencedComponentId = ${event.code} }}`,
+            true,
+            base,
+          ),
+        ),
+      )
       .subscribe({
         next: (result) => {
           this.applyIcd10Rules(result?.items ?? []);

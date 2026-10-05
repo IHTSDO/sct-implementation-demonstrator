@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, finalize, map, Observable, of, shareReplay, tap, throwError } from 'rxjs';
+import { catchError, concatMap, finalize, map, Observable, of, shareReplay, tap, throwError, timeout } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 import { BehaviorSubject } from 'rxjs';
@@ -809,10 +809,9 @@ export class TerminologyService {
     );
   }
 
-  runEclLegacy(ecl: string, silent = false) {
-    // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=%5E%5B*%5D%20447562003%20%7CICD-10%20complex%20map%20reference%20set%7C%20%7B%7B%20M%20referencedComponentId%20%3D%20%22782513000%22%20%7D%7D
+  runEclLegacy(ecl: string, silent = false, fhirBase?: string) {
     // https://browser.ihtsdotools.org/snowstorm/snomed-ct/MAIN/SNOMEDCT-ES/2022-10-31/concepts?offset=0&limit=100&termActive=true&ecl=^[*]%20447562003%20|ICD-10%20complex%20map%20reference%20set|%20{{%20M%20referencedComponentId%20=%20%22195967001%22%20}}
-    const snowstormBase = this.snowstormFhirBase.replace('/fhir', '/snowstorm/snomed-ct');
+    const snowstormBase = (fhirBase || this.snowstormFhirBase).replace('/fhir', '/snowstorm/snomed-ct');
     let requestUrl = `${snowstormBase}/MAIN/concepts?offset=0&limit=100&termActive=true&ecl=${encodeURIComponent(ecl)}`
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
@@ -822,8 +821,8 @@ export class TerminologyService {
     return silent ? request : request.pipe(catchError(this.handleError<any>('expandValueSet', {})));
   }
 
-  getIcd10MapTargets(code: string, silent = false) {
-    let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&targetSystem=http://hl7.org/fhir/sid/icd-10`
+  getIcd10MapTargets(code: string, silent = false, fhirBase?: string) {
+    let requestUrl = `${fhirBase || this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&targetSystem=http://hl7.org/fhir/sid/icd-10`
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });
@@ -832,12 +831,37 @@ export class TerminologyService {
     return silent ? request : request.pipe(catchError(this.handleError<any>('translate', {})));
   }
 
-  getSimpleMapTargets(code: string, targetSystem: string) {
-    let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&targetsystem=${targetSystem}`;
+  getSimpleMapTargets(code: string, targetSystem: string, fhirBase?: string) {
+    let requestUrl = `${fhirBase || this.snowstormFhirBase}/ConceptMap/$translate?code=${code}&system=http://snomed.info/sct&targetsystem=${targetSystem}`;
     const headers = new HttpHeaders({ 'Accept-Language': this.lang });
     // Let errors propagate so SimpleMapComponent shows "No suitable map found"
     // instead of a global error snackbar (e.g. servers without ICD-O support).
     return this.http.get<any>(requestUrl, { headers });
+  }
+
+  private mapServer$?: Observable<string>;
+
+  /**
+   * Picks the first server (in the given order) whose FHIR ConceptMap/$translate to ICD-10
+   * answers with at least one match for a known concept. The result is cached for the
+   * lifetime of the app; when no candidate answers, falls back to the globally selected
+   * server. Probes run one at a time to respect terminology server rate limits.
+   */
+  resolveMapServer(candidates: string[]): Observable<string> {
+    if (this.mapServer$) return this.mapServer$;
+    const probeCode = '195967001'; // Asthma, mapped in every edition that ships an ICD-10 map
+    const probe = (index: number): Observable<string> => {
+      if (index >= candidates.length) return of(this.snowstormFhirBase);
+      const base = candidates[index];
+      return this.getIcd10MapTargets(probeCode, true, base).pipe(
+        timeout(5000),
+        map((response) => !!response?.parameter?.some((p: any) => p.name === 'match')),
+        catchError(() => of(false)),
+        concatMap((works) => (works ? of(base) : probe(index + 1))),
+      );
+    };
+    this.mapServer$ = probe(0).pipe(shareReplay(1));
+    return this.mapServer$;
   }
 
   getMedraMapTargets(code: string) {

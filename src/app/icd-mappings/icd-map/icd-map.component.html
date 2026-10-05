@@ -205,7 +205,7 @@
   <!-- ICD-O -->
   <mat-tab>
     <ng-template mat-tab-label><h2>ICD-O Map</h2></ng-template>
-    <app-icd-simple-map [mapDefinition]="icdOMapDefinition" [concept]="selectedReasonSct"></app-icd-simple-map>
+    <app-icd-simple-map [mapDefinition]="icdOMapDefinition" [concept]="selectedReasonSct" [mapServer$]="mapServer$"></app-icd-simple-map>
   </mat-tab>
 
 </mat-tab-group>
