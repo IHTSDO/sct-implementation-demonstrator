@@ -474,7 +474,8 @@ export class TerminologyService {
       );
   }
 
-  getLanguageRefsets(moduleId?: string) {
+  /** With `silent`, errors propagate to the caller instead of showing the global snackbar. */
+  getLanguageRefsets(moduleId?: string, silent = false) {
     let requestUrl = `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/<< 900000000000506000`;
     if (moduleId) {
       requestUrl += ` {{ C moduleId = ${moduleId} }}`;
@@ -484,7 +485,7 @@ export class TerminologyService {
     });
     return this.http.get<any>(requestUrl, { headers })
       .pipe(
-        catchError(this.handleError<any>('getLanguageRefsets', {}))
+        catchError(silent ? (err) => throwError(() => err) : this.handleError<any>('getLanguageRefsets', {}))
       );
   }
 

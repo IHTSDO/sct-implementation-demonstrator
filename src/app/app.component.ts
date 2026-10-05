@@ -189,7 +189,10 @@ export class AppComponent {
                 }
               });
             } else if (currentVerIndex >= 0) {
-              this.setEdition(this.editionsDetails[currentVerIndex].editions[0], false);
+              // The newest release can be listed before the server can expand it (404),
+              // so keep the older International releases as fallbacks for the default.
+              const [latest, ...older] = this.editionsDetails[currentVerIndex].editions;
+              this.setEdition(latest, false, older.slice(0, 3));
             } else if (this.editions.length > 0) {
               this.setEdition(this.editions[0], false);
             }
@@ -399,11 +402,11 @@ export class AppComponent {
     return (url ?? '').trim().replace(/\/+$/, '');
   }
 
-  setEdition(edition: any, syncSiteLanguageAfterContextSetup = true) {
+  setEdition(edition: any, syncSiteLanguageAfterContextSetup = true, fallbackEditions: any[] = []) {
     this.selectedEdition = edition.resource.title?.replace('SNOMED CT release ','');
     this.syncSiteLanguageAfterNextContextSetup = syncSiteLanguageAfterContextSetup;
     this.terminologyService.setFhirUrlParam(edition.resource.version);
-    this.updateLanguageRefsets();
+    this.updateLanguageRefsets(fallbackEditions, syncSiteLanguageAfterContextSetup);
   }
 
   getCurrentVersionInfo(): { version: string, editionName: string } | null {
@@ -464,12 +467,24 @@ export class AppComponent {
     return 'Unknown';
   }
 
-  updateLanguageRefsets() {
+  /**
+   * Loads the language refsets of the current edition. This is also the first `$expand` made
+   * against it, so when it fails and fallback editions are given, the next one is tried
+   * (one request at a time) instead of leaving the app on an edition the server cannot expand.
+   */
+  updateLanguageRefsets(fallbackEditions: any[] = [], syncSiteLanguage = true) {
     this.languageRefsets = [];
-    this.terminologyService.getLanguageRefsets().subscribe((response: any) => {
-      this.languageRefsets = response?.expansion?.contains;
-      // sort by language display length
-      this.languageRefsets.sort((a, b) => (a.display.length > b.display.length) ? 1 : -1);
+    const hasFallback = fallbackEditions.length > 0;
+    this.terminologyService.getLanguageRefsets(undefined, hasFallback).subscribe({
+      next: (response: any) => {
+        this.languageRefsets = response?.expansion?.contains ?? [];
+        // sort by language display length
+        this.languageRefsets.sort((a, b) => (a.display.length > b.display.length) ? 1 : -1);
+      },
+      error: () => {
+        const [next, ...rest] = fallbackEditions;
+        this.setEdition(next, syncSiteLanguage, rest);
+      },
     });
   }
 
