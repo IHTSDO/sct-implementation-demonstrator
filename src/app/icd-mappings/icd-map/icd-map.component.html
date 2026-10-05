@@ -56,7 +56,10 @@
       </mat-card-header>
       <mat-card-content>
         <mat-spinner diameter="35" *ngIf="loadingIcd10"></mat-spinner>
-        <div *ngIf="selectedReasonSct && !loadingIcd10 && !selectedReasonCIE.length">
+        <div *ngIf="selectedReasonSct && !loadingIcd10 && icd10LookupFailed">
+          <br>The map could not be retrieved from the terminology server. Use "Refresh maps" to try again.
+        </div>
+        <div *ngIf="selectedReasonSct && !loadingIcd10 && !icd10LookupFailed && !selectedReasonCIE.length">
           <br>No suitable map found.
         </div>
         <div *ngIf="selectedReasonCIE.length">
@@ -140,7 +143,7 @@
         </p>
         <mat-spinner diameter="35" *ngIf="loadingIcd10"></mat-spinner>
         <div *ngIf="selectedReasonSct && !loadingIcd10 && !icd10To11Rows.length">
-          <br>No ICD-10 code available to map.
+          <br>{{ icd10LookupFailed ? 'The ICD-10 map could not be retrieved. Use "Refresh maps" to try again.' : 'No ICD-10 code available to map.' }}
         </div>
         <div *ngIf="icd10To11Rows.length && !loadingIcd10">
           <table mat-table [dataSource]="icd10To11Rows">

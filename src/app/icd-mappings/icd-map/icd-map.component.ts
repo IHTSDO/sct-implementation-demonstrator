@@ -2,8 +2,8 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import * as Papa from 'papaparse';
-import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, Subject, of, throwError } from 'rxjs';
+import { catchError, map, retry, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { TerminologyService } from '../../services/terminology.service';
 import { IcdLoadingDialogComponent } from '../loading-dialog/loading-dialog.component';
@@ -61,6 +61,10 @@ export class IcdMapComponent implements OnInit {
   icd10To11DisplayedColumns: string[] = ['icd10', 'icd11', 'link'];
 
   icd10rules: any[] = [];
+  /** True when the ICD-10 lookup could not be completed (as opposed to finding no map). */
+  icd10LookupFailed = false;
+  /** Latest-wins queue of ICD-10 lookups: a newer selection cancels the pending one. */
+  private icd10Lookup$ = new Subject<any>();
   icd10DisplayedColumns: string[] = ['mapGroup', 'mapPriority', 'mapRule', 'mapAdvice', 'mapTarget', 'link', 'result'];
   loadingIcd10 = false;
   icd11rules: any[] = [];
@@ -89,7 +93,13 @@ export class IcdMapComponent implements OnInit {
   private readonly mapServerCandidates = environment.fhirServers
     .map((server) => server.url.replace(/\/+$/, ''))
     .filter((url) => !/snowstorm-lite|ontoserver/i.test(url));
-  mapServer$: Observable<string> = this.terminologyService.resolveMapServer(this.mapServerCandidates);
+  /** Resolved (and cached) by the service; changes only after a server is reported as failing. */
+  get mapServer$(): Observable<string> {
+    return this.terminologyService.resolveMapServer(this.mapServerCandidates);
+  }
+
+  /** Raw ICD-10 map rows per server and concept, so context changes (age, gender) do not hit the network. */
+  private icd10Cache = new Map<string, any[]>();
 
   constructor(
     private terminologyService: TerminologyService,
@@ -103,6 +113,14 @@ export class IcdMapComponent implements OnInit {
     this.showICD11Map = this.isIcd11Unlocked();
     // Start probing the map servers now, in parallel with the resource files loading.
     this.mapServer$.subscribe();
+    this.icd10Lookup$.pipe(switchMap((event) => this.lookupIcd10(event))).subscribe((result) => {
+      if (result.failed) {
+        this.icd10LookupFailed = true;
+      } else {
+        this.applyIcd10Rules(result.items ?? []);
+      }
+      this.loadingIcd10 = false;
+    });
     this.fetchAllData('preview');
   }
 
@@ -199,49 +217,67 @@ export class IcdMapComponent implements OnInit {
 
   matchIcd10(event: any) {
     this.loadingIcd10 = true;
+    this.icd10LookupFailed = false;
     this.icd10rules = [];
     this.selectedReasonCIE = [];
     this.icd10To11Rows = [];
-    // Strategy: FHIR ConceptMap/$translate first (works on FHIR-only servers that block
-    // the native API). If it errors or returns nothing (e.g. servers where $translate is
-    // unavailable), fall back to the native complex-map query.
-    this.mapServer$
-      .pipe(switchMap((base) => this.terminologyService.getIcd10MapTargets(event.code, true, base)))
-      .subscribe({
-        next: (response) => {
-          const items = this.parseIcd10TranslateResponse(response);
-          if (items.length > 0) {
-            this.applyIcd10Rules(items);
-            this.loadingIcd10 = false;
-          } else {
-            this.matchIcd10ViaNativeApi(event);
-          }
-        },
-        error: () => this.matchIcd10ViaNativeApi(event),
-      });
+    this.icd10Lookup$.next(event);
+  }
+
+  /**
+   * Resolves the ICD-10 map rules of a concept. Errors are reported apart from "no map",
+   * so a flaky server is not shown as a missing map.
+   */
+  private lookupIcd10(event: any): Observable<{ items?: any[]; failed?: boolean }> {
+    return this.fetchIcd10Items(event.code).pipe(
+      map((items) => ({ items })),
+      catchError((err) => {
+        console.warn('[icd-map] ICD-10 map lookup failed for', event.code, err);
+        return of({ failed: true });
+      }),
+    );
+  }
+
+  /**
+   * Strategy: FHIR ConceptMap/$translate first (works on FHIR-only servers that block the
+   * native API), retried once for transient errors; if it errors or returns nothing, fall back
+   * to the native complex-map query. If the server still fails, it is reported as failing and
+   * the lookup is retried once on the next candidate server.
+   */
+  private fetchIcd10Items(code: string, attempt = 0): Observable<any[]> {
+    return this.mapServer$.pipe(
+      switchMap((base) => {
+        const key = `${base}|${code}`;
+        const cached = this.icd10Cache.get(key);
+        if (cached) return of(cached.map((row) => ({ ...row })));
+        return this.terminologyService.getIcd10MapTargets(code, true, base).pipe(
+          retry({ count: 1, delay: 500 }),
+          map((response) => this.parseIcd10TranslateResponse(response)),
+          catchError(() => of([] as any[])),
+          switchMap((items) => (items.length > 0 ? of(items) : this.lookupIcd10ViaNativeApi(code, base))),
+          tap((items) => this.icd10Cache.set(key, items.map((row) => ({ ...row })))),
+          catchError((err) => {
+            if (attempt >= 1) return throwError(() => err);
+            this.terminologyService.reportMapServerFailure(base);
+            return this.fetchIcd10Items(code, attempt + 1);
+          }),
+        );
+      }),
+    );
   }
 
   /** Fallback for servers whose FHIR $translate is unavailable but expose the native API. */
-  private matchIcd10ViaNativeApi(event: any) {
-    this.mapServer$
-      .pipe(
-        switchMap((base) =>
-          this.terminologyService.runEclLegacy(
-            `^[*] 447562003 |ICD-10 complex map reference set| {{ M referencedComponentId = ${event.code} }}`,
-            true,
-            base,
-          ),
-        ),
+  private lookupIcd10ViaNativeApi(code: string, base: string): Observable<any[]> {
+    return this.terminologyService
+      .runEclLegacy(
+        `^[*] 447562003 |ICD-10 complex map reference set| {{ M referencedComponentId = ${code} }}`,
+        true,
+        base,
       )
-      .subscribe({
-        next: (result) => {
-          this.applyIcd10Rules(result?.items ?? []);
-          this.loadingIcd10 = false;
-        },
-        error: () => {
-          this.loadingIcd10 = false;
-        },
-      });
+      .pipe(
+        retry({ count: 1, delay: 500 }),
+        map((result) => result?.items ?? []),
+      );
   }
 
   /** Sorts the map rules, evaluates them against the patient context and builds the results. */

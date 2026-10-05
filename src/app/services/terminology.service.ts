@@ -841,6 +841,13 @@ export class TerminologyService {
   }
 
   private mapServer$?: Observable<string>;
+  private failedMapServers = new Set<string>();
+
+  /** Marks the current map server as failing so the next resolution skips it. */
+  reportMapServerFailure(base: string) {
+    this.failedMapServers.add(base);
+    this.mapServer$ = undefined;
+  }
 
   /**
    * Picks the first server (in the given order) whose FHIR ConceptMap/$translate to ICD-10
@@ -850,10 +857,15 @@ export class TerminologyService {
    */
   resolveMapServer(candidates: string[]): Observable<string> {
     if (this.mapServer$) return this.mapServer$;
+    let usable = candidates.filter((c) => !this.failedMapServers.has(c));
+    if (usable.length === 0) {
+      this.failedMapServers.clear();
+      usable = candidates;
+    }
     const probeCode = '195967001'; // Asthma, mapped in every edition that ships an ICD-10 map
     const probe = (index: number): Observable<string> => {
-      if (index >= candidates.length) return of(this.snowstormFhirBase);
-      const base = candidates[index];
+      if (index >= usable.length) return of(this.snowstormFhirBase);
+      const base = usable[index];
       return this.getIcd10MapTargets(probeCode, true, base).pipe(
         timeout(5000),
         map((response) =>
