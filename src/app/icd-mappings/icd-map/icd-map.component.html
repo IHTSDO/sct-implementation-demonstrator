@@ -210,7 +210,7 @@
                 <p class="selected-reason" [class.postcoordination]="i > 0">
                   <span class="code">{{ part.code }}</span>&nbsp;&nbsp;{{ part.display }}
                   <a *ngIf="part.uri" mat-icon-button color="accent"
-                     href="https://icd.who.int/dev11/l-m/en#/{{ part.uri }}" target="_blank">
+                     [href]="part.uri" target="_blank">
                     <mat-icon>open_in_new</mat-icon>
                   </a>
                 </p>

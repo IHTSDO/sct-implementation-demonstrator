@@ -184,7 +184,7 @@ export class IcdMapComponent implements OnInit {
         let display = this.icd11Data.find((e: any) => e.Code == element.mapTarget);
         if (display) {
           display.Title = display?.Title?.replace(/- /g, '');
-          const uri = display['Foundation URI'] || display['Linearization (release) URI'];
+          const uri = this.toIcd11BrowserUrl(display['Linearization URI'] || display['Linearization (release) URI']);
           mapTargets.push({ code: element.mapTarget, display: display.Title, uri });
         } else {
           mapTargets.push({ code: element.mapTarget, display: 'Not found in ICD-11' });
@@ -313,8 +313,9 @@ export class IcdMapComponent implements OnInit {
   }
 
   private toIcd11BrowserUrl(linearizationUri: string): string {
-    const match = (linearizationUri ?? '').match(/\/release\/11\/([^/]+)\/mms\/(.+)$/);
-    return match ? `https://icd.who.int/browse/${match[1]}/mms/en#${match[2].replace(/\//g, '%2F')}` : '';
+    // URIs of some WHO files carry no release (.../release/11/mms/<id>): use the latest one.
+    const match = (linearizationUri ?? '').match(/\/release\/11\/(?:([^/]+)\/)?mms\/(.+)$/);
+    return match ? `https://icd.who.int/browse/${match[1] ?? 'latestrelease'}/mms/en#${match[2].replace(/\//g, '%2F')}` : '';
   }
 
   private indexIcd10To11(data: any[]) {
