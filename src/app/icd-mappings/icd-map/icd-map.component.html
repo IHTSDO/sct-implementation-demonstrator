@@ -130,7 +130,7 @@
       <mat-card-header>
         <div mat-card-avatar class="header-image" style="background-image: url('assets/img/icd-11.jpg')"></div>
         <mat-card-title>ICD-10 to ICD-11 Map</mat-card-title>
-        <mat-card-subtitle>WHO ICD-10 to ICD-11 mapping table (multiple categories) — ICD-11 MMS 2026-01</mat-card-subtitle>
+        <mat-card-subtitle>WHO ICD-10 to ICD-11 mapping table (multiple categories)<ng-container *ngIf="icd10To11Release"> — ICD-11 MMS {{ icd10To11Release }}</ng-container></mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <p>
@@ -163,7 +163,7 @@
             <ng-container matColumnDef="link">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let element">
-                <a mat-icon-button color="accent" href="https://icd.who.int/dev11/l-m/en#/{{ element.uri }}"
+                <a mat-icon-button color="accent" [href]="element.uri"
                    target="_blank" *ngIf="element.uri">
                   <mat-icon>open_in_new</mat-icon>
                 </a>

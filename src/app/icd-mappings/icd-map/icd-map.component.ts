@@ -56,6 +56,8 @@ export class IcdMapComponent implements OnInit {
   /** WHO ICD-10 to ICD-11 map (multiple categories), indexed by ICD-10 code. */
   private icd10To11Index = new Map<string, any[]>();
   icd10To11Rows: any[] = [];
+  /** ICD-11 MMS release of the bridge file (e.g. 2026-01), derived from its linearization URIs. */
+  icd10To11Release = '';
   icd10To11DisplayedColumns: string[] = ['icd10', 'icd11', 'link'];
 
   icd10rules: any[] = [];
@@ -302,8 +304,22 @@ export class IcdMapComponent implements OnInit {
     });
   }
 
+  /**
+   * Converts an MMS linearization URI (e.g. http://id.who.int/icd/release/11/2026-01/mms/1423357983
+   * or .../1435254666/unspecified) into the matching entity page of the official ICD-11 browser.
+   */
+  private getIcd11Release(linearizationUri: string): string {
+    return (linearizationUri ?? '').match(/\/release\/11\/([^/]+)\//)?.[1] ?? '';
+  }
+
+  private toIcd11BrowserUrl(linearizationUri: string): string {
+    const match = (linearizationUri ?? '').match(/\/release\/11\/([^/]+)\/mms\/(.+)$/);
+    return match ? `https://icd.who.int/browse/${match[1]}/mms/en#${match[2].replace(/\//g, '%2F')}` : '';
+  }
+
   private indexIcd10To11(data: any[]) {
     this.icd10To11Index.clear();
+    this.icd10To11Release = data.find((r: any) => r.release)?.release ?? '';
     data
       .filter((r: any) => r.icd10Code && r.icd11Code)
       .forEach((r: any) => {
@@ -454,7 +470,8 @@ export class IcdMapComponent implements OnInit {
               icd10Title: r['icd10Title'],
               icd11Code: r['icd11Code'],
               icd11Title: r['icd11Title'],
-              uri: r['ICD-11 Foundation URI'],
+              uri: this.toIcd11BrowserUrl(r['Linearization (release) URI']),
+              release: this.getIcd11Release(r['Linearization (release) URI']),
             })),
           );
           dialogRef.close();
