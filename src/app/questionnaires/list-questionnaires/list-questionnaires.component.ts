@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, combineLatest, debounceTime, distinctUntilChanged, first } from 'rxjs';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
@@ -18,7 +18,7 @@ import { MatPaginator } from '@angular/material/paginator';
     styleUrls: ['./list-questionnaires.component.css'],
     standalone: false
 })
-export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterViewInit {
+export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -39,6 +39,12 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   selectedFhirServer: string = "";
   selectedUserTag: string = "";
   notFound = false;
+
+  // The demo HAPI server can take minutes before a freshly saved resource shows up in search results.
+  // Resources we saved successfully are kept locally (read-only, "SAVING") until a search returns them.
+  private static readonly PENDING_TTL_MS = 5 * 60 * 1000;
+  private static readonly PENDING_POLL_MS = 15 * 1000;
+  private pendingTimer: any;
 
   private baseUrlChanged = new Subject<string>();
   private userTagChanged = new Subject<string>();
@@ -118,30 +124,43 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
   ngOnChanges(changes: SimpleChanges): void {
   }
 
-  loadQuestionnaires() {
-    this.loading = true;
-    this.notFound = false;
-    this.questionnaires = [];
+  ngOnDestroy() {
+    clearTimeout(this.pendingTimer);
+  }
+
+  loadQuestionnaires(silent = false) {
+    clearTimeout(this.pendingTimer);
+    if (!silent) {
+      this.loading = true;
+      this.notFound = false;
+      this.questionnaires = [];
+    }
     this.fhirService.getQuestionnairesByTag(this.selectedUserTag).subscribe({
       next: (data: any) => {
-        if (data['entry']) {
-          this.questionnaires = data['entry'].map((entry: any) => entry.resource);
-          this.dataSource.data = this.questionnaires; 
-          this.dataSource.sort = this.sort;
-          this.loading = false;
-          // Set default sort
-          this.sort.active = 'title';
-          this.sort.direction = 'asc';
-          this.sort.sortChange.emit();
+        const serverItems = data['entry'] ? data['entry'].map((entry: any) => entry.resource) : [];
+        this.questionnaires = this.mergePending(serverItems);
+        this.dataSource.data = this.questionnaires;
+        this.loading = false;
+        if (this.questionnaires.length) {
+          this.notFound = false;
+          if (!silent) {
+            this.dataSource.sort = this.sort;
+            // Set default sort
+            this.sort.active = 'title';
+            this.sort.direction = 'asc';
+            this.sort.sortChange.emit();
+          }
         } else {
-          this.questionnaires = [];
-          this.dataSource.data = this.questionnaires;
-          this.loading = false;
           this.notFound = true;
         }
+        this.schedulePendingPoll();
       },
       error: (error) => {
         this.loading = false;
+        if (silent) {
+          this.schedulePendingPoll();
+          return;
+        }
         this.notFound = true;
         console.error('Error loading questionnaires:', error);
         this._snackBar.openFromComponent(SnackAlertComponent, {
@@ -151,6 +170,74 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
         });
       }
     });
+  }
+
+  private get pendingKey(): string {
+    return `questionnaire-pending:${this.fhirService.getBaseUrl()}:${this.selectedUserTag}`;
+  }
+
+  private readPending(): Record<string, { resource: any; savedAt: number }> {
+    try {
+      return JSON.parse(localStorage.getItem(this.pendingKey) || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  private writePending(pending: Record<string, { resource: any; savedAt: number }>) {
+    try {
+      if (Object.keys(pending).length) {
+        localStorage.setItem(this.pendingKey, JSON.stringify(pending));
+      } else {
+        localStorage.removeItem(this.pendingKey);
+      }
+    } catch {
+      // Storage unavailable: pending items just won't survive a page refresh.
+    }
+  }
+
+  /** Remember a questionnaire the server accepted (HTTP 2xx) but search may not return yet. */
+  private markPending(saved: any) {
+    if (!saved?.id) {
+      return;
+    }
+    const pending = this.readPending();
+    pending[saved.id] = { resource: saved, savedAt: Date.now() };
+    this.writePending(pending);
+    this.schedulePendingPoll();
+  }
+
+  /** Overlay locally-pending questionnaires on top of the server's search results. */
+  private mergePending(serverItems: any[]): any[] {
+    const pending = this.readPending();
+    const now = Date.now();
+    const result = [...serverItems];
+    let changed = false;
+    for (const id of Object.keys(pending)) {
+      const { resource, savedAt } = pending[id];
+      const index = result.findIndex(q => q.id === id);
+      const serverVersion = index !== -1 ? Number(result[index].meta?.versionId) : 0;
+      const pendingVersion = Number(resource.meta?.versionId) || 1;
+      if (now - savedAt > ListQuestionnairesComponent.PENDING_TTL_MS || (index !== -1 && serverVersion >= pendingVersion)) {
+        delete pending[id];
+        changed = true;
+      } else if (index !== -1) {
+        result[index] = { ...resource, _pending: true };
+      } else {
+        result.push({ ...resource, _pending: true });
+      }
+    }
+    if (changed) {
+      this.writePending(pending);
+    }
+    return result;
+  }
+
+  private schedulePendingPoll() {
+    clearTimeout(this.pendingTimer);
+    if (this.questionnaires.some(q => q._pending) || Object.keys(this.readPending()).length) {
+      this.pendingTimer = setTimeout(() => this.loadQuestionnaires(true), ListQuestionnairesComponent.PENDING_POLL_MS);
+    }
   }
 
   updateQuestionnairesList(newQuestionnaire: any): void {
@@ -303,7 +390,8 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
                   data: `Questionnaire "${data.title}" updated successfully`,
                   panelClass: ['green-snackbar']
                 });
-                this.updateQuestionnairesList(data);
+                this.markPending(data);
+                this.updateQuestionnairesList({ ...data, _pending: true });
               },
               error: (error) => {
                 console.error('Error saving questionnaire:', error);
@@ -354,7 +442,8 @@ export class ListQuestionnairesComponent implements OnInit, OnChanges, AfterView
               data: "Questionnaire updated successfully",
               panelClass: ['green-snackbar']
             });
-            this.updateQuestionnairesList(data);
+            this.markPending(data);
+            this.updateQuestionnairesList({ ...data, _pending: true });
           },
           (error: any) => {
             this._snackBar.openFromComponent(SnackAlertComponent, {

@@ -70,5 +70,21 @@
 .download-button-container {
     margin-top: 10px; /* Adds some space between the table and the button */
     margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
+
+.status-pill.saving {
+    background-color: #6c757d;
+}
+
+.saving-bar {
+    width: 100%;
+}
+
+/* Wide enough for the full set of row buttons, so the saving bar spans them all */
+.mat-column-actions {
+    min-width: 320px;
+}
