@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { TerminologyService } from '../services/terminology.service';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { from, Observable, of, Subscription } from 'rxjs';
+import { catchError, concatMap, finalize, tap } from 'rxjs/operators';
+import { SnomedCodingLocalizationService } from '../services/snomed-coding-localization.service';
 
 export interface FoundCoding {
   path: string;
@@ -12,7 +13,6 @@ export interface FoundCoding {
   isExtension: boolean;
   moduleId?: string;
   editionFhirUrl?: string;
-  ecl?: string;
   replacements: Array<{ code: string; display: string; system?: string; selected: boolean }>;
   loading: boolean;
   error?: string;
@@ -62,8 +62,6 @@ export interface DisplayUpdate {
   standalone: false
 })
 export class FhirInternationalizerComponent implements OnInit, OnDestroy {
-  readonly INTERNATIONAL_MODULE_ID = '900000000000207008';
-
   fhirResource: any = null;
   resourceType = '';
   resourceId = '';
@@ -90,9 +88,12 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   private verifyRun = 0;
 
   private serverSub?: Subscription;
+  private analyzeAllSub?: Subscription;
+  private inactiveSub?: Subscription;
 
   constructor(
     private terminologyService: TerminologyService,
+    private localization: SnomedCodingLocalizationService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -115,6 +116,8 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.serverSub?.unsubscribe();
+    this.analyzeAllSub?.unsubscribe();
+    this.inactiveSub?.unsubscribe();
   }
 
   onDragOver(event: DragEvent): void {
@@ -150,6 +153,8 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
 
   async processFile(file: File): Promise<void> {
     this.verifyRun++;
+    this.analyzeAllSub?.unsubscribe();
+    this.inactiveSub?.unsubscribe();
     this.verifyingModules = false;
     this.validationError = '';
     this.fhirResource = null;
@@ -229,68 +234,28 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
 
   private buildFoundCoding(path: string, obj: any): FoundCoding {
     const system: string = obj.system || '';
-    const code: string = obj.code || '';
-    const display: string | undefined = obj.display;
     const version: string | undefined = obj.version;
-
-    const { isExtension, moduleId, editionFhirUrl } = this.classifyCoding(system, version);
-
-    let ecl: string | undefined;
-    if (isExtension && code) {
-      ecl =
-        `((> ${code} {{ C moduleId = ${this.INTERNATIONAL_MODULE_ID} }} ) ` +
-        `MINUS (> (> ${code} {{ C moduleId = ${this.INTERNATIONAL_MODULE_ID} }} )))`;
-    }
+    const { isExtension, moduleId, editionFhirUrl } = this.localization.classifyCoding(system, version);
 
     return {
       path,
       system,
-      code,
-      display,
+      code: obj.code || '',
+      display: obj.display,
       version,
       isExtension,
       moduleId,
       editionFhirUrl,
-      ecl,
       replacements: [],
       loading: false,
       analyzed: false
     };
   }
 
-  private classifyCoding(
-    system: string,
-    version?: string
-  ): { isExtension: boolean; moduleId?: string; editionFhirUrl?: string } {
-    const isSnomedSystem = system.includes('snomed.info/sct');
-    if (!isSnomedSystem) {
-      return { isExtension: false };
-    }
-
-    const uriToCheck = version || system;
-    const moduleId = this.extractModuleId(uriToCheck);
-
-    if (!moduleId || moduleId === this.INTERNATIONAL_MODULE_ID) {
-      return { isExtension: false };
-    }
-
-    return {
-      isExtension: true,
-      moduleId,
-      editionFhirUrl: `http://snomed.info/sct/${moduleId}`
-    };
-  }
-
-  extractModuleId(uri: string): string | null {
-    if (!uri) return null;
-    const match = uri.match(/snomed\.info\/sct\/(\d+)/);
-    return match ? match[1] : null;
-  }
-
   private splitCodingsByOrigin(): void {
     this.extensionCodings = this.allCodings.filter(c => c.isExtension);
     this.internationalSnomedCodings = this.allCodings.filter(
-      c => c.system.includes('snomed.info/sct') && !c.isExtension && !!c.code && !!c.display
+      c => this.localization.isSnomedSystem(c.system) && !c.isExtension && !!c.code && !!c.display
     );
   }
 
@@ -310,22 +275,17 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
 
     const run = ++this.verifyRun;
     this.verifyingModules = true;
-    const fhirBase = this.terminologyService.getSnowstormFhirBase();
 
     try {
+      const codesByEdition = new Map([...byEdition].map(([url, codings]) => [url, codings.map(c => c.code)]));
+      const results = await this.localization.resolveInternationalCodes(codesByEdition);
+      if (run !== this.verifyRun) return;
       for (const [editionUrl, codings] of byEdition) {
-        const { inModule, missing } = await this.terminologyService.findCodesInModule(
-          fhirBase,
-          editionUrl,
-          codings.map(c => c.code),
-          this.INTERNATIONAL_MODULE_ID
-        );
-        if (run !== this.verifyRun) return;
+        const { inModule, missing } = results.get(editionUrl)!;
         for (const c of codings) {
           if (inModule.has(c.code)) {
             c.isExtension = false;
-            c.moduleId = this.INTERNATIONAL_MODULE_ID;
-            c.ecl = undefined;
+            c.moduleId = SnomedCodingLocalizationService.INTERNATIONAL_MODULE_ID;
           } else if (missing.has(c.code)) {
             c.notFoundInEdition = true;
             c.analyzed = true;
@@ -348,40 +308,51 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   // --- Extension codings analysis ---
 
   analyzeExtensionCoding(coding: FoundCoding): void {
-    if (!coding.ecl || !coding.editionFhirUrl || coding.notFoundInEdition) return;
+    if (!this.canAnalyzeExtension(coding)) return;
+    this.extensionAnalysis$(coding).subscribe();
+  }
 
+  analyzeAll(): void {
+    const pending = this.extensionCodings.filter(c => !c.loading && this.canAnalyzeExtension(c));
+    pending.forEach(c => (c.loading = true));
+
+    // One terminology request at a time: extension codings first, then displays
+    this.analyzeAllSub?.unsubscribe();
+    this.analyzeAllSub = from(pending)
+      .pipe(concatMap(c => this.extensionAnalysis$(c)))
+      .subscribe({
+        complete: () => {
+          if (this.internationalSnomedCodings.length) {
+            this.checkInternationalDisplays();
+          }
+        }
+      });
+  }
+
+  private canAnalyzeExtension(coding: FoundCoding): boolean {
+    return !!coding.code && !!coding.editionFhirUrl && !coding.notFoundInEdition;
+  }
+
+  private extensionAnalysis$(coding: FoundCoding): Observable<unknown> {
     coding.loading = true;
     coding.error = undefined;
     coding.replacements = [];
     coding.analyzed = false;
 
-    const fhirBase = this.terminologyService.getSnowstormFhirBase();
-
-    this.terminologyService
-      .expandValueSetFromServer(fhirBase, coding.editionFhirUrl, coding.ecl, '', 0, 50)
-      .subscribe({
-        next: (res: any) => {
-          coding.replacements = (res?.expansion?.contains ?? []).map((r: any) => ({ ...r, selected: true }));
-          coding.loading = false;
-          coding.analyzed = true;
-          this.cdr.detectChanges();
-        },
-        error: (err: any) => {
-          coding.error = err?.message || 'Failed to expand ECL — check the server and edition availability';
-          coding.loading = false;
-          coding.analyzed = true;
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
-  analyzeAll(): void {
-    this.extensionCodings
-      .filter(c => !c.loading && !c.notFoundInEdition)
-      .forEach(c => this.analyzeExtensionCoding(c));
-    if (this.internationalSnomedCodings.length) {
-      this.checkInternationalDisplays();
-    }
+    return this.localization.findInternationalAncestors(coding.code, coding.editionFhirUrl!).pipe(
+      tap(alternatives => {
+        coding.replacements = alternatives.map(r => ({ ...r, selected: true }));
+      }),
+      catchError((err: any) => {
+        coding.error = err?.message || 'Failed to expand ECL — check the server and edition availability';
+        return of(null);
+      }),
+      finalize(() => {
+        coding.loading = false;
+        coding.analyzed = true;
+        this.cdr.detectChanges();
+      })
+    );
   }
 
   // --- International codings display verification ---
@@ -394,40 +365,22 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
     this.displayUpdates = [];
     this.displayUpdatesAnalyzed = false;
 
-    // Deduplicate codes for the ECL, but keep all original occurrences for comparison
-    const uniqueCodes = [...new Set(this.internationalSnomedCodings.map(c => c.code))];
-    const ecl = uniqueCodes.join(' OR ');
+    this.localization.checkInSelectedEdition(this.internationalSnomedCodings.map(c => c.code)).subscribe({
+      next: ({ displays, notActive }) => {
+        this.internationalSnomedCodings.forEach(c => (c.inactive = notActive.has(c.code)));
+        this.findInactiveReplacements(this.internationalSnomedCodings.filter(c => c.inactive));
 
-    this.terminologyService.expandValueSet(ecl, '', 0, uniqueCodes.length + 50).subscribe({
-      next: (res: any) => {
-        const contains: any[] = res?.expansion?.contains ?? [];
-
-        // code → display as returned by the current edition
-        const serverDisplayMap = new Map<string, string>();
-        contains.forEach((item: any) => {
-          if (item.code && item.display) {
-            serverDisplayMap.set(item.code, item.display);
-          }
-        });
-
-        // Mark concepts not returned by the expansion as inactive; fetch replacements for those
-        this.internationalSnomedCodings.forEach(c => {
-          c.inactive = !serverDisplayMap.has(c.code);
-          if (c.inactive) this.findInactiveReplacements(c);
-        });
-
-        // Emit one row per coding occurrence where the display differs
+        // One row per coding occurrence where the display differs
         this.displayUpdates = this.internationalSnomedCodings
           .filter(c => {
-            const editionDisplay = serverDisplayMap.get(c.code);
-            if (!editionDisplay || !c.display) return false;
-            return c.display.trim() !== editionDisplay.trim();
+            const editionDisplay = displays.get(c.code);
+            return !!editionDisplay && !!c.display && c.display.trim() !== editionDisplay.trim();
           })
           .map(c => ({
             code: c.code,
             path: c.path,
             documentDisplay: c.display!,
-            editionDisplay: serverDisplayMap.get(c.code)!
+            editionDisplay: displays.get(c.code)!
           }));
 
         this.loadingDisplayUpdates = false;
@@ -445,50 +398,26 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
 
   // --- Inactive concept replacement lookup ---
 
-  private readonly INACTIVE_REFSETS = [
-    { id: '900000000000526001', label: 'REPLACED BY' },
-    { id: '900000000000527005', label: 'SAME AS' },
-    { id: '900000000000530003', label: 'ALTERNATIVE' },
-    { id: '900000000000523009', label: 'POSSIBLY EQUIVALENT TO' },
-  ];
+  private findInactiveReplacements(codings: FoundCoding[]): void {
+    codings.forEach(c => {
+      c.loadingInactiveReplacements = true;
+      c.inactiveReplacements = [];
+    });
 
-  private findInactiveReplacements(coding: FoundCoding): void {
-    coding.loadingInactiveReplacements = true;
-    coding.inactiveReplacements = [];
-
-    forkJoin(
-      this.INACTIVE_REFSETS.map(r =>
-        this.terminologyService.translate(r.id, coding.code).pipe(
-          map((res: any) => this.parseTranslateResult(res)),
-          catchError(() => of([]))
+    this.inactiveSub?.unsubscribe();
+    this.inactiveSub = from(codings)
+      .pipe(
+        concatMap(c =>
+          this.localization.findHistoricalReplacements(c.code).pipe(
+            tap(replacements => {
+              c.inactiveReplacements = replacements.map(r => ({ ...r, selected: true }));
+              c.loadingInactiveReplacements = false;
+              this.cdr.detectChanges();
+            })
+          )
         )
       )
-    ).subscribe(results => {
-      coding.inactiveReplacements = (results as any[][]).flat();
-      coding.loadingInactiveReplacements = false;
-      this.cdr.detectChanges();
-    });
-  }
-
-  private parseTranslateResult(res: any): Array<{ code: string; display: string; system: string; equivalence: string }> {
-    const out: any[] = [];
-    if (!res?.parameter) return out;
-    for (const param of res.parameter) {
-      if (param.name !== 'match') continue;
-      const item: any = {};
-      for (const part of param.part ?? []) {
-        if (part.name === 'concept' && part.valueCoding) {
-          item.code = part.valueCoding.code;
-          item.display = part.valueCoding.display;
-          item.system = part.valueCoding.system;
-        }
-        if (part.name === 'equivalence' && part.valueCode) {
-          item.equivalence = part.valueCode;
-        }
-      }
-      if (item.code) out.push({ ...item, selected: true });
-    }
-    return out;
+      .subscribe();
   }
 
   // --- Download modified resource ---
@@ -609,6 +538,8 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
 
   reset(): void {
     this.verifyRun++;
+    this.analyzeAllSub?.unsubscribe();
+    this.inactiveSub?.unsubscribe();
     this.verifyingModules = false;
     this.fhirResource = null;
     this.resourceType = '';
