@@ -2,14 +2,21 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-// Configuración
+// One-off migration: adds a bodySiteCode (clinical-record anchor point) to every descendant
+// in src/assets/patients/patient-generation-spec.json, using SNOMED CT ancestors from Snowstorm Lite.
+// Usage: node scripts/add-body-site-code-to-descendants.js
+// The lookup cache and the pre-migration backup are written to tmp/ (git-ignored).
+
+// Configuration
 const SNOWSTORM_BASE = 'https://implementation-demo.snomedtools.org/snowstorm-lite/fhir';
 const FHIR_URL_PARAM = 'http://snomed.info/sct';
-const RATE_LIMIT_MS = 1000; // 1 segundo entre llamadas
-const CACHE_FILE = 'location-cache.json';
-const BACKUP_FILE = 'patient-generation-spec.backup.json';
+const RATE_LIMIT_MS = 1000; // 1 second between requests
+const ROOT_DIR = path.join(__dirname, '..');
+const TMP_DIR = path.join(ROOT_DIR, 'tmp');
+const CACHE_FILE = path.join(TMP_DIR, 'location-cache.json');
+const BACKUP_FILE = path.join(TMP_DIR, 'patient-generation-spec.backup.json');
 
-// Anchor points del clinical-record component
+// Anchor points from the clinical-record component
 const anchorPoints = [
   {
     id: 'head',
@@ -41,21 +48,21 @@ const anchorPoints = [
   }
 ];
 
-// Cargar cache si existe
+// Load the cache if it exists
 let locationCache = {};
 if (fs.existsSync(CACHE_FILE)) {
   try {
     locationCache = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
-    console.log(`✅ Cache cargado: ${Object.keys(locationCache).length} códigos`);
+    console.log(`✅ Cache loaded: ${Object.keys(locationCache).length} codes`);
   } catch (error) {
-    console.log('⚠️  Error cargando cache, empezando desde cero');
+    console.log('⚠️  Error loading cache, starting from scratch');
   }
 }
 
-// Función para hacer delay
+// Delay helper
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Función para extraer concept ID de string SNOMED (maneja formato con display)
+// Extracts the concept ID from a SNOMED string (handles the "id |display|" format)
 const extractConceptId = (snomedString) => {
   if (snomedString.includes(' ')) {
     return snomedString.split(' ')[0].trim();
@@ -63,7 +70,7 @@ const extractConceptId = (snomedString) => {
   return snomedString.trim();
 };
 
-// Función para obtener ancestors de un concepto SNOMED
+// Gets the ancestors of a SNOMED concept
 const getAncestors = (conceptId) => {
   return new Promise((resolve, reject) => {
     const ecl = `> ${conceptId}`;
@@ -94,7 +101,7 @@ const getAncestors = (conceptId) => {
   });
 };
 
-// Función para extraer concept IDs de la respuesta de expansión
+// Extracts concept IDs from an expansion response
 const extractConceptIdsFromExpansion = (response) => {
   const conceptIds = [];
   
@@ -109,7 +116,7 @@ const extractConceptIdsFromExpansion = (response) => {
   return conceptIds;
 };
 
-// Función para encontrar el mejor anchor point basado en ancestors
+// Finds the best anchor point based on ancestors
 const findBestAnchorPointForAncestors = (ancestorIds) => {
   for (const anchorPoint of anchorPoints) {
     const anchorPointConceptIds = anchorPoint.ancestors.map(ancestor => extractConceptId(ancestor));
@@ -123,9 +130,9 @@ const findBestAnchorPointForAncestors = (ancestorIds) => {
   return null;
 };
 
-// Función para calcular location de un código SNOMED
+// Computes the location of a SNOMED code
 const calculateLocation = async (conceptId) => {
-  // Verificar cache primero
+  // Check the cache first
   if (locationCache[conceptId]) {
     return locationCache[conceptId];
   }
@@ -137,33 +144,34 @@ const calculateLocation = async (conceptId) => {
     
     const location = bestAnchorPoint ? bestAnchorPoint.id : 'systemic';
     
-    // Guardar en cache
+    // Store in cache
     locationCache[conceptId] = location;
     
     return location;
   } catch (error) {
-    console.error(`  ⚠️  Error obteniendo ancestors para ${conceptId}: ${error.message}`);
+    console.error(`  ⚠️  Error getting ancestors for ${conceptId}: ${error.message}`);
     const location = 'systemic';
-    locationCache[conceptId] = location; // Cachear el fallback también
+    locationCache[conceptId] = location; // Cache the fallback too
     return location;
   }
 };
 
-// Función principal
+// Main
 const main = async () => {
-  console.log('🚀 Iniciando proceso de agregar bodySiteCode a descendants...\n');
+  console.log('🚀 Adding bodySiteCode to descendants...\n');
   
-  // Cargar JSON
-  const jsonPath = path.join(__dirname, 'src/assets/patients/patient-generation-spec.json');
-  console.log(`📖 Leyendo archivo: ${jsonPath}`);
+  // Load JSON
+  const jsonPath = path.join(ROOT_DIR, 'src/assets/patients/patient-generation-spec.json');
+  console.log(`📖 Reading file: ${jsonPath}`);
   
   const jsonData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
   
-  // Crear backup
-  console.log(`💾 Creando backup: ${BACKUP_FILE}`);
+  // Create backup
+  fs.mkdirSync(TMP_DIR, { recursive: true });
+  console.log(`💾 Creating backup: ${BACKUP_FILE}`);
   fs.writeFileSync(BACKUP_FILE, JSON.stringify(jsonData, null, 2));
   
-  // Extraer todos los códigos únicos de descendants
+  // Collect all unique codes from descendants
   const uniqueCodes = new Set();
   
   jsonData.diseasePrevalenceByAgeAndSex.forEach(ageGroup => {
@@ -188,11 +196,11 @@ const main = async () => {
     });
   });
   
-  console.log(`\n📊 Total de códigos únicos encontrados: ${uniqueCodes.size}`);
-  console.log(`📊 Códigos ya en cache: ${Array.from(uniqueCodes).filter(code => locationCache[code]).length}`);
-  console.log(`📊 Códigos a procesar: ${Array.from(uniqueCodes).filter(code => !locationCache[code]).length}\n`);
+  console.log(`\n📊 Unique codes found: ${uniqueCodes.size}`);
+  console.log(`📊 Codes already cached: ${Array.from(uniqueCodes).filter(code => locationCache[code]).length}`);
+  console.log(`📊 Codes to process: ${Array.from(uniqueCodes).filter(code => !locationCache[code]).length}\n`);
   
-  // Procesar cada código único
+  // Process each unique code
   const codesArray = Array.from(uniqueCodes);
   let processed = 0;
   let skipped = 0;
@@ -204,29 +212,29 @@ const main = async () => {
     }
     
     processed++;
-    console.log(`[${processed}/${codesArray.length - skipped}] Procesando código: ${code}`);
+    console.log(`[${processed}/${codesArray.length - skipped}] Processing code: ${code}`);
     
     const location = await calculateLocation(code);
     console.log(`  ✅ Location: ${location}`);
     
-    // Guardar cache periódicamente (cada 10 códigos)
+    // Save the cache periodically (every 10 codes)
     if (processed % 10 === 0) {
       fs.writeFileSync(CACHE_FILE, JSON.stringify(locationCache, null, 2));
-      console.log(`  💾 Cache guardado (${Object.keys(locationCache).length} códigos)`);
+      console.log(`  💾 Cache saved (${Object.keys(locationCache).length} codes)`);
     }
     
-    // Rate limiting: esperar 1 segundo antes de la siguiente llamada
+    // Rate limiting: wait 1 second before the next request
     if (processed < codesArray.length - skipped) {
       await delay(RATE_LIMIT_MS);
     }
   }
   
-  // Guardar cache final
+  // Save the final cache
   fs.writeFileSync(CACHE_FILE, JSON.stringify(locationCache, null, 2));
-  console.log(`\n💾 Cache final guardado: ${Object.keys(locationCache).length} códigos`);
+  console.log(`\n💾 Final cache saved: ${Object.keys(locationCache).length} codes`);
   
-  // Actualizar JSON con bodySiteCode
-  console.log('\n🔄 Actualizando JSON con bodySiteCode...');
+  // Update JSON with bodySiteCode
+  console.log('\n🔄 Updating JSON with bodySiteCode...');
   
   let updatedCount = 0;
   
@@ -254,29 +262,29 @@ const main = async () => {
     });
   });
   
-  console.log(`✅ ${updatedCount} descendants actualizados`);
+  console.log(`✅ ${updatedCount} descendants updated`);
   
-  // Validar JSON
+  // Validate JSON
   try {
     JSON.parse(JSON.stringify(jsonData));
-    console.log('✅ JSON válido');
+    console.log('✅ Valid JSON');
   } catch (error) {
-    console.error('❌ Error: JSON inválido después de actualizar');
+    console.error('❌ Error: invalid JSON after update');
     process.exit(1);
   }
   
-  // Guardar JSON actualizado
-  console.log(`\n💾 Guardando archivo actualizado...`);
+  // Save the updated JSON
+  console.log(`\n💾 Saving updated file...`);
   fs.writeFileSync(jsonPath, JSON.stringify(jsonData, null, 2));
   
-  console.log('\n✅ ¡Proceso completado exitosamente!');
-  console.log(`📁 Backup guardado en: ${BACKUP_FILE}`);
-  console.log(`💾 Cache guardado en: ${CACHE_FILE}`);
+  console.log('\n✅ Done!');
+  console.log(`📁 Backup saved to: ${BACKUP_FILE}`);
+  console.log(`💾 Cache saved to: ${CACHE_FILE}`);
 };
 
-// Ejecutar
+// Run
 main().catch(error => {
-  console.error('\n❌ Error fatal:', error);
+  console.error('\n❌ Fatal error:', error);
   process.exit(1);
 });
 
