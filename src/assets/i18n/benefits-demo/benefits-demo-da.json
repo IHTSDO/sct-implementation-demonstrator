@@ -511,8 +511,7 @@
       },
       "importAs": "Importér som",
       "noAlternative": "Intet alternativ fundet; det importeres som modtaget",
-      "keepOriginal": "Behold original",
-      "adapt": "Tilpas",
+      "adaptToggle": "Tilpas",
       "originalKept": "Den oprindelige kode {{ code }} bevares som ekstra kodning",
       "adaptedTooltip": "Tilpasset din SNOMED CT-udgave"
     }

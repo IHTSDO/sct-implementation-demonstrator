@@ -318,9 +318,14 @@
                                     <mat-icon>{{ adaptation.adaptation.reason === 'display-localized' ? 'translate' : 'swap_horiz' }}</mat-icon>
                                     <strong>{{ t('interoperability.terminology.reasons.' + adaptation.adaptation.reason) }}</strong>
                                     @if (canToggleAdaptation(adaptation)) {
-                                      <button mat-button color="primary" class="adaptation-toggle" (click)="toggleAdaptation(item)">
-                                        {{ adaptation.applied ? t('interoperability.terminology.keepOriginal') : t('interoperability.terminology.adapt') }}
-                                      </button>
+                                      <mat-slide-toggle
+                                        color="primary"
+                                        class="adaptation-toggle"
+                                        labelPosition="before"
+                                        [checked]="adaptation.applied"
+                                        (change)="toggleAdaptation(item)">
+                                        {{ t('interoperability.terminology.adaptToggle') }}
+                                      </mat-slide-toggle>
                                     }
                                   </div>
 
@@ -353,16 +358,18 @@
                               }
                             </div>
 
-                            @if (isItemAlreadyRecorded(section, item)) {
-                              <span class="status-pill status-pill-neutral">{{ t('interoperability.labels.alreadyInRecord') }}</span>
-                            }
+                            <div class="comparison-item-actions">
+                              @if (isItemAlreadyRecorded(section, item)) {
+                                <span class="status-pill status-pill-neutral">{{ t('interoperability.labels.alreadyInRecord') }}</span>
+                              }
 
-                            @if (!isItemAlreadyRecorded(section, item)) {
-                              <button mat-flat-button color="primary" (click)="toggleSectionSelection(section, item.id)">
-                                <mat-icon>{{ isItemSelected(section, item.id) ? 'remove_circle' : 'add_circle' }}</mat-icon>
-                                {{ isItemSelected(section, item.id) ? t('interoperability.actions.remove') : t('interoperability.actions.add') }}
-                              </button>
-                            }
+                              @if (!isItemAlreadyRecorded(section, item)) {
+                                <button mat-flat-button color="primary" (click)="toggleSectionSelection(section, item.id)">
+                                  <mat-icon>{{ isItemSelected(section, item.id) ? 'remove_circle' : 'add_circle' }}</mat-icon>
+                                  {{ isItemSelected(section, item.id) ? t('interoperability.actions.remove') : t('interoperability.actions.add') }}
+                                </button>
+                              }
+                            </div>
                           </div>
                         </div>
                       }

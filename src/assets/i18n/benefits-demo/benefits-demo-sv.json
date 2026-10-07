@@ -511,8 +511,7 @@
       },
       "importAs": "Importera som",
       "noAlternative": "Inget alternativ hittades; det importeras som det togs emot",
-      "keepOriginal": "Behåll original",
-      "adapt": "Anpassa",
+      "adaptToggle": "Anpassa",
       "originalKept": "Den ursprungliga koden {{ code }} behålls som extra kodning",
       "adaptedTooltip": "Anpassat till din SNOMED CT-utgåva"
     }

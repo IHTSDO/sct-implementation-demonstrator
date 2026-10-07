@@ -550,13 +550,17 @@
 
 .comparison-item-main {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .comparison-item-copy {
   min-width: 0;
+}
+
+.comparison-item-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .comparison-item-title {
@@ -759,7 +763,6 @@
     padding: 20px;
   }
 
-  .comparison-item-main,
   .suggestion-card,
   .linked-patient-card,
   .scanner-panel-header {
@@ -787,8 +790,14 @@
 
 .adaptation-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 4px 6px;
+}
+
+.adaptation-header strong {
+  flex: 1 1 140px;
+  min-width: 0;
 }
 
 .adaptation-header mat-icon {

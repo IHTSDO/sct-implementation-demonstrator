@@ -511,8 +511,7 @@
       },
       "importAs": "Importar como",
       "noAlternative": "No se encontró una alternativa; se importará tal como se recibió",
-      "keepOriginal": "Mantener original",
-      "adapt": "Adaptar",
+      "adaptToggle": "Adaptar",
       "originalKept": "El código original {{ code }} se conserva como coding adicional",
       "adaptedTooltip": "Adaptado a tu edición de SNOMED CT"
     }
