@@ -86,15 +86,19 @@
         </button>
         <span class="actions-spacer"></span>
         <mat-chip-set>
+          <mat-chip *ngIf="verifyingModules">
+            <mat-icon matChipAvatar>hourglass_empty</mat-icon>
+            Checking concept modules…
+          </mat-chip>
           <mat-chip>
             <mat-icon matChipAvatar>code</mat-icon>
             {{ allCodings.length }} coding{{ allCodings.length !== 1 ? 's' : '' }} found
           </mat-chip>
-          <mat-chip *ngIf="extensionCodings.length === 0" color="primary">
+          <mat-chip *ngIf="!verifyingModules && extensionCodings.length === 0" color="primary">
             <mat-icon matChipAvatar>check_circle</mat-icon>
             No extension codings detected
           </mat-chip>
-          <mat-chip *ngIf="extensionCodings.length > 0" color="warn" highlighted
+          <mat-chip *ngIf="!verifyingModules && extensionCodings.length > 0" color="warn" highlighted
             [matTooltip]="extensionEditionTooltip"
             matTooltipClass="multiline-tooltip">
             <mat-icon matChipAvatar>warning</mat-icon>
@@ -407,7 +411,7 @@
 
         <!-- Not yet run -->
         <div *ngIf="!displayUpdatesAnalyzed && !loadingDisplayUpdates" class="check-prompt">
-          <button mat-stroked-button color="primary" (click)="checkInternationalDisplays()">
+          <button mat-stroked-button color="primary" (click)="checkInternationalDisplays()" [disabled]="verifyingModules">
             <mat-icon>sync</mat-icon>
             Check displays against current edition
           </button>

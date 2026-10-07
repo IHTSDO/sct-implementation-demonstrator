@@ -20,6 +20,7 @@ export interface FoundCoding {
   inactive?: boolean;
   inactiveReplacements?: Array<{ code: string; display: string; system: string; equivalence: string; selected: boolean }>;
   loadingInactiveReplacements?: boolean;
+  notFoundInEdition?: boolean;
 }
 
 export interface PreviewRow {
@@ -85,6 +86,9 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   displayUpdatesAnalyzed = false;
   displayUpdatesError: string | undefined;
 
+  verifyingModules = false;
+  private verifyRun = 0;
+
   private serverSub?: Subscription;
 
   constructor(
@@ -145,6 +149,8 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   }
 
   async processFile(file: File): Promise<void> {
+    this.verifyRun++;
+    this.verifyingModules = false;
     this.validationError = '';
     this.fhirResource = null;
     this.allCodings = [];
@@ -177,9 +183,8 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
       this.collapsedNodes = new Set<string>();
       this.allCodings = this.findAllCodings(json);
       this.extensionCodings = this.allCodings.filter(c => c.isExtension);
-      this.internationalSnomedCodings = this.allCodings.filter(
-        c => c.system.includes('snomed.info/sct') && !c.isExtension && !!c.code && !!c.display
-      );
+      this.splitCodingsByOrigin();
+      this.verifyExtensionModules();
     } catch (e: any) {
       this.validationError = 'Failed to parse JSON: ' + (e?.message || String(e));
     }
@@ -282,10 +287,68 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
     return match ? match[1] : null;
   }
 
+  private splitCodingsByOrigin(): void {
+    this.extensionCodings = this.allCodings.filter(c => c.isExtension);
+    this.internationalSnomedCodings = this.allCodings.filter(
+      c => c.system.includes('snomed.info/sct') && !c.isExtension && !!c.code && !!c.display
+    );
+  }
+
+  /**
+   * `version` identifies the edition a concept was selected from, not the
+   * module the concept lives in: an extension edition also contains every
+   * International concept. Ask each edition which of its codes are actually
+   * in the International module and reclassify those as International.
+   */
+  private async verifyExtensionModules(): Promise<void> {
+    const byEdition = new Map<string, FoundCoding[]>();
+    for (const c of this.extensionCodings) {
+      if (!c.editionFhirUrl || !c.code) continue;
+      byEdition.set(c.editionFhirUrl, [...(byEdition.get(c.editionFhirUrl) ?? []), c]);
+    }
+    if (!byEdition.size) return;
+
+    const run = ++this.verifyRun;
+    this.verifyingModules = true;
+    const fhirBase = this.terminologyService.getSnowstormFhirBase();
+
+    try {
+      for (const [editionUrl, codings] of byEdition) {
+        const { inModule, missing } = await this.terminologyService.findCodesInModule(
+          fhirBase,
+          editionUrl,
+          codings.map(c => c.code),
+          this.INTERNATIONAL_MODULE_ID
+        );
+        if (run !== this.verifyRun) return;
+        for (const c of codings) {
+          if (inModule.has(c.code)) {
+            c.isExtension = false;
+            c.moduleId = this.INTERNATIONAL_MODULE_ID;
+            c.ecl = undefined;
+          } else if (missing.has(c.code)) {
+            c.notFoundInEdition = true;
+            c.analyzed = true;
+            c.error = `Concept not found in ${this.getExtensionName(c.moduleId)}`;
+          }
+        }
+      }
+    } catch (err) {
+      // Keep the version-based classification when the server cannot answer
+      console.warn('Could not verify concept modules', err);
+    } finally {
+      if (run === this.verifyRun) {
+        this.splitCodingsByOrigin();
+        this.verifyingModules = false;
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
   // --- Extension codings analysis ---
 
   analyzeExtensionCoding(coding: FoundCoding): void {
-    if (!coding.ecl || !coding.editionFhirUrl) return;
+    if (!coding.ecl || !coding.editionFhirUrl || coding.notFoundInEdition) return;
 
     coding.loading = true;
     coding.error = undefined;
@@ -314,7 +377,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
 
   analyzeAll(): void {
     this.extensionCodings
-      .filter(c => !c.loading)
+      .filter(c => !c.loading && !c.notFoundInEdition)
       .forEach(c => this.analyzeExtensionCoding(c));
     if (this.internationalSnomedCodings.length) {
       this.checkInternationalDisplays();
@@ -545,6 +608,8 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   // --- Reset ---
 
   reset(): void {
+    this.verifyRun++;
+    this.verifyingModules = false;
     this.fhirResource = null;
     this.resourceType = '';
     this.resourceId = '';
@@ -730,7 +795,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   }
 
   get anyLoading(): boolean {
-    return this.extensionCodings.some(c => c.loading);
+    return this.verifyingModules || this.extensionCodings.some(c => c.loading);
   }
 
   get analyzedCount(): number {

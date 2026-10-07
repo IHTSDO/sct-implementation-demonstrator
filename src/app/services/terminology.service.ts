@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, concatMap, finalize, map, Observable, of, shareReplay, tap, throwError, timeout } from 'rxjs';
+import { catchError, concatMap, finalize, firstValueFrom, map, Observable, of, shareReplay, tap, throwError, timeout } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 import { BehaviorSubject } from 'rxjs';
@@ -583,6 +583,76 @@ export class TerminologyService {
       .pipe(
         catchError(this.handleError<any>('expandValueSet', {}))
       );
+  }
+
+  /**
+   * Splits `codes` into those whose concept belongs to `moduleId` in the edition
+   * `fhirUrl`, and those the server reports as unknown in that edition.
+   * Codes in neither set exist in the edition but in another module (or are inactive).
+   *
+   * Uses one `(a OR b ...) {{ C moduleId = X }}` expansion per chunk, sent
+   * sequentially. Some servers reject the whole ECL when a code does not exist
+   * on the branch; in that case the SCTIDs named in the error are dropped and
+   * the chunk is retried, and if none are named each code is checked on its own
+   * with a short delay between requests.
+   */
+  async findCodesInModule(
+    fhirBase: string,
+    fhirUrl: string,
+    codes: string[],
+    moduleId: string,
+    chunkSize = 50
+  ): Promise<{ inModule: Set<string>; missing: Set<string> }> {
+    const inModule = new Set<string>();
+    const missing = new Set<string>();
+    const unique = [...new Set(codes)];
+
+    for (let i = 0; i < unique.length; i += chunkSize) {
+      let pending = unique.slice(i, i + chunkSize);
+      while (pending.length) {
+        try {
+          (await this.expandCodesInModule(fhirBase, fhirUrl, pending, moduleId)).forEach(c => inModule.add(c));
+          break;
+        } catch (err: any) {
+          const reported = this.extractCodesFromError(err, pending);
+          // An error naming every code most likely just echoes the ECL back
+          const reportedIsUseful = reported.length > 0 && (pending.length === 1 || reported.length < pending.length);
+          if (reportedIsUseful) {
+            reported.forEach(c => missing.add(c));
+            pending = pending.filter(c => !reported.includes(c));
+            continue;
+          }
+          for (const code of pending) {
+            await new Promise(resolve => setTimeout(resolve, 120));
+            try {
+              (await this.expandCodesInModule(fhirBase, fhirUrl, [code], moduleId)).forEach(c => inModule.add(c));
+            } catch {
+              missing.add(code);
+            }
+          }
+          break;
+        }
+      }
+    }
+    return { inModule, missing };
+  }
+
+  private async expandCodesInModule(fhirBase: string, fhirUrl: string, codes: string[], moduleId: string): Promise<string[]> {
+    const base = (fhirBase || this.snowstormFhirBase).replace(/\/$/, '');
+    const ecl = `(${codes.join(' OR ')}) {{ C moduleId = ${moduleId} }}`;
+    const requestUrl = `${base}/ValueSet/$expand?url=${encodeURIComponent(fhirUrl)}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${codes.length}`;
+    const res: any = await firstValueFrom(this.http.get<any>(requestUrl));
+    return (res?.expansion?.contains ?? []).map((c: any) => c.code).filter(Boolean);
+  }
+
+  private extractCodesFromError(err: any, candidates: string[]): string[] {
+    const body = err?.error;
+    const text = [
+      typeof body === 'string' ? body : JSON.stringify(body ?? ''),
+      err?.message ?? ''
+    ].join(' ');
+    const mentioned = new Set(text.match(/\d{6,18}/g) ?? []);
+    return candidates.filter(c => mentioned.has(c));
   }
 
   /**
