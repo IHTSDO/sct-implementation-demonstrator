@@ -105,9 +105,7 @@
     "colDate": "Datum",
     "colLevel": "Nivå",
     "colScore": "Poäng",
-    "colLocation": "Plats",
-    "colActions": "Åtgärder",
-    "deleteTooltip": "Ta bort den här enkäten"
+    "colLocation": "Plats"
   },
   "results": {
     "kpaDescription": "Beskrivning av nyckelprocessområde",

@@ -105,9 +105,7 @@
     "colDate": "Datum",
     "colLevel": "Niveau",
     "colScore": "Score",
-    "colLocation": "Locatie",
-    "colActions": "Acties",
-    "deleteTooltip": "Deze beoordeling verwijderen"
+    "colLocation": "Locatie"
   },
   "results": {
     "kpaDescription": "KPG-beschrijving",

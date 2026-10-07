@@ -105,9 +105,7 @@
     "colDate": "Dato",
     "colLevel": "Niveau",
     "colScore": "Score",
-    "colLocation": "Placering",
-    "colActions": "Handlinger",
-    "deleteTooltip": "Slet denne vurdering"
+    "colLocation": "Placering"
   },
   "results": {
     "kpaDescription": "KPA-beskrivelse",

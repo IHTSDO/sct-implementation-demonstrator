@@ -105,9 +105,7 @@
     "colDate": "Date",
     "colLevel": "Level",
     "colScore": "Score",
-    "colLocation": "Location",
-    "colActions": "Actions",
-    "deleteTooltip": "Delete this assessment"
+    "colLocation": "Location"
   },
   "results": {
     "kpaDescription": "KPA Description",

@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// Firestore security rules for the public demos (SnoGuess, Expo quiz, Maturity assessment).
+// The app has no backend, so these rules are the only server-side enforcement:
+// anyone can read and append entries with a validated shape, nobody can update or delete
+// from the client. Clean-up is done from the Firebase console, which bypasses these rules.
+// Deploy with: firebase deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function data() {
+      return request.resource.data;
+    }
+
+    function isShortString(value, maxLength) {
+      return value is string && value.size() <= maxLength;
+    }
+
+    function isNumberInRange(value, min, max) {
+      return value is number && value >= min && value <= max;
+    }
+
+    // SnoGuess high scores, one collection per difficulty level.
+    match /{level}/{scoreId} {
+      allow read: if level in ['Easy', 'Medium', 'Hard'];
+      allow create: if level in ['Easy', 'Medium', 'Hard']
+        && data().keys().hasOnly(['score', 'numberOfRounds', 'difficulty', 'elapsed', 'date', 'message'])
+        && isNumberInRange(data().score, 0, 1000000)
+        && isNumberInRange(data().numberOfRounds, 0, 1000)
+        && isNumberInRange(data().elapsed, 0, 86400000)
+        && data().difficulty == level
+        && data().date == request.time
+        && isShortString(data().message, 60);
+    }
+
+    // Expo quiz leaderboard.
+    match /quizLeaderboard/{entryId} {
+      allow read: if true;
+      allow create: if data().keys().hasOnly(['name', 'score', 'quiz', 'date', 'eventName', 'createdAt'])
+        && isShortString(data().name, 20)
+        && data().name.size() > 0
+        && isNumberInRange(data().score, 0, 100)
+        && isShortString(data().quiz, 50)
+        && isShortString(data().date, 40)
+        && isShortString(data().eventName, 100)
+        && isShortString(data().createdAt, 40);
+    }
+
+    // Maturity assessment results. The document also carries one field per question response,
+    // so only the size and the identifying fields are validated.
+    match /maturityAssessments/{assessmentId} {
+      allow read: if true;
+      allow create: if data().keys().size() <= 500
+        && isShortString(data().name, 200)
+        && isShortString(data().author, 200)
+        && isShortString(data().systemName, 200)
+        && isShortString(data().eventName, 100)
+        && isNumberInRange(data().overallScore, 0, 100);
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -20,7 +20,7 @@ export class MaturityAdminComponent implements OnInit, OnDestroy {
   availableEvents: string[] = [];
   
   // Table columns to display
-  displayedColumns: string[] = ['name', 'author', 'systemName', 'timestamp', 'level', 'overallScore', 'location', 'actions'];
+  displayedColumns: string[] = ['name', 'author', 'systemName', 'timestamp', 'level', 'overallScore', 'location'];
   
   private firebaseUnsubscribe: Unsubscribe | null = null;
 
@@ -151,37 +151,6 @@ export class MaturityAdminComponent implements OnInit, OnDestroy {
    */
   onEventChange(): void {
     this.loadAssessments();
-  }
-
-  /**
-   * Delete an assessment
-   */
-  async deleteAssessment(assessment: MaturityAssessmentResult & { id: string }): Promise<void> {
-    const confirmDelete = confirm(
-      `Are you sure you want to delete the assessment "${assessment.name}" by ${assessment.author}?\n\nThis action cannot be undone.`
-    );
-
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      // Delete from Firebase - let the real-time listener handle the UI update
-      await this.firebaseService.deleteMaturityAssessmentResult(assessment.id);
-      
-      this._snackBar.openFromComponent(SnackAlertComponent, {
-        duration: 3000,
-        data: `Assessment "${assessment.name}" has been deleted successfully`,
-        panelClass: ['green-snackbar']
-      });
-    } catch (error) {
-      console.error('Error deleting assessment:', error);
-      this._snackBar.openFromComponent(SnackAlertComponent, {
-        duration: 5000,
-        data: `Error deleting assessment: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        panelClass: ['red-snackbar']
-      });
-    }
   }
 
   /**

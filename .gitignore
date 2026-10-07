@@ -64,3 +64,9 @@ data/**
 
 # Local artifact, not part of the project
 snoguess-itch.zip
+
+# Firebase CLI
+firebase-debug.log*
+firestore-debug.log*
+.firebase/
+*-firebase-adminsdk-*.json

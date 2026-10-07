@@ -7,7 +7,7 @@ import { PreloadService } from "src/app/services/preload.service";
 import { TerminologyService } from "src/app/services/terminology.service";
 import { FirebaseService } from "src/app/services/firebase.service";
 import { Router } from "@angular/router";
-import { Timestamp } from "firebase/firestore";
+import { serverTimestamp } from "firebase/firestore";
 
 @Component({
     selector: 'app-snoguess-main',
@@ -274,7 +274,7 @@ export class SnoguessMainComponent implements OnInit {
       "numberOfRounds": gameState.round,
       "difficulty": gameState.difficultyLevel,
       "elapsed": gameState.endTimestamp - gameState.startTimestamp,
-      "date": Timestamp.now(),
+      "date": serverTimestamp(),
       "message": this.messageForLeaderboard
     }
     this.firebaseService.addScore(gameState.difficultyLevel, highScore).then(() => {

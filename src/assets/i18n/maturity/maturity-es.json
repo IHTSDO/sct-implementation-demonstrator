@@ -105,9 +105,7 @@
     "colDate": "Fecha",
     "colLevel": "Nivel",
     "colScore": "Puntuación",
-    "colLocation": "Ubicación",
-    "colActions": "Acciones",
-    "deleteTooltip": "Eliminar esta evaluación"
+    "colLocation": "Ubicación"
   },
   "results": {
     "kpaDescription": "Descripción del APC",
