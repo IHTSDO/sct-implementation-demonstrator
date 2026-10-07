@@ -125,7 +125,10 @@ export class PatientSimulationService {
 
   private patientGenerationSpec: PatientGenerationSpec | null = null;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private patientService: PatientService
+  ) { }
 
   /**
    * Generates a random patient with realistic data
@@ -502,11 +505,7 @@ export class PatientSimulationService {
       },
       code: {
         coding: [
-          {
-            system: PatientService.SNOMED_SYSTEM,
-            code: snomedCode,
-            display: snomedDisplay
-          },
+          this.patientService.buildSnomedCoding(snomedCode, snomedDisplay),
           ...(icd10Code ? [{
             system: PatientService.ICD10_SYSTEM,
             code: icd10Code,

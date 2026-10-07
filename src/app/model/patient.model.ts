@@ -589,6 +589,7 @@ export interface MedicationStatement {
   medicationCodeableConcept?: {
     coding?: Array<{
       system?: string;
+      version?: string;
       code?: string;
       display?: string;
     }>;
@@ -850,6 +851,7 @@ export interface Immunization {
   vaccineCode: {
     coding?: Array<{
       system?: string;
+      version?: string;
       code?: string;
       display?: string;
     }>;

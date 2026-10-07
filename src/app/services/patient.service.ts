@@ -2590,10 +2590,29 @@ export class PatientService {
     };
   }
 
+  /**
+   * Builds a SNOMED CT coding. `version` records the edition the concept was
+   * selected from: when `version` is undefined the currently selected edition
+   * is used; pass null to keep the coding unversioned (e.g. imported data
+   * that carried no version).
+   */
+  buildSnomedCoding(code: string, display: string, version?: string | null): { system: string; version?: string; code: string; display: string } {
+    const editionUri = version === undefined ? this.terminologyService.getFhirUrlParam() : version;
+    const coding: { system: string; version?: string; code: string; display: string } = {
+      system: PatientService.SNOMED_SYSTEM,
+      code,
+      display
+    };
+    if (editionUri && editionUri !== PatientService.SNOMED_SYSTEM && editionUri.startsWith(`${PatientService.SNOMED_SYSTEM}/`)) {
+      coding.version = editionUri;
+    }
+    return coding;
+  }
+
   // Centralized FHIR resource creation methods for AI-detected entities
   createConditionFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string },
+    concept: { code?: string; display?: string; text?: string; version?: string | null },
     options?: { dateTime?: string }
   ): Condition {
     const display = concept.display || concept.text || concept.code || 'Unknown condition';
@@ -2619,11 +2638,7 @@ export class PatientService {
         text: 'Confirmed'
       },
       code: {
-        coding: concept.code ? [{
-          system: PatientService.SNOMED_SYSTEM,
-          code: concept.code,
-          display
-        }] : undefined,
+        coding: concept.code ? [this.buildSnomedCoding(concept.code, display, concept.version)] : undefined,
         text: display
       },
       subject: {
@@ -2637,7 +2652,7 @@ export class PatientService {
 
   createProcedureFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string },
+    concept: { code?: string; display?: string; text?: string; version?: string | null },
     options?: { dateTime?: string }
   ): Procedure {
     const display = concept.display || concept.text || concept.code || 'Unknown procedure';
@@ -2648,11 +2663,7 @@ export class PatientService {
       id: `procedure-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       status: 'completed',
       code: {
-        coding: concept.code ? [{
-          system: 'http://snomed.info/sct',
-          code: concept.code,
-          display
-        }] : undefined,
+        coding: concept.code ? [this.buildSnomedCoding(concept.code, display, concept.version)] : undefined,
         text: display
       },
       subject: {
@@ -2665,7 +2676,7 @@ export class PatientService {
 
   createMedicationFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string },
+    concept: { code?: string; display?: string; text?: string; version?: string | null },
     options?: {
       effectiveDateTime?: string;
       reasonReference?: Array<{ reference: string; display?: string }>;
@@ -2679,11 +2690,7 @@ export class PatientService {
       id: `medication-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       status: 'active',
       medicationCodeableConcept: {
-        coding: concept.code ? [{
-          system: 'http://snomed.info/sct',
-          code: concept.code,
-          display
-        }] : undefined,
+        coding: concept.code ? [this.buildSnomedCoding(concept.code, display, concept.version)] : undefined,
         text: display
       },
       subject: {
@@ -2705,7 +2712,7 @@ export class PatientService {
 
   createImmunizationFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string },
+    concept: { code?: string; display?: string; text?: string; version?: string | null },
     options?: { occurrenceDateTime?: string; status?: Immunization['status'] }
   ): Immunization {
     const display = concept.display || concept.text || concept.code || 'Unknown vaccine';
@@ -2716,11 +2723,7 @@ export class PatientService {
       id: `immunization-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       status: options?.status || 'completed',
       vaccineCode: {
-        coding: concept.code ? [{
-          system: PatientService.SNOMED_SYSTEM,
-          code: concept.code,
-          display
-        }] : undefined,
+        coding: concept.code ? [this.buildSnomedCoding(concept.code, display, concept.version)] : undefined,
         text: display
       },
       patient: {

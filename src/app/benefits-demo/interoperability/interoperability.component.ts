@@ -1739,12 +1739,24 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return `Ready to import ${this.getTotalSelectedCount()} selected IPS items into ${this.getPatientDisplayName(this.linkedPatient)}.`;
   }
 
+  /** Keeps the edition recorded in the imported coding instead of stamping the selected one. */
+  private getSourceSnomedVersion(resource: any, snomedCode: string | null): string | null {
+    if (!snomedCode) return null;
+    const codings: any[] = [
+      ...(resource.code?.coding ?? []),
+      ...(resource.medicationCodeableConcept?.coding ?? []),
+      ...(resource.vaccineCode?.coding ?? [])
+    ];
+    return codings.find((coding: any) => coding.code === snomedCode)?.version || null;
+  }
+
   private toClinicalEntryCondition(condition: any, patientId: string): any {
     const snomedCode = this.patientService.extractSnomedCode(condition);
     const display = this.ipsReaderService.getConditionDisplay(condition) || condition.code?.text || 'Unknown condition';
     return this.patientService.createConditionFromClinicalEntryConcept(patientId, {
       code: snomedCode || undefined,
-      display
+      display,
+      version: this.getSourceSnomedVersion(condition, snomedCode)
     }, {
       dateTime: condition.onsetDateTime || condition.recordedDate
     });
@@ -1755,7 +1767,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     const display = this.ipsReaderService.getProcedureDisplay(procedure) || procedure.code?.text || 'Unknown procedure';
     return this.patientService.createProcedureFromClinicalEntryConcept(patientId, {
       code: snomedCode || undefined,
-      display
+      display,
+      version: this.getSourceSnomedVersion(procedure, snomedCode)
     }, {
       dateTime: procedure.performedDateTime || procedure.performedPeriod?.start
     });
@@ -1766,7 +1779,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     const display = this.ipsReaderService.getMedicationDisplay(medication) || medication.medicationCodeableConcept?.text || 'Medication';
     return this.patientService.createMedicationFromClinicalEntryConcept(patientId, {
       code: snomedCode || undefined,
-      display
+      display,
+      version: this.getSourceSnomedVersion(medication, snomedCode)
     }, {
       effectiveDateTime: medication.effectiveDateTime || medication.effectivePeriod?.start,
       reasonReference: medication.reasonReference
@@ -1778,7 +1792,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     const display = immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display || 'Immunization';
     return this.patientService.createImmunizationFromClinicalEntryConcept(patientId, {
       code: snomedCode || undefined,
-      display
+      display,
+      version: this.getSourceSnomedVersion(immunization, snomedCode)
     }, {
       occurrenceDateTime: immunization.occurrenceDateTime || immunization.recorded,
       status: this.convertImmunizationStatus(immunization.status)
