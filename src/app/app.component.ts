@@ -12,7 +12,7 @@ import { LicenseAgreementComponent } from './license-agreement/license-agreement
 import { CookieConsentComponent } from './cookie-consent/cookie-consent.component';
 import { CookieService } from './services/cookie.service';
 import { GoogleAnalyticsService } from './services/google-analytics.service';
-import { catchError, filter, map, of, skip, Subject, switchMap, tap } from 'rxjs';
+import { catchError, filter, map, of, skip, Subject, switchMap, take, tap } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { FhirServer } from '../environments/fhir-server.interface';
@@ -185,13 +185,11 @@ export class AppComponent {
               this.terminologyService.setSnowstormFhirBase(serverUrl);
               this.selectedServer = { name: server.name, url: serverUrl };
               if (this.pendingSwitchFromServer) {
-                this.snackBar.open(
-                  this.translocoService.translate('termServerFallback.snackbar.message', {
-                    from: this.pendingSwitchFromServer,
-                    to: server.name,
-                  }),
-                  this.translocoService.translate('siteLanguageSync.snackbar.action'),
-                  { duration: 8000 }
+                this.openTranslatedSnackBar(
+                  'termServerFallback.snackbar.message',
+                  { from: this.pendingSwitchFromServer, to: server.name },
+                  'siteLanguageSync.snackbar.action',
+                  8000
                 );
               }
             }
@@ -541,12 +539,32 @@ export class AppComponent {
     }
 
     this.applySiteLanguage(siteLang);
-    this.snackBar.open(
-      this.translocoService.translate('siteLanguageSync.snackbar.message', { lang: siteLang.toUpperCase() }),
-      this.translocoService.translate('siteLanguageSync.snackbar.action'),
-      { duration: 5000 }
+    this.openTranslatedSnackBar(
+      'siteLanguageSync.snackbar.message',
+      { lang: siteLang.toUpperCase() },
+      'siteLanguageSync.snackbar.action',
+      5000
     );
     this.translationCoverageService.checkCurrentRoute();
+  }
+
+  /** Opens a snackbar once the active site language file is loaded, so keys never render raw. */
+  private openTranslatedSnackBar(
+    messageKey: string,
+    params: Record<string, unknown>,
+    actionKey: string,
+    duration: number
+  ): void {
+    this.translocoService
+      .load(this.translocoService.getActiveLang())
+      .pipe(take(1))
+      .subscribe(() => {
+        this.snackBar.open(
+          this.translocoService.translate(messageKey, params),
+          this.translocoService.translate(actionKey),
+          { duration }
+        );
+      });
   }
 
   private getSiteLanguageFromTerminology(): string | null {
