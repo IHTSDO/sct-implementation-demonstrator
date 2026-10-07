@@ -500,6 +500,21 @@
       "relationExactMatch": "Exacte overeenkomst",
       "relationBroader": "Geselecteerd concept is breder",
       "relationNarrower": "Geselecteerd concept is smaller"
+    },
+    "terminology": {
+      "adapting": "Geïmporteerde terminologie wordt aangepast aan je SNOMED CT-editie…",
+      "reasons": {
+        "display-localized": "Weergavenaam aangepast aan je editie",
+        "extension-concept": "Concept zit niet in je editie",
+        "inactive": "Inactief concept",
+        "not-found": "Concept niet gevonden in je editie"
+      },
+      "importAs": "Importeren als",
+      "noAlternative": "Geen alternatief gevonden; het wordt geïmporteerd zoals ontvangen",
+      "keepOriginal": "Origineel behouden",
+      "adapt": "Aanpassen",
+      "originalKept": "De oorspronkelijke code {{ code }} blijft behouden als extra codering",
+      "adaptedTooltip": "Aangepast aan je SNOMED CT-editie"
     }
   },
   "conceptValidationDialog": {

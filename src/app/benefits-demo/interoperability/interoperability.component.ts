@@ -6,7 +6,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
 import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
-import { PatientService } from '../../services/patient.service';
+import { ClinicalEntryConcept, PatientService } from '../../services/patient.service';
+import {
+  CodingAdaptation,
+  ConceptAlternative,
+  SnomedCodingLocalizationService
+} from '../../services/snomed-coding-localization.service';
 import { TerminologyService } from '../../services/terminology.service';
 import type { Immunization, Patient, PatientSimilarityResult, Provenance } from '../../model';
 import {
@@ -22,6 +27,13 @@ import {
 
 type MergeSectionId = 'conditions' | 'procedures' | 'medications' | 'immunizations' | 'allergies';
 type WizardStepId = 'patient' | MergeSectionId | 'summary';
+
+/** How an imported concept is adapted to the selected edition; reversible per item. */
+export interface ItemTerminologyAdaptation {
+  adaptation: CodingAdaptation;
+  applied: boolean;
+  selectedCode?: string;
+}
 
 interface WizardStep {
   id: WizardStepId;
@@ -70,6 +82,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   existingImmunizations: any[] = [];
   existingAllergies: any[] = [];
 
+  // Terminology adaptation of imported codings to the selected edition
+  adaptingTerminology = false;
+  private adaptationRun = 0;
+  private terminologyAdaptations = new WeakMap<object, ItemTerminologyAdaptation>();
+
   wizardSteps: WizardStep[] = [];
   currentStepIndex = 0;
 
@@ -91,11 +108,20 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private conceptHierarchyValidationService: ConceptHierarchyValidationService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
+    private localization: SnomedCodingLocalizationService
   ) { }
 
   ngOnInit(): void {
     this.loadAvailablePatients();
+    // Re-adapt imported codings when the user switches edition
+    this.subscriptions.push(
+      this.terminologyService.fhirUrlParam$.subscribe(() => {
+        if (this.patientData) {
+          void this.adaptTerminologyToSelectedEdition();
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -166,6 +192,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         this.resetWizard();
         this.calculateAndSortPatientsByScore();
         this.findSuggestedPatient();
+        void this.adaptTerminologyToSelectedEdition();
       },
       error: (error) => {
         this.error = 'Failed to load IPS bundle: ' + error.message;
@@ -304,6 +331,9 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
   backToInteroperabilityHome(): void {
     this.stopShlQrScan();
+    this.adaptationRun++;
+    this.adaptingTerminology = false;
+    this.terminologyAdaptations = new WeakMap();
     this.patientData = null;
     this.error = null;
     this.shlScanError = null;
@@ -587,7 +617,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    const snomedCode = this.patientService.extractSnomedCode(condition);
+    const snomedCode = this.snomedCodeOf(condition);
     if (!snomedCode) {
       // If no SNOMED code, check by text similarity
       const conditionText = condition.code?.text || '';
@@ -674,7 +704,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    const snomedCode = this.patientService.extractSnomedCode(procedure);
+    const snomedCode = this.snomedCodeOf(procedure);
     if (!snomedCode) {
       const procedureText = procedure.code?.text || '';
       return this.existingProcedures.some(existing => {
@@ -748,7 +778,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    const snomedCode = this.patientService.extractSnomedCode(medication);
+    const snomedCode = this.snomedCodeOf(medication);
     if (!snomedCode) {
       // If no SNOMED code, check by text similarity
       const medicationText = medication.medicationCodeableConcept?.text || '';
@@ -878,7 +908,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    const snomedCode = this.patientService.extractSnomedCode(allergy);
+    const snomedCode = this.snomedCodeOf(allergy);
     if (!snomedCode) {
       // If no SNOMED code, check by text similarity
       const allergyText = allergy.code?.text || '';
@@ -1633,7 +1663,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   private toRecordConcept(section: MergeSectionId, item: any): RecordConcept | null {
-    const code = this.patientService.extractSnomedCode(item);
+    const code = this.snomedCodeOf(item);
     if (!code) {
       return null;
     }
@@ -1677,7 +1707,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   getItemCode(section: MergeSectionId, item: any): string {
-    const snomedCode = this.patientService.extractSnomedCode(item);
+    const snomedCode = this.snomedCodeOf(item);
     if (snomedCode) {
       return snomedCode;
     }
@@ -1739,74 +1769,169 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return `Ready to import ${this.getTotalSelectedCount()} selected IPS items into ${this.getPatientDisplayName(this.linkedPatient)}.`;
   }
 
-  /** Keeps the edition recorded in the imported coding instead of stamping the selected one. */
-  private getSourceSnomedVersion(resource: any, snomedCode: string | null): string | null {
+  // --- Terminology adaptation ---
+
+  /**
+   * Adapts the imported SNOMED CT codings to the edition selected in EHR Lab:
+   * localized displays, International alternatives for extension concepts the
+   * edition does not contain, and replacements for inactive concepts.
+   * Adaptations are applied by default and can be reverted per item.
+   */
+  private async adaptTerminologyToSelectedEdition(): Promise<void> {
+    if (!this.patientData) return;
+
+    const run = ++this.adaptationRun;
+    this.terminologyAdaptations = new WeakMap();
+    const sections: MergeSectionId[] = ['conditions', 'procedures', 'medications', 'immunizations', 'allergies'];
+    const items = sections.flatMap(section => this.getSectionItems(section));
+    const sources = items
+      .map(item => ({ item, coding: this.getSourceSnomedCoding(item) }))
+      .filter((entry): entry is { item: any; coding: any } => !!entry.coding);
+    if (!sources.length) return;
+
+    this.adaptingTerminology = true;
+    try {
+      const adaptations = await this.localization.adaptToSelectedEdition(
+        sources.map(({ coding }) => ({ code: coding.code, display: coding.display, version: coding.version }))
+      );
+      if (run !== this.adaptationRun) return;
+
+      for (const { item, coding } of sources) {
+        const adaptation = adaptations.get(coding.code);
+        if (!adaptation) continue;
+        if (adaptation.reason === 'display-localized' && (coding.display || '').trim() === adaptation.localizedDisplay?.trim()) {
+          continue;
+        }
+        const selectedCode = adaptation.alternatives[0]?.code;
+        this.terminologyAdaptations.set(item, {
+          adaptation,
+          applied: adaptation.reason === 'display-localized' || !!selectedCode,
+          selectedCode
+        });
+      }
+    } catch (error) {
+      console.warn('Could not adapt imported terminology to the selected edition', error);
+    } finally {
+      if (run === this.adaptationRun) {
+        this.adaptingTerminology = false;
+      }
+    }
+  }
+
+  getItemAdaptation(item: any): ItemTerminologyAdaptation | undefined {
+    return item ? this.terminologyAdaptations.get(item) : undefined;
+  }
+
+  canToggleAdaptation(adaptation: ItemTerminologyAdaptation): boolean {
+    return adaptation.adaptation.reason === 'display-localized' || adaptation.adaptation.alternatives.length > 0;
+  }
+
+  toggleAdaptation(item: any): void {
+    const adaptation = this.getItemAdaptation(item);
+    if (adaptation && this.canToggleAdaptation(adaptation)) {
+      adaptation.applied = !adaptation.applied;
+    }
+  }
+
+  selectAdaptationAlternative(item: any, code: string): void {
+    const adaptation = this.getItemAdaptation(item);
+    if (adaptation) {
+      adaptation.selectedCode = code;
+      adaptation.applied = true;
+    }
+  }
+
+  getSelectedAlternative(adaptation: ItemTerminologyAdaptation): ConceptAlternative | undefined {
+    return adaptation.adaptation.alternatives.find(alt => alt.code === adaptation.selectedCode);
+  }
+
+  /** SNOMED CT code the item will be imported with (adapted when an adaptation is applied). */
+  private snomedCodeOf(item: any): string | null {
+    const adaptation = this.getItemAdaptation(item);
+    if (adaptation?.applied && adaptation.adaptation.reason !== 'display-localized') {
+      return this.getSelectedAlternative(adaptation)?.code ?? this.patientService.extractSnomedCode(item);
+    }
+    return this.patientService.extractSnomedCode(item);
+  }
+
+  private getSourceSnomedCoding(resource: any): any | null {
+    const snomedCode = this.patientService.extractSnomedCode(resource);
     if (!snomedCode) return null;
     const codings: any[] = [
       ...(resource.code?.coding ?? []),
       ...(resource.medicationCodeableConcept?.coding ?? []),
       ...(resource.vaccineCode?.coding ?? [])
     ];
-    return codings.find((coding: any) => coding.code === snomedCode)?.version || null;
+    return codings.find((coding: any) => coding.code === snomedCode) ?? { code: snomedCode };
+  }
+
+  /**
+   * Concept to import for an IPS item. Unadapted items keep the edition
+   * recorded in the source coding; adapted ones are versioned with the
+   * selected edition, keep the source text and, when the code changes,
+   * carry the original coding along.
+   */
+  private toImportConcept(item: any, display: string): ClinicalEntryConcept {
+    const source = this.getSourceSnomedCoding(item);
+    const adaptation = this.getItemAdaptation(item);
+    if (!source || !adaptation?.applied) {
+      return { code: source?.code, display: source?.display || display, codeText: display, version: source?.version || null };
+    }
+
+    if (adaptation.adaptation.reason === 'display-localized') {
+      return { code: source.code, display: adaptation.adaptation.localizedDisplay!, codeText: display };
+    }
+
+    const alternative = this.getSelectedAlternative(adaptation);
+    if (!alternative) {
+      return { code: source.code, display: source.display || display, codeText: display, version: source.version || null };
+    }
+    return {
+      code: alternative.code,
+      display: alternative.display,
+      codeText: display,
+      additionalCodings: [{
+        system: source.system || SnomedCodingLocalizationService.SNOMED_SYSTEM,
+        ...(source.version ? { version: source.version } : {}),
+        code: source.code,
+        display: source.display
+      }]
+    };
   }
 
   private toClinicalEntryCondition(condition: any, patientId: string): any {
-    const snomedCode = this.patientService.extractSnomedCode(condition);
     const display = this.ipsReaderService.getConditionDisplay(condition) || condition.code?.text || 'Unknown condition';
-    return this.patientService.createConditionFromClinicalEntryConcept(patientId, {
-      code: snomedCode || undefined,
-      display,
-      version: this.getSourceSnomedVersion(condition, snomedCode)
-    }, {
+    return this.patientService.createConditionFromClinicalEntryConcept(patientId, this.toImportConcept(condition, display), {
       dateTime: condition.onsetDateTime || condition.recordedDate
     });
   }
 
   private toClinicalEntryProcedure(procedure: any, patientId: string): any {
-    const snomedCode = this.patientService.extractSnomedCode(procedure);
     const display = this.ipsReaderService.getProcedureDisplay(procedure) || procedure.code?.text || 'Unknown procedure';
-    return this.patientService.createProcedureFromClinicalEntryConcept(patientId, {
-      code: snomedCode || undefined,
-      display,
-      version: this.getSourceSnomedVersion(procedure, snomedCode)
-    }, {
+    return this.patientService.createProcedureFromClinicalEntryConcept(patientId, this.toImportConcept(procedure, display), {
       dateTime: procedure.performedDateTime || procedure.performedPeriod?.start
     });
   }
 
   private toClinicalEntryMedication(medication: any, patientId: string): any {
-    const snomedCode = this.patientService.extractSnomedCode(medication);
     const display = this.ipsReaderService.getMedicationDisplay(medication) || medication.medicationCodeableConcept?.text || 'Medication';
-    return this.patientService.createMedicationFromClinicalEntryConcept(patientId, {
-      code: snomedCode || undefined,
-      display,
-      version: this.getSourceSnomedVersion(medication, snomedCode)
-    }, {
+    return this.patientService.createMedicationFromClinicalEntryConcept(patientId, this.toImportConcept(medication, display), {
       effectiveDateTime: medication.effectiveDateTime || medication.effectivePeriod?.start,
       reasonReference: medication.reasonReference
     });
   }
 
   private toClinicalEntryImmunization(immunization: any, patientId: string): Immunization {
-    const snomedCode = this.patientService.extractSnomedCode(immunization);
     const display = immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display || 'Immunization';
-    return this.patientService.createImmunizationFromClinicalEntryConcept(patientId, {
-      code: snomedCode || undefined,
-      display,
-      version: this.getSourceSnomedVersion(immunization, snomedCode)
-    }, {
+    return this.patientService.createImmunizationFromClinicalEntryConcept(patientId, this.toImportConcept(immunization, display), {
       occurrenceDateTime: immunization.occurrenceDateTime || immunization.recorded,
       status: this.convertImmunizationStatus(immunization.status)
     });
   }
 
   private toClinicalEntryAllergy(allergy: any, patientId: string): any {
-    const snomedCode = this.patientService.extractSnomedCode(allergy);
     const display = this.ipsReaderService.getAllergyDisplay(allergy) || allergy.code?.text || 'Allergy';
-    return this.patientService.createAllergyFromClinicalEntryConcept(patientId, {
-      code: snomedCode || undefined,
-      display
-    }, {
+    return this.patientService.createAllergyFromClinicalEntryConcept(patientId, this.toImportConcept(allergy, display), {
       recordedDate: allergy.recordedDate || allergy.onsetDateTime
     });
   }
@@ -2471,6 +2596,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         this.calculateAndSortPatientsByScore();
         this.findSuggestedPatient();
         this.fileInput.nativeElement.value = '';
+        void this.adaptTerminologyToSelectedEdition();
       },
       error: (error) => {
         this.error = `Failed to parse IPS bundle from ${sourceLabel}: ${error.message}`;

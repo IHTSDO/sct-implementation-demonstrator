@@ -39,6 +39,24 @@ import type {
   ServiceRequest
 } from '../model';
 
+export interface SnomedCoding {
+  system: string;
+  version?: string;
+  code: string;
+  display?: string;
+}
+
+export interface ClinicalEntryConcept {
+  code?: string;
+  display?: string;
+  text?: string;
+  /** Edition the concept comes from; undefined = the selected edition, null = unversioned */
+  version?: string | null;
+  additionalCodings?: SnomedCoding[];
+  /** CodeableConcept.text; defaults to the display */
+  codeText?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -2596,9 +2614,9 @@ export class PatientService {
    * is used; pass null to keep the coding unversioned (e.g. imported data
    * that carried no version).
    */
-  buildSnomedCoding(code: string, display: string, version?: string | null): { system: string; version?: string; code: string; display: string } {
+  buildSnomedCoding(code: string, display: string, version?: string | null): SnomedCoding {
     const editionUri = version === undefined ? this.terminologyService.getFhirUrlParam() : version;
-    const coding: { system: string; version?: string; code: string; display: string } = {
+    const coding: SnomedCoding = {
       system: PatientService.SNOMED_SYSTEM,
       code,
       display
@@ -2609,10 +2627,20 @@ export class PatientService {
     return coding;
   }
 
+  /**
+   * Codings for a clinical entry: the concept coding first (so code-based
+   * logic picks it up), followed by any additional codings, e.g. the
+   * original coding of an imported concept that was adapted to this edition.
+   */
+  private buildConceptCodings(concept: ClinicalEntryConcept, display: string): SnomedCoding[] | undefined {
+    if (!concept.code) return undefined;
+    return [this.buildSnomedCoding(concept.code, display, concept.version), ...(concept.additionalCodings ?? [])];
+  }
+
   // Centralized FHIR resource creation methods for AI-detected entities
   createConditionFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string; version?: string | null },
+    concept: ClinicalEntryConcept,
     options?: { dateTime?: string }
   ): Condition {
     const display = concept.display || concept.text || concept.code || 'Unknown condition';
@@ -2638,8 +2666,8 @@ export class PatientService {
         text: 'Confirmed'
       },
       code: {
-        coding: concept.code ? [this.buildSnomedCoding(concept.code, display, concept.version)] : undefined,
-        text: display
+        coding: this.buildConceptCodings(concept, display),
+        text: concept.codeText || display
       },
       subject: {
         reference: `Patient/${patientId}`,
@@ -2652,7 +2680,7 @@ export class PatientService {
 
   createProcedureFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string; version?: string | null },
+    concept: ClinicalEntryConcept,
     options?: { dateTime?: string }
   ): Procedure {
     const display = concept.display || concept.text || concept.code || 'Unknown procedure';
@@ -2663,8 +2691,8 @@ export class PatientService {
       id: `procedure-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       status: 'completed',
       code: {
-        coding: concept.code ? [this.buildSnomedCoding(concept.code, display, concept.version)] : undefined,
-        text: display
+        coding: this.buildConceptCodings(concept, display),
+        text: concept.codeText || display
       },
       subject: {
         reference: `Patient/${patientId}`,
@@ -2676,7 +2704,7 @@ export class PatientService {
 
   createMedicationFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string; version?: string | null },
+    concept: ClinicalEntryConcept,
     options?: {
       effectiveDateTime?: string;
       reasonReference?: Array<{ reference: string; display?: string }>;
@@ -2690,8 +2718,8 @@ export class PatientService {
       id: `medication-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       status: 'active',
       medicationCodeableConcept: {
-        coding: concept.code ? [this.buildSnomedCoding(concept.code, display, concept.version)] : undefined,
-        text: display
+        coding: this.buildConceptCodings(concept, display),
+        text: concept.codeText || display
       },
       subject: {
         reference: `Patient/${patientId}`,
@@ -2712,7 +2740,7 @@ export class PatientService {
 
   createImmunizationFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string; version?: string | null },
+    concept: ClinicalEntryConcept,
     options?: { occurrenceDateTime?: string; status?: Immunization['status'] }
   ): Immunization {
     const display = concept.display || concept.text || concept.code || 'Unknown vaccine';
@@ -2723,8 +2751,8 @@ export class PatientService {
       id: `immunization-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       status: options?.status || 'completed',
       vaccineCode: {
-        coding: concept.code ? [this.buildSnomedCoding(concept.code, display, concept.version)] : undefined,
-        text: display
+        coding: this.buildConceptCodings(concept, display),
+        text: concept.codeText || display
       },
       patient: {
         reference: `Patient/${patientId}`,
@@ -2738,7 +2766,7 @@ export class PatientService {
 
   createAllergyFromClinicalEntryConcept(
     patientId: string,
-    concept: { code?: string; display?: string; text?: string },
+    concept: ClinicalEntryConcept,
     options?: { recordedDate?: string }
   ): AllergyIntolerance {
     const display = concept.display || concept.text || concept.code || 'Allergy';
@@ -2766,12 +2794,8 @@ export class PatientService {
       category: ['medication'],
       criticality: 'low',
       code: {
-        coding: concept.code ? [{
-          system: 'http://snomed.info/sct',
-          code: concept.code,
-          display
-        }] : undefined,
-        text: display
+        coding: this.buildConceptCodings(concept, display),
+        text: concept.codeText || display
       },
       patient: {
         reference: `Patient/${patientId}`,

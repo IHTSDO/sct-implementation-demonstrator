@@ -1107,6 +1107,7 @@ export interface AllergyIntolerance {
   code?: {
     coding?: Array<{
       system?: string;
+      version?: string;
       code?: string;
       display?: string;
     }>;

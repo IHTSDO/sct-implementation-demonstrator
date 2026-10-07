@@ -767,3 +767,56 @@
     align-items: stretch;
   }
 }
+
+.terminology-adaptation {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid #1d4ed8;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #334155;
+}
+
+.terminology-adaptation.adaptation-reverted {
+  border-left-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.adaptation-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adaptation-header mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.adaptation-toggle {
+  margin-left: auto;
+}
+
+.adaptation-detail,
+.adaptation-original {
+  font-size: 13px;
+}
+
+.adaptation-original {
+  color: #64748b;
+}
+
+.adaptation-select {
+  width: 100%;
+}
+
+.summary-adapted-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}

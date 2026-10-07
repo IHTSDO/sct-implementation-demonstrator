@@ -500,6 +500,21 @@
       "relationExactMatch": "Exakt matchning",
       "relationBroader": "Valt begrepp är bredare",
       "relationNarrower": "Valt begrepp är smalare"
+    },
+    "terminology": {
+      "adapting": "Anpassar importerad terminologi till din SNOMED CT-utgåva…",
+      "reasons": {
+        "display-localized": "Visningsnamn anpassat till din utgåva",
+        "extension-concept": "Begreppet finns inte i din utgåva",
+        "inactive": "Inaktivt begrepp",
+        "not-found": "Begreppet hittades inte i din utgåva"
+      },
+      "importAs": "Importera som",
+      "noAlternative": "Inget alternativ hittades; det importeras som det togs emot",
+      "keepOriginal": "Behåll original",
+      "adapt": "Anpassa",
+      "originalKept": "Den ursprungliga koden {{ code }} behålls som extra kodning",
+      "adaptedTooltip": "Anpassat till din SNOMED CT-utgåva"
     }
   },
   "conceptValidationDialog": {

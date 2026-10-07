@@ -280,6 +280,13 @@
                 </div>
               }
 
+              @if (adaptingTerminology) {
+                <div class="banner banner-muted">
+                  <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+                  <span>{{ t('interoperability.terminology.adapting') }}</span>
+                </div>
+              }
+
               <div class="comparison-grid">
                 <mat-card class="comparison-card">
                   <mat-card-header>
@@ -305,6 +312,45 @@
                                   <span class="meta-chip">{{ getItemDateLabel(section) }}: {{ getItemDate(section, item) | date:'short' }}</span>
                                 }
                               </div>
+                              @if (getItemAdaptation(item); as adaptation) {
+                                <div class="terminology-adaptation" [class.adaptation-reverted]="!adaptation.applied">
+                                  <div class="adaptation-header">
+                                    <mat-icon>{{ adaptation.adaptation.reason === 'display-localized' ? 'translate' : 'swap_horiz' }}</mat-icon>
+                                    <strong>{{ t('interoperability.terminology.reasons.' + adaptation.adaptation.reason) }}</strong>
+                                    @if (canToggleAdaptation(adaptation)) {
+                                      <button mat-button color="primary" class="adaptation-toggle" (click)="toggleAdaptation(item)">
+                                        {{ adaptation.applied ? t('interoperability.terminology.keepOriginal') : t('interoperability.terminology.adapt') }}
+                                      </button>
+                                    }
+                                  </div>
+
+                                  @if (adaptation.adaptation.reason === 'display-localized') {
+                                    <span class="adaptation-detail">{{ adaptation.adaptation.localizedDisplay }}</span>
+                                  } @else if (adaptation.adaptation.alternatives.length === 1) {
+                                    <span class="adaptation-detail">
+                                      {{ t('interoperability.terminology.importAs') }}:
+                                      {{ adaptation.adaptation.alternatives[0].display }} ({{ adaptation.adaptation.alternatives[0].code }})
+                                    </span>
+                                  } @else if (adaptation.adaptation.alternatives.length > 1) {
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="adaptation-select">
+                                      <mat-label>{{ t('interoperability.terminology.importAs') }}</mat-label>
+                                      <mat-select [value]="adaptation.selectedCode" (selectionChange)="selectAdaptationAlternative(item, $event.value)">
+                                        @for (alternative of adaptation.adaptation.alternatives; track alternative.code) {
+                                          <mat-option [value]="alternative.code">{{ alternative.display }} ({{ alternative.code }})</mat-option>
+                                        }
+                                      </mat-select>
+                                    </mat-form-field>
+                                  } @else {
+                                    <span class="adaptation-detail">{{ t('interoperability.terminology.noAlternative') }}</span>
+                                  }
+
+                                  @if (adaptation.applied && adaptation.adaptation.reason !== 'display-localized') {
+                                    <span class="adaptation-original">
+                                      {{ t('interoperability.terminology.originalKept', { code: adaptation.adaptation.code }) }}
+                                    </span>
+                                  }
+                                </div>
+                              }
                             </div>
 
                             @if (isItemAlreadyRecorded(section, item)) {
@@ -431,7 +477,12 @@
                           @for (item of getSelectedItems(section); track item.id) {
                             <div class="summary-item">
                               <span>{{ getItemDisplay(section, item) }}</span>
-                              <span class="summary-item-code">{{ getItemCode(section, item) }}</span>
+                              <span class="summary-item-code">
+                                @if (getItemAdaptation(item)?.applied) {
+                                  <mat-icon class="summary-adapted-icon" [matTooltip]="t('interoperability.terminology.adaptedTooltip')">swap_horiz</mat-icon>
+                                }
+                                {{ getItemCode(section, item) }}
+                              </span>
                             </div>
                           }
                         </div>

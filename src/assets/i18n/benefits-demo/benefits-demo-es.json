@@ -500,6 +500,21 @@
       "relationExactMatch": "Coincidencia exacta",
       "relationBroader": "El concepto seleccionado es más amplio",
       "relationNarrower": "El concepto seleccionado es más específico"
+    },
+    "terminology": {
+      "adapting": "Adaptando la terminología importada a tu edición de SNOMED CT…",
+      "reasons": {
+        "display-localized": "Display adaptado a tu edición",
+        "extension-concept": "Concepto no incluido en tu edición",
+        "inactive": "Concepto inactivo",
+        "not-found": "Concepto no encontrado en tu edición"
+      },
+      "importAs": "Importar como",
+      "noAlternative": "No se encontró una alternativa; se importará tal como se recibió",
+      "keepOriginal": "Mantener original",
+      "adapt": "Adaptar",
+      "originalKept": "El código original {{ code }} se conserva como coding adicional",
+      "adaptedTooltip": "Adaptado a tu edición de SNOMED CT"
     }
   },
   "conceptValidationDialog": {

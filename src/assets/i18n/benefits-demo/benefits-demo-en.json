@@ -500,6 +500,21 @@
       "relationExactMatch": "Exact match",
       "relationBroader": "Selected concept is broader",
       "relationNarrower": "Selected concept is narrower"
+    },
+    "terminology": {
+      "adapting": "Adapting imported terminology to your SNOMED CT edition…",
+      "reasons": {
+        "display-localized": "Display adapted to your edition",
+        "extension-concept": "Concept not in your edition",
+        "inactive": "Inactive concept",
+        "not-found": "Concept not found in your edition"
+      },
+      "importAs": "Import as",
+      "noAlternative": "No alternative found; it will be imported as received",
+      "keepOriginal": "Keep original",
+      "adapt": "Adapt",
+      "originalKept": "Original code {{ code }} is kept as an additional coding",
+      "adaptedTooltip": "Adapted to your SNOMED CT edition"
     }
   },
   "conceptValidationDialog": {

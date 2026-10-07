@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, of } from 'rxjs';
+import { firstValueFrom, from, Observable, of } from 'rxjs';
 import { catchError, concatMap, finalize, map, shareReplay, tap, toArray } from 'rxjs/operators';
 import { TerminologyService } from './terminology.service';
 
@@ -25,6 +25,23 @@ export interface EditionCheckResult {
   displays: Map<string, string>;
   /** requested codes not returned by the target edition (inactive or absent) */
   notActive: Set<string>;
+}
+
+export type CodingAdaptationReason = 'display-localized' | 'extension-concept' | 'inactive' | 'not-found';
+
+export interface CodingToAdapt {
+  code: string;
+  display?: string;
+  version?: string;
+}
+
+export interface CodingAdaptation {
+  code: string;
+  reason: CodingAdaptationReason;
+  /** Display of `code` in the selected edition (set when the concept is active there) */
+  localizedDisplay?: string;
+  /** Concepts active in the selected edition that can stand in for `code`, displays localized */
+  alternatives: Array<ConceptAlternative & { equivalence?: string }>;
 }
 
 /**
@@ -207,6 +224,100 @@ export class SnomedCodingLocalizationService {
     );
     this.historicalInFlight.set(code, request$);
     return request$;
+  }
+
+  /**
+   * Works out how each SNOMED CT coding has to change to be used in the
+   * currently selected edition:
+   * - active there with a different display → `display-localized`
+   * - extension concept the edition does not contain → `extension-concept`,
+   *   alternatives are its closest International ancestors
+   * - otherwise absent → `inactive` (historical replacements) or `not-found`
+   *
+   * Alternatives are re-checked against the selected edition so only active
+   * concepts are offered, with displays in the edition's language.
+   * Requests run one after another. Codings that need no change are omitted.
+   */
+  async adaptToSelectedEdition(codings: CodingToAdapt[]): Promise<Map<string, CodingAdaptation>> {
+    const adaptations = new Map<string, CodingAdaptation>();
+    const snomedCodings = codings.filter(c => !!c.code);
+    if (!snomedCodings.length) return adaptations;
+
+    const { displays, notActive } = await firstValueFrom(
+      this.checkInSelectedEdition(snomedCodings.map(c => c.code))
+    );
+
+    for (const coding of snomedCodings) {
+      const localizedDisplay = displays.get(coding.code);
+      if (localizedDisplay && coding.display && coding.display.trim() !== localizedDisplay.trim()) {
+        adaptations.set(coding.code, {
+          code: coding.code,
+          reason: 'display-localized',
+          localizedDisplay,
+          alternatives: []
+        });
+      }
+    }
+
+    // Absent codes recorded against an extension edition: confirm which are extension concepts
+    const absent = [...new Map(snomedCodings.filter(c => notActive.has(c.code)).map(c => [c.code, c])).values()];
+    const extensionCandidates = new Map<string, string[]>();
+    for (const coding of absent) {
+      const origin = this.classifyCoding(SnomedCodingLocalizationService.SNOMED_SYSTEM, coding.version);
+      if (origin.isExtension && origin.editionFhirUrl) {
+        extensionCandidates.set(origin.editionFhirUrl, [...(extensionCandidates.get(origin.editionFhirUrl) ?? []), coding.code]);
+      }
+    }
+    const resolved = extensionCandidates.size
+      ? await this.resolveInternationalCodes(extensionCandidates).catch(() => new Map())
+      : new Map<string, { inModule: Set<string>; missing: Set<string> }>();
+
+    for (const coding of absent) {
+      const origin = this.classifyCoding(SnomedCodingLocalizationService.SNOMED_SYSTEM, coding.version);
+      const editionResult = origin.editionFhirUrl ? resolved.get(origin.editionFhirUrl) : undefined;
+      const isExtensionConcept = !!editionResult
+        && !editionResult.inModule.has(coding.code)
+        && !editionResult.missing.has(coding.code);
+
+      if (isExtensionConcept) {
+        const alternatives = await firstValueFrom(
+          this.findInternationalAncestors(coding.code, origin.editionFhirUrl!).pipe(catchError(() => of([])))
+        );
+        adaptations.set(coding.code, { code: coding.code, reason: 'extension-concept', alternatives });
+      } else {
+        const alternatives = await firstValueFrom(this.findHistoricalReplacements(coding.code));
+        adaptations.set(coding.code, {
+          code: coding.code,
+          reason: alternatives.length ? 'inactive' : 'not-found',
+          alternatives
+        });
+      }
+    }
+
+    await this.localizeAlternatives([...adaptations.values()]);
+    return adaptations;
+  }
+
+  /** Keeps only alternatives active in the selected edition, with its displays. */
+  private async localizeAlternatives(adaptations: CodingAdaptation[]): Promise<void> {
+    const codes = adaptations.flatMap(a => a.alternatives.map(alt => alt.code));
+    if (!codes.length) return;
+
+    const { displays } = await firstValueFrom(
+      this.checkInSelectedEdition(codes).pipe(
+        catchError(() => of({ displays: null as Map<string, string> | null, notActive: new Set<string>() }))
+      )
+    );
+    if (!displays) return;
+
+    for (const adaptation of adaptations) {
+      adaptation.alternatives = adaptation.alternatives
+        .filter(alt => displays.has(alt.code))
+        .map(alt => ({ ...alt, display: displays.get(alt.code)! }));
+      if (adaptation.reason === 'inactive' && !adaptation.alternatives.length) {
+        adaptation.reason = 'not-found';
+      }
+    }
   }
 
   private parseTranslateResult(res: any): HistoricalReplacement[] {
