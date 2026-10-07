@@ -15,7 +15,8 @@
       "smartHealthLinks": "Smart Health Links",
       "downloadPatientData": "Download patientdata",
       "uploadPatientData": "Upload patientdata",
-      "clearAllData": "Slet alle patientdata"
+      "clearAllData": "Slet alle patientdata",
+      "clinicBranding": "Klinikkens identitet"
     },
     "patientList": {
       "title": "Patienter",
@@ -1321,6 +1322,28 @@
       "errorSelectCondition": "Vælg en eksisterende tilstand for hver udfyldt linje ved hjælp af den mulighed.",
       "errorNoSnomedCode": "Den valgte tilstand \"{{ name }}\" har ikke en SNOMED CT-kode. Brug SNOMED-søgningsindstillingen for den linje.",
       "errorSelectSnomedConcept": "Vælg et SNOMED CT-begreb for hver udfyldt linje ved hjælp af SNOMED-søgning."
+    }
+  },
+  "branding": {
+    "title": "Klinikkens identitet",
+    "description": "Giv den simulerede klinik et navn og en farve. De vises i EHR Lab og i patientjournalen, og navnet bruges som forfatter til genererede IPS-dokumenter. Gemmes kun i denne browser.",
+    "nameLabel": "Klinikkens navn",
+    "namePlaceholder": "Parkens Klinik",
+    "colorLabel": "Accentfarve",
+    "preview": "Forhåndsvisning",
+    "previewItem": "Klinisk",
+    "reset": "Nulstil",
+    "cancel": "Annuller",
+    "save": "Gem",
+    "colors": {
+      "blue": "Blå",
+      "indigo": "Indigo",
+      "purple": "Lilla",
+      "rose": "Rosa",
+      "orange": "Orange",
+      "green": "Grøn",
+      "teal": "Blågrøn",
+      "slate": "Skifer"
     }
   }
 }

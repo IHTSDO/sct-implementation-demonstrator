@@ -15,7 +15,8 @@
       "smartHealthLinks": "Smart Health Links",
       "downloadPatientData": "Download patient data",
       "uploadPatientData": "Upload patient data",
-      "clearAllData": "Clear all patient data"
+      "clearAllData": "Clear all patient data",
+      "clinicBranding": "Clinic identity"
     },
     "patientList": {
       "title": "Patients",
@@ -1321,6 +1322,28 @@
       "errorSelectCondition": "Select an existing condition for each populated line using that option.",
       "errorNoSnomedCode": "The selected condition \"{{ name }}\" does not have a SNOMED CT code. Use the SNOMED search option for that line.",
       "errorSelectSnomedConcept": "Select a SNOMED CT concept for each populated line using SNOMED search."
+    }
+  },
+  "branding": {
+    "title": "Clinic identity",
+    "description": "Give the simulated clinic a name and a color. They're shown in the EHR Lab and the clinical record, and the name is used as the author of generated IPS documents. Saved in this browser only.",
+    "nameLabel": "Clinic name",
+    "namePlaceholder": "Riverside Health Clinic",
+    "colorLabel": "Accent color",
+    "preview": "Preview",
+    "previewItem": "Clinical",
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "save": "Save",
+    "colors": {
+      "blue": "Blue",
+      "indigo": "Indigo",
+      "purple": "Purple",
+      "rose": "Rose",
+      "orange": "Orange",
+      "green": "Green",
+      "teal": "Teal",
+      "slate": "Slate"
     }
   }
 }

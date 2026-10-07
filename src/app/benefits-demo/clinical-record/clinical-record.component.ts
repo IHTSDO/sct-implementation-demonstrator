@@ -14,6 +14,7 @@ import { debounceTime, filter } from 'rxjs/operators';
 import { AllergyFormDialogComponent } from '../allergy-form-dialog/allergy-form-dialog.component';
 import { ConfirmationDialogComponent } from '../../questionnaires/confirmation-dialog/confirmation-dialog.component';
 import { TranslocoService } from '@jsverse/transloco';
+import { ClinicBrandingService } from '../../services/clinic-branding.service';
 import type {
   AllergyIntolerance,
   ClinicalDataLoadSummary,
@@ -240,8 +241,17 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     private terminologyService: TerminologyService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
+    private clinicBrandingService: ClinicBrandingService
   ) { }
+
+  get clinicName(): string {
+    return this.clinicBrandingService.clinicName;
+  }
+
+  get clinicCssVariables(): Record<string, string> {
+    return this.clinicBrandingService.getCssVariables();
+  }
 
   ngOnInit(): void {
     // Check for patientId in URL route parameters first

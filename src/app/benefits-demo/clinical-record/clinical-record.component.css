@@ -302,6 +302,47 @@
   margin-bottom: 6px;
 }
 
+.workspace-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.workspace-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.workspace-brand-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-brand-product {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #6c7a89;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  line-height: 1;
+}
+
+.clinic-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--clinic-accent, #0d6efd);
+  flex-shrink: 0;
+}
+
 .workspace-title {
   font-size: 0.82rem;
   text-transform: uppercase;
@@ -371,13 +412,13 @@
 }
 
 .sidebar-item.active {
-  border-color: #0d6efd;
-  background: #e9f2ff;
-  color: #0d6efd;
+  border-color: var(--clinic-accent, #0d6efd);
+  background: var(--clinic-accent-soft, #e9f2ff);
+  color: var(--clinic-accent, #0d6efd);
 }
 
 .sidebar-item.active mat-icon {
-  color: #0d6efd;
+  color: var(--clinic-accent, #0d6efd);
 }
 
 .grow-space {
@@ -472,8 +513,8 @@
 }
 
 .sidebar-collapsed-icon-item.active {
-  background: #e9f2ff;
-  color: #0d6efd;
+  background: var(--clinic-accent-soft, #e9f2ff);
+  color: var(--clinic-accent, #0d6efd);
 }
 
 /* Main Content */

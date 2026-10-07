@@ -15,7 +15,8 @@
       "smartHealthLinks": "Smart Health Links",
       "downloadPatientData": "Descargar datos del paciente",
       "uploadPatientData": "Cargar datos del paciente",
-      "clearAllData": "Borrar todos los datos del paciente"
+      "clearAllData": "Borrar todos los datos del paciente",
+      "clinicBranding": "Identidad de la clínica"
     },
     "patientList": {
       "title": "Pacientes",
@@ -1321,6 +1322,28 @@
       "errorSelectCondition": "Seleccione una condición existente para cada línea completada usando esa opción.",
       "errorNoSnomedCode": "La condición seleccionada \"{{ name }}\" no tiene un código SNOMED CT. Use la opción de búsqueda SNOMED para esa línea.",
       "errorSelectSnomedConcept": "Seleccione un concepto SNOMED CT para cada línea completada usando la búsqueda SNOMED."
+    }
+  },
+  "branding": {
+    "title": "Identidad de la clínica",
+    "description": "Asigne un nombre y un color a la clínica simulada. Se muestran en el EHR Lab y en el historial clínico, y el nombre se usa como autor de los IPS generados. Se guarda solo en este navegador.",
+    "nameLabel": "Nombre de la clínica",
+    "namePlaceholder": "Clínica del Parque",
+    "colorLabel": "Color de acento",
+    "preview": "Vista previa",
+    "previewItem": "Clínica",
+    "reset": "Restablecer",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "colors": {
+      "blue": "Azul",
+      "indigo": "Índigo",
+      "purple": "Violeta",
+      "rose": "Rosa",
+      "orange": "Naranja",
+      "green": "Verde",
+      "teal": "Verde azulado",
+      "slate": "Pizarra"
     }
   }
 }

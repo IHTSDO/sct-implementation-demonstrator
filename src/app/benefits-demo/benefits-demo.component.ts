@@ -16,6 +16,8 @@ import { FhirServerDialogComponent } from './fhir-server-dialog/fhir-server-dial
 import { PatientBookmarkService } from '../services/patient-bookmark.service';
 import { CdsHooksServersDialogComponent } from './cds-hooks-servers-dialog/cds-hooks-servers-dialog.component';
 import { CdsHooksServerConfigService } from '../services/cds-hooks-server-config.service';
+import { ClinicBrandingService } from '../services/clinic-branding.service';
+import { ClinicBrandingDialogComponent } from './clinic-branding-dialog/clinic-branding-dialog.component';
 import type { Patient } from '../model';
 import type { PatientPaginationState, PersistenceMode } from '../services/patient-storage.types';
 
@@ -68,7 +70,8 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private fhirService: FhirService,
     private patientBookmarkService: PatientBookmarkService,
-    private cdsHooksServerConfigService: CdsHooksServerConfigService
+    private cdsHooksServerConfigService: CdsHooksServerConfigService,
+    private clinicBrandingService: ClinicBrandingService
   ) { }
 
   ngOnInit(): void {
@@ -267,6 +270,21 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
       if (result === 'save' && this.isFhirMode()) {
         await this.patientService.refreshPatients();
       }
+    });
+  }
+
+  get clinicName(): string {
+    return this.clinicBrandingService.clinicName;
+  }
+
+  get clinicCssVariables(): Record<string, string> {
+    return this.clinicBrandingService.getCssVariables();
+  }
+
+  openClinicBranding(): void {
+    this.dialog.open(ClinicBrandingDialogComponent, {
+      width: '520px',
+      maxWidth: '95vw'
     });
   }
 

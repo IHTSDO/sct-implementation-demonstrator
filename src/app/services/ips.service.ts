@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ClinicBrandingService } from './clinic-branding.service';
 import type {
   AllergyIntolerance,
   Condition,
@@ -42,6 +43,9 @@ export class IpsService {
   private static readonly IPS_BUNDLE_PROFILE = 'http://hl7.org/fhir/uv/ips/StructureDefinition/Bundle-uv-ips';
   private static readonly IPS_ABSENT_UNKNOWN_SYSTEM = 'http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips';
   private static readonly NARRATIVE_LINK_URL = 'http://hl7.org/fhir/StructureDefinition/narrativeLink';
+  private static readonly DEFAULT_AUTHOR_NAME = 'EHR Lab IPS Generator';
+
+  constructor(private clinicBrandingService: ClinicBrandingService) {}
 
   generateIpsBundle(input: {
     patient: Patient;
@@ -227,7 +231,8 @@ export class IpsService {
     const organization = {
       resourceType: 'Organization',
       id: organizationId,
-      name: 'EHR Lab IPS Generator'
+      // The configured demo clinic authors the IPS, so receivers can tell where it came from
+      name: this.clinicBrandingService.clinicName || IpsService.DEFAULT_AUTHOR_NAME
     };
 
     const sections = sectionDefinitions

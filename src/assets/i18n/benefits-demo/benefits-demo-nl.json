@@ -15,7 +15,8 @@
       "smartHealthLinks": "Smart Health Links",
       "downloadPatientData": "Patiëntgegevens downloaden",
       "uploadPatientData": "Patiëntgegevens uploaden",
-      "clearAllData": "Alle patiëntgegevens wissen"
+      "clearAllData": "Alle patiëntgegevens wissen",
+      "clinicBranding": "Identiteit van de kliniek"
     },
     "patientList": {
       "title": "Patiënten",
@@ -1321,6 +1322,28 @@
       "errorSelectCondition": "Selecteer een bestaande aandoening voor elke ingevulde regel via die optie.",
       "errorNoSnomedCode": "De geselecteerde aandoening \"{{ name }}\" heeft geen SNOMED CT-code. Gebruik de SNOMED-zoekoptie voor die regel.",
       "errorSelectSnomedConcept": "Selecteer een SNOMED CT-concept voor elke ingevulde regel via SNOMED-zoekopdracht."
+    }
+  },
+  "branding": {
+    "title": "Identiteit van de kliniek",
+    "description": "Geef de gesimuleerde kliniek een naam en een kleur. Ze worden getoond in het EHR Lab en het patiëntdossier, en de naam wordt gebruikt als auteur van gegenereerde IPS-documenten. Alleen in deze browser opgeslagen.",
+    "nameLabel": "Naam van de kliniek",
+    "namePlaceholder": "Parkkliniek",
+    "colorLabel": "Accentkleur",
+    "preview": "Voorbeeld",
+    "previewItem": "Klinisch",
+    "reset": "Herstellen",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "colors": {
+      "blue": "Blauw",
+      "indigo": "Indigo",
+      "purple": "Paars",
+      "rose": "Roze",
+      "orange": "Oranje",
+      "green": "Groen",
+      "teal": "Blauwgroen",
+      "slate": "Leisteen"
     }
   }
 }

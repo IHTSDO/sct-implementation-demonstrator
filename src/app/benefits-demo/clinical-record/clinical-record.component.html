@@ -1,6 +1,6 @@
 <ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <app-alert-toast-host></app-alert-toast-host>
-<div class="clinical-record-container">
+<div class="clinical-record-container" [style]="clinicCssVariables">
   <!-- Header with patient info and navigation -->
   <div class="record-header">
     <div class="header-left">
@@ -51,7 +51,19 @@
     <div class="clinical-workspace" [class.sidebar-collapsed]="isSidebarCollapsed">
     <aside class="clinical-sidebar" [class.expanded]="isClinicalNavExpanded" [class.collapsed]="isSidebarCollapsed">
       <div class="sidebar-toggle-row">
-        <span class="workspace-title">{{ t('clinicalRecord.labels.workspaceTitle') }}</span>
+        @if (clinicName && !isSidebarCollapsed) {
+          <span class="workspace-brand" [matTooltip]="clinicName" matTooltipPosition="right">
+            <span class="clinic-dot" aria-hidden="true"></span>
+            <span class="workspace-brand-copy">
+              <span class="workspace-brand-name">{{ clinicName }}</span>
+              <span class="workspace-brand-product">{{ t('clinicalRecord.labels.workspaceTitle') }}</span>
+            </span>
+          </span>
+        } @else if (clinicName) {
+          <span class="clinic-dot" [matTooltip]="clinicName" matTooltipPosition="right" [attr.aria-label]="clinicName"></span>
+        } @else {
+          <span class="workspace-title">{{ t('clinicalRecord.labels.workspaceTitle') }}</span>
+        }
         <button
           mat-icon-button
           class="sidebar-collapse-toggle"
