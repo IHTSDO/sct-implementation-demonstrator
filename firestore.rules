@@ -33,6 +33,22 @@ service cloud.firestore {
         && isShortString(data().message, 60);
     }
 
+    // Attribute Fall high scores (external Godot game, github.com/alopezo/attribute-fall).
+    // It writes through the REST API with the device clock, so the date is only checked
+    // to be close to the server time.
+    match /attribute-fall/{scoreId} {
+      allow read: if true;
+      allow create: if data().keys().hasOnly(['message', 'mode', 'score', 'date'])
+        && isShortString(data().message, 16)
+        && data().message.size() > 0
+        && data().mode in ['endless']
+        && data().score is int
+        && isNumberInRange(data().score, 1, 1000000)
+        && data().date is timestamp
+        && data().date > request.time - duration.value(1, 'h')
+        && data().date < request.time + duration.value(1, 'h');
+    }
+
     // Expo quiz leaderboard.
     match /quizLeaderboard/{entryId} {
       allow read: if true;
