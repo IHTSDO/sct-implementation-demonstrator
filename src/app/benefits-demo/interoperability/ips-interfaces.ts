@@ -392,6 +392,8 @@ export interface IPSSourceMetadata {
   };
   bundleType?: string;
   bundleTimestamp?: string;
+  /** Name of the Composition author (organization or practitioner) that produced the IPS */
+  authorName?: string;
 }
 
 // Processed data interfaces for display

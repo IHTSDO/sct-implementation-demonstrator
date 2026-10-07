@@ -144,7 +144,8 @@ export class IPSReaderService {
           value: bundle.identifier.value
         } : undefined,
         bundleType: bundle?.type,
-        bundleTimestamp: bundle?.timestamp
+        bundleTimestamp: bundle?.timestamp,
+        authorName: this.getCompositionAuthorName(bundle)
       }
     };
 
@@ -177,6 +178,33 @@ export class IPSReaderService {
     });
 
     return result;
+  }
+
+  /** Resolves the first Composition author to a display name. */
+  private getCompositionAuthorName(bundle: IPSBundle): string | undefined {
+    const entries: any[] = Array.isArray(bundle?.entry) ? bundle.entry : [];
+    const composition = entries.find(entry => entry?.resource?.resourceType === 'Composition')?.resource as any;
+
+    for (const author of composition?.author ?? []) {
+      if (author?.display) return author.display;
+      const reference: string | undefined = author?.reference;
+      if (!reference) continue;
+      const resource = entries.find(entry =>
+        entry?.fullUrl === reference
+        || `${entry?.resource?.resourceType}/${entry?.resource?.id}` === reference
+      )?.resource;
+      const name = this.getAuthorResourceName(resource);
+      if (name) return name;
+    }
+    return undefined;
+  }
+
+  private getAuthorResourceName(resource: any): string | undefined {
+    if (!resource) return undefined;
+    if (typeof resource.name === 'string') return resource.name || undefined;
+    const humanName = Array.isArray(resource.name) ? resource.name[0] : undefined;
+    if (!humanName) return undefined;
+    return humanName.text || [...(humanName.given ?? []), humanName.family].filter(Boolean).join(' ') || undefined;
   }
 
   /**

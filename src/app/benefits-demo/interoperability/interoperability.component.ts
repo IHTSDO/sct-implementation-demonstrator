@@ -2608,13 +2608,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
   }
 
+  /**
+   * Accepts any FHIR Bundle with patient data (document, collection,
+   * searchset, ...). An IPS document is the most common case, but a
+   * Composition is not required.
+   */
   private validateIPSBundleOrThrow(bundle: any): void {
     if (!bundle || bundle.resourceType !== 'Bundle') {
       throw new Error('The retrieved file is not a FHIR Bundle.');
-    }
-
-    if (bundle.type !== 'document') {
-      throw new Error('The retrieved Bundle is not an IPS document bundle (Bundle.type must be "document").');
     }
 
     if (!Array.isArray(bundle.entry) || bundle.entry.length === 0) {
@@ -2622,10 +2623,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     }
 
     const hasPatient = bundle.entry.some((entry: any) => entry?.resource?.resourceType === 'Patient');
-    const hasComposition = bundle.entry.some((entry: any) => entry?.resource?.resourceType === 'Composition');
-
-    if (!hasPatient || !hasComposition) {
-      throw new Error('The retrieved Bundle does not look like an IPS document (missing Patient or Composition).');
+    if (!hasPatient) {
+      throw new Error('The retrieved Bundle has no Patient resource to reconcile.');
     }
   }
 

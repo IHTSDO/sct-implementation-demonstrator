@@ -372,23 +372,23 @@
   },
   "interoperability": {
     "sections": {
-      "pageTitle": "IPS-avstämningsguide",
-      "pageSubtitle": "Läs in en IPS, identifiera patienten, granska varje klinisk sektion och importera enbart de objekt du vill behålla.",
+      "pageTitle": "Avstämning av kliniska data",
+      "pageSubtitle": "Läs in ett FHIR-bundle, till exempel en International Patient Summary (IPS), identifiera patienten, granska varje klinisk sektion och importera enbart de objekt du vill behålla.",
       "scannerTitle": "Skanna Smart Health Link",
       "scannerSubtitle": "Rikta kameran mot en SHL QR-kod för att läsa in IPS-paketet.",
-      "welcomeTitle": "Stämma av inkommande IPS steg för steg",
-      "welcomeDescription": "Den här modulen vägleder klinikern genom patientidentifiering först, sedan ett avstämningssteg per IPS-sektion som innehåller innehåll, och slutligen en sammanfattning före import.",
+      "welcomeTitle": "Stäm av inkommande kliniska data steg för steg",
+      "welcomeDescription": "Läs in valfritt FHIR-bundle med patientdata; International Patient Summary (IPS) är det vanligaste exemplet. Guiden leder klinikern genom patientidentifiering först, sedan ett avstämningssteg per klinisk sektion som innehåller data, och slutligen en sammanfattning före import.",
       "reconciliationSteps": "Avstämningssteg",
       "importSummary": "Importsammanfattning"
     },
     "actions": {
       "backToEhrLab": "Tillbaka till SNOMED EHR Lab",
       "backToInteroperabilityHome": "Tillbaka till interoperabilitetsstarten",
-      "uploadIpsFile": "Ladda upp IPS-fil",
+      "uploadIpsFile": "Ladda upp FHIR-bundle",
       "scanShlQr": "Skanna SHL QR",
       "tryExampleIps": "Testa exempel-IPS",
       "tryExampleIpsBundle": "Testa exempel-IPS-paket",
-      "uploadYourOwnIpsFile": "Ladda upp din egen IPS-fil",
+      "uploadYourOwnIpsFile": "Ladda upp ditt eget FHIR-bundle",
       "stopScanner": "Stoppa skanner",
       "retryWithExample": "Försök igen med exempel-IPS",
       "useThisPatient": "Använd den här patienten",
@@ -432,7 +432,8 @@
       "ipsLogoAlt": "IPS-logotyp",
       "snomedLogoAlt": "SNOMED CT-logotyp",
       "codeSelected": "kod vald",
-      "codesSelected": "koder valda"
+      "codesSelected": "koder valda",
+      "receivedFrom": "Mottaget från"
     },
     "messages": {
       "resolvingShl": "Löser SHL och laddar ner IPS...",

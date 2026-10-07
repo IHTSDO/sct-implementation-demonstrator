@@ -372,23 +372,23 @@
   },
   "interoperability": {
     "sections": {
-      "pageTitle": "IPS Reconciliation Wizard",
-      "pageSubtitle": "Load an IPS, identify the patient, review each clinical section, and import only the items you want to keep.",
+      "pageTitle": "Clinical Data Reconciliation",
+      "pageSubtitle": "Load a FHIR bundle such as an International Patient Summary (IPS), identify the patient, review each clinical section, and import only the items you want to keep.",
       "scannerTitle": "Scan Smart Health Link",
       "scannerSubtitle": "Point the camera at an SHL QR code to load the IPS bundle.",
-      "welcomeTitle": "Reconcile an incoming IPS step by step",
-      "welcomeDescription": "This module guides the clinician through patient identification first, then one reconciliation step per IPS section that contains content, and finally a summary before import.",
+      "welcomeTitle": "Reconcile incoming clinical data step by step",
+      "welcomeDescription": "Load any FHIR bundle with patient data; the International Patient Summary (IPS) is the most common example. The wizard guides the clinician through patient identification first, then one reconciliation step per clinical section that contains content, and finally a summary before import.",
       "reconciliationSteps": "Reconciliation Steps",
       "importSummary": "Import summary"
     },
     "actions": {
       "backToEhrLab": "Back to the SNOMED EHR Lab",
       "backToInteroperabilityHome": "Back to interoperability home",
-      "uploadIpsFile": "Upload IPS File",
+      "uploadIpsFile": "Upload FHIR Bundle",
       "scanShlQr": "Scan SHL QR",
       "tryExampleIps": "Try Example IPS",
       "tryExampleIpsBundle": "Try Example IPS Bundle",
-      "uploadYourOwnIpsFile": "Upload Your Own IPS File",
+      "uploadYourOwnIpsFile": "Upload Your Own FHIR Bundle",
       "stopScanner": "Stop scanner",
       "retryWithExample": "Retry with example IPS",
       "useThisPatient": "Use this patient",
@@ -432,7 +432,8 @@
       "ipsLogoAlt": "IPS logo",
       "snomedLogoAlt": "SNOMED CT logo",
       "codeSelected": "code selected",
-      "codesSelected": "codes selected"
+      "codesSelected": "codes selected",
+      "receivedFrom": "Received from"
     },
     "messages": {
       "resolvingShl": "Resolving SHL and downloading IPS...",

@@ -372,23 +372,23 @@
   },
   "interoperability": {
     "sections": {
-      "pageTitle": "IPS-afstemmingswizard",
-      "pageSubtitle": "Laad een IPS, identificeer de patiënt, beoordeel elke klinische sectie en importeer alleen de items die u wilt bewaren.",
+      "pageTitle": "Afstemming van klinische gegevens",
+      "pageSubtitle": "Laad een FHIR-bundle, zoals een International Patient Summary (IPS), identificeer de patiënt, beoordeel elke klinische sectie en importeer alleen de items die u wilt bewaren.",
       "scannerTitle": "Smart Health Link scannen",
       "scannerSubtitle": "Richt de camera op een SHL QR-code om de IPS-bundel te laden.",
-      "welcomeTitle": "Stap voor stap een inkomende IPS afstemmen",
-      "welcomeDescription": "Deze module begeleidt de clinicus door eerst patiëntidentificatie, vervolgens één afstemmingsstap per IPS-sectie met inhoud, en tot slot een samenvatting vóór het importeren.",
+      "welcomeTitle": "Inkomende klinische gegevens stap voor stap afstemmen",
+      "welcomeDescription": "Laad een willekeurige FHIR-bundle met patiëntgegevens; de International Patient Summary (IPS) is het meest gebruikte voorbeeld. De wizard begeleidt de clinicus eerst door de patiëntidentificatie, vervolgens één afstemmingsstap per klinische sectie met inhoud, en tot slot een samenvatting vóór het importeren.",
       "reconciliationSteps": "Afstemmingsstappen",
       "importSummary": "Importoverzicht"
     },
     "actions": {
       "backToEhrLab": "Terug naar SNOMED EHR Lab",
       "backToInteroperabilityHome": "Terug naar interoperabiliteitsstartpagina",
-      "uploadIpsFile": "IPS-bestand uploaden",
+      "uploadIpsFile": "FHIR-bundle uploaden",
       "scanShlQr": "SHL QR scannen",
       "tryExampleIps": "Voorbeeld IPS proberen",
       "tryExampleIpsBundle": "Voorbeeld IPS-bundel proberen",
-      "uploadYourOwnIpsFile": "Uw eigen IPS-bestand uploaden",
+      "uploadYourOwnIpsFile": "Uw eigen FHIR-bundle uploaden",
       "stopScanner": "Scanner stoppen",
       "retryWithExample": "Opnieuw proberen met voorbeeld-IPS",
       "useThisPatient": "Deze patiënt gebruiken",
@@ -432,7 +432,8 @@
       "ipsLogoAlt": "IPS-logo",
       "snomedLogoAlt": "SNOMED CT-logo",
       "codeSelected": "code geselecteerd",
-      "codesSelected": "codes geselecteerd"
+      "codesSelected": "codes geselecteerd",
+      "receivedFrom": "Ontvangen van"
     },
     "messages": {
       "resolvingShl": "SHL oplossen en IPS downloaden...",

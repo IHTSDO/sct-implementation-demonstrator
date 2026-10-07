@@ -12,6 +12,16 @@
       <div class="page-header-copy">
         <h1>{{ t('interoperability.sections.pageTitle') }}</h1>
         <p>{{ t('interoperability.sections.pageSubtitle') }}</p>
+        @if (patientData?.sourceBundle?.authorName; as sourceAuthor) {
+          <div class="source-author">
+            <mat-icon>outbox</mat-icon>
+            <span>{{ t('interoperability.labels.receivedFrom') }}</span>
+            <strong>{{ sourceAuthor }}</strong>
+            @if (patientData?.sourceBundle?.bundleTimestamp) {
+              <span class="source-author-date">· {{ patientData?.sourceBundle?.bundleTimestamp | date:'medium' }}</span>
+            }
+          </div>
+        }
       </div>
       <div class="page-header-actions">
         @if (hasPatientData()) {
@@ -455,6 +465,12 @@
                         <span class="patient-summary-label">{{ t('interoperability.labels.dateOfBirth') }}</span>
                         <strong>{{ patientData?.patient?.birthDate | date:'mediumDate' }}</strong>
                       </div>
+                      @if (patientData?.sourceBundle?.authorName) {
+                        <div class="patient-summary-item">
+                          <span class="patient-summary-label">{{ t('interoperability.labels.receivedFrom') }}</span>
+                          <strong>{{ patientData?.sourceBundle?.authorName }}</strong>
+                        </div>
+                      }
                     </div>
                   </mat-card-content>
                 </mat-card>

@@ -372,23 +372,23 @@
   },
   "interoperability": {
     "sections": {
-      "pageTitle": "IPS-afstemningsguide",
-      "pageSubtitle": "Indlæs en IPS, identificer patienten, gennemgå hvert klinisk afsnit, og importer kun de elementer, du ønsker at beholde.",
+      "pageTitle": "Afstemning af kliniske data",
+      "pageSubtitle": "Indlæs et FHIR-bundle, f.eks. et International Patient Summary (IPS), identificer patienten, gennemgå hvert klinisk afsnit, og importer kun de elementer, du ønsker at beholde.",
       "scannerTitle": "Scan Smart Health Link",
       "scannerSubtitle": "Peg kameraet mod en SHL QR-kode for at indlæse IPS-bundtet.",
-      "welcomeTitle": "Afstem en indkommende IPS trin for trin",
-      "welcomeDescription": "Dette modul guider klinikeren gennem patientidentifikation først, derefter ét afstemnings-trin pr. IPS-afsnit med indhold, og endelig en opsummering før import.",
+      "welcomeTitle": "Afstem indkommende kliniske data trin for trin",
+      "welcomeDescription": "Indlæs et hvilket som helst FHIR-bundle med patientdata; International Patient Summary (IPS) er det mest almindelige eksempel. Guiden fører klinikeren gennem patientidentifikation først, derefter ét afstemningstrin pr. klinisk afsnit med indhold, og endelig en opsummering før import.",
       "reconciliationSteps": "Afstemningsskridt",
       "importSummary": "Importoversigt"
     },
     "actions": {
       "backToEhrLab": "Tilbage til SNOMED EHR Lab",
       "backToInteroperabilityHome": "Tilbage til interoperabilitetshjem",
-      "uploadIpsFile": "Upload IPS-fil",
+      "uploadIpsFile": "Upload FHIR-bundle",
       "scanShlQr": "Scan SHL QR",
       "tryExampleIps": "Prøv eksempel-IPS",
       "tryExampleIpsBundle": "Prøv eksempel-IPS-bundt",
-      "uploadYourOwnIpsFile": "Upload din egen IPS-fil",
+      "uploadYourOwnIpsFile": "Upload dit eget FHIR-bundle",
       "stopScanner": "Stop scanner",
       "retryWithExample": "Prøv igen med eksempel-IPS",
       "useThisPatient": "Brug denne patient",
@@ -432,7 +432,8 @@
       "ipsLogoAlt": "IPS-logo",
       "snomedLogoAlt": "SNOMED CT-logo",
       "codeSelected": "kode valgt",
-      "codesSelected": "koder valgt"
+      "codesSelected": "koder valgt",
+      "receivedFrom": "Modtaget fra"
     },
     "messages": {
       "resolvingShl": "Løser SHL og downloader IPS...",

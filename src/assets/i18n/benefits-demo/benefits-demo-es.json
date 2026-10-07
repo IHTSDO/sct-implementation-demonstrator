@@ -372,23 +372,23 @@
   },
   "interoperability": {
     "sections": {
-      "pageTitle": "Asistente de reconciliación IPS",
-      "pageSubtitle": "Cargue un IPS, identifique al paciente, revise cada sección clínica e importe solo los elementos que desee conservar.",
+      "pageTitle": "Reconciliación de datos clínicos",
+      "pageSubtitle": "Cargue un bundle FHIR, como un International Patient Summary (IPS), identifique al paciente, revise cada sección clínica e importe solo los elementos que desee conservar.",
       "scannerTitle": "Escanear Smart Health Link",
       "scannerSubtitle": "Apunte la cámara a un código QR de SHL para cargar el paquete IPS.",
-      "welcomeTitle": "Reconciliar un IPS entrante paso a paso",
-      "welcomeDescription": "Este módulo guía al clínico a través de la identificación del paciente primero, luego un paso de reconciliación por cada sección del IPS que contenga contenido, y finalmente un resumen antes de la importación.",
+      "welcomeTitle": "Reconciliar datos clínicos entrantes paso a paso",
+      "welcomeDescription": "Cargue cualquier bundle FHIR con datos de un paciente; el International Patient Summary (IPS) es el ejemplo más común. El asistente guía al clínico a través de la identificación del paciente primero, luego un paso de reconciliación por cada sección clínica que contenga datos, y finalmente un resumen antes de la importación.",
       "reconciliationSteps": "Pasos de reconciliación",
       "importSummary": "Resumen de importación"
     },
     "actions": {
       "backToEhrLab": "Volver al SNOMED EHR Lab",
       "backToInteroperabilityHome": "Volver al inicio de interoperabilidad",
-      "uploadIpsFile": "Cargar archivo IPS",
+      "uploadIpsFile": "Cargar bundle FHIR",
       "scanShlQr": "Escanear QR SHL",
       "tryExampleIps": "Probar IPS de ejemplo",
       "tryExampleIpsBundle": "Probar paquete IPS de ejemplo",
-      "uploadYourOwnIpsFile": "Cargar su propio archivo IPS",
+      "uploadYourOwnIpsFile": "Cargar su propio bundle FHIR",
       "stopScanner": "Detener escáner",
       "retryWithExample": "Reintentar con IPS de ejemplo",
       "useThisPatient": "Usar este paciente",
@@ -432,7 +432,8 @@
       "ipsLogoAlt": "Logo IPS",
       "snomedLogoAlt": "Logo SNOMED CT",
       "codeSelected": "código seleccionado",
-      "codesSelected": "códigos seleccionados"
+      "codesSelected": "códigos seleccionados",
+      "receivedFrom": "Recibido de"
     },
     "messages": {
       "resolvingShl": "Resolviendo SHL y descargando IPS...",
