@@ -458,6 +458,20 @@ export class AppComponent {
     return null;
   }
 
+  /** Edition and release date for the compact toolbar indicator. */
+  get editionIndicatorTooltip(): string {
+    const version = this.getCurrentVersionNumber();
+    const release = /^\d{8}$/.test(version)
+      ? `${version.slice(0, 4)}-${version.slice(4, 6)}-${version.slice(6, 8)}`
+      : version;
+    return `SNOMED CT ${this.selectedEdition} · Release ${release}`;
+  }
+
+  /** Edition name without the trailing "Edition", for narrow toolbars. */
+  get editionIndicatorShortLabel(): string {
+    return this.selectedEdition.replace(/\s+edition$/i, '');
+  }
+
   getCurrentVersionNumber(): string {
     const currentFhirUrl = this.terminologyService.getFhirUrlParam();
     

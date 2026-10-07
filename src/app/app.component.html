@@ -96,6 +96,17 @@
       <span id="title">SNOMED CT Implementation Demos</span>
       <span id="short-title">Implementation Demos</span>
       <span class="example-spacer"></span>
+      @if (selectedEdition && selectedEdition !== 'Edition') {
+        <span
+          class="edition-indicator"
+          tabindex="0"
+          [matTooltip]="editionIndicatorTooltip"
+          matTooltipPosition="below"
+          [attr.aria-label]="editionIndicatorTooltip">
+          <span class="edition-indicator-full">{{ selectedEdition }}</span>
+          <span class="edition-indicator-short">{{ editionIndicatorShortLabel }}</span>
+        </span>
+      }
       <button mat-flat-button color="accent" [matMenuTriggerFor]="demosMenu" class="bar-button">Select Demonstrator</button>
       <mat-menu #demosMenu="matMenu" class="wide-menu">
         @for (demo of demos; track demo) {

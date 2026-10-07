@@ -189,6 +189,32 @@ a {
     display: none;
 }
 
+.edition-indicator {
+    display: none;
+    max-width: 240px;
+    padding: 3px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.edition-indicator-short {
+    display: none;
+}
+
+.edition-indicator:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 2px;
+}
+
 #short-title {
     display: none;
 }
@@ -221,6 +247,41 @@ a {
     #info-button {
         display: none;
     }
+
+    .edition-indicator {
+        max-width: 120px;
+        margin-left: 8px;
+    }
+
+    .edition-indicator-full {
+        display: none;
+    }
+
+    .edition-indicator-short {
+        display: inline;
+    }
+}
+
+@media (max-width: 480px) {
+
+    mat-toolbar a {
+        margin-left: 8px;
+    }
+
+    #short-title {
+        min-width: 0;
+        margin-left: 8px;
+        font-size: 0.8rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .edition-indicator {
+        flex-shrink: 0;
+        padding: 2px 8px;
+        font-size: 0.7rem;
+    }
 }
 
 @media (max-width: 1600px) {
@@ -231,6 +292,10 @@ a {
 
     #menu-button {
         display: block;
+    }
+
+    .edition-indicator {
+        display: inline-block;
     }
 
 }
