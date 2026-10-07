@@ -511,7 +511,8 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
   getHighlightedText(): string {
     if (!this.clinicalText) return '';
     
-    let highlightedText = this.clinicalText;
+    // The result is written with innerHTML, so the user's text must be escaped before adding highlight markup
+    let highlightedText = this.escapeHtml(this.clinicalText);
     const allDetections: DetectedEntity[] = [
       ...this.detectedConditions,
       ...this.detectedProcedures,
@@ -527,7 +528,7 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
     
     allDetections.forEach(detection => {
       // Use the actual detected text (matched keyword) instead of hardcoded terms
-      const detectedText = detection.detectedText.toLowerCase();
+      const detectedText = this.escapeHtml(detection.detectedText.toLowerCase());
       const colorClass = this.getHighlightClass(detection.type);
       termMap.set(detectedText, colorClass);
     });
@@ -543,6 +544,15 @@ export class AiAssistedEntryComponent implements OnInit, OnDestroy {
     });
 
     return highlightedText;
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   private escapeRegExp(string: string): string {
