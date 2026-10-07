@@ -83,6 +83,19 @@ export class SnomedCodingLocalizationService {
     return match ? match[1] : null;
   }
 
+  /** Edition name for an edition/version URI or module id, from the server's edition list. */
+  getEditionName(uriOrModuleId: string | undefined): string | undefined {
+    const moduleId = /^\d+$/.test(uriOrModuleId ?? '') ? uriOrModuleId : this.extractModuleId(uriOrModuleId);
+    if (!moduleId) return undefined;
+    for (const editionGroup of this.terminologyService.editionsDetails$.value ?? []) {
+      const match = editionGroup.editions?.some((e: any) =>
+        `${e?.resource?.version || ''}`.includes(`snomed.info/sct/${moduleId}/version/`)
+      );
+      if (match) return editionGroup.editionName;
+    }
+    return moduleId;
+  }
+
   /**
    * First-pass classification from the coding alone. `version` names the
    * edition the concept was selected from, so an extension edition here only

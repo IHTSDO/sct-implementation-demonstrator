@@ -443,7 +443,13 @@
       "noExistingItems": "Det finns inga {{ section }} i den länkade journalen.",
       "noneSelectedForImport": "Ingen {{ section }} vald för import.",
       "importingTitle": "Importerar valda IPS-objekt",
-      "importingSubtitle": "Sparar de valda begreppen i journalen och öppnar patientjournalen."
+      "importingSubtitle": "Sparar de valda begreppen i journalen och öppnar patientjournalen.",
+      "summarySubtitle": {
+        "noPatient": "Koppla en patient för att granska den slutliga importsammanfattningen.",
+        "createOnly": "Redo att skapa en ny patientjournal för {{ patient }}.",
+        "createAndImport": "Redo att skapa en ny patientjournal och importera {{ count }} valda IPS-poster till {{ patient }}.",
+        "importOnly": "Redo att importera {{ count }} valda IPS-poster till {{ patient }}."
+      }
     },
     "wizardSteps": {
       "patient": {
@@ -510,10 +516,14 @@
         "not-found": "Begreppet hittades inte i din utgåva"
       },
       "importAs": "Importera som",
-      "noAlternative": "Inget alternativ hittades; det importeras som det togs emot",
+      "noAlternative": "Inget alternativ hittades i din utgåva.",
       "adaptToggle": "Anpassa",
-      "originalKept": "Den ursprungliga koden {{ code }} behålls som extra kodning",
-      "adaptedTooltip": "Anpassat till din SNOMED CT-utgåva"
+      "originalKept": "Den ursprungliga koden {{ code }} behålls som extra kodning.",
+      "adaptedTooltip": "Anpassat till din SNOMED CT-utgåva",
+      "inTheIps": "I IPS:en",
+      "willBeImportedAs": "Importeras som",
+      "importedAsReceived": "Importeras som det togs emot",
+      "textKept": "Journaltexten förblir \"{{ text }}\"."
     }
   },
   "conceptValidationDialog": {

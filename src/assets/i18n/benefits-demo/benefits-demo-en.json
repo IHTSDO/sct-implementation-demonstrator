@@ -443,7 +443,13 @@
       "noExistingItems": "No {{ section }} currently exist in the linked clinical record.",
       "noneSelectedForImport": "No {{ section }} selected for import.",
       "importingTitle": "Importing selected IPS items",
-      "importingSubtitle": "Saving the selected concepts into the clinical record and opening the patient chart."
+      "importingSubtitle": "Saving the selected concepts into the clinical record and opening the patient chart.",
+      "summarySubtitle": {
+        "noPatient": "Link a patient to review the final import summary.",
+        "createOnly": "Ready to create a new patient record for {{ patient }}.",
+        "createAndImport": "Ready to create a new patient record and import {{ count }} selected IPS items into {{ patient }}.",
+        "importOnly": "Ready to import {{ count }} selected IPS items into {{ patient }}."
+      }
     },
     "wizardSteps": {
       "patient": {
@@ -510,10 +516,14 @@
         "not-found": "Concept not found in your edition"
       },
       "importAs": "Import as",
-      "noAlternative": "No alternative found; it will be imported as received",
+      "noAlternative": "No alternative found in your edition.",
       "adaptToggle": "Adapt",
-      "originalKept": "Original code {{ code }} is kept as an additional coding",
-      "adaptedTooltip": "Adapted to your SNOMED CT edition"
+      "originalKept": "Original code {{ code }} is kept as an additional coding.",
+      "adaptedTooltip": "Adapted to your SNOMED CT edition",
+      "inTheIps": "In the IPS",
+      "willBeImportedAs": "Will be imported as",
+      "importedAsReceived": "Will be imported as received",
+      "textKept": "Record text stays \"{{ text }}\"."
     }
   },
   "conceptValidationDialog": {

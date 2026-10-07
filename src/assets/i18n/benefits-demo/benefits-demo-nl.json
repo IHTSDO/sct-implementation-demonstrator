@@ -443,7 +443,13 @@
       "noExistingItems": "Er zijn momenteel geen {{ section }} in het gekoppelde klinisch dossier.",
       "noneSelectedForImport": "Geen {{ section }} geselecteerd voor import.",
       "importingTitle": "Geselecteerde IPS-items importeren",
-      "importingSubtitle": "De geselecteerde concepten worden opgeslagen in het klinisch dossier en het patiëntdossier wordt geopend."
+      "importingSubtitle": "De geselecteerde concepten worden opgeslagen in het klinisch dossier en het patiëntdossier wordt geopend.",
+      "summarySubtitle": {
+        "noPatient": "Koppel een patiënt om het definitieve importoverzicht te bekijken.",
+        "createOnly": "Klaar om een nieuw patiëntdossier aan te maken voor {{ patient }}.",
+        "createAndImport": "Klaar om een nieuw patiëntdossier aan te maken en {{ count }} geselecteerde IPS-items te importeren in {{ patient }}.",
+        "importOnly": "Klaar om {{ count }} geselecteerde IPS-items te importeren in {{ patient }}."
+      }
     },
     "wizardSteps": {
       "patient": {
@@ -510,10 +516,14 @@
         "not-found": "Concept niet gevonden in je editie"
       },
       "importAs": "Importeren als",
-      "noAlternative": "Geen alternatief gevonden; het wordt geïmporteerd zoals ontvangen",
+      "noAlternative": "Geen alternatief gevonden in je editie.",
       "adaptToggle": "Aanpassen",
-      "originalKept": "De oorspronkelijke code {{ code }} blijft behouden als extra codering",
-      "adaptedTooltip": "Aangepast aan je SNOMED CT-editie"
+      "originalKept": "De oorspronkelijke code {{ code }} blijft behouden als extra codering.",
+      "adaptedTooltip": "Aangepast aan je SNOMED CT-editie",
+      "inTheIps": "In de IPS",
+      "willBeImportedAs": "Wordt geïmporteerd als",
+      "importedAsReceived": "Wordt geïmporteerd zoals ontvangen",
+      "textKept": "De dossiertekst blijft \"{{ text }}\"."
     }
   },
   "conceptValidationDialog": {

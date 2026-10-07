@@ -302,68 +302,89 @@
                           class="comparison-item"
                           [class.item-selected]="isItemSelected(section, item.id) && !isItemAlreadyRecorded(section, item)"
                           [class.item-recorded]="isItemAlreadyRecorded(section, item)">
+                          @let adaptation = getItemAdaptation(item);
+                          @let target = getImportPreview(section, item);
                           <div class="comparison-item-main">
-                            <div class="comparison-item-copy">
-                              <div class="comparison-item-title">{{ getItemDisplay(section, item) }}</div>
-                              <div class="comparison-item-meta">
-                                <span class="meta-chip">{{ getItemCode(section, item) }}</span>
-                                <span class="meta-chip">{{ getItemStatus(section, item) }}</span>
-                                @if (getItemDate(section, item)) {
-                                  <span class="meta-chip">{{ getItemDateLabel(section) }}: {{ getItemDate(section, item) | date:'short' }}</span>
-                                }
-                              </div>
-                              @if (getItemAdaptation(item); as adaptation) {
-                                <div class="terminology-adaptation" [class.adaptation-reverted]="!adaptation.applied">
-                                  <div class="adaptation-header">
-                                    <mat-icon>{{ adaptation.adaptation.reason === 'display-localized' ? 'translate' : 'swap_horiz' }}</mat-icon>
-                                    <strong>{{ t('interoperability.terminology.reasons.' + adaptation.adaptation.reason) }}</strong>
-                                    @if (canToggleAdaptation(adaptation)) {
-                                      <mat-slide-toggle
-                                        color="primary"
-                                        class="adaptation-toggle"
-                                        labelPosition="before"
-                                        [checked]="adaptation.applied"
-                                        (change)="toggleAdaptation(item)">
-                                        {{ t('interoperability.terminology.adaptToggle') }}
-                                      </mat-slide-toggle>
-                                    }
-                                  </div>
-
-                                  @if (adaptation.adaptation.reason === 'display-localized') {
-                                    <span class="adaptation-detail">{{ adaptation.adaptation.localizedDisplay }}</span>
-                                  } @else if (adaptation.adaptation.alternatives.length === 1) {
-                                    <span class="adaptation-detail">
-                                      {{ t('interoperability.terminology.importAs') }}:
-                                      {{ adaptation.adaptation.alternatives[0].display }} ({{ adaptation.adaptation.alternatives[0].code }})
-                                    </span>
-                                  } @else if (adaptation.adaptation.alternatives.length > 1) {
-                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="adaptation-select">
-                                      <mat-label>{{ t('interoperability.terminology.importAs') }}</mat-label>
-                                      <mat-select [value]="adaptation.selectedCode" (selectionChange)="selectAdaptationAlternative(item, $event.value)">
-                                        @for (alternative of adaptation.adaptation.alternatives; track alternative.code) {
-                                          <mat-option [value]="alternative.code">{{ alternative.display }} ({{ alternative.code }})</mat-option>
-                                        }
-                                      </mat-select>
-                                    </mat-form-field>
-                                  } @else {
-                                    <span class="adaptation-detail">{{ t('interoperability.terminology.noAlternative') }}</span>
-                                  }
-
-                                  @if (adaptation.applied && adaptation.adaptation.reason !== 'display-localized') {
-                                    <span class="adaptation-original">
-                                      {{ t('interoperability.terminology.originalKept', { code: adaptation.adaptation.code }) }}
-                                    </span>
+                            @if (adaptation) {
+                              @let source = getSourcePreview(section, item);
+                              <div class="coding-block coding-source">
+                                <span class="coding-label">{{ t('interoperability.terminology.inTheIps') }}</span>
+                                <div class="coding-display">{{ source.display }}</div>
+                                <div class="comparison-item-meta">
+                                  <span class="meta-chip">{{ source.code }}</span>
+                                  @if (source.edition) {
+                                    <span class="meta-chip">{{ source.edition }}</span>
                                   }
                                 </div>
+                              </div>
+
+                              <div class="adaptation-reason" [class.adaptation-reason-off]="!adaptation.applied">
+                                <mat-icon>arrow_downward</mat-icon>
+                                <span>{{ t('interoperability.terminology.reasons.' + adaptation.adaptation.reason) }}</span>
+                              </div>
+                            }
+
+                            <div
+                              class="coding-block"
+                              [class.coding-target]="!!adaptation"
+                              [class.coding-target-off]="!!adaptation && !adaptation.applied">
+                              <div class="coding-block-header">
+                                <span class="coding-label">
+                                  {{ adaptation && !adaptation.applied ? t('interoperability.terminology.importedAsReceived') : t('interoperability.terminology.willBeImportedAs') }}
+                                </span>
+                                @if (adaptation && canToggleAdaptation(adaptation)) {
+                                  <mat-slide-toggle
+                                    color="primary"
+                                    labelPosition="before"
+                                    [checked]="adaptation.applied"
+                                    (change)="toggleAdaptation(item)">
+                                    {{ t('interoperability.terminology.adaptToggle') }}
+                                  </mat-slide-toggle>
+                                }
+                              </div>
+
+                              @if (adaptation?.applied && adaptation!.adaptation.alternatives.length > 1) {
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="adaptation-select">
+                                  <mat-label>{{ t('interoperability.terminology.importAs') }}</mat-label>
+                                  <mat-select [value]="adaptation!.selectedCode" (selectionChange)="selectAdaptationAlternative(item, $event.value)">
+                                    @for (alternative of adaptation!.adaptation.alternatives; track alternative.code) {
+                                      <mat-option [value]="alternative.code">{{ alternative.display }} ({{ alternative.code }})</mat-option>
+                                    }
+                                  </mat-select>
+                                </mat-form-field>
+                              } @else {
+                                <div class="comparison-item-title">{{ target.display }}</div>
+                              }
+
+                              <div class="comparison-item-meta">
+                                <span class="meta-chip">{{ target.code }}</span>
+                                @if (target.edition) {
+                                  <span class="meta-chip">{{ target.edition }}</span>
+                                }
+                              </div>
+
+                              @if (adaptation?.applied) {
+                                <p class="coding-note">
+                                  @if (adaptation!.adaptation.reason !== 'display-localized') {
+                                    {{ t('interoperability.terminology.originalKept', { code: adaptation!.adaptation.code }) }}
+                                  }
+                                  {{ t('interoperability.terminology.textKept', { text: getItemDisplay(section, item) }) }}
+                                </p>
+                              } @else if (adaptation && !canToggleAdaptation(adaptation)) {
+                                <p class="coding-note">{{ t('interoperability.terminology.noAlternative') }}</p>
                               }
                             </div>
 
-                            <div class="comparison-item-actions">
+                            <div class="comparison-item-footer">
+                              <span class="comparison-item-facts">
+                                {{ getItemStatus(section, item) }}
+                                @if (getItemDate(section, item)) {
+                                  · {{ getItemDateLabel(section) }}: {{ getItemDate(section, item) | date:'short' }}
+                                }
+                              </span>
                               @if (isItemAlreadyRecorded(section, item)) {
                                 <span class="status-pill status-pill-neutral">{{ t('interoperability.labels.alreadyInRecord') }}</span>
-                              }
-
-                              @if (!isItemAlreadyRecorded(section, item)) {
+                              } @else {
                                 <button mat-flat-button color="primary" (click)="toggleSectionSelection(section, item.id)">
                                   <mat-icon>{{ isItemSelected(section, item.id) ? 'remove_circle' : 'add_circle' }}</mat-icon>
                                   {{ isItemSelected(section, item.id) ? t('interoperability.actions.remove') : t('interoperability.actions.add') }}
@@ -482,13 +503,14 @@
                       @if (getSelectedItems(section).length > 0) {
                         <div class="summary-item-list">
                           @for (item of getSelectedItems(section); track item.id) {
+                            @let summaryTarget = getImportPreview(section, item);
                             <div class="summary-item">
-                              <span>{{ getItemDisplay(section, item) }}</span>
+                              <span>{{ summaryTarget.display }}</span>
                               <span class="summary-item-code">
                                 @if (getItemAdaptation(item)?.applied) {
                                   <mat-icon class="summary-adapted-icon" [matTooltip]="t('interoperability.terminology.adaptedTooltip')">swap_horiz</mat-icon>
                                 }
-                                {{ getItemCode(section, item) }}
+                                {{ summaryTarget.code }}
                               </span>
                             </div>
                           }

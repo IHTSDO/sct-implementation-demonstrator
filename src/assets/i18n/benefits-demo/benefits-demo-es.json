@@ -443,7 +443,13 @@
       "noExistingItems": "No existen {{ section }} actualmente en el historial clínico vinculado.",
       "noneSelectedForImport": "Ningún {{ section }} seleccionado para importar.",
       "importingTitle": "Importando elementos IPS seleccionados",
-      "importingSubtitle": "Guardando los conceptos seleccionados en el historial clínico y abriendo el expediente del paciente."
+      "importingSubtitle": "Guardando los conceptos seleccionados en el historial clínico y abriendo el expediente del paciente.",
+      "summarySubtitle": {
+        "noPatient": "Vincule un paciente para revisar el resumen final de la importación.",
+        "createOnly": "Listo para crear un nuevo registro de paciente para {{ patient }}.",
+        "createAndImport": "Listo para crear un nuevo registro de paciente e importar {{ count }} elementos IPS seleccionados en {{ patient }}.",
+        "importOnly": "Listo para importar {{ count }} elementos IPS seleccionados en {{ patient }}."
+      }
     },
     "wizardSteps": {
       "patient": {
@@ -502,18 +508,22 @@
       "relationNarrower": "El concepto seleccionado es más específico"
     },
     "terminology": {
-      "adapting": "Adaptando la terminología importada a tu edición de SNOMED CT…",
+      "adapting": "Adaptando la terminología importada a su edición de SNOMED CT…",
       "reasons": {
-        "display-localized": "Display adaptado a tu edición",
-        "extension-concept": "Concepto no incluido en tu edición",
+        "display-localized": "Display adaptado a su edición",
+        "extension-concept": "Concepto no incluido en su edición",
         "inactive": "Concepto inactivo",
-        "not-found": "Concepto no encontrado en tu edición"
+        "not-found": "Concepto no encontrado en su edición"
       },
       "importAs": "Importar como",
-      "noAlternative": "No se encontró una alternativa; se importará tal como se recibió",
+      "noAlternative": "No se encontró una alternativa en su edición.",
       "adaptToggle": "Adaptar",
-      "originalKept": "El código original {{ code }} se conserva como coding adicional",
-      "adaptedTooltip": "Adaptado a tu edición de SNOMED CT"
+      "originalKept": "El código original {{ code }} se conserva como coding adicional.",
+      "adaptedTooltip": "Adaptado a su edición de SNOMED CT",
+      "inTheIps": "En el IPS",
+      "willBeImportedAs": "Se importará como",
+      "importedAsReceived": "Se importará tal como se recibió",
+      "textKept": "El texto del registro queda \"{{ text }}\"."
     }
   },
   "conceptValidationDialog": {

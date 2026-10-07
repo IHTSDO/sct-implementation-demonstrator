@@ -77,8 +77,6 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   collapsedNodes = new Set<string>();
   displayUpdatesColumns = ['code', 'documentDisplay', 'editionDisplay'];
 
-  editionsDetails: any[] = [];
-
   displayUpdates: DisplayUpdate[] = [];
   loadingDisplayUpdates = false;
   displayUpdatesAnalyzed = false;
@@ -107,10 +105,6 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
       this.displayUpdates = [];
       this.displayUpdatesAnalyzed = false;
       this.displayUpdatesError = undefined;
-    });
-
-    this.terminologyService.editionsDetails$.subscribe(details => {
-      this.editionsDetails = details;
     });
   }
 
@@ -556,14 +550,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   }
 
   getExtensionName(moduleId: string | undefined): string {
-    if (!moduleId || !this.editionsDetails.length) return moduleId ?? '';
-    for (const editionGroup of this.editionsDetails) {
-      const match = editionGroup.editions?.some((e: any) =>
-        `${e?.resource?.version || ''}`.includes(`snomed.info/sct/${moduleId}/version/`)
-      );
-      if (match) return editionGroup.editionName;
-    }
-    return moduleId;
+    return this.localization.getEditionName(moduleId) ?? moduleId ?? '';
   }
 
   get extensionEditionTooltip(): string {

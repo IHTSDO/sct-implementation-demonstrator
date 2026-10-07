@@ -28,6 +28,12 @@ import {
 type MergeSectionId = 'conditions' | 'procedures' | 'medications' | 'immunizations' | 'allergies';
 type WizardStepId = 'patient' | MergeSectionId | 'summary';
 
+export interface CodingPreview {
+  display: string;
+  code: string;
+  edition?: string;
+}
+
 /** How an imported concept is adapted to the selected edition; reversible per item. */
 export interface ItemTerminologyAdaptation {
   adaptation: CodingAdaptation;
@@ -1707,11 +1713,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   getItemCode(section: MergeSectionId, item: any): string {
-    const snomedCode = this.snomedCodeOf(item);
-    if (snomedCode) {
-      return snomedCode;
-    }
+    return this.snomedCodeOf(item) || this.getNonSnomedCode(section, item);
+  }
 
+  private getNonSnomedCode(section: MergeSectionId, item: any): string {
     switch (section) {
       case 'medications':
         return item.medicationCodeableConcept?.coding?.[0]?.code || 'No code';
@@ -1754,19 +1759,27 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   getSummarySubtitle(): string {
+    const t = (key: string, params?: Record<string, unknown>) =>
+      this.translocoService.translate('benefitsDemo.interoperability.messages.summarySubtitle.' + key, params ?? {});
+
     if (!this.linkedPatient) {
-      return 'Link a patient to review the final import summary.';
+      return t('noPatient');
     }
 
+    const params = {
+      count: this.getTotalSelectedCount(),
+      patient: this.getPatientDisplayName(this.linkedPatient)
+    };
+
     if (this.linkedPatientIsDraft && !this.hasSelectedItems()) {
-      return `Ready to create a new patient record for ${this.getPatientDisplayName(this.linkedPatient)}.`;
+      return t('createOnly', params);
     }
 
     if (this.linkedPatientIsDraft) {
-      return `Ready to create a new patient record and import ${this.getTotalSelectedCount()} selected IPS items into ${this.getPatientDisplayName(this.linkedPatient)}.`;
+      return t('createAndImport', params);
     }
 
-    return `Ready to import ${this.getTotalSelectedCount()} selected IPS items into ${this.getPatientDisplayName(this.linkedPatient)}.`;
+    return t('importOnly', params);
   }
 
   // --- Terminology adaptation ---
@@ -1843,6 +1856,35 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
   getSelectedAlternative(adaptation: ItemTerminologyAdaptation): ConceptAlternative | undefined {
     return adaptation.adaptation.alternatives.find(alt => alt.code === adaptation.selectedCode);
+  }
+
+  /** The item's coding as received in the IPS. */
+  getSourcePreview(section: MergeSectionId, item: any): CodingPreview {
+    const source = this.getSourceSnomedCoding(item);
+    return {
+      display: this.getItemDisplay(section, item),
+      code: source?.code || this.getNonSnomedCode(section, item),
+      edition: this.localization.getEditionName(source?.version)
+    };
+  }
+
+  /** What will be stored for the item, following the adaptation toggle. */
+  getImportPreview(section: MergeSectionId, item: any): CodingPreview {
+    const adaptation = this.getItemAdaptation(item);
+    const source = this.getSourceSnomedCoding(item);
+    if (!adaptation?.applied || !source) {
+      return this.getSourcePreview(section, item);
+    }
+
+    const selectedEdition = this.localization.getEditionName(this.terminologyService.getFhirUrlParam());
+    if (adaptation.adaptation.reason === 'display-localized') {
+      return { display: adaptation.adaptation.localizedDisplay!, code: source.code, edition: selectedEdition };
+    }
+
+    const alternative = this.getSelectedAlternative(adaptation);
+    return alternative
+      ? { display: alternative.display, code: alternative.code, edition: selectedEdition }
+      : this.getSourcePreview(section, item);
   }
 
   /** SNOMED CT code the item will be imported with (adapted when an adaptation is applied). */

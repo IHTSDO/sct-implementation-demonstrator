@@ -554,14 +554,7 @@
   gap: 10px;
 }
 
-.comparison-item-copy {
-  min-width: 0;
-}
 
-.comparison-item-actions {
-  display: flex;
-  justify-content: flex-end;
-}
 
 .comparison-item-title {
   font-weight: 700;
@@ -771,56 +764,88 @@
   }
 }
 
-.terminology-adaptation {
+.coding-block {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-top: 8px;
-  padding: 8px 10px;
-  border-left: 3px solid #1d4ed8;
-  border-radius: 6px;
-  background: #eff6ff;
-  color: #334155;
-}
-
-.terminology-adaptation.adaptation-reverted {
-  border-left-color: #cbd5e1;
-  background: #f8fafc;
-}
-
-.adaptation-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 6px;
-}
-
-.adaptation-header strong {
-  flex: 1 1 140px;
   min-width: 0;
 }
 
-.adaptation-header mat-icon {
+.coding-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.coding-display {
+  font-size: 14px;
+  color: #475569;
+}
+
+.coding-target {
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+}
+
+.coding-target.coding-target-off {
+  border-color: #dbe7f0;
+  background: #f8fafc;
+}
+
+.coding-target .meta-chip {
+  background: #ffffff;
+}
+
+.coding-block-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+
+.adaptation-reason {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #1d4ed8;
+}
+
+.adaptation-reason.adaptation-reason-off {
+  color: #64748b;
+}
+
+.adaptation-reason mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
 }
 
-.adaptation-toggle {
-  margin-left: auto;
-}
-
-.adaptation-detail,
-.adaptation-original {
-  font-size: 13px;
-}
-
-.adaptation-original {
+.coding-note {
+  margin: 4px 0 0;
+  font-size: 12px;
   color: #64748b;
 }
 
 .adaptation-select {
   width: 100%;
+}
+
+.comparison-item-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.comparison-item-facts {
+  font-size: 12px;
+  color: #64748b;
 }
 
 .summary-adapted-icon {

@@ -443,7 +443,13 @@
       "noExistingItems": "Der er ingen {{ section }} i den tilknyttede kliniske journal.",
       "noneSelectedForImport": "Ingen {{ section }} valgt til import.",
       "importingTitle": "Importerer valgte IPS-elementer",
-      "importingSubtitle": "Gemmer de valgte begreber i den kliniske journal og åbner patientjournalen."
+      "importingSubtitle": "Gemmer de valgte begreber i den kliniske journal og åbner patientjournalen.",
+      "summarySubtitle": {
+        "noPatient": "Tilknyt en patient for at gennemgå den endelige importoversigt.",
+        "createOnly": "Klar til at oprette en ny patientjournal for {{ patient }}.",
+        "createAndImport": "Klar til at oprette en ny patientjournal og importere {{ count }} valgte IPS-elementer til {{ patient }}.",
+        "importOnly": "Klar til at importere {{ count }} valgte IPS-elementer til {{ patient }}."
+      }
     },
     "wizardSteps": {
       "patient": {
@@ -510,10 +516,14 @@
         "not-found": "Begrebet blev ikke fundet i din udgave"
       },
       "importAs": "Importér som",
-      "noAlternative": "Intet alternativ fundet; det importeres som modtaget",
+      "noAlternative": "Intet alternativ fundet i din udgave.",
       "adaptToggle": "Tilpas",
-      "originalKept": "Den oprindelige kode {{ code }} bevares som ekstra kodning",
-      "adaptedTooltip": "Tilpasset din SNOMED CT-udgave"
+      "originalKept": "Den oprindelige kode {{ code }} bevares som ekstra kodning.",
+      "adaptedTooltip": "Tilpasset din SNOMED CT-udgave",
+      "inTheIps": "I IPS'en",
+      "willBeImportedAs": "Importeres som",
+      "importedAsReceived": "Importeres som modtaget",
+      "textKept": "Journalteksten forbliver \"{{ text }}\"."
     }
   },
   "conceptValidationDialog": {
