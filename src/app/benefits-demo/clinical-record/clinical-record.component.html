@@ -301,7 +301,7 @@
                       [attr.data-condition-id]="condition.id"
                       (mouseenter)="onConditionHover(condition, $event)"
                       (mouseleave)="onConditionHoverEnd()">
-                    <div class="item-name">{{ condition.code.text }}</div>
+                    <div class="item-name" [matTooltip]="getConceptLabel(condition.code).original || ''">{{ getConceptLabel(condition.code).label }}</div>
                   </div>
                 </div>
                 <ng-template #noConditions>
@@ -317,7 +317,7 @@
                       [attr.data-procedure-id]="procedure.id"
                       (mouseenter)="onProcedureHover(procedure, $event)"
                       (mouseleave)="onConditionHoverEnd()">
-                    <div class="item-name">{{ procedure.code.text }}</div>
+                    <div class="item-name" [matTooltip]="getConceptLabel(procedure.code).original || ''">{{ getConceptLabel(procedure.code).label }}</div>
                   </div>
                 </div>
                 <ng-template #noProcedures>
@@ -376,7 +376,7 @@
                       (mouseenter)="onMedicationHover(medication, $event)"
                       (mouseleave)="onConditionHoverEnd()">
                     <div class="item-name">
-                      {{ medication.medicationCodeableConcept?.text }}
+                      <span [matTooltip]="getConceptLabel(medication.medicationCodeableConcept).original || ''">{{ getConceptLabel(medication.medicationCodeableConcept).label }}</span>
                       <mat-icon
                           *ngIf="getMedicationCdsIndicator(medication)"
                           class="cds-alert-badge"
@@ -397,7 +397,7 @@
                 <div class="clinical-summary-list" *ngIf="immunizations.length > 0; else noImmunizations">
                   <div class="clinical-summary-item"
                       *ngFor="let immunization of getSortedImmunizations()">
-                    <div class="item-name">{{ immunization.vaccineCode.text || immunization.vaccineCode.coding?.[0]?.display }}</div>
+                    <div class="item-name" [matTooltip]="getConceptLabel(immunization.vaccineCode).original || ''">{{ getConceptLabel(immunization.vaccineCode).label }}</div>
                   </div>
                 </div>
                 <ng-template #noImmunizations>
@@ -622,7 +622,7 @@
                           <div class="clinical-item compact"
                               *ngFor="let condition of getSortedConditions()">
                             <div class="item-header compact">
-                              <span class="item-title compact">{{ condition.code.text }}</span>
+                              <span class="item-title compact" [matTooltip]="getConceptLabel(condition.code).original || ''">{{ getConceptLabel(condition.code).label }}</span>
                               <div class="item-header-actions compact">
                                 <span class="anchor-category-indicator compact"
                                       [style.background-color]="findBestAnchorPointForConcept(getConceptId(condition))?.defaultColor"
@@ -730,7 +730,7 @@
                         <div class="clinical-list compact" *ngIf="procedures.length > 0; else noProcedures">
                           <div class="clinical-item compact" *ngFor="let procedure of getSortedProcedures()">
                             <div class="item-header compact">
-                              <span class="item-title compact">{{ procedure.code.text }}</span>
+                              <span class="item-title compact" [matTooltip]="getConceptLabel(procedure.code).original || ''">{{ getConceptLabel(procedure.code).label }}</span>
                               <div class="item-header-actions compact">
                                 <span class="anchor-category-indicator compact"
                                       [style.background-color]="findBestAnchorPointForConcept(getConceptId(procedure))?.defaultColor"
@@ -787,7 +787,7 @@
                           <div class="clinical-item compact" *ngFor="let medication of getSortedMedications()">
                             <div class="item-header compact">
                               <span class="item-title compact">
-                                {{ medication.medicationCodeableConcept?.text }}
+                                <span [matTooltip]="getConceptLabel(medication.medicationCodeableConcept).original || ''">{{ getConceptLabel(medication.medicationCodeableConcept).label }}</span>
                                 <mat-icon
                                     *ngIf="getMedicationCdsIndicator(medication)"
                                     class="cds-alert-badge"
@@ -838,7 +838,7 @@
                         <div class="clinical-list compact" *ngIf="immunizations.length > 0; else noImmunizationsList">
                           <div class="clinical-item compact" *ngFor="let immunization of getSortedImmunizations()">
                             <div class="item-header compact">
-                              <span class="item-title compact">{{ immunization.vaccineCode.text || immunization.vaccineCode.coding?.[0]?.display }}</span>
+                              <span class="item-title compact" [matTooltip]="getConceptLabel(immunization.vaccineCode).original || ''">{{ getConceptLabel(immunization.vaccineCode).label }}</span>
                               <div class="item-header-actions compact">
                                 <button mat-icon-button
                                         class="delete-button compact"

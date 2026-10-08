@@ -83,6 +83,32 @@ export class SnomedCodingLocalizationService {
     return match ? match[1] : null;
   }
 
+  /**
+   * Label for a CodeableConcept in the selected edition: the display of a
+   * SNOMED CT coding recorded in that edition (same module, any release)
+   * when there is one, otherwise the concept text. `original` carries the
+   * text when it differs from the label, e.g. for a tooltip.
+   */
+  getConceptLabel(concept: { text?: string; coding?: Array<{ system?: string; version?: string; display?: string }> } | undefined): { label: string; original?: string } {
+    const text = concept?.text?.trim();
+    const coding = this.findSelectedEditionCoding(concept);
+
+    if (coding?.display) {
+      const label = coding.display.trim();
+      return { label, original: text && text !== label ? text : undefined };
+    }
+    return { label: text || concept?.coding?.[0]?.display || '' };
+  }
+
+  /** A SNOMED CT coding with a display recorded in the selected edition (same module, any release). */
+  findSelectedEditionCoding<T extends { system?: string; version?: string; display?: string }>(
+    concept: { coding?: T[] } | undefined
+  ): T | undefined {
+    const selectedModule = this.extractModuleId(this.terminologyService.getSelectedEditionVersion());
+    if (!selectedModule) return undefined;
+    return concept?.coding?.find(c => this.isSnomedSystem(c.system) && !!c.display && this.extractModuleId(c.version) === selectedModule);
+  }
+
   /** Edition name for an edition/version URI or module id, from the server's edition list. */
   getEditionName(uriOrModuleId: string | undefined): string | undefined {
     const moduleId = /^\d+$/.test(uriOrModuleId ?? '') ? uriOrModuleId : this.extractModuleId(uriOrModuleId);

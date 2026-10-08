@@ -12,6 +12,10 @@ import {
 } from '@angular/core';
 import Plotly from 'plotly.js-dist';
 import type { AllergyIntolerance, Condition, Immunization, MedicationStatement, Procedure } from '../../model';
+import { Subscription } from 'rxjs';
+import { skip } from 'rxjs/operators';
+import { TerminologyService } from '../../services/terminology.service';
+import { SnomedCodingLocalizationService } from '../../services/snomed-coding-localization.service';
 
 export interface TimelineEvent {
   id: string;
@@ -48,6 +52,12 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
   private renderRetryHandle: ReturnType<typeof setTimeout> | null = null;
   private resizeTimeoutHandle: ReturnType<typeof setTimeout> | null = null;
   private resizeAnimationFrame: number | null = null;
+  private editionSub?: Subscription;
+
+  constructor(
+    private terminologyService: TerminologyService,
+    private snomedLocalization: SnomedCodingLocalizationService
+  ) {}
 
   readonly eventColors = {
     condition: '#8e44ad',
@@ -64,6 +74,8 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
 
   ngOnInit(): void {
     this.processEvents();
+    // Event names follow the selected edition, so redraw when it changes
+    this.editionSub = this.terminologyService.fhirUrlParam$.pipe(skip(1)).subscribe(() => this.refreshTimeline());
   }
 
   ngAfterViewInit(): void {
@@ -79,6 +91,7 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
 
   ngOnDestroy(): void {
     this.destroyed = true;
+    this.editionSub?.unsubscribe();
     if (this.renderRetryHandle) {
       clearTimeout(this.renderRetryHandle);
       this.renderRetryHandle = null;
@@ -128,11 +141,11 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
         this.timelineEvents.push({
           id: condition.id,
           type: 'condition',
-          title: condition.code.text || 'Unknown Condition',
+          title: this.eventTitle(condition.code, 'Unknown Condition'),
           date,
           conceptId: this.getConceptId(condition),
           status: this.getConditionStatus(condition),
-          details: this.getConditionDetails(condition),
+          details: this.withOriginalText(condition.code, this.getConditionDetails(condition)),
           originalEvent: condition,
           color: this.eventColors.condition
         });
@@ -145,11 +158,11 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
         this.timelineEvents.push({
           id: procedure.id,
           type: 'procedure',
-          title: procedure.code.text || 'Unknown Procedure',
+          title: this.eventTitle(procedure.code, 'Unknown Procedure'),
           date,
           conceptId: this.getConceptId(procedure),
           status: procedure.status || 'Unknown',
-          details: this.getProcedureDetails(procedure),
+          details: this.withOriginalText(procedure.code, this.getProcedureDetails(procedure)),
           originalEvent: procedure,
           color: this.eventColors.procedure
         });
@@ -162,11 +175,11 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
         this.timelineEvents.push({
           id: medication.id,
           type: 'medication',
-          title: medication.medicationCodeableConcept?.text || 'Unknown Medication',
+          title: this.eventTitle(medication.medicationCodeableConcept, 'Unknown Medication'),
           date,
           conceptId: this.getConceptId(medication),
           status: medication.status || 'Unknown',
-          details: this.getMedicationDetails(medication),
+          details: this.withOriginalText(medication.medicationCodeableConcept, this.getMedicationDetails(medication)),
           originalEvent: medication,
           color: this.eventColors.medication
         });
@@ -179,11 +192,11 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
         this.timelineEvents.push({
           id: immunization.id,
           type: 'immunization',
-          title: immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display || 'Unknown Immunization',
+          title: this.eventTitle(immunization.vaccineCode, 'Unknown Immunization'),
           date,
           conceptId: this.getConceptId(immunization),
           status: immunization.status || 'Unknown',
-          details: this.getImmunizationDetails(immunization),
+          details: this.withOriginalText(immunization.vaccineCode, this.getImmunizationDetails(immunization)),
           originalEvent: immunization,
           color: this.eventColors.immunization
         });
@@ -551,7 +564,23 @@ export class ClinicalTimelineComponent implements OnInit, OnChanges, AfterViewIn
     return details.join(' • ');
   }
 
+  /** Event name: the selected edition's display when recorded, else the concept text. */
+  private eventTitle(concept: any, fallback: string): string {
+    return this.snomedLocalization.getConceptLabel(concept).label || fallback;
+  }
+
+  /** Adds the original text to the hover details when the title comes from the edition display. */
+  private withOriginalText(concept: any, details: string): string {
+    const original = this.snomedLocalization.getConceptLabel(concept).original;
+    if (!original) return details;
+    return [`Recorded as: ${original}`, details].filter(Boolean).join(' • ');
+  }
+
   private getAllergyTitle(allergy: AllergyIntolerance): string {
+    const editionCoding = this.snomedLocalization.findSelectedEditionCoding(allergy.code);
+    if (editionCoding?.display) {
+      return editionCoding.display;
+    }
     if (allergy.code?.text) {
       return allergy.code.text;
     }

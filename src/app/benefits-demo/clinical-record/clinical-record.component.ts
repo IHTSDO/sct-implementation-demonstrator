@@ -15,6 +15,7 @@ import { AllergyFormDialogComponent } from '../allergy-form-dialog/allergy-form-
 import { ConfirmationDialogComponent } from '../../questionnaires/confirmation-dialog/confirmation-dialog.component';
 import { TranslocoService } from '@jsverse/transloco';
 import { ClinicBrandingService } from '../../services/clinic-branding.service';
+import { SnomedCodingLocalizationService } from '../../services/snomed-coding-localization.service';
 import type {
   AllergyIntolerance,
   ClinicalDataLoadSummary,
@@ -242,8 +243,14 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private translocoService: TranslocoService,
-    private clinicBrandingService: ClinicBrandingService
+    private clinicBrandingService: ClinicBrandingService,
+    private snomedLocalization: SnomedCodingLocalizationService
   ) { }
+
+  /** Name to show for a coded item: the selected edition's display when available, else its text. */
+  getConceptLabel(concept: any): { label: string; original?: string } {
+    return this.snomedLocalization.getConceptLabel(concept);
+  }
 
   get clinicName(): string {
     return this.clinicBrandingService.clinicName;
@@ -1018,6 +1025,12 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   getAllergyDisplayName(allergy: AllergyIntolerance): string {
+    // Prefer the display recorded in the selected edition
+    const editionCoding = this.snomedLocalization.findSelectedEditionCoding(allergy.code);
+    if (editionCoding?.display) {
+      return editionCoding.display;
+    }
+
     // Try to get display name from code first
     if (allergy.code?.coding?.[0]?.display) {
       return allergy.code.coding[0].display;

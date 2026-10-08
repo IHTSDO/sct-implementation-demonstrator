@@ -17,7 +17,7 @@
       </span>
       <div class="problem-main">
         <div class="problem-name">
-          {{ item.name }}
+          <span [matTooltip]="item.nameOriginal || ''">{{ item.name }}</span>
           <mat-icon
               *ngIf="item.alertIndicator"
               class="cds-alert-badge"

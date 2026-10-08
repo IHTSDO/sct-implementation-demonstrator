@@ -592,16 +592,14 @@ export class PatientService {
     const existingCoding = this.getConditionSnomedCoding(condition);
     // Keep the recorded edition when the concept itself does not change
     const version = existingCoding?.code === coding.code ? existingCoding?.version : undefined;
+    // Only the primary SNOMED coding is replaced; additional ones (e.g. the original
+    // coding of an imported concept adapted to this edition) are kept
     this.upsertConditionCoding(condition, {
       system: existingCoding?.system || PatientService.SNOMED_SYSTEM,
       ...(version ? { version } : {}),
       code: coding.code,
       display: coding.display || existingCoding?.display || condition.code?.text || coding.code
-    }, true, (existingCoding: any) => {
-      const sameSystem = existingCoding?.system === PatientService.SNOMED_SYSTEM
-        || existingCoding?.system === PatientService.SNOMED_EDITION_SYSTEM;
-      return sameSystem && !this.isSnomedExpressionCoding(existingCoding);
-    });
+    }, true, (item: any) => item === existingCoding);
   }
 
   public setConditionIcd10Coding(condition: Condition, coding: { code: string; display?: string }): void {

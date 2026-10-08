@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CDSCard, CdsService } from '../../services/cds.service';
+import { SnomedCodingLocalizationService } from '../../services/snomed-coding-localization.service';
 import type { AllergyIntolerance, Condition, Immunization, MedicationStatement, Procedure } from '../../model';
 
 type ProblemKind = 'Condition' | 'Procedure' | 'Medication' | 'Immunization' | 'Allergy';
@@ -9,6 +10,8 @@ interface ProblemItem {
   id: string;
   kind: ProblemKind;
   name: string;
+  /** Original text when the name comes from the selected edition's display */
+  nameOriginal?: string;
   status: string;
   detail?: string;
   recordedOn?: string;
@@ -32,13 +35,21 @@ export class ProblemsListSimplifiedComponent {
   @Input() cdsCards: CDSCard[] = [];
   @Output() openProblemsList = new EventEmitter<void>();
 
-  constructor(private cdsService: CdsService) {}
+  constructor(
+    private cdsService: CdsService,
+    private snomedLocalization: SnomedCodingLocalizationService
+  ) {}
+
+  private conceptName(concept: any, fallback: string): { name: string; nameOriginal?: string } {
+    const { label, original } = this.snomedLocalization.getConceptLabel(concept);
+    return { name: label || fallback, nameOriginal: original };
+  }
 
   get problemItems(): ProblemItem[] {
     const conditionItems = this.conditions.map((condition) => ({
       id: condition.id,
       kind: 'Condition' as const,
-      name: condition.code?.text || 'Condition',
+      ...this.conceptName(condition.code, 'Condition'),
       status: condition.clinicalStatus?.text || condition.clinicalStatus?.coding?.[0]?.display || 'Unknown',
       recordedOn: condition.recordedDate || condition.onsetDateTime,
       sortDate: this.toSortDate(condition.recordedDate || condition.onsetDateTime)
@@ -47,7 +58,7 @@ export class ProblemsListSimplifiedComponent {
     const procedureItems = this.procedures.map((procedure) => ({
       id: procedure.id,
       kind: 'Procedure' as const,
-      name: procedure.code?.text || 'Procedure',
+      ...this.conceptName(procedure.code, 'Procedure'),
       status: procedure.status || 'Unknown',
       recordedOn: procedure.performedDateTime,
       sortDate: this.toSortDate(procedure.performedDateTime)
@@ -73,7 +84,7 @@ export class ProblemsListSimplifiedComponent {
     const immunizationItems = this.immunizations.map((immunization) => ({
       id: immunization.id,
       kind: 'Immunization' as const,
-      name: immunization.vaccineCode?.text || immunization.vaccineCode?.coding?.[0]?.display || 'Immunization',
+      ...this.conceptName(immunization.vaccineCode, 'Immunization'),
       status: immunization.status || 'Unknown',
       recordedOn: immunization.occurrenceDateTime || immunization.recorded,
       sortDate: this.toSortDate(immunization.occurrenceDateTime || immunization.recorded)
@@ -82,7 +93,7 @@ export class ProblemsListSimplifiedComponent {
     const allergyItems = this.allergies.map((allergy) => ({
       id: allergy.id,
       kind: 'Allergy' as const,
-      name: allergy.code?.text || allergy.code?.coding?.[0]?.display || 'Allergy',
+      ...this.conceptName(allergy.code, 'Allergy'),
       status: allergy.verificationStatus?.text || allergy.verificationStatus?.coding?.[0]?.display || 'Recorded',
       recordedOn: allergy.recordedDate || allergy.onsetDateTime,
       sortDate: this.toSortDate(allergy.recordedDate || allergy.onsetDateTime)
