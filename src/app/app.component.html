@@ -71,17 +71,50 @@
         }
       </mat-menu>
 
-      <button mat-button class="sidenav-item" [matMenuTriggerFor]="menuN">
+      <button mat-button class="sidenav-item" [matMenuTriggerFor]="terminologyMenuN">
         <mat-icon>translate</mat-icon>
         <span class="sidenav-item-text">
-          <span class="sidenav-item-label">Language</span>
-          <span class="sidenav-item-value">{{selectedLanguage}}</span>
+          <span class="sidenav-item-label">Terminology language</span>
+          <span class="sidenav-item-value">{{ selectedTerminologyMenuValue }}</span>
         </span>
         <mat-icon class="sidenav-item-chevron">chevron_right</mat-icon>
       </button>
-      <mat-menu #menuN="matMenu">
+      <mat-menu #terminologyMenuN="matMenu">
+        <button mat-menu-item [matMenuTriggerFor]="langCodesN">Language Codes</button>
+        <button mat-menu-item [matMenuTriggerFor]="langRefsetsN">Language Refsets</button>
+        <button mat-menu-item [matMenuTriggerFor]="langContextsN">Language Contexts</button>
+        <button mat-menu-item (click)="openLanguageDialog(); drawer.close()">Advanced config</button>
+      </mat-menu>
+      <mat-menu #langCodesN="matMenu">
         @for (language of languages; track language) {
           <button mat-menu-item (click)="setLanguage(language); drawer.close()">{{language}}</button>
+        }
+      </mat-menu>
+      <mat-menu #langRefsetsN="matMenu">
+        @for (langRefset of languageRefsets; track langRefset) {
+          <button mat-menu-item (click)="setLanguageRefset(langRefset); drawer.close()">{{langRefset.display}}</button>
+        }
+      </mat-menu>
+      <mat-menu #langContextsN="matMenu">
+        @for (context of filteredLanguageMetadata.contexts; track context.name) {
+          <button mat-menu-item (click)="setContext(context); drawer.close()">{{context.name}}</button>
+        }
+      </mat-menu>
+
+      <div class="sidenav-divider"></div>
+      <div class="sidenav-section-label">Site settings</div>
+
+      <button mat-button class="sidenav-item" [matMenuTriggerFor]="siteMenuN">
+        <mat-icon>language</mat-icon>
+        <span class="sidenav-item-text">
+          <span class="sidenav-item-label">Site language</span>
+          <span class="sidenav-item-value">{{ activeSiteLang | uppercase }}</span>
+        </span>
+        <mat-icon class="sidenav-item-chevron">chevron_right</mat-icon>
+      </button>
+      <mat-menu #siteMenuN="matMenu">
+        @for (lang of availableSiteLangs; track lang) {
+          <button mat-menu-item (click)="setSiteLanguage(lang); drawer.close()">{{ lang | uppercase }}</button>
         }
       </mat-menu>
     </div>
