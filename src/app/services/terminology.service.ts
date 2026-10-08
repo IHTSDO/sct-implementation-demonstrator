@@ -56,6 +56,9 @@ export class TerminologyService {
   
   /** Pause between consecutive terminology requests of one flow, to stay under server rate limits. */
   static readonly REQUEST_PACING_MS = 300;
+  /** Servers that block bursts quickly get a longer pause (public Snowstorm sits behind a strict WAF). */
+  static readonly STRICT_SERVER_PACING_MS = 1000;
+  private static readonly STRICT_SERVERS = ['snomedbrowser.org'];
 
   snowstormFhirBase = '';
   defaultFhirUrlParam = 'http://snomed.info/sct'; // 'http://snomed.info/sct/11000221109/version/20211130'
@@ -593,6 +596,22 @@ export class TerminologyService {
     count?:number,
     languageOverride?: string
   ): Observable<any> {
+    return this.expandValueSetFromServerRaw(fhirBase, fhirUrl, ecl, terms, offset, count, languageOverride)
+      .pipe(
+        catchError(this.handleError<any>('expandValueSet', {}))
+      );
+  }
+
+  /** Same as `expandValueSetFromServer`, but errors propagate (with their HTTP status). */
+  expandValueSetFromServerRaw(
+    fhirBase: string,
+    fhirUrl: string,
+    ecl: string,
+    terms: string,
+    offset?: number,
+    count?:number,
+    languageOverride?: string
+  ): Observable<any> {
     if (!offset) offset = 0;
     if (!count) count = 20;
     if (!fhirBase) fhirBase = this.snowstormFhirBase;
@@ -609,10 +628,7 @@ export class TerminologyService {
     const headers = new HttpHeaders({
       'Accept-Language': languageParam
     });
-    return this.http.get<any>(requestUrl, { headers })
-      .pipe(
-        catchError(this.handleError<any>('expandValueSet', {}))
-      );
+    return this.http.get<any>(requestUrl, { headers });
   }
 
   /**
@@ -703,9 +719,26 @@ export class TerminologyService {
     return { contains, missing };
   }
 
-  /** Waits `REQUEST_PACING_MS` before the next request of a sequential flow. */
+  /** Pause used by `pace()` for the current terminology server. */
+  get requestPacingMs(): number {
+    const base = this.snowstormFhirBase || '';
+    return TerminologyService.STRICT_SERVERS.some(host => base.includes(host))
+      ? TerminologyService.STRICT_SERVER_PACING_MS
+      : TerminologyService.REQUEST_PACING_MS;
+  }
+
+  /** Waits before the next request of a sequential flow (see `requestPacingMs`). */
   pace(): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, TerminologyService.REQUEST_PACING_MS));
+    return new Promise(resolve => setTimeout(resolve, this.requestPacingMs));
+  }
+
+  /**
+   * True when the server is limiting or blocking us: 403/429, or status 0, which is
+   * how a browser reports a WAF block whose response lacks CORS headers. Flows
+   * must stop sending requests and must not cache anything derived from it.
+   */
+  isThrottlingError(err: any): boolean {
+    return err?.status === 403 || err?.status === 429 || err?.status === 0;
   }
 
   private isEclRejection(err: any): boolean {

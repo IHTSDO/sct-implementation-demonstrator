@@ -525,7 +525,9 @@
       "inTheIps": "In the IPS",
       "willBeImportedAs": "Will be imported as",
       "importedAsReceived": "Will be imported as received",
-      "textKept": "Record text stays \"{{ text }}\"."
+      "textKept": "Record text stays \"{{ text }}\".",
+      "throttled": "The terminology server is limiting requests, so the coding adaptation stopped. Wait a minute and retry.",
+      "retry": "Retry"
     }
   },
   "conceptValidationDialog": {

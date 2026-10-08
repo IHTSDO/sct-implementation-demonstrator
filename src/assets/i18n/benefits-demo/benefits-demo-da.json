@@ -525,7 +525,9 @@
       "inTheIps": "I IPS'en",
       "willBeImportedAs": "Importeres som",
       "importedAsReceived": "Importeres som modtaget",
-      "textKept": "Journalteksten forbliver \"{{ text }}\"."
+      "textKept": "Journalteksten forbliver \"{{ text }}\".",
+      "throttled": "Terminologiserveren begrænser forespørgsler, så tilpasningen af koderne blev stoppet. Vent et minut, og prøv igen.",
+      "retry": "Prøv igen"
     }
   },
   "conceptValidationDialog": {

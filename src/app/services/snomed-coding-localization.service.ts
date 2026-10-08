@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firstValueFrom, from, Observable, of } from 'rxjs';
+import { firstValueFrom, from, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, shareReplay, tap, toArray } from 'rxjs/operators';
 import { TerminologyService } from './terminology.service';
 
@@ -25,6 +25,14 @@ export interface EditionCheckResult {
   displays: Map<string, string>;
   /** requested codes not returned by the target edition (inactive or absent) */
   notActive: Set<string>;
+}
+
+/** Thrown when the terminology server starts limiting or blocking requests; the flow stops. */
+export class TerminologyThrottledError extends Error {
+  constructor(override readonly cause?: unknown) {
+    super('The terminology server is limiting requests');
+    this.name = 'TerminologyThrottledError';
+  }
 }
 
 export type CodingAdaptationReason = 'display-localized' | 'extension-concept' | 'inactive' | 'not-found';
@@ -70,6 +78,10 @@ export class SnomedCodingLocalizationService {
   private historicalInFlight = new Map<string, Observable<HistoricalReplacement[]>>();
   private ancestorCache = new Map<string, ConceptAlternative[]>();
   private ancestorInFlight = new Map<string, Observable<ConceptAlternative[]>>();
+  /** server|edition|language|code → display in that edition, or null when not returned */
+  private editionCheckCache = new Map<string, string | null>();
+  /** server|edition|code → 'in' (International), 'missing' (unknown) or 'out' (other module) */
+  private moduleCheckCache = new Map<string, 'in' | 'missing' | 'out'>();
 
   constructor(private terminologyService: TerminologyService) {}
 
@@ -155,17 +167,30 @@ export class SnomedCodingLocalizationService {
   ): Promise<Map<string, { inModule: Set<string>; missing: Set<string> }>> {
     const fhirBase = this.terminologyService.getSnowstormFhirBase();
     const results = new Map<string, { inModule: Set<string>; missing: Set<string> }>();
+    let requested = false;
     for (const [editionUrl, codes] of codesByEdition) {
-      if (results.size) await this.terminologyService.pace();
-      results.set(
-        editionUrl,
-        await this.terminologyService.findCodesInModule(
-          fhirBase,
-          editionUrl,
-          codes,
-          SnomedCodingLocalizationService.INTERNATIONAL_MODULE_ID
-        )
-      );
+      const inModule = new Set<string>();
+      const missing = new Set<string>();
+      const key = (code: string) => `${fhirBase}|${editionUrl}|${code}`;
+      const uncached = [...new Set(codes)].filter(code => !this.moduleCheckCache.has(key(code)));
+
+      if (uncached.length) {
+        if (requested) await this.terminologyService.pace();
+        requested = true;
+        const found = await this.terminologyService
+          .findCodesInModule(fhirBase, editionUrl, uncached, SnomedCodingLocalizationService.INTERNATIONAL_MODULE_ID)
+          .catch(err => { throw this.toThrottled(err); });
+        for (const code of uncached) {
+          this.moduleCheckCache.set(key(code), found.inModule.has(code) ? 'in' : found.missing.has(code) ? 'missing' : 'out');
+        }
+      }
+
+      for (const code of codes) {
+        const state = this.moduleCheckCache.get(key(code));
+        if (state === 'in') inModule.add(code);
+        if (state === 'missing') missing.add(code);
+      }
+      results.set(editionUrl, { inModule, missing });
     }
     return results;
   }
@@ -185,7 +210,7 @@ export class SnomedCodingLocalizationService {
     if (inFlight) return inFlight;
 
     const request$ = this.terminologyService
-      .expandValueSetFromServer(
+      .expandValueSetFromServerRaw(
         this.terminologyService.getSnowstormFhirBase(),
         editionFhirUrl,
         this.internationalAncestorsEcl(code),
@@ -219,15 +244,33 @@ export class SnomedCodingLocalizationService {
    */
   checkInSelectedEdition(codes: string[]): Observable<EditionCheckResult> {
     const uniqueCodes = [...new Set(codes)];
-    if (!uniqueCodes.length) {
-      return of({ displays: new Map<string, string>(), notActive: new Set<string>() });
-    }
+    const context = [
+      this.terminologyService.getSnowstormFhirBase(),
+      this.terminologyService.getFhirUrlParam(),
+      this.terminologyService.getComputedLanguageContext()
+    ].join('|');
+    const key = (code: string) => `${context}|${code}`;
+    const uncached = uniqueCodes.filter(code => !this.editionCheckCache.has(key(code)));
 
-    return from(this.terminologyService.expandCodesInSelectedEdition(uniqueCodes)).pipe(
-      map(({ contains }) => {
+    const fetch$: Observable<unknown> = uncached.length
+      ? from(this.terminologyService.expandCodesInSelectedEdition(uncached)).pipe(
+          tap(({ contains }) => {
+            const returned = new Map<string, string>();
+            for (const item of contains) {
+              if (item.code && item.display) returned.set(item.code, item.display);
+            }
+            uncached.forEach(code => this.editionCheckCache.set(key(code), returned.get(code) ?? null));
+          }),
+          catchError(err => throwError(() => this.toThrottled(err)))
+        )
+      : of(null);
+
+    return fetch$.pipe(
+      map(() => {
         const displays = new Map<string, string>();
-        for (const item of contains) {
-          if (item.code && item.display) displays.set(item.code, item.display);
+        for (const code of uniqueCodes) {
+          const display = this.editionCheckCache.get(key(code));
+          if (display) displays.set(code, display);
         }
         return {
           displays,
@@ -239,9 +282,10 @@ export class SnomedCodingLocalizationService {
 
   /** Historical association targets for an inactive concept, one refset at a time. */
   findHistoricalReplacements(code: string): Observable<HistoricalReplacement[]> {
-    const cached = this.historicalCache.get(code);
+    const key = `${this.terminologyService.getSnowstormFhirBase()}|${code}`;
+    const cached = this.historicalCache.get(key);
     if (cached) return of(cached);
-    const inFlight = this.historicalInFlight.get(code);
+    const inFlight = this.historicalInFlight.get(key);
     if (inFlight) return inFlight;
 
     const request$ = from(this.INACTIVE_REFSETS).pipe(
@@ -249,16 +293,19 @@ export class SnomedCodingLocalizationService {
         from(index > 0 ? this.terminologyService.pace() : Promise.resolve()).pipe(
           concatMap(() => this.terminologyService.translate(refset.id, code, undefined, true)),
           map((res: any) => this.parseTranslateResult(res)),
-          catchError(() => of([] as HistoricalReplacement[]))
+          // A refset with no match is fine; a blocked server stops the whole lookup
+          catchError(err => this.terminologyService.isThrottlingError(err)
+            ? throwError(() => new TerminologyThrottledError(err))
+            : of([] as HistoricalReplacement[]))
         )
       ),
       toArray(),
       map(results => results.flat()),
-      tap(result => this.historicalCache.set(code, result)),
-      finalize(() => this.historicalInFlight.delete(code)),
+      tap(result => this.historicalCache.set(key, result)),
+      finalize(() => this.historicalInFlight.delete(key)),
       shareReplay(1)
     );
-    this.historicalInFlight.set(code, request$);
+    this.historicalInFlight.set(key, request$);
     return request$;
   }
 
@@ -306,7 +353,10 @@ export class SnomedCodingLocalizationService {
     }
     if (extensionCandidates.size) await this.terminologyService.pace();
     const resolved = extensionCandidates.size
-      ? await this.resolveInternationalCodes(extensionCandidates).catch(() => new Map())
+      ? await this.resolveInternationalCodes(extensionCandidates).catch(err => {
+          if (err instanceof TerminologyThrottledError) throw err;
+          return new Map<string, { inModule: Set<string>; missing: Set<string> }>();
+        })
       : new Map<string, { inModule: Set<string>; missing: Set<string> }>();
 
     for (const coding of absent) {
@@ -319,7 +369,11 @@ export class SnomedCodingLocalizationService {
 
       if (isExtensionConcept) {
         const alternatives = await firstValueFrom(
-          this.findInternationalAncestors(coding.code, origin.editionFhirUrl!).pipe(catchError(() => of([])))
+          this.findInternationalAncestors(coding.code, origin.editionFhirUrl!).pipe(
+            catchError(err => this.terminologyService.isThrottlingError(err)
+              ? throwError(() => new TerminologyThrottledError(err))
+              : of([] as ConceptAlternative[]))
+          )
         );
         adaptations.set(coding.code, { code: coding.code, reason: 'extension-concept', alternatives });
       } else {
@@ -346,7 +400,9 @@ export class SnomedCodingLocalizationService {
 
     const { displays } = await firstValueFrom(
       this.checkInSelectedEdition(codes).pipe(
-        catchError(() => of({ displays: null as Map<string, string> | null, notActive: new Set<string>() }))
+        catchError(err => err instanceof TerminologyThrottledError
+          ? throwError(() => err)
+          : of({ displays: null as Map<string, string> | null, notActive: new Set<string>() }))
       )
     );
     if (!displays) return;
@@ -359,6 +415,12 @@ export class SnomedCodingLocalizationService {
         adaptation.reason = 'not-found';
       }
     }
+  }
+
+  /** Wraps throttling errors so callers can stop the flow; other errors pass through. */
+  private toThrottled(err: unknown): unknown {
+    if (err instanceof TerminologyThrottledError) return err;
+    return this.terminologyService.isThrottlingError(err) ? new TerminologyThrottledError(err) : err;
   }
 
   private parseTranslateResult(res: any): HistoricalReplacement[] {

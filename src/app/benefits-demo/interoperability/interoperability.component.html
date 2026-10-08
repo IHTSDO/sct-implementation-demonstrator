@@ -290,6 +290,16 @@
                 </div>
               }
 
+              @if (terminologyThrottled && !adaptingTerminology) {
+                <div class="banner banner-error">
+                  <mat-icon>hourglass_top</mat-icon>
+                  <span>{{ t('interoperability.terminology.throttled') }}</span>
+                  <button mat-stroked-button color="primary" class="banner-action" (click)="retryTerminologyAdaptation()">
+                    {{ t('interoperability.terminology.retry') }}
+                  </button>
+                </div>
+              }
+
               @if (adaptingTerminology) {
                 <div class="banner banner-muted">
                   <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>

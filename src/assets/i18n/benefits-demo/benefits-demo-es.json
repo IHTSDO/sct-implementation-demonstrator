@@ -525,7 +525,9 @@
       "inTheIps": "En el IPS",
       "willBeImportedAs": "Se importará como",
       "importedAsReceived": "Se importará tal como se recibió",
-      "textKept": "El texto del registro queda \"{{ text }}\"."
+      "textKept": "El texto del registro queda \"{{ text }}\".",
+      "throttled": "El servidor de terminología está limitando las solicitudes, así que la adaptación de los códigos se detuvo. Espere un minuto y reintente.",
+      "retry": "Reintentar"
     }
   },
   "conceptValidationDialog": {

@@ -10,7 +10,8 @@ import { ClinicalEntryConcept, PatientService } from '../../services/patient.ser
 import {
   CodingAdaptation,
   ConceptAlternative,
-  SnomedCodingLocalizationService
+  SnomedCodingLocalizationService,
+  TerminologyThrottledError
 } from '../../services/snomed-coding-localization.service';
 import { TerminologyService } from '../../services/terminology.service';
 import type { Immunization, Patient, PatientSimilarityResult, Provenance } from '../../model';
@@ -90,6 +91,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
   // Terminology adaptation of imported codings to the selected edition
   adaptingTerminology = false;
+  /** The terminology server blocked the adaptation; the user can retry later */
+  terminologyThrottled = false;
   private adaptationRun = 0;
   private terminologyAdaptations = new WeakMap<object, ItemTerminologyAdaptation>();
 
@@ -1803,6 +1806,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     if (!sources.length) return;
 
     this.adaptingTerminology = true;
+    this.terminologyThrottled = false;
     try {
       const adaptations = await this.localization.adaptToSelectedEdition(
         sources.map(({ coding }) => ({ code: coding.code, display: coding.display, version: coding.version }))
@@ -1823,12 +1827,19 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         });
       }
     } catch (error) {
+      if (run === this.adaptationRun && error instanceof TerminologyThrottledError) {
+        this.terminologyThrottled = true;
+      }
       console.warn('Could not adapt imported terminology to the selected edition', error);
     } finally {
       if (run === this.adaptationRun) {
         this.adaptingTerminology = false;
       }
     }
+  }
+
+  retryTerminologyAdaptation(): void {
+    void this.adaptTerminologyToSelectedEdition();
   }
 
   getItemAdaptation(item: any): ItemTerminologyAdaptation | undefined {

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { TerminologyService } from '../services/terminology.service';
-import { from, Observable, of, Subscription } from 'rxjs';
+import { from, Observable, of, Subscription, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, tap } from 'rxjs/operators';
 import { SnomedCodingLocalizationService } from '../services/snomed-coding-localization.service';
 
@@ -83,6 +83,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
   displayUpdatesError: string | undefined;
 
   verifyingModules = false;
+  readonly throttledMessage = 'The terminology server is limiting requests. Wait a minute and try again.';
   private verifyRun = 0;
 
   private serverSub?: Subscription;
@@ -321,6 +322,11 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
           if (!this.internationalSnomedCodings.length) return;
           const start = pending.length ? this.terminologyService.pace() : Promise.resolve();
           void start.then(() => this.checkInternationalDisplays());
+        },
+        error: () => {
+          // Throttled: leave the codings that were not reached ready to retry
+          pending.filter(c => !c.analyzed).forEach(c => (c.loading = false));
+          this.cdr.detectChanges();
         }
       });
   }
@@ -340,6 +346,11 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
         coding.replacements = alternatives.map(r => ({ ...r, selected: true }));
       }),
       catchError((err: any) => {
+        if (this.terminologyService.isThrottlingError(err)) {
+          coding.error = this.throttledMessage;
+          // Stop the sequence: further requests would only extend the block
+          return throwError(() => err);
+        }
         coding.error = err?.message || 'Failed to expand ECL — check the server and edition availability';
         return of(null);
       }),
@@ -414,7 +425,13 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
           )
         )
       )
-      .subscribe();
+      .subscribe({
+        error: () => {
+          codings.forEach(c => (c.loadingInactiveReplacements = false));
+          this.displayUpdatesError = this.throttledMessage;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   // --- Download modified resource ---

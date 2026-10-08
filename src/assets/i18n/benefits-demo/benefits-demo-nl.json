@@ -525,7 +525,9 @@
       "inTheIps": "In de IPS",
       "willBeImportedAs": "Wordt geïmporteerd als",
       "importedAsReceived": "Wordt geïmporteerd zoals ontvangen",
-      "textKept": "De dossiertekst blijft \"{{ text }}\"."
+      "textKept": "De dossiertekst blijft \"{{ text }}\".",
+      "throttled": "De terminologieserver beperkt verzoeken, daarom is de aanpassing van de codes gestopt. Wacht een minuut en probeer het opnieuw.",
+      "retry": "Opnieuw proberen"
     }
   },
   "conceptValidationDialog": {
