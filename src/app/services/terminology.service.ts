@@ -3,7 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, concatMap, finalize, firstValueFrom, map, Observable, of, shareReplay, tap, throwError, timeout } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 
 type ConceptType = {
@@ -95,6 +96,23 @@ export class TerminologyService {
   languageRefsetConcept$ = this.languageRefsetConceptSubject.asObservable();
   context$ = this.contextSubject.asObservable();
   editionName$ = this.editionNameSubject.asObservable();
+
+  /**
+   * Emits `edition|language` whenever the selected edition or the computed
+   * language context changes. Selecting an edition updates the language
+   * context afterwards, so changes are debounced into one emission; use this
+   * for results that depend on both (e.g. displays in the edition's language).
+   */
+  editionAndLanguage$: Observable<string> = combineLatest([
+    this.fhirUrlParam$,
+    this.lang$,
+    this.languageRefsetConcept$,
+    this.context$
+  ]).pipe(
+    debounceTime(300),
+    map(() => `${this.fhirUrlParam}|${this.getComputedLanguageContext()}`),
+    distinctUntilChanged()
+  );
 
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) { 

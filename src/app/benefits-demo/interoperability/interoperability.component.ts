@@ -120,9 +120,9 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadAvailablePatients();
-    // Re-adapt imported codings when the user switches edition
+    // Re-adapt imported codings when the edition or its language context changes
     this.subscriptions.push(
-      this.terminologyService.fhirUrlParam$.subscribe(() => {
+      this.terminologyService.editionAndLanguage$.subscribe(() => {
         if (this.patientData) {
           void this.adaptTerminologyToSelectedEdition();
         }
