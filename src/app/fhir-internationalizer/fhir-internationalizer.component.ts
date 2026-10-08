@@ -313,12 +313,14 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
     // One terminology request at a time: extension codings first, then displays
     this.analyzeAllSub?.unsubscribe();
     this.analyzeAllSub = from(pending)
-      .pipe(concatMap(c => this.extensionAnalysis$(c)))
+      .pipe(concatMap((c, index) =>
+        from(index > 0 ? this.terminologyService.pace() : Promise.resolve()).pipe(concatMap(() => this.extensionAnalysis$(c)))
+      ))
       .subscribe({
         complete: () => {
-          if (this.internationalSnomedCodings.length) {
-            this.checkInternationalDisplays();
-          }
+          if (!this.internationalSnomedCodings.length) return;
+          const start = pending.length ? this.terminologyService.pace() : Promise.resolve();
+          void start.then(() => this.checkInternationalDisplays());
         }
       });
   }
@@ -401,8 +403,9 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
     this.inactiveSub?.unsubscribe();
     this.inactiveSub = from(codings)
       .pipe(
-        concatMap(c =>
-          this.localization.findHistoricalReplacements(c.code).pipe(
+        concatMap((c, index) =>
+          from(index > 0 ? this.terminologyService.pace() : Promise.resolve()).pipe(
+            concatMap(() => this.localization.findHistoricalReplacements(c.code)),
             tap(replacements => {
               c.inactiveReplacements = replacements.map(r => ({ ...r, selected: true }));
               c.loadingInactiveReplacements = false;

@@ -53,6 +53,9 @@ export interface SnomedReplacementConcept {
 export class TerminologyService {
   
   
+  /** Pause between consecutive terminology requests of one flow, to stay under server rate limits. */
+  static readonly REQUEST_PACING_MS = 300;
+
   snowstormFhirBase = '';
   defaultFhirUrlParam = 'http://snomed.info/sct'; // 'http://snomed.info/sct/11000221109/version/20211130'
   fhirUrlParam = this.defaultFhirUrlParam;
@@ -158,6 +161,15 @@ export class TerminologyService {
 
   getFhirUrlParam() {
     return this.fhirUrlParam;
+  }
+
+  /**
+   * Edition URI to record in `coding.version` for concepts picked in the
+   * selected edition, or undefined when no specific edition is selected.
+   */
+  getSelectedEditionVersion(): string | undefined {
+    const uri = this.fhirUrlParam;
+    return uri && uri.startsWith('http://snomed.info/sct/') ? uri : undefined;
   }
 
   getLang() {
@@ -589,12 +601,7 @@ export class TerminologyService {
    * Splits `codes` into those whose concept belongs to `moduleId` in the edition
    * `fhirUrl`, and those the server reports as unknown in that edition.
    * Codes in neither set exist in the edition but in another module (or are inactive).
-   *
-   * Uses one `(a OR b ...) {{ C moduleId = X }}` expansion per chunk, sent
-   * sequentially. Some servers reject the whole ECL when a code does not exist
-   * on the branch; in that case the SCTIDs named in the error are dropped and
-   * the chunk is retried, and if none are named each code is checked on its own
-   * with a short delay between requests.
+   * Uses one `(a OR b ...) {{ C moduleId = X }}` expansion per chunk (see `expandCodeList`).
    */
   async findCodesInModule(
     fhirBase: string,
@@ -603,30 +610,71 @@ export class TerminologyService {
     moduleId: string,
     chunkSize = 50
   ): Promise<{ inModule: Set<string>; missing: Set<string> }> {
-    const inModule = new Set<string>();
+    const base = (fhirBase || this.snowstormFhirBase).replace(/\/$/, '');
+    const { contains, missing } = await this.expandCodeList(codes, chunk => {
+      const ecl = `(${chunk.join(' OR ')}) {{ C moduleId = ${moduleId} }}`;
+      const requestUrl = `${base}/ValueSet/$expand?url=${encodeURIComponent(fhirUrl)}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${chunk.length}`;
+      return firstValueFrom(this.http.get<any>(requestUrl));
+    }, chunkSize);
+    return { inModule: new Set(contains.map(c => c.code)), missing };
+  }
+
+  /**
+   * Expands `a OR b OR ...` against the selected edition and language, returning
+   * the concepts it contains and the codes the server reports as unknown there.
+   */
+  async expandCodesInSelectedEdition(codes: string[], chunkSize = 50): Promise<{ contains: any[]; missing: Set<string> }> {
+    const headers = new HttpHeaders({ 'Accept-Language': this.getComputedLanguageContext() });
+    return this.expandCodeList(codes, chunk =>
+      firstValueFrom(this.http.get<any>(
+        this.getValueSetExpansionUrl(chunk.join(' OR '), '', 0, chunk.length + 50),
+        { headers }
+      )),
+      chunkSize
+    );
+  }
+
+  /**
+   * Runs one expansion per chunk of codes, sequentially. Some servers reject
+   * the whole ECL when a code does not exist on the branch; then the SCTIDs
+   * named in the error are reported as missing and the chunk is retried
+   * without them, and if none can be identified each code is expanded on its
+   * own with a short delay between requests.
+   */
+  private async expandCodeList(
+    codes: string[],
+    request: (chunk: string[]) => Promise<any>,
+    chunkSize: number
+  ): Promise<{ contains: any[]; missing: Set<string> }> {
+    const contains: any[] = [];
     const missing = new Set<string>();
-    const unique = [...new Set(codes)];
+    const unique = [...new Set(codes.filter(Boolean))];
+    const collect = (res: any) => contains.push(...(res?.expansion?.contains ?? []).filter((c: any) => c?.code));
 
     for (let i = 0; i < unique.length; i += chunkSize) {
+      if (i > 0) await this.pace();
       let pending = unique.slice(i, i + chunkSize);
       while (pending.length) {
         try {
-          (await this.expandCodesInModule(fhirBase, fhirUrl, pending, moduleId)).forEach(c => inModule.add(c));
+          collect(await request(pending));
           break;
         } catch (err: any) {
-          const reported = this.extractCodesFromError(err, pending);
-          // An error naming every code most likely just echoes the ECL back
-          const reportedIsUseful = reported.length > 0 && (pending.length === 1 || reported.length < pending.length);
-          if (reportedIsUseful) {
+          // Only an ECL rejection points at specific codes; outages and throttling must surface
+          if (!this.isEclRejection(err)) throw err;
+          const reported = this.extractUnknownCodesFromError(err, pending);
+          if (reported.length) {
+            // Snowstorm names one unknown code per error, so retries can chain
             reported.forEach(c => missing.add(c));
             pending = pending.filter(c => !reported.includes(c));
+            await this.pace();
             continue;
           }
           for (const code of pending) {
-            await new Promise(resolve => setTimeout(resolve, 120));
+            await this.pace();
             try {
-              (await this.expandCodesInModule(fhirBase, fhirUrl, [code], moduleId)).forEach(c => inModule.add(c));
-            } catch {
+              collect(await request([code]));
+            } catch (codeErr: any) {
+              if (!this.isEclRejection(codeErr)) throw codeErr;
               missing.add(code);
             }
           }
@@ -634,25 +682,41 @@ export class TerminologyService {
         }
       }
     }
-    return { inModule, missing };
+    return { contains, missing };
   }
 
-  private async expandCodesInModule(fhirBase: string, fhirUrl: string, codes: string[], moduleId: string): Promise<string[]> {
-    const base = (fhirBase || this.snowstormFhirBase).replace(/\/$/, '');
-    const ecl = `(${codes.join(' OR ')}) {{ C moduleId = ${moduleId} }}`;
-    const requestUrl = `${base}/ValueSet/$expand?url=${encodeURIComponent(fhirUrl)}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${codes.length}`;
-    const res: any = await firstValueFrom(this.http.get<any>(requestUrl));
-    return (res?.expansion?.contains ?? []).map((c: any) => c.code).filter(Boolean);
+  /** Waits `REQUEST_PACING_MS` before the next request of a sequential flow. */
+  pace(): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, TerminologyService.REQUEST_PACING_MS));
   }
 
-  private extractCodesFromError(err: any, candidates: string[]): string[] {
+  private isEclRejection(err: any): boolean {
+    return err?.status === 400 || err?.status === 422;
+  }
+
+  /**
+   * Codes from `candidates` that an error response reports as unknown.
+   * Prefers explicit "Unknown SNOMED Concept Id: X" messages (Snowstorm); otherwise
+   * falls back to any candidate the error mentions, unless it mentions all of
+   * them, which usually means the ECL was just echoed back.
+   */
+  private extractUnknownCodesFromError(err: any, candidates: string[]): string[] {
     const body = err?.error;
     const text = [
       typeof body === 'string' ? body : JSON.stringify(body ?? ''),
       err?.message ?? ''
     ].join(' ');
+
+    const explicit = new Set<string>();
+    for (const match of text.matchAll(/unknown (?:snomed )?concept ids?:?\s*([\d,\s]+)/gi)) {
+      (match[1].match(/\d{6,18}/g) ?? []).forEach(code => explicit.add(code));
+    }
+    const explicitHits = candidates.filter(c => explicit.has(c));
+    if (explicitHits.length) return explicitHits;
+
     const mentioned = new Set(text.match(/\d{6,18}/g) ?? []);
-    return candidates.filter(c => mentioned.has(c));
+    const hits = candidates.filter(c => mentioned.has(c));
+    return hits.length > 0 && (candidates.length === 1 || hits.length < candidates.length) ? hits : [];
   }
 
   /**

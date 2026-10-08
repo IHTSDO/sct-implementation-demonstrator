@@ -130,6 +130,7 @@ export class SnomedCodingLocalizationService {
     const fhirBase = this.terminologyService.getSnowstormFhirBase();
     const results = new Map<string, { inModule: Set<string>; missing: Set<string> }>();
     for (const [editionUrl, codes] of codesByEdition) {
+      if (results.size) await this.terminologyService.pace();
       results.set(
         editionUrl,
         await this.terminologyService.findCodesInModule(
@@ -186,9 +187,9 @@ export class SnomedCodingLocalizationService {
   }
 
   /**
-   * Checks codes against the currently selected edition in a single
-   * expansion: returns the edition's display for each active code and the
-   * set of codes it did not return.
+   * Checks codes against the currently selected edition: returns the edition's
+   * display for each active code and the set of codes it did not return
+   * (inactive, or unknown on that server — those no longer fail the whole check).
    */
   checkInSelectedEdition(codes: string[]): Observable<EditionCheckResult> {
     const uniqueCodes = [...new Set(codes)];
@@ -196,23 +197,18 @@ export class SnomedCodingLocalizationService {
       return of({ displays: new Map<string, string>(), notActive: new Set<string>() });
     }
 
-    return this.terminologyService
-      .expandValueSet(uniqueCodes.join(' OR '), '', 0, uniqueCodes.length + 50)
-      .pipe(
-        map((res: any) => {
-          if (!res?.expansion) {
-            throw new Error('Failed to fetch displays from current edition');
-          }
-          const displays = new Map<string, string>();
-          for (const item of res.expansion.contains ?? []) {
-            if (item.code && item.display) displays.set(item.code, item.display);
-          }
-          return {
-            displays,
-            notActive: new Set(uniqueCodes.filter(c => !displays.has(c)))
-          };
-        })
-      );
+    return from(this.terminologyService.expandCodesInSelectedEdition(uniqueCodes)).pipe(
+      map(({ contains }) => {
+        const displays = new Map<string, string>();
+        for (const item of contains) {
+          if (item.code && item.display) displays.set(item.code, item.display);
+        }
+        return {
+          displays,
+          notActive: new Set(uniqueCodes.filter(c => !displays.has(c)))
+        };
+      })
+    );
   }
 
   /** Historical association targets for an inactive concept, one refset at a time. */
@@ -223,8 +219,9 @@ export class SnomedCodingLocalizationService {
     if (inFlight) return inFlight;
 
     const request$ = from(this.INACTIVE_REFSETS).pipe(
-      concatMap(refset =>
-        this.terminologyService.translate(refset.id, code, undefined, true).pipe(
+      concatMap((refset, index) =>
+        from(index > 0 ? this.terminologyService.pace() : Promise.resolve()).pipe(
+          concatMap(() => this.terminologyService.translate(refset.id, code, undefined, true)),
           map((res: any) => this.parseTranslateResult(res)),
           catchError(() => of([] as HistoricalReplacement[]))
         )
@@ -281,11 +278,13 @@ export class SnomedCodingLocalizationService {
         extensionCandidates.set(origin.editionFhirUrl, [...(extensionCandidates.get(origin.editionFhirUrl) ?? []), coding.code]);
       }
     }
+    if (extensionCandidates.size) await this.terminologyService.pace();
     const resolved = extensionCandidates.size
       ? await this.resolveInternationalCodes(extensionCandidates).catch(() => new Map())
       : new Map<string, { inModule: Set<string>; missing: Set<string> }>();
 
     for (const coding of absent) {
+      await this.terminologyService.pace();
       const origin = this.classifyCoding(SnomedCodingLocalizationService.SNOMED_SYSTEM, coding.version);
       const editionResult = origin.editionFhirUrl ? resolved.get(origin.editionFhirUrl) : undefined;
       const isExtensionConcept = !!editionResult
@@ -307,6 +306,9 @@ export class SnomedCodingLocalizationService {
       }
     }
 
+    if ([...adaptations.values()].some(a => a.alternatives.length)) {
+      await this.terminologyService.pace();
+    }
     await this.localizeAlternatives([...adaptations.values()]);
     return adaptations;
   }

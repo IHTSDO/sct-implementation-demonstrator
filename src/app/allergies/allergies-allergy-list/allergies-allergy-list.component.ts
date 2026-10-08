@@ -145,6 +145,12 @@ export class AllergiesAllergyListComponent  implements OnInit {
     this.updateAllergyStr();
   }
 
+  /** System plus the selected edition as `version`, for codings picked in this form. */
+  private snomedCodingBase(): { system: string; version?: string } {
+    const version = this.terminologyService.getSelectedEditionVersion();
+    return { system: 'http://snomed.info/sct', ...(version ? { version } : {}) };
+  }
+
   onReactionsChange(updatedReactions: any[]) {
     // this.selectedReactions = updatedReactions;
     // Perform any additional logic required when reactions change
@@ -220,7 +226,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
     }
     this.selectedSubstance = substance;
     this.selectedIntoleranceCategories = [];
-    substance = Object.assign({ system: 'http://snomed.info/sct' }, substance);
+    substance = Object.assign(this.snomedCodingBase(), substance);
     if (!this.recordPropensity) {
       this.outputAllergy.code.coding = [substance];
     }
@@ -250,7 +256,7 @@ export class AllergiesAllergyListComponent  implements OnInit {
   }
 
   async codeSelected(code: any) {
-    code = Object.assign({ system: 'http://snomed.info/sct' }, code);
+    code = Object.assign(this.snomedCodingBase(), code);
     if (code) {
       this.selectedCodeTerm = code.display;
       this.selectedCode = code;

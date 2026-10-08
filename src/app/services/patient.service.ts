@@ -562,7 +562,7 @@ export class PatientService {
     return null;
   }
 
-  public getConditionSnomedCoding(condition: Condition): { system?: string; code?: string; display?: string } | undefined {
+  public getConditionSnomedCoding(condition: Condition): { system?: string; version?: string; code?: string; display?: string } | undefined {
     return condition.code?.coding?.find((coding: any) =>
       (
         coding.system === PatientService.SNOMED_SYSTEM ||
@@ -590,8 +590,11 @@ export class PatientService {
 
   public setConditionSnomedCoding(condition: Condition, coding: { code: string; display?: string }): void {
     const existingCoding = this.getConditionSnomedCoding(condition);
+    // Keep the recorded edition when the concept itself does not change
+    const version = existingCoding?.code === coding.code ? existingCoding?.version : undefined;
     this.upsertConditionCoding(condition, {
       system: existingCoding?.system || PatientService.SNOMED_SYSTEM,
+      ...(version ? { version } : {}),
       code: coding.code,
       display: coding.display || existingCoding?.display || condition.code?.text || coding.code
     }, true, (existingCoding: any) => {
@@ -2615,13 +2618,13 @@ export class PatientService {
    * that carried no version).
    */
   buildSnomedCoding(code: string, display: string, version?: string | null): SnomedCoding {
-    const editionUri = version === undefined ? this.terminologyService.getFhirUrlParam() : version;
+    const editionUri = version === undefined ? this.terminologyService.getSelectedEditionVersion() : version;
     const coding: SnomedCoding = {
       system: PatientService.SNOMED_SYSTEM,
       code,
       display
     };
-    if (editionUri && editionUri !== PatientService.SNOMED_SYSTEM && editionUri.startsWith(`${PatientService.SNOMED_SYSTEM}/`)) {
+    if (editionUri) {
       coding.version = editionUri;
     }
     return coding;
