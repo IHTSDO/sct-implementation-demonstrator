@@ -887,3 +887,30 @@
 .banner-action {
   margin-left: auto;
 }
+
+.clinic-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--clinic-accent, #0d6efd);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.clinic-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--clinic-accent, #0d6efd);
+  flex-shrink: 0;
+}
+
+.clinic-subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}

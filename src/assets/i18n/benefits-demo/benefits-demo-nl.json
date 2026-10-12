@@ -433,7 +433,8 @@
       "snomedLogoAlt": "SNOMED CT-logo",
       "codeSelected": "code geselecteerd",
       "codesSelected": "codes geselecteerd",
-      "receivedFrom": "Ontvangen van"
+      "receivedFrom": "Ontvangen van",
+      "clinic": "Kliniek"
     },
     "messages": {
       "resolvingShl": "SHL oplossen en IPS downloaden...",

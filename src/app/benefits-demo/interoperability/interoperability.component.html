@@ -1,5 +1,5 @@
 <ng-container *transloco="let t; prefix: 'benefitsDemo'">
-<div class="interoperability-container">
+<div class="interoperability-container" [style]="clinicCssVariables">
   <div class="back-button-container">
     <button mat-flat-button (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
@@ -10,6 +10,12 @@
   @if (isLoading || error || hasPatientData()) {
     <div class="page-header">
       <div class="page-header-copy">
+        @if (clinicName) {
+          <div class="clinic-eyebrow">
+            <span class="clinic-dot" aria-hidden="true"></span>
+            <span>{{ clinicName }}</span>
+          </div>
+        }
         <h1>{{ t('interoperability.sections.pageTitle') }}</h1>
         <p>{{ t('interoperability.sections.pageSubtitle') }}</p>
         @if (patientData?.sourceBundle?.authorName; as sourceAuthor) {
@@ -107,6 +113,12 @@
             <img class="welcome-ips-logo" src="assets/img/ips-logo.png" [alt]="t('interoperability.labels.ipsLogoAlt')">
             <img class="welcome-snomed-logo" src="assets/img/SI_CT_w_tagline.png" [alt]="t('interoperability.labels.snomedLogoAlt')">
           </div>
+          @if (clinicName) {
+            <div class="clinic-eyebrow">
+              <span class="clinic-dot" aria-hidden="true"></span>
+              <span>{{ clinicName }}</span>
+            </div>
+          }
           <h2>{{ t('interoperability.sections.welcomeTitle') }}</h2>
           <p>{{ t('interoperability.sections.welcomeDescription') }}</p>
           <div class="welcome-actions">
@@ -271,7 +283,7 @@
                 </div>
                 <div class="merge-overview-card">
                   <span class="merge-overview-label">{{ t('interoperability.labels.alreadyInRecord') }}</span>
-                  <strong>{{ getExistingItems(section).length }}</strong>
+                  <strong>{{ getAlreadyRecordedCount(section) }}</strong>
                 </div>
                 <div class="merge-overview-card">
                   <span class="merge-overview-label">{{ t('interoperability.labels.selectedToImport') }}</span>
@@ -424,6 +436,12 @@
                       <mat-icon>description</mat-icon>
                       {{ t('interoperability.labels.existingClinicalRecord') }}
                     </mat-card-title>
+                    @if (clinicName) {
+                      <mat-card-subtitle class="clinic-subtitle">
+                        <span class="clinic-dot" aria-hidden="true"></span>
+                        {{ clinicName }}
+                      </mat-card-subtitle>
+                    }
                   </mat-card-header>
                   <mat-card-content>
                     @if (getExistingItems(section).length > 0) {
@@ -503,6 +521,12 @@
                           <span class="patient-summary-label">{{ t('interoperability.labels.dateOfBirth') }}</span>
                           <strong>{{ linkedPatient.birthDate | date:'mediumDate' }}</strong>
                         </div>
+                        @if (clinicName) {
+                          <div class="patient-summary-item">
+                            <span class="patient-summary-label">{{ t('interoperability.labels.clinic') }}</span>
+                            <strong>{{ clinicName }}</strong>
+                          </div>
+                        }
                       </div>
                     }
                   </mat-card-content>

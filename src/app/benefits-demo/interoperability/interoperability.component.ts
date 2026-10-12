@@ -14,6 +14,7 @@ import {
   TerminologyThrottledError
 } from '../../services/snomed-coding-localization.service';
 import { TerminologyService } from '../../services/terminology.service';
+import { ClinicBrandingService } from '../../services/clinic-branding.service';
 import type { Immunization, Patient, PatientSimilarityResult, Provenance } from '../../model';
 import {
   ConceptHierarchyValidationService,
@@ -118,8 +119,18 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private conceptHierarchyValidationService: ConceptHierarchyValidationService,
     private translocoService: TranslocoService,
-    private localization: SnomedCodingLocalizationService
+    private localization: SnomedCodingLocalizationService,
+    private clinicBrandingService: ClinicBrandingService
   ) { }
+
+  /** Name of the receiving clinic configured for this demo, or '' */
+  get clinicName(): string {
+    return this.clinicBrandingService.clinicName;
+  }
+
+  get clinicCssVariables(): Record<string, string> {
+    return this.clinicBrandingService.getCssVariables();
+  }
 
   ngOnInit(): void {
     this.loadAvailablePatients();
@@ -1484,8 +1495,16 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** IPS items of the section that are already in the linked record. */
+  getAlreadyRecordedCount(section: MergeSectionId): number {
+    return this.getSectionItems(section).filter(item => this.isItemAlreadyRecorded(section, item)).length;
+  }
+
+  /** IPS items that are neither in the record nor selected for import. */
   getSkippedCount(section: MergeSectionId): number {
-    return Math.max(this.getSectionItems(section).length - this.getSelectedCount(section), 0);
+    return this.getSectionItems(section)
+      .filter(item => !this.isItemAlreadyRecorded(section, item) && !this.isItemSelected(section, item.id))
+      .length;
   }
 
   isItemSelected(section: MergeSectionId, itemId: string): boolean {

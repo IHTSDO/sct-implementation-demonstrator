@@ -433,7 +433,8 @@
       "snomedLogoAlt": "SNOMED CT-logotyp",
       "codeSelected": "kod vald",
       "codesSelected": "koder valda",
-      "receivedFrom": "Mottaget från"
+      "receivedFrom": "Mottaget från",
+      "clinic": "Klinik"
     },
     "messages": {
       "resolvingShl": "Löser SHL och laddar ner IPS...",

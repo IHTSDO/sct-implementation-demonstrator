@@ -433,7 +433,8 @@
       "snomedLogoAlt": "Logo SNOMED CT",
       "codeSelected": "código seleccionado",
       "codesSelected": "códigos seleccionados",
-      "receivedFrom": "Recibido de"
+      "receivedFrom": "Recibido de",
+      "clinic": "Clínica"
     },
     "messages": {
       "resolvingShl": "Resolviendo SHL y descargando IPS...",
