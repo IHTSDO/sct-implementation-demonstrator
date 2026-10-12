@@ -636,11 +636,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Check if SNOMED code already exists
-    return this.existingConditions.some(existing => {
-      const existingCode = this.patientService.extractSnomedCode(existing);
-      return existingCode === snomedCode;
-    });
+    const codes = this.getItemMatchCodes(condition);
+    return this.existingConditions.some(existing => this.patientService.hasAnySnomedCode(existing, codes));
   }
 
   /**
@@ -722,10 +719,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       });
     }
 
-    return this.existingProcedures.some(existing => {
-      const existingCode = this.patientService.extractSnomedCode(existing);
-      return existingCode === snomedCode;
-    });
+    const codes = this.getItemMatchCodes(procedure);
+    return this.existingProcedures.some(existing => this.patientService.hasAnySnomedCode(existing, codes));
   }
 
   async addProcedureFromIPS(procedureId: string): Promise<void> {
@@ -797,11 +792,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Check if SNOMED code already exists
-    return this.existingMedications.some(existing => {
-      const existingCode = this.patientService.extractSnomedCode(existing);
-      return existingCode === snomedCode;
-    });
+    const codes = this.getItemMatchCodes(medication);
+    return this.existingMedications.some(existing => this.patientService.hasAnySnomedCode(existing, codes));
   }
 
   /**
@@ -870,7 +862,11 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    return this.patientService.isDuplicateImmunization(this.existingImmunizations, this.toClinicalEntryImmunization(immunization, this.linkedPatient.id));
+    return this.patientService.isDuplicateImmunization(
+      this.existingImmunizations,
+      this.toClinicalEntryImmunization(immunization, this.linkedPatient.id),
+      this.getItemMatchCodes(immunization)
+    );
   }
 
   async addImmunizationFromIPS(immunizationId: string): Promise<void> {
@@ -927,11 +923,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Check if SNOMED code already exists
-    return this.existingAllergies.some(existing => {
-      const existingCode = this.patientService.extractSnomedCode(existing);
-      return existingCode === snomedCode;
-    });
+    const codes = this.getItemMatchCodes(allergy);
+    return this.existingAllergies.some(existing => this.patientService.hasAnySnomedCode(existing, codes));
   }
 
   /**
@@ -1896,6 +1889,20 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
     return alternative
       ? { display: alternative.display, code: alternative.code, edition: selectedEdition }
       : this.getSourcePreview(section, item);
+  }
+
+  /**
+   * Codes that identify an IPS item when matching it against the record: every
+   * SNOMED CT code it arrived with plus the adapted one, whether or not the
+   * adaptation is switched on, so either form already in the record counts.
+   */
+  private getItemMatchCodes(item: any): Set<string> {
+    const codes = this.patientService.getSnomedCodes(item);
+    const adaptation = this.getItemAdaptation(item);
+    if (adaptation?.selectedCode) {
+      codes.add(adaptation.selectedCode);
+    }
+    return codes;
   }
 
   /** SNOMED CT code the item will be imported with (adapted when an adaptation is applied). */

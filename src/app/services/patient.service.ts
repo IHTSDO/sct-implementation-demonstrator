@@ -637,26 +637,49 @@ export class PatientService {
     return code.startsWith('===');
   }
 
+  /**
+   * Every SNOMED CT code on a resource (code, medicationCodeableConcept or
+   * vaccineCode), not just the primary one: an imported concept adapted to
+   * this edition keeps its original coding next to the adapted one.
+   */
+  public getSnomedCodes(resource: any): Set<string> {
+    const codings: any[] = [
+      ...(resource?.code?.coding ?? []),
+      ...(resource?.medicationCodeableConcept?.coding ?? []),
+      ...(resource?.vaccineCode?.coding ?? [])
+    ];
+    return new Set(
+      codings
+        .filter(coding =>
+          (coding?.system === PatientService.SNOMED_SYSTEM || coding?.system === PatientService.SNOMED_EDITION_SYSTEM)
+          && !!coding?.code
+          && !this.isSnomedExpressionCoding(coding))
+        .map(coding => String(coding.code))
+    );
+  }
+
+  /** True when `resource` carries any of `codes` among its SNOMED CT codings. */
+  public hasAnySnomedCode(resource: any, codes: Set<string>): boolean {
+    if (!codes.size) return false;
+    for (const code of this.getSnomedCodes(resource)) {
+      if (codes.has(code)) return true;
+    }
+    return false;
+  }
+
   private isDuplicateCondition(existingConditions: Condition[], newCondition: Condition): boolean {
-    const newCode = this.extractSnomedCode(newCondition);
-    if (!newCode) return false;
-    
-    return existingConditions.some(existing => {
-      const existingCode = this.extractSnomedCode(existing);
-      return existingCode === newCode;
-    });
+    const newCodes = this.getSnomedCodes(newCondition);
+    return existingConditions.some(existing => this.hasAnySnomedCode(existing, newCodes));
   }
 
   public isDuplicateProcedure(existingProcedures: Procedure[], newProcedure: Procedure): boolean {
-    const newCode = this.extractSnomedCode(newProcedure);
+    const newCodes = this.getSnomedCodes(newProcedure);
     
-    if (!newCode) return false;
+    if (!newCodes.size) return false;
     
     return existingProcedures.some(existing => {
-      const existingCode = this.extractSnomedCode(existing);
-      
-      // Check if same SNOMED code
-      if (existingCode !== newCode) return false;
+      // Check if they share a SNOMED code
+      if (!this.hasAnySnomedCode(existing, newCodes)) return false;
       
       // Check if same date/time
       const existingDateTime = existing.performedDateTime || existing.performedPeriod?.start;
@@ -674,38 +697,27 @@ export class PatientService {
   }
 
   private isDuplicateMedication(existingMedications: MedicationStatement[], newMedication: MedicationStatement): boolean {
-    const newCode = this.extractSnomedCode(newMedication);
-    if (!newCode) return false;
-    
-    return existingMedications.some(existing => {
-      const existingCode = this.extractSnomedCode(existing);
-      return existingCode === newCode;
-    });
+    const newCodes = this.getSnomedCodes(newMedication);
+    return existingMedications.some(existing => this.hasAnySnomedCode(existing, newCodes));
   }
 
-  public isDuplicateImmunization(existingImmunizations: Immunization[], newImmunization: Immunization): boolean {
-    const newCode = this.extractSnomedCode(newImmunization);
+  public isDuplicateImmunization(existingImmunizations: Immunization[], newImmunization: Immunization, extraCodes?: Set<string>): boolean {
+    const newCodes = new Set([...this.getSnomedCodes(newImmunization), ...(extraCodes ?? [])]);
     const newOccurrence = newImmunization.occurrenceDateTime || newImmunization.recorded;
 
-    if (!newCode || !newOccurrence) {
+    if (!newCodes.size || !newOccurrence) {
       return false;
     }
 
     return existingImmunizations.some((existing) => {
-      const existingCode = this.extractSnomedCode(existing);
       const existingOccurrence = existing.occurrenceDateTime || existing.recorded;
-      return existingCode === newCode && existingOccurrence === newOccurrence;
+      return existingOccurrence === newOccurrence && this.hasAnySnomedCode(existing, newCodes);
     });
   }
 
   private isDuplicateAllergy(existingAllergies: AllergyIntolerance[], newAllergy: AllergyIntolerance): boolean {
-    const newCode = this.extractSnomedCode(newAllergy);
-    if (!newCode) return false;
-    
-    return existingAllergies.some(existing => {
-      const existingCode = this.extractSnomedCode(existing);
-      return existingCode === newCode;
-    });
+    const newCodes = this.getSnomedCodes(newAllergy);
+    return existingAllergies.some(existing => this.hasAnySnomedCode(existing, newCodes));
   }
 
   private isDuplicateEncounter(existingEncounters: Encounter[], newEncounter: Encounter): boolean {
