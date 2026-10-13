@@ -11,11 +11,13 @@ import { Subject, takeUntil, startWith, map } from 'rxjs';
 })
 export class DropdownBindingComponent implements OnInit, OnDestroy {
   @Input()  binding!: any;
+  /** Concept preselected once the options load (matched by code). */
+  @Input()  initialValue: { code: string } | null = null;
   @Output() selectionChange = new EventEmitter<any[]>();
 
   private options: any[] = [];
   filteredOptions: any[] = [];
-  selectedOptions: any[] = [];
+  selectedOptions: any = [];
   searchCtrl = new FormControl('');
   showSearch = false;
 
@@ -29,6 +31,7 @@ export class DropdownBindingComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         this.options         = res?.expansion?.contains ?? [];
         this.filteredOptions = [...this.options];
+        this.applyInitialValue();
 
         // decide whether search should be available
         this.showSearch = this.options.length > 5;
@@ -49,6 +52,15 @@ export class DropdownBindingComponent implements OnInit, OnDestroy {
             .filter(o => o.display.toLowerCase().includes(term));
         }
       });
+  }
+
+  private applyInitialValue(): void {
+    const match = this.initialValue?.code
+      ? this.options.find(o => `${o.code}` === `${this.initialValue?.code}`)
+      : undefined;
+    if (match) {
+      this.selectedOptions = this.binding.type === 'Select (Multiple)' ? [match] : match;
+    }
   }
 
   /** emit selected values to parent */

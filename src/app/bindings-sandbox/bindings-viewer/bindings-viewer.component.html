@@ -8,14 +8,24 @@
   <div class="output-panel" [ngClass]="{ 'border-question' : binding.count > 1 }">
     @for (num of [].constructor(binding.count); track num; let i = $index) {
       <div class="row control">
+        @if (isLinked(binding)) {
+          <app-linked-binding
+            [binding]="binding"
+            [sourceConcept]="sourceValues[binding.linkedFrom] ?? null"
+            [sourceTitle]="bindingTitleById(binding.linkedFrom)"
+            [editionUri]="editionUri"
+            class="grow"
+            (selectionChange)="optionSelected(binding.title, binding.code, $event)">
+          </app-linked-binding>
+        } @else {
         @if (getBindingType(binding) == 'Autocomplete') {
-          <app-autocomplete-binding [binding]="binding" [editionUri]="editionUri" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-autocomplete-binding>
+          <app-autocomplete-binding [binding]="binding" [editionUri]="editionUri" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event); recordSourceValue(binding, $event)"></app-autocomplete-binding>
         }
         @if (getBindingType(binding) == 'Select (Single)' || getBindingType(binding) == 'Select (Multiple)') {
-          <app-dropdown-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-dropdown-binding>
+          <app-dropdown-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event); recordSourceValue(binding, $event)"></app-dropdown-binding>
         }
         @if (getBindingType(binding) == 'Options') {
-          <app-radios-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-radios-binding>
+          <app-radios-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event); recordSourceValue(binding, $event)"></app-radios-binding>
         }
         @if (getBindingType(binding) == 'Multi-prefix search select') {
           <app-multi-prefix-select-binding [binding]="binding" [editionUri]="editionUri" [expansionCount]="500" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-multi-prefix-select-binding>
@@ -43,9 +53,10 @@
             Unsupported binding type: <code>{{ binding.type }}</code>
           </div>
         }
+        }
         <div class="actions">
           @if (getBindingType(binding) != 'Section header') {
-            <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" [disabled]="!binding.code && !binding.ecl && !binding.valueSetUrl">
+            <button mat-icon-button color="primary" [matMenuTriggerFor]="substancePopoverMenu" [disabled]="!binding.code && !binding.ecl && !binding.valueSetUrl && !binding.eclTemplate">
               <mat-icon>info</mat-icon>
             </button>
           }
@@ -82,6 +93,13 @@
                 (click)="copyToClipboard(binding.ecl)">
                 <h4 class="mb-0">Answer terminology binding (ECL)</h4>
                 <pre>{{ binding.ecl }}</pre>
+              </span>
+            }
+            @if (isLinked(binding)) {
+              <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()"
+                (click)="copyToClipboard(binding.eclTemplate)">
+                <h4 class="mb-0">Answer ECL template (linked to "{{ bindingTitleById(binding.linkedFrom) }}")</h4>
+                <pre>{{ binding.eclTemplate }}</pre>
               </span>
             }
             @if (binding.unit) {

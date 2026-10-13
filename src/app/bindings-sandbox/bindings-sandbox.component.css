@@ -288,6 +288,10 @@
   width: 100%;
 }
 
+.input-field[subscriptsizing="dynamic"] {
+  margin-bottom: var(--bs-space-3);
+}
+
 .full-width {
   width: 100%;
 }

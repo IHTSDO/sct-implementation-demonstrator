@@ -13,8 +13,6 @@ import {
   providedIn: 'root'
 })
 export class EclBuilderService {
-  private readonly defaultBranch = 'MAIN/2023-01-31';
-
   constructor(
     private http: HttpClient,
     private terminologyService: TerminologyService
@@ -70,21 +68,7 @@ export class EclBuilderService {
       return of([]);
     }
 
-    const requestUrl =
-      `${this.getSnowstormBaseUrl()}/mrcm/${encodeURIComponent(this.getBranch())}/domain-attributes` +
-      `?proximalPrimitiveModeling=false&parentIds=${encodeURIComponent(parentConceptId)}`;
-
-    return this.http
-      .get<any>(requestUrl, {
-        headers: new HttpHeaders({
-          'Accept-Language': this.terminologyService.getComputedLanguageContext()
-        })
-      })
-      .pipe(map((response) => response?.items ?? []));
-  }
-
-  getBranch(): string {
-    return this.defaultBranch;
+    return this.terminologyService.getDomainAttributes([parentConceptId]);
   }
 
   hasResolvedConcept(expression: EclConceptExpression | undefined | null): boolean {

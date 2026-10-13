@@ -12,6 +12,7 @@ import { EclBuilderComponent } from '../bindings/ecl-builder/ecl-builder.compone
 import { ExpressionConstraintNodeComponent } from '../bindings/ecl-builder/expression-constraint-node/expression-constraint-node.component';
 import { EclBuilderDialogComponent } from '../bindings/ecl-builder-dialog/ecl-builder-dialog.component';
 import { IntegerBindingComponent } from '../bindings/integer-binding/integer-binding.component';
+import { LinkedBindingComponent } from '../bindings/linked-binding/linked-binding.component';
 import { MultiPrefixSelectBindingComponent } from '../bindings/multi-prefix-select-binding/multi-prefix-select-binding.component';
 import { RadiosBindingComponent } from '../bindings/radios-binding/radios-binding.component';
 import { TextBoxBindingComponent } from '../bindings/textbox-binding/textbox-binding.component';
@@ -33,6 +34,7 @@ const DECLARATIONS = [
   ExpressionConstraintNodeComponent,
   EclBuilderDialogComponent,
   IntegerBindingComponent,
+  LinkedBindingComponent,
   MultiPrefixSelectBindingComponent,
   RadiosBindingComponent,
   TextBoxBindingComponent,

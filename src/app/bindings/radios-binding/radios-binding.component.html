@@ -1,5 +1,5 @@
 <div>{{ binding.title }}</div>
-<mat-radio-group aria-label="Select an option" class="radio-group">
+<mat-radio-group aria-label="Select an option" class="radio-group" [value]="initialValue?.code">
   @for (item of options; track item) {
     <mat-radio-button [value]="item.code" class="radio-button" (click)="optionSelected(item)">
       {{item.display}}

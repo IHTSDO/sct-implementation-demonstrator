@@ -981,6 +981,172 @@ export class TerminologyService {
     );
   }
 
+  /** Snowstorm native API base derived from the configured FHIR base (`…/fhir` → `…/snowstorm/snomed-ct`). */
+  getSnowstormNativeBase(): string {
+    const fhirBase = (this.snowstormFhirBase || '').replace(/\/$/, '');
+    if (fhirBase.endsWith('/fhir')) {
+      return fhirBase.replace(/\/fhir$/, '/snowstorm/snomed-ct');
+    }
+    return `${fhirBase}/snowstorm/snomed-ct`;
+  }
+
+  private nativeCodeSystemsCache = new Map<string, Observable<any[]>>();
+
+  /**
+   * Snowstorm branch that holds the active edition (`fhirUrlParam`): the code system
+   * matched by module, plus the version branch when the URI pins a version, or the
+   * latest released version otherwise. Falls back to `MAIN` when it cannot be resolved.
+   */
+  getActiveSnowstormBranch(): Observable<string> {
+    const base = this.getSnowstormNativeBase();
+    const match = (this.fhirUrlParam || '').match(/^http:\/\/snomed\.info\/sct(?:\/(\d+))?(?:\/version\/(\d{8}))?/);
+    const moduleId = match?.[1] || '900000000000207008';
+    const version = match?.[2];
+
+    let codeSystems$ = this.nativeCodeSystemsCache.get(base);
+    if (!codeSystems$) {
+      codeSystems$ = this.http.get<any>(`${base}/codesystems`, { headers: new HttpHeaders({ Accept: 'application/json' }) }).pipe(
+        map((res: any) => (res?.items ?? []) as any[]),
+        catchError((err) => {
+          this.nativeCodeSystemsCache.delete(base);
+          return throwError(() => err);
+        }),
+        shareReplay(1)
+      );
+      this.nativeCodeSystemsCache.set(base, codeSystems$);
+    }
+
+    return codeSystems$.pipe(
+      map((items) => {
+        const codeSystem =
+          items.find((cs: any) => `${cs?.uriModule || ''}`.endsWith(`/${moduleId}`)) ??
+          (moduleId === '900000000000207008' ? items.find((cs: any) => cs?.branchPath === 'MAIN') : undefined);
+        if (!codeSystem?.branchPath) {
+          return 'MAIN';
+        }
+        if (version) {
+          return `${codeSystem.branchPath}/${version.slice(0, 4)}-${version.slice(4, 6)}-${version.slice(6, 8)}`;
+        }
+        return codeSystem.latestVersion?.branchPath || codeSystem.branchPath;
+      }),
+      catchError(() => of('MAIN'))
+    );
+  }
+
+  private domainAttributesCache = new Map<string, any[]>();
+  private domainAttributesInFlight = new Map<string, Observable<any[]>>();
+
+  /**
+   * MRCM attributes allowed for the domain(s) of the given parent concepts, on the
+   * active edition branch. Items keep Snowstorm's shape (`conceptId`, `fsn`, `pt`,
+   * `attributeRange`). Errors propagate so callers can fall back to a free picker.
+   */
+  getDomainAttributes(parentIds: string[]): Observable<any[]> {
+    const ids = Array.from(new Set((parentIds || []).filter((id) => /^\d+$/.test(id)))).sort();
+    if (!ids.length) {
+      return of([]);
+    }
+    const lang = this.getComputedLanguageContext();
+    const cacheKey = `${this.snowstormFhirBase}|${this.fhirUrlParam}|${lang}|${ids.join(',')}`;
+    const cached = this.domainAttributesCache.get(cacheKey);
+    if (cached) {
+      return of(cached);
+    }
+    const inFlight = this.domainAttributesInFlight.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const base = this.getSnowstormNativeBase();
+    const headers = new HttpHeaders({ 'Accept-Language': lang });
+    const request$ = this.getActiveSnowstormBranch().pipe(
+      concatMap((branch) =>
+        this.http.get<any>(
+          `${base}/mrcm/${encodeURIComponent(branch)}/domain-attributes` +
+          `?proximalPrimitiveModeling=false&parentIds=${ids.map(encodeURIComponent).join(',')}`,
+          { headers }
+        )
+      ),
+      map((res: any) => (res?.items ?? []) as any[]),
+      tap((items) => this.domainAttributesCache.set(cacheKey, items)),
+      finalize(() => this.domainAttributesInFlight.delete(cacheKey)),
+      shareReplay(1)
+    );
+    this.domainAttributesInFlight.set(cacheKey, request$);
+    return request$;
+  }
+
+  private attributeValuesCache = new Map<string, { code: string; display: string }[]>();
+  private attributeValuesInFlight = new Map<string, Observable<{ code: string; display: string }[]>>();
+
+  /**
+   * Values of `attributeId` on concept `conceptId` (ECL dot notation, `concept.attribute`).
+   * Cached per edition and language; a failed request returns [] and is not cached.
+   */
+  getAttributeValues(conceptId: string, attributeId: string): Observable<{ code: string; display: string }[]> {
+    if (!conceptId || !attributeId) {
+      return of([]);
+    }
+    const cacheKey = `${this.fhirUrlParam}|${this.getComputedLanguageContext()}|${conceptId}|${attributeId}`;
+    const cached = this.attributeValuesCache.get(cacheKey);
+    if (cached) {
+      return of(cached);
+    }
+    const inFlight = this.attributeValuesInFlight.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
+    const request$ = this.expandValueSet(`(${conceptId}).${attributeId}`, '', 0, 20).pipe(
+      map((res: any) => {
+        const contains = (res?.expansion?.contains ?? []) as any[];
+        const values = contains.map((c) => ({ code: `${c.code}`, display: c.display }));
+        if (res?.expansion) {
+          this.attributeValuesCache.set(cacheKey, values);
+        }
+        return values;
+      }),
+      finalize(() => this.attributeValuesInFlight.delete(cacheKey)),
+      shareReplay(1)
+    );
+    this.attributeValuesInFlight.set(cacheKey, request$);
+    return request$;
+  }
+
+  private attributeUsageCache = new Map<string, boolean>();
+
+  /**
+   * True when at least one concept matched by `ecl` has a value for `attributeId`
+   * (`(ecl) : attribute = *`, count 1). Errors propagate (no snackbar) so sequential
+   * callers can stop on throttling; only well-formed responses are cached.
+   */
+  /** Cached result of `isAttributeUsed`, or undefined when it still needs a request. */
+  getCachedAttributeUsage(ecl: string, attributeId: string): boolean | undefined {
+    return this.attributeUsageCache.get(`${this.fhirUrlParam}|${ecl}|${attributeId}`);
+  }
+
+  isAttributeUsed(ecl: string, attributeId: string): Observable<boolean> {
+    if (!ecl?.trim() || !attributeId) {
+      return of(false);
+    }
+    const cacheKey = `${this.fhirUrlParam}|${ecl}|${attributeId}`;
+    const cached = this.attributeUsageCache.get(cacheKey);
+    if (cached !== undefined) {
+      return of(cached);
+    }
+    const requestUrl = this.getValueSetExpansionUrl(`(${ecl}) : ${attributeId} = *`, '', 0, 1);
+    const headers = new HttpHeaders({ 'Accept-Language': this.getComputedLanguageContext() });
+    return this.http.get<any>(requestUrl, { headers }).pipe(
+      map((res: any) => {
+        const expansion = res?.expansion;
+        const used = ((expansion?.total ?? expansion?.contains?.length ?? 0) as number) > 0;
+        if (expansion) {
+          this.attributeUsageCache.set(cacheKey, used);
+        }
+        return used;
+      })
+    );
+  }
+
   addPostcoordinatedExpression(expression: string) {
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem/sct_11000003104_EXP`;
     const httpOptions = {

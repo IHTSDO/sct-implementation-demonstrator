@@ -106,14 +106,24 @@
                   <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
 
                   <div class="binding-control grow">
+                    @if (isLinked(binding)) {
+                      <app-linked-binding
+                        [binding]="binding"
+                        [sourceConcept]="sourceValues[binding.linkedFrom] ?? null"
+                        [sourceTitle]="bindingTitleById(binding.linkedFrom)"
+                        [maxOptionsCount]="maxOptionsCount"
+                        class="grow"
+                        (selectionChange)="optionSelected(binding.title, binding.code, $event)">
+                      </app-linked-binding>
+                    } @else {
                     @if (binding.type == 'Autocomplete') {
-                      <app-autocomplete-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-autocomplete-binding>
+                      <app-autocomplete-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event); recordSourceValue(binding, $event)"></app-autocomplete-binding>
                     }
                     @if (binding.type == 'Select (Single)' || binding.type == 'Select (Multiple)') {
-                      <app-dropdown-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-dropdown-binding>
+                      <app-dropdown-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event); recordSourceValue(binding, $event)"></app-dropdown-binding>
                     }
                     @if (binding.type == 'Options') {
-                      <app-radios-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-radios-binding>
+                      <app-radios-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event); recordSourceValue(binding, $event)"></app-radios-binding>
                     }
                     @if (binding.type == 'Multi-prefix search select') {
                       <app-multi-prefix-select-binding
@@ -141,11 +151,12 @@
                     @if (binding.type == 'Checkbox multiple') {
                       <app-checkbox-multiple-binding [binding]="binding" class="grow" (selectionChange)="optionSelected(binding.title, binding.code, $event)"></app-checkbox-multiple-binding>
                     }
+                    }
                   </div>
 
                   <div class="binding-actions">
                     @if (binding.type != 'Section header' && j == 0) {
-                      <button mat-icon-button color="primary" [matMenuTriggerFor]="bindingInfoMenu" [disabled]="!binding.code && !binding.ecl && !binding.valueSetUrl" matTooltip="Binding details">
+                      <button mat-icon-button color="primary" [matMenuTriggerFor]="bindingInfoMenu" [disabled]="!binding.code && !binding.ecl && !binding.valueSetUrl && !binding.eclTemplate" matTooltip="Binding details">
                         <mat-icon>info</mat-icon>
                       </button>
                     }
@@ -171,6 +182,12 @@
                           <pre>{{ binding.ecl }}</pre>
                         </span>
                       }
+                      @if (isLinked(binding)) {
+                        <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
+                          <h4 class="mb-0">Answer ECL template (linked to "{{ bindingTitleById(binding.linkedFrom) }}")</h4>
+                          <pre>{{ binding.eclTemplate }}</pre>
+                        </span>
+                      }
                       @if (binding.unit) {
                         <span mat-menu-item [disableRipple]="true" (click)="$event.stopPropagation()">
                           <h4 class="mb-0">Unit binding</h4>
@@ -180,7 +197,7 @@
                     </mat-menu>
 
                     @if (j == 0) {
-                      <button mat-icon-button color="primary" (click)="bindings.splice(i,1)" matTooltip="Delete binding">
+                      <button mat-icon-button color="primary" (click)="deleteBinding(i)" matTooltip="Delete binding">
                         <mat-icon>delete</mat-icon>
                       </button>
                       <button mat-icon-button color="primary" (click)="edit(i)" matTooltip="Edit binding">
@@ -273,6 +290,9 @@
                   <mat-button-toggle-group formControlName="answerSource" class="answer-source-toggle">
                     <mat-button-toggle value="ecl">ECL</mat-button-toggle>
                     <mat-button-toggle value="valueset">ValueSet</mat-button-toggle>
+                    @if (canUseLinkedSource(newBindingForm.controls.type.value)) {
+                      <mat-button-toggle value="linked" [disabled]="!linkSourceCandidates().length" [matTooltip]="linkSourceCandidates().length ? 'Derive the options from the concept selected in another field' : 'Add a single-concept field (Autocomplete, Select (Single) or Options) first'">Linked field</mat-button-toggle>
+                    }
                   </mat-button-toggle-group>
                   @if (newBindingForm.controls.answerSource.value === 'valueset') {
                     <button
@@ -301,6 +321,90 @@
                     <mat-hint>Select concepts using SNOMED ECL served by your terminology FHIR endpoint.</mat-hint>
                     <mat-error>{{ getErrorMessage('ecl') }}</mat-error>
                   </mat-form-field>
+                } @else if (newBindingForm.controls.answerSource.value === 'linked') {
+                  <mat-form-field class="input-field" subscriptSizing="dynamic">
+                    <mat-label>Linked field</mat-label>
+                    <mat-select formControlName="linkedFrom">
+                      @for (source of linkSourceCandidates(); track source.id) {
+                        <mat-option [value]="source.id">{{ source.title }}</mat-option>
+                      }
+                    </mat-select>
+                    <mat-hint>The concept selected in this field drives the answer options.</mat-hint>
+                    <mat-error>{{ getErrorMessage('linkedFrom') }}</mat-error>
+                  </mat-form-field>
+
+                  @if (newBindingForm.controls.linkedFrom.value) {
+                    @if (linkedAttributesFallback) {
+                      <mat-form-field class="input-field autocomplete-field" subscriptSizing="dynamic">
+                        <app-autocomplete-binding [binding]="attributeFallbackBinding" class="grow" formControlName="linkedAttribute"></app-autocomplete-binding>
+                        <mat-error>{{ getErrorMessage('linkedAttribute') }}</mat-error>
+                      </mat-form-field>
+                    } @else {
+                      <mat-form-field class="input-field" subscriptSizing="dynamic">
+                        <mat-label>Attribute</mat-label>
+                        <mat-select formControlName="linkedAttribute" [compareWith]="compareConcepts">
+                          @if (usedLinkedAttributes.length) {
+                            <mat-optgroup label="Used in {{ bindingTitleById(newBindingForm.controls.linkedFrom.value) }}">
+                              @for (attribute of usedLinkedAttributes; track attribute.code) {
+                                <mat-option [value]="attribute">{{ attribute.display }}</mat-option>
+                              }
+                            </mat-optgroup>
+                          }
+                          @if (usedLinkedAttributes.length && otherLinkedAttributes.length) {
+                            <mat-optgroup label="Other attributes allowed by the concept model">
+                              @for (attribute of otherLinkedAttributes; track attribute.code) {
+                                <mat-option [value]="attribute">{{ attribute.display }}</mat-option>
+                              }
+                            </mat-optgroup>
+                          } @else if (!usedLinkedAttributes.length) {
+                            @for (attribute of linkedAttributeOptions; track attribute.code) {
+                              <mat-option [value]="attribute">{{ attribute.display }}</mat-option>
+                            }
+                          }
+                        </mat-select>
+                        @if (linkedAttributesLoading || linkedUsageChecking) {
+                          <mat-spinner matSuffix diameter="20"></mat-spinner>
+                        }
+                        <mat-hint>
+                          @if (linkedAttributesLoading) {
+                            Reading the concept model…
+                          } @else if (linkedUsageChecking) {
+                            Checking which attributes are used ({{ linkedUsageChecked }}/{{ linkedAttributeOptions.length }})…
+                          } @else if (selectedLinkedAttributeRange) {
+                            Range: {{ selectedLinkedAttributeRange }}
+                          } @else if (linkedUsageSkipped) {
+                            Attributes allowed by the concept model for this hierarchy.
+                          } @else {
+                            Attributes allowed by the concept model for the linked field.
+                          }
+                        </mat-hint>
+                        <mat-error>{{ getErrorMessage('linkedAttribute') }}</mat-error>
+                      </mat-form-field>
+                    }
+
+                    <mat-form-field class="input-field" subscriptSizing="dynamic">
+                      <mat-label>Answer options</mat-label>
+                      <mat-select formControlName="linkedOperator">
+                        @for (operator of linkedOperators; track operator.value) {
+                          <mat-option [value]="operator.value">{{ operator.label }}</mat-option>
+                        }
+                      </mat-select>
+                      <mat-hint>
+                        @if (newBindingForm.controls.linkedOperator.value === '<') {
+                          No default value: the attribute value itself is not an option.
+                        } @else {
+                          Defaults to the attribute value of the selected concept.
+                        }
+                      </mat-hint>
+                    </mat-form-field>
+
+                    <mat-form-field class="input-field" subscriptSizing="dynamic">
+                      <mat-label>Answer options: ECL template</mat-label>
+                      <textarea matInput rows="2" formControlName="eclTemplate"></textarea>
+                      <mat-hint>{{ '{{source}}' }} is replaced by the concept selected in the linked field.</mat-hint>
+                      <mat-error>{{ getErrorMessage('eclTemplate') }}</mat-error>
+                    </mat-form-field>
+                  }
                 } @else {
                   <mat-form-field class="input-field">
                     <mat-label>ValueSet from terminology server</mat-label>

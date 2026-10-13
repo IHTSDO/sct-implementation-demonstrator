@@ -1,0 +1,46 @@
+@switch (state.status) {
+  @case ('ready') {
+    @for (resolved of [state.binding]; track state.key) {
+      @switch (state.renderType) {
+        @case ('Autocomplete') {
+          <app-autocomplete-binding
+            [binding]="resolved"
+            [editionUri]="editionUri"
+            [ngModel]="state.defaultValue"
+            (selectionChange)="onSelection($event)">
+          </app-autocomplete-binding>
+        }
+        @case ('Options') {
+          <app-radios-binding
+            [binding]="resolved"
+            [initialValue]="state.defaultValue ?? null"
+            (selectionChange)="onSelection($event)">
+          </app-radios-binding>
+        }
+        @default {
+          <app-dropdown-binding
+            [binding]="resolved"
+            [initialValue]="state.defaultValue ?? null"
+            (selectionChange)="onSelection($event)">
+          </app-dropdown-binding>
+        }
+      }
+    }
+  }
+  @default {
+    <mat-form-field appearance="fill" class="linked-placeholder">
+      <mat-label>{{ binding?.title }}</mat-label>
+      <input matInput disabled [placeholder]="state.status === 'loading' ? 'Loading options…' : ''">
+      @if (state.status === 'loading') {
+        <mat-spinner matSuffix diameter="20"></mat-spinner>
+      }
+      <mat-hint>
+        @switch (state.status) {
+          @case ('waiting') { Select {{ sourceTitle || 'the linked field' }} first }
+          @case ('empty') { {{ sourceConcept?.display }} has no {{ attributeLabel }} }
+          @default { Looking up {{ attributeLabel }} of {{ sourceConcept?.display }}… }
+        }
+      </mat-hint>
+    </mat-form-field>
+  }
+}

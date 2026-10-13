@@ -9,6 +9,8 @@ import { TerminologyService } from '../../services/terminology.service';
 })
 export class RadiosBindingComponent implements OnInit {
   @Input() binding: any;
+  /** Concept preselected when the options render (matched by code). */
+  @Input() initialValue: { code: string } | null = null;
   @Output() selectionChange = new EventEmitter<any>();
 
   options: any[] | undefined;

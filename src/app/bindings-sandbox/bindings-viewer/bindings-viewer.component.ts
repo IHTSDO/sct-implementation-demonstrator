@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from 'src/app/alerts/snack-alert';
+import { LinkedConcept, isLinkedBinding, toLinkedConcept } from 'src/app/bindings/linked-binding/linked-binding.utils';
 
 @Component({
     selector: 'app-bindings-viewer',
@@ -23,9 +24,13 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
   responseBundle: any = {};
   responseBundleStr: string = '{}';
 
+  /** Concept currently selected in each link-source field, keyed by binding id. */
+  sourceValues: Record<string, LinkedConcept | null> = {};
+
   constructor(private _snackBar: MatSnackBar) { } 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['spec']) {
+      this.sourceValues = {};
       this.spec?.bindings?.forEach((binding: any) => {
         binding.count = binding.count ?? 1;
         binding.type = this.normalizeBindingType(binding.type);
@@ -46,6 +51,21 @@ export class BindingsViewerComponent implements OnInit, OnChanges {
 
   getBindingType(binding: any): string {
     return this.normalizeBindingType(binding?.type);
+  }
+
+  isLinked(binding: any): boolean {
+    return isLinkedBinding(binding);
+  }
+
+  bindingTitleById(id: string): string {
+    return this.spec?.bindings?.find((b: any) => b.id === id)?.title ?? '';
+  }
+
+  recordSourceValue(binding: any, value: any): void {
+    if (!binding?.id) {
+      return;
+    }
+    this.sourceValues = { ...this.sourceValues, [binding.id]: toLinkedConcept(value) };
   }
 
   isSupportedBindingType(binding: any): boolean {
