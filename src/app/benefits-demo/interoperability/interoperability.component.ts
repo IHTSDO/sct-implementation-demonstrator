@@ -11,6 +11,7 @@ import {
   CodingAdaptation,
   ConceptAlternative,
   SnomedCodingLocalizationService,
+  TerminologyFlowCancelledError,
   TerminologyThrottledError
 } from '../../services/snomed-coding-localization.service';
 import { TerminologyService } from '../../services/terminology.service';
@@ -95,6 +96,8 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   /** The terminology server blocked the adaptation; the user can retry later */
   terminologyThrottled = false;
   private adaptationRun = 0;
+  /** Settles when the latest adaptation run has stopped sending requests. */
+  private adaptationTask: Promise<void> = Promise.resolve();
   private terminologyAdaptations = new WeakMap<object, ItemTerminologyAdaptation>();
 
   wizardSteps: WizardStep[] = [];
@@ -146,6 +149,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopShlQrScan();
+    this.adaptationRun++;
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
@@ -1804,24 +1808,44 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
    * localized displays, International alternatives for extension concepts the
    * edition does not contain, and replacements for inactive concepts.
    * Adaptations are applied by default and can be reverted per item.
+   * A new run cancels the previous one and waits for it to stop, so runs
+   * never send requests at the same time.
    */
   private async adaptTerminologyToSelectedEdition(): Promise<void> {
     if (!this.patientData) return;
 
     const run = ++this.adaptationRun;
     this.terminologyAdaptations = new WeakMap();
+    this.adaptingTerminology = true;
+    this.terminologyThrottled = false;
+    const previous = this.adaptationTask;
+    let settle!: () => void;
+    this.adaptationTask = new Promise<void>(resolve => (settle = resolve));
+    try {
+      await previous;
+      if (run === this.adaptationRun && this.patientData) {
+        await this.runTerminologyAdaptation(run);
+      }
+    } finally {
+      settle();
+    }
+  }
+
+  private async runTerminologyAdaptation(run: number): Promise<void> {
     const sections: MergeSectionId[] = ['conditions', 'procedures', 'medications', 'immunizations', 'allergies'];
     const items = sections.flatMap(section => this.getSectionItems(section));
     const sources = items
       .map(item => ({ item, coding: this.getSourceSnomedCoding(item) }))
       .filter((entry): entry is { item: any; coding: any } => !!entry.coding);
-    if (!sources.length) return;
+    if (!sources.length) {
+      this.adaptingTerminology = false;
+      return;
+    }
 
-    this.adaptingTerminology = true;
-    this.terminologyThrottled = false;
     try {
       const adaptations = await this.localization.adaptToSelectedEdition(
-        sources.map(({ coding }) => ({ code: coding.code, display: coding.display, version: coding.version }))
+        sources.map(({ coding }) => ({ code: coding.code, display: coding.display, version: coding.version })),
+        () => run !== this.adaptationRun
       );
       if (run !== this.adaptationRun) return;
 
@@ -1839,6 +1863,7 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         });
       }
     } catch (error) {
+      if (error instanceof TerminologyFlowCancelledError) return;
       if (run === this.adaptationRun && error instanceof TerminologyThrottledError) {
         this.terminologyThrottled = true;
       }

@@ -35,6 +35,17 @@ export class TerminologyThrottledError extends Error {
   }
 }
 
+/** Thrown when the caller cancels a flow; no further requests are sent. */
+export class TerminologyFlowCancelledError extends Error {
+  constructor() {
+    super('The terminology flow was cancelled');
+    this.name = 'TerminologyFlowCancelledError';
+  }
+}
+
+/** Returns true once the caller no longer needs the result. */
+export type CancellationCheck = () => boolean;
+
 export type CodingAdaptationReason = 'display-localized' | 'extension-concept' | 'inactive' | 'not-found';
 
 export interface CodingToAdapt {
@@ -295,32 +306,40 @@ export class SnomedCodingLocalizationService {
   /**
    * Historical association targets for an inactive concept, one refset at a
    * time, resolved in `edition` (see `historicalLookupEdition`).
+   * With `isCancelled` the lookup stops before its next request once the
+   * caller cancels; such a lookup is not shared with other callers, so a
+   * cancellation never fails someone else's request.
    */
-  findHistoricalReplacements(code: string, edition?: string): Observable<HistoricalReplacement[]> {
+  findHistoricalReplacements(code: string, edition?: string, isCancelled?: CancellationCheck): Observable<HistoricalReplacement[]> {
     const key = `${this.terminologyService.getSnowstormFhirBase()}|${edition ?? ''}|${code}`;
     const cached = this.historicalCache.get(key);
     if (cached) return of(cached);
-    const inFlight = this.historicalInFlight.get(key);
+    const inFlight = isCancelled ? undefined : this.historicalInFlight.get(key);
     if (inFlight) return inFlight;
 
     const request$ = from(this.INACTIVE_REFSETS).pipe(
       concatMap((refset, index) =>
         from(index > 0 ? this.terminologyService.pace() : Promise.resolve()).pipe(
-          concatMap(() => this.terminologyService.translate(refset.id, code, undefined, true, edition)),
+          concatMap(() => {
+            if (isCancelled?.()) throw new TerminologyFlowCancelledError();
+            return this.terminologyService.translate(refset.id, code, undefined, true, edition);
+          }),
           map((res: any) => this.parseTranslateResult(res)),
-          // A refset with no match is fine; a blocked server stops the whole lookup
-          catchError(err => this.terminologyService.isThrottlingError(err)
-            ? throwError(() => new TerminologyThrottledError(err))
-            : of([] as HistoricalReplacement[]))
+          // A refset with no match is fine; a blocked server or a cancellation stops the whole lookup
+          catchError(err => err instanceof TerminologyFlowCancelledError
+            ? throwError(() => err)
+            : this.terminologyService.isThrottlingError(err)
+              ? throwError(() => new TerminologyThrottledError(err))
+              : of([] as HistoricalReplacement[]))
         )
       ),
       toArray(),
       map(results => results.flat()),
       tap(result => this.historicalCache.set(key, result)),
-      finalize(() => this.historicalInFlight.delete(key)),
+      finalize(() => { if (!isCancelled) this.historicalInFlight.delete(key); }),
       shareReplay(1)
     );
-    this.historicalInFlight.set(key, request$);
+    if (!isCancelled) this.historicalInFlight.set(key, request$);
     return request$;
   }
 
@@ -335,12 +354,25 @@ export class SnomedCodingLocalizationService {
    * Alternatives are re-checked against the selected edition so only active
    * concepts are offered, with displays in the edition's language.
    * Requests run one after another. Codings that need no change are omitted.
+   *
+   * `isCancelled` is checked before every request; once it returns true the
+   * flow sends nothing more and rejects with `TerminologyFlowCancelledError`.
    */
-  async adaptToSelectedEdition(codings: CodingToAdapt[]): Promise<Map<string, CodingAdaptation>> {
+  async adaptToSelectedEdition(
+    codings: CodingToAdapt[],
+    isCancelled: CancellationCheck = () => false
+  ): Promise<Map<string, CodingAdaptation>> {
     const adaptations = new Map<string, CodingAdaptation>();
     const snomedCodings = codings.filter(c => !!c.code);
     if (!snomedCodings.length) return adaptations;
 
+    // Waits (when paced) and stops the flow if the caller has cancelled meanwhile
+    const beforeRequest = async (paced = true) => {
+      if (paced) await this.terminologyService.pace();
+      if (isCancelled()) throw new TerminologyFlowCancelledError();
+    };
+
+    await beforeRequest(false);
     const { displays, notActive } = await firstValueFrom(
       this.checkInSelectedEdition(snomedCodings.map(c => c.code))
     );
@@ -366,7 +398,7 @@ export class SnomedCodingLocalizationService {
         extensionCandidates.set(origin.editionFhirUrl, [...(extensionCandidates.get(origin.editionFhirUrl) ?? []), coding.code]);
       }
     }
-    if (extensionCandidates.size) await this.terminologyService.pace();
+    if (extensionCandidates.size) await beforeRequest();
     const resolved = extensionCandidates.size
       ? await this.resolveInternationalCodes(extensionCandidates).catch(err => {
           if (err instanceof TerminologyThrottledError) throw err;
@@ -375,7 +407,7 @@ export class SnomedCodingLocalizationService {
       : new Map<string, { inModule: Set<string>; missing: Set<string> }>();
 
     for (const coding of absent) {
-      await this.terminologyService.pace();
+      await beforeRequest();
       const origin = this.classifyCoding(SnomedCodingLocalizationService.SNOMED_SYSTEM, coding.version);
       const editionResult = origin.editionFhirUrl ? resolved.get(origin.editionFhirUrl) : undefined;
       const isExtensionConcept = !!editionResult
@@ -393,7 +425,7 @@ export class SnomedCodingLocalizationService {
         adaptations.set(coding.code, { code: coding.code, reason: 'extension-concept', alternatives });
       } else {
         const alternatives = await firstValueFrom(
-          this.findHistoricalReplacements(coding.code, this.historicalLookupEdition(coding.version))
+          this.findHistoricalReplacements(coding.code, this.historicalLookupEdition(coding.version), isCancelled)
         );
         adaptations.set(coding.code, {
           code: coding.code,
@@ -404,7 +436,7 @@ export class SnomedCodingLocalizationService {
     }
 
     if ([...adaptations.values()].some(a => a.alternatives.length)) {
-      await this.terminologyService.pace();
+      await beforeRequest();
     }
     await this.localizeAlternatives([...adaptations.values()]);
     return adaptations;
