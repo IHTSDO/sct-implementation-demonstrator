@@ -416,7 +416,7 @@ export class FhirInternationalizerComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap((c, index) =>
           from(index > 0 ? this.terminologyService.pace() : Promise.resolve()).pipe(
-            concatMap(() => this.localization.findHistoricalReplacements(c.code)),
+            concatMap(() => this.localization.findHistoricalReplacements(c.code, this.localization.historicalLookupEdition(c.version))),
             tap(replacements => {
               c.inactiveReplacements = replacements.map(r => ({ ...r, selected: true }));
               c.loadingInactiveReplacements = false;

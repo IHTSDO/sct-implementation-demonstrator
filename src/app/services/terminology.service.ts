@@ -575,9 +575,16 @@ export class TerminologyService {
       }
     }
 
-  translate(conceptMapId: string, code: string, system?: string, silent = false) {
+  /**
+   * Translates `code` with an implicit SNOMED CT concept map (refset).
+   * `version` is the edition to resolve the map in, e.g.
+   * http://snomed.info/sct/32506021000036107; without it the server uses its
+   * default edition, which does not hold extension refset members.
+   */
+  translate(conceptMapId: string, code: string, system?: string, silent = false, version?: string) {
     if (!system) system = this.defaultFhirUrlParam;
     let requestUrl = `${this.snowstormFhirBase}/ConceptMap/$translate?url=http://snomed.info/sct?fhir_cm=${conceptMapId}&code=${code}&system=${system}`;
+    if (version) requestUrl += `&version=${encodeURIComponent(version)}`;
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });

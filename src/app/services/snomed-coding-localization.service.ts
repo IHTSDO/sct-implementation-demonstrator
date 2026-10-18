@@ -280,9 +280,24 @@ export class SnomedCodingLocalizationService {
     );
   }
 
-  /** Historical association targets for an inactive concept, one refset at a time. */
-  findHistoricalReplacements(code: string): Observable<HistoricalReplacement[]> {
-    const key = `${this.terminologyService.getSnowstormFhirBase()}|${code}`;
+  /**
+   * Edition to look up historical associations in for a coding recorded in
+   * `version`: its extension's latest release, since associations live in
+   * the module that inactivated the concept and it may have been inactivated
+   * after the coding was recorded; otherwise the selected edition, which
+   * includes the International associations.
+   */
+  historicalLookupEdition(version?: string): string | undefined {
+    const origin = this.classifyCoding(SnomedCodingLocalizationService.SNOMED_SYSTEM, version);
+    return origin.editionFhirUrl ?? this.terminologyService.getSelectedEditionVersion();
+  }
+
+  /**
+   * Historical association targets for an inactive concept, one refset at a
+   * time, resolved in `edition` (see `historicalLookupEdition`).
+   */
+  findHistoricalReplacements(code: string, edition?: string): Observable<HistoricalReplacement[]> {
+    const key = `${this.terminologyService.getSnowstormFhirBase()}|${edition ?? ''}|${code}`;
     const cached = this.historicalCache.get(key);
     if (cached) return of(cached);
     const inFlight = this.historicalInFlight.get(key);
@@ -291,7 +306,7 @@ export class SnomedCodingLocalizationService {
     const request$ = from(this.INACTIVE_REFSETS).pipe(
       concatMap((refset, index) =>
         from(index > 0 ? this.terminologyService.pace() : Promise.resolve()).pipe(
-          concatMap(() => this.terminologyService.translate(refset.id, code, undefined, true)),
+          concatMap(() => this.terminologyService.translate(refset.id, code, undefined, true, edition)),
           map((res: any) => this.parseTranslateResult(res)),
           // A refset with no match is fine; a blocked server stops the whole lookup
           catchError(err => this.terminologyService.isThrottlingError(err)
@@ -377,7 +392,9 @@ export class SnomedCodingLocalizationService {
         );
         adaptations.set(coding.code, { code: coding.code, reason: 'extension-concept', alternatives });
       } else {
-        const alternatives = await firstValueFrom(this.findHistoricalReplacements(coding.code));
+        const alternatives = await firstValueFrom(
+          this.findHistoricalReplacements(coding.code, this.historicalLookupEdition(coding.version))
+        );
         adaptations.set(coding.code, {
           code: coding.code,
           reason: alternatives.length ? 'inactive' : 'not-found',
