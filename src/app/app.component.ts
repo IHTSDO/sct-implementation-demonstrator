@@ -353,12 +353,12 @@ export class AppComponent {
     }
     const server = candidates[startIndex];
     const serverUrl = this.normalizeTerminologyServerBaseUrl(server.url);
-    const isOntoserver = serverUrl.toLowerCase().includes('ontoserver');
-    const requestUrl = isOntoserver
-      ? `${serverUrl}/CodeSystem?system=http://snomed.info/sct`
-      : `${serverUrl}/CodeSystem`;
     const headers = new HttpHeaders({ 'Accept-Language': this.terminologyService.getLang() });
-    return this.http.get<any>(requestUrl, { headers }).pipe(
+    return this.terminologyService.detectServerKind(serverUrl).pipe(
+      switchMap(kind => this.http.get<any>(
+        kind === 'ontoserver' ? `${serverUrl}/CodeSystem?system=http://snomed.info/sct` : `${serverUrl}/CodeSystem`,
+        { headers }
+      )),
       map(response => {
         if (!response?.entry?.length) throw new Error('empty response');
         return { response, server };

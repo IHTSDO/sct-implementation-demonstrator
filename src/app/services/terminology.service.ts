@@ -41,6 +41,12 @@ export interface ValidateCodeResult {
   requestError?: boolean;
 }
 
+/**
+ * Terminology server implementation, detected from `CapabilityStatement.software.name`.
+ * Drives server-specific request formats (e.g. the language refset dialect in Accept-Language).
+ */
+export type TerminologyServerKind = 'snowstorm' | 'snowstorm-lite' | 'ontoserver' | 'other';
+
 /** Active replacement concept from inactive association translate. */
 export interface SnomedReplacementConcept {
   code: string;
@@ -83,6 +89,13 @@ export class TerminologyService {
   private valueSetsListCache = new Map<string, ValueSetSummary[]>();
   private valueSetsListInFlight = new Map<string, Observable<ValueSetSummary[]>>();
 
+  /** Server kind per FHIR base; persisted because a server's implementation practically never changes. */
+  private serverKindCache = new Map<string, { kind: TerminologyServerKind; timestamp: number }>();
+  private serverKindInFlight = new Map<string, Observable<TerminologyServerKind>>();
+  private readonly SERVER_KIND_CACHE_KEY = 'terminologyServerKinds';
+  private readonly SERVER_KIND_CACHE_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days
+  private serverKindSubject = new BehaviorSubject<TerminologyServerKind>('other');
+
   public editionsDetails$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   public languages$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv']);
   public filteredLanguageMetadata$: BehaviorSubject<any> = new BehaviorSubject<any>({ contexts: [] });
@@ -99,6 +112,7 @@ export class TerminologyService {
   languageRefsetConcept$ = this.languageRefsetConceptSubject.asObservable();
   context$ = this.contextSubject.asObservable();
   editionName$ = this.editionNameSubject.asObservable();
+  serverKind$ = this.serverKindSubject.asObservable();
 
   /**
    * Emits `edition|language` whenever the selected edition or the computed
@@ -110,7 +124,8 @@ export class TerminologyService {
     this.fhirUrlParam$,
     this.lang$,
     this.languageRefsetConcept$,
-    this.context$
+    this.context$,
+    this.serverKind$
   ]).pipe(
     debounceTime(300),
     map(() => `${this.fhirUrlParam}|${this.getComputedLanguageContext()}`),
@@ -120,6 +135,7 @@ export class TerminologyService {
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) { 
     this.loadCache();
+    this.loadServerKindCache();
     this.loadLanguageMetadata();
   }
 
@@ -139,6 +155,12 @@ export class TerminologyService {
     this.snowstormFhirBase = url;
     this.snowstormFhirBaseSubject.next(url);
     this.languageRefsetConcept = null;
+    this.serverKindSubject.next(this.getServerKind(url));
+    this.detectServerKind(url).subscribe((kind) => {
+      if (this.snowstormFhirBase === url && this.serverKindSubject.value !== kind) {
+        this.serverKindSubject.next(kind);
+      }
+    });
   }
   
   setFhirUrlParam(url: string) {
@@ -251,13 +273,93 @@ export class TerminologyService {
     return effectiveLang;
   }
 
-  /** True when the configured FHIR base URL is an Ontoserver (different language refset format). */
+  /** True when the configured FHIR base is an Ontoserver (different language refset format). */
   private isOntoserver(): boolean {
-    return this.snowstormFhirBase.toLowerCase().includes('ontoserver');
+    return this.isOntoserverBase(this.snowstormFhirBase);
   }
 
   private isOntoserverBase(fhirBase: string): boolean {
-    return (fhirBase || '').toLowerCase().includes('ontoserver');
+    return this.getServerKind(fhirBase) === 'ontoserver';
+  }
+
+  /**
+   * Server kind for a FHIR base, synchronously: the detected kind once `/metadata`
+   * has been read, otherwise a guess from the URL until detection completes.
+   */
+  getServerKind(fhirBase: string = this.snowstormFhirBase): TerminologyServerKind {
+    const key = this.serverKindKey(fhirBase);
+    return this.serverKindCache.get(key)?.kind ?? this.guessServerKindFromUrl(key);
+  }
+
+  /**
+   * Detects the server kind from `CapabilityStatement.software.name`, cached per base
+   * (memory + localStorage) and deduplicated while in flight. Falls back to the URL
+   * guess, uncached, when the metadata cannot be read.
+   */
+  detectServerKind(fhirBase: string = this.snowstormFhirBase): Observable<TerminologyServerKind> {
+    const key = this.serverKindKey(fhirBase);
+    if (!key) return of('other');
+    const cached = this.serverKindCache.get(key);
+    if (cached) return of(cached.kind);
+    const inFlight = this.serverKindInFlight.get(key);
+    if (inFlight) return inFlight;
+
+    const headers = new HttpHeaders({ 'Accept': 'application/fhir+json' });
+    const request$ = this.http.get<any>(`${fhirBase.replace(/\/+$/, '')}/metadata?_summary=true`, { headers }).pipe(
+      timeout(10000),
+      map((statement) => {
+        const name = String(statement?.software?.name ?? '').toLowerCase();
+        if (!name) throw new Error('CapabilityStatement without software.name');
+        const kind: TerminologyServerKind = name.includes('ontoserver')
+          ? 'ontoserver'
+          : name.includes('snowstorm lite')
+            ? 'snowstorm-lite'
+            : name.includes('snowstorm')
+              ? 'snowstorm'
+              : 'other';
+        this.serverKindCache.set(key, { kind, timestamp: Date.now() });
+        this.saveServerKindCache();
+        return kind;
+      }),
+      catchError(() => of(this.guessServerKindFromUrl(key))),
+      finalize(() => this.serverKindInFlight.delete(key)),
+      shareReplay(1)
+    );
+    this.serverKindInFlight.set(key, request$);
+    return request$;
+  }
+
+  private serverKindKey(fhirBase: string): string {
+    return (fhirBase || '').trim().replace(/\/+$/, '').toLowerCase();
+  }
+
+  private guessServerKindFromUrl(fhirBase: string): TerminologyServerKind {
+    const url = (fhirBase || '').toLowerCase();
+    if (url.includes('ontoserver')) return 'ontoserver';
+    if (url.includes('snowstorm-lite')) return 'snowstorm-lite';
+    return 'other';
+  }
+
+  private loadServerKindCache(): void {
+    try {
+      const stored = JSON.parse(localStorage.getItem(this.SERVER_KIND_CACHE_KEY) || '{}');
+      const now = Date.now();
+      Object.entries(stored).forEach(([key, entry]: [string, any]) => {
+        if (entry?.kind && now - entry.timestamp < this.SERVER_KIND_CACHE_DURATION) {
+          this.serverKindCache.set(key, entry);
+        }
+      });
+    } catch {
+      // Storage unavailable or corrupt: detection simply runs again.
+    }
+  }
+
+  private saveServerKindCache(): void {
+    try {
+      localStorage.setItem(this.SERVER_KIND_CACHE_KEY, JSON.stringify(Object.fromEntries(this.serverKindCache)));
+    } catch {
+      // Storage unavailable: the in-memory cache still applies for this session.
+    }
   }
 
   /** Matches Snowstorm format e.g. en-X-900000000000509007 (lang-X-refsetCode). */
@@ -287,17 +389,20 @@ export class TerminologyService {
 
   getCodeSystems() {
     if (!this.snowstormFhirBase) return of({});
-    let requestUrl = `${this.snowstormFhirBase}/CodeSystem`;
-    if (this.isOntoserver()) {
-      requestUrl += `?system=http://snomed.info/sct`;
-    }
+    const fhirBase = this.snowstormFhirBase;
     const headers = new HttpHeaders({
       'Accept-Language': this.lang
     });
-    return this.http.get<any>(requestUrl, { headers })
-      .pipe(
-        catchError(this.handleError<any>('getCodeSystems', {}))
-      );
+    return this.detectServerKind(fhirBase).pipe(
+      concatMap((kind) => {
+        let requestUrl = `${fhirBase}/CodeSystem`;
+        if (kind === 'ontoserver') {
+          requestUrl += `?system=http://snomed.info/sct`;
+        }
+        return this.http.get<any>(requestUrl, { headers });
+      }),
+      catchError(this.handleError<any>('getCodeSystems', {}))
+    );
   }
 
   getCodeSystemsFromServer(fhirBase: string, editionUri?: string) {
@@ -384,7 +489,7 @@ export class TerminologyService {
       terms = '';
     }
     let langParam = this.getComputedLanguageContext();
-    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${terms}&displayLanguage=${langParam}`;
   }
 
   getDerivativesValueSetExpansionUrl(ecl: string, terms: string, offset?: number, count?:number) {
@@ -395,7 +500,7 @@ export class TerminologyService {
     }
     let langParam = this.getComputedLanguageContext();
     const derivativesUri = 'http://snomed.info/sct/705115006';
-    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${derivativesUri}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${terms}&language=${langParam}&displayLanguage=${langParam}`;
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${derivativesUri}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${terms}&displayLanguage=${langParam}`;
   }
 
   expandDerivativesValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
@@ -631,7 +736,7 @@ export class TerminologyService {
     // For LOINC SNOMED server, use simpler language parameter (just 'en' instead of language refset)
     const isLoincSnomedServer = fhirBase.includes('loincsnomed');
     const languageParam = isLoincSnomedServer ? 'en' : langParam;
-    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${encodeURIComponent(fhirUrl)}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${encodeURIComponent(terms)}&language=${languageParam}&displayLanguage=${languageParam}`;
+    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${encodeURIComponent(fhirUrl)}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${encodeURIComponent(terms)}&displayLanguage=${languageParam}`;
     const headers = new HttpHeaders({
       'Accept-Language': languageParam
     });

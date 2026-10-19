@@ -293,3 +293,77 @@ describe('TerminologyService translateInactiveSnomedReplacements', () => {
     expect(result).toEqual([]);
   });
 });
+
+describe('TerminologyService server kind detection', () => {
+  let service: TerminologyService;
+  let httpMock: HttpTestingController;
+  const base = 'https://tx.example.org/fhir';
+
+  beforeEach(() => {
+    localStorage.removeItem('terminologyServerKinds');
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        TerminologyService,
+        { provide: MatSnackBar, useValue: jasmine.createSpyObj('MatSnackBar', ['open', 'openFromComponent']) },
+      ],
+    });
+
+    service = TestBed.inject(TerminologyService);
+    httpMock = TestBed.inject(HttpTestingController);
+    httpMock.expectOne('assets/language/national-language-metadata.json').flush({ editions: [] });
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+    localStorage.removeItem('terminologyServerKinds');
+  });
+
+  it('detects Ontoserver from software.name and caches the result', () => {
+    const kinds: string[] = [];
+    service.detectServerKind(base).subscribe((kind) => kinds.push(kind));
+    service.detectServerKind(base + '/').subscribe((kind) => kinds.push(kind));
+
+    httpMock.expectOne(`${base}/metadata?_summary=true`).flush({ software: { name: 'Ontoserver®' } });
+    service.detectServerKind(base).subscribe((kind) => kinds.push(kind));
+
+    expect(kinds).toEqual(['ontoserver', 'ontoserver', 'ontoserver']);
+    expect(service.getServerKind(base)).toBe('ontoserver');
+    expect(JSON.parse(localStorage.getItem('terminologyServerKinds') || '{}')[base].kind).toBe('ontoserver');
+  });
+
+  it('distinguishes Snowstorm Lite from Snowstorm', () => {
+    let lite: string | undefined;
+    let full: string | undefined;
+    service.detectServerKind('https://a.example.org/fhir').subscribe((kind) => (lite = kind));
+    service.detectServerKind('https://b.example.org/fhir').subscribe((kind) => (full = kind));
+    httpMock.expectOne('https://a.example.org/fhir/metadata?_summary=true')
+      .flush({ software: { name: 'Snowstorm Lite FHIR Terminology Server' } });
+    httpMock.expectOne('https://b.example.org/fhir/metadata?_summary=true')
+      .flush({ software: { name: 'SnowstormX FHIR Server' } });
+
+    expect(lite).toBe('snowstorm-lite');
+    expect(full).toBe('snowstorm');
+  });
+
+  it('falls back to the URL guess without caching when metadata fails', () => {
+    const ontoBase = 'https://r4.ontoserver.example.org/fhir';
+    let kind: string | undefined;
+    service.detectServerKind(ontoBase).subscribe((k) => (kind = k));
+    httpMock.expectOne(`${ontoBase}/metadata?_summary=true`).flush('down', { status: 503, statusText: 'Unavailable' });
+
+    expect(kind).toBe('ontoserver');
+    service.detectServerKind(ontoBase).subscribe();
+    httpMock.expectOne(`${ontoBase}/metadata?_summary=true`).flush({ software: { name: 'Ontoserver®' } });
+  });
+
+  it('uses the Ontoserver language dialect format for a detected Ontoserver on any URL', () => {
+    service.setSnowstormFhirBase(base);
+    expect(service.getComputedLanguageContextForSelection('en', { code: '900000000000509007' })).toBe('en-X-900000000000509007');
+
+    httpMock.expectOne(`${base}/metadata?_summary=true`).flush({ software: { name: 'Ontoserver®' } });
+
+    expect(service.getComputedLanguageContextForSelection('en', { code: '900000000000509007' }))
+      .toBe('en-x-sctlang-90000000-00005090-07');
+  });
+});
