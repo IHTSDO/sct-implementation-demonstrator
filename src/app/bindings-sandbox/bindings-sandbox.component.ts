@@ -654,6 +654,8 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
         : null;
       binding.linkedOperator = linkedOperator.value ?? '<<';
       binding.eclTemplate = (eclTemplate.value || '').trim();
+      // Options offered when the source concept has no value for the attribute.
+      binding.linkedRange = this.selectedLinkedAttributeRange || undefined;
     } else if (this.needsAnswerExpansionSource(type.value)) {
       if (answerSource.value === 'valueset') {
         binding.ecl = '';

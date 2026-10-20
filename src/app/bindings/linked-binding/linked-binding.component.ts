@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { Observable, Subject, map, of, switchMap, takeUntil } from 'rxjs';
+import { Observable, Subject, catchError, map, of, switchMap, takeUntil } from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
 import {
   LinkedConcept,
@@ -12,6 +12,8 @@ interface LinkedState {
   binding?: any;
   renderType?: string;
   defaultValue?: LinkedConcept | null;
+  /** True when the options are the attribute's MRCM range because the source concept has no value. */
+  fromRange?: boolean;
   /** Changes on every resolution so the inner control is recreated with a fresh selection. */
   key: number;
 }
@@ -19,7 +21,8 @@ interface LinkedState {
 /**
  * Renders a binding whose answer options derive from the concept selected in another
  * field: the options are the resolved `eclTemplate`, and the default value is the
- * source concept's attribute value when there is exactly one.
+ * source concept's attribute value when there is exactly one. When the source concept
+ * has no value for the attribute, the options widen to the attribute's MRCM range.
  */
 @Component({
   selector: 'app-linked-binding',
@@ -77,6 +80,11 @@ export class LinkedBindingComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onSelection(value: any): void {
+    // The range autocomplete picks one concept; keep the multiple-select answer shape.
+    if (this.state.fromRange && this.binding?.type === 'Select (Multiple)') {
+      this.selectionChange.emit(value ? [value] : []);
+      return;
+    }
     this.selectionChange.emit(value);
   }
 
@@ -105,7 +113,7 @@ export class LinkedBindingComponent implements OnInit, OnChanges, OnDestroy {
     return this.terminologyService.getAttributeValues(code, attributeId).pipe(
       switchMap((values) => {
         if (!values.length) {
-          return of({ status: 'empty', key: this.nextKey++ } as LinkedState);
+          return this.resolveRangeState(code);
         }
         const ecl = resolveLinkedEcl(this.binding.eclTemplate, code);
         const resolvedBinding = { ...this.binding, ecl };
@@ -121,6 +129,50 @@ export class LinkedBindingComponent implements OnInit, OnChanges, OnDestroy {
           } as LinkedState))
         );
       })
+    );
+  }
+
+  /**
+   * Options for a source concept without the attribute: any value in the attribute's
+   * range, as the ECL builder offers. Uses the range stored with the binding, or reads
+   * it from the MRCM domain of the source concept for bindings saved without one.
+   */
+  private resolveRangeState(code: string): Observable<LinkedState> {
+    return this.getAttributeRange(code).pipe(
+      map((range) => {
+        if (!range) {
+          return { status: 'empty', key: this.nextKey++ } as LinkedState;
+        }
+        const resolvedBinding = {
+          ...this.binding,
+          ecl: range,
+          note: `${this.sourceConcept?.display || 'The linked concept'} has no ${this.attributeLabel}: search any value allowed by the concept model.`,
+        };
+        return {
+          status: 'ready',
+          binding: resolvedBinding,
+          // A range is usually too large for radios or a dropdown.
+          renderType: 'Autocomplete',
+          defaultValue: null,
+          fromRange: true,
+          key: this.nextKey++,
+        } as LinkedState;
+      })
+    );
+  }
+
+  private getAttributeRange(code: string): Observable<string> {
+    const stored = `${this.binding?.linkedRange || ''}`.trim();
+    if (stored) {
+      return of(stored);
+    }
+    const attributeId = this.binding?.linkedAttribute?.code;
+    return this.terminologyService.getDomainAttributes([code]).pipe(
+      map((items) => {
+        const attribute = items.find((item: any) => `${item?.conceptId}` === `${attributeId}`);
+        return `${attribute?.attributeRange?.[0]?.rangeConstraint || ''}`.trim();
+      }),
+      catchError(() => of(''))
     );
   }
 
