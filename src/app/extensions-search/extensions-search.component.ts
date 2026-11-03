@@ -179,7 +179,7 @@ export class ExtensionsSearchComponent implements OnInit, OnDestroy {
   }
 
   buildEclWithModule(userEcl: string, moduleId: string | null): string {
-    const base = (userEcl || '').trim();
+    const base = this.terminologyService.stripEclTermAnnotations((userEcl || '').trim());
     if (!base || !moduleId) return base;
     const wrappedBase = base.startsWith('(') && base.endsWith(')') ? base : `(${base})`;
     return wrappedBase + ' {{ C moduleId = ' + moduleId + ' }}';

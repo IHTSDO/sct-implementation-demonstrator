@@ -736,7 +736,8 @@ export class TerminologyService {
     // For LOINC SNOMED server, use simpler language parameter (just 'en' instead of language refset)
     const isLoincSnomedServer = fhirBase.includes('loincsnomed');
     const languageParam = isLoincSnomedServer ? 'en' : langParam;
-    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${encodeURIComponent(fhirUrl)}?fhir_vs=ecl/${encodeURIComponent(ecl)}&count=${count}&offset=${offset}&filter=${encodeURIComponent(terms)}&displayLanguage=${languageParam}`;
+    const eclForRequest = this.stripEclTermAnnotations(ecl);
+    let requestUrl = `${fhirBase}/ValueSet/$expand?url=${encodeURIComponent(fhirUrl)}?fhir_vs=ecl/${encodeURIComponent(eclForRequest)}&count=${count}&offset=${offset}&filter=${encodeURIComponent(terms)}&displayLanguage=${languageParam}`;
     const headers = new HttpHeaders({
       'Accept-Language': languageParam
     });

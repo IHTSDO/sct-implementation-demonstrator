@@ -367,3 +367,43 @@ describe('TerminologyService server kind detection', () => {
       .toBe('en-x-sctlang-90000000-00005090-07');
   });
 });
+
+describe('TerminologyService expandValueSetFromServer ECL', () => {
+  let service: TerminologyService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        TerminologyService,
+        { provide: MatSnackBar, useValue: jasmine.createSpyObj('MatSnackBar', ['open', 'openFromComponent']) },
+      ],
+    });
+
+    service = TestBed.inject(TerminologyService);
+    httpMock = TestBed.inject(HttpTestingController);
+
+    const metadataReq = httpMock.expectOne('assets/language/national-language-metadata.json');
+    metadataReq.flush({ editions: [] });
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('strips ECL term annotations from expandValueSetFromServer requests', () => {
+    const fhirUrl = 'http://snomed.info/sct/11000221109/version/20260820';
+    const ecl = '(<< 363680008 |Radiographic imaging procedure|) {{ C moduleId = 11000221109 }}';
+
+    service.expandValueSetFromServer('https://snomedbrowser.org/fhir', fhirUrl, ecl, '', 0, 50, 'en,es').subscribe();
+
+    const req = httpMock.expectOne((request) => request.url.includes('ValueSet/$expand'));
+    expect(req.request.url).toContain(
+      encodeURIComponent('(<< 363680008 ) {{ C moduleId = 11000221109 }}')
+    );
+    expect(req.request.url).not.toContain('%7C');
+
+    req.flush({ resourceType: 'ValueSet', expansion: { total: 0, contains: [] } });
+  });
+});
