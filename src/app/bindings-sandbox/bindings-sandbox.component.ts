@@ -3,7 +3,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormControl, FormGroup, FormGroupDirective, Validators } from '@angular/forms';
-import { EMPTY, Observable, Subject, catchError, concatMap, finalize, from, lastValueFrom, map, merge, switchMap, takeUntil, tap, timer } from 'rxjs';
+import { EMPTY, Observable, Subject, catchError, lastValueFrom, map, merge, switchMap, takeUntil, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { saveAs } from 'file-saver';
 import { EclBuilderDialogService } from '../bindings/ecl-builder/ecl-builder-dialog.service';
@@ -26,15 +26,7 @@ import {
 /** MRCM attribute offered when linking a field to another field's concept. */
 interface LinkedAttributeOption extends LinkedConcept {
   rangeConstraint?: string;
-  /** Whether concepts in the source field use the attribute; undefined until checked. */
-  used?: boolean;
 }
-
-/** Top-level hierarchies where checking attribute usage would mean scanning a huge set. */
-const BROAD_HIERARCHY_ROOTS = [
-  '138875005', '404684003', '71388002', '363787002', '243796009', '105590001',
-  '123037004', '373873005', '272379006', '410607006', '362981000', '78621006',
-];
 
 @Component({
   selector: 'app-bindings-sandbox',
@@ -191,9 +183,6 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
   linkedAttributesLoading = false;
   /** True when the concept model cannot be read for the source (no focus concept, ValueSet, server error). */
   linkedAttributesFallback = false;
-  linkedUsageChecking = false;
-  linkedUsageChecked = 0;
-  linkedUsageSkipped = false;
   attributeFallbackBinding = {
     title: 'Attribute',
     type: 'Autocomplete',
@@ -323,14 +312,6 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
     return !!a && !!b ? a.code === b.code : a === b;
   }
 
-  get usedLinkedAttributes(): LinkedAttributeOption[] {
-    return this.linkedAttributeOptions.filter((o) => o.used === true);
-  }
-
-  get otherLinkedAttributes(): LinkedAttributeOption[] {
-    return this.linkedAttributeOptions.filter((o) => o.used !== true);
-  }
-
   get selectedLinkedAttributeRange(): string {
     const code = this.newBindingForm.controls.linkedAttribute.value?.code;
     return this.linkedAttributeOptions.find((o) => o.code === code)?.rangeConstraint ?? '';
@@ -362,16 +343,13 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Loads the MRCM attributes for the source field's focus concepts, then checks one by
-   * one (paced, stopping at the first error) which ones its concepts actually use.
+   * Loads the MRCM attributes allowed for the source field's focus concepts (one request,
+   * cached per source).
    */
   private loadLinkedAttributes(source: any): Observable<unknown> {
     this.linkedAttributeOptions = [];
     this.linkedAttributesFallback = false;
     this.linkedAttributesLoading = false;
-    this.linkedUsageChecking = false;
-    this.linkedUsageChecked = 0;
-    this.linkedUsageSkipped = false;
     if (!source) {
       return EMPTY;
     }
@@ -400,35 +378,6 @@ export class BindingsSandboxComponent implements OnInit, OnDestroy {
         this.linkedAttributesFallback = true;
         this.linkedAttributesLoading = false;
         return EMPTY;
-      }),
-      switchMap(() => {
-        if (!this.linkedAttributeOptions.length) {
-          return EMPTY;
-        }
-        if (focusIds.some((id) => BROAD_HIERARCHY_ROOTS.includes(id))) {
-          this.linkedUsageSkipped = true;
-          return EMPTY;
-        }
-        this.linkedUsageChecking = true;
-        let requests = 0;
-        return from(this.linkedAttributeOptions).pipe(
-          concatMap((option) =>
-            timer(
-              this.terminologyService.getCachedAttributeUsage(source.ecl, option.code) !== undefined || requests++ === 0
-                ? 0
-                : this.terminologyService.requestPacingMs
-            ).pipe(
-              switchMap(() => this.terminologyService.isAttributeUsed(source.ecl, option.code)),
-              tap((used) => {
-                option.used = used;
-                this.linkedUsageChecked++;
-              })
-            )
-          ),
-          // Throttling or any other failure: stop checking, keep what is known.
-          catchError(() => EMPTY),
-          finalize(() => (this.linkedUsageChecking = false))
-        );
       })
     );
   }

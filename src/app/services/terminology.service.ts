@@ -1225,41 +1225,6 @@ export class TerminologyService {
     return request$;
   }
 
-  private attributeUsageCache = new Map<string, boolean>();
-
-  /**
-   * True when at least one concept matched by `ecl` has a value for `attributeId`
-   * (`(ecl) : attribute = *`, count 1). Errors propagate (no snackbar) so sequential
-   * callers can stop on throttling; only well-formed responses are cached.
-   */
-  /** Cached result of `isAttributeUsed`, or undefined when it still needs a request. */
-  getCachedAttributeUsage(ecl: string, attributeId: string): boolean | undefined {
-    return this.attributeUsageCache.get(`${this.fhirUrlParam}|${ecl}|${attributeId}`);
-  }
-
-  isAttributeUsed(ecl: string, attributeId: string): Observable<boolean> {
-    if (!ecl?.trim() || !attributeId) {
-      return of(false);
-    }
-    const cacheKey = `${this.fhirUrlParam}|${ecl}|${attributeId}`;
-    const cached = this.attributeUsageCache.get(cacheKey);
-    if (cached !== undefined) {
-      return of(cached);
-    }
-    const requestUrl = this.getValueSetExpansionUrl(`(${ecl}) : ${attributeId} = *`, '', 0, 1);
-    const headers = new HttpHeaders({ 'Accept-Language': this.getComputedLanguageContext() });
-    return this.http.get<any>(requestUrl, { headers }).pipe(
-      map((res: any) => {
-        const expansion = res?.expansion;
-        const used = ((expansion?.total ?? expansion?.contains?.length ?? 0) as number) > 0;
-        if (expansion) {
-          this.attributeUsageCache.set(cacheKey, used);
-        }
-        return used;
-      })
-    );
-  }
-
   addPostcoordinatedExpression(expression: string) {
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem/sct_11000003104_EXP`;
     const httpOptions = {

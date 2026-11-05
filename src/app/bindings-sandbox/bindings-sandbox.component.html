@@ -343,37 +343,18 @@
                       <mat-form-field class="input-field" subscriptSizing="dynamic">
                         <mat-label>Attribute</mat-label>
                         <mat-select formControlName="linkedAttribute" [compareWith]="compareConcepts">
-                          @if (usedLinkedAttributes.length) {
-                            <mat-optgroup label="Used in {{ bindingTitleById(newBindingForm.controls.linkedFrom.value) }}">
-                              @for (attribute of usedLinkedAttributes; track attribute.code) {
-                                <mat-option [value]="attribute">{{ attribute.display }}</mat-option>
-                              }
-                            </mat-optgroup>
-                          }
-                          @if (usedLinkedAttributes.length && otherLinkedAttributes.length) {
-                            <mat-optgroup label="Other attributes allowed by the concept model">
-                              @for (attribute of otherLinkedAttributes; track attribute.code) {
-                                <mat-option [value]="attribute">{{ attribute.display }}</mat-option>
-                              }
-                            </mat-optgroup>
-                          } @else if (!usedLinkedAttributes.length) {
-                            @for (attribute of linkedAttributeOptions; track attribute.code) {
-                              <mat-option [value]="attribute">{{ attribute.display }}</mat-option>
-                            }
+                          @for (attribute of linkedAttributeOptions; track attribute.code) {
+                            <mat-option [value]="attribute">{{ attribute.display }}</mat-option>
                           }
                         </mat-select>
-                        @if (linkedAttributesLoading || linkedUsageChecking) {
+                        @if (linkedAttributesLoading) {
                           <mat-spinner matSuffix diameter="20"></mat-spinner>
                         }
                         <mat-hint>
                           @if (linkedAttributesLoading) {
                             Reading the concept model…
-                          } @else if (linkedUsageChecking) {
-                            Checking which attributes are used ({{ linkedUsageChecked }}/{{ linkedAttributeOptions.length }})…
                           } @else if (selectedLinkedAttributeRange) {
                             Range: {{ selectedLinkedAttributeRange }}
-                          } @else if (linkedUsageSkipped) {
-                            Attributes allowed by the concept model for this hierarchy.
                           } @else {
                             Attributes allowed by the concept model for the linked field.
                           }
