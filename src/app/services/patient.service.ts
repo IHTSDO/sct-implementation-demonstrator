@@ -2646,7 +2646,7 @@ export class PatientService {
    * original coding of an imported concept that was adapted to this edition.
    */
   private buildConceptCodings(concept: ClinicalEntryConcept, display: string): SnomedCoding[] | undefined {
-    if (!concept.code) return undefined;
+    if (!concept.code) return concept.additionalCodings?.length ? concept.additionalCodings : undefined;
     return [this.buildSnomedCoding(concept.code, display, concept.version), ...(concept.additionalCodings ?? [])];
   }
 

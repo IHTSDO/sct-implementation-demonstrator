@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
 import { IPSReaderService } from './ips-reader.service';
 import { ProcessedPatientData } from './ips-interfaces';
-import { ClinicalEntryConcept, PatientService } from '../../services/patient.service';
+import { ClinicalEntryConcept, PatientService, SnomedCoding } from '../../services/patient.service';
 import {
   CodingAdaptation,
   ConceptAlternative,
@@ -1978,29 +1978,48 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   private toImportConcept(item: any, display: string): ClinicalEntryConcept {
     const source = this.getSourceSnomedCoding(item);
     const adaptation = this.getItemAdaptation(item);
+    // Codings other than the primary SNOMED CT one (e.g. ICD-10) are kept as received
+    const otherCodings = this.getOtherSourceCodings(item, source);
     if (!source || !adaptation?.applied) {
-      return { code: source?.code, display: source?.display || display, codeText: display, version: source?.version || null };
+      return { code: source?.code, display: source?.display || display, codeText: display, version: source?.version || null, additionalCodings: otherCodings };
     }
 
     if (adaptation.adaptation.reason === 'display-localized') {
-      return { code: source.code, display: adaptation.adaptation.localizedDisplay!, codeText: display };
+      return { code: source.code, display: adaptation.adaptation.localizedDisplay!, codeText: display, additionalCodings: otherCodings };
     }
 
     const alternative = this.getSelectedAlternative(adaptation);
     if (!alternative) {
-      return { code: source.code, display: source.display || display, codeText: display, version: source.version || null };
+      return { code: source.code, display: source.display || display, codeText: display, version: source.version || null, additionalCodings: otherCodings };
     }
     return {
       code: alternative.code,
       display: alternative.display,
       codeText: display,
-      additionalCodings: [{
-        system: source.system || SnomedCodingLocalizationService.SNOMED_SYSTEM,
-        ...(source.version ? { version: source.version } : {}),
-        code: source.code,
-        display: source.display
-      }]
+      additionalCodings: [
+        {
+          system: source.system || SnomedCodingLocalizationService.SNOMED_SYSTEM,
+          ...(source.version ? { version: source.version } : {}),
+          code: source.code,
+          display: source.display
+        },
+        ...otherCodings
+      ]
     };
+  }
+
+  /** Source codings of the item's concept, except the primary SNOMED CT coding. */
+  private getOtherSourceCodings(item: any, primary: any | null): SnomedCoding[] {
+    const concept = item.code ?? item.medicationCodeableConcept ?? item.vaccineCode;
+    const codings: any[] = Array.isArray(concept?.coding) ? concept.coding : [];
+    return codings
+      .filter((coding: any) => coding?.code && coding !== primary && !(primary && coding.code === primary.code && String(coding.system || '').startsWith('http://snomed.info/sct')))
+      .map((coding: any) => ({
+        system: coding.system,
+        ...(coding.version ? { version: coding.version } : {}),
+        code: coding.code,
+        ...(coding.display ? { display: coding.display } : {})
+      }));
   }
 
   private toClinicalEntryCondition(condition: any, patientId: string): any {
@@ -2056,9 +2075,14 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
         }
       }
 
+      // Keep the body sites recorded in the source and add the demo's computed location
+      const sourceBodySites = (Array.isArray(condition.bodySite) ? condition.bodySite : []).filter((site: any) =>
+        !(site?.coding ?? []).some((coding: any) => coding?.system === 'http://ehr-lab.demo/location')
+      );
       convertedConditions.push({
         ...this.toClinicalEntryCondition(condition, patientId),
         bodySite: [
+          ...sourceBodySites,
           {
             coding: [
               {
@@ -2077,7 +2101,10 @@ export class InteroperabilityComponent implements OnInit, OnDestroy {
   }
 
   private buildSelectedProcedures(patientId: string, selectedProceduresData: any[]): any[] {
-    return selectedProceduresData.map((procedure) => this.toClinicalEntryProcedure(procedure, patientId));
+    return selectedProceduresData.map((procedure) => ({
+      ...this.toClinicalEntryProcedure(procedure, patientId),
+      ...(Array.isArray(procedure.bodySite) && procedure.bodySite.length > 0 ? { bodySite: procedure.bodySite } : {})
+    }));
   }
 
   private buildSelectedMedications(patientId: string, selectedMedicationsData: any[]): any[] {
