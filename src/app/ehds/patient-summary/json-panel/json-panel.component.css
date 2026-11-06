@@ -1,0 +1,82 @@
+.json-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.json-header {
+  padding-bottom: 10px;
+  border-bottom: 3px solid #e3f2fd;
+}
+
+.json-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1565c0;
+}
+
+.json-subtitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.json-subtitle a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #1565c0;
+  text-decoration: none;
+}
+
+.json-subtitle a:hover {
+  text-decoration: underline;
+}
+
+.json-subtitle mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Dark code area, same palette as the Laboratory demo (atom-one-dark). */
+.json-output {
+  position: relative;
+  background-color: #282c34;
+  border-radius: 8px;
+}
+
+.json-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.json-actions button {
+  color: #abb2bf;
+}
+
+.json-output pre {
+  margin: 0;
+  padding: 20px;
+  max-height: 70vh;
+  overflow: auto;
+  background: transparent;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.json-empty {
+  margin: 0;
+  padding: 24px 20px;
+  color: #abb2bf;
+  font-size: 13px;
+}

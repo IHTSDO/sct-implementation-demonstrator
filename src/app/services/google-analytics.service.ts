@@ -28,7 +28,11 @@ export class GoogleAnalyticsService {
   // Most routes are automatically generated from the route itself
   private readonly routeMetadata: { [key: string]: RouteMetadata } = {
     '': { title: 'Home', category: 'Main' },
-    'home': { title: 'Home', category: 'Main' }
+    'home': { title: 'Home', category: 'Main' },
+    // EHDS demos are reached from /ehds and no longer have menu entries; keep the
+    // title and category their menu entries used to produce.
+    'ehds-patient-summary': { title: 'EHDS Patient Summary', category: 'clinicalDemo' },
+    'ehds-laboratory-demo': { title: 'EHDS Laboratory Report', category: 'clinicalDemo' }
   };
 
   constructor(

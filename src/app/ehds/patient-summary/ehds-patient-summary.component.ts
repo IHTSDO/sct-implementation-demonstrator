@@ -11,6 +11,10 @@ interface SectionState {
   entries: EpsEntry[];
   /** Free text for narrative sections. */
   narrative: string;
+  /** Whether the section card is flipped to its FHIR JSON view. */
+  showJson: boolean;
+  /** Pretty-printed FHIR JSON of the section, computed when flipping. */
+  json: string;
 }
 
 @Component({
@@ -28,10 +32,69 @@ export class EhdsPatientSummaryComponent implements OnInit {
 
   sections: SectionState[] = [];
 
+  /** Whether the sections area is flipped to the full Bundle JSON view. */
+  showBundle = false;
+  bundleJson = '';
+  readonly bundleProfileUrl = 'https://hl7.eu/fhir/eps/StructureDefinition-bundle-eu-eps.html';
+
   constructor(private fhir: EpsFhirService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
-    this.sections = EPS_SECTIONS.map((section) => ({ section, entries: [], narrative: '' }));
+    this.sections = EPS_SECTIONS.map((section) => ({
+      section,
+      entries: [],
+      narrative: '',
+      showJson: false,
+      json: '',
+    }));
+  }
+
+  private toSectionEntries(s: SectionState): EpsSectionEntries {
+    return { section: s.section, entries: s.entries, narrative: s.narrative };
+  }
+
+  toggleBundle(): void {
+    this.showBundle = !this.showBundle;
+    if (this.showBundle) this.refreshBundleJson();
+  }
+
+  toggleSectionJson(state: SectionState): void {
+    state.showJson = !state.showJson;
+    if (state.showJson) this.refreshSectionJson(state);
+  }
+
+  /** Keep any visible JSON in sync when the patient changes. */
+  onPatientChange(): void {
+    if (this.showBundle) this.refreshBundleJson();
+    this.sections.filter((s) => s.showJson).forEach((s) => this.refreshSectionJson(s));
+  }
+
+  private refreshBundleJson(): void {
+    const bundle = this.fhir.buildBundle(this.patient, this.sections.map((s) => this.toSectionEntries(s)));
+    this.bundleJson = JSON.stringify(bundle, null, 2);
+  }
+
+  /**
+   * Resource sections show the FHIR resources they contribute; narrative
+   * sections show their Composition.section (title, code and narrative text).
+   */
+  private refreshSectionJson(state: SectionState): void {
+    const built = this.fhir.buildSection(this.toSectionEntries(state), this.patient);
+    const content = state.section.kind === 'narrative' ? built.section : built.resources;
+    const hasContent = state.section.kind === 'narrative' ? !!built.section : built.resources.length > 0;
+    state.json = hasContent ? JSON.stringify(content, null, 2) : '';
+  }
+
+  sectionJsonTitle(state: SectionState): string {
+    return state.section.kind === 'narrative'
+      ? `${state.section.title} — Composition section`
+      : `${state.section.title} — FHIR ${state.section.resourceType} resources`;
+  }
+
+  sectionJsonEmpty(state: SectionState): string {
+    return state.section.kind === 'narrative'
+      ? 'Write the section narrative to see its Composition section.'
+      : `Add an entry to see its FHIR ${state.section.resourceType} resource.`;
   }
 
   /** Number of captured items: resource entries + narrative sections that have text. */
@@ -97,12 +160,7 @@ export class EhdsPatientSummaryComponent implements OnInit {
   }
 
   generateDocument(): void {
-    const sectionEntries: EpsSectionEntries[] = this.sections.map((s) => ({
-      section: s.section,
-      entries: s.entries,
-      narrative: s.narrative,
-    }));
-    const bundle = this.fhir.buildBundle(this.patient, sectionEntries);
+    const bundle = this.fhir.buildBundle(this.patient, this.sections.map((s) => this.toSectionEntries(s)));
     this.dialog.open(EpsDocumentDialogComponent, {
       data: { bundle, patient: this.patient, sections: this.sections },
       width: '900px',

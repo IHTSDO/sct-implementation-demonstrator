@@ -218,6 +218,17 @@
   margin-top: 12px;
 }
 
+/* Compact "See FHIR JSON" toggle on the section description line */
+.section-json-toggle {
+  --mdc-outlined-button-container-height: 32px;
+  --mat-outlined-button-container-height: 32px;
+  font-size: 13px;
+}
+
+.bundle-card {
+  border-radius: 10px;
+}
+
 .narrative-field {
   width: 100%;
 }

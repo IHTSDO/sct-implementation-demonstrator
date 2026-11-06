@@ -179,6 +179,33 @@ export class EpsFhirService {
     }
   }
 
+  /**
+   * Build one Composition section and the resources it contributes.
+   * `section` is undefined when nothing has been captured for it yet.
+   */
+  buildSection(se: EpsSectionEntries, patient: EpsPatient): { section?: any; resources: any[] } {
+    const code = { coding: [{ system: LOINC, code: se.section.loincCode, display: se.section.title }] };
+
+    // Narrative section: a single free-text block, no entry resources.
+    if (se.section.kind === 'narrative') {
+      const text = (se.narrative || '').trim();
+      if (!text) return { resources: [] };
+      return { section: { title: se.section.title, code, text: this.narrative(text) }, resources: [] };
+    }
+
+    const references: any[] = [];
+    const resources: any[] = [];
+    for (const entry of se.entries) {
+      const built = this.buildResource(se.section, entry, patient);
+      if (!built.length) continue;
+      // First resource is the one the section references; the rest are supporting.
+      references.push({ reference: `urn:uuid:${built[0].id}` });
+      resources.push(...built);
+    }
+    if (!references.length) return { resources: [] };
+    return { section: { title: se.section.title, code, entry: references }, resources };
+  }
+
   /** Assemble a full EPS document Bundle from the captured sections. */
   buildBundle(patient: EpsPatient, sectionEntries: EpsSectionEntries[]): any {
     const now = new Date().toISOString();
@@ -195,26 +222,10 @@ export class EpsFhirService {
     const sections: any[] = [];
 
     for (const se of sectionEntries) {
-      const code = { coding: [{ system: LOINC, code: se.section.loincCode, display: se.section.title }] };
-
-      // Narrative section: a single free-text block, no entry resources.
-      if (se.section.kind === 'narrative') {
-        const text = (se.narrative || '').trim();
-        if (!text) continue;
-        sections.push({ title: se.section.title, code, text: this.narrative(text) });
-        continue;
-      }
-
-      if (!se.entries.length) continue;
-      const references: any[] = [];
-      for (const entry of se.entries) {
-        const resources = this.buildResource(se.section, entry, patient);
-        if (!resources.length) continue;
-        // First resource is the one the section references; the rest are supporting.
-        references.push({ reference: `urn:uuid:${resources[0].id}` });
-        for (const res of resources) entryResources.push(res);
-      }
-      sections.push({ title: se.section.title, code, entry: references });
+      const built = this.buildSection(se, patient);
+      if (!built.section) continue;
+      sections.push(built.section);
+      entryResources.push(...built.resources);
     }
 
     const composition = {
@@ -226,7 +237,8 @@ export class EpsFhirService {
       subject: this.reference(patient),
       date: now,
       title: 'European Patient Summary',
-      section: sections,
+      // FHIR arrays must not be empty, so omit `section` until something is captured.
+      ...(sections.length ? { section: sections } : {}),
     };
 
     const bundleEntries = [

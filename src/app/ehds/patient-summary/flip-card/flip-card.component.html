@@ -1,0 +1,8 @@
+<div class="flip-card" [class.flipped]="flipped">
+  <div class="flip-card-front" [attr.aria-hidden]="flipped">
+    <ng-content select="[flipFront]"></ng-content>
+  </div>
+  <div class="flip-card-back" [attr.aria-hidden]="!flipped">
+    <ng-content select="[flipBack]"></ng-content>
+  </div>
+</div>

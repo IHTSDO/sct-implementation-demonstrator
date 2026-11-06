@@ -1,0 +1,48 @@
+/*
+ * Same flip technique as the Laboratory demo's diagnostic report card.
+ * Selectors use the child combinator (>) because flip cards nest (each section
+ * card lives inside the page-level Bundle card): a descendant selector on the
+ * outer card would also hide the inner card's sides.
+ */
+:host {
+  display: block;
+  perspective: 1600px;
+}
+
+.flip-card {
+  position: relative;
+  width: 100%;
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+}
+
+.flip-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card > .flip-card-front,
+.flip-card > .flip-card-back {
+  width: 100%;
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: visibility 0s linear 0.3s;
+}
+
+.flip-card > .flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* The visible side sets the card height; the hidden side is taken out of flow. */
+.flip-card:not(.flipped) > .flip-card-front,
+.flip-card.flipped > .flip-card-back {
+  position: relative;
+  transition: visibility 0s linear 0s;
+}
+
+.flip-card:not(.flipped) > .flip-card-back,
+.flip-card.flipped > .flip-card-front {
+  visibility: hidden;
+  pointer-events: none;
+}

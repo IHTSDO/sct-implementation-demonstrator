@@ -1,0 +1,28 @@
+<div class="json-panel">
+  <div class="json-header">
+    <h3>{{ title }}</h3>
+    <p class="json-subtitle" *ngIf="subtitle || profileUrl">
+      <span *ngIf="subtitle">{{ subtitle }}</span>
+      <a *ngIf="profileUrl" [href]="profileUrl" target="_blank" rel="noopener noreferrer">
+        <mat-icon>link</mat-icon>{{ profileLabel || 'Profile' }}
+      </a>
+    </p>
+  </div>
+
+  <div class="json-output">
+    <ng-container *ngIf="json; else empty">
+      <div class="json-actions">
+        <button type="button" mat-icon-button (click)="download()" matTooltip="Download FHIR JSON">
+          <mat-icon>cloud_download</mat-icon>
+        </button>
+        <button type="button" mat-icon-button (click)="copy()" matTooltip="Copy FHIR JSON">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <pre class="hljs"><code [innerHTML]="highlighted"></code></pre>
+    </ng-container>
+    <ng-template #empty>
+      <p class="json-empty">{{ emptyMessage }}</p>
+    </ng-template>
+  </div>
+</div>

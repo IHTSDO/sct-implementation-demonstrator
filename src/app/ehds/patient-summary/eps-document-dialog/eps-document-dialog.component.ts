@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { EpsPatient } from '../eps-fhir.service';
 import { EpsEntry } from '../eps-fhir.service';
 import { EpsSectionMeta } from '../spec/eps-sections.model';
+import { highlightJson } from '../eps-json.util';
 
 interface DialogData {
   bundle: any;
@@ -23,19 +24,7 @@ export class EpsDocumentDialogComponent {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData) {
     this.json = JSON.stringify(data.bundle, null, 2);
-    this.highlightedJson = this.highlight(this.json);
-  }
-
-  private highlight(code: string): string {
-    const hljs = (window as any).hljs;
-    if (hljs?.highlight) {
-      try {
-        return hljs.highlight(code, { language: 'json' }).value;
-      } catch {
-        /* fall through to escaped plain text */
-      }
-    }
-    return code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    this.highlightedJson = highlightJson(this.json);
   }
 
   get nonEmptySections() {
