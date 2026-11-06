@@ -29,7 +29,15 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         }
       ],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [
+        {
+          "model": "EHDSCondition",
+          "profile": "ConditionEuCore",
+          "pageUrl": "https://hl7.eu/fhir/base/map-ehdscondition.html"
+        }
+      ],
+      "unmapped": []
     },
     "fields": [
       {
@@ -96,7 +104,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
               "isSct": false
             }
           ]
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSCondition",
+            "element": "problem",
+            "path": "EHDSCondition.problem",
+            "relationship": "equivalent",
+            "fhirElement": "Condition.code",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdscondition.html",
+            "short": "Code identifying the condition, problem or diagnosis",
+            "cardinality": "1..1",
+            "binding": "preferred: ICD-10, SNOMED CT, ICD-O, Orphacode if rare disease is diagnosed"
+          }
+        ]
       },
       {
         "key": "clinicalStatus",
@@ -160,7 +181,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/condition-clinical",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-condition-clinical.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSCondition",
+            "element": "header.status",
+            "path": "EHDSCondition.header.status",
+            "relationship": "equivalent",
+            "fhirElement": "Condition.clinicalStatus",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdscondition.html",
+            "short": "Status of the condition/problem (e.g. active, resolved, inactive, etc)",
+            "cardinality": "1..1",
+            "binding": "preferred: HL7 Condition Clinical Status Codes"
+          }
+        ]
       },
       {
         "key": "severity",
@@ -209,7 +243,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/condition-severity",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-condition-severity.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSCondition",
+            "element": "severity",
+            "path": "EHDSCondition.severity",
+            "relationship": "equivalent",
+            "fhirElement": "Condition.severity",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdscondition.html",
+            "short": "A subjective assessment of the severity of the condition as evaluated by the clinician.",
+            "cardinality": "0..1",
+            "binding": "preferred: HL7 Condition/Diagnosis Severity; SNOMED CT"
+          }
+        ]
       },
       {
         "key": "onset",
@@ -237,7 +284,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
             "ele-1"
           ],
           "definitionUrl": "https://hl7.eu/fhir/eps/StructureDefinition-condition-obl-eu-eps-definitions.html#Condition.onset[x]"
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSCondition",
+            "element": "onsetDate",
+            "path": "EHDSCondition.onsetDate",
+            "relationship": "equivalent",
+            "fhirElement": "Condition.onsetDateTime",
+            "note": "Map to onsetDateTime in FHIR.",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdscondition.html",
+            "short": "Onset date of a problem/condition",
+            "cardinality": "0..1"
+          }
+        ]
       }
     ]
   },
@@ -264,7 +324,15 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         }
       ],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [
+        {
+          "model": "EHDSAllergyIntolerance",
+          "profile": "AllergyIntoleranceEuCore",
+          "pageUrl": "https://hl7.eu/fhir/base/map-ehdsallergyintolerance.html"
+        }
+      ],
+      "unmapped": []
     },
     "fields": [
       {
@@ -331,7 +399,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
               "isSct": false
             }
           ]
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSAllergyIntolerance",
+            "element": "agentOrAllergen",
+            "path": "EHDSAllergyIntolerance.agentOrAllergen",
+            "relationship": "equivalent",
+            "fhirElement": "AllergyIntolerance.code",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsallergyintolerance.html",
+            "short": "Code that identifies the allergy or intolerance",
+            "cardinality": "1..1",
+            "binding": "preferred: ATC, EMA SPOR SMS, SNOMED CT"
+          }
+        ]
       },
       {
         "key": "type",
@@ -375,7 +456,8 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/allergy-intolerance-type",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-allergy-intolerance-type.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": []
       },
       {
         "key": "clinicalStatus",
@@ -424,7 +506,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/allergyintolerance-clinical",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-allergyintolerance-clinical.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSAllergyIntolerance",
+            "element": "header.status",
+            "path": "EHDSAllergyIntolerance.header.status",
+            "relationship": "equivalent",
+            "fhirElement": "AllergyIntolerance.clinicalStatus",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsallergyintolerance.html",
+            "short": "Current status of the allergy or intolerance, for example, whether it is active, in remission, resolved, etc.",
+            "cardinality": "1..1",
+            "binding": "preferred: HL7 allergy intolerance status"
+          }
+        ]
       },
       {
         "key": "manifestation",
@@ -477,7 +572,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
               "isSct": true
             }
           ]
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSAllergyIntolerance",
+            "element": "reaction.manifestation",
+            "path": "EHDSAllergyIntolerance.reaction.manifestation",
+            "relationship": "equivalent",
+            "fhirElement": "AllergyIntolerance.reaction.manifestation",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsallergyintolerance.html",
+            "short": "Description of the clinical manifestation of the allergic reaction. Example: anaphylactic shock, angioedema. (the clinical manifestation also gives information about the severity of the observed reaction).",
+            "cardinality": "0..*",
+            "binding": "preferred: ICD-10, SNOMED CT"
+          }
+        ]
       },
       {
         "key": "reactionSeverity",
@@ -526,7 +634,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/reaction-event-severity",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-reaction-event-severity.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSAllergyIntolerance",
+            "element": "reaction.severity",
+            "path": "EHDSAllergyIntolerance.reaction.severity",
+            "relationship": "equivalent",
+            "fhirElement": "AllergyIntolerance.reaction.severity",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsallergyintolerance.html",
+            "short": "Severity of the clinical manifestation of the allergic reaction.",
+            "cardinality": "0..1",
+            "binding": "preferred: SNOMED CT, HL7 reaction event severity"
+          }
+        ]
       },
       {
         "key": "onset",
@@ -553,7 +674,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
             "ele-1"
           ],
           "definitionUrl": "https://hl7.eu/fhir/eps/StructureDefinition-allergyintolerance-obl-eu-eps-definitions.html#AllergyIntolerance.onset[x]"
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSAllergyIntolerance",
+            "element": "onsetDate",
+            "path": "EHDSAllergyIntolerance.onsetDate",
+            "relationship": "equivalent",
+            "fhirElement": "AllergyIntolerance.onset[x]",
+            "note": "FHIR supports multiple datatypes; here you have dateTime → map to onsetDateTime .",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsallergyintolerance.html",
+            "short": "When allergy or intolerance was identified",
+            "cardinality": "0..1"
+          }
+        ]
       }
     ]
   },
@@ -580,7 +714,30 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         }
       ],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [
+        {
+          "model": "EHDSMedicationUse",
+          "profile": "MedicationStatement",
+          "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsmedicationuse.html"
+        }
+      ],
+      "unmapped": [
+        {
+          "model": "EHDSMedicationUse",
+          "element": "header.author[x]",
+          "note": "If with author is intended the source of information, use the informationSource element."
+        },
+        {
+          "model": "EHDSMedicationUse",
+          "element": "header.date"
+        },
+        {
+          "model": "EHDSMedicationUse",
+          "element": "changeType",
+          "note": "No native element in MedicationStatement to record the change type ('added', 'removed', 'altered') within a medication summary; consider an extension if needed."
+        }
+      ]
     },
     "fields": [
       {
@@ -619,7 +776,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/medication-uv-ips",
           "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-medication-uv-ips.html",
           "isSct": true
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSMedicationUse",
+            "element": "medication",
+            "path": "EHDSMedicationUse.medication",
+            "relationship": "equivalent",
+            "fhirElement": "MedicationStatement.medication[x]",
+            "note": "In the model only the Reference to Medication .",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsmedicationuse.html",
+            "short": "Describes the medicinal product.",
+            "cardinality": "1..1"
+          }
+        ]
       },
       {
         "key": "status",
@@ -678,7 +848,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/medication-statement-status",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-medication-statement-status.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSMedicationUse",
+            "element": "header.status",
+            "path": "EHDSMedicationUse.header.status",
+            "relationship": "equivalent",
+            "fhirElement": "MedicationStatement.status",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsmedicationuse.html",
+            "short": "Status of the medication use statement (e.g. recorded)",
+            "cardinality": "1..1",
+            "binding": "preferred: HL7 MedicationStatement Status Codes"
+          }
+        ]
       },
       {
         "key": "effective",
@@ -703,7 +886,19 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
             "ele-1"
           ],
           "definitionUrl": "https://hl7.eu/fhir/eps/StructureDefinition-MedicationStatement-eu-eps-definitions.html#MedicationStatement.effective[x]"
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSMedicationUse",
+            "element": "periodOfUse",
+            "path": "EHDSMedicationUse.periodOfUse",
+            "relationship": "equivalent",
+            "fhirElement": "MedicationStatement.effectivePeriod",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsmedicationuse.html",
+            "short": "Period when the patient took, is taking or is expected to take the medication",
+            "cardinality": "0..1"
+          }
+        ]
       },
       {
         "key": "dosageText",
@@ -727,7 +922,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
             "ele-1"
           ],
           "definitionUrl": "https://hl7.eu/fhir/eps/StructureDefinition-MedicationStatement-eu-eps-definitions.html#MedicationStatement.dosage.text"
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSMedicationUse",
+            "element": "dosageInstructions",
+            "path": "EHDSMedicationUse.dosageInstructions",
+            "relationship": "equivalent",
+            "fhirElement": "MedicationStatement.dosage",
+            "viaParent": true,
+            "note": "Map each EHDSDosage row to a dosage element.",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsmedicationuse.html",
+            "short": "Details of how medication is/was taken or should be taken",
+            "cardinality": "1..1"
+          }
+        ]
       }
     ]
   },
@@ -754,7 +963,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         }
       ],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [
+        {
+          "model": "EHDSImmunisation",
+          "profile": "ImmunizationEuCore",
+          "pageUrl": "https://hl7.eu/fhir/base/map-ehdsimmunisation.html"
+        }
+      ],
+      "unmapped": [
+        {
+          "model": "EHDSImmunisation",
+          "element": "header.date"
+        }
+      ]
     },
     "fields": [
       {
@@ -823,7 +1045,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
               "isSct": true
             }
           ]
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSImmunisation",
+            "element": "vaccine",
+            "path": "EHDSImmunisation.vaccine",
+            "relationship": "equivalent",
+            "fhirElement": "Immunization.vaccineCode",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsimmunisation.html",
+            "short": "Type of immunisation, e.g. J07AM01 Tetanus toxoid; or 871803007 Hepatitis A and Hepatitis B virus antigens only vaccine product.",
+            "cardinality": "1..1",
+            "binding": "preferred: SNOMED CT, ATC"
+          }
+        ]
       },
       {
         "key": "status",
@@ -872,7 +1107,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/immunization-status",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-immunization-status.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSImmunisation",
+            "element": "header.status",
+            "path": "EHDSImmunisation.header.status",
+            "relationship": "equivalent",
+            "fhirElement": "Immunization.status",
+            "note": "Use statusReason in FHIR for \"not done\" reason when applicable.",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsimmunisation.html",
+            "short": "Status of the immunisation event (completed, not-done).",
+            "cardinality": "1..1"
+          }
+        ]
       },
       {
         "key": "occurrence",
@@ -897,7 +1145,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
             "ele-1"
           ],
           "definitionUrl": "https://hl7.eu/fhir/eps/StructureDefinition-immunization-obl-eu-eps-definitions.html#Immunization.occurrence[x]"
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSImmunisation",
+            "element": "administrationTime",
+            "path": "EHDSImmunisation.administrationTime",
+            "relationship": "equivalent",
+            "fhirElement": "Immunization.occurrence[x]",
+            "note": "Usually occurrenceDateTime .",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsimmunisation.html",
+            "short": "The date and optionally the exact time when the vaccination was administered.",
+            "cardinality": "1..1"
+          }
+        ]
       },
       {
         "key": "site",
@@ -933,7 +1194,8 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/immunization-site",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-immunization-site.html",
           "isSct": true
-        }
+        },
+        "ehdsMapping": []
       }
     ]
   },
@@ -960,7 +1222,15 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         }
       ],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [
+        {
+          "model": "EHDSProcedure",
+          "profile": "ProcedureEuCore",
+          "pageUrl": "https://hl7.eu/fhir/base/map-ehdsprocedure.html"
+        }
+      ],
+      "unmapped": []
     },
     "fields": [
       {
@@ -997,7 +1267,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/procedures-uv-ips",
           "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-procedures-uv-ips.html",
           "isSct": true
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSProcedure",
+            "element": "code",
+            "path": "EHDSProcedure.code",
+            "relationship": "equivalent",
+            "fhirElement": "Procedure.code",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsprocedure.html",
+            "short": "Concept code and display name identifying the type of procedure",
+            "cardinality": "1..1",
+            "binding": "preferred: SNOMED CT"
+          }
+        ]
       },
       {
         "key": "status",
@@ -1071,7 +1354,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/event-status",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-event-status.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSProcedure",
+            "element": "header.status",
+            "path": "EHDSProcedure.header.status",
+            "relationship": "equivalent",
+            "fhirElement": "Procedure.status",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsprocedure.html",
+            "short": "Status of the procedure (e.g. completed, on hold, stopped)",
+            "cardinality": "1..1",
+            "binding": "preferred: HL7 Event Status"
+          }
+        ]
       },
       {
         "key": "performed",
@@ -1099,7 +1395,19 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
             "ele-1"
           ],
           "definitionUrl": "https://hl7.eu/fhir/eps/StructureDefinition-procedure-eu-eps-definitions.html#Procedure.performed[x]"
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSProcedure",
+            "element": "procedureDate[x]",
+            "path": "EHDSProcedure.procedureDate[x]",
+            "relationship": "equivalent",
+            "fhirElement": "Procedure.performed[x]",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsprocedure.html",
+            "short": "Date and time of the procedure or interval of its performance",
+            "cardinality": "0..1"
+          }
+        ]
       },
       {
         "key": "bodySite",
@@ -1137,7 +1445,19 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/body-site",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-body-site.html",
           "isSct": true
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSProcedure",
+            "element": "bodySite",
+            "path": "EHDSProcedure.bodySite",
+            "relationship": "equivalent",
+            "fhirElement": "Procedure.bodySite",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsprocedure.html",
+            "short": "Target body site of the procedure. Laterality may be included as a qualifier of the body site.",
+            "cardinality": "0..*"
+          }
+        ]
       }
     ]
   },
@@ -1164,7 +1484,26 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         }
       ],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [
+        {
+          "model": "EHDSAlert",
+          "profile": "FlagPatientEuCore",
+          "pageUrl": "https://hl7.eu/fhir/base/map-ehdsalert.html"
+        }
+      ],
+      "unmapped": [
+        {
+          "model": "EHDSAlert",
+          "element": "header.date",
+          "note": "No direct native Flag element for authoring timestamp."
+        },
+        {
+          "model": "EHDSAlert",
+          "element": "header.source",
+          "note": "No direct native Flag element; consider extension if needed."
+        }
+      ]
     },
     "fields": [
       {
@@ -1202,7 +1541,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/flag-code",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-flag-code.html",
           "isSct": true
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSAlert",
+            "element": "code",
+            "path": "EHDSAlert.code",
+            "relationship": "equivalent",
+            "fhirElement": "Flag.code",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsalert.html",
+            "short": "A coded representation of the alert.",
+            "cardinality": "0..1",
+            "binding": "preferred: SNOMED CT"
+          }
+        ]
       },
       {
         "key": "category",
@@ -1266,7 +1618,8 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/flag-category",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-flag-category.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": []
       },
       {
         "key": "status",
@@ -1315,7 +1668,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/flag-status",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-flag-status.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSAlert",
+            "element": "header.status",
+            "path": "EHDSAlert.header.status",
+            "relationship": "equivalent",
+            "fhirElement": "Flag.status",
+            "pageUrl": "https://hl7.eu/fhir/base/map-ehdsalert.html",
+            "short": "Current status of the alert, indicates whether this alert is active and needs to be displayed to a user, or whether it is no longer needed or was entered in error.",
+            "cardinality": "1..1",
+            "binding": "preferred: hl7:Flag-status"
+          }
+        ]
       }
     ]
   },
@@ -1342,7 +1708,25 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         }
       ],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [
+        {
+          "model": "EHDSDeviceUse",
+          "profile": "DeviceUseStatementEuEps",
+          "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsdeviceuse.html"
+        },
+        {
+          "model": "EHDSDevice",
+          "profile": "DeviceEuEps",
+          "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsdevice.html"
+        }
+      ],
+      "unmapped": [
+        {
+          "model": "EHDSDeviceUse",
+          "element": "header.author[x]"
+        }
+      ]
     },
     "fields": [
       {
@@ -1396,7 +1780,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
               "isSct": true
             }
           ]
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSDevice",
+            "element": "type",
+            "path": "EHDSDevice.type",
+            "relationship": "equivalent",
+            "fhirElement": "Device.type",
+            "note": "Cardinality mismatch: the model element is 0..*, while Device.type in FHIR R4 is 0..1. Use multiple coding entries within the single type to express the same concept in different code systems, possibly at different levels of granularity.",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsdevice.html",
+            "short": "Device type",
+            "cardinality": "0..*",
+            "binding": "preferred: SNOMED CT, EMDN"
+          }
+        ]
       },
       {
         "key": "status",
@@ -1460,7 +1858,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/device-statement-status",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-device-statement-status.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSDeviceUse",
+            "element": "header.status",
+            "path": "EHDSDeviceUse.header.status",
+            "relationship": "equivalent",
+            "fhirElement": "DeviceUseStatement.status",
+            "note": "Preferred binding: HL7 Device Use Statement Status or HL7 Device Usage Status.",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsdeviceuse.html",
+            "short": "Current status of the device usage (e.g. active, completed, etc).",
+            "cardinality": "1..1",
+            "binding": "preferred: HL7 Device Use Statement Status or HL7 Device Usage Status"
+          }
+        ]
       },
       {
         "key": "timing",
@@ -1485,7 +1897,19 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
             "ele-1"
           ],
           "definitionUrl": "https://hl7.eu/fhir/eps/StructureDefinition-deviceUseStatement-eu-eps-definitions.html#DeviceUseStatement.timing[x]"
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSDeviceUse",
+            "element": "periodOfUse",
+            "path": "EHDSDeviceUse.periodOfUse",
+            "relationship": "equivalent",
+            "fhirElement": "DeviceUseStatement.timingPeriod",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsdeviceuse.html",
+            "short": "The period of time during which the device was implanted in the patient or the external device was in use.",
+            "cardinality": "0..1"
+          }
+        ]
       },
       {
         "key": "bodySite",
@@ -1521,7 +1945,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/body-site",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-body-site.html",
           "isSct": true
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSDeviceUse",
+            "element": "bodySite",
+            "path": "EHDSDeviceUse.bodySite",
+            "relationship": "related-to",
+            "fhirElement": "DeviceUseStatement.bodySite",
+            "note": "EHDSBodyStructure may need to be summarized as CodeableConcept.",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsdeviceuse.html",
+            "short": "Anatomical location of the device. May include laterality.",
+            "cardinality": "0..1"
+          }
+        ]
       }
     ]
   },
@@ -1548,7 +1985,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
         }
       ],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [
+        {
+          "model": "EHDSTravelHistory",
+          "profile": "ObservationTravelEuEps",
+          "pageUrl": "https://hl7.eu/fhir/eps/map-ehdstravelhistory.html"
+        }
+      ],
+      "unmapped": [
+        {
+          "model": "EHDSTravelHistory",
+          "element": "header.source",
+          "note": "No direct native Observation element; consider extension or use note to carry source information if needed."
+        }
+      ]
     },
     "fields": [
       {
@@ -1718,7 +2169,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/iso3166-1-2",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-iso3166-1-2.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSTravelHistory",
+            "element": "country",
+            "path": "EHDSTravelHistory.country",
+            "relationship": "equivalent",
+            "fhirElement": "Observation.valueCodeableConcept",
+            "note": "Preferred binding: ISO 3166-1-2.",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdstravelhistory.html",
+            "short": "Country visited",
+            "cardinality": "1..1",
+            "binding": "preferred: ISO 3166"
+          }
+        ]
       },
       {
         "key": "effective",
@@ -1745,7 +2210,19 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
             "ele-1"
           ],
           "definitionUrl": "https://hl7.eu/fhir/eps/StructureDefinition-observation-travel-eu-eps-definitions.html#Observation.effective[x]"
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSTravelHistory",
+            "element": "period",
+            "path": "EHDSTravelHistory.period",
+            "relationship": "equivalent",
+            "fhirElement": "Observation.effectivePeriod",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdstravelhistory.html",
+            "short": "Date of entry and departure",
+            "cardinality": "0..1"
+          }
+        ]
       },
       {
         "key": "status",
@@ -1799,7 +2276,20 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "valueSet": "http://hl7.org/fhir/ValueSet/observation-status",
           "pageUrl": "https://hl7.org/fhir/R4/valueset-observation-status.html",
           "isSct": false
-        }
+        },
+        "ehdsMapping": [
+          {
+            "model": "EHDSTravelHistory",
+            "element": "header.status",
+            "path": "EHDSTravelHistory.header.status",
+            "relationship": "equivalent",
+            "fhirElement": "Observation.status",
+            "note": "EHDS uses CodeableConcept; Observation.status is a required code. Align to HL7 ObservationStatus.",
+            "pageUrl": "https://hl7.eu/fhir/eps/map-ehdstravelhistory.html",
+            "short": "Status of the resource or document",
+            "cardinality": "1..1"
+          }
+        ]
       }
     ]
   },
@@ -1819,7 +2309,9 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
       "cardinality": "0..1",
       "entryModels": [],
       "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
-      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0",
+      "mappingPages": [],
+      "unmapped": []
     },
     "fields": []
   },

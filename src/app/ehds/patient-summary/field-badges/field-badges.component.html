@@ -1,4 +1,57 @@
 <div class="fhir-badges-container" *ngIf="field">
+  <!-- EHDS badge: the Xt-EHR model element this field realises (from the guides' mapping tables) -->
+  <ng-container *ngIf="field.ehdsMapping as mappings">
+    <button type="button" mat-button class="fhir-badge ehds-badge" [class.unmapped]="!mappings.length"
+            [matMenuTriggerFor]="ehdsMenu">
+      EHDS
+    </button>
+    <mat-menu #ehdsMenu="matMenu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
+      <div class="fhir-menu-content ehds-field-menu" (click)="$event.stopPropagation()">
+        <div class="fhir-menu-header">
+          <h4>{{ mappings.length ? mappings[0].path : 'Not in the EHDS model' }}</h4>
+        </div>
+
+        <p class="ehds-field-empty" *ngIf="!mappings.length">
+          No element of the Xt-EHR model maps to <code>{{ field.path }}</code>. The field comes from the
+          FHIR profile (EU Core / IPS) and is not an EHDS requirement.
+        </p>
+
+        <div class="ehds-mapping" *ngFor="let m of mappings; let first = first" [class.extra]="!first">
+          <h4 *ngIf="!first" class="ehds-mapping-path">{{ m.path }}</h4>
+          <div class="fhir-menu-body">
+            <div class="fhir-menu-item" *ngIf="m.short">
+              <span class="fhir-label">EHDS element:</span>
+              <span class="fhir-value">{{ m.short }}</span>
+            </div>
+            <div class="fhir-menu-item" *ngIf="m.cardinality">
+              <span class="fhir-label">Cardinality:</span>
+              <span class="fhir-value">{{ m.cardinality }} <span class="ehds-vs">(FHIR: {{ field.min }}..{{ field.max }})</span></span>
+            </div>
+            <div class="fhir-menu-item" *ngIf="m.binding">
+              <span class="fhir-label">EHDS binding:</span>
+              <span class="fhir-value">{{ m.binding }}</span>
+            </div>
+            <div class="fhir-menu-item">
+              <span class="fhir-label">Maps to:</span>
+              <span class="fhir-value">
+                <code>{{ m.fhirElement }}</code>
+                <span class="relationship-chip" [ngClass]="'rel-' + m.relationship">{{ relationshipLabel(m.relationship) }}</span>
+                <span *ngIf="m.viaParent" class="ehds-vs">(mapped at the parent element)</span>
+              </span>
+            </div>
+            <div class="fhir-menu-item" *ngIf="m.note">
+              <span class="fhir-label">Mapping note:</span>
+              <span class="fhir-value">{{ m.note }}</span>
+            </div>
+          </div>
+          <a class="ehds-mapping-link" [href]="m.pageUrl" target="_blank" rel="noopener noreferrer">
+            Mapping table in the guide<mat-icon>open_in_new</mat-icon>
+          </a>
+        </div>
+      </div>
+    </mat-menu>
+  </ng-container>
+
   <!-- Primary badge: always FHIR → shows the FHIR element definition popover (generated from the spec) -->
   <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="docMenu">
     FHIR

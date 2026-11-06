@@ -13,6 +13,8 @@
  *   node src/app/ehds/patient-summary/spec/generate-eps-sections.mjs
  *
  * Do not edit eps-sections.generated.ts by hand — edit the config and re-run.
+ * To refresh the vendored sources (EPS, value sets, Xt-EHR models, mapping
+ * tables), follow the runbook in ./README.md.
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -213,7 +215,7 @@ function loadXtehrModels() {
 }
 
 /** Resolve `EHDSPatientSummary.<section>` and its entry models from the Xt-EHR package. */
-function buildEhdsSection(sectionName, xtehr) {
+function buildEhdsSection(sectionName, xtehr, resources) {
   if (!sectionName) return null;
   const ps = xtehr.models.EHDSPatientSummary;
   if (!ps) throw new Error('xtehr-package is missing EHDSPatientSummary');
@@ -234,6 +236,19 @@ function buildEhdsSection(sectionName, xtehr) {
     }
   }
 
+  // Element-level mappings for the entry models and the EHDS models they use
+  // (e.g. EHDSDeviceUse → EHDSDevice), parsed from the guides' mapping tables.
+  const models = relatedModels(entryModels.map((m) => m.name), xtehr);
+  const pages = mappingPagesFor(models, resources);
+  const unmapped = [];
+  for (const page of pages) {
+    for (const row of page.rows) {
+      if (row.relationship !== 'no-map' || row.fhirVersion === 'R5') continue;
+      if (unmapped.some((u) => u.model === page.model && u.element === row.source)) continue;
+      unmapped.push({ model: page.model, element: row.source, ...(row.note ? { note: row.note } : {}) });
+    }
+  }
+
   return {
     path,
     title: (section.short || sectionName).replace(/^Section:\s*/, ''),
@@ -241,7 +256,106 @@ function buildEhdsSection(sectionName, xtehr) {
     entryModels,
     pageUrl: XTEHR_PAGE('EHDSPatientSummary'),
     sourcePackage: xtehr.pkg,
+    mappingPages: pages.map((p) => ({ model: p.model, profile: p.profile, pageUrl: p.pageUrl })),
+    unmapped,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Element-level EHDS → FHIR mappings (ehds-mappings.json, parsed from the
+// EPS / EU Base mapping tables by extract-ehds-mappings.mjs).
+// ---------------------------------------------------------------------------
+const mappingsFile = join(here, 'ehds-mappings.json');
+const ehdsMappings = existsSync(mappingsFile) ? JSON.parse(readFileSync(mappingsFile, 'utf8')) : { pages: [] };
+
+/** The given models plus every EHDS logical model their elements are typed with. */
+function relatedModels(names, xtehr) {
+  const out = new Set(names);
+  for (const name of names) {
+    for (const el of xtehr.models[name]?.differential?.element || []) {
+      for (const t of el.type || []) {
+        const ref = (t.code || '').split('/').pop();
+        if (ref.startsWith('EHDS') && ref !== 'EHDSDataSet') out.add(ref);
+      }
+    }
+  }
+  return [...out];
+}
+
+/**
+ * Mapping pages for the given models; an EPS-specific page wins over the EU
+ * Base one. Only pages that target one of the section's FHIR resources are
+ * kept, so a model merely referenced by the entry model (e.g. EHDSObservation
+ * from EHDSProcedure) does not leak into a section that never produces it.
+ */
+function mappingPagesFor(models, resources) {
+  const pages = [];
+  for (const model of models) {
+    const candidates = ehdsMappings.pages.filter((p) => p.model === model);
+    const eps = candidates.filter((p) => p.source === 'eps');
+    pages.push(...(eps.length ? eps : candidates));
+  }
+  return pages.filter((p) => p.rows.some((r) => resources.includes(r.resource)));
+}
+
+/** Does a mapping row's FHIR element point at this field? Handles choice types (onset[x] ↔ onsetDateTime). */
+function rowMatchesField(row, resource, fieldElement) {
+  if (row.resource !== resource || !row.element || row.fhirVersion === 'R5') return 'none';
+  const rowEl = row.element.replace(/\[x\]$/, '');
+  const base = fieldElement.replace(/\[x\]$/, '');
+  if (rowEl === base) return 'exact';
+  if (fieldElement.endsWith('[x]') && rowEl.startsWith(base) && /^[A-Z]/.test(rowEl.slice(base.length))) return 'exact';
+  // The model maps a parent element, e.g. dosageInstructions ↔ MedicationStatement.dosage for dosage.text.
+  if (base.startsWith(rowEl + '.')) return 'parent';
+  return 'none';
+}
+
+/** Short, cardinality and descriptive binding of a model element, read from the vendored Xt-EHR models. */
+function modelElementDetails(model, element, xtehr) {
+  const sd = xtehr.models[model];
+  if (!sd) return {};
+  const id = `${model}.${element}`;
+  const el = [...(sd.snapshot?.element || []), ...(sd.differential?.element || [])].find((e) => e.path === id);
+  if (!el) return {};
+  return {
+    ...(el.short ? { short: el.short } : {}),
+    ...(el.min !== undefined ? { cardinality: `${el.min}..${el.max}` } : {}),
+    ...(el.binding?.description ? { binding: `${el.binding.strength ? el.binding.strength + ': ' : ''}${el.binding.description}` } : {}),
+  };
+}
+
+/**
+ * EHDS mapping for one field: the model element(s) mapped onto it, or an
+ * empty array when the section's models have no element for it (a FHIR/IPS
+ * extra that the EHDS model does not require).
+ */
+function buildEhdsFieldMapping(fieldPath, ehdsSection, xtehr) {
+  if (!ehdsSection) return undefined;
+  const [resource, ...rest] = fieldPath.split('.');
+  const fieldElement = rest.join('.');
+  const pages = mappingPagesFor(relatedModels(ehdsSection.entryModels.map((m) => m.name), xtehr), [resource]);
+  const hits = [];
+  for (const level of ['exact', 'parent']) {
+    for (const page of pages) {
+      for (const row of page.rows) {
+        if (rowMatchesField(row, resource, fieldElement) !== level) continue;
+        if (row.source === 'header') continue;
+        hits.push({
+          model: page.model,
+          element: row.source,
+          path: `${page.model}.${row.source}`,
+          relationship: row.relationship,
+          fhirElement: `${row.resource}.${row.element}`,
+          ...(level === 'parent' ? { viaParent: true } : {}),
+          ...(row.note ? { note: row.note } : {}),
+          pageUrl: page.pageUrl,
+          ...modelElementDetails(page.model, row.source, xtehr),
+        });
+      }
+    }
+    if (hits.length) break;
+  }
+  return hits;
 }
 
 const HEADER = `/**
@@ -270,7 +384,10 @@ async function main() {
   }
 
   const sections = EPS_SECTIONS_CONFIG.map((section) => {
+    const resources = [...new Set(section.fields.map((f) => f.path.split('.')[0]))];
+    const ehds = buildEhdsSection(section.ehdsSection, xtehr, resources);
     const fields = section.fields.map((f) => {
+      const ehdsMapping = buildEhdsFieldMapping(f.path, ehds, xtehr);
       const root = f.path.split('.')[0];
       const index = byType[root] || byType[section.resourceType] || {};
       const profileFile = fileByType[root] || section.profileFile;
@@ -295,6 +412,7 @@ async function main() {
         ...(f.alignmentNote ? { alignmentNote: f.alignmentNote } : {}),
         doc,
         ...(bindingMeta ? { bindingMeta } : {}),
+        ...(ehdsMapping ? { ehdsMapping } : {}),
       };
     });
     return {
@@ -307,7 +425,7 @@ async function main() {
       profilePageUrl: `https://hl7.eu/fhir/eps/${section.profileFile}.html`,
       icon: section.icon,
       description: section.description,
-      ehds: buildEhdsSection(section.ehdsSection, xtehr),
+      ehds,
       fields,
     };
   });

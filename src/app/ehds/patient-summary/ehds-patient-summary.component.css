@@ -147,6 +147,40 @@
   color: #9e9e9e;
 }
 
+.ehds-unmapped {
+  margin-top: 10px;
+  padding: 6px 8px;
+  border-left: 3px solid #ef6c00;
+  border-radius: 4px;
+  background: #fff3e0;
+  font-size: 0.72rem;
+  color: #424242;
+}
+
+.ehds-unmapped strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #e65100;
+}
+
+.ehds-unmapped ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.ehds-unmapped span {
+  color: #757575;
+}
+
+.ehds-mapping-pages {
+  margin: 8px 0 0;
+  font-size: 0.72rem;
+  color: #616161;
+}
+
 .ehds-menu-source {
   margin: 8px 0 0;
   font-size: 0.65rem;

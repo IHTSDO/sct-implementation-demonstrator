@@ -110,7 +110,28 @@
                     <mat-icon>arrow_forward</mat-icon>
                     <span>SNOMED CT</span>
                   </div>
-                  <p class="ehds-menu-source">Source: {{ ehds.sourcePackage }}. The section link is curated; the guides publish no computable mapping.</p>
+                  @if (ehds.unmapped.length) {
+                    <div class="ehds-unmapped">
+                      <strong>Required by the EHDS model, no FHIR mapping</strong>
+                      <ul>
+                        @for (u of ehds.unmapped; track u.model + u.element) {
+                          <li><code>{{ u.model }}.{{ u.element }}</code>@if (u.note) { <span>— {{ u.note }}</span> }</li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                  @if (ehds.mappingPages.length) {
+                    <p class="ehds-mapping-pages">
+                      Mapping tables:
+                      @for (p of ehds.mappingPages; track p.pageUrl; let last = $last) {
+                        <a [href]="p.pageUrl" target="_blank" rel="noopener noreferrer">{{ p.model }} → {{ p.profile }}</a>@if (!last) {, }
+                      }
+                    </p>
+                  }
+                  <p class="ehds-menu-source">
+                    Source: {{ ehds.sourcePackage }}. The section link is curated; field mappings are parsed from the
+                    guides' mapping tables, which are published as pages, not as computable artefacts.
+                  </p>
                 } @else {
                   <h4>EHDS requirement</h4>
                   <p class="ehds-menu-lead">

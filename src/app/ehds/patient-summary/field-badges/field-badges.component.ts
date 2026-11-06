@@ -31,6 +31,24 @@ export class FieldBadgesComponent {
     return !!(this.field.bindingMeta?.additional?.length || this.field.alignmentNote);
   }
 
+  /** Readable label for a ConceptMap relationship code (source = EHDS model, target = FHIR). */
+  relationshipLabel(code: string): string {
+    switch (code) {
+      case 'equivalent':
+        return 'Equivalent';
+      case 'related-to':
+        return 'Related';
+      case 'source-is-broader-than-target':
+        return 'EHDS is broader';
+      case 'source-is-narrower-than-target':
+        return 'EHDS is narrower';
+      case 'no-map':
+        return 'No FHIR mapping';
+      default:
+        return code;
+    }
+  }
+
   /** Last segment of a value set canonical, e.g. `problems-uv-ips`. */
   valueSetName(canonical: string): string {
     return canonical.split('/').pop() || canonical;

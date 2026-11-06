@@ -1,0 +1,3631 @@
+{
+  "sources": [
+    {
+      "key": "eps",
+      "repo": "hl7-eu/eps",
+      "sha": "021bc32f96a3548edaf4cb693b14cdbb0822e536"
+    },
+    {
+      "key": "base",
+      "repo": "hl7-eu/base",
+      "sha": "68e4d3abe32ff9a642fb680f77f088ef224888c0"
+    }
+  ],
+  "pages": [
+    {
+      "model": "EHDSAdvanceDirective",
+      "profile": "ConsentEuEps",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsadvancedirective.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Consent",
+          "element": "",
+          "note": "Dataset-level; not carried as a single element in Consent."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Consent",
+          "element": "patient"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Consent",
+          "element": "identifier"
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "related-to",
+          "resource": "Consent",
+          "element": "performer"
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Consent",
+          "element": "dateTime"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Consent",
+          "element": "status",
+          "note": "Align to ConsentState."
+        },
+        {
+          "source": "header.source",
+          "relationship": "no-map",
+          "resource": "Consent",
+          "element": "",
+          "note": "No direct core element in Consent for information source provenance."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Consent",
+          "element": "language"
+        },
+        {
+          "source": "category",
+          "relationship": "equivalent",
+          "resource": "Consent",
+          "element": "category",
+          "note": "Preferred binding: SNOMED CT."
+        },
+        {
+          "source": "note",
+          "relationship": "related-to",
+          "resource": "Consent",
+          "element": "text"
+        },
+        {
+          "source": "attachment",
+          "relationship": "equivalent",
+          "resource": "Consent",
+          "element": "sourceAttachment",
+          "note": "May also be a DocumentReference in source[x]."
+        }
+      ]
+    },
+    {
+      "model": "EHDSAttachment",
+      "profile": "Attachment",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsattachment.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "contentType",
+          "relationship": "equivalent",
+          "resource": "Attachment",
+          "element": "contentType",
+          "note": "Preferred binding: BCP-13."
+        },
+        {
+          "source": "language",
+          "relationship": "equivalent",
+          "resource": "Attachment",
+          "element": "language",
+          "note": "Preferred binding: BCP-47."
+        },
+        {
+          "source": "data",
+          "relationship": "equivalent",
+          "resource": "Attachment",
+          "element": "data"
+        },
+        {
+          "source": "url",
+          "relationship": "equivalent",
+          "resource": "Attachment",
+          "element": "url"
+        },
+        {
+          "source": "size",
+          "relationship": "equivalent",
+          "resource": "Attachment",
+          "element": "size"
+        },
+        {
+          "source": "title",
+          "relationship": "equivalent",
+          "resource": "Attachment",
+          "element": "title"
+        }
+      ]
+    },
+    {
+      "model": "EHDSCarePlan",
+      "profile": "CarePlan",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdscareplan.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "CarePlan",
+          "element": "",
+          "note": "Dataset-level; not carried as a single element in CarePlan."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "identifier"
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "author"
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "created"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "status",
+          "note": "Preferred binding: HL7 Request status."
+        },
+        {
+          "source": "header.source",
+          "relationship": "source-is-narrower-than-target",
+          "resource": "CarePlan",
+          "element": "contributor",
+          "note": "Who provided the content of the care plan."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "language"
+        },
+        {
+          "source": "title",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "title"
+        },
+        {
+          "source": "description",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "description"
+        },
+        {
+          "source": "period",
+          "relationship": "equivalent",
+          "resource": "CarePlan",
+          "element": "period"
+        },
+        {
+          "source": "addresses[x]",
+          "relationship": "source-is-broader-than-target",
+          "resource": "CarePlan",
+          "element": "addresses",
+          "note": "CarePlan.addresses is Reference(Condition); CodeableConcept may need a referenced Condition."
+        },
+        {
+          "source": "activity[x]",
+          "relationship": "related-to",
+          "resource": "CarePlan",
+          "element": "activity.reference",
+          "note": "When EHDS activity is a CodeableConcept the code is determined by the referred resource. activity.detail is discouraged and no longer present in FHIR R5"
+        },
+        {
+          "source": "goal",
+          "relationship": "source-is-broader-than-target",
+          "resource": "CarePlan",
+          "element": "goal",
+          "note": "CarePlan.goal is Reference(Goal); CodeableConcept may need a Goal resource."
+        }
+      ]
+    },
+    {
+      "model": "EHDSCurrentPregnancy",
+      "profile": "Pregnancy Observations",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdscurrentpregnancy.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Observation as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "identifier"
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "performer",
+          "note": "Observation lacks a dedicated author participant. Usually, the performer is also the author; however in case the two participants shall be clearly distinguished, the PerformerFunction extension can be used for this purpose."
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "issued"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "status"
+        },
+        {
+          "source": "header.source",
+          "relationship": "no-map",
+          "resource": "Observation",
+          "element": "",
+          "note": "No direct native Observation element; consider extension or use note to carry source information if needed."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "language"
+        },
+        {
+          "source": "currentPregnancyStatus",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "valueCodeableConcept"
+        },
+        {
+          "source": "dateOfStatus",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "effectiveDateTime"
+        },
+        {
+          "source": "expectedDateOfDelivery",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "valueDateTime",
+          "note": "Represented as a separate EDD observation (linked via hasMember)."
+        },
+        {
+          "source": "gestationalAge",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "valueQuantity",
+          "note": "Represented as a separate gestational age observation."
+        },
+        {
+          "source": "note",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "note.text"
+        }
+      ]
+    },
+    {
+      "model": "EHDSDevice",
+      "profile": "DeviceEuEps",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsdevice.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "instanceIdentifier",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "identifier",
+          "note": "Repeat for multiple instance identifiers."
+        },
+        {
+          "source": "udi",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "udiCarrier",
+          "note": "Repeat for multiple UDI carrier identifiers when present."
+        },
+        {
+          "source": "manufacturer",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "manufacturer"
+        },
+        {
+          "source": "manufactureDate",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "manufactureDate"
+        },
+        {
+          "source": "expiryDate",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "expirationDate"
+        },
+        {
+          "source": "lotNumber",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "lotNumber"
+        },
+        {
+          "source": "serialNumber",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "serialNumber"
+        },
+        {
+          "source": "name",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "deviceName"
+        },
+        {
+          "source": "name.value",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "deviceName.name"
+        },
+        {
+          "source": "name.type",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "deviceName.type"
+        },
+        {
+          "source": "modelNumber",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "modelNumber"
+        },
+        {
+          "source": "version",
+          "relationship": "related-to",
+          "resource": "Device",
+          "element": "version.value",
+          "note": "Repeat for multiple versions."
+        },
+        {
+          "source": "type",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "type",
+          "note": "Cardinality mismatch: the model element is 0..*, while Device.type in FHIR R4 is 0..1. Use multiple coding entries within the single type to express the same concept in different code systems, possibly at different levels of granularity."
+        },
+        {
+          "source": "note",
+          "relationship": "equivalent",
+          "resource": "Device",
+          "element": "note"
+        }
+      ]
+    },
+    {
+      "model": "EHDSDeviceUse",
+      "profile": "DeviceUseStatementEuEps",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsdeviceuse.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "DeviceUseStatement",
+          "element": "",
+          "note": "Dataset-level; not usually carried in DeviceUseStatement as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "DeviceUseStatement",
+          "element": "subject",
+          "note": "Reference to Patient (or other subject)."
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "DeviceUseStatement",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "no-map",
+          "resource": "DeviceUseStatement",
+          "element": ""
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "DeviceUseStatement",
+          "element": "recordedOn"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "DeviceUseStatement",
+          "element": "status",
+          "note": "Preferred binding: HL7 Device Use Statement Status or HL7 Device Usage Status."
+        },
+        {
+          "source": "header.source",
+          "relationship": "related-to",
+          "resource": "DeviceUseStatement",
+          "element": "source",
+          "note": "When both header.author[x] and header.source are populated, additional profiling may be needed to preserve both semantics."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "DeviceUseStatement",
+          "element": "language"
+        },
+        {
+          "source": "periodOfUse",
+          "relationship": "equivalent",
+          "resource": "DeviceUseStatement",
+          "element": "timingPeriod"
+        },
+        {
+          "source": "device[x]",
+          "relationship": "source-is-broader-than-target",
+          "resource": "DeviceUseStatement",
+          "element": "device",
+          "note": "FHIR uses Reference(Device); CodeableConcept may require a Device instance."
+        },
+        {
+          "source": "bodySite",
+          "relationship": "related-to",
+          "resource": "DeviceUseStatement",
+          "element": "bodySite",
+          "note": "EHDSBodyStructure may need to be summarized as CodeableConcept."
+        },
+        {
+          "source": "reason[x]",
+          "relationship": "source-is-broader-than-target",
+          "resource": "DeviceUseStatement",
+          "element": "reasonCode",
+          "note": "FHIR uses CodeableConcept; references may need to be represented as codes or extensions."
+        },
+        {
+          "source": "note",
+          "relationship": "equivalent",
+          "resource": "DeviceUseStatement",
+          "element": "note"
+        }
+      ]
+    },
+    {
+      "model": "EHDSLaboratoryObservation",
+      "profile": "MedicalTestResultEuCore",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdslaboratoryobservation.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Observation as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "subject",
+          "note": "Reference to Patient (or other allowed subject types)."
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "performer",
+          "note": "Observation lacks a dedicated author participant. Usually, the performer is also the author; however in case the two participants shall be clearly distinguished, the PerformerFunction extension can be used for this purpose."
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "issued"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "status",
+          "note": "EHDS uses CodeableConcept; Observation.status is a required code. Align to HL7 ObservationStatus."
+        },
+        {
+          "source": "header.source",
+          "relationship": "no-map",
+          "resource": "Observation",
+          "element": "",
+          "note": "No direct native Observation element; consider extension or use note to carry source information if needed."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "language"
+        },
+        {
+          "source": "header.directSubject[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "focus"
+        },
+        {
+          "source": "observationDate[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "effective[x]",
+          "note": "Map to effectiveDateTime or effectivePeriod ."
+        },
+        {
+          "source": "type",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "code"
+        },
+        {
+          "source": "originalName",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "code.text"
+        },
+        {
+          "source": "method",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "method"
+        },
+        {
+          "source": "specimen",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "specimen"
+        },
+        {
+          "source": "order",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "basedOn"
+        },
+        {
+          "source": "performer[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "performer",
+          "note": "Supports Practitioner, PractitionerRole, Patient, RelatedPerson."
+        },
+        {
+          "source": "bodySite",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Observation",
+          "element": "bodySite"
+        },
+        {
+          "source": "bodySite",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Observation",
+          "element": "extension[bodyStructure]",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "bodySite",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "bodyStructure",
+          "fhirVersion": "R5"
+        },
+        {
+          "source": "result",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": ""
+        },
+        {
+          "source": "result.value[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "value[x]"
+        },
+        {
+          "source": "result.uncertainty",
+          "relationship": "related-to",
+          "resource": "Quantity",
+          "element": "extension",
+          "note": "See included elements for mapping details"
+        },
+        {
+          "source": "result.uncertainty.value",
+          "relationship": "equivalent",
+          "resource": "Quantity",
+          "element": "extension:uncertainty",
+          "note": "http://hl7.org/fhir/StructureDefinition/iso21090-uncertainty extension for the Quantity data type."
+        },
+        {
+          "source": "result.uncertainty.type",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "extension:uncertaintyType",
+          "note": "http://hl7.org/fhir/StructureDefinition/iso21090-uncertaintyType extension for the Quantity data type."
+        },
+        {
+          "source": "result.dataAbsentReason",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "dataAbsentReason"
+        },
+        {
+          "source": "referenceRange",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "referenceRange"
+        },
+        {
+          "source": "interpretation",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "interpretation"
+        },
+        {
+          "source": "note",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Observation",
+          "element": "note"
+        },
+        {
+          "source": "component",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component"
+        },
+        {
+          "source": "component.type",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.code"
+        },
+        {
+          "source": "component.originalName",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.code.text"
+        },
+        {
+          "source": "component.result",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "component"
+        },
+        {
+          "source": "component.result.value[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.value[x]"
+        },
+        {
+          "source": "component.result.uncertainty",
+          "relationship": "related-to",
+          "resource": "Quantity",
+          "element": "extension",
+          "note": "See included elements for mapping details"
+        },
+        {
+          "source": "component.result.uncertainty.value",
+          "relationship": "equivalent",
+          "resource": "Quantity",
+          "element": "extension:uncertainty",
+          "note": "http://hl7.org/fhir/StructureDefinition/iso21090-uncertainty extension for the Quantity data type."
+        },
+        {
+          "source": "component.result.uncertainty.type",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "extension:uncertaintyType",
+          "note": "http://hl7.org/fhir/StructureDefinition/iso21090-uncertaintyType extension for the Quantity data type."
+        },
+        {
+          "source": "component.result.dataAbsentReason",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.dataAbsentReason"
+        },
+        {
+          "source": "component.referenceRange",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.referenceRange"
+        },
+        {
+          "source": "component.interpretation",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.interpretation"
+        },
+        {
+          "source": "derivedFrom[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "derivedFrom",
+          "note": "Supports references to Observation, ImagingStudy, DiagnosticReport, etc."
+        },
+        {
+          "source": "hasMember[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "hasMember"
+        },
+        {
+          "source": "triggeredBy[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "extension:triggeredBy"
+        },
+        {
+          "source": "testKit",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "extension:labTestKit"
+        },
+        {
+          "source": "calibrator",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "extension:certifiedRefMaterialCodeable"
+        },
+        {
+          "source": "calibrator",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "extension:certifiedRefMaterialIdentifier"
+        },
+        {
+          "source": "accreditationStatus",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "extension:accredited",
+          "note": "Laboratory Accredited extension (boolean), defined in the HL7 Europe Extensions IG."
+        },
+        {
+          "source": "previousResults",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "extension:supportingInfo"
+        },
+        {
+          "source": "pointOfCareTest",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "category"
+        }
+      ]
+    },
+    {
+      "model": "EHDSMedicationUse",
+      "profile": "MedicationStatement",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdsmedicationuse.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "MedicationStatement",
+          "element": "",
+          "note": "Dataset-level; not usually carried in MedicationStatement as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "subject",
+          "note": "Reference to Patient."
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "no-map",
+          "resource": "MedicationStatement",
+          "element": "",
+          "note": "If with author is intended the source of information, use the informationSource element."
+        },
+        {
+          "source": "header.date",
+          "relationship": "no-map",
+          "resource": "MedicationStatement",
+          "element": "dateAsserted"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "status"
+        },
+        {
+          "source": "header.source",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "informationSource"
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "language"
+        },
+        {
+          "source": "treatmentStatus",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "extension:adherence-code",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "treatmentStatus",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "adherence.code",
+          "fhirVersion": "R5"
+        },
+        {
+          "source": "changeType",
+          "relationship": "no-map",
+          "resource": "MedicationStatement",
+          "element": "",
+          "note": "No native element in MedicationStatement to record the change type ('added', 'removed', 'altered') within a medication summary; consider an extension if needed."
+        },
+        {
+          "source": "medication",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "medication[x]",
+          "fhirVersion": "R4",
+          "note": "In the model only the Reference to Medication ."
+        },
+        {
+          "source": "medication",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "medication",
+          "fhirVersion": "R5",
+          "note": "In the model only the Reference to Medication ."
+        },
+        {
+          "source": "reason[x]",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "reasonCode",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "reason[x]",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "reason.concept",
+          "fhirVersion": "R5"
+        },
+        {
+          "source": "dosageInstructions",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "dosage",
+          "note": "Map each EHDSDosage row to a dosage element."
+        },
+        {
+          "source": "periodOfUse",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "effectivePeriod"
+        },
+        {
+          "source": "derivedFrom[x]",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "derivedFrom"
+        },
+        {
+          "source": "note",
+          "relationship": "source-is-broader-than-target",
+          "resource": "MedicationStatement",
+          "element": "note.text"
+        }
+      ]
+    },
+    {
+      "model": "EHDSPatientSummary",
+      "profile": "Composition (EPS)",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdspatientsummary.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": ""
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "identifier"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Bundle",
+          "element": "identifier",
+          "note": "Represents a specific rendition/version of the document."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "author"
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "date"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "status"
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "language"
+        },
+        {
+          "source": "header.documentType",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "type"
+        },
+        {
+          "source": "header.documentTitle",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "title"
+        },
+        {
+          "source": "header.period",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "event.period",
+          "note": "Map to the primary Composition.event entry."
+        },
+        {
+          "source": "header.version",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "extension:version"
+        },
+        {
+          "source": "header.attestation",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "attester"
+        },
+        {
+          "source": "header.attestation.attester[x]",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "attester.party"
+        },
+        {
+          "source": "header.attestation.datetime",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "attester.time"
+        },
+        {
+          "source": "header.legalAuthentication",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "attester"
+        },
+        {
+          "source": "header.legalAuthentication.legalAuthenticator[x]",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "attester.party"
+        },
+        {
+          "source": "header.legalAuthentication.datetime",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "attester.time"
+        },
+        {
+          "source": "header.eventType",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "category",
+          "note": "The mapping proposed reflects a possible interpretation of this element as classification of the document; DocumentReference.category should be used if used for filtering document searches. If instead it represents the type of event that occurred, event.code for 〔R4〕 and event.detail.concept for〔R5〕."
+        },
+        {
+          "source": "header.serviceSpecialty",
+          "relationship": "source-is-narrower-than-target",
+          "resource": "Composition",
+          "element": "category",
+          "note": "Do not apply to Patient Summary."
+        },
+        {
+          "source": "header.custodian",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "custodian"
+        },
+        {
+          "source": "presentedForm",
+          "relationship": "no-map",
+          "resource": "Composition",
+          "element": ""
+        },
+        {
+          "source": "alerts",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAlerts",
+          "note": "Use LOINC 104605-1"
+        },
+        {
+          "source": "alerts.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAlerts.text"
+        },
+        {
+          "source": "alerts.medicalAlert",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAlerts.entry:flag",
+          "note": "Reference to FlagPatientEuCore."
+        },
+        {
+          "source": "alerts.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionAlerts.text"
+        },
+        {
+          "source": "allergiesAndIntolerances",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAllergies",
+          "note": "Mandatory slice in CompositionEuEps."
+        },
+        {
+          "source": "allergiesAndIntolerances.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAllergies.text"
+        },
+        {
+          "source": "allergiesAndIntolerances.allergyIntolerance",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAllergies.entry:allergyOrIntolerance",
+          "note": "Reference to AllergyIntoleranceEuCore."
+        },
+        {
+          "source": "allergiesAndIntolerances.emptyReason",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAllergies.emptyReason"
+        },
+        {
+          "source": "allergiesAndIntolerances.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionAllergies.text"
+        },
+        {
+          "source": "problems",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionProblems",
+          "note": "Use LOINC 11450-4"
+        },
+        {
+          "source": "problems.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionProblems.text"
+        },
+        {
+          "source": "problems.emptyReason",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionProblems.emptyReason"
+        },
+        {
+          "source": "problems.problem",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionProblems.entry:problem",
+          "note": "Reference to ConditionEuCore."
+        },
+        {
+          "source": "problems.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionProblems.text"
+        },
+        {
+          "source": "medicationSummary",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionMedications",
+          "note": "Use LOINC 10160-0"
+        },
+        {
+          "source": "medicationSummary.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionMedications.text"
+        },
+        {
+          "source": "medicationSummary.emptyReason",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionMedications.emptyReason"
+        },
+        {
+          "source": "medicationSummary.medicationUse",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionMedications.entry:medicationStatementOrRequest",
+          "note": "Reference to MedicationStatementEuEps."
+        },
+        {
+          "source": "medicationSummary.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionMedications.text"
+        },
+        {
+          "source": "medicalDevicesAndImplants",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionMedicalDevices",
+          "note": "Use LOINC 46264-8"
+        },
+        {
+          "source": "medicalDevicesAndImplants.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "medicalDevicesAndImplants.emptyReason",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.emptyReason"
+        },
+        {
+          "source": "medicalDevicesAndImplants.deviceUse",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionMedicalDevices.entry:deviceStatement",
+          "note": "Reference to DeviceUseStatementEuEps."
+        },
+        {
+          "source": "medicalDevicesAndImplants.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionMedicalDevices.text"
+        },
+        {
+          "source": "procedures",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionProceduresHx",
+          "note": "Use LOINC 47519-4"
+        },
+        {
+          "source": "procedures.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "procedures.emptyReason",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.emptyReason"
+        },
+        {
+          "source": "procedures.procedure",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionProceduresHx.entry:procedure",
+          "note": "Reference to ProcedureEuCore."
+        },
+        {
+          "source": "procedures.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionProceduresHx.text"
+        },
+        {
+          "source": "immunisations",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionImmunizations",
+          "note": "Use LOINC 11369-6"
+        },
+        {
+          "source": "immunisations.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "immunisations.immunisation",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionImmunizations.entry:immunization",
+          "note": "Reference to ImmunizationEuCore."
+        },
+        {
+          "source": "immunisations.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionImmunizations.text"
+        },
+        {
+          "source": "functionalStatus",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionFunctionalStatus",
+          "note": "Use LOINC 47420-5"
+        },
+        {
+          "source": "functionalStatus.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "functionalStatus.condition",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionFunctionalStatus.entry",
+          "note": "Target slice/profile alignment may need clarification."
+        },
+        {
+          "source": "functionalStatus.assessment",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionFunctionalStatus.entry:functionalStatus",
+          "note": "The actual content would map better into an Observation profile, not it is not allowed in this section"
+        },
+        {
+          "source": "functionalStatus.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionFunctionalStatus.text"
+        },
+        {
+          "source": "socialHistory",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionSocialHistory",
+          "note": "Use LOINC 29762-2"
+        },
+        {
+          "source": "socialHistory.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "socialHistory.observation",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionSocialHistory.entry"
+        },
+        {
+          "source": "socialHistory.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionSocialHistory.text"
+        },
+        {
+          "source": "pregnancyHistory",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionPregnancyHx",
+          "note": "Use LOINC 10162-6"
+        },
+        {
+          "source": "pregnancyHistory.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "pregnancyHistory.currentPregnancyStatus",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionPregnancyHx.entry:pregnancyStatus"
+        },
+        {
+          "source": "pregnancyHistory.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionPregnancyHx.text",
+          "note": "Narrative text used when no structured mapping is needed."
+        },
+        {
+          "source": "pregnancyHistory.previousPregnancies",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionPregnancyHx.entry:pregnancyOutcome"
+        },
+        {
+          "source": "travelHistory",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionTravelHx",
+          "note": "Uses LOINC 10182-4."
+        },
+        {
+          "source": "travelHistory.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "travelHistory.travelHistory",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionTravelHx.entry",
+          "note": "Reference to ObservationTravelEuEps."
+        },
+        {
+          "source": "travelHistory.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionTravelHx.text"
+        },
+        {
+          "source": "patientStory",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionPatientHx"
+        },
+        {
+          "source": "patientStory.note",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionPatientHx.text"
+        },
+        {
+          "source": "advanceDirectives",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAdvanceDirectives",
+          "note": "Use LOINC 42348-3"
+        },
+        {
+          "source": "advanceDirectives.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "advanceDirectives.advanceDirective",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionAdvanceDirectives.entry",
+          "note": "Reference to ConsentEuEps or DocumentReference."
+        },
+        {
+          "source": "advanceDirectives.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionAdvanceDirectives.text"
+        },
+        {
+          "source": "observationResults",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Composition",
+          "element": "section:sectionResults",
+          "note": "When the result is a diagnostic result."
+        },
+        {
+          "source": "observationResults",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Composition",
+          "element": "section:sectionVitalSigns",
+          "note": "When the result is a vital sign"
+        },
+        {
+          "source": "observationResults.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "observationResults.result",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionResults.entry",
+          "note": "When the result is a diagnostic result."
+        },
+        {
+          "source": "observationResults.result",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionVitalSigns.entry",
+          "note": "When the result is a vital sign, target profile is http://hl7.org/fhir/StructureDefinition/vitalsigns."
+        },
+        {
+          "source": "observationResults.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "carePlans",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionPlanOfCare"
+        },
+        {
+          "source": "carePlans.generatedNarrative",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section.text"
+        },
+        {
+          "source": "carePlans.carePlan",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "section:sectionPlanOfCare.entry"
+        },
+        {
+          "source": "carePlans.note",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "section:sectionPlanOfCare.text"
+        }
+      ]
+    },
+    {
+      "model": "EHDSPregnancyHistory",
+      "profile": "Pregnancy Outcome Observation",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdspregnancyhistory.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Observation as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "identifier"
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "performer",
+          "note": "Observation lacks a dedicated author participant. Usually, the performer is also the author; however in case the two participants shall be clearly distinguished, the PerformerFunction extension can be used for this purpose."
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "issued"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "status"
+        },
+        {
+          "source": "header.source",
+          "relationship": "no-map",
+          "resource": "Observation",
+          "element": "",
+          "note": "No direct native Observation element; consider extension or use note to carry source information if needed."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "language"
+        },
+        {
+          "source": "endDate",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "effectiveDateTime"
+        },
+        {
+          "source": "outcome",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "code",
+          "note": "Use a code from the pregnancy outcome value set."
+        },
+        {
+          "source": "numberOfFetuses",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "valueQuantity"
+        },
+        {
+          "source": "note",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "note.text"
+        }
+      ]
+    },
+    {
+      "model": "EHDSTravelHistory",
+      "profile": "ObservationTravelEuEps",
+      "pageUrl": "https://hl7.eu/fhir/eps/map-ehdstravelhistory.html",
+      "source": "eps",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Observation as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "subject",
+          "note": "Reference to PatientEuEps."
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "performer",
+          "note": "Observation lacks a dedicated author participant. Usually, the performer is also the author; however in case the two participants shall be clearly distinguished, the PerformerFunction extension can be used for this purpose."
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "issued"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "status",
+          "note": "EHDS uses CodeableConcept; Observation.status is a required code. Align to HL7 ObservationStatus."
+        },
+        {
+          "source": "header.source",
+          "relationship": "no-map",
+          "resource": "Observation",
+          "element": "",
+          "note": "No direct native Observation element; consider extension or use note to carry source information if needed."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "language"
+        },
+        {
+          "source": "country",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "valueCodeableConcept",
+          "note": "Preferred binding: ISO 3166-1-2."
+        },
+        {
+          "source": "period",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "effectivePeriod"
+        }
+      ]
+    },
+    {
+      "model": "EHDSAddress",
+      "profile": "AddressEu",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsaddress.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "use",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "use"
+        },
+        {
+          "source": "type",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "type"
+        },
+        {
+          "source": "text",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "text"
+        },
+        {
+          "source": "street",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "line.extension:streetName"
+        },
+        {
+          "source": "houseNumber",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "line.extension:houseNumber"
+        },
+        {
+          "source": "postBox",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "line.extension:postBox"
+        },
+        {
+          "source": "city",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "city"
+        },
+        {
+          "source": "postalCode",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "postalCode"
+        },
+        {
+          "source": "country",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "country",
+          "note": "for the country name"
+        },
+        {
+          "source": "country",
+          "relationship": "equivalent",
+          "resource": "Address",
+          "element": "extension:countryCode",
+          "note": "for the country code"
+        }
+      ]
+    },
+    {
+      "model": "EHDSAlert",
+      "profile": "FlagPatientEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsalert.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Flag",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Flag as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "author"
+        },
+        {
+          "source": "header.date",
+          "relationship": "no-map",
+          "resource": "Flag",
+          "element": "",
+          "note": "No direct native Flag element for authoring timestamp."
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "status"
+        },
+        {
+          "source": "header.source",
+          "relationship": "no-map",
+          "resource": "Flag",
+          "element": "",
+          "note": "No direct native Flag element; consider extension if needed."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "language"
+        },
+        {
+          "source": "description",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Flag",
+          "element": "extensions:note.valueAnnotation.text",
+          "note": "The mapping applies if the description represents additional information collected about the alert. code.text should be used if it represents the textual rendering of coded content, or textual description of the alert."
+        },
+        {
+          "source": "description",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Flag",
+          "element": "code.text",
+          "note": "code.text can also be used for textual rendering of coded content, or textual description of the alert."
+        },
+        {
+          "source": "priority",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "extension:flagPriorityExt"
+        },
+        {
+          "source": "code",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "code"
+        },
+        {
+          "source": "period",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "period"
+        },
+        {
+          "source": "sourceReference",
+          "relationship": "equivalent",
+          "resource": "Flag",
+          "element": "extension:flagDetailExt"
+        }
+      ]
+    },
+    {
+      "model": "EHDSAllergyIntolerance",
+      "profile": "AllergyIntoleranceEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsallergyintolerance.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "AllergyIntolerance",
+          "element": "",
+          "note": "Dataset-level; not usually carried in AllergyIntolerance as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "patient"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "recorder",
+          "fhirVersion": "R4",
+          "note": "With participant.function = \"http://terminology.hl7.org/CodeSystem/provenance-participant-type#author\""
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "recordedDate"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "clinicalStatus"
+        },
+        {
+          "source": "header.source",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "asserter",
+          "fhirVersion": "R4",
+          "note": "With participant.function = \"http://terminology.hl7.org/CodeSystem/provenance-participant-type#informant\""
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "language"
+        },
+        {
+          "source": "agentOrAllergen",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "code"
+        },
+        {
+          "source": "note",
+          "relationship": "source-is-broader-than-target",
+          "resource": "AllergyIntolerance",
+          "element": "note.text"
+        },
+        {
+          "source": "criticality",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "criticality"
+        },
+        {
+          "source": "certainty",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "verificationStatus"
+        },
+        {
+          "source": "onsetDate",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "onset[x]",
+          "note": "FHIR supports multiple datatypes; here you have dateTime → map to onsetDateTime ."
+        },
+        {
+          "source": "endDate",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "extension:abatement"
+        },
+        {
+          "source": "reaction",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "reaction"
+        },
+        {
+          "source": "reaction.agentOrAllergen",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "reaction.substance",
+          "note": "Maps the reaction-level causative agent where provided."
+        },
+        {
+          "source": "reaction.manifestation",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "reaction.manifestation"
+        },
+        {
+          "source": "reaction.severity",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "reaction.severity"
+        },
+        {
+          "source": "reaction.onset",
+          "relationship": "equivalent",
+          "resource": "AllergyIntolerance",
+          "element": "reaction.onset"
+        }
+      ]
+    },
+    {
+      "model": "EHDSBodyStructure",
+      "profile": "BodyStructureEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsbodystructure.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "morphology",
+          "relationship": "equivalent",
+          "resource": "BodyStructure",
+          "element": "morphology"
+        },
+        {
+          "source": "location",
+          "relationship": "equivalent",
+          "resource": "BodyStructure",
+          "element": "extension[includedStructure].extension[structure]",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "locationQualifier",
+          "relationship": "equivalent",
+          "resource": "BodyStructure",
+          "element": "extension[includedStructure].extension[qualifier]",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "laterality",
+          "relationship": "equivalent",
+          "resource": "BodyStructure",
+          "element": "extension[includedStructure].extension[laterality]",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "description",
+          "relationship": "equivalent",
+          "resource": "BodyStructure",
+          "element": "text"
+        }
+      ]
+    },
+    {
+      "model": "EHDSCondition",
+      "profile": "ConditionEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdscondition.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Condition",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Condition as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "recorder",
+          "fhirVersion": "R4",
+          "note": "Condition has no generic \"author\"."
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "recordedDate"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "clinicalStatus"
+        },
+        {
+          "source": "header.source",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "asserter",
+          "fhirVersion": "R4",
+          "note": "With participant.function = \"http://terminology.hl7.org/CodeSystem/provenance-participant-type#informant\""
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "language"
+        },
+        {
+          "source": "problem",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "code"
+        },
+        {
+          "source": "onsetDate",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "onsetDateTime",
+          "note": "Map to onsetDateTime in FHIR."
+        },
+        {
+          "source": "endDate",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "abatementDateTime",
+          "note": "Use abatementDateTime ; abatement may also be represented by clinicalStatus = resolved."
+        },
+        {
+          "source": "category",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "category"
+        },
+        {
+          "source": "resolutionCircumstances",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Condition",
+          "element": "note.text",
+          "note": "FHIR Condition has no direct \"resolution reason\"; use Condition.note"
+        },
+        {
+          "source": "severity",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "severity"
+        },
+        {
+          "source": "bodySite",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Condition",
+          "element": "bodySite",
+          "note": "EHDS uses EHDSBodyStructure; map to one or more Condition.bodySite . Use referenced BodyStructure if profiling for more detail."
+        },
+        {
+          "source": "bodySite",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "extension:bodySite",
+          "note": "EHDS uses EHDSBodyStructure; map to one or more Condition.bodySite . Use referenced BodyStructure if profiling for more detail."
+        },
+        {
+          "source": "stage",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "stage",
+          "note": "FHIR also has stage.assessment (Reference). For multiple staging systems, create multiple Condition.stage repetitions."
+        },
+        {
+          "source": "diagnosisAssertionStatus",
+          "relationship": "equivalent",
+          "resource": "Condition",
+          "element": "verificationStatus"
+        },
+        {
+          "source": "specialistContact",
+          "relationship": "source-is-narrower-than-target",
+          "resource": "CareTeam",
+          "element": "note.text",
+          "note": "FHIR Condition has no native participant element. Suggest to use Condition.note to record in a textual form who should be contacted. When used, this information can also be derived from the CareTeam involved for the care of this Condition (referred in CareTeam.reason )."
+        },
+        {
+          "source": "externalResource",
+          "relationship": "source-is-narrower-than-target",
+          "resource": "Condition",
+          "element": "extension:relatedArtifact"
+        }
+      ]
+    },
+    {
+      "model": "EHDSDocument",
+      "profile": "DiagnosticReportEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsdocument-report.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "DiagnosticReport",
+          "element": "",
+          "note": "Dataset-level information across the DiagnosticReport instance."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "DiagnosticReport",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "DiagnosticReport",
+          "element": "identifier",
+          "note": "Multiple identifiers allowed; DiagnosticReport R4 allows 0..1, R5 0..*. setId in HL7 CDA"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Bundle",
+          "element": "identifier",
+          "note": "Identifier of a specific version of this document. id in HL7 CDA"
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "related-to",
+          "resource": "DiagnosticReport",
+          "element": "performer",
+          "note": "The author of the report is captured in the Composition.author element; but usually the performer is also the author of the report, even if they are distict participants"
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "DiagnosticReport",
+          "element": "issued"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "DiagnosticReport",
+          "element": "status"
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "DiagnosticReport",
+          "element": "language"
+        },
+        {
+          "source": "header.documentType",
+          "relationship": "equivalent",
+          "resource": "DiagnosticReport",
+          "element": "code"
+        },
+        {
+          "source": "header.documentTitle",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": ""
+        },
+        {
+          "source": "header.period",
+          "relationship": "related-to",
+          "resource": "DiagnosticReport",
+          "element": "effectivePeriod"
+        },
+        {
+          "source": "header.version",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": ""
+        },
+        {
+          "source": "header.attestation",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": "",
+          "note": "No native element in DiagnosticReport. Details about attestation are documented in the Compostion resource."
+        },
+        {
+          "source": "header.attestation.attester[x]",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": "",
+          "note": "No native element in DiagnosticReport. Details about attester are documented in the Compostion resource."
+        },
+        {
+          "source": "header.attestation.datetime",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": "",
+          "note": "No native element in DiagnosticReport. Details about attestation date time are documented in the Compostion resource."
+        },
+        {
+          "source": "header.legalAuthentication",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": "",
+          "note": "No native element in DiagnosticReport. Details about legal authentication are documented in the Compostion resource."
+        },
+        {
+          "source": "header.legalAuthentication.legalAuthenticator[x]",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": "",
+          "note": "No native element in DiagnosticReport. Details about legal authenticator are documented in the Compostion resource."
+        },
+        {
+          "source": "header.legalAuthentication.datetime",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": "",
+          "note": "No native element in DiagnosticReport. Details about legal authentication date time are documented in the Compostion resource."
+        },
+        {
+          "source": "header.eventType",
+          "relationship": "related-to",
+          "resource": "DiagnosticReport",
+          "element": "category",
+          "note": "The mapping proposed reflects a possible interpretation of this element as classification of the report; DocumentReference.category should be used if used for filtering document searches. If instead it represents the type of event that occurred, Composition.event.code for 〔R4〕 and Composition.event.detail.concept for 〔R5〕 is more appropriate."
+        },
+        {
+          "source": "header.serviceSpecialty",
+          "relationship": "source-is-narrower-than-target",
+          "resource": "DiagnosticReport",
+          "element": "category"
+        },
+        {
+          "source": "header.custodian",
+          "relationship": "no-map",
+          "resource": "DiagnosticReport",
+          "element": ""
+        },
+        {
+          "source": "presentedForm",
+          "relationship": "related-to",
+          "resource": "DiagnosticReport",
+          "element": "presentedForm"
+        }
+      ]
+    },
+    {
+      "model": "EHDSDocument",
+      "profile": "CompositionEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsdocument.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "",
+          "note": "Dataset-level information across the Composition instance."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "identifier",
+          "note": "Multiple identifiers allowed; Composition R4 allows 0..1, R5 0..*. setId in HL7 CDA"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Bundle",
+          "element": "identifier",
+          "note": "Identifier of a specific version of this document. id in HL7 CDA"
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "author"
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "date"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "status"
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "language"
+        },
+        {
+          "source": "header.documentType",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "type"
+        },
+        {
+          "source": "header.documentTitle",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "title"
+        },
+        {
+          "source": "header.period",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "event.period",
+          "note": "Map to the primary Composition.event entry."
+        },
+        {
+          "source": "header.version",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "extension:version",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "header.attestation",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "attester",
+          "note": "Use mode to distinguish assertions."
+        },
+        {
+          "source": "header.attestation.attester[x]",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "attester.party"
+        },
+        {
+          "source": "header.attestation.datetime",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "attester.time",
+          "note": "Set attester.mode as appropriate (e.g., professional)."
+        },
+        {
+          "source": "header.legalAuthentication",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "attester",
+          "note": "Use attester.mode = \"legal\" for the legal authenticator."
+        },
+        {
+          "source": "header.legalAuthentication.legalAuthenticator[x]",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "attester.party",
+          "note": "Use attester.mode = \"legal\" for the legal authenticator."
+        },
+        {
+          "source": "header.legalAuthentication.datetime",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "attester.time",
+          "note": "Use attester.mode = \"legal\" for the legal authenticator."
+        },
+        {
+          "source": "header.eventType",
+          "relationship": "related-to",
+          "resource": "Composition",
+          "element": "category",
+          "note": "The mapping proposed reflects a possible interpretation of this element as classification of the document; DocumentReference.category should be used if used for filtering document searches. If instead it represents the type of event that occurred, event.code for 〔R4〕 and event.detail.concept for 〔R5〕"
+        },
+        {
+          "source": "header.serviceSpecialty",
+          "relationship": "source-is-narrower-than-target",
+          "resource": "Composition",
+          "element": "category",
+          "note": "The mapping proposed reflects a possible classification of the document based on the service specialty. However it is more appropriated to be captured in the DiagnosticReport.category, or in the DocumentReference.category if used for filtering document searches."
+        },
+        {
+          "source": "header.custodian",
+          "relationship": "equivalent",
+          "resource": "Composition",
+          "element": "custodian",
+          "note": "Reference to Organization."
+        },
+        {
+          "source": "presentedForm",
+          "relationship": "no-map",
+          "resource": "Composition",
+          "element": ""
+        }
+      ]
+    },
+    {
+      "model": "EHDSHealthProfessional",
+      "profile": "PractitionerRoleEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdshealthprofessional.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "identifier",
+          "relationship": "source-is-broader-than-target",
+          "resource": "PractitionerRole",
+          "element": "identifier",
+          "note": "Mapping depends on identifier type."
+        },
+        {
+          "source": "identifier",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Practitioner",
+          "element": "identifier",
+          "note": "Mapping depends on identifier type."
+        },
+        {
+          "source": "name",
+          "relationship": "related-to",
+          "resource": "PractitionerRole",
+          "element": "practitioner",
+          "note": "Name carried on referenced Practitioner."
+        },
+        {
+          "source": "name",
+          "relationship": "equivalent",
+          "resource": "Practitioner",
+          "element": "name",
+          "note": "Practitioner is referenced in PractitionerRole.practitioner"
+        },
+        {
+          "source": "address",
+          "relationship": "source-is-broader-than-target",
+          "resource": "PractitionerRole",
+          "element": "location",
+          "note": "If the address is meant to be where the practitioner provides care."
+        },
+        {
+          "source": "address",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Practitioner",
+          "element": "address",
+          "note": "If they are not role specifc addresses. Practitioner is referenced in PractitionerRole.practitioner."
+        },
+        {
+          "source": "telecom",
+          "relationship": "source-is-broader-than-target",
+          "resource": "PractitionerRole",
+          "element": "telecom",
+          "fhirVersion": "R4",
+          "note": "If they are Contact details that are specific to the role/location/service."
+        },
+        {
+          "source": "telecom",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Practitioner",
+          "element": "telecom",
+          "note": "If they are contact details for the practitioner (that apply to all roles).Practitioner is referenced in PractitionerRole.practitioner"
+        },
+        {
+          "source": "professionalRole",
+          "relationship": "related-to",
+          "resource": "PractitionerRole",
+          "element": "",
+          "note": "Maps across multiple PractitionerRole elements."
+        },
+        {
+          "source": "professionalRole.role",
+          "relationship": "equivalent",
+          "resource": "PractitionerRole",
+          "element": "code"
+        },
+        {
+          "source": "professionalRole.organisation",
+          "relationship": "equivalent",
+          "resource": "PractitionerRole",
+          "element": "organization"
+        },
+        {
+          "source": "professionalRole.specialty",
+          "relationship": "equivalent",
+          "resource": "PractitionerRole",
+          "element": "specialty"
+        }
+      ]
+    },
+    {
+      "model": "EHDSHumanName",
+      "profile": "HumanName",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdshumanname.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "use",
+          "relationship": "equivalent",
+          "resource": "HumanName",
+          "element": "use",
+          "note": "e.g. official, usual, nickname."
+        },
+        {
+          "source": "text",
+          "relationship": "equivalent",
+          "resource": "HumanName",
+          "element": "text",
+          "note": "Typically a single string."
+        },
+        {
+          "source": "family",
+          "relationship": "equivalent",
+          "resource": "HumanName",
+          "element": "family"
+        },
+        {
+          "source": "given",
+          "relationship": "equivalent",
+          "resource": "HumanName",
+          "element": "given",
+          "note": "Array in FHIR."
+        },
+        {
+          "source": "prefix",
+          "relationship": "equivalent",
+          "resource": "HumanName",
+          "element": "prefix",
+          "note": "e.g. Dr, Prof, Sir."
+        },
+        {
+          "source": "suffix",
+          "relationship": "equivalent",
+          "resource": "HumanName",
+          "element": "suffix",
+          "note": "e.g. Jr, MD, PhD."
+        }
+      ]
+    },
+    {
+      "model": "EHDSImmunisation",
+      "profile": "ImmunizationEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsimmunisation.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Immunization",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Immunization as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "patient"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "related-to",
+          "resource": "Immunization",
+          "element": "performer",
+          "note": "Immunization lacks a dedicated author participant. Usually, the performer is also the author; however in case the two participants shall be clearly distinguished, the performer.function element can be used for this purpose."
+        },
+        {
+          "source": "header.date",
+          "relationship": "no-map",
+          "resource": "Immunization",
+          "element": ""
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "status",
+          "note": "Use statusReason in FHIR for \"not done\" reason when applicable."
+        },
+        {
+          "source": "header.source",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "extension:informationSource",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "language"
+        },
+        {
+          "source": "administrationTime",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "occurrence[x]",
+          "note": "Usually occurrenceDateTime ."
+        },
+        {
+          "source": "vaccine",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "vaccineCode"
+        },
+        {
+          "source": "administeredProduct",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "extension:administeredProduct",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "diseaseOrAgentTargeted",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "protocolApplied.targetDisease"
+        },
+        {
+          "source": "administrator",
+          "relationship": "equivalent",
+          "resource": "Immunization",
+          "element": "performer:administeringCentreOrHp.actor"
+        },
+        {
+          "source": "administeringCentre",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Immunization",
+          "element": "performer:administeringCentreOrHp.actor"
+        },
+        {
+          "source": "note",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Immunization",
+          "element": "note.text",
+          "note": "Map EHDS note to one or more Immunization notes where needed."
+        }
+      ]
+    },
+    {
+      "model": "EHDSLocation",
+      "profile": "LocationEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdslocation.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "identifier",
+          "relationship": "equivalent",
+          "resource": "Location",
+          "element": "identifier"
+        },
+        {
+          "source": "name",
+          "relationship": "equivalent",
+          "resource": "Location",
+          "element": "name"
+        },
+        {
+          "source": "description",
+          "relationship": "equivalent",
+          "resource": "Location",
+          "element": "description"
+        },
+        {
+          "source": "type",
+          "relationship": "equivalent",
+          "resource": "Location",
+          "element": "physicalType",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "address",
+          "relationship": "equivalent",
+          "resource": "Location",
+          "element": "address",
+          "note": "Uses Address/AddressEu."
+        },
+        {
+          "source": "managingOrganisation",
+          "relationship": "equivalent",
+          "resource": "Location",
+          "element": "managingOrganization",
+          "note": "Reference to OrganizationEuCore."
+        },
+        {
+          "source": "partOf",
+          "relationship": "equivalent",
+          "resource": "Location",
+          "element": "partOf",
+          "note": "Supports hierarchical location trees."
+        }
+      ]
+    },
+    {
+      "model": "EHDSMedication",
+      "profile": "MedicationEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsmedication.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "identifyingCode[x]",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "code"
+        },
+        {
+          "source": "identifyingCode[x]",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "identifier",
+          "note": "Use multiple identifiers if needed; avoid conflicting meanings."
+        },
+        {
+          "source": "classification",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:classification"
+        },
+        {
+          "source": "productName",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:productName",
+          "note": "Official name of branded medicinal product."
+        },
+        {
+          "source": "marketingAuthorisationHolder",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "manufacturer",
+          "fhirVersion": "R4",
+          "note": "Reference to Organization ."
+        },
+        {
+          "source": "marketingAuthorisationHolder.organisationName",
+          "relationship": "equivalent",
+          "resource": "Organization",
+          "element": "name",
+          "note": "Populate the referenced Organization's name ."
+        },
+        {
+          "source": "marketingAuthorisationHolder.organisationIdentifier",
+          "relationship": "equivalent",
+          "resource": "Organization",
+          "element": "identifier"
+        },
+        {
+          "source": "doseForm",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "form",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "description",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Medication",
+          "element": "extension:characteristic",
+          "note": "When intended as additional detail about the medication (e.g. package description)"
+        },
+        {
+          "source": "description",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Medication",
+          "element": "code.text",
+          "note": "When intended as description of the medication"
+        },
+        {
+          "source": "item",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "ingredient.itemReference",
+          "fhirVersion": "R4",
+          "note": "An item - included in a product - is represented by a Medication resource referenced by the ingredient.item (see the example at https://hl7.eu/fhir/mpd-r5/Medication-02A-ClotrimazoleCanifugCremolum.html). If the item is the product, the item is the Medication itself."
+        },
+        {
+          "source": "item.doseForm",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "form",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "item.ingredient",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "ingredient",
+          "note": "Replicate per-item ingredients into ingredient . See note above about item"
+        },
+        {
+          "source": "item.ingredient.isActive",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "ingredient.isActive",
+          "note": "Replicate per-item ingredients into ingredient . See note above about item"
+        },
+        {
+          "source": "item.ingredient.substance",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "ingredient.itemCodeableConcept",
+          "fhirVersion": "R4",
+          "note": "Replicate per-item ingredients into ingredient . See note above about item"
+        },
+        {
+          "source": "item.ingredient.strengthInfo",
+          "relationship": "related-to",
+          "resource": "Medication",
+          "element": "ingredient.strength[x]",
+          "note": "Backbone element see below for mapping details."
+        },
+        {
+          "source": "item.ingredient.strengthInfo.strength",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "ingredient.strength",
+          "fhirVersion": "R4",
+          "note": "Replicate per-item ingredients into ingredient . See note above about item"
+        },
+        {
+          "source": "item.ingredient.strengthInfo.basisOfStrengthSubstance",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "ingredient.strength.extension:basisOfStrengthSubstance",
+          "fhirVersion": "R4",
+          "note": "Replicate per-item ingredients into ingredient . See note above about item"
+        },
+        {
+          "source": "item.unitOfPresentation",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:unitOfPresentation",
+          "note": "See note above about item"
+        },
+        {
+          "source": "item.containedQuantity",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:sizeOfItem",
+          "note": "See note above about item"
+        },
+        {
+          "source": "item.amount",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "amount",
+          "fhirVersion": "R4",
+          "note": "See note above about item"
+        },
+        {
+          "source": "item.packageType",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:packageType",
+          "note": "See note above about item"
+        },
+        {
+          "source": "device",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:device"
+        },
+        {
+          "source": "device.deviceQuantity",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:device.extension:quantity"
+        },
+        {
+          "source": "device.device[x]",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Medication",
+          "element": "extension:device.extension:device.valueCodeableConcept",
+          "note": "Only type of device (CodeableConcept) is expected. Reference not supported."
+        },
+        {
+          "source": "characteristic",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:characteristic"
+        },
+        {
+          "source": "characteristic.type",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:characteristic.extension:type"
+        },
+        {
+          "source": "characteristic.value[x]",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "extension:characteristic.extension:value",
+          "note": "Supports boolean, CodeableConcept, string, Quantity, dateTime, integer, decimal, Ratio in R5"
+        },
+        {
+          "source": "batch",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "batch"
+        },
+        {
+          "source": "batch.lotNumber",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "batch.lotNumber",
+          "note": "Traceability / pharmacovigilance."
+        },
+        {
+          "source": "batch.expirationDate",
+          "relationship": "equivalent",
+          "resource": "Medication",
+          "element": "batch.expirationDate"
+        }
+      ]
+    },
+    {
+      "model": "EHDSMedicationUse",
+      "profile": "MedicationStatementEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsmedicationstatement.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "MedicationStatement",
+          "element": "",
+          "note": "Dataset-level; not usually carried in MedicationStatement as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "no-map",
+          "resource": "MedicationStatement",
+          "element": "",
+          "note": "If with author is intended the source of information, use the informationSource element."
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "dateAsserted"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "status"
+        },
+        {
+          "source": "header.source",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "informationSource"
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "language"
+        },
+        {
+          "source": "treatmentStatus",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "extension:adherence.code",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "medication",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "medication[x]",
+          "fhirVersion": "R4",
+          "note": "In the model only the Reference to Medication ."
+        },
+        {
+          "source": "changeType",
+          "relationship": "no-map",
+          "resource": "MedicationStatement",
+          "element": "",
+          "note": "No native element in MedicationStatement to record the change type ('added', 'removed', 'altered') within a medication summary; consider an extension if needed."
+        },
+        {
+          "source": "reason[x]",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "reasonCode",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "dosageInstructions",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "dosage",
+          "note": "Map each EHDSDosaging row to a dosage element."
+        },
+        {
+          "source": "periodOfUse",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "effectivePeriod"
+        },
+        {
+          "source": "derivedFrom[x]",
+          "relationship": "equivalent",
+          "resource": "MedicationStatement",
+          "element": "derivedFrom"
+        },
+        {
+          "source": "note",
+          "relationship": "source-is-broader-than-target",
+          "resource": "MedicationStatement",
+          "element": "note.text"
+        }
+      ]
+    },
+    {
+      "model": "EHDSObservation",
+      "profile": "MedicalTestResultEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsobservation.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Observation as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "subject",
+          "note": "Reference to Patient (or other allowed subject types)."
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "identifier",
+          "note": "Copy over all identifiers if multiple."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "performer",
+          "note": "Observation lacks a dedicated author participant. Usually, the performer is also the author; however in case the two participants shall be clearly distinguished, the PerformerFunction extension can be used for this purpose."
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "issued"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "status"
+        },
+        {
+          "source": "header.source",
+          "relationship": "no-map",
+          "resource": "Observation",
+          "element": "-",
+          "note": "No direct native Observation element; consider extension if needed."
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "language"
+        },
+        {
+          "source": "header.directSubject[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "focus"
+        },
+        {
+          "source": "observationDate[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "effective[x]",
+          "note": "Map to effectiveDateTime or effectivePeriod ."
+        },
+        {
+          "source": "type",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "code"
+        },
+        {
+          "source": "originalName",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "code.text"
+        },
+        {
+          "source": "method",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "method"
+        },
+        {
+          "source": "specimen",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "specimen"
+        },
+        {
+          "source": "order",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "basedOn"
+        },
+        {
+          "source": "performer[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "performer"
+        },
+        {
+          "source": "bodySite",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Observation",
+          "element": "bodySite"
+        },
+        {
+          "source": "bodySite",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Observation",
+          "element": "extension[bodyStructure]",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "result",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": ""
+        },
+        {
+          "source": "result.value[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "value[x]",
+          "note": "When the result is a Diagram or Picture (Microbiology), then the Attachment data type should be used. In FHIR R4 this can be done by preadopting the R5 Observation.value[x] element using the cross-version extension."
+        },
+        {
+          "source": "result.uncertainty",
+          "relationship": "related-to",
+          "resource": "Quantity",
+          "element": "extension",
+          "note": "See included elements for mapping details"
+        },
+        {
+          "source": "result.uncertainty.value",
+          "relationship": "equivalent",
+          "resource": "Quantity",
+          "element": "extension:uncertainty",
+          "note": "http://hl7.org/fhir/StructureDefinition/iso21090-uncertainty extension for the Quantity data type."
+        },
+        {
+          "source": "result.uncertainty.type",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "extension:uncertaintyType",
+          "note": "http://hl7.org/fhir/StructureDefinition/iso21090-uncertaintyType extension for the Quantity data type."
+        },
+        {
+          "source": "result.dataAbsentReason",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "dataAbsentReason"
+        },
+        {
+          "source": "referenceRange",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "referenceRange"
+        },
+        {
+          "source": "interpretation",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "interpretation"
+        },
+        {
+          "source": "note",
+          "relationship": "source-is-broader-than-target",
+          "resource": "Observation",
+          "element": "note"
+        },
+        {
+          "source": "component",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component"
+        },
+        {
+          "source": "component.type",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.code"
+        },
+        {
+          "source": "component.originalName",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.code.text"
+        },
+        {
+          "source": "component.result",
+          "relationship": "related-to",
+          "resource": "Observation",
+          "element": "component"
+        },
+        {
+          "source": "component.result.value[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.value[x]",
+          "note": "When the result is a Diagram or Picture (Microbiology), then the Attachment data type should be used. In FHIR R4 this can be done by preadopting the R5 Observation.value[x] element using the cross-version extension."
+        },
+        {
+          "source": "component.result.uncertainty",
+          "relationship": "related-to",
+          "resource": "Quantity",
+          "element": "extension",
+          "note": "See included elements for mapping details"
+        },
+        {
+          "source": "component.result.uncertainty.value",
+          "relationship": "equivalent",
+          "resource": "Quantity",
+          "element": "extension:uncertainty",
+          "note": "http://hl7.org/fhir/StructureDefinition/iso21090-uncertainty extension for the Quantity data type."
+        },
+        {
+          "source": "component.result.uncertainty.type",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "extension:uncertaintyType",
+          "note": "http://hl7.org/fhir/StructureDefinition/iso21090-uncertaintyType extension for the Quantity data type."
+        },
+        {
+          "source": "component.result.dataAbsentReason",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.dataAbsentReason"
+        },
+        {
+          "source": "component.referenceRange",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.referenceRange"
+        },
+        {
+          "source": "component.interpretation",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "component.interpretation"
+        },
+        {
+          "source": "derivedFrom[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "derivedFrom",
+          "note": "Supports references to Observation, ImagingStudy, DiagnosticReport, etc."
+        },
+        {
+          "source": "hasMember[x]",
+          "relationship": "equivalent",
+          "resource": "Observation",
+          "element": "hasMember"
+        }
+      ]
+    },
+    {
+      "model": "EHDSOrganisation",
+      "profile": "OrganizationEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsorganisation.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "identifier",
+          "relationship": "equivalent",
+          "resource": "Organization",
+          "element": "identifier"
+        },
+        {
+          "source": "type",
+          "relationship": "equivalent",
+          "resource": "Organization",
+          "element": "type"
+        },
+        {
+          "source": "name",
+          "relationship": "equivalent",
+          "resource": "Organization",
+          "element": "name"
+        },
+        {
+          "source": "address",
+          "relationship": "equivalent",
+          "resource": "Organization",
+          "element": "address",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "telecom",
+          "relationship": "equivalent",
+          "resource": "Organization",
+          "element": "telecom",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "partOf",
+          "relationship": "equivalent",
+          "resource": "Organization",
+          "element": "partOf"
+        }
+      ]
+    },
+    {
+      "model": "EHDSPatient",
+      "profile": "PatientEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdspatient.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "identifier",
+          "relationship": "equivalent",
+          "resource": "Patient",
+          "element": "identifier"
+        },
+        {
+          "source": "name",
+          "relationship": "equivalent",
+          "resource": "Patient",
+          "element": "name"
+        },
+        {
+          "source": "dateOfBirth",
+          "relationship": "equivalent",
+          "resource": "Patient",
+          "element": "birthDate"
+        },
+        {
+          "source": "deceased[x]",
+          "relationship": "equivalent",
+          "resource": "Patient",
+          "element": "deceased[x]"
+        },
+        {
+          "source": "administrativeGender",
+          "relationship": "equivalent",
+          "resource": "Patient",
+          "element": "gender"
+        },
+        {
+          "source": "address",
+          "relationship": "equivalent",
+          "resource": "Patient",
+          "element": "address"
+        },
+        {
+          "source": "telecom",
+          "relationship": "equivalent",
+          "resource": "Patient",
+          "element": "telecom"
+        }
+      ]
+    },
+    {
+      "model": "EHDSProcedure",
+      "profile": "ProcedureEuCore",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdsprocedure.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "header",
+          "relationship": "related-to",
+          "resource": "Procedure",
+          "element": "",
+          "note": "Dataset-level; not usually carried in Procedure as-is."
+        },
+        {
+          "source": "header.subject",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "subject"
+        },
+        {
+          "source": "header.identifier",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "identifier",
+          "note": "Copy all identifiers if multiple exist."
+        },
+        {
+          "source": "header.author[x]",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "recorder"
+        },
+        {
+          "source": "header.date",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "extension:recorded",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "header.status",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "status"
+        },
+        {
+          "source": "header.source",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "asserter",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "header.language",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "language"
+        },
+        {
+          "source": "code",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "code"
+        },
+        {
+          "source": "procedureDate[x]",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "performed[x]",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "performer",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "performer"
+        },
+        {
+          "source": "bodySite",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "bodySite"
+        },
+        {
+          "source": "reason[x]",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "reasonCode",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "outcome",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "outcome"
+        },
+        {
+          "source": "complication",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "complication",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "deviceUsed",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "usedCode",
+          "fhirVersion": "R4"
+        },
+        {
+          "source": "focalDevice",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "focalDevice.manipulated"
+        },
+        {
+          "source": "note",
+          "relationship": "equivalent",
+          "resource": "Procedure",
+          "element": "note"
+        }
+      ]
+    },
+    {
+      "model": "EHDSTelecom",
+      "profile": "ContactPoint",
+      "pageUrl": "https://hl7.eu/fhir/base/map-ehdstelecom.html",
+      "source": "base",
+      "rows": [
+        {
+          "source": "use",
+          "relationship": "equivalent",
+          "resource": "ContactPoint",
+          "element": "use"
+        },
+        {
+          "source": "type",
+          "relationship": "equivalent",
+          "resource": "ContactPoint",
+          "element": "system"
+        },
+        {
+          "source": "value",
+          "relationship": "equivalent",
+          "resource": "ContactPoint",
+          "element": "value"
+        }
+      ]
+    }
+  ]
+}

@@ -111,6 +111,12 @@ export interface EpsFieldMeta {
   system?: string;
   /** Optional helper text under the field. */
   hint?: string;
+  /**
+   * EHDS model elements mapped onto this field. An empty array means the
+   * section's EHDS models have no element for it (a FHIR/IPS extra); absent
+   * when the section has no EHDS counterpart.
+   */
+  ehdsMapping?: EpsEhdsFieldMapping[];
   /** Curated (not spec-derived) note on alignment with the Xt-EHR logical model. */
   alignmentNote?: { text: string; links?: { label: string; url: string }[] };
   /** FHIR element documentation from the spec (drives the FHIR/SNOMED badge popover). */
@@ -160,4 +166,31 @@ export interface EpsEhdsSection {
   pageUrl: string;
   /** Source package, e.g. xtehr.eu.ehds.models#1.0.0. */
   sourcePackage: string;
+  /** The guides' EHDS → FHIR mapping pages used for this section. */
+  mappingPages: { model: string; profile: string; pageUrl: string }[];
+  /** Model elements the guides mark `no-map`: required by the EHDS, with no FHIR home. */
+  unmapped: { model: string; element: string; note?: string }[];
+}
+
+/**
+ * One EHDS model element mapped onto a demo field, parsed from the guides'
+ * mapping tables (ehds-mappings.json) and enriched from the Xt-EHR model.
+ */
+export interface EpsEhdsFieldMapping {
+  model: string; // e.g. EHDSCondition
+  element: string; // e.g. problem
+  path: string; // e.g. EHDSCondition.problem
+  /** ConceptMap relationship code: equivalent | related-to | source-is-broader-than-target | ... */
+  relationship: string;
+  /** FHIR element the row maps to, e.g. Condition.code. */
+  fhirElement: string;
+  /** True when the model maps a parent of the field (e.g. dosageInstructions ↔ dosage, for dosage.text). */
+  viaParent?: boolean;
+  note?: string;
+  /** Mapping page in the guide. */
+  pageUrl: string;
+  /** From the Xt-EHR model: short description, cardinality and descriptive binding. */
+  short?: string;
+  cardinality?: string;
+  binding?: string;
 }
