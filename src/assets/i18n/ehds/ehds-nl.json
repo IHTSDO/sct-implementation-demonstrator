@@ -25,10 +25,10 @@
   "timeline": {
     "title": "Belangrijke mijlpalen",
     "entryIntoForce": "Inwerkingtreding",
-    "implementingActs": "Uitvoeringshandelingen",
-    "application": "Van toepassing",
-    "additionalCategories": "Extra gegevenscategorieën",
-    "thirdCountries": "Open voor derde landen"
+    "generalApplication": "Algemene toepassing; uitvoeringshandelingen verwacht",
+    "priorityCategories": "Patiëntsamenvatting, e-recept/e-verstrekking en secundair gebruik",
+    "additionalCategories": "Beeldvorming-, laboratorium- en ontslagverslagen",
+    "thirdCountries": "Toegang van derde landen tot HealthData@EU"
   },
   "eehrxf": {
     "title": "Een gemeenschappelijk uitwisselingsformaat",

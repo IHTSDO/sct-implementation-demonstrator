@@ -25,10 +25,10 @@
   "timeline": {
     "title": "Key milestones",
     "entryIntoForce": "Entry into force",
-    "implementingActs": "Implementing acts",
-    "application": "Entry into application",
-    "additionalCategories": "Additional data categories",
-    "thirdCountries": "Open to third countries"
+    "generalApplication": "General application; implementing acts due",
+    "priorityCategories": "Patient summary, ePrescription/eDispensation and secondary use",
+    "additionalCategories": "Imaging, lab and discharge reports",
+    "thirdCountries": "Third-country access to HealthData@EU"
   },
   "eehrxf": {
     "title": "A common exchange format",

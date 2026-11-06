@@ -23,10 +23,10 @@ export class EhdsHomeComponent {
 
   readonly milestones = [
     { year: '2025', key: 'entryIntoForce' },
-    { year: '2027', key: 'implementingActs' },
-    { year: '2029', key: 'application' },
+    { year: '2027', key: 'generalApplication' },
+    { year: '2029', key: 'priorityCategories' },
     { year: '2031', key: 'additionalCategories' },
-    { year: '2034', key: 'thirdCountries' },
+    { year: '2035', key: 'thirdCountries' },
   ];
 
   readonly categories = ['patientSummary', 'ePrescription', 'laboratory', 'imaging', 'discharge'];

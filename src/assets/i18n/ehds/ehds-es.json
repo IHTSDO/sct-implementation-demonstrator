@@ -25,10 +25,10 @@
   "timeline": {
     "title": "Hitos principales",
     "entryIntoForce": "Entrada en vigor",
-    "implementingActs": "Actos de ejecución",
-    "application": "Inicio de aplicación",
-    "additionalCategories": "Nuevas categorías de datos",
-    "thirdCountries": "Apertura a terceros países"
+    "generalApplication": "Aplicación general; plazo de los actos de ejecución",
+    "priorityCategories": "Resumen del paciente, receta/dispensación electrónica y uso secundario",
+    "additionalCategories": "Informes de imagen, laboratorio y alta hospitalaria",
+    "thirdCountries": "Acceso de terceros países a HealthData@EU"
   },
   "eehrxf": {
     "title": "Un formato de intercambio común",

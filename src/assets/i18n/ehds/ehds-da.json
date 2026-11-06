@@ -25,10 +25,10 @@
   "timeline": {
     "title": "Vigtige milepæle",
     "entryIntoForce": "Ikrafttræden",
-    "implementingActs": "Gennemførelsesretsakter",
-    "application": "Finder anvendelse",
-    "additionalCategories": "Yderligere datakategorier",
-    "thirdCountries": "Åbning for tredjelande"
+    "generalApplication": "Generel anvendelse; gennemførelsesretsakter forfalder",
+    "priorityCategories": "Patientresumé, e-recept/e-udlevering og sekundær anvendelse",
+    "additionalCategories": "Billeddiagnostik-, laboratorie- og udskrivningsrapporter",
+    "thirdCountries": "Tredjelandes adgang til HealthData@EU"
   },
   "eehrxf": {
     "title": "Et fælles udvekslingsformat",

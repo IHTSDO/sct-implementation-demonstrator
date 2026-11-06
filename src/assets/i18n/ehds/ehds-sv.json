@@ -25,10 +25,10 @@
   "timeline": {
     "title": "Viktiga milstolpar",
     "entryIntoForce": "Ikraftträdande",
-    "implementingActs": "Genomförandeakter",
-    "application": "Börjar tillämpas",
-    "additionalCategories": "Ytterligare datakategorier",
-    "thirdCountries": "Öppnas för tredjeländer"
+    "generalApplication": "Allmän tillämpning; genomförandeakter ska antas",
+    "priorityCategories": "Patientöversikt, e-recept/e-expediering och sekundär användning",
+    "additionalCategories": "Bilddiagnostik-, laboratorie- och utskrivningsrapporter",
+    "thirdCountries": "Tredjeländers åtkomst till HealthData@EU"
   },
   "eehrxf": {
     "title": "Ett gemensamt utbytesformat",
