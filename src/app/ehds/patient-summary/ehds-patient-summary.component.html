@@ -78,6 +78,47 @@
                     [matTooltip]="'Open the ' + state.section.resourceType + ' profile in the EPS guide'">
               FHIR
             </button>
+            <!-- The EHDS requirement (Xt-EHR logical model) this section realises -->
+            <button type="button" mat-button class="fhir-badge ehds-badge" [class.unmapped]="!state.section.ehds"
+                    [matMenuTriggerFor]="ehdsMenu">
+              EHDS
+            </button>
+            <mat-menu #ehdsMenu="matMenu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
+              <div class="ehds-menu" (click)="$event.stopPropagation()">
+                @if (state.section.ehds; as ehds) {
+                  <h4>EHDS requirement</h4>
+                  <p class="ehds-menu-lead">
+                    This section realises <strong>{{ ehds.title }}</strong> of the Xt-EHR Patient Summary model.
+                  </p>
+                  <dl>
+                    <dt>Model section</dt>
+                    <dd><a [href]="ehds.pageUrl" target="_blank" rel="noopener noreferrer"><code>{{ ehds.path }}</code></a> ({{ ehds.cardinality }})</dd>
+                    @for (m of ehds.entryModels; track m.name) {
+                      <dt>Entry model</dt>
+                      <dd>
+                        <a [href]="m.pageUrl" target="_blank" rel="noopener noreferrer">{{ m.title }}</a>
+                        <span class="ehds-model-desc">{{ m.description }}</span>
+                      </dd>
+                    }
+                  </dl>
+                  <div class="ehds-chain" aria-label="Dependency chain" *ngIf="state.section.kind === 'resource'">
+                    <span>{{ ehds.entryModels[0]?.name || ehds.path }}</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                    <span>{{ state.section.resourceType }} (EPS)</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                    <span>Value sets</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                    <span>SNOMED CT</span>
+                  </div>
+                  <p class="ehds-menu-source">Source: {{ ehds.sourcePackage }}. The section link is curated; the guides publish no computable mapping.</p>
+                } @else {
+                  <h4>EHDS requirement</h4>
+                  <p class="ehds-menu-lead">
+                    The Xt-EHR Patient Summary model has no dedicated section for this EPS section.
+                  </p>
+                }
+              </div>
+            </mat-menu>
             <span class="spacer"></span>
             <button type="button" mat-stroked-button class="section-json-toggle" (click)="toggleSectionJson(state)">
               <mat-icon>{{ state.showJson ? 'arrow_back' : 'code' }}</mat-icon>

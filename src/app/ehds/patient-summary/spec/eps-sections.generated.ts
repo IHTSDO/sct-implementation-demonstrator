@@ -16,6 +16,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-condition-obl-eu-eps.html",
     "icon": "coronavirus",
     "description": "Active problems and diagnoses on the patient’s problem list.",
+    "ehds": {
+      "path": "EHDSPatientSummary.problems",
+      "title": "Medical problems",
+      "cardinality": "1..1",
+      "entryModels": [
+        {
+          "name": "EHDSCondition",
+          "title": "Condition model",
+          "description": "Model for a clinical condition, problem, diagnosis, or other event, situation, or issue that has risen to a level of concern.",
+          "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSCondition.html"
+        }
+      ],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": [
       {
         "key": "code",
@@ -236,6 +251,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-allergyintolerance-obl-eu-eps.html",
     "icon": "warning_amber",
     "description": "Allergies and intolerances, including the causative agent and reaction.",
+    "ehds": {
+      "path": "EHDSPatientSummary.allergiesAndIntolerances",
+      "title": "Allergies and intolerances",
+      "cardinality": "1..1",
+      "entryModels": [
+        {
+          "name": "EHDSAllergyIntolerance",
+          "title": "Allergy intolerance model",
+          "description": "Model for allergy or intolerance.",
+          "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSAllergyIntolerance.html"
+        }
+      ],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": [
       {
         "key": "code",
@@ -537,6 +567,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-MedicationStatement-eu-eps.html",
     "icon": "medication",
     "description": "Current and relevant past medication, as a coded product with dosage.",
+    "ehds": {
+      "path": "EHDSPatientSummary.medicationSummary",
+      "title": "Medication summary",
+      "cardinality": "1..1",
+      "entryModels": [
+        {
+          "name": "EHDSMedicationUse",
+          "title": "Medication use model",
+          "description": "Statement about a single medication as part of a medication summary.",
+          "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSMedicationUse.html"
+        }
+      ],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": [
       {
         "key": "medication",
@@ -696,6 +741,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-immunization-obl-eu-eps.html",
     "icon": "vaccines",
     "description": "Immunization history: vaccines administered to the patient.",
+    "ehds": {
+      "path": "EHDSPatientSummary.immunisations",
+      "title": "Immunisations",
+      "cardinality": "0..1",
+      "entryModels": [
+        {
+          "name": "EHDSImmunisation",
+          "title": "Immunisation model",
+          "description": "Model describes the administration of immunisation products, including vaccines and immunoglobulins, covering active and passive immunisations. It focuses on immunisation as a clinical procedure rather than the resulting immunity. The model supports routine immunisations at standard doses and may overlap with medication summaries or prescription lists. Natural immunity, immunisation outcomes, refusals, and administration or planning details are out of scope.",
+          "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSImmunisation.html"
+        }
+      ],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": [
       {
         "key": "vaccineCode",
@@ -887,6 +947,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-procedure-eu-eps.html",
     "icon": "medical_information",
     "description": "History of procedures performed on the patient.",
+    "ehds": {
+      "path": "EHDSPatientSummary.procedures",
+      "title": "Procedures",
+      "cardinality": "1..1",
+      "entryModels": [
+        {
+          "name": "EHDSProcedure",
+          "title": "Procedure model",
+          "description": "The model provides basic information about a procedure performed on or for a patient. This includes surgical, therapeutic, and diagnostic procedures, as well as specimen collection. The model does not cover procedures in the planning stage.",
+          "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSProcedure.html"
+        }
+      ],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": [
       {
         "key": "code",
@@ -1076,6 +1151,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-flag-alert-obl-eu-eps.html",
     "icon": "flag",
     "description": "Clinical alerts and flags to be aware of for this patient.",
+    "ehds": {
+      "path": "EHDSPatientSummary.alerts",
+      "title": "Alerts",
+      "cardinality": "0..1",
+      "entryModels": [
+        {
+          "name": "EHDSAlert",
+          "title": "Alert model",
+          "description": "A statement higlighting a fact about the patient that requires clinical attention to ensure safety and prevent adverse outcomes.\nExample 1: intolerance to aspirin due to gastrointestinal bleeding.\nExample 2: intolerance to captopril because of cough (the patient is not allergic but can't tolerate it because of persistent cough)\nExample 3: the patient has a rare disease that requires special treatment\nExample 4: Airway Alert / Difficult Intubation\nExample 5: Diagnoses such as malignant hyperthermia, porphyria, and bleeding disorders; special treatments like anticoagulants or immunosuppressants; implanted devices.\nExample 6: transplanted organs illustrate other information that has to be taken into account in a healthcare contact.\nExample 7: participation in a clinical trial that has to be taken into account in a healthcare contact.",
+          "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSAlert.html"
+        }
+      ],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": [
       {
         "key": "code",
@@ -1239,6 +1329,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-deviceUseStatement-eu-eps.html",
     "icon": "monitor_heart",
     "description": "Medical devices and implants used by the patient.",
+    "ehds": {
+      "path": "EHDSPatientSummary.medicalDevicesAndImplants",
+      "title": "Medical devices and implants",
+      "cardinality": "1..1",
+      "entryModels": [
+        {
+          "name": "EHDSDeviceUse",
+          "title": "Device use model",
+          "description": "Model for information about the use of a device in the care of patient.",
+          "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSDeviceUse.html"
+        }
+      ],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": [
       {
         "key": "deviceType",
@@ -1430,6 +1535,21 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-observation-travel-eu-eps.html",
     "icon": "flight",
     "description": "Countries visited, relevant for exposure and infectious risk.",
+    "ehds": {
+      "path": "EHDSPatientSummary.travelHistory",
+      "title": "Travel history",
+      "cardinality": "0..1",
+      "entryModels": [
+        {
+          "name": "EHDSTravelHistory",
+          "title": "Travel history model",
+          "description": "Relevant information about the patient's recent travel history, for one visit",
+          "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSTravelHistory.html"
+        }
+      ],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": [
       {
         "key": "country",
@@ -1693,6 +1813,14 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-composition-eu-eps.html",
     "icon": "menu_book",
     "description": "The patient’s own narrative — goals, preferences and concerns.",
+    "ehds": {
+      "path": "EHDSPatientSummary.patientStory",
+      "title": "Patient story",
+      "cardinality": "0..1",
+      "entryModels": [],
+      "pageUrl": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html",
+      "sourcePackage": "xtehr.eu.ehds.models#1.0.0"
+    },
     "fields": []
   },
   {
@@ -1705,6 +1833,7 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
     "profilePageUrl": "https://hl7.eu/fhir/eps/StructureDefinition-composition-eu-eps.html",
     "icon": "history_edu",
     "description": "Narrative summary of the patient’s past medical history.",
+    "ehds": null,
     "fields": []
   }
 ];

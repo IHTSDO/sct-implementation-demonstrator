@@ -51,6 +51,29 @@
     "body": "Un binding vincula un elemento codificado, como un diagnóstico, un alérgeno o una vacuna, con el value set del que deben provenir sus códigos, con una fuerza: required, extensible, preferred o example. Los value sets de SNOMED CT suelen definirse con ECL, lo que los mantiene precisos y actualizados.",
     "note": "Para los proveedores de HCE, esto significa capacidad terminológica, no solo formatos de mensaje."
   },
+  "chain": {
+    "title": "Del requisito al código",
+    "body": "Cada campo codificado depende de una cadena de especificaciones. Cada capa refina a la anterior, desde lo que exige el EHDS hasta los códigos que un sistema envía realmente.",
+    "steps": {
+      "model": {
+        "title": "Modelo lógico del EHDS",
+        "source": "Xt-EHR: qué datos se requieren"
+      },
+      "profile": {
+        "title": "Perfil FHIR",
+        "source": "HL7 Europe: cómo se intercambian"
+      },
+      "valueSet": {
+        "title": "Binding a value set",
+        "source": "IPS y MyHealth@EU: qué códigos se admiten"
+      },
+      "terminology": {
+        "title": "Terminología",
+        "source": "SNOMED CT, consultada en vivo con ECL"
+      }
+    },
+    "note": "Comparar las capas revela brechas. El modelo Xt-EHR incluye Orphacode para enfermedades raras, pero ningún binding de la EPS lo cubre todavía. Los badges EHDS de los demostradores muestran qué modelo realiza cada sección."
+  },
   "build": {
     "title": "Cómo se construyen estos demostradores",
     "steps": {
@@ -91,6 +114,7 @@
     "commission": "Comisión Europea: Espacio Europeo de Datos Sanitarios",
     "epsIg": "Guía de implementación HL7 Europe Patient Summary",
     "labIg": "Guía de implementación MyHealth@EU Laboratory",
-    "webinars": "Serie de webinars de implementación de SNOMED CT"
+    "webinars": "Serie de webinars de implementación de SNOMED CT",
+    "xtehrModels": "Modelos lógicos de información del EHDS (Xt-EHR)"
   }
 }

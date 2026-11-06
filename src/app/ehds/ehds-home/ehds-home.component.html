@@ -59,6 +59,26 @@
     </section>
   </div>
 
+  <!-- Dependency chain: requirement → profile → value set → terminology -->
+  <section class="block">
+    <h2><mat-icon>account_tree</mat-icon>{{ t('chain.title') }}</h2>
+    <p>{{ t('chain.body') }}</p>
+    <ol class="chain">
+      @for (step of chainSteps; track step.key; let last = $last) {
+        <li>
+          <mat-icon class="chain-icon">{{ step.icon }}</mat-icon>
+          <strong>{{ t('chain.steps.' + step.key + '.title') }}</strong>
+          <span class="chain-source">{{ t('chain.steps.' + step.key + '.source') }}</span>
+          <code>{{ step.example }}</code>
+        </li>
+        @if (!last) {
+          <mat-icon class="chain-arrow" aria-hidden="true">arrow_forward</mat-icon>
+        }
+      }
+    </ol>
+    <p class="callout">{{ t('chain.note') }}</p>
+  </section>
+
   <!-- How the demonstrators are built -->
   <section class="block">
     <h2><mat-icon>construction</mat-icon>{{ t('build.title') }}</h2>

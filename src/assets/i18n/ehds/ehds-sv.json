@@ -51,6 +51,29 @@
     "body": "En binding kopplar ett kodat element, till exempel en diagnos, ett allergen eller ett vaccin, till det value set som koderna ska hämtas från, med en styrka: required, extensible, preferred eller example. Value sets i SNOMED CT definieras oftast med ECL, vilket håller dem precisa och aktuella.",
     "note": "För journalsystemleverantörer innebär det terminologisk förmåga, inte bara meddelandeformat."
   },
+  "chain": {
+    "title": "Från krav till kod",
+    "body": "Varje kodat fält beror på en kedja av specifikationer. Varje lag förfinar det föregående, från vad EHDS kräver till de koder ett system faktiskt skickar.",
+    "steps": {
+      "model": {
+        "title": "Logisk EHDS-modell",
+        "source": "Xt-EHR: vilka data som krävs"
+      },
+      "profile": {
+        "title": "FHIR-profil",
+        "source": "HL7 Europe: hur de utbyts"
+      },
+      "valueSet": {
+        "title": "Bindning till ett value set",
+        "source": "IPS och MyHealth@EU: vilka koder som tillåts"
+      },
+      "terminology": {
+        "title": "Terminologi",
+        "source": "SNOMED CT, sökt live med ECL"
+      }
+    },
+    "note": "En jämförelse av lagren avslöjar luckor. Xt-EHR-modellen nämner Orphacode för sällsynta sjukdomar, men ingen EPS-bindning täcker den ännu. EHDS-märkena i demonstratorerna visar vilken modell varje sektion realiserar."
+  },
   "build": {
     "title": "Så är demonstratorerna byggda",
     "steps": {
@@ -91,6 +114,7 @@
     "commission": "Europeiska kommissionen: Det europeiska hälsodataområdet",
     "epsIg": "Implementeringsguide för HL7 Europe Patient Summary",
     "labIg": "Implementeringsguide för MyHealth@EU Laboratory",
-    "webinars": "Webbinarieserie om implementering av SNOMED CT"
+    "webinars": "Webbinarieserie om implementering av SNOMED CT",
+    "xtehrModels": "Logiska EHDS-informationsmodeller (Xt-EHR)"
   }
 }

@@ -38,6 +38,13 @@ export interface EpsAlignmentNote {
 
 export interface EpsSectionConfig {
   key: string;
+  /**
+   * Matching section of the Xt-EHR Patient Summary logical model
+   * (`EHDSPatientSummary.<ehdsSection>`), or null when the model has no
+   * counterpart. The model and entry details are read from ./xtehr-package.
+   * This link is curated: neither package carries a computable mapping.
+   */
+  ehdsSection: string | null;
   /** 'resource' (default) or 'narrative' (free-text section). */
   kind?: 'resource' | 'narrative';
   title: string;
@@ -81,6 +88,7 @@ const COUNTRY_OPTIONS = [
 export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   {
     key: 'problems',
+    ehdsSection: 'problems',
     title: 'Problems',
     loincCode: '11450-4',
     resourceType: 'Condition',
@@ -149,6 +157,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'allergies',
+    ehdsSection: 'allergiesAndIntolerances',
     title: 'Allergies & Intolerances',
     loincCode: '48765-2',
     resourceType: 'AllergyIntolerance',
@@ -226,6 +235,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'medications',
+    ehdsSection: 'medicationSummary',
     title: 'Medication Summary',
     loincCode: '10160-0',
     resourceType: 'MedicationStatement',
@@ -277,6 +287,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'immunizations',
+    ehdsSection: 'immunisations',
     title: 'Immunizations',
     loincCode: '11369-6',
     resourceType: 'Immunization',
@@ -331,6 +342,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'procedures',
+    ehdsSection: 'procedures',
     title: 'Procedures',
     loincCode: '47519-4',
     resourceType: 'Procedure',
@@ -390,6 +402,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'alerts',
+    ehdsSection: 'alerts',
     title: 'Alerts',
     loincCode: '104605-1',
     resourceType: 'Flag',
@@ -441,6 +454,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'medicalDevices',
+    ehdsSection: 'medicalDevicesAndImplants',
     title: 'Medical Devices',
     loincCode: '46264-8',
     resourceType: 'DeviceUseStatement',
@@ -498,6 +512,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'travelHistory',
+    ehdsSection: 'travelHistory',
     title: 'Travel History',
     loincCode: '10182-4',
     resourceType: 'Observation',
@@ -537,6 +552,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'patientStory',
+    ehdsSection: 'patientStory',
     kind: 'narrative',
     title: 'Patient Story',
     loincCode: '81338-6',
@@ -549,6 +565,7 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
   },
   {
     key: 'patientHistory',
+    ehdsSection: null,
     kind: 'narrative',
     title: 'History of Past Illness',
     loincCode: '11329-0',

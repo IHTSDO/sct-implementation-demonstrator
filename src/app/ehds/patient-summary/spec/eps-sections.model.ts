@@ -141,5 +141,23 @@ export interface EpsSectionMeta {
   icon: string;
   /** Short description of what the section captures. */
   description: string;
+  /** The EHDS requirement this section realises (Xt-EHR logical model); null when the model has none. */
+  ehds: EpsEhdsSection | null;
   fields: EpsFieldMeta[];
+}
+
+/** A section of the Xt-EHR EHDS Patient Summary logical model, read from its package. */
+export interface EpsEhdsSection {
+  /** Element path, e.g. `EHDSPatientSummary.problems`. */
+  path: string;
+  /** Section title from the model, e.g. `Medical problems`. */
+  title: string;
+  /** Cardinality of the section in the model, e.g. `1..1`. */
+  cardinality: string;
+  /** Logical models used for the section entries, e.g. EHDSCondition. */
+  entryModels: { name: string; title: string; description: string; pageUrl: string }[];
+  /** Page of the Patient Summary model. */
+  pageUrl: string;
+  /** Source package, e.g. xtehr.eu.ehds.models#1.0.0. */
+  sourcePackage: string;
 }

@@ -148,6 +148,60 @@
 }
 
 /* Build steps */
+/* Dependency chain */
+.chain {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.chain li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+}
+
+.chain-icon {
+  color: var(--ehds-accent);
+}
+
+.chain-source {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.chain code {
+  margin-top: auto;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f5f5f5;
+  font-size: 0.75rem;
+  word-break: break-word;
+}
+
+.chain-arrow {
+  align-self: center;
+  color: rgba(0, 0, 0, 0.38);
+}
+
+@media (max-width: 900px) {
+  .chain {
+    grid-template-columns: 1fr;
+  }
+
+  .chain-arrow {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+}
+
 .steps {
   list-style: none;
   padding: 0;
