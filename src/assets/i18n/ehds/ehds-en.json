@@ -1,0 +1,96 @@
+{
+  "hero": {
+    "title": "SNOMED CT in the European Health Data Space",
+    "subtitle": "Interactive demonstrators built from the EHDS implementation guides. See how SNOMED CT terminology bindings turn specifications into working, conformant FHIR data.",
+    "cta": "Explore the demonstrators"
+  },
+  "about": {
+    "title": "What is the EHDS?",
+    "body": "The European Health Data Space is an EU Regulation (2025/327), directly applicable in every Member State. It creates a common framework for using electronic health data across Europe.",
+    "aims": {
+      "primary": {
+        "title": "Primary use",
+        "body": "People access, control and share their health data across borders for their own care."
+      },
+      "secondary": {
+        "title": "Secondary use",
+        "body": "Secure, trustworthy reuse of health data for research, innovation and policy-making."
+      },
+      "market": {
+        "title": "Single market for EHR systems",
+        "body": "Interoperability becomes a demonstrable, enforceable requirement for EHR products."
+      }
+    }
+  },
+  "timeline": {
+    "title": "Key milestones",
+    "entryIntoForce": "Entry into force",
+    "implementingActs": "Implementing acts",
+    "application": "Entry into application",
+    "additionalCategories": "Additional data categories",
+    "thirdCountries": "Open to third countries"
+  },
+  "eehrxf": {
+    "title": "A common exchange format",
+    "body": "Primary use relies on the European Electronic Health Record exchange Format (EEHRxF) and its priority data categories. Each category has a dataset specification whose terminology bindings frequently name SNOMED CT and LOINC as preferred code systems.",
+    "categories": {
+      "patientSummary": "Patient Summary",
+      "ePrescription": "ePrescription and eDispensation",
+      "laboratory": "Laboratory reports",
+      "imaging": "Medical imaging and reports",
+      "discharge": "Hospital discharge reports"
+    },
+    "disclaimer": "The dataset specifications are drafts prepared by Xt-EHR and are not yet final implementing acts."
+  },
+  "ig": {
+    "title": "Computable implementation guides",
+    "body": "FHIR implementation guides, such as HL7 Europe's Patient Summary, are published as machine-readable packages. A package contains profiles that constrain FHIR resources, value sets, terminology bindings and examples, so software can read the specification directly instead of re-typing it from a document."
+  },
+  "bindings": {
+    "title": "Terminology bindings with SNOMED CT",
+    "body": "A binding links a coded element, such as a diagnosis, an allergen or a vaccine, to the value set its codes must come from, with a strength: required, extensible, preferred or example. SNOMED CT value sets are typically defined with ECL, which keeps them precise and current.",
+    "note": "For EHR vendors this means terminology capability, not just message formats."
+  },
+  "build": {
+    "title": "How these demonstrators are built",
+    "steps": {
+      "read": {
+        "title": "Read the guide",
+        "body": "Load the implementation guide's FHIR package and its profiles."
+      },
+      "generate": {
+        "title": "Generate the forms",
+        "body": "Derive fields, cardinality and documentation from the profiles, focusing on the clinically relevant, SNOMED CT–coded elements."
+      },
+      "bind": {
+        "title": "Bind the terminology",
+        "body": "Each coded field searches SNOMED CT live, constrained by its value set."
+      },
+      "produce": {
+        "title": "Produce conformant FHIR",
+        "body": "Captured data is assembled into FHIR resources that claim the guide's profiles."
+      }
+    },
+    "note": "In every demonstrator, the FHIR and BINDING badges open the element definition and the value set straight from the guide."
+  },
+  "demos": {
+    "title": "Demonstrators",
+    "open": "Open demo",
+    "patientSummary": {
+      "title": "EHDS Patient Summary",
+      "description": "A spec-driven European Patient Summary: problems, allergies, medications, immunizations and more, assembled into a conformant EPS document."
+    },
+    "laboratory": {
+      "title": "EHDS Laboratory Report",
+      "description": "Laboratory orders, specimens and results with SNOMED CT and LOINC, assembled into a FHIR DiagnosticReport."
+    }
+  },
+  "resources": {
+    "title": "Resources",
+    "regulation": "EHDS Regulation (EU) 2025/327",
+    "commission": "European Commission: European Health Data Space",
+    "epsIg": "HL7 Europe Patient Summary implementation guide",
+    "labIg": "MyHealth@EU Laboratory implementation guide",
+    "webinars": "SNOMED CT implementation web series"
+  }
+}

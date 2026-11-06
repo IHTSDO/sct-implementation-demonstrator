@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { DiagnosticReportData } from '../ehds-laboratory-demo/diagnostic-report-form/diagnostic-report-form.component';
-import { SpecimenData } from '../ehds-laboratory-demo/specimen-form/specimen-form.component';
-import { ObservationResultData } from '../ehds-laboratory-demo/observation-result-form/observation-result-form.component';
-import { ServiceRequestData } from '../ehds-laboratory-demo/service-request-form/service-request-form.component';
+import { DiagnosticReportData } from '../ehds/laboratory-demo/diagnostic-report-form/diagnostic-report-form.component';
+import { SpecimenData } from '../ehds/laboratory-demo/specimen-form/specimen-form.component';
+import { ObservationResultData } from '../ehds/laboratory-demo/observation-result-form/observation-result-form.component';
+import { ServiceRequestData } from '../ehds/laboratory-demo/service-request-form/service-request-form.component';
 
 export interface FhirDiagnosticReport {
   resourceType: 'DiagnosticReport';

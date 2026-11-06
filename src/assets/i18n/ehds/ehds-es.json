@@ -1,0 +1,96 @@
+{
+  "hero": {
+    "title": "SNOMED CT en el Espacio Europeo de Datos Sanitarios",
+    "subtitle": "Demostradores interactivos construidos a partir de las guías de implementación del EHDS. Descubrí cómo los terminology bindings con SNOMED CT convierten las especificaciones en datos FHIR conformes y funcionales.",
+    "cta": "Explorar los demostradores"
+  },
+  "about": {
+    "title": "¿Qué es el EHDS?",
+    "body": "El Espacio Europeo de Datos Sanitarios es un Reglamento de la UE (2025/327), directamente aplicable en todos los Estados miembros. Crea un marco común para el uso de los datos de salud electrónicos en toda Europa.",
+    "aims": {
+      "primary": {
+        "title": "Uso primario",
+        "body": "Las personas acceden, controlan y comparten sus datos de salud entre países para su propia atención."
+      },
+      "secondary": {
+        "title": "Uso secundario",
+        "body": "Reutilización segura y confiable de los datos de salud para investigación, innovación y políticas públicas."
+      },
+      "market": {
+        "title": "Mercado único de sistemas de HCE",
+        "body": "La interoperabilidad pasa a ser un requisito demostrable y exigible para los productos de historia clínica electrónica."
+      }
+    }
+  },
+  "timeline": {
+    "title": "Hitos principales",
+    "entryIntoForce": "Entrada en vigor",
+    "implementingActs": "Actos de ejecución",
+    "application": "Inicio de aplicación",
+    "additionalCategories": "Nuevas categorías de datos",
+    "thirdCountries": "Apertura a terceros países"
+  },
+  "eehrxf": {
+    "title": "Un formato de intercambio común",
+    "body": "El uso primario se apoya en el Formato Europeo de Intercambio de Historias Clínicas Electrónicas (EEHRxF) y sus categorías de datos prioritarias. Cada categoría tiene una especificación de dataset cuyos terminology bindings suelen indicar SNOMED CT y LOINC como sistemas de códigos preferidos.",
+    "categories": {
+      "patientSummary": "Resumen del paciente",
+      "ePrescription": "Receta y dispensación electrónicas",
+      "laboratory": "Informes de laboratorio",
+      "imaging": "Imágenes médicas e informes",
+      "discharge": "Informes de alta hospitalaria"
+    },
+    "disclaimer": "Las especificaciones de dataset son borradores elaborados por Xt-EHR y todavía no son actos de ejecución definitivos."
+  },
+  "ig": {
+    "title": "Guías de implementación computables",
+    "body": "Las guías de implementación FHIR, como el Patient Summary de HL7 Europe, se publican como paquetes legibles por máquina. Un paquete contiene perfiles que restringen los recursos FHIR, value sets, terminology bindings y ejemplos, de modo que el software puede leer la especificación directamente en lugar de transcribirla desde un documento."
+  },
+  "bindings": {
+    "title": "Terminology bindings con SNOMED CT",
+    "body": "Un binding vincula un elemento codificado, como un diagnóstico, un alérgeno o una vacuna, con el value set del que deben provenir sus códigos, con una fuerza: required, extensible, preferred o example. Los value sets de SNOMED CT suelen definirse con ECL, lo que los mantiene precisos y actualizados.",
+    "note": "Para los proveedores de HCE, esto significa capacidad terminológica, no solo formatos de mensaje."
+  },
+  "build": {
+    "title": "Cómo se construyen estos demostradores",
+    "steps": {
+      "read": {
+        "title": "Leer la guía",
+        "body": "Se carga el paquete FHIR de la guía de implementación y sus perfiles."
+      },
+      "generate": {
+        "title": "Generar los formularios",
+        "body": "Campos, cardinalidad y documentación se derivan de los perfiles, con foco en los elementos clínicamente relevantes codificados con SNOMED CT."
+      },
+      "bind": {
+        "title": "Vincular la terminología",
+        "body": "Cada campo codificado busca en SNOMED CT en vivo, restringido por su value set."
+      },
+      "produce": {
+        "title": "Producir FHIR conforme",
+        "body": "Los datos capturados se ensamblan en recursos FHIR que declaran los perfiles de la guía."
+      }
+    },
+    "note": "En cada demostrador, los badges FHIR y BINDING abren la definición del elemento y el value set directamente desde la guía."
+  },
+  "demos": {
+    "title": "Demostradores",
+    "open": "Abrir demo",
+    "patientSummary": {
+      "title": "EHDS Patient Summary",
+      "description": "Un Resumen del Paciente Europeo generado a partir de la especificación: problemas, alergias, medicación, vacunas y más, ensamblados en un documento EPS conforme."
+    },
+    "laboratory": {
+      "title": "EHDS Laboratory Report",
+      "description": "Solicitudes, muestras y resultados de laboratorio con SNOMED CT y LOINC, ensamblados en un DiagnosticReport FHIR."
+    }
+  },
+  "resources": {
+    "title": "Recursos",
+    "regulation": "Reglamento EHDS (UE) 2025/327",
+    "commission": "Comisión Europea: Espacio Europeo de Datos Sanitarios",
+    "epsIg": "Guía de implementación HL7 Europe Patient Summary",
+    "labIg": "Guía de implementación MyHealth@EU Laboratory",
+    "webinars": "Serie de webinars de implementación de SNOMED CT"
+  }
+}

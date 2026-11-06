@@ -29,14 +29,6 @@
       "name": "SNOMED EHR Lab",
       "description": "En komplett journalsystemsimulering med genererade persistenta patienter, kliniska, tandvårds- och omvårdnadsjournaler, AI-stödd inmatning, CDS, analys, interoperabilitetsverktyg och Smart Health Links baserade på FHIR och SNOMED CT."
     },
-    "ehdsLaboratory": {
-      "name": "EHDS Laboratory Report",
-      "description": "Laboratory data for the European Health Data Space (EHDS): service requests, specimens, observation results and diagnostic reports with SNOMED CT and FHIR."
-    },
-    "ehdsPatientSummary": {
-      "name": "EHDS Patient Summary",
-      "description": "A spec-driven European Patient Summary (EPS): form fields generated from the HL7 Europe EPS FHIR profiles, focusing on SNOMED CT–coded elements, assembling a conformant EPS document Bundle."
-    },
     "allergies": {
       "name": "Allergier",
       "description": "En SNOMED / FHIR-implementeringsdemo för registrering av allergi- och intoleransuppgifter, framtagen av Clinical Reference Group för allergier."
@@ -136,6 +128,10 @@
     "fhirInternationalizer": {
       "name": "FHIR Resurs Internationaliseringsverktyg",
       "description": "Ladda upp en FHIR-resurs, ersätt utökningskodningar med deras närmaste förfäder från den internationella utgåvan, anpassa begreppsvisningar till språket och terminologin för din målutgåva, och hitta historiska ersättningar för inaktiva begrepp."
+    },
+    "ehdsHome": {
+      "name": "SNOMED CT i EHDS",
+      "description": "En introduktion till det europeiska hälsodataområdet, maskinläsbara implementeringsguider och terminology bindings med SNOMED CT, med de interaktiva EHDS-demonstratorerna."
     }
   }
 }

@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { TerminologyService } from '../../services/terminology.service';
+import { TerminologyService } from '../../../services/terminology.service';
 
 @Component({
   selector: 'app-concept-lookup-dialog',

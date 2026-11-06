@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FhirDiagnosticReport } from '../../services/ehds-laboratory-fhir.service';
+import { FhirDiagnosticReport } from '../../../services/ehds-laboratory-fhir.service';
 import { PATIENT_EXAMPLES } from '../diagnostic-report-form/diagnostic-report-examples.data';
 
 @Component({

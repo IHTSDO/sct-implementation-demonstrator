@@ -5,7 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ValuesetDialogComponent } from '../valueset-dialog/valueset-dialog.component';
 import { ConceptLookupDialogComponent } from '../concept-lookup-dialog/concept-lookup-dialog.component';
-import { TerminologyService } from '../../services/terminology.service';
+import { TerminologyService } from '../../../services/terminology.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil, startWith, map, Observable, of } from 'rxjs';
 

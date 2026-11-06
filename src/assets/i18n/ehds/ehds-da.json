@@ -1,0 +1,96 @@
+{
+  "hero": {
+    "title": "SNOMED CT i det europæiske sundhedsdataområde",
+    "subtitle": "Interaktive demonstratorer bygget ud fra EHDS-implementeringsvejledningerne. Se, hvordan terminology bindings med SNOMED CT omsætter specifikationer til fungerende, konforme FHIR-data.",
+    "cta": "Udforsk demonstratorerne"
+  },
+  "about": {
+    "title": "Hvad er EHDS?",
+    "body": "Det europæiske sundhedsdataområde er en EU-forordning (2025/327), der gælder direkte i alle medlemsstater. Den skaber en fælles ramme for brugen af elektroniske sundhedsdata i hele Europa.",
+    "aims": {
+      "primary": {
+        "title": "Primær anvendelse",
+        "body": "Borgere får adgang til, kontrol over og kan dele deres sundhedsdata på tværs af grænser i forbindelse med deres egen behandling."
+      },
+      "secondary": {
+        "title": "Sekundær anvendelse",
+        "body": "Sikker og pålidelig genbrug af sundhedsdata til forskning, innovation og politikudvikling."
+      },
+      "market": {
+        "title": "Indre marked for EPJ-systemer",
+        "body": "Interoperabilitet bliver et påviseligt krav, der kan håndhæves, for EPJ-produkter."
+      }
+    }
+  },
+  "timeline": {
+    "title": "Vigtige milepæle",
+    "entryIntoForce": "Ikrafttræden",
+    "implementingActs": "Gennemførelsesretsakter",
+    "application": "Finder anvendelse",
+    "additionalCategories": "Yderligere datakategorier",
+    "thirdCountries": "Åbning for tredjelande"
+  },
+  "eehrxf": {
+    "title": "Et fælles udvekslingsformat",
+    "body": "Primær anvendelse bygger på det europæiske udvekslingsformat for elektroniske patientjournaler (EEHRxF) og dets prioriterede datakategorier. Hver kategori har en datasætspecifikation, hvis terminology bindings ofte angiver SNOMED CT og LOINC som foretrukne kodesystemer.",
+    "categories": {
+      "patientSummary": "Patientoversigt",
+      "ePrescription": "Elektronisk receptudstedelse og -udlevering",
+      "laboratory": "Laboratorierapporter",
+      "imaging": "Medicinsk billeddiagnostik og rapporter",
+      "discharge": "Udskrivningsbreve"
+    },
+    "disclaimer": "Datasætspecifikationerne er udkast udarbejdet af Xt-EHR og endnu ikke endelige gennemførelsesretsakter."
+  },
+  "ig": {
+    "title": "Maskinlæsbare implementeringsvejledninger",
+    "body": "FHIR-implementeringsvejledninger, såsom HL7 Europes Patient Summary, udgives som maskinlæsbare pakker. En pakke indeholder profiler, der afgrænser FHIR-ressourcer, value sets, terminology bindings og eksempler, så software kan læse specifikationen direkte i stedet for at overføre den fra et dokument."
+  },
+  "bindings": {
+    "title": "Terminology bindings med SNOMED CT",
+    "body": "En binding knytter et kodet element, såsom en diagnose, et allergen eller en vaccine, til det value set, koderne skal komme fra, med en styrke: required, extensible, preferred eller example. Value sets i SNOMED CT defineres typisk med ECL, hvilket holder dem præcise og opdaterede.",
+    "note": "For EPJ-leverandører betyder det terminologisk kapacitet, ikke kun meddelelsesformater."
+  },
+  "build": {
+    "title": "Sådan er demonstratorerne bygget",
+    "steps": {
+      "read": {
+        "title": "Indlæs vejledningen",
+        "body": "Implementeringsvejledningens FHIR-pakke og profiler indlæses."
+      },
+      "generate": {
+        "title": "Generér formularerne",
+        "body": "Felter, kardinalitet og dokumentation udledes af profilerne med fokus på de klinisk relevante elementer kodet med SNOMED CT."
+      },
+      "bind": {
+        "title": "Knyt terminologien",
+        "body": "Hvert kodet felt søger live i SNOMED CT, afgrænset af dets value set."
+      },
+      "produce": {
+        "title": "Producér konform FHIR",
+        "body": "De registrerede data samles i FHIR-ressourcer, der følger vejledningens profiler."
+      }
+    },
+    "note": "I hver demonstrator åbner badgerne FHIR og BINDING elementdefinitionen og value set direkte fra vejledningen."
+  },
+  "demos": {
+    "title": "Demonstratorer",
+    "open": "Åbn demo",
+    "patientSummary": {
+      "title": "EHDS Patient Summary",
+      "description": "En europæisk patientoversigt bygget ud fra specifikationen: problemer, allergier, medicin, vaccinationer og mere, samlet i et konformt EPS-dokument."
+    },
+    "laboratory": {
+      "title": "EHDS Laboratory Report",
+      "description": "Laboratorierekvisitioner, prøver og resultater med SNOMED CT og LOINC, samlet i en FHIR DiagnosticReport."
+    }
+  },
+  "resources": {
+    "title": "Ressourcer",
+    "regulation": "EHDS-forordningen (EU) 2025/327",
+    "commission": "Europa-Kommissionen: Det europæiske sundhedsdataområde",
+    "epsIg": "Implementeringsvejledning for HL7 Europe Patient Summary",
+    "labIg": "Implementeringsvejledning for MyHealth@EU Laboratory",
+    "webinars": "Webinarserie om implementering af SNOMED CT"
+  }
+}

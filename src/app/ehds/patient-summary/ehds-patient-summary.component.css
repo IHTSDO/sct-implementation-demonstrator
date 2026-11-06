@@ -4,6 +4,10 @@
   padding: 16px;
 }
 
+.back-link {
+  margin: 0 0 4px -12px;
+}
+
 .page-header {
   display: flex;
   align-items: flex-start;

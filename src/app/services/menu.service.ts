@@ -42,26 +42,6 @@ export class MenuService {
       description: "A LOINC Ontology implementation demo, covering laboratory orders, results and FHIR resources."
     },
     {
-      key: "ehdsLaboratory",
-      highlighted: true,
-      addedAt: "2026-09-11",
-      name: "EHDS Laboratory Report",
-      subtitle: "clinicalDemo",
-      type: "internal",
-      url: "/ehds-laboratory-demo",
-      description: "A demonstration of laboratory data implementation for the European Health Data Space (EHDS), covering service requests, specimens, observation results and diagnostic reports with SNOMED CT and FHIR."
-    },
-    {
-      key: "ehdsPatientSummary",
-      highlighted: true,
-      addedAt: "2026-09-11",
-      name: "EHDS Patient Summary",
-      subtitle: "clinicalDemo",
-      type: "internal",
-      url: "/ehds-patient-summary",
-      description: "A spec-driven demonstration of the European Patient Summary (EPS): form fields generated from the HL7 Europe EPS FHIR profiles, focusing on SNOMED CT–coded elements, assembling a conformant EPS document Bundle."
-    },
-    {
       key: "ncptRefset",
       name: "NCPT Refset",
       subtitle: "clinicalDemo",
@@ -262,6 +242,16 @@ export class MenuService {
       type: "internal",
       url: "/cancer-reporting",
       description: "FHIR questionnaires for cancer synoptic reporting, developed in collaboration between SNOMED International and ICCR (International Collaboration on Cancer Reporting)."
+    },
+    {
+      key: "ehdsHome",
+      highlighted: true,
+      addedAt: "2026-11-06",
+      name: "SNOMED CT in the EHDS",
+      subtitle: "learningDemo",
+      type: "internal",
+      url: "/ehds",
+      description: "An introduction to the European Health Data Space, computable implementation guides and SNOMED CT terminology bindings, with the EHDS interactive demonstrators."
     }
 
   ];

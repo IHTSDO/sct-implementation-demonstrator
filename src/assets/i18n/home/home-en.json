@@ -28,14 +28,6 @@
       "name": "SNOMED EHR Lab",
       "description": "Full EHR simulation with AI-assisted entry, CDS, analytics, and FHIR Smart Health Links."
     },
-    "ehdsLaboratory": {
-      "name": "EHDS Laboratory Report",
-      "description": "Laboratory data for the European Health Data Space (EHDS): service requests, specimens, observation results and diagnostic reports with SNOMED CT and FHIR."
-    },
-    "ehdsPatientSummary": {
-      "name": "EHDS Patient Summary",
-      "description": "A spec-driven European Patient Summary (EPS): form fields generated from the HL7 Europe EPS FHIR profiles, focusing on SNOMED CT–coded elements, assembling a conformant EPS document Bundle."
-    },
     "allergies": {
       "name": "Allergies",
       "description": "Record allergy and intolerance details using SNOMED CT and FHIR resources."
@@ -139,6 +131,10 @@
     "cancerReporting": {
       "name": "Cancer Synoptic Reporting",
       "description": "FHIR questionnaires for cancer synoptic reporting, in collaboration with ICCR."
+    },
+    "ehdsHome": {
+      "name": "SNOMED CT in the EHDS",
+      "description": "An introduction to the European Health Data Space, computable implementation guides and SNOMED CT terminology bindings, with the EHDS interactive demonstrators."
     }
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { EhdsLaboratoryFhirService, FhirDiagnosticReport } from '../../services/ehds-laboratory-fhir.service';
+import { EhdsLaboratoryFhirService, FhirDiagnosticReport } from '../../../services/ehds-laboratory-fhir.service';
 import { SpecimenFormComponent, SpecimenData } from '../specimen-form/specimen-form.component';
 import { ServiceRequestFormComponent, ServiceRequestData } from '../service-request-form/service-request-form.component';
 import { ObservationResultFormComponent, ObservationResultData } from '../observation-result-form/observation-result-form.component';

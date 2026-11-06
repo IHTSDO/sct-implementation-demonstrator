@@ -1,0 +1,122 @@
+<div class="ehds-home" *transloco="let t; prefix: 'ehds'">
+  <!-- Hero -->
+  <header class="hero">
+    <h1>{{ t('hero.title') }}</h1>
+    <p class="hero-subtitle">{{ t('hero.subtitle') }}</p>
+    <a mat-flat-button color="accent" href="#demos" (click)="$event.preventDefault(); demosAnchor.scrollIntoView({ behavior: 'smooth' })">
+      <mat-icon>play_circle</mat-icon>
+      {{ t('hero.cta') }}
+    </a>
+  </header>
+
+  <!-- What is the EHDS -->
+  <section class="block">
+    <h2><mat-icon>account_balance</mat-icon>{{ t('about.title') }}</h2>
+    <p>{{ t('about.body') }}</p>
+    <div class="aims">
+      @for (aim of aims; track aim.key) {
+        <mat-card appearance="outlined" class="aim">
+          <mat-icon class="aim-icon">{{ aim.icon }}</mat-icon>
+          <h3>{{ t('about.aims.' + aim.key + '.title') }}</h3>
+          <p>{{ t('about.aims.' + aim.key + '.body') }}</p>
+        </mat-card>
+      }
+    </div>
+
+    <h3 class="sub">{{ t('timeline.title') }}</h3>
+    <ol class="timeline">
+      @for (m of milestones; track m.year) {
+        <li>
+          <span class="year">{{ m.year }}</span>
+          <span class="label">{{ t('timeline.' + m.key) }}</span>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <!-- EEHRxF -->
+  <section class="block">
+    <h2><mat-icon>swap_horiz</mat-icon>{{ t('eehrxf.title') }}</h2>
+    <p>{{ t('eehrxf.body') }}</p>
+    <mat-chip-set class="categories" aria-label="EEHRxF priority categories">
+      @for (c of categories; track c) {
+        <mat-chip>{{ t('eehrxf.categories.' + c) }}</mat-chip>
+      }
+    </mat-chip-set>
+    <p class="disclaimer">{{ t('eehrxf.disclaimer') }}</p>
+  </section>
+
+  <!-- Implementation guides + bindings -->
+  <div class="two-col">
+    <section class="block">
+      <h2><mat-icon>menu_book</mat-icon>{{ t('ig.title') }}</h2>
+      <p>{{ t('ig.body') }}</p>
+    </section>
+    <section class="block">
+      <h2><mat-icon>link</mat-icon>{{ t('bindings.title') }}</h2>
+      <p>{{ t('bindings.body') }}</p>
+      <p class="callout">{{ t('bindings.note') }}</p>
+    </section>
+  </div>
+
+  <!-- How the demonstrators are built -->
+  <section class="block">
+    <h2><mat-icon>construction</mat-icon>{{ t('build.title') }}</h2>
+    <ol class="steps">
+      @for (step of buildSteps; track step; let i = $index) {
+        <li>
+          <span class="step-number">{{ i + 1 }}</span>
+          <div>
+            <strong>{{ t('build.steps.' + step + '.title') }}</strong>
+            <p>{{ t('build.steps.' + step + '.body') }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+    <p class="callout">{{ t('build.note') }}</p>
+  </section>
+
+  <!-- Demonstrators -->
+  <section class="block" id="demos" #demosAnchor>
+    <h2><mat-icon>play_circle</mat-icon>{{ t('demos.title') }}</h2>
+    <div class="demos">
+      @for (demo of demos; track demo.key) {
+        <mat-card appearance="outlined" class="demo">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="demo-icon">{{ demo.icon }}</mat-icon>
+            <mat-card-title>{{ t('demos.' + demo.key + '.title') }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{ t('demos.' + demo.key + '.description') }}</p>
+            <mat-chip-set>
+              @for (spec of demo.specs; track spec) {
+                <mat-chip disableRipple>{{ spec }}</mat-chip>
+              }
+            </mat-chip-set>
+          </mat-card-content>
+          <mat-card-actions align="end">
+            <a mat-flat-button color="accent" [routerLink]="demo.route" queryParamsHandling="preserve">
+              {{ t('demos.open') }}
+              <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </a>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  </section>
+
+  <!-- Resources -->
+  <section class="block">
+    <h2><mat-icon>bookmarks</mat-icon>{{ t('resources.title') }}</h2>
+    <ul class="resources">
+      @for (r of resources; track r.key) {
+        <li>
+          <a [href]="r.url" target="_blank" rel="noopener noreferrer">
+            {{ t('resources.' + r.key) }}
+            <mat-icon class="ext">open_in_new</mat-icon>
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
+</div>

@@ -4,7 +4,7 @@ import { EPS_SECTIONS } from './spec/eps-sections.generated';
 import { EpsSectionMeta } from './spec/eps-sections.model';
 import { EpsEntry, EpsFhirService, EpsPatient, EpsSectionEntries } from './eps-fhir.service';
 import { EpsDocumentDialogComponent } from './eps-document-dialog/eps-document-dialog.component';
-import { ValuesetDialogComponent } from '../ehds-laboratory-demo/valueset-dialog/valueset-dialog.component';
+import { ValuesetDialogComponent } from '../laboratory-demo/valueset-dialog/valueset-dialog.component';
 
 interface SectionState {
   section: EpsSectionMeta;

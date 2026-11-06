@@ -11,6 +11,11 @@ h3 {
     margin-top: 0px;
 }
 
+.back-link {
+    align-self: flex-start;
+    margin: 0 0 4px -12px;
+}
+
 #guideLink {
     font-size: smaller;
 }

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EpsFieldMeta } from '../spec/eps-sections.model';
-import { ValuesetDialogComponent } from '../../ehds-laboratory-demo/valueset-dialog/valueset-dialog.component';
+import { ValuesetDialogComponent } from '../../laboratory-demo/valueset-dialog/valueset-dialog.component';
 
 /**
  * Reusable FHIR / SNOMED + BINDING badges for a single EPS field.

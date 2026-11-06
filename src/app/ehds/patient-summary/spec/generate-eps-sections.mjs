@@ -10,7 +10,7 @@
  * decides their structural truth.
  *
  * Run from the repo root:
- *   node src/app/ehds-patient-summary/spec/generate-eps-sections.mjs
+ *   node src/app/ehds/patient-summary/spec/generate-eps-sections.mjs
  *
  * Do not edit eps-sections.generated.ts by hand — edit the config and re-run.
  */

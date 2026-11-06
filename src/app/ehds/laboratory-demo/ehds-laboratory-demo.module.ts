@@ -7,8 +7,8 @@ import { ObservationResultFormComponent } from './observation-result-form/observ
 import { ServiceRequestFormComponent } from './service-request-form/service-request-form.component';
 import { SpecimenFormComponent } from './specimen-form/specimen-form.component';
 import { ValuesetDialogComponent } from './valueset-dialog/valueset-dialog.component';
-import { BindingsModule } from '../shared/bindings.module';
-import { UiSharedModule } from '../shared/ui-shared.module';
+import { BindingsModule } from '../../shared/bindings.module';
+import { UiSharedModule } from '../../shared/ui-shared.module';
 import { EhdsLaboratoryDemoRoutingModule } from './ehds-laboratory-demo-routing.module';
 
 @NgModule({
