@@ -120,3 +120,152 @@
 .fhir-value .valueset-link:hover {
   color: #1565c0;
 }
+
+.additional-binding {
+  display: block;
+}
+
+/* Binding menu (shown when a field has additional bindings) */
+.binding-menu {
+  min-width: 320px;
+}
+
+.binding-group-label {
+  margin: 8px 0 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #424242;
+}
+
+.binding-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 8px 32px 8px 10px;
+  margin-bottom: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: white;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.binding-option:hover {
+  background: #f5f9fd;
+  border-color: #1976d2;
+}
+
+.binding-option-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.binding-option-usage {
+  font-size: 0.75rem;
+  color: #616161;
+}
+
+.binding-option-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.binding-chip {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #eceff1;
+  color: #37474f;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.binding-chip.strength {
+  background: #e3f2fd;
+  color: #0d47a1;
+  text-transform: uppercase;
+}
+
+.binding-count {
+  font-size: 0.7rem;
+  color: #757575;
+}
+
+.badge-note-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+  margin-left: 3px;
+  vertical-align: -2px;
+}
+
+/* Curated EHDS (Xt-EHR) alignment note */
+.alignment-note {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid #f9a825;
+  border-radius: 4px;
+  background: #fffde7;
+}
+
+.alignment-note-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #5d4037;
+}
+
+.alignment-note-title mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #f9a825;
+}
+
+.alignment-note p {
+  margin: 4px 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #424242;
+}
+
+.alignment-note-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.alignment-note-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: #1976d2;
+}
+
+.alignment-note-links mat-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+}
+
+.binding-option-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #757575;
+}

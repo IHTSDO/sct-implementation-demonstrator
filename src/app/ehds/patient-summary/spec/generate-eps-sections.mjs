@@ -14,7 +14,7 @@
  *
  * Do not edit eps-sections.generated.ts by hand — edit the config and re-run.
  */
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { createRequire } from 'node:module';
@@ -90,7 +90,63 @@ function valueSetPageUrl(canonical) {
   if ((m = url.match(/^https?:\/\/hl7\.eu\/fhir\/([^/]+)\/ValueSet\/(.+)$/))) {
     return `https://hl7.eu/fhir/${m[1]}/ValueSet-${m[2]}.html`;
   }
+  if ((m = url.match(/^https?:\/\/terminology\.ehdsi\.eu\/ValueSet\/(.+)$/))) {
+    // MyHealth@EU Master Value Catalogue (myhealth.eu.fhir.mvc-package).
+    return `https://fhir.ehdsi.eu/mvc-package/ValueSet-${m[1]}.html`;
+  }
   return url;
+}
+
+/** Pages served with X-Frame-Options / frame-ancestors 'self' cannot be shown in the dialog iframe. */
+function isEmbeddable(pageUrl) {
+  return !/^https:\/\/fhir\.ehdsi\.eu\//.test(pageUrl);
+}
+
+const SYSTEM_NAMES = {
+  'http://snomed.info/sct': 'SNOMED CT',
+  'http://hl7.org/fhir/sid/icd-10': 'ICD-10',
+  'http://www.whocc.no/atc': 'WHO ATC',
+  'http://www.orpha.net': 'Orphacode',
+  // MyHealth@EU's own code system for medical devices (EMDN-based).
+  'urn:oid:1.3.6.1.4.1.12559.11.10.1.3.1.44.6': 'eHDSI medical device codes',
+};
+
+const ADDITIONAL_BINDING = 'http://hl7.org/fhir/tools/StructureDefinition/additional-binding';
+
+/**
+ * Summaries of the value sets referenced by additional bindings (title, code
+ * systems, size), extracted from their FHIR packages by extract-valueset-summaries.mjs.
+ */
+const valueSetSummaries = existsSync(join(pkgDir, 'valueset-summaries.json'))
+  ? JSON.parse(readFileSync(join(pkgDir, 'valueset-summaries.json'), 'utf8'))
+  : {};
+
+/** Read the `additional-binding` extensions of an element binding. */
+function buildAdditionalBindings(binding) {
+  return (binding?.extension || [])
+    .filter((ext) => ext.url === ADDITIONAL_BINDING)
+    .map((ext) => {
+      const part = (name) => (ext.extension || []).find((e) => e.url === name) || {};
+      const valueSet = stripVersion(part('valueSet').valueCanonical);
+      if (!valueSet) return undefined;
+      const summary = valueSetSummaries[valueSet] || {};
+      const systemUrls = summary.systems || [];
+      const pageUrl = valueSetPageUrl(valueSet);
+      return {
+        purpose: part('purpose').valueCode || 'unknown',
+        valueSet,
+        title: summary.title || valueSet.split('/').pop(),
+        ...(part('shortDoco').valueString ? { usage: part('shortDoco').valueString } : {}),
+        ...(part('documentation').valueMarkdown ? { documentation: part('documentation').valueMarkdown } : {}),
+        systems: systemUrls.map((s) => SYSTEM_NAMES[s] || s),
+        ...(summary.conceptCount !== undefined ? { conceptCount: summary.conceptCount } : {}),
+        ...(summary.package ? { sourcePackage: summary.package } : {}),
+        pageUrl,
+        embeddable: isEmbeddable(pageUrl),
+        isSct: systemUrls.includes('http://snomed.info/sct'),
+      };
+    })
+    .filter(Boolean);
 }
 
 /** IG definitions page anchor for a given element path. */
@@ -126,11 +182,13 @@ function buildBinding(spec, control) {
   if (!b || !b.valueSet) return undefined;
   const valueSet = stripVersion(b.valueSet);
   const isSct = control === 'snomed' || /snomed|sct|\/uv\/ips\//i.test(valueSet);
+  const additional = buildAdditionalBindings(b);
   return {
     strength: b.strength || 'unknown',
     valueSet,
     pageUrl: valueSetPageUrl(valueSet),
     isSct,
+    ...(additional.length ? { additional } : {}),
   };
 }
 
@@ -181,6 +239,7 @@ async function main() {
         ...(f.options ? { options: f.options } : {}),
         ...(f.system ? { system: f.system } : {}),
         ...(f.hint ? { hint: f.hint } : {}),
+        ...(f.alignmentNote ? { alignmentNote: f.alignmentNote } : {}),
         doc,
         ...(bindingMeta ? { bindingMeta } : {}),
       };

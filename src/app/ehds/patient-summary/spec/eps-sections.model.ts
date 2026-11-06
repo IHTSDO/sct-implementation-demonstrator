@@ -61,6 +61,32 @@ export interface EpsBindingMeta {
   pageUrl: string;
   /** True when the bound value set is SNOMED CT based → "BINDING (SCT)". */
   isSct: boolean;
+  /**
+   * Extra bindings declared with the `additional-binding` extension, e.g. the
+   * MyHealth@EU (eHDSI) value sets used for cross-border exchange.
+   */
+  additional?: EpsAdditionalBinding[];
+}
+
+/** One `additional-binding` entry, enriched with a summary of its value set. */
+export interface EpsAdditionalBinding {
+  /** Binding purpose: preferred | required | extensible | candidate | ... */
+  purpose: string;
+  valueSet: string; // canonical (version stripped)
+  title: string;
+  /** Short usage note from the guide, e.g. "For cross border data exchange". */
+  usage?: string;
+  documentation?: string;
+  /** Human-readable code system names, e.g. ["ICD-10"]. */
+  systems: string[];
+  /** Number of codes when the value set is an enumerated list. */
+  conceptCount?: number;
+  /** FHIR package the value set comes from, e.g. myhealth.eu.fhir.mvc-package#9.1.0. */
+  sourcePackage?: string;
+  pageUrl: string;
+  /** False when the page refuses to be framed: open it in a new tab instead of the dialog. */
+  embeddable: boolean;
+  isSct: boolean;
 }
 
 export interface EpsFieldMeta {
@@ -85,6 +111,8 @@ export interface EpsFieldMeta {
   system?: string;
   /** Optional helper text under the field. */
   hint?: string;
+  /** Curated (not spec-derived) note on alignment with the Xt-EHR logical model. */
+  alignmentNote?: { text: string; links?: { label: string; url: string }[] };
   /** FHIR element documentation from the spec (drives the FHIR/SNOMED badge popover). */
   doc?: EpsElementDoc;
   /** Terminology binding from the spec (drives the BINDING / BINDING (SCT) badge). */

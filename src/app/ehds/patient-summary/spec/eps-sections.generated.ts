@@ -31,6 +31,19 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "note": "Search a clinical finding or disorder"
         },
         "system": "http://snomed.info/sct",
+        "alignmentNote": {
+          "text": "The Xt-EHR Condition model also lists Orphacode for diagnosed rare diseases, and the EPS binding documentation mentions \"ICD-10 or Orphanet codes\", but no EPS binding covers Orphacode yet: the cross-border value set (eHDSI Illness and Disorder) contains ICD-10 only. MyHealth@EU publishes Orphacodes separately in eHDSI Rare Disease.",
+          "links": [
+            {
+              "label": "Xt-EHR Condition model",
+              "url": "https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSCondition.html"
+            },
+            {
+              "label": "eHDSI Rare Disease",
+              "url": "https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIRareDisease.html"
+            }
+          ]
+        },
         "doc": {
           "short": "Identification of the condition, problem or diagnosis",
           "definition": "The problem code specifies the problem. Depending on the setting, different code systems can be used. The ProblemCodelist provides an overview of the possible code systems.",
@@ -50,7 +63,24 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "strength": "preferred",
           "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/problems-uv-ips",
           "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-problems-uv-ips.html",
-          "isSct": true
+          "isSct": true,
+          "additional": [
+            {
+              "purpose": "preferred",
+              "valueSet": "http://terminology.ehdsi.eu/ValueSet/eHDSIIllnessandDisorder",
+              "title": "eHDSI Illness and Disorder",
+              "usage": "For cross border data exchange",
+              "documentation": "Additional conformance binding to a problem code when ICD-10 or Orphanet codes are used.",
+              "systems": [
+                "ICD-10"
+              ],
+              "conceptCount": 14158,
+              "sourcePackage": "myhealth.eu.fhir.mvc-package#9.1.0",
+              "pageUrl": "https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIIllnessandDisorder.html",
+              "embeddable": false,
+              "isSct": false
+            }
+          ]
         }
       },
       {
@@ -241,7 +271,36 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "strength": "preferred",
           "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/allergies-intolerances-uv-ips",
           "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-allergies-intolerances-uv-ips.html",
-          "isSct": true
+          "isSct": true,
+          "additional": [
+            {
+              "purpose": "preferred",
+              "valueSet": "http://terminology.ehdsi.eu/ValueSet/eHDSIAllergenNoDrug",
+              "title": "eHDSI Allergen No Drug",
+              "documentation": "Type of the substance/product for MyHealth@EU",
+              "systems": [
+                "SNOMED CT"
+              ],
+              "conceptCount": 470,
+              "sourcePackage": "myhealth.eu.fhir.mvc-package#9.1.0",
+              "pageUrl": "https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIAllergenNoDrug.html",
+              "embeddable": false,
+              "isSct": true
+            },
+            {
+              "purpose": "preferred",
+              "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/whoatc-uv-ips",
+              "title": "WHO ATC - IPS",
+              "documentation": "Type of the substance/product, allergy or intolerance condition.",
+              "systems": [
+                "WHO ATC"
+              ],
+              "sourcePackage": "hl7.fhir.uv.ips#2.0.0",
+              "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-whoatc-uv-ips.html",
+              "embeddable": true,
+              "isSct": false
+            }
+          ]
         }
       },
       {
@@ -371,7 +430,23 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "strength": "preferred",
           "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/allergy-reaction-uv-ips",
           "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-allergy-reaction-uv-ips.html",
-          "isSct": true
+          "isSct": true,
+          "additional": [
+            {
+              "purpose": "preferred",
+              "valueSet": "http://terminology.ehdsi.eu/ValueSet/eHDSIReactionAllergy",
+              "title": "eHDSI Reaction Allergy",
+              "documentation": "Type of reaction (MyHealth@EU)",
+              "systems": [
+                "SNOMED CT"
+              ],
+              "conceptCount": 63,
+              "sourcePackage": "myhealth.eu.fhir.mvc-package#9.1.0",
+              "pageUrl": "https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIReactionAllergy.html",
+              "embeddable": false,
+              "isSct": true
+            }
+          ]
         }
       },
       {
@@ -655,7 +730,39 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "strength": "preferred",
           "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/vaccines-uv-ips",
           "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-vaccines-uv-ips.html",
-          "isSct": true
+          "isSct": true,
+          "additional": [
+            {
+              "purpose": "preferred",
+              "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/vaccines-whoatc-uv-ips",
+              "title": "Vaccines WHO ATC - IPS",
+              "usage": "For when WHO ATC code system is preferred",
+              "documentation": "Additional conformance binding to a vaccines value set from the WHO ATC code system for use in specific jurisdictional or other contexts where use of the ATC terminology is preferred.",
+              "systems": [
+                "WHO ATC"
+              ],
+              "sourcePackage": "hl7.fhir.uv.ips#2.0.0",
+              "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-vaccines-whoatc-uv-ips.html",
+              "embeddable": true,
+              "isSct": false
+            },
+            {
+              "purpose": "preferred",
+              "valueSet": "http://terminology.ehdsi.eu/ValueSet/eHDSIVaccine",
+              "title": "eHDSI Vaccine",
+              "usage": "For EU cross-border use",
+              "documentation": "Additional conformance binding to the cross-border vaccines value set.",
+              "systems": [
+                "SNOMED CT",
+                "WHO ATC"
+              ],
+              "conceptCount": 224,
+              "sourcePackage": "myhealth.eu.fhir.mvc-package#9.1.0",
+              "pageUrl": "https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIVaccine.html",
+              "embeddable": false,
+              "isSct": true
+            }
+          ]
         }
       },
       {
@@ -1166,7 +1273,24 @@ export const EPS_SECTIONS: EpsSectionMeta[] = [
           "strength": "preferred",
           "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/medical-devices-uv-ips",
           "pageUrl": "https://hl7.org/fhir/uv/ips/ValueSet-medical-devices-uv-ips.html",
-          "isSct": true
+          "isSct": true,
+          "additional": [
+            {
+              "purpose": "candidate",
+              "valueSet": "http://terminology.ehdsi.eu/ValueSet/eHDSIMedicalDevice",
+              "title": "eHDSI Medical Device",
+              "documentation": "Codes for medical devices from MyHealth@EU",
+              "systems": [
+                "eHDSI medical device codes",
+                "SNOMED CT"
+              ],
+              "conceptCount": 1184,
+              "sourcePackage": "myhealth.eu.fhir.mvc-package#9.1.0",
+              "pageUrl": "https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIMedicalDevice.html",
+              "embeddable": false,
+              "isSct": true
+            }
+          ]
         }
       },
       {

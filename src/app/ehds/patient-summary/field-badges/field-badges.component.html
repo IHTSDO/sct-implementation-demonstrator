@@ -5,15 +5,66 @@
   </button>
 
   <!-- Terminology binding badge → value set page embedded in a dialog -->
-  <button
-    *ngIf="field.bindingMeta"
-    type="button"
-    mat-button
-    class="fhir-badge"
-    [ngClass]="field.bindingMeta.isSct ? 'sct-badge' : 'valueset-badge'"
-    (click)="openValueSet()">
-    {{ bindingLabel }}
-  </button>
+  <ng-container *ngIf="field.bindingMeta as b">
+    <button
+      *ngIf="!hasBindingMenu"
+      type="button"
+      mat-button
+      class="fhir-badge"
+      [ngClass]="b.isSct ? 'sct-badge' : 'valueset-badge'"
+      (click)="openValueSet()">
+      {{ bindingLabel }}
+    </button>
+
+    <!-- With additional bindings or an alignment note, the badge opens a menu listing every bound value set -->
+    <button
+      *ngIf="hasBindingMenu"
+      type="button"
+      mat-button
+      class="fhir-badge"
+      [ngClass]="b.isSct ? 'sct-badge' : 'valueset-badge'"
+      [matMenuTriggerFor]="bindingMenu">
+      {{ bindingLabel }}<ng-container *ngIf="b.additional?.length"> +{{ b.additional!.length }}</ng-container>
+      <mat-icon *ngIf="field.alignmentNote" class="badge-note-icon">info</mat-icon>
+    </button>
+
+    <mat-menu #bindingMenu="matMenu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
+      <div class="fhir-menu-content binding-menu" (click)="$event.stopPropagation()">
+        <div class="fhir-menu-header">
+          <h4>{{ field.path }}</h4>
+        </div>
+
+        <div class="binding-group-label">Binding</div>
+        <button type="button" class="binding-option" (click)="openValueSet()">
+          <span class="binding-option-title">{{ valueSetName(b.valueSet) }}</span>
+          <span class="binding-option-meta">
+            <span class="binding-chip strength">{{ b.strength }}</span>
+            <span class="binding-chip" *ngIf="b.isSct">SNOMED CT</span>
+          </span>
+          <mat-icon class="binding-option-icon">open_in_full</mat-icon>
+        </button>
+
+        <div class="binding-group-label" *ngIf="b.additional?.length">Additional bindings</div>
+        <button
+          type="button"
+          class="binding-option"
+          *ngFor="let a of b.additional ?? []"
+          (click)="openAdditional(a)"
+          [matTooltip]="a.documentation || ''">
+          <span class="binding-option-title">{{ a.title }}</span>
+          <span class="binding-option-usage" *ngIf="a.usage">{{ a.usage }}</span>
+          <span class="binding-option-meta">
+            <span class="binding-chip strength">{{ a.purpose }}</span>
+            <span class="binding-chip" *ngFor="let s of a.systems">{{ s }}</span>
+            <span class="binding-count" *ngIf="a.conceptCount !== undefined">{{ a.conceptCount | number }} codes</span>
+          </span>
+          <mat-icon class="binding-option-icon">{{ a.embeddable ? 'open_in_full' : 'open_in_new' }}</mat-icon>
+        </button>
+
+        <ng-container *ngTemplateOutlet="alignmentNoteTpl"></ng-container>
+      </div>
+    </mat-menu>
+  </ng-container>
 
   <mat-menu #docMenu="matMenu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
     <div class="fhir-menu-content" (click)="$event.stopPropagation()">
@@ -49,6 +100,16 @@
             </a>
           </span>
         </div>
+        <div class="fhir-menu-item" *ngIf="field.bindingMeta?.additional?.length">
+          <span class="fhir-label">Additional bindings:</span>
+          <span class="fhir-value">
+            <span class="additional-binding" *ngFor="let a of field.bindingMeta!.additional">
+              <a [href]="a.pageUrl" target="_blank" rel="noopener noreferrer" class="valueset-link">{{ a.title }}</a>
+              ({{ a.purpose }}<ng-container *ngIf="a.systems.length">, {{ a.systems.join(', ') }}</ng-container>)<ng-container *ngIf="a.usage"> — {{ a.usage }}</ng-container>
+            </span>
+          </span>
+        </div>
+        <ng-container *ngTemplateOutlet="alignmentNoteTpl"></ng-container>
         <div class="fhir-menu-item" *ngIf="doc.types.length">
           <span class="fhir-label">Type:</span>
           <span class="fhir-value">{{ doc.types.join(' | ') }}</span>
@@ -68,4 +129,20 @@
       </div>
     </div>
   </mat-menu>
+
+  <!-- Curated note on alignment with the Xt-EHR logical model (not read from the EPS package) -->
+  <ng-template #alignmentNoteTpl>
+    <div class="alignment-note" *ngIf="field.alignmentNote as note">
+      <div class="alignment-note-title">
+        <mat-icon>info</mat-icon>
+        Alignment with the EHDS (Xt-EHR) model
+      </div>
+      <p>{{ note.text }}</p>
+      <div class="alignment-note-links" *ngIf="note.links?.length">
+        <a *ngFor="let l of note.links" [href]="l.url" target="_blank" rel="noopener noreferrer">
+          {{ l.label }}<mat-icon>open_in_new</mat-icon>
+        </a>
+      </div>
+    </div>
+  </ng-template>
 </div>

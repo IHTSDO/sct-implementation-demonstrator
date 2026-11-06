@@ -23,6 +23,17 @@ export interface EpsFieldConfig {
   options?: { code: string; system: string; display: string }[];
   system?: string;
   hint?: string;
+  /**
+   * Hand-written note on how this field's bindings line up with the Xt-EHR
+   * EHDS logical model. Unlike everything else on the field, it is not read
+   * from the EPS package: use it to point out gaps between the two.
+   */
+  alignmentNote?: EpsAlignmentNote;
+}
+
+export interface EpsAlignmentNote {
+  text: string;
+  links?: { label: string; url: string }[];
 }
 
 export interface EpsSectionConfig {
@@ -88,6 +99,17 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
           ecl: '<< 404684003 |Clinical finding (finding)| OR << 243796009 |Situation with explicit context (situation)|',
           title: 'Problem / Diagnosis',
           note: 'Search a clinical finding or disorder',
+        },
+        alignmentNote: {
+          text:
+            'The Xt-EHR Condition model also lists Orphacode for diagnosed rare diseases, and the EPS binding ' +
+            'documentation mentions "ICD-10 or Orphanet codes", but no EPS binding covers Orphacode yet: ' +
+            'the cross-border value set (eHDSI Illness and Disorder) contains ICD-10 only. MyHealth@EU publishes ' +
+            'Orphacodes separately in eHDSI Rare Disease.',
+          links: [
+            { label: 'Xt-EHR Condition model', url: 'https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSCondition.html' },
+            { label: 'eHDSI Rare Disease', url: 'https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIRareDisease.html' },
+          ],
         },
       },
       {
