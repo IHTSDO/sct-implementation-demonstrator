@@ -61,26 +61,14 @@ export class FieldBadgesComponent {
   }
 
   /**
-   * Additional bindings: embeddable pages open in the same dialog; pages that
-   * refuse framing (MyHealth@EU catalogue) open in a new tab.
+   * Additional bindings open in the same dialog; pages that refuse framing
+   * (MyHealth@EU catalogue) open in a new tab (see ValuesetDialogComponent.openPage).
    */
   openAdditional(a: EpsAdditionalBinding): void {
-    if (!a.embeddable) {
-      window.open(a.pageUrl, '_blank', 'noopener');
-      return;
-    }
     this.openDialog(a.pageUrl, `${this.field.label} — ${a.title} (additional, ${a.purpose})`);
   }
 
   private openDialog(url: string, dialogTitle: string): void {
-    this.dialog.open(ValuesetDialogComponent, {
-      width: '90%',
-      maxWidth: '1200px',
-      height: '90vh',
-      autoFocus: false,
-      restoreFocus: true,
-      data: { url, fieldName: this.field.label, dialogTitle },
-      panelClass: 'valueset-dialog-container',
-    });
+    ValuesetDialogComponent.openPage(this.dialog, { url, fieldName: this.field.label, dialogTitle });
   }
 }

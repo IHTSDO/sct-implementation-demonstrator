@@ -9,6 +9,7 @@ import { FieldBadgesComponent } from './field-badges/field-badges.component';
 import { FlipCardComponent } from './flip-card/flip-card.component';
 import { JsonPanelComponent } from './json-panel/json-panel.component';
 import { ValuesetDialogComponent } from '../laboratory-demo/valueset-dialog/valueset-dialog.component';
+import { ExternalPageLinkDirective } from '../laboratory-demo/valueset-dialog/external-page-link.directive';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,6 @@ import { ValuesetDialogComponent } from '../laboratory-demo/valueset-dialog/valu
     FlipCardComponent,
     JsonPanelComponent,
   ],
-  imports: [UiSharedModule, BindingsModule, EhdsPatientSummaryRoutingModule, ValuesetDialogComponent],
+  imports: [UiSharedModule, BindingsModule, EhdsPatientSummaryRoutingModule, ValuesetDialogComponent, ExternalPageLinkDirective],
 })
 export class EhdsPatientSummaryModule {}

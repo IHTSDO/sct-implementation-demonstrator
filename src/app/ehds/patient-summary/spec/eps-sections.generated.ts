@@ -3,7 +3,14 @@
  * Structure (min/max/mustSupport) is derived from the HL7 EU EPS FHIR package;
  * field selection and SNOMED ECL bindings come from eps-sections.config.ts.
  */
-import { EpsSectionMeta } from './eps-sections.model';
+import { EpsPackageMeta, EpsSectionMeta } from './eps-sections.model';
+
+export const EPS_PACKAGE: EpsPackageMeta = {
+  "name": "hl7.fhir.eu.eps",
+  "version": "1.0.0-ballot",
+  "title": "HL7 Europe Patient Summary",
+  "fhirVersion": "4.0.1"
+};
 
 export const EPS_SECTIONS: EpsSectionMeta[] = [
   {

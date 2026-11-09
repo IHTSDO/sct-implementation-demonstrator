@@ -128,6 +128,15 @@
   color: #1976d2;
 }
 
+.fhir-menu h4 {
+  border-bottom-color: #d32f2f;
+  color: #b71c1c;
+}
+
+.ehds-menu > button[mat-stroked-button] {
+  margin-top: 2px;
+}
+
 .ehds-model-desc {
   display: block;
   color: #757575;

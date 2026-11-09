@@ -35,10 +35,36 @@
             </p>
           </div>
         </mat-menu>
-        <button type="button" mat-button class="fhir-badge" (click)="openGuide()"
-                matTooltip="Open the full HL7 Europe EPS implementation guide">
+        <!-- The FHIR implementation guide the document conforms to -->
+        <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="fhirDocMenu">
           FHIR
         </button>
+        <mat-menu #fhirDocMenu="matMenu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
+          <div class="ehds-menu fhir-menu" (click)="$event.stopPropagation()">
+            <h4>FHIR implementation</h4>
+            <p class="ehds-menu-lead">
+              The patient summary is exchanged as a FHIR document: a Bundle with a Composition whose sections
+              reference the captured resources, each conforming to an EPS profile.
+            </p>
+            <dl>
+              <dt>Guide</dt>
+              <dd>{{ epsPackage.title }}</dd>
+              <dt>Package</dt>
+              <dd><code>{{ epsPackage.name }}#{{ epsPackage.version }}</code></dd>
+              <dt>FHIR</dt>
+              <dd>R4 ({{ epsPackage.fhirVersion }})</dd>
+              <dt>Document</dt>
+              <dd><a [href]="bundleProfileUrl" target="_blank" rel="noopener noreferrer">Bundle (EPS) profile</a></dd>
+            </dl>
+            <button type="button" mat-stroked-button color="primary" (click)="openGuide()">
+              <mat-icon>open_in_full</mat-icon>
+              Open the implementation guide
+            </button>
+            <p class="ehds-menu-source">
+              Interim source until the official EHDS implementation guides are published.
+            </p>
+          </div>
+        </mat-menu>
       </p>
       <p class="page-interim-note">
         The EHDS currently defines the Patient Summary only as a logical model; until its official
@@ -167,10 +193,39 @@
                 }
               </div>
             </mat-menu>
-            <button type="button" mat-button class="fhir-badge" (click)="openSectionProfile(state.section)"
-                    [matTooltip]="'Open the ' + state.section.resourceType + ' profile in the EPS guide'">
+            <!-- The EPS profile the section's entries conform to -->
+            <button type="button" mat-button class="fhir-badge" [matMenuTriggerFor]="fhirSectionMenu">
               FHIR
             </button>
+            <mat-menu #fhirSectionMenu="matMenu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
+              <div class="ehds-menu fhir-menu" (click)="$event.stopPropagation()">
+                <h4>FHIR profile</h4>
+                @if (state.section.kind === 'narrative') {
+                  <p class="ehds-menu-lead">
+                    This section is captured as narrative only: its text is stored in the
+                    <code>Composition.section</code> of the EPS document, with no entry resources.
+                  </p>
+                } @else {
+                  <p class="ehds-menu-lead">
+                    Each entry of this section is a <strong>{{ state.section.resourceType }}</strong> resource that
+                    conforms to the EPS profile below and is referenced from the Composition section.
+                  </p>
+                }
+                <dl>
+                  <dt>Section code</dt>
+                  <dd><code>LOINC {{ state.section.loincCode }}</code></dd>
+                  <dt>Resource</dt>
+                  <dd>{{ state.section.resourceType }}</dd>
+                  <dt>Profile</dt>
+                  <dd><code>{{ profileName(state.section.profile) }}</code></dd>
+                </dl>
+                <button type="button" mat-stroked-button color="primary" (click)="openSectionProfile(state.section)">
+                  <mat-icon>open_in_full</mat-icon>
+                  Open the {{ state.section.kind === 'narrative' ? 'Composition' : state.section.resourceType }} profile
+                </button>
+                <p class="ehds-menu-source">Source: {{ epsPackage.name }}#{{ epsPackage.version }}.</p>
+              </div>
+            </mat-menu>
             <span class="spacer"></span>
             <button type="button" mat-stroked-button class="section-json-toggle" (click)="toggleSectionJson(state)">
               <mat-icon>{{ state.showJson ? 'arrow_back' : 'code' }}</mat-icon>

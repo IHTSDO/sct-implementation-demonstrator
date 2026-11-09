@@ -1,10 +1,31 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
+export interface ValuesetDialogData {
+  url: string;
+  fieldName: string;
+  dialogTitle?: string;
+}
+
+/**
+ * Hosts that refuse to be framed (X-Frame-Options / CSP frame-ancestors).
+ * Their pages are opened in a new browser tab instead of the dialog.
+ */
+export const NON_FRAMEABLE_HOSTS = ['fhir.ehdsi.eu', 'simplifier.net', 'health.ec.europa.eu'];
+
+export function isFrameable(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return !NON_FRAMEABLE_HOSTS.some((h) => host === h || host.endsWith('.' + h));
+  } catch {
+    return true;
+  }
+}
 
 @Component({
   selector: 'app-valueset-dialog',
@@ -14,6 +35,26 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrls: ['./valueset-dialog.component.css']
 })
 export class ValuesetDialogComponent {
+  /**
+   * Shows a FHIR page in the embedded dialog, or opens it in a new tab when
+   * its host refuses framing. Use this instead of `dialog.open` directly.
+   */
+  static openPage(dialog: MatDialog, data: ValuesetDialogData): void {
+    if (!isFrameable(data.url)) {
+      window.open(data.url, '_blank', 'noopener');
+      return;
+    }
+    dialog.open(ValuesetDialogComponent, {
+      width: '90%',
+      maxWidth: '1200px',
+      height: '90vh',
+      autoFocus: false,
+      restoreFocus: true,
+      data,
+      panelClass: 'valueset-dialog-container',
+    });
+  }
+
   safeUrl: SafeResourceUrl;
   fieldName: string;
   dialogTitle: string;
@@ -25,7 +66,7 @@ export class ValuesetDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<ValuesetDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { url: string; fieldName: string; dialogTitle?: string },
+    @Inject(MAT_DIALOG_DATA) public data: ValuesetDialogData,
     private sanitizer: DomSanitizer
   ) {
     // Convert HTTP URLs to HTTPS to avoid mixed content errors
@@ -33,7 +74,7 @@ export class ValuesetDialogComponent {
     
     // Check for domains that block iframe embedding (like Simplifier.net)
     // These should open directly in a new tab instead of attempting iframe load
-    if (this.url.toLowerCase().includes('simplifier.net')) {
+    if (!isFrameable(this.url)) {
       // Simplifier.net blocks iframe embedding, open directly in new tab
       this.hasError = true;
       this.openedInNewTab = true;

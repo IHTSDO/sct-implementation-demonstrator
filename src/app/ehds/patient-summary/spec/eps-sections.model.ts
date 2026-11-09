@@ -125,6 +125,14 @@ export interface EpsFieldMeta {
   bindingMeta?: EpsBindingMeta;
 }
 
+/** The EPS FHIR package the demo is generated from. */
+export interface EpsPackageMeta {
+  name: string;
+  version: string;
+  title: string;
+  fhirVersion: string;
+}
+
 export interface EpsSectionMeta {
   /** Stable key, e.g. `problems`. */
   key: string;

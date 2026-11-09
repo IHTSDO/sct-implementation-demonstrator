@@ -363,7 +363,7 @@ const HEADER = `/**
  * Structure (min/max/mustSupport) is derived from the HL7 EU EPS FHIR package;
  * field selection and SNOMED ECL bindings come from eps-sections.config.ts.
  */
-import { EpsSectionMeta } from './eps-sections.model';
+import { EpsPackageMeta, EpsSectionMeta } from './eps-sections.model';
 `;
 
 async function main() {
@@ -430,8 +430,19 @@ async function main() {
     };
   });
 
+  const epsPkg = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'));
+  const epsPackage = {
+    name: epsPkg.name,
+    version: epsPkg.version,
+    title: epsPkg.title,
+    fhirVersion: (epsPkg.fhirVersions || [])[0] || '',
+  };
+
   const body =
     HEADER +
+    '\nexport const EPS_PACKAGE: EpsPackageMeta = ' +
+    JSON.stringify(epsPackage, null, 2) +
+    ';\n' +
     '\nexport const EPS_SECTIONS: EpsSectionMeta[] = ' +
     JSON.stringify(sections, null, 2) +
     ';\n';

@@ -1052,15 +1052,7 @@ export class ObservationResultFormComponent implements OnInit, AfterViewInit, On
   }
 
   openValuesetDialog(valuesetUrl: string, fieldName: string, dialogTitle?: string): void {
-    this.dialog.open(ValuesetDialogComponent, {
-      width: '90%',
-      maxWidth: '1200px',
-      height: '90vh',
-      autoFocus: false,
-      restoreFocus: true,
-      data: { url: valuesetUrl, fieldName: fieldName, dialogTitle: dialogTitle },
-      panelClass: 'valueset-dialog-container'
-    });
+    ValuesetDialogComponent.openPage(this.dialog, { url: valuesetUrl, fieldName, dialogTitle });
   }
 
 

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { EPS_SECTIONS } from './spec/eps-sections.generated';
+import { EPS_PACKAGE, EPS_SECTIONS } from './spec/eps-sections.generated';
 import { EpsSectionMeta } from './spec/eps-sections.model';
 import { EpsEntry, EpsFhirService, EpsPatient, EpsSectionEntries } from './eps-fhir.service';
 import { EpsDocumentDialogComponent } from './eps-document-dialog/eps-document-dialog.component';
@@ -35,6 +35,7 @@ export class EhdsPatientSummaryComponent implements OnInit {
   /** Whether the sections area is flipped to the full Bundle JSON view. */
   showBundle = false;
   bundleJson = '';
+  readonly epsPackage = EPS_PACKAGE;
   readonly xtehrPatientSummaryUrl = 'https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html';
   readonly bundleProfileUrl ='https://hl7.eu/fhir/eps/StructureDefinition-bundle-eu-eps.html';
 
@@ -144,20 +145,17 @@ export class EhdsPatientSummaryComponent implements OnInit {
     this.openFhirPage(this.guideUrl, 'HL7 Europe Patient Summary', 'Implementation Guide');
   }
 
+  /** Last segment of a profile canonical, e.g. `condition-obl-eu-eps`. */
+  profileName(canonical: string): string {
+    return canonical.split('/').pop() || canonical;
+  }
+
   openSectionProfile(section: EpsSectionMeta): void {
     this.openFhirPage(section.profilePageUrl, section.title, `${section.resourceType} profile`);
   }
 
   private openFhirPage(url: string, fieldName: string, dialogTitle: string): void {
-    this.dialog.open(ValuesetDialogComponent, {
-      width: '90%',
-      maxWidth: '1200px',
-      height: '90vh',
-      autoFocus: false,
-      restoreFocus: true,
-      data: { url, fieldName, dialogTitle },
-      panelClass: 'valueset-dialog-container',
-    });
+    ValuesetDialogComponent.openPage(this.dialog, { url, fieldName, dialogTitle });
   }
 
   generateDocument(): void {

@@ -10,6 +10,7 @@ import { ValuesetDialogComponent } from './valueset-dialog/valueset-dialog.compo
 import { BindingsModule } from '../../shared/bindings.module';
 import { UiSharedModule } from '../../shared/ui-shared.module';
 import { EhdsLaboratoryDemoRoutingModule } from './ehds-laboratory-demo-routing.module';
+import { ExternalPageLinkDirective } from './valueset-dialog/external-page-link.directive';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { EhdsLaboratoryDemoRoutingModule } from './ehds-laboratory-demo-routing.
     ConceptLookupDialogComponent,
     UiSharedModule,
     ValuesetDialogComponent,
+    ExternalPageLinkDirective,
     EhdsLaboratoryDemoRoutingModule,
   ],
 })
