@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { TerminologyService } from './terminology.service';
 
 export interface HierarchyNode {
   parents: string[];
@@ -19,10 +20,32 @@ export interface PartialHierarchyRequest {
   providedIn: 'root'
 })
 export class DataAnalyticsService {
-  private readonly analyticsServerUrl = 'https://implementation-demo.snomedtools.org/snowstorm-lite';
+  /**
+   * Fallback Snowstorm Lite FHIR base, used when the currently selected terminology server
+   * is not Snowstorm Lite. `/partial-hierarchy` is a Snowstorm Lite-only, non-FHIR endpoint.
+   */
+  private readonly fallbackLiteFhirBase = 'https://implementation-demo.snomedtools.org/snowstorm-lite/fhir';
   private readonly enableExternalService = true; // Set to false to disable external calls (disabled due to CORS)
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private terminologyService: TerminologyService
+  ) { }
+
+  /**
+   * FHIR base to send `/partial-hierarchy` to: the currently selected terminology server when
+   * it is Snowstorm Lite, otherwise the fallback Lite instance. Server kind detection is cached
+   * per base by `TerminologyService`, so this adds at most one `/metadata` request per server.
+   */
+  resolvePartialHierarchyFhirBase(): Observable<string> {
+    const currentBase = (this.terminologyService.snowstormFhirBase || '').trim().replace(/\/+$/, '');
+    if (!currentBase) {
+      return of(this.fallbackLiteFhirBase);
+    }
+    return this.terminologyService.detectServerKind(currentBase).pipe(
+      map(kind => kind === 'snowstorm-lite' ? currentBase : this.fallbackLiteFhirBase)
+    );
+  }
 
   /**
    * Get partial hierarchy for SNOMED CT codes
@@ -31,10 +54,6 @@ export class DataAnalyticsService {
    * @returns Observable<HierarchyNode[]>
    */
   getPartialHierarchy(codes: string[], includeTerms: boolean = true): Observable<HierarchyNode[]> {
-    const url = `${this.analyticsServerUrl}/fhir/partial-hierarchy`;
-    
-    // Request details logged for debugging
-    
     if (!this.enableExternalService) {
       // Return empty result to trigger fallback
       return new Observable(observer => {
@@ -52,11 +71,8 @@ export class DataAnalyticsService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.post<HierarchyNode[]>(url, requestBody, { headers }).pipe(
-      map(response => {
-        // Raw response processed successfully
-        return response;
-      })
+    return this.resolvePartialHierarchyFhirBase().pipe(
+      switchMap(fhirBase => this.http.post<HierarchyNode[]>(`${fhirBase}/partial-hierarchy`, requestBody, { headers }))
     );
   }
 
@@ -401,13 +417,5 @@ export class DataAnalyticsService {
       directPatientCount: directPatientCount,
       children: processedChildren
     };
-  }
-
-  /**
-   * Get analytics server URL for debugging/testing
-   * @returns Analytics server base URL
-   */
-  getAnalyticsServerUrl(): string {
-    return this.analyticsServerUrl;
   }
 }
