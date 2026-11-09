@@ -35,7 +35,7 @@ jobs:
 
       - name: Show installed versions
         run: |
-          pip list | grep -E '^(pandas|numpy|plotly|openpyxl|matplotlib) '
+          pip list | grep -E '^(pandas|numpy|openpyxl|matplotlib) '
 
       - name: Run SNOMED Report Generator
         working-directory: ./python/reports-updater

@@ -33,7 +33,7 @@ python3 run-reports.py
 
 ⏱️  Estimated time: 15-30 minutes
 📦 Download: ~570 MB
-📊 Generates: 6 files (3 Excel + 3 HTML)
+📊 Generates: 6 files (3 Excel + 3 JSON)
 
 
 📂 STEP 5: View reports
@@ -45,10 +45,10 @@ Excel files (local): python/output/
   ✓ fsn-changes.xlsx
   ✓ list-new-concepts.xlsx
 
-HTML files (web): src/assets/reports/
-  ✓ detect_inactivations_by_reason.html
-  ✓ fsn_changes_with_details.html
-  ✓ new_concepts_by_semantic_tag.html
+JSON files (web): src/assets/reports/
+  ✓ detect_inactivations_by_reason.json
+  ✓ fsn_changes_with_details.json
+  ✓ new_concepts_by_semantic_tag.json
 
 
 🤖 BONUS: GitHub Actions Automation

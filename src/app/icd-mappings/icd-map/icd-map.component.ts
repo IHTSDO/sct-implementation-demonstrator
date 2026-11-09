@@ -46,6 +46,9 @@ export class IcdMapComponent implements OnInit {
   private readonly ICD10_SYSTEM = 'http://hl7.org/fhir/sid/icd-10';
   private readonly RES = {
     icd11Preview: 'assets/res/ds1.dat',
+    // Pre-filtered to active rows and to the columns the map uses
+    // (referencedComponentId, mapGroup, mapPriority, mapRule, mapAdvice, mapTarget),
+    // so it is parsed as the 'preview' layout. Full RF2 rows are still supported.
     icd11Extended: 'assets/res/ds2.dat',
     icd11Labels: 'assets/res/lx-en.dat',
     icd10Labels: 'assets/res/lx10.dat',

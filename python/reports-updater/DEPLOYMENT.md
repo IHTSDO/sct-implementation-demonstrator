@@ -55,9 +55,9 @@ After successful run:
 
 ✅ Verify new files in:
    src/assets/reports/
-   ├── detect_inactivations_by_reason.html
-   ├── fsn_changes_with_details.html
-   └── new_concepts_by_semantic_tag.html
+   ├── detect_inactivations_by_reason.json
+   ├── fsn_changes_with_details.json
+   └── new_concepts_by_semantic_tag.json
 ```
 
 ## 🔍 Verification Checklist
@@ -78,7 +78,7 @@ After successful run:
 ### First Run Test
 
 - [ ] Manual workflow execution succeeded
-- [ ] HTML files generated in `src/assets/reports/`
+- [ ] JSON files generated in `src/assets/reports/`
 - [ ] Commit was created automatically
 - [ ] Changes pushed to repository
 
@@ -114,7 +114,7 @@ After successful run:
 
 The workflow needs:
 - ✅ Read access to repository code
-- ✅ Write access to commit HTML files
+- ✅ Write access to commit JSON files
 - ✅ Access to environment secrets
 
 Default token permissions are sufficient (no special setup needed).
@@ -159,7 +159,7 @@ Default token permissions are sufficient (no special setup needed).
 
 - ✅ Green checkmark next to workflow run
 - ✅ New commit in history
-- ✅ Updated HTML files in repository
+- ✅ Updated JSON files in repository
 - ✅ Files accessible via Angular app
 
 ### Failure Indicators
@@ -171,7 +171,7 @@ Default token permissions are sufficient (no special setup needed).
 ## 📈 Next Steps After Deployment
 
 1. **Test the workflow** - Run it manually once
-2. **Verify reports** - Check that HTML files are generated
+2. **Verify reports** - Check that JSON files are generated
 3. **Set reminders** - Note when next automatic run will occur
 4. **Monitor first automatic run** - Check results on December 2nd
 
@@ -181,7 +181,7 @@ Deployment is successful when:
 
 - ✅ Workflow appears in Actions tab
 - ✅ Manual execution completes successfully
-- ✅ HTML reports are generated and committed
+- ✅ JSON reports are generated and committed
 - ✅ Files are accessible in the Angular app
 - ✅ Automatic schedule is configured correctly
 

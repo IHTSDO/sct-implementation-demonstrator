@@ -1,15 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { FsnChangesComponent } from './fsn-changes/fsn-changes.component';
-import { InactivationsReportComponent } from './inactivations/inactivations-report.component';
-import { NewConceptsReportComponent } from './new-concepts/new-concepts-report.component';
+import { ReportViewerComponent } from './report-viewer/report-viewer.component';
 import { ReportsMainComponent } from './reports-main/reports-main.component';
 
 const routes: Routes = [
   { path: '', component: ReportsMainComponent },
-  { path: 'fsn', component: FsnChangesComponent },
-  { path: 'inactivations', component: InactivationsReportComponent },
-  { path: 'new-concepts', component: NewConceptsReportComponent },
+  { path: 'fsn', component: ReportViewerComponent, data: { reportUrl: 'assets/reports/fsn_changes_with_details.json' } },
+  { path: 'inactivations', component: ReportViewerComponent, data: { reportUrl: 'assets/reports/detect_inactivations_by_reason.json' } },
+  { path: 'new-concepts', component: ReportViewerComponent, data: { reportUrl: 'assets/reports/new_concepts_by_semantic_tag.json' } },
 ];
 
 @NgModule({

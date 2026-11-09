@@ -1,0 +1,54 @@
+.report-panel {
+  padding: 10px 2.5rem 5rem;
+}
+
+.load-state {
+  max-width: 480px;
+  margin-top: 3rem;
+}
+
+.load-state p {
+  margin-top: 0.75rem;
+}
+
+.year-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 1rem 0;
+}
+
+.chart {
+  width: 100%;
+}
+
+/* Kept laid out (not display:none) so Plotly measures the real width. */
+.chart-hidden {
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+}
+
+.details {
+  margin-top: 1rem;
+}
+
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.details-table th,
+.details-table td {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+  /* Historical associations carry one association per line. */
+  white-space: pre-line;
+}
+
+.details-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}

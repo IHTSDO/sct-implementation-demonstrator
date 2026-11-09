@@ -79,6 +79,6 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         with:
-          # The ~170 MB site (large reports in src/assets) sometimes stays in
+          # The ~100 MB site (large data files in src/assets) sometimes stays in
           # "syncing_files" on the Pages side for more than the 10-minute default.
           timeout: 1800000

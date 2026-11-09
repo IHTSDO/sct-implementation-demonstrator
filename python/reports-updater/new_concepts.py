@@ -130,6 +130,9 @@ def detect_new_concepts(concept_full_path,
 
     spinner.start("Finalizing and writing output...")
     final_df.sort_values('conceptId', inplace=True)
+    # SCTIDs reach 18 digits; a numeric Excel cell is a double and rounds them,
+    # so IDs are written as text.
+    final_df = final_df.astype({'conceptId': str})
     final_df.to_excel(output_path, index=False, sheet_name='New Concepts')
     spinner.succeed(f"New concepts successfully written to {output_path}.")
 

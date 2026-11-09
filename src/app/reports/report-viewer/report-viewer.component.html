@@ -1,0 +1,70 @@
+<div class="pt-5 pl-10">
+  <button mat-flat-button color="primary" [routerLink]="['/reports']">Back to reports</button>
+</div>
+
+<div class="report-panel">
+  @switch (phase) {
+    @case ('downloading') {
+      <div class="load-state">
+        <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
+        <p>Downloading report data…</p>
+      </div>
+    }
+    @case ('rendering') {
+      <div class="load-state">
+        <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+        <p>Preparing chart…</p>
+      </div>
+    }
+    @case ('error') {
+      <p class="load-state">The report could not be loaded. Please try again later.</p>
+    }
+  }
+
+  @if (phase === 'ready' && years.length) {
+    <div class="year-buttons">
+      <span>Zoom:</span>
+      <button mat-stroked-button (click)="resetZoom()">Reset</button>
+      @for (year of years; track year) {
+        <button mat-stroked-button (click)="zoomToYear(year)">{{ year }}</button>
+      }
+    </div>
+  }
+
+  <!-- Always in the DOM so Plotly can render into it while the loading state is shown. -->
+  <div #chart class="chart" [class.chart-hidden]="phase !== 'ready'"></div>
+
+  @if (phase === 'ready') {
+    <mat-card appearance="outlined" class="details">
+      <mat-card-header>
+        <mat-card-title>{{ selected?.title ?? 'Details' }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (!selected) {
+          <p>Click on a bar to see details here.</p>
+        } @else if (!selected.rows.length) {
+          <p>No examples available.</p>
+        } @else {
+          <table class="details-table">
+            <thead>
+              <tr>
+                @for (column of columns; track column.key) {
+                  <th>{{ column.label }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of selected.rows; track $index) {
+                <tr>
+                  @for (cell of row; track $index) {
+                    <td>{{ cell }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

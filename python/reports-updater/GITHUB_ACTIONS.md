@@ -108,9 +108,9 @@ SNOMED_PASSWORD      •••••••••••••••   Updated X s
 2. ✅ Sets up Python 3.11
 3. ✅ Installs dependencies
 4. ✅ Downloads latest SNOMED International release
-5. ✅ Generates 3 HTML reports
+5. ✅ Generates 3 JSON reports
 6. ✅ Validates them (`validate_reports.py`) — fails the run instead of publishing a broken report
-7. ✅ Commits HTML files to `src/assets/reports/`
+7. ✅ Commits JSON files to `src/assets/reports/`
 8. ✅ Pushes changes to repository
 9. ✅ Deploys the site to GitHub Pages (a GITHUB_TOKEN push does not trigger the Pages workflow on its own)
 
@@ -126,9 +126,9 @@ After successful execution:
 2. View updated files:
    ```
    src/assets/reports/
-   ├── detect_inactivations_by_reason.html
-   ├── fsn_changes_with_details.html
-   └── new_concepts_by_semantic_tag.html
+   ├── detect_inactivations_by_reason.json
+   ├── fsn_changes_with_details.json
+   └── new_concepts_by_semantic_tag.json
    ```
 
 3. Files are automatically served by your Angular app
@@ -137,11 +137,10 @@ After successful execution:
 
 ### Workflow fails at "Validate generated reports"
 
-**Cause**: the generated HTML is not usable in the browser. The most common
-reason is a dependency version drift — plotly >= 6 serializes numeric arrays as
-base64 typed arrays (`{"dtype": ..., "bdata": ...}`), which the plotly.js build
-the reports load cannot read. The chart renders wrong and clicking a segment
-shows no details.
+**Cause**: a generated report is not usable by the app: a stub, a payload that
+is not valid JSON (for example a NaN that slipped through), or a shape that does
+not match the format described in `report_json.py`. The app would then show an
+error or a chart whose segments have no details.
 
 **Solution**:
 1. Read the failure message — it names the file and the problem.

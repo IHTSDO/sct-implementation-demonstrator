@@ -343,6 +343,9 @@ def detect_inactivations(concept_full_path,
     spinner.succeed("Output data finalized.")
 
     spinner.start(f"Writing results to: {output_path}")
+    # SCTIDs reach 18 digits; a numeric Excel cell is a double and rounds them,
+    # so IDs are written as text.
+    merged_df = merged_df.astype({'conceptId': str, 'inactivationReasonId': str})
     merged_df.to_excel(output_path, index=False, sheet_name='Inactivations')
     spinner.succeed(f"Results successfully written to {output_path}")
 

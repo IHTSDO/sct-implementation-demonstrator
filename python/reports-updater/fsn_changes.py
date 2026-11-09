@@ -182,6 +182,9 @@ def detect_fsn_changes(
             data,
             columns=["ConceptId", "BeforeEffectiveTime", "BeforeFSN", "AfterEffectiveTime", "AfterFSN"]
         )
+        # SCTIDs reach 18 digits; a numeric Excel cell is a double and rounds them,
+        # so IDs are written as text.
+        df = df.astype({'ConceptId': str})
         df.to_excel(output_path, index=False)
         spinner.succeed(f"FSN changes have been exported to {output_path}")
 

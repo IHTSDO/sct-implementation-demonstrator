@@ -11,7 +11,7 @@ Python scripts to automatically generate analytical reports for SNOMED CT Intern
   - Concept inactivations with historical reasons
   - FSN (Fully Specified Name) changes
   - New concepts by semantic tag
-- **Interactive Visualizations**: HTML charts with Plotly
+- **Interactive Visualizations**: compact JSON rendered as Plotly charts by the Angular app
 - **Excel Outputs**: Spreadsheets for detailed analysis
 
 ## 📋 Requirements
@@ -57,7 +57,7 @@ This script will automatically:
 
 1. ✅ Download the latest SNOMED CT International version
 2. ✅ Locate required RF2 files
-3. ✅ Generate 3 reports (Excel + HTML)
+3. ✅ Generate 3 reports (Excel + JSON)
 4. ✅ Save to `../src/assets/reports/`
 
 ### Run individual scripts
@@ -85,10 +85,10 @@ Reports are saved to two locations:
 - `fsn-changes.xlsx`
 - `list-new-concepts.xlsx`
 
-**HTML files** (`src/assets/reports/`):
-- `detect_inactivations_by_reason.html`
-- `fsn_changes_with_details.html`
-- `new_concepts_by_semantic_tag.html`
+**JSON files** (`src/assets/reports/`):
+- `detect_inactivations_by_reason.json`
+- `fsn_changes_with_details.json`
+- `new_concepts_by_semantic_tag.json`
 
 ### Report Contents
 
@@ -169,10 +169,10 @@ ACCEPTABLE_PACKAGE_TYPES = {
 
 ### Graph Limits
 
-By default, HTML charts show the top 1500 entries. Adjust in `run-reports.py`:
+By default, each bar keeps its first 1500 detail rows. Adjust in `run-reports.py`:
 
 ```python
-generate_inactivation_report(xlsx, html, limit=1500)
+generate_inactivation_report(xlsx, json_path, 1500)
 ```
 
 ## 🐛 Troubleshooting
