@@ -35,7 +35,8 @@ export class EhdsPatientSummaryComponent implements OnInit {
   /** Whether the sections area is flipped to the full Bundle JSON view. */
   showBundle = false;
   bundleJson = '';
-  readonly bundleProfileUrl = 'https://hl7.eu/fhir/eps/StructureDefinition-bundle-eu-eps.html';
+  readonly xtehrPatientSummaryUrl = 'https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSPatientSummary.html';
+  readonly bundleProfileUrl ='https://hl7.eu/fhir/eps/StructureDefinition-bundle-eu-eps.html';
 
   constructor(private fhir: EpsFhirService, private dialog: MatDialog) {}
 

@@ -72,7 +72,7 @@
         "source": "SNOMED CT, consultada en vivo con ECL"
       }
     },
-    "note": "Comparar las capas revela brechas. El modelo Xt-EHR incluye Orphacode para enfermedades raras, pero ningún binding de la EPS lo cubre todavía. Los badges EHDS de los demostradores muestran qué modelo realiza cada sección."
+    "note": "Comparar las capas revela brechas. El modelo Xt-EHR incluye Orphacode para enfermedades raras e ICD-O para cáncer, pero ningún binding de la EPS los cubre todavía. Los badges EHDS de los demostradores muestran qué modelo realiza cada sección."
   },
   "build": {
     "title": "Cómo se construyen estos demostradores",

@@ -8,10 +8,41 @@
       <h2 class="page-title">EHDS Patient Summary</h2>
       <p class="page-subtitle">
         HL7 Europe Patient Summary — generated from the EPS FHIR profiles
+        <!-- The EHDS requirement (Xt-EHR logical model) the whole document realises -->
+        <button type="button" mat-button class="fhir-badge ehds-badge" [matMenuTriggerFor]="ehdsDocMenu">
+          EHDS
+        </button>
+        <mat-menu #ehdsDocMenu="matMenu" [overlapTrigger]="false" panelClass="fhir-menu-panel">
+          <div class="ehds-menu" (click)="$event.stopPropagation()">
+            <h4>EHDS requirement</h4>
+            <p class="ehds-menu-lead">
+              The EHDS defines the Patient Summary as the
+              <a [href]="xtehrPatientSummaryUrl" target="_blank" rel="noopener noreferrer"><strong>Xt-EHR Patient Summary logical model</strong></a>:
+              what must be captured, but not how it is exchanged.
+            </p>
+            <div class="ehds-chain" aria-label="Dependency chain">
+              <span>EHDSPatientSummary</span>
+              <mat-icon>arrow_forward</mat-icon>
+              <span>HL7 Europe EPS (FHIR)</span>
+              <mat-icon>arrow_forward</mat-icon>
+              <span>Value sets</span>
+              <mat-icon>arrow_forward</mat-icon>
+              <span>SNOMED CT</span>
+            </div>
+            <p class="ehds-menu-source">
+              The official EHDS FHIR implementation guides are not yet published, so the HL7 Europe EPS
+              profiles are used here as an interim source.
+            </p>
+          </div>
+        </mat-menu>
         <button type="button" mat-button class="fhir-badge" (click)="openGuide()"
                 matTooltip="Open the full HL7 Europe EPS implementation guide">
           FHIR
         </button>
+      </p>
+      <p class="page-interim-note">
+        The EHDS currently defines the Patient Summary only as a logical model; until its official
+        implementation guides are published, the HL7 Europe EPS profiles serve as its interim FHIR implementation.
       </p>
     </div>
     <button mat-icon-button color="primary" [matMenuTriggerFor]="infoMenu" aria-label="About">
@@ -74,10 +105,6 @@
 
           <p class="section-desc">
             {{ state.section.description }}
-            <button type="button" mat-button class="fhir-badge" (click)="openSectionProfile(state.section)"
-                    [matTooltip]="'Open the ' + state.section.resourceType + ' profile in the EPS guide'">
-              FHIR
-            </button>
             <!-- The EHDS requirement (Xt-EHR logical model) this section realises -->
             <button type="button" mat-button class="fhir-badge ehds-badge" [class.unmapped]="!state.section.ehds"
                     [matMenuTriggerFor]="ehdsMenu">
@@ -140,6 +167,10 @@
                 }
               </div>
             </mat-menu>
+            <button type="button" mat-button class="fhir-badge" (click)="openSectionProfile(state.section)"
+                    [matTooltip]="'Open the ' + state.section.resourceType + ' profile in the EPS guide'">
+              FHIR
+            </button>
             <span class="spacer"></span>
             <button type="button" mat-stroked-button class="section-json-toggle" (click)="toggleSectionJson(state)">
               <mat-icon>{{ state.showJson ? 'arrow_back' : 'code' }}</mat-icon>

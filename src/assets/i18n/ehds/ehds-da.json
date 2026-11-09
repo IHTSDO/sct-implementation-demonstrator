@@ -72,7 +72,7 @@
         "source": "SNOMED CT, søgt live med ECL"
       }
     },
-    "note": "En sammenligning af lagene afslører huller. Xt-EHR-modellen nævner Orphacode for sjældne sygdomme, men ingen EPS-binding dækker den endnu. EHDS-badges i demonstratorerne viser, hvilken model hver sektion realiserer."
+    "note": "En sammenligning af lagene afslører huller. Xt-EHR-modellen nævner Orphacode for sjældne sygdomme og ICD-O for kræft, men ingen EPS-binding dækker dem endnu. EHDS-badges i demonstratorerne viser, hvilken model hver sektion realiserer."
   },
   "build": {
     "title": "Sådan er demonstratorerne bygget",

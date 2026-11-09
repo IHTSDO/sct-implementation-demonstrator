@@ -110,13 +110,15 @@ export const EPS_SECTIONS_CONFIG: EpsSectionConfig[] = [
         },
         alignmentNote: {
           text:
-            'The Xt-EHR Condition model also lists Orphacode for diagnosed rare diseases, and the EPS binding ' +
-            'documentation mentions "ICD-10 or Orphanet codes", but no EPS binding covers Orphacode yet: ' +
-            'the cross-border value set (eHDSI Illness and Disorder) contains ICD-10 only. MyHealth@EU publishes ' +
-            'Orphacodes separately in eHDSI Rare Disease.',
+            'The Xt-EHR Condition model lists ICD-10, SNOMED CT, ICD-O and, for diagnosed rare diseases, Orphacode. ' +
+            'The EPS binding documentation mentions "ICD-10 or Orphanet codes", but no EPS binding covers Orphacode ' +
+            'or ICD-O yet: the cross-border value set (eHDSI Illness and Disorder) contains ICD-10 only. MyHealth@EU ' +
+            'publishes them separately, in eHDSI Rare Disease (Orphacode) and eHDSI Oncology Disease (ICD-O-3 ' +
+            'topography and morphology).',
           links: [
             { label: 'Xt-EHR Condition model', url: 'https://www.xt-ehr.eu/fhir/models/en/StructureDefinition-EHDSCondition.html' },
             { label: 'eHDSI Rare Disease', url: 'https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIRareDisease.html' },
+            { label: 'eHDSI Oncology Disease', url: 'https://fhir.ehdsi.eu/mvc-package/ValueSet-eHDSIOncologyDisease.html' },
           ],
         },
       },

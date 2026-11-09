@@ -72,7 +72,7 @@
         "source": "SNOMED CT, sökt live med ECL"
       }
     },
-    "note": "En jämförelse av lagren avslöjar luckor. Xt-EHR-modellen nämner Orphacode för sällsynta sjukdomar, men ingen EPS-bindning täcker den ännu. EHDS-märkena i demonstratorerna visar vilken modell varje sektion realiserar."
+    "note": "En jämförelse av lagren avslöjar luckor. Xt-EHR-modellen nämner Orphacode för sällsynta sjukdomar och ICD-O för cancer, men ingen EPS-bindning täcker dem ännu. EHDS-märkena i demonstratorerna visar vilken modell varje sektion realiserar."
   },
   "build": {
     "title": "Så är demonstratorerna byggda",

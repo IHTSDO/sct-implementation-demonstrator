@@ -72,7 +72,7 @@
         "source": "SNOMED CT, searched live with ECL"
       }
     },
-    "note": "Comparing the layers reveals gaps. The Xt-EHR model lists Orphacode for rare diseases, but no EPS binding covers it yet. The EHDS badges in the demonstrators show which model each section realises."
+    "note": "Comparing the layers reveals gaps. The Xt-EHR model lists Orphacode for rare diseases and ICD-O for cancer, but no EPS binding covers them yet. The EHDS badges in the demonstrators show which model each section realises."
   },
   "build": {
     "title": "How these demonstrators are built",

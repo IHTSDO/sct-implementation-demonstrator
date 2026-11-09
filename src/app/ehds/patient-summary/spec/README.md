@@ -73,8 +73,8 @@ without any error.
   - `ehdsSection`: EPS section → `EHDSPatientSummary.<section>`, or `null` when
     the model has none (today `patientHistory`).
   - `alignmentNote`: hand-written gaps between the EHDS model and the EPS. Today
-    this is only the missing Orphacode binding on `Condition.code`. Re-check
-    whether the gap still exists, and remove the note once it is fixed.
+    these are the missing Orphacode and ICD-O bindings on `Condition.code`. Re-check
+    whether the gaps still exist, and update or remove the note as they are fixed.
 - **`generate-eps-sections.mjs`**
   - `valueSetPageUrl()`: canonical → human page URL patterns. Core FHIR value
     sets are pinned to `/R4/`.
@@ -90,13 +90,14 @@ without any error.
   If the guides change the layout, or publish real ConceptMaps / `element.mapping`
   (which we have asked for), switch the source.
 - **Home page** (`src/app/ehds/ehds-home/`): the chain examples in `chainSteps`
-  and the Orphacode sentence in the `chain.note` translations.
+  and the Orphacode / ICD-O sentence in the `chain.note` translations.
 
 ## What to look for in the review
 
 - New `additional-binding`s, or changed binding strengths and value sets.
 - Fields whose EHDS badge turns grey (no longer mapped) or whose relationship changes.
 - New or resolved `no-map` elements in the section popovers.
-- The Orphacode gap: does `eHDSIIllnessandDisorder`, or a new binding, now cover it?
+- The Orphacode and ICD-O gaps: does `eHDSIIllnessandDisorder`, or a new binding
+  (e.g. `eHDSIRareDisease`, `eHDSIOncologyDisease`), now cover them?
 - EPS sections still pending in the demo (Results, Vital Signs, Social History,
   Functional Status, Pregnancy History, Advance Directives, Plan of Care).

@@ -72,7 +72,7 @@
         "source": "SNOMED CT, live doorzocht met ECL"
       }
     },
-    "note": "Het vergelijken van de lagen brengt hiaten aan het licht. Het Xt-EHR-model noemt Orphacode voor zeldzame ziekten, maar nog geen enkele EPS-binding dekt die. De EHDS-badges in de demonstrators tonen welk model elke sectie realiseert."
+    "note": "Het vergelijken van de lagen brengt hiaten aan het licht. Het Xt-EHR-model noemt Orphacode voor zeldzame ziekten en ICD-O voor kanker, maar nog geen enkele EPS-binding dekt die. De EHDS-badges in de demonstrators tonen welk model elke sectie realiseert."
   },
   "build": {
     "title": "Hoe deze demonstrators zijn gebouwd",

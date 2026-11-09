@@ -39,6 +39,13 @@
   color: rgba(0, 0, 0, 0.6);
 }
 
+.page-interim-note {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.55);
+}
+
 /* FHIR badge (Laboratory style) — opens the guide / a profile in the dialog */
 .fhir-badge {
   align-self: center;
@@ -64,7 +71,6 @@
 
 /* EHDS = the Xt-EHR logical model requirement behind the section */
 .fhir-badge.ehds-badge {
-  margin-left: 4px;
   background-color: #003399 !important;
 }
 
