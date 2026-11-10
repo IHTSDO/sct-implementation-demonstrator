@@ -1,7 +1,7 @@
 <div>{{ binding.title }}</div>
 <form [formGroup]="checkboxes" class="check-group">
-  @for (item of options; track item) {
-    <mat-checkbox formControlName="{{ item.display }}" class="check" (click)="optionClicked()" labelPosition="after">
+  @for (item of options; track item.code) {
+    <mat-checkbox [formControlName]="item.code" class="check" (click)="optionClicked()" labelPosition="after">
       {{ item.display }}
     </mat-checkbox>
   }

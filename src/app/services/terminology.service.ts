@@ -4,7 +4,7 @@ import { catchError, concatMap, finalize, firstValueFrom, map, Observable, of, s
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackAlertComponent } from '../alerts/snack-alert';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
 
 
 type ConceptType = {
@@ -131,6 +131,18 @@ export class TerminologyService {
     map(() => `${this.fhirUrlParam}|${this.getComputedLanguageContext()}`),
     distinctUntilChanged()
   );
+
+  /**
+   * Emits the current `edition|language` key immediately and again whenever it
+   * changes. Use it to (re)load expansions whose displays depend on the selected
+   * edition and language, e.g. option lists rendered by the bindings.
+   */
+  editionAndLanguageNow$(): Observable<string> {
+    return this.editionAndLanguage$.pipe(
+      startWith(`${this.fhirUrlParam}|${this.getComputedLanguageContext()}`),
+      distinctUntilChanged()
+    );
+  }
 
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) { 

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { MatFormFieldAppearance } from '@angular/material/form-field';
 import { TerminologyService } from '../../services/terminology.service';
 
@@ -40,12 +40,18 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
   isLoading = false;
 
   private readonly destroy$ = new Subject<void>();
+  /** Cancels a pending expansion when a newer load starts. */
+  private readonly loadCancel$ = new Subject<void>();
   private readonly optionsCache = new Map<string, SnomedOption[]>();
 
   constructor(private terminologyService: TerminologyService) {}
 
   ngOnInit(): void {
     this.loadOptions();
+    // Reload when the edition or language changes so displays follow the selection.
+    this.terminologyService.editionAndLanguageNow$()
+      .pipe(skip(1), takeUntil(this.destroy$))
+      .subscribe(() => this.loadOptions(true));
     this.searchCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.applyFilter((value || '').toString());
     });
@@ -96,18 +102,21 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
     this.onSelectionChanged();
   }
 
-  private loadOptions(): void {
+  /** @param keepSelection Remap the current selection by code instead of resetting it from `term`. */
+  private loadOptions(keepSelection = false): void {
+    this.loadCancel$.next();
     if (!this.binding?.ecl && !this.binding?.valueSetUrl) {
       this.options = [];
       this.filteredOptions = [];
       return;
     }
 
-    const cacheKey = `${this.terminologyServer || ''}|${this.editionUri || ''}|${this.binding?.ecl || ''}|${this.binding?.valueSetUrl || ''}`;
+    const language = this.terminologyService.getComputedLanguageContext();
+    const cacheKey = `${this.terminologyServer || ''}|${this.editionUri || ''}|${language}|${this.binding?.ecl || ''}|${this.binding?.valueSetUrl || ''}`;
     const cached = this.optionsCache.get(cacheKey);
     if (cached) {
       this.options = cached;
-      this.syncSelectionFromTerm();
+      this.applySelectionAfterLoad(keepSelection);
       this.applyFilter(this.searchCtrl.value || '');
       return;
     }
@@ -123,12 +132,12 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
       this.editionUri || '',
       useCache && !this.binding?.valueSetUrl
     );
-    obs.pipe(takeUntil(this.destroy$)).subscribe({
+    obs.pipe(takeUntil(this.loadCancel$), takeUntil(this.destroy$)).subscribe({
         next: (response: any) => {
           const contains = (response?.expansion?.contains || []) as SnomedOption[];
           this.options = this.sortOptions(contains);
           this.optionsCache.set(cacheKey, this.options);
-          this.syncSelectionFromTerm();
+          this.applySelectionAfterLoad(keepSelection);
           this.applyFilter(this.searchCtrl.value || '');
           this.isLoading = false;
         },
@@ -138,6 +147,20 @@ export class MultiPrefixSelectBindingComponent implements OnInit, OnChanges, OnD
           this.isLoading = false;
         }
       });
+  }
+
+  private applySelectionAfterLoad(keepSelection: boolean): void {
+    if (!keepSelection) {
+      this.syncSelectionFromTerm();
+      return;
+    }
+    if (this.isMultiple) {
+      this.selectedOptions = this.selectedOptions
+        .map((item) => this.findOption(item))
+        .filter((item): item is SnomedOption => !!item);
+    } else {
+      this.selectedOption = this.findOption(this.selectedOption);
+    }
   }
 
   private syncSelectionFromTerm(): void {

@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
 import {FormBuilder} from '@angular/forms';
 
@@ -8,12 +9,14 @@ import {FormBuilder} from '@angular/forms';
     styleUrls: ['./checkbox-multiple-binding.component.css'],
     standalone: false
 })
-export class CheckBoxMultipleBindingComponent implements OnInit {
+export class CheckBoxMultipleBindingComponent implements OnInit, OnDestroy {
   @Input() binding: any;
   @Output() selectionChange = new EventEmitter<any>();
 
   options: any[] | undefined;
-  checkboxes = this._formBuilder.group([])
+  checkboxes = this._formBuilder.group({} as Record<string, any>);
+
+  private destroy$ = new Subject<void>();
 
   present = {
     'display': 'Known present (qualifier value)',
@@ -32,23 +35,32 @@ export class CheckBoxMultipleBindingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.terminologyService.expandBindingAnswerValueSet(this.binding, '', 0, 1500).subscribe(response => {
-      this.options = response?.expansion?.contains ?? [];
-      // convert options to an array of form controls (display : false )
-      this.options?.forEach((o: any) => {
-        this.checkboxes.addControl(o.display, this._formBuilder.control(false));
+    // Re-expand when the edition or language changes so displays follow the selection.
+    // Controls are keyed by code, so checked state survives a reload with new displays.
+    this.terminologyService.editionAndLanguageNow$()
+      .pipe(
+        switchMap(() => this.terminologyService.expandBindingAnswerValueSet(this.binding, '', 0, 1500)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(response => {
+        this.options = response?.expansion?.contains ?? [];
+        this.options?.forEach((o: any) => {
+          if (!this.checkboxes.contains(`${o.code}`)) {
+            this.checkboxes.addControl(`${o.code}`, this._formBuilder.control(false));
+          }
+        });
       });
-    });
-    // this.options = [ { display: this.binding.title } ];
-    // this.options?.forEach((o: any) => {
-    //   this.checkboxes.addControl(o.display, this._formBuilder.control(false));
-    // });  
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   optionClicked() {
     let result: any[] = [];
     this.options?.forEach((o: any) => {
-      result.push( {code: o, value : (this.checkboxes.value[o.display]) ? this.present : this.absent} );
+      result.push( {code: o, value : ((this.checkboxes.value as any)[`${o.code}`]) ? this.present : this.absent} );
     });
     // let result: any[] = [];
     // result.push({

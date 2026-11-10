@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { TerminologyService } from '../../services/terminology.service';
 import { FormControl } from '@angular/forms';
-import { Subject, takeUntil, startWith, map } from 'rxjs';
+import { Subject, takeUntil, startWith, map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-dropdown-binding',
@@ -26,16 +26,28 @@ export class DropdownBindingComponent implements OnInit, OnDestroy {
   constructor(private terminologyService: TerminologyService) {}
 
   ngOnInit(): void {
-    this.terminologyService.expandBindingAnswerValueSet(this.binding, '', 0, 1500)
-      .pipe(takeUntil(this.destroy$))
+    // Re-expand when the edition or language changes so displays follow the selection.
+    let firstLoad = true;
+    this.terminologyService.editionAndLanguageNow$()
+      .pipe(
+        switchMap(() => this.terminologyService.expandBindingAnswerValueSet(this.binding, '', 0, 1500)),
+        takeUntil(this.destroy$)
+      )
       .subscribe(res => {
-        this.options         = res?.expansion?.contains ?? [];
-        this.filteredOptions = [...this.options];
-        this.applyInitialValue();
+        this.options = res?.expansion?.contains ?? [];
+        if (firstLoad) {
+          this.applyInitialValue();
+          firstLoad = false;
+        } else {
+          this.remapSelection();
+        }
+        this.applyFilter((this.searchCtrl.value ?? '').toLowerCase());
 
         // decide whether search should be available
         this.showSearch = this.options.length > 5;
-        if (!this.showSearch) {
+        if (this.showSearch) {
+          this.searchCtrl.enable({ emitEvent: false });
+        } else {
           this.searchCtrl.disable({ emitEvent: false });
         }
       });
@@ -46,12 +58,23 @@ export class DropdownBindingComponent implements OnInit, OnDestroy {
         map(term => (term ?? '').toLowerCase()),
         takeUntil(this.destroy$)
       )
-      .subscribe(term => {
-        if (this.showSearch) {
-          this.filteredOptions = this.options
-            .filter(o => o.display.toLowerCase().includes(term));
-        }
-      });
+      .subscribe(term => this.applyFilter(term));
+  }
+
+  private applyFilter(term: string): void {
+    this.filteredOptions = this.showSearch && term
+      ? this.options.filter(o => `${o.display ?? ''}`.toLowerCase().includes(term))
+      : [...this.options];
+  }
+
+  /** Point the current selection at the reloaded option objects (same codes, new displays). */
+  private remapSelection(): void {
+    const byCode = (o: any) => this.options.find(opt => `${opt.code}` === `${o?.code}`) ?? o;
+    if (Array.isArray(this.selectedOptions)) {
+      this.selectedOptions = this.selectedOptions.map(byCode);
+    } else if (this.selectedOptions) {
+      this.selectedOptions = byCode(this.selectedOptions);
+    }
   }
 
   private applyInitialValue(): void {
