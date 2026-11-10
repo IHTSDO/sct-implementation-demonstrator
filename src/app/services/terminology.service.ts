@@ -97,7 +97,7 @@ export class TerminologyService {
   private serverKindSubject = new BehaviorSubject<TerminologyServerKind>('other');
 
   public editionsDetails$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-  public languages$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv']);
+  public languages$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['cs', 'da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'it', 'ko', 'mi', 'nl', 'no', 'sv']);
   public filteredLanguageMetadata$: BehaviorSubject<any> = new BehaviorSubject<any>({ contexts: [] });
   public contexts$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   

@@ -39,7 +39,7 @@ export class AppComponent {
   bindingsForExport: any[] = [];
   editions: any[] = [];
   editionsDetails: any[] = [];
-  languages = ['da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'nl', 'no', 'sv'];
+  languages = ['cs', 'da', 'de', 'en', 'es', 'et', 'fi', 'fr', 'it', 'ko', 'mi', 'nl', 'no', 'sv'];
   languageRefsets: any[] = [];
   languageMetadata: any = {};
   filteredLanguageMetadata: any = {};
