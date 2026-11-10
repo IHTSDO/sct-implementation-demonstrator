@@ -111,6 +111,8 @@ interface ValidationResultRow {
 })
 export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterViewInit {
   private static readonly MAX_ECL_RESULTS = 10000;
+  // Effectively unlimited; only used when the terminology server runs on localhost.
+  private static readonly MAX_LOCAL_EXPANSION_RESULTS = 10000000;
 
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('workflowProgressAnchor') workflowProgressAnchor!: ElementRef<HTMLElement>;
@@ -1016,11 +1018,14 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
     this.targetValueSet = null;
     this.scrollToBottomAfterRender();
 
-    this.terminologyService.expandValueSet(this.eclExpression, '', 0, ValuesetTranslatorComponent.MAX_ECL_RESULTS).subscribe(
+    const maxResults = this.terminologyService.isLocalTerminologyServer()
+      ? ValuesetTranslatorComponent.MAX_LOCAL_EXPANSION_RESULTS
+      : ValuesetTranslatorComponent.MAX_ECL_RESULTS;
+    this.terminologyService.expandValueSet(this.eclExpression, '', 0, maxResults).subscribe(
       (expandedValueSet) => {
         const total = expandedValueSet?.expansion?.total || 0;
         const matchCount = expandedValueSet?.expansion?.contains?.length || 0;
-        const isTruncated = total > ValuesetTranslatorComponent.MAX_ECL_RESULTS;
+        const isTruncated = total > maxResults;
 
         if (matchCount > 0) {
           this.targetValueSet = expandedValueSet;
@@ -1062,7 +1067,7 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
           this.totalCount = total;
           this.isLoading = false;
           this.successMessage = isTruncated
-            ? `Successfully expanded ECL expression. Found ${total} matching concepts and loaded the first ${ValuesetTranslatorComponent.MAX_ECL_RESULTS}.`
+            ? `Successfully expanded ECL expression. Found ${total} matching concepts and loaded the first ${maxResults}.`
             : `Successfully expanded ECL expression. Found ${matchCount} matching concepts.`;
           this.scrollToBottomAfterRender();
         } else {
@@ -2241,13 +2246,18 @@ export class ValuesetTranslatorComponent implements OnInit, OnDestroy, AfterView
   }
 
   private toValueSetExpandRequestBody(valueSetOrParams: any): any {
-    if (!valueSetOrParams || valueSetOrParams.resourceType !== 'ValueSet') {
-      return valueSetOrParams;
+    const body = (!valueSetOrParams || valueSetOrParams.resourceType !== 'ValueSet')
+      ? valueSetOrParams
+      : { resourceType: 'Parameters', parameter: [{ name: 'valueSet', resource: valueSetOrParams }] };
+
+    // Local servers have no rate limits: lift the server's default page size so the
+    // whole value set is expanded. Remote servers keep their default.
+    if (body?.resourceType === 'Parameters' && this.terminologyService.isLocalTerminologyServer()) {
+      const parameter = (body.parameter || []).filter((p: any) => p.name !== 'count');
+      parameter.push({ name: 'count', valueInteger: ValuesetTranslatorComponent.MAX_LOCAL_EXPANSION_RESULTS });
+      return { ...body, parameter };
     }
-    return {
-      resourceType: 'Parameters',
-      parameter: [{ name: 'valueSet', resource: valueSetOrParams }]
-    };
+    return body;
   }
 
   private async expandInlineValueSetForSelectedOutput(inlineValueSetOrParams: any): Promise<any> {

@@ -596,6 +596,16 @@ export class TerminologyService {
       );
   }
 
+  /** True when the given FHIR base (default: current server) is served from the local machine. */
+  isLocalTerminologyServer(fhirBase?: string): boolean {
+    try {
+      const host = new URL(fhirBase || this.snowstormFhirBase).hostname;
+      return host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host.endsWith('.localhost');
+    } catch {
+      return false;
+    }
+  }
+
   expandInlineValueSetFromServer(fhirBase: string, inlineValueSet: any, acceptLanguage?: string): Observable<any> {
     const requestUrl = `${fhirBase || this.snowstormFhirBase}/ValueSet/$expand`;
     const resolvedLanguage = acceptLanguage || this.getComputedLanguageContext();
