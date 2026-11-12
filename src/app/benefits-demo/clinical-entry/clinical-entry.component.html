@@ -94,7 +94,7 @@
             </div>
           }
         </div>
-        @if (entryType === 'condition') {
+        @if (hasBodySite) {
           <div class="body-site-row">
             <div class="body-site-field">
               <app-linked-binding
@@ -102,10 +102,10 @@
                 [sourceConcept]="bodySiteSource"
                 appearance="outline"
                 [messages]="{
-                  waiting: t('clinicalEntry.hints.bodySiteWaiting'),
-                  loading: t('clinicalEntry.hints.bodySiteLoading'),
-                  empty: t('clinicalEntry.hints.bodySiteEmpty', { condition: bodySiteSource?.display }),
-                  rangeNote: t('clinicalEntry.hints.bodySiteRange', { condition: bodySiteSource?.display })
+                  waiting: t('clinicalEntry.hints.' + siteHintPrefix + 'Waiting'),
+                  loading: t('clinicalEntry.hints.' + siteHintPrefix + 'Loading'),
+                  empty: t('clinicalEntry.hints.' + siteHintPrefix + 'Empty', { condition: bodySiteSource?.display, procedure: bodySiteSource?.display }),
+                  rangeNote: t('clinicalEntry.hints.' + siteHintPrefix + 'Range', { condition: bodySiteSource?.display, procedure: bodySiteSource?.display })
                 }"
                 (selectionChange)="onBodySiteSelected($event)">
               </app-linked-binding>

@@ -17,8 +17,27 @@ const DEFAULT_MEDICATION_DOSAGE: { value: number; unit: string; period: number; 
   periodUnit: 'd'
 };
 
-/** 363698007 |Finding site| */
-const FINDING_SITE_ATTRIBUTE = { code: '363698007', display: 'Finding site' };
+/**
+ * Concept-model attribute each entry type takes its body site from. Procedure site also
+ * covers its Direct/Indirect sub-attributes (`<<`), as in the encounter form.
+ */
+const SITE_ATTRIBUTES: Partial<Record<ClinicalEntryType, {
+  attribute: { code: string; display: string };
+  expression: string;
+  /** i18n key prefix for the field hints. */
+  hintPrefix: string;
+}>> = {
+  condition: {
+    attribute: { code: '363698007', display: 'Finding site' },
+    expression: '363698007 |Finding site|',
+    hintPrefix: 'bodySite'
+  },
+  procedure: {
+    attribute: { code: '363704007', display: 'Procedure site' },
+    expression: '<< 363704007 |Procedure site|',
+    hintPrefix: 'procedureSite'
+  }
+};
 
 /** 182353008 |Side| */
 const SIDE_CONCEPT_ID = '182353008';
@@ -118,10 +137,10 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
   private bodySiteBindingCache: { title: string; binding: any } | null = null;
   private bodySiteChange$ = new Subject<LinkedConcept | null>();
   /**
-   * Finding site(s) of the selected condition concept, or null while unknown. Shares the
-   * linked binding's cached `getAttributeValues` request, so it adds no terminology call.
+   * Own site(s) of the selected concept (finding or procedure site), or null while unknown.
+   * Shares the linked binding's cached `getAttributeValues` request, so it adds no call.
    */
-  private conceptFindingSiteCodes: string[] | null = null;
+  private conceptSiteCodes: string[] | null = null;
   private bodySiteSourceChange$ = new Subject<LinkedConcept | null>();
   private destroy$ = new Subject<void>();
 
@@ -201,12 +220,12 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
     this.bodySiteSourceChange$
       .pipe(
         switchMap((source) => source
-          ? this.terminologyService.getAttributeValues(source.code, FINDING_SITE_ATTRIBUTE.code)
+          ? this.terminologyService.getAttributeValues(source.code, this.siteAttribute!.expression)
           : of(null)),
         takeUntil(this.destroy$)
       )
       .subscribe((sites) => {
-        this.conceptFindingSiteCodes = sites ? sites.map((site) => site.code) : null;
+        this.conceptSiteCodes = sites ? sites.map((site) => site.code) : null;
       });
   }
 
@@ -215,7 +234,21 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /** Linked binding for the condition's body site: its finding site and more specific sites. */
+  /** Body site settings for this entry type; undefined for types without a body site. */
+  get siteAttribute() {
+    return SITE_ATTRIBUTES[this.entryType];
+  }
+
+  get hasBodySite(): boolean {
+    return !!this.siteAttribute;
+  }
+
+  /** i18n key prefix for the body site hints of this entry type. */
+  get siteHintPrefix(): string {
+    return this.siteAttribute?.hintPrefix ?? 'bodySite';
+  }
+
+  /** Linked binding for the body site: the concept's own site and more specific sites. */
   getBodySiteBinding(title: string): any {
     if (this.bodySiteBindingCache?.title !== title) {
       this.bodySiteBindingCache = {
@@ -224,10 +257,11 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
           title,
           type: 'Autocomplete',
           answerSource: 'linked',
-          linkedAttribute: FINDING_SITE_ATTRIBUTE,
+          linkedAttribute: this.siteAttribute!.attribute,
+          linkedAttributeExpression: this.siteAttribute!.expression,
           linkedOperator: '<<',
-          eclTemplate: `<< ({{source}}.${FINDING_SITE_ATTRIBUTE.code} |${FINDING_SITE_ATTRIBUTE.display}|)`,
-          // MRCM range of Finding site, so a condition without one does not need a domain lookup.
+          eclTemplate: `<< ({{source}}.${this.siteAttribute!.expression})`,
+          // MRCM range of Finding site and Procedure site, so a concept without one needs no domain lookup.
           linkedRange: '<< 442083009 |Anatomical or acquired body structure|',
           ecl: '',
           note: ''
@@ -268,11 +302,11 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
 
   updateConcept(event: any) {
     this.selectedConcept = event;
-    if (this.entryType === 'condition') {
+    if (this.hasBodySite) {
       const source = toLinkedConcept(event);
       if (source?.code !== this.bodySiteSource?.code) {
         this.bodySiteSource = source;
-        this.conceptFindingSiteCodes = null;
+        this.conceptSiteCodes = null;
         this.bodySiteSourceChange$.next(source);
       }
     }
@@ -359,8 +393,8 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
       ? { code: this.selectedLaterality, display: this.getLateralityLabel(this.selectedLaterality) }
       : null;
     // Unknown defaults (lookup still pending or failed) only count an explicit laterality.
-    const siteDiffers = !!this.conceptFindingSiteCodes &&
-      !this.conceptFindingSiteCodes.includes(this.selectedBodySite.code);
+    const siteDiffers = !!this.conceptSiteCodes &&
+      !this.conceptSiteCodes.includes(this.selectedBodySite.code);
     return { site: this.selectedBodySite, laterality, refinesConcept: !!laterality || siteDiffers };
   }
 
@@ -378,7 +412,8 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
         display: this.selectedConcept.display
       },
       {
-        dateTime: this.getEntryDateValue()
+        dateTime: this.getEntryDateValue(),
+        bodySite: this.buildBodySite()
       }
     );
 
@@ -441,7 +476,7 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
     this.medicationPeriodUnit = DEFAULT_MEDICATION_DOSAGE.periodUnit;
     this.immunizationStatus = 'completed';
     this.bodySiteSource = null;
-    this.conceptFindingSiteCodes = null;
+    this.conceptSiteCodes = null;
     this.bodySiteSourceChange$.next(null);
     this.onBodySiteSelected(null);
     this.showAddForm = false;

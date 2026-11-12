@@ -122,7 +122,9 @@ export class LinkedBindingComponent implements OnInit, OnChanges, OnDestroy {
     if (!code) {
       return of({ status: 'waiting', key: this.nextKey++ } as LinkedState);
     }
-    const attributeId = this.binding?.linkedAttribute?.code;
+    // `linkedAttributeExpression` widens the attribute, e.g. `<< 363704007 |Procedure site|`
+    // to also read its Direct/Indirect sub-attributes.
+    const attributeId = this.binding?.linkedAttributeExpression || this.binding?.linkedAttribute?.code;
     const loading: LinkedState = { status: 'loading', key: this.state.key };
     this.state = loading;
 

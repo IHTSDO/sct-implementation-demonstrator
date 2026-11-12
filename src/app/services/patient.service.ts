@@ -57,11 +57,14 @@ export interface ClinicalEntryConcept {
   codeText?: string;
 }
 
+/** One `bodySite` element of a Condition or Procedure. */
+export type ClinicalBodySiteElement = NonNullable<Condition['bodySite']>[number];
+
 /** Body site picked for a clinical entry, optionally qualified with a laterality. */
 export interface ClinicalEntryBodySite {
   site: { code: string; display: string };
   laterality?: { code: string; display: string } | null;
-  /** True when the site or laterality differs from the condition concept's finding site. */
+  /** True when the site or laterality differs from the concept's own finding/procedure site. */
   refinesConcept?: boolean;
 }
 
@@ -2670,7 +2673,7 @@ export class PatientService {
    * SNOMED CT body site for a condition. With a laterality, the site is refined with a
    * postcoordinated expression: `<site> : 272741003 |Laterality| = <side>`.
    */
-  buildBodySiteFromClinicalEntry(bodySite: ClinicalEntryBodySite): NonNullable<Condition['bodySite']>[number] {
+  buildBodySiteFromClinicalEntry(bodySite: ClinicalEntryBodySite): ClinicalBodySiteElement {
     const { site, laterality, refinesConcept } = bodySite;
     const extension = refinesConcept
       ? [{ url: PatientService.BODY_SITE_REFINES_CONCEPT_EXTENSION, valueBoolean: true }]
@@ -2695,9 +2698,13 @@ export class PatientService {
     };
   }
 
-  /** The SNOMED CT body site recorded on a condition (ignores the EHR Lab body-map location). */
-  getConditionBodySiteText(condition: Condition, onlyIfRefinesConcept = false): string | null {
-    const site = (condition.bodySite || []).find((entry) =>
+  /**
+   * The SNOMED CT body site recorded on a condition or procedure (ignores the EHR Lab
+   * body-map location). With `onlyIfRefinesConcept`, only a site flagged at entry as
+   * differing from the concept's own site is returned.
+   */
+  getBodySiteText(resource: { bodySite?: ClinicalBodySiteElement[] }, onlyIfRefinesConcept = false): string | null {
+    const site = (resource.bodySite || []).find((entry) =>
       (entry?.coding || []).some((coding) => coding?.system === PatientService.SNOMED_SYSTEM)
     );
     if (!site) {
@@ -2758,10 +2765,13 @@ export class PatientService {
   createProcedureFromClinicalEntryConcept(
     patientId: string,
     concept: ClinicalEntryConcept,
-    options?: { dateTime?: string }
+    options?: { dateTime?: string; bodySite?: ClinicalEntryBodySite | null }
   ): Procedure {
     const display = concept.display || concept.text || concept.code || 'Unknown procedure';
     const procedureDateTime = options?.dateTime || new Date().toISOString();
+    const bodySite = options?.bodySite?.site?.code
+      ? [this.buildBodySiteFromClinicalEntry(options.bodySite)]
+      : undefined;
 
     return {
       resourceType: 'Procedure',
@@ -2771,6 +2781,7 @@ export class PatientService {
         coding: this.buildConceptCodings(concept, display),
         text: concept.codeText || display
       },
+      ...(bodySite ? { bodySite } : {}),
       subject: {
         reference: `Patient/${patientId}`,
         display: `Patient ${patientId}`

@@ -700,7 +700,11 @@
       "lateralityChecking": "Controleren of de locatie lateraliseerbaar is…",
       "lateralityNotApplicable": "Niet van toepassing: de locatie is niet lateraliseerbaar",
       "lateralityOptional": "Optioneel: de locatie is lateraliseerbaar",
-      "lateralityInherent": "De locatie geeft de zijde al aan"
+      "lateralityInherent": "De locatie geeft de zijde al aan",
+      "procedureSiteWaiting": "Selecteer eerst de verrichting",
+      "procedureSiteLoading": "Locatie van de verrichting opzoeken…",
+      "procedureSiteEmpty": "{{procedure}} heeft geen locatie van de verrichting",
+      "procedureSiteRange": "{{procedure}} heeft geen locatie van de verrichting: zoek een willekeurige lichaamsstructuur"
     },
     "laterality": {
       "notSpecified": "Niet gespecificeerd",

@@ -700,7 +700,11 @@
       "lateralityChecking": "Kontrollerar om lokalisationen kan lateraliseras…",
       "lateralityNotApplicable": "Ej tillämpligt: lokalisationen kan inte lateraliseras",
       "lateralityOptional": "Valfritt: lokalisationen kan lateraliseras",
-      "lateralityInherent": "Lokalisationen anger redan sidan"
+      "lateralityInherent": "Lokalisationen anger redan sidan",
+      "procedureSiteWaiting": "Välj åtgärden först",
+      "procedureSiteLoading": "Söker åtgärdens lokalisation…",
+      "procedureSiteEmpty": "{{procedure}} har ingen åtgärdslokalisation",
+      "procedureSiteRange": "{{procedure}} har ingen åtgärdslokalisation: sök bland alla kroppsstrukturer"
     },
     "laterality": {
       "notSpecified": "Ej angivet",

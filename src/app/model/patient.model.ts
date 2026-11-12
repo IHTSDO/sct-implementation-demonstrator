@@ -460,6 +460,10 @@ export interface Procedure {
     display?: string;
   }>;
   bodySite?: Array<{
+    extension?: Array<{
+      url: string;
+      valueBoolean?: boolean;
+    }>;
     coding?: Array<{
       system?: string;
       code?: string;

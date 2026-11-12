@@ -700,7 +700,11 @@
       "lateralityChecking": "Kontrollerer om lokalisationen kan lateraliseres…",
       "lateralityNotApplicable": "Ikke relevant: lokalisationen kan ikke lateraliseres",
       "lateralityOptional": "Valgfrit: lokalisationen kan lateraliseres",
-      "lateralityInherent": "Lokalisationen angiver allerede siden"
+      "lateralityInherent": "Lokalisationen angiver allerede siden",
+      "procedureSiteWaiting": "Vælg først proceduren",
+      "procedureSiteLoading": "Slår procedurens lokalisation op…",
+      "procedureSiteEmpty": "{{procedure}} har ingen procedurelokalisation",
+      "procedureSiteRange": "{{procedure}} har ingen procedurelokalisation: søg i alle kropsstrukturer"
     },
     "laterality": {
       "notSpecified": "Ikke angivet",

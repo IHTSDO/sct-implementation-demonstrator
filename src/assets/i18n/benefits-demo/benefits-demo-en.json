@@ -700,7 +700,11 @@
       "lateralityChecking": "Checking whether the site is lateralizable…",
       "lateralityNotApplicable": "Not applicable: the body site is not lateralizable",
       "lateralityOptional": "Optional: the body site is lateralizable",
-      "lateralityInherent": "The body site already specifies the side"
+      "lateralityInherent": "The body site already specifies the side",
+      "procedureSiteWaiting": "Select the procedure first",
+      "procedureSiteLoading": "Looking up the procedure site…",
+      "procedureSiteEmpty": "{{procedure}} has no procedure site",
+      "procedureSiteRange": "{{procedure}} has no procedure site: search any body structure"
     },
     "laterality": {
       "notSpecified": "Not specified",

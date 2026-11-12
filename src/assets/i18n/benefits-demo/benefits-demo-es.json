@@ -700,7 +700,11 @@
       "lateralityChecking": "Comprobando si la localización es lateralizable…",
       "lateralityNotApplicable": "No aplica: la localización no es lateralizable",
       "lateralityOptional": "Opcional: la localización es lateralizable",
-      "lateralityInherent": "La localización ya indica el lado"
+      "lateralityInherent": "La localización ya indica el lado",
+      "procedureSiteWaiting": "Seleccione primero el procedimiento",
+      "procedureSiteLoading": "Buscando la localización del procedimiento…",
+      "procedureSiteEmpty": "{{procedure}} no tiene localización del procedimiento",
+      "procedureSiteRange": "{{procedure}} no tiene localización del procedimiento: busque cualquier estructura corporal"
     },
     "laterality": {
       "notSpecified": "Sin especificar",
