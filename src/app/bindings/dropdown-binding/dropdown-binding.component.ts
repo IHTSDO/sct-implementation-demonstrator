@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { TerminologyService } from '../../services/terminology.service';
 import { FormControl } from '@angular/forms';
+import { MatFormFieldAppearance } from '@angular/material/form-field';
 import { Subject, takeUntil, startWith, map, switchMap } from 'rxjs';
 
 @Component({
@@ -13,6 +14,7 @@ export class DropdownBindingComponent implements OnInit, OnDestroy {
   @Input()  binding!: any;
   /** Concept preselected once the options load (matched by code). */
   @Input()  initialValue: { code: string } | null = null;
+  @Input()  appearance: MatFormFieldAppearance = 'fill';
   @Output() selectionChange = new EventEmitter<any[]>();
 
   private options: any[] = [];

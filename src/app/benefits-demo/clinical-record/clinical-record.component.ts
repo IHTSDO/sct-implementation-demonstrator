@@ -2330,6 +2330,16 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     return '';
   }
 
+  /** Recorded SNOMED CT body site of a condition, including its laterality when qualified. */
+  getConditionBodySite(condition: Condition): string | null {
+    return this.patientService.getConditionBodySiteText(condition);
+  }
+
+  /** Body site for the summary: only when it refines the condition concept's own finding site. */
+  getConditionSummaryBodySite(condition: Condition): string | null {
+    return this.patientService.getConditionBodySiteText(condition, true);
+  }
+
   getIcd10Code(condition: any): string | null {
     return this.patientService.getConditionIcd10Code(condition);
   }

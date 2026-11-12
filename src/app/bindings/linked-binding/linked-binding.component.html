@@ -6,6 +6,7 @@
           <app-autocomplete-binding
             [binding]="resolved"
             [editionUri]="editionUri"
+            [appearance]="appearance"
             [ngModel]="state.defaultValue"
             (selectionChange)="onSelection($event)">
           </app-autocomplete-binding>
@@ -20,6 +21,7 @@
         @default {
           <app-dropdown-binding
             [binding]="resolved"
+            [appearance]="appearance"
             [initialValue]="state.defaultValue ?? null"
             (selectionChange)="onSelection($event)">
           </app-dropdown-binding>
@@ -28,17 +30,17 @@
     }
   }
   @default {
-    <mat-form-field appearance="fill" class="linked-placeholder">
+    <mat-form-field [appearance]="appearance" class="linked-placeholder">
       <mat-label>{{ binding?.title }}</mat-label>
-      <input matInput disabled [placeholder]="state.status === 'loading' ? 'Loading options…' : ''">
+      <input matInput disabled [placeholder]="state.status === 'loading' ? (messages?.loading || 'Loading options…') : ''">
       @if (state.status === 'loading') {
         <mat-spinner matSuffix diameter="20"></mat-spinner>
       }
       <mat-hint>
         @switch (state.status) {
-          @case ('waiting') { Select {{ sourceTitle || 'the linked field' }} first }
-          @case ('empty') { {{ sourceConcept?.display }} has no {{ attributeLabel }} }
-          @default { Looking up {{ attributeLabel }} of {{ sourceConcept?.display }}… }
+          @case ('waiting') { {{ messages?.waiting || 'Select ' + (sourceTitle || 'the linked field') + ' first' }} }
+          @case ('empty') { {{ messages?.empty || sourceConcept?.display + ' has no ' + attributeLabel }} }
+          @default { {{ messages?.loading || 'Looking up ' + attributeLabel + ' of ' + sourceConcept?.display + '…' }} }
         }
       </mat-hint>
     </mat-form-field>

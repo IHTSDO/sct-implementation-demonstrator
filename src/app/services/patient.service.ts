@@ -57,11 +57,26 @@ export interface ClinicalEntryConcept {
   codeText?: string;
 }
 
+/** Body site picked for a clinical entry, optionally qualified with a laterality. */
+export interface ClinicalEntryBodySite {
+  site: { code: string; display: string };
+  laterality?: { code: string; display: string } | null;
+  /** True when the site or laterality differs from the condition concept's finding site. */
+  refinesConcept?: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PatientService {
   public static readonly SNOMED_SYSTEM = 'http://snomed.info/sct';
+  /** 272741003 |Laterality (attribute)| */
+  public static readonly LATERALITY_ATTRIBUTE = '272741003';
+  /**
+   * EHR Lab marker on a condition's body site: true when the recorded site or laterality
+   * differs from the condition concept's own finding site (decided when the entry is saved).
+   */
+  public static readonly BODY_SITE_REFINES_CONCEPT_EXTENSION = 'http://ehr-lab.demo/fhir/StructureDefinition/body-site-refines-concept';
   public static readonly SNOMED_EDITION_SYSTEM = 'http://snomed.info/sct/900000000000207008';
   public static readonly ICD10_SYSTEM = 'http://hl7.org/fhir/sid/icd-10';
   private static readonly EHR_LAB_LOCATION_SYSTEM = 'http://ehr-lab.demo/location';
@@ -2651,13 +2666,61 @@ export class PatientService {
   }
 
   // Centralized FHIR resource creation methods for AI-detected entities
+  /**
+   * SNOMED CT body site for a condition. With a laterality, the site is refined with a
+   * postcoordinated expression: `<site> : 272741003 |Laterality| = <side>`.
+   */
+  buildBodySiteFromClinicalEntry(bodySite: ClinicalEntryBodySite): NonNullable<Condition['bodySite']>[number] {
+    const { site, laterality, refinesConcept } = bodySite;
+    const extension = refinesConcept
+      ? [{ url: PatientService.BODY_SITE_REFINES_CONCEPT_EXTENSION, valueBoolean: true }]
+      : undefined;
+    if (!laterality?.code) {
+      return {
+        ...(extension ? { extension } : {}),
+        coding: [this.buildSnomedCoding(site.code, site.display)],
+        text: site.display
+      };
+    }
+    const text = `${site.display} (${laterality.display})`;
+    return {
+      ...(extension ? { extension } : {}),
+      coding: [
+        this.buildSnomedCoding(
+          `${site.code}:${PatientService.LATERALITY_ATTRIBUTE}=${laterality.code}`,
+          text
+        )
+      ],
+      text
+    };
+  }
+
+  /** The SNOMED CT body site recorded on a condition (ignores the EHR Lab body-map location). */
+  getConditionBodySiteText(condition: Condition, onlyIfRefinesConcept = false): string | null {
+    const site = (condition.bodySite || []).find((entry) =>
+      (entry?.coding || []).some((coding) => coding?.system === PatientService.SNOMED_SYSTEM)
+    );
+    if (!site) {
+      return null;
+    }
+    if (onlyIfRefinesConcept && !(site.extension || []).some((ext) =>
+      ext.url === PatientService.BODY_SITE_REFINES_CONCEPT_EXTENSION && ext.valueBoolean === true
+    )) {
+      return null;
+    }
+    return site.text || site.coding?.find((coding) => coding?.system === PatientService.SNOMED_SYSTEM)?.display || null;
+  }
+
   createConditionFromClinicalEntryConcept(
     patientId: string,
     concept: ClinicalEntryConcept,
-    options?: { dateTime?: string }
+    options?: { dateTime?: string; bodySite?: ClinicalEntryBodySite | null }
   ): Condition {
     const display = concept.display || concept.text || concept.code || 'Unknown condition';
     const conditionDateTime = options?.dateTime || new Date().toISOString();
+    const bodySite = options?.bodySite?.site?.code
+      ? [this.buildBodySiteFromClinicalEntry(options.bodySite)]
+      : undefined;
 
     return {
       resourceType: 'Condition',
@@ -2682,6 +2745,7 @@ export class PatientService {
         coding: this.buildConceptCodings(concept, display),
         text: concept.codeText || display
       },
+      ...(bodySite ? { bodySite } : {}),
       subject: {
         reference: `Patient/${patientId}`,
         display: `Patient ${patientId}`

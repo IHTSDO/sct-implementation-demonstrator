@@ -169,6 +169,10 @@ export interface Condition {
     text: string;
   };
   bodySite?: Array<{
+    extension?: Array<{
+      url: string;
+      valueBoolean?: boolean;
+    }>;
     coding?: Array<{
       system?: string;
       code?: string;

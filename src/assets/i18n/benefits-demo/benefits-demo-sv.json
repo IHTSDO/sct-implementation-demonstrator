@@ -176,7 +176,8 @@
       "specimens": "Prover",
       "date": "Datum",
       "term": "Term",
-      "result": "Resultat"
+      "result": "Resultat",
+      "bodySite": "Anatomisk lokalisation"
     },
     "status": {
       "active": "Aktiv",
@@ -671,7 +672,9 @@
       "immunizationStatus": "Vaccinationsstatus",
       "statusCompleted": "Utförd",
       "statusNotDone": "Ej utförd",
-      "statusEnteredInError": "Inmatad av misstag"
+      "statusEnteredInError": "Inmatad av misstag",
+      "bodySite": "Anatomisk lokalisation",
+      "laterality": "Lateralitet"
     },
     "actions": {
       "saving": "Sparar...",
@@ -687,6 +690,23 @@
       "autocompleteDesc": "Alternativen filtreras utifrån användarens inmatning och fältet är implementerat med en autoifyllningskomponent för att begränsa manuell inmatning och förbättra urvalupplevelsen.",
       "countDesc": "Om terminologiservern stöder det kan returnerade resultat begränsas med count=X. Detta kan förhindra att servern svarar med ett 'too costly'-fel och förbättra prestandan vid sökning och rendering.",
       "associationNote": "Obs: Du kan koppla det här läkemedlet till en befintlig diagnos eller åtgärd genom att välja indikationsorsak i listrutan."
+    },
+    "hints": {
+      "bodySiteWaiting": "Välj tillståndet först",
+      "bodySiteLoading": "Söker fyndets lokalisation…",
+      "bodySiteEmpty": "{{condition}} har ingen fyndlokalisation",
+      "bodySiteRange": "{{condition}} har ingen fyndlokalisation: sök bland alla kroppsstrukturer",
+      "lateralityNoSite": "Välj en lokalisation först",
+      "lateralityChecking": "Kontrollerar om lokalisationen kan lateraliseras…",
+      "lateralityNotApplicable": "Ej tillämpligt: lokalisationen kan inte lateraliseras",
+      "lateralityOptional": "Valfritt: lokalisationen kan lateraliseras",
+      "lateralityInherent": "Lokalisationen anger redan sidan"
+    },
+    "laterality": {
+      "notSpecified": "Ej angivet",
+      "left": "Vänster",
+      "right": "Höger",
+      "bilateral": "Bilateral"
     }
   },
   "fhirData": {

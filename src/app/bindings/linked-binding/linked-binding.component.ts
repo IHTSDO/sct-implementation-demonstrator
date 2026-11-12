@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { MatFormFieldAppearance } from '@angular/material/form-field';
 import { Observable, Subject, catchError, map, of, switchMap, takeUntil } from 'rxjs';
 import { TerminologyService } from '../../services/terminology.service';
 import {
@@ -6,6 +7,18 @@ import {
   linkedOperatorIncludesSelf,
   resolveLinkedEcl,
 } from './linked-binding.utils';
+
+/** Host-provided texts for the linked binding's hints. */
+export interface LinkedBindingMessages {
+  /** Shown before the source field has a concept. */
+  waiting?: string;
+  /** Shown while the options are resolved. */
+  loading?: string;
+  /** Shown when the source concept has no value for the attribute and no range is known. */
+  empty?: string;
+  /** Hint for the range fallback (the source concept has no value for the attribute). */
+  rangeNote?: string;
+}
 
 interface LinkedState {
   status: 'waiting' | 'loading' | 'empty' | 'ready';
@@ -36,6 +49,9 @@ export class LinkedBindingComponent implements OnInit, OnChanges, OnDestroy {
   @Input() sourceTitle = '';
   @Input() editionUri?: string;
   @Input() maxOptionsCount = 10;
+  @Input() appearance: MatFormFieldAppearance = 'fill';
+  /** Optional translated texts; the English defaults are used for any missing entry. */
+  @Input() messages: LinkedBindingMessages | null = null;
   @Output() selectionChange = new EventEmitter<any>();
 
   state: LinkedState = { status: 'waiting', key: 0 };
@@ -146,7 +162,8 @@ export class LinkedBindingComponent implements OnInit, OnChanges, OnDestroy {
         const resolvedBinding = {
           ...this.binding,
           ecl: range,
-          note: `${this.sourceConcept?.display || 'The linked concept'} has no ${this.attributeLabel}: search any value allowed by the concept model.`,
+          note: this.messages?.rangeNote ||
+            `${this.sourceConcept?.display || 'The linked concept'} has no ${this.attributeLabel}: search any value allowed by the concept model.`,
         };
         return {
           status: 'ready',

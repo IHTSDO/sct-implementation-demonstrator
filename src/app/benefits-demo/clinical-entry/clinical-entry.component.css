@@ -153,6 +153,26 @@
   width: 100%;
 }
 
+.body-site-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.body-site-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.laterality-section {
+  flex: 0 0 220px;
+  min-width: 220px;
+}
+
+.laterality-section mat-form-field {
+  width: 100%;
+}
+
 .dosage-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -279,6 +299,17 @@
   }
 
   .date-section {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .body-site-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .laterality-section {
+    flex-basis: auto;
     min-width: unset;
     width: 100%;
   }

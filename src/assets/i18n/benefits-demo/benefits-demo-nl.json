@@ -176,7 +176,8 @@
       "specimens": "Monsters",
       "date": "Datum",
       "term": "Term",
-      "result": "Resultaat"
+      "result": "Resultaat",
+      "bodySite": "Lichaamslocatie"
     },
     "status": {
       "active": "Actief",
@@ -671,7 +672,9 @@
       "immunizationStatus": "Vaccinatiestatus",
       "statusCompleted": "Voltooid",
       "statusNotDone": "Niet gedaan",
-      "statusEnteredInError": "Per vergissing ingevoerd"
+      "statusEnteredInError": "Per vergissing ingevoerd",
+      "bodySite": "Lichaamslocatie",
+      "laterality": "Lateraliteit"
     },
     "actions": {
       "saving": "Opslaan...",
@@ -687,6 +690,23 @@
       "autocompleteDesc": "Opties worden gefilterd op basis van gebruikersinvoer en het veld is geïmplementeerd als een automatisch aanvullend component om het typen te beperken en de selectie-ervaring te verbeteren.",
       "countDesc": "Als de terminologieserver dit ondersteunt, kunnen geretourneerde resultaten worden beperkt via count=X. Dit kan voorkomen dat de server een foutmelding 'te kostbaar' geeft en verbetert de prestaties van de zoekopdracht en weergave.",
       "associationNote": "Opmerking: U kunt deze medicatie koppelen aan een bestaande aandoening of verrichting door de reden voor indicatie te selecteren in de vervolgkeuzelijst."
+    },
+    "hints": {
+      "bodySiteWaiting": "Selecteer eerst de aandoening",
+      "bodySiteLoading": "Locatie van de bevinding opzoeken…",
+      "bodySiteEmpty": "{{condition}} heeft geen locatie van de bevinding",
+      "bodySiteRange": "{{condition}} heeft geen locatie van de bevinding: zoek een willekeurige lichaamsstructuur",
+      "lateralityNoSite": "Selecteer eerst een lichaamslocatie",
+      "lateralityChecking": "Controleren of de locatie lateraliseerbaar is…",
+      "lateralityNotApplicable": "Niet van toepassing: de locatie is niet lateraliseerbaar",
+      "lateralityOptional": "Optioneel: de locatie is lateraliseerbaar",
+      "lateralityInherent": "De locatie geeft de zijde al aan"
+    },
+    "laterality": {
+      "notSpecified": "Niet gespecificeerd",
+      "left": "Links",
+      "right": "Rechts",
+      "bilateral": "Bilateraal"
     }
   },
   "fhirData": {

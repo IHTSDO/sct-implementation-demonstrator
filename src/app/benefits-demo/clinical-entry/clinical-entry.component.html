@@ -94,6 +94,56 @@
             </div>
           }
         </div>
+        @if (entryType === 'condition') {
+          <div class="body-site-row">
+            <div class="body-site-field">
+              <app-linked-binding
+                [binding]="getBodySiteBinding(t('clinicalEntry.fields.bodySite'))"
+                [sourceConcept]="bodySiteSource"
+                appearance="outline"
+                [messages]="{
+                  waiting: t('clinicalEntry.hints.bodySiteWaiting'),
+                  loading: t('clinicalEntry.hints.bodySiteLoading'),
+                  empty: t('clinicalEntry.hints.bodySiteEmpty', { condition: bodySiteSource?.display }),
+                  rangeNote: t('clinicalEntry.hints.bodySiteRange', { condition: bodySiteSource?.display })
+                }"
+                (selectionChange)="onBodySiteSelected($event)">
+              </app-linked-binding>
+            </div>
+            <div class="laterality-section">
+              @if (lateralityState === 'inherent') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ t('clinicalEntry.fields.laterality') }}</mat-label>
+                  <input matInput disabled [value]="inherentLaterality?.display || ''">
+                  <mat-hint>{{ t('clinicalEntry.hints.lateralityInherent') }}</mat-hint>
+                </mat-form-field>
+              } @else {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ t('clinicalEntry.fields.laterality') }}</mat-label>
+                  <mat-select
+                    [(value)]="selectedLaterality"
+                    [disabled]="lateralityState !== 'lateralizable'">
+                    <mat-option value="">{{ t('clinicalEntry.laterality.notSpecified') }}</mat-option>
+                    <mat-option [value]="lateralityCodes.left">{{ t('clinicalEntry.laterality.left') }}</mat-option>
+                    <mat-option [value]="lateralityCodes.right">{{ t('clinicalEntry.laterality.right') }}</mat-option>
+                    <mat-option [value]="lateralityCodes.bilateral">{{ t('clinicalEntry.laterality.bilateral') }}</mat-option>
+                  </mat-select>
+                  @if (lateralityState === 'checking') {
+                    <mat-spinner matSuffix diameter="18"></mat-spinner>
+                  }
+                  <mat-hint>
+                    @switch (lateralityState) {
+                      @case ('none') { {{ t('clinicalEntry.hints.lateralityNoSite') }} }
+                      @case ('checking') { {{ t('clinicalEntry.hints.lateralityChecking') }} }
+                      @case ('notLateralizable') { {{ t('clinicalEntry.hints.lateralityNotApplicable') }} }
+                      @default { {{ t('clinicalEntry.hints.lateralityOptional') }} }
+                    }
+                  </mat-hint>
+                </mat-form-field>
+              }
+            </div>
+          </div>
+        }
         @if (entryType === 'medication') {
           <div class="dosage-row">
             <mat-form-field appearance="outline">

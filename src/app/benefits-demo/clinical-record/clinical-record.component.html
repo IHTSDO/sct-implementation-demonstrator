@@ -302,6 +302,9 @@
                       (mouseenter)="onConditionHover(condition, $event)"
                       (mouseleave)="onConditionHoverEnd()">
                     <div class="item-name" [matTooltip]="getConceptLabel(condition.code).original || ''">{{ getConceptLabel(condition.code).label }}</div>
+                    @if (getConditionSummaryBodySite(condition); as bodySite) {
+                      <div class="item-body-site summary">{{ bodySite }}</div>
+                    }
                   </div>
                 </div>
                 <ng-template #noConditions>
@@ -644,6 +647,12 @@
                               <span class="item-icd10-code compact" *ngIf="getIcd10Code(condition)">
                                 {{ t('clinicalRecord.labels.icd10') }}: {{ getIcd10Code(condition) }}
                               </span>
+                              @if (getConditionBodySite(condition); as bodySite) {
+                                <span class="item-body-site compact"
+                                      [matTooltip]="t('clinicalRecord.labels.bodySite')">
+                                  <mat-icon>location_on</mat-icon>{{ bodySite }}
+                                </span>
+                              }
                               <button type="button"
                                       class="item-status compact status-trigger"
                                       [ngClass]="getConditionStatusCode(condition)"

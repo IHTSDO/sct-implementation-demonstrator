@@ -2550,6 +2550,26 @@
   margin-bottom: 2px;
 }
 
+.item-body-site.compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 2px;
+}
+
+.item-body-site.compact mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.item-body-site.summary {
+  font-size: 0.72rem;
+  color: #6c757d;
+}
+
 .item-icd10-code.compact {
   font-family: 'Courier New', monospace;
   font-size: 0.75rem;

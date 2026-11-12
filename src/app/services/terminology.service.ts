@@ -1247,6 +1247,45 @@ export class TerminologyService {
     return request$;
   }
 
+  private lateralizableCache = new Map<string, boolean>();
+  private lateralizableInFlight = new Map<string, Observable<boolean>>();
+
+  /**
+   * Whether a body structure is a member of the Lateralizable body structure reference set
+   * (723264001), i.e. it accepts a laterality qualifier. Membership-only check (count 1),
+   * cached per edition; a failed request returns false and is not cached.
+   */
+  isLateralizableBodyStructure(conceptId: string): Observable<boolean> {
+    if (!conceptId) {
+      return of(false);
+    }
+    const cacheKey = `${this.fhirUrlParam}|${conceptId}`;
+    const cached = this.lateralizableCache.get(cacheKey);
+    if (cached !== undefined) {
+      return of(cached);
+    }
+    const inFlight = this.lateralizableInFlight.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
+    const request$ = this.expandValueSet(
+      `${conceptId} AND ^ 723264001 |Lateralizable body structure reference set|`, '', 0, 1
+    ).pipe(
+      map((res: any) => {
+        const expansion = res?.expansion;
+        const lateralizable = ((expansion?.total ?? expansion?.contains?.length ?? 0) as number) > 0;
+        if (expansion) {
+          this.lateralizableCache.set(cacheKey, lateralizable);
+        }
+        return lateralizable;
+      }),
+      finalize(() => this.lateralizableInFlight.delete(cacheKey)),
+      shareReplay(1)
+    );
+    this.lateralizableInFlight.set(cacheKey, request$);
+    return request$;
+  }
+
   addPostcoordinatedExpression(expression: string) {
     let requestUrl = `${this.snowstormFhirBase}/CodeSystem/sct_11000003104_EXP`;
     const httpOptions = {

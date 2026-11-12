@@ -1,6 +1,9 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { PatientService } from '../../services/patient.service';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
+import { Subject, map, of, switchMap, takeUntil } from 'rxjs';
+import { ClinicalEntryBodySite, PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
+import { LinkedConcept, toLinkedConcept } from '../../bindings/linked-binding/linked-binding.utils';
 import type { Condition, Immunization, MedicationStatement, Procedure } from '../../model';
 import type { CDSCard } from '../../services/cds.service';
 
@@ -14,13 +17,35 @@ const DEFAULT_MEDICATION_DOSAGE: { value: number; unit: string; period: number; 
   periodUnit: 'd'
 };
 
+/** 363698007 |Finding site| */
+const FINDING_SITE_ATTRIBUTE = { code: '363698007', display: 'Finding site' };
+
+/** 182353008 |Side| */
+const SIDE_CONCEPT_ID = '182353008';
+
+/** Values of << 182353008 |Side| offered as a laterality qualifier. */
+const LATERALITY_CODES = {
+  left: '7771000',
+  right: '24028007',
+  bilateral: '51440002'
+} as const;
+
+type LateralityState =
+  /** No body site selected. */
+  | 'none'
+  | 'checking'
+  /** The body site already carries a side (e.g. a structure of the left femur). */
+  | 'inherent'
+  | 'lateralizable'
+  | 'notLateralizable';
+
 @Component({
   selector: 'app-clinical-entry',
   templateUrl: './clinical-entry.component.html',
   styleUrls: ['./clinical-entry.component.css'],
   standalone: false
 })
-export class ClinicalEntryComponent implements AfterViewInit {
+export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
   @Input() patientId: string = '';
   @Input() entryType: ClinicalEntryType = 'condition';
   @Input() hideButton: boolean = false;
@@ -81,6 +106,25 @@ export class ClinicalEntryComponent implements AfterViewInit {
   loading = false;
   showAddForm = false;
   private medicationDraftId = '';
+
+  /** Condition concept the body site options derive from (its finding site). */
+  bodySiteSource: LinkedConcept | null = null;
+  selectedBodySite: LinkedConcept | null = null;
+  lateralityState: LateralityState = 'none';
+  /** Side carried by the selected body site itself, shown read-only. */
+  inherentLaterality: LinkedConcept | null = null;
+  selectedLaterality = '';
+  readonly lateralityCodes = LATERALITY_CODES;
+  private bodySiteBindingCache: { title: string; binding: any } | null = null;
+  private bodySiteChange$ = new Subject<LinkedConcept | null>();
+  /**
+   * Finding site(s) of the selected condition concept, or null while unknown. Shares the
+   * linked binding's cached `getAttributeValues` request, so it adds no terminology call.
+   */
+  private conceptFindingSiteCodes: string[] | null = null;
+  private bodySiteSourceChange$ = new Subject<LinkedConcept | null>();
+  private destroy$ = new Subject<void>();
+
   readonly medicationDoseUnitOptions = ['tablet', 'capsule', 'drop', 'puff', 'mL', 'mg', 'g', 'unit'];
 
   // SNOMED ECL bindings for different clinical entry types
@@ -109,8 +153,100 @@ export class ClinicalEntryComponent implements AfterViewInit {
 
   constructor(
     private patientService: PatientService,
-    private terminologyService: TerminologyService
-  ) { }
+    private terminologyService: TerminologyService,
+    private translocoService: TranslocoService
+  ) {
+    // One terminology request in flight per body-site change: the site's Laterality
+    // attribute first, then (only when it has none) membership in the lateralizable refset.
+    this.bodySiteChange$
+      .pipe(
+        switchMap((site) => {
+          if (!site) {
+            return of({ state: 'none' as LateralityState, side: null });
+          }
+          this.lateralityState = 'checking';
+          return this.terminologyService.getAttributeValues(site.code, PatientService.LATERALITY_ATTRIBUTE).pipe(
+            switchMap((sides) => {
+              // Unsided lateralizable structures carry `Laterality = 182353008 |Side|`;
+              // only a specific side (left, right, ...) is inherent to the structure.
+              const specificSide = sides.find((side) => side.code !== SIDE_CONCEPT_ID);
+              if (specificSide) {
+                return of({ state: 'inherent' as LateralityState, side: specificSide });
+              }
+              if (sides.length) {
+                return of({ state: 'lateralizable' as LateralityState, side: null });
+              }
+              return this.terminologyService.isLateralizableBodyStructure(site.code).pipe(
+                map((lateralizable) => ({
+                  state: (lateralizable ? 'lateralizable' : 'notLateralizable') as LateralityState,
+                  side: null
+                }))
+              );
+            })
+          );
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(({ state, side }) => {
+        this.lateralityState = state;
+        this.inherentLaterality = side;
+        if (state !== 'lateralizable') {
+          this.selectedLaterality = '';
+        }
+      });
+    this.watchConceptFindingSites();
+  }
+
+  private watchConceptFindingSites(): void {
+    this.bodySiteSourceChange$
+      .pipe(
+        switchMap((source) => source
+          ? this.terminologyService.getAttributeValues(source.code, FINDING_SITE_ATTRIBUTE.code)
+          : of(null)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((sites) => {
+        this.conceptFindingSiteCodes = sites ? sites.map((site) => site.code) : null;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /** Linked binding for the condition's body site: its finding site and more specific sites. */
+  getBodySiteBinding(title: string): any {
+    if (this.bodySiteBindingCache?.title !== title) {
+      this.bodySiteBindingCache = {
+        title,
+        binding: {
+          title,
+          type: 'Autocomplete',
+          answerSource: 'linked',
+          linkedAttribute: FINDING_SITE_ATTRIBUTE,
+          linkedOperator: '<<',
+          eclTemplate: `<< ({{source}}.${FINDING_SITE_ATTRIBUTE.code} |${FINDING_SITE_ATTRIBUTE.display}|)`,
+          // MRCM range of Finding site, so a condition without one does not need a domain lookup.
+          linkedRange: '<< 442083009 |Anatomical or acquired body structure|',
+          ecl: '',
+          note: ''
+        }
+      };
+    }
+    return this.bodySiteBindingCache.binding;
+  }
+
+  onBodySiteSelected(value: any): void {
+    const site = toLinkedConcept(value);
+    if (site?.code === this.selectedBodySite?.code) {
+      return;
+    }
+    this.selectedBodySite = site;
+    this.selectedLaterality = '';
+    this.inherentLaterality = null;
+    this.bodySiteChange$.next(site);
+  }
 
   get currentBinding() {
     return this.bindings[this.entryType];
@@ -132,6 +268,14 @@ export class ClinicalEntryComponent implements AfterViewInit {
 
   updateConcept(event: any) {
     this.selectedConcept = event;
+    if (this.entryType === 'condition') {
+      const source = toLinkedConcept(event);
+      if (source?.code !== this.bodySiteSource?.code) {
+        this.bodySiteSource = source;
+        this.conceptFindingSiteCodes = null;
+        this.bodySiteSourceChange$.next(source);
+      }
+    }
     this.emitDraftMedicationIfNeeded();
   }
 
@@ -198,12 +342,32 @@ export class ClinicalEntryComponent implements AfterViewInit {
         display: this.selectedConcept.display
       },
       {
-        dateTime: this.getEntryDateValue()
+        dateTime: this.getEntryDateValue(),
+        bodySite: this.buildBodySite()
       }
     );
 
     // Let the parent component handle adding to the service
     this.itemAdded.emit(newCondition);
+  }
+
+  private buildBodySite(): ClinicalEntryBodySite | null {
+    if (!this.selectedBodySite?.code) {
+      return null;
+    }
+    const laterality = this.lateralityState === 'lateralizable' && this.selectedLaterality
+      ? { code: this.selectedLaterality, display: this.getLateralityLabel(this.selectedLaterality) }
+      : null;
+    // Unknown defaults (lookup still pending or failed) only count an explicit laterality.
+    const siteDiffers = !!this.conceptFindingSiteCodes &&
+      !this.conceptFindingSiteCodes.includes(this.selectedBodySite.code);
+    return { site: this.selectedBodySite, laterality, refinesConcept: !!laterality || siteDiffers };
+  }
+
+  private getLateralityLabel(code: string): string {
+    const key = (Object.keys(LATERALITY_CODES) as Array<keyof typeof LATERALITY_CODES>)
+      .find((name) => LATERALITY_CODES[name] === code);
+    return key ? this.translocoService.translate(`benefitsDemo.clinicalEntry.laterality.${key}`) : code;
   }
 
   private async addProcedure() {
@@ -276,6 +440,10 @@ export class ClinicalEntryComponent implements AfterViewInit {
     this.medicationPeriod = DEFAULT_MEDICATION_DOSAGE.period;
     this.medicationPeriodUnit = DEFAULT_MEDICATION_DOSAGE.periodUnit;
     this.immunizationStatus = 'completed';
+    this.bodySiteSource = null;
+    this.conceptFindingSiteCodes = null;
+    this.bodySiteSourceChange$.next(null);
+    this.onBodySiteSelected(null);
     this.showAddForm = false;
     this.medicationDraftId = '';
     this.draftMedicationChanged.emit(null);

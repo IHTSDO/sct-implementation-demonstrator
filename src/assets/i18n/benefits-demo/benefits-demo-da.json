@@ -176,7 +176,8 @@
       "specimens": "Prøver",
       "date": "Dato",
       "term": "Term",
-      "result": "Resultat"
+      "result": "Resultat",
+      "bodySite": "Anatomisk lokalisation"
     },
     "status": {
       "active": "Aktiv",
@@ -671,7 +672,9 @@
       "immunizationStatus": "Vaccinationsstatus",
       "statusCompleted": "Fuldført",
       "statusNotDone": "Ikke udført",
-      "statusEnteredInError": "Indtastet ved fejl"
+      "statusEnteredInError": "Indtastet ved fejl",
+      "bodySite": "Anatomisk lokalisation",
+      "laterality": "Lateralitet"
     },
     "actions": {
       "saving": "Gemmer...",
@@ -687,6 +690,23 @@
       "autocompleteDesc": "Mulighederne filtreres baseret på brugerinput, og feltet er implementeret med en autofuldførelse-komponent for at begrænse brugerindtastning og forbedre valgoplevelsen.",
       "countDesc": "Hvis terminologiserveren understøtter det, kan returnerede resultater begrænses ved at bruge count=X. Dette kan forhindre serveren i at svare med en 'too costly'-fejl og forbedre opslags- og renderingsydelsen.",
       "associationNote": "Bemærk: Du kan knytte dette lægemiddel til en eksisterende tilstand eller procedure ved at vælge indikationsårsagen fra rullemenuen."
+    },
+    "hints": {
+      "bodySiteWaiting": "Vælg først tilstanden",
+      "bodySiteLoading": "Slår fundets lokalisation op…",
+      "bodySiteEmpty": "{{condition}} har ingen fundlokalisation",
+      "bodySiteRange": "{{condition}} har ingen fundlokalisation: søg i alle kropsstrukturer",
+      "lateralityNoSite": "Vælg først en lokalisation",
+      "lateralityChecking": "Kontrollerer om lokalisationen kan lateraliseres…",
+      "lateralityNotApplicable": "Ikke relevant: lokalisationen kan ikke lateraliseres",
+      "lateralityOptional": "Valgfrit: lokalisationen kan lateraliseres",
+      "lateralityInherent": "Lokalisationen angiver allerede siden"
+    },
+    "laterality": {
+      "notSpecified": "Ikke angivet",
+      "left": "Venstre",
+      "right": "Højre",
+      "bilateral": "Bilateral"
     }
   },
   "fhirData": {

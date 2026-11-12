@@ -176,7 +176,8 @@
       "specimens": "Muestras",
       "date": "Fecha",
       "term": "Término",
-      "result": "Resultado"
+      "result": "Resultado",
+      "bodySite": "Localización anatómica"
     },
     "status": {
       "active": "Activo",
@@ -671,7 +672,9 @@
       "immunizationStatus": "Estado de inmunización",
       "statusCompleted": "Completado",
       "statusNotDone": "No realizado",
-      "statusEnteredInError": "Ingresado por error"
+      "statusEnteredInError": "Ingresado por error",
+      "bodySite": "Localización anatómica",
+      "laterality": "Lateralidad"
     },
     "actions": {
       "saving": "Guardando...",
@@ -687,6 +690,23 @@
       "autocompleteDesc": "Las opciones se filtran según la entrada del usuario y el campo se implementa con un componente de autocompletar para limitar la escritura del usuario y mejorar la experiencia de selección.",
       "countDesc": "Si el servidor de terminología lo permite, los resultados devueltos pueden limitarse usando count=X. Esto puede evitar que el servidor responda con un error de 'demasiado costoso' y mejorar el rendimiento de la búsqueda y la representación.",
       "associationNote": "Nota: Puede asociar este medicamento con una condición o procedimiento existente seleccionando el motivo de indicación del menú desplegable."
+    },
+    "hints": {
+      "bodySiteWaiting": "Seleccione primero el problema",
+      "bodySiteLoading": "Buscando la localización del hallazgo…",
+      "bodySiteEmpty": "{{condition}} no tiene localización del hallazgo",
+      "bodySiteRange": "{{condition}} no tiene localización del hallazgo: busque cualquier estructura corporal",
+      "lateralityNoSite": "Seleccione primero una localización",
+      "lateralityChecking": "Comprobando si la localización es lateralizable…",
+      "lateralityNotApplicable": "No aplica: la localización no es lateralizable",
+      "lateralityOptional": "Opcional: la localización es lateralizable",
+      "lateralityInherent": "La localización ya indica el lado"
+    },
+    "laterality": {
+      "notSpecified": "Sin especificar",
+      "left": "Izquierda",
+      "right": "Derecha",
+      "bilateral": "Bilateral"
     }
   },
   "fhirData": {

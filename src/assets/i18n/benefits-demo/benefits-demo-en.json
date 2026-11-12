@@ -176,7 +176,8 @@
       "specimens": "Specimens",
       "date": "Date",
       "term": "Term",
-      "result": "Result"
+      "result": "Result",
+      "bodySite": "Body site"
     },
     "status": {
       "active": "Active",
@@ -671,7 +672,9 @@
       "immunizationStatus": "Immunization status",
       "statusCompleted": "Completed",
       "statusNotDone": "Not done",
-      "statusEnteredInError": "Entered in error"
+      "statusEnteredInError": "Entered in error",
+      "bodySite": "Body site",
+      "laterality": "Laterality"
     },
     "actions": {
       "saving": "Saving...",
@@ -687,6 +690,23 @@
       "autocompleteDesc": "Options are filtered based on user input and the field is implemented with an auto-complete component to limit user typing and improve the selection experience.",
       "countDesc": "If the terminology server supports it, returned results can be limited by using count=X. This may prevent the server from responding with a 'too costly' error and improve performance of the lookup and rendering.",
       "associationNote": "Note: You can associate this medication with an existing condition or procedure by selecting the reason for indication from the dropdown."
+    },
+    "hints": {
+      "bodySiteWaiting": "Select the condition first",
+      "bodySiteLoading": "Looking up the finding site…",
+      "bodySiteEmpty": "{{condition}} has no finding site",
+      "bodySiteRange": "{{condition}} has no finding site: search any body structure",
+      "lateralityNoSite": "Select a body site first",
+      "lateralityChecking": "Checking whether the site is lateralizable…",
+      "lateralityNotApplicable": "Not applicable: the body site is not lateralizable",
+      "lateralityOptional": "Optional: the body site is lateralizable",
+      "lateralityInherent": "The body site already specifies the side"
+    },
+    "laterality": {
+      "notSpecified": "Not specified",
+      "left": "Left",
+      "right": "Right",
+      "bilateral": "Bilateral"
     }
   },
   "fhirData": {
