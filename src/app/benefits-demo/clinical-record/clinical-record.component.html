@@ -202,6 +202,15 @@
               <span>{{ t('clinicalRecord.nav.nutritionalCareplan') }}</span>
             </button>
           </div>
+
+          <button
+            mat-stroked-button
+            class="sidebar-item module-root"
+            [class.active]="selectedModule === 'antenatal'"
+            (click)="onAntenatalRootClick()">
+            <mat-icon>pregnant_woman</mat-icon>
+            <span class="module-label">{{ t('clinicalRecord.nav.antenatalCare') }}</span>
+          </button>
         </div>
 
         <div class="sidebar-data-section">
@@ -263,6 +272,9 @@
           </button>
           <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'" (click)="selectNursingView('nutrition')" [matTooltip]="t('clinicalRecord.tooltips.nursingNutritionalCareplan')" matTooltipPosition="right">
             <mat-icon>restaurant</mat-icon>
+          </button>
+          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'antenatal'" (click)="onAntenatalRootClick()" [matTooltip]="t('clinicalRecord.nav.antenatalCare')" matTooltipPosition="right">
+            <mat-icon>pregnant_woman</mat-icon>
           </button>
         </div>
         <div class="collapsed-nav-data">
@@ -1109,6 +1121,11 @@
             [patient]="patient"
             [selectedView]="selectedNursingView">
           </app-nursing-record>
+
+          <app-antenatal-record
+            *ngSwitchCase="'antenatal'"
+            [patient]="patient">
+          </app-antenatal-record>
 
           <ng-container *ngSwitchCase="'data'">
             <app-fhir-data

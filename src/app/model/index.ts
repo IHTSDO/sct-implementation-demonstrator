@@ -6,6 +6,7 @@ export type {
   DeathRecord,
   DeathRecordDiagnosis,
   Encounter,
+  EpisodeOfCare,
   FhirObservation,
   Immunization,
   LaboratoryOrderGroup,

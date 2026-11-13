@@ -931,9 +931,55 @@ export interface LaboratoryOrderGroup {
   fhirBundleStr: string;
 }
 
+export interface EpisodeOfCare {
+  resourceType: 'EpisodeOfCare';
+  id: string;
+  status: 'planned' | 'waitlist' | 'active' | 'onhold' | 'finished' | 'cancelled' | 'entered-in-error';
+  type?: Array<{
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  }>;
+  diagnosis?: Array<{
+    condition: {
+      reference: string;
+      display?: string;
+    };
+    role?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+    };
+    rank?: number;
+  }>;
+  patient: {
+    reference: string;
+    display?: string;
+  };
+  period?: {
+    start?: string;
+    end?: string;
+  };
+}
+
 export interface Encounter {
   resourceType: 'Encounter';
   id: string;
+  extension?: Array<{
+    url: string;
+    valueInteger?: number;
+    valueString?: string;
+    valueCode?: string;
+  }>;
+  episodeOfCare?: Array<{
+    reference: string;
+    display?: string;
+  }>;
   status: 'planned' | 'arrived' | 'triaged' | 'in-progress' | 'onleave' | 'finished' | 'cancelled' | 'entered-in-error' | 'unknown';
   class: {
     system: string;
@@ -1011,8 +1057,20 @@ export interface FhirObservation {
     reference: string;
     display?: string;
   };
+  encounter?: {
+    reference: string;
+    display?: string;
+  };
+  focus?: Array<{
+    reference: string;
+    display?: string;
+  }>;
   effectiveDateTime?: string;
   issued?: string;
+  valueBoolean?: boolean;
+  valueInteger?: number;
+  valueString?: string;
+  valueDateTime?: string;
   valueQuantity?: {
     value?: number;
     unit?: string;

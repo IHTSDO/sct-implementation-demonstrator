@@ -199,7 +199,8 @@
       "dataSectionLabel": "Datos",
       "data": "Datos",
       "fhirRepository": "Repositorio FHIR",
-      "laboratory": "Laboratorio"
+      "laboratory": "Laboratorio",
+      "antenatalCare": "Control prenatal"
     },
     "tooltips": {
       "expandSidebar": "Expandir barra lateral",
@@ -1134,6 +1135,55 @@
   "nursingRecord": {
     "sections": {
       "nursing": "Enfermería"
+    }
+  },
+  "antenatalRecord": {
+    "title": "Control prenatal",
+    "start": {
+      "title": "Iniciar un embarazo",
+      "subtitle": "Es necesario iniciar un embarazo antes de registrar contactos prenatales.",
+      "lmpHint": "Se usa para calcular la edad gestacional en cada contacto."
+    },
+    "labels": {
+      "lastMenstrualPeriod": "Fecha de última menstruación",
+      "gestationalAge": "Edad gestacional",
+      "gestationalAgeToday": "Edad gestacional hoy",
+      "estimatedDateOfDelivery": "Fecha probable de parto",
+      "careStarted": "Inicio del control prenatal",
+      "weeksAndDays": "{{weeks}} sem {{days}} d",
+      "weeks": "{{weeks}} semanas"
+    },
+    "contacts": {
+      "title": "Contactos",
+      "empty": "Todavía no hay contactos registrados para este embarazo.",
+      "contactNumber": "Contacto {{number}}",
+      "inProgress": "En curso",
+      "finished": "Finalizado",
+      "formsCompleted": "{{completed}} de {{total}} formularios",
+      "closeOpenFirst": "Cierre el contacto en curso antes de iniciar uno nuevo."
+    },
+    "end": {
+      "title": "Fin del embarazo",
+      "hint": "Al guardar este formulario se cierra el registro de control prenatal de este embarazo."
+    },
+    "past": {
+      "title": "Embarazos anteriores"
+    },
+    "actions": {
+      "startPregnancy": "Iniciar embarazo",
+      "newContact": "Nuevo contacto",
+      "endPregnancy": "Finalizar embarazo",
+      "closeContact": "Cerrar contacto",
+      "backToPregnancy": "Volver al embarazo",
+      "dismiss": "Cerrar"
+    },
+    "messages": {
+      "loadFailed": "No se pudo cargar el registro de control prenatal.",
+      "pregnancyStarted": "Embarazo iniciado.",
+      "pregnancyEnded": "Embarazo cerrado.",
+      "contactClosed": "Contacto {{number}} cerrado.",
+      "formSaved": "{{title}} guardado.",
+      "saveFailed": "No se pudieron guardar los cambios."
     }
   },
   "nursingVitalCard": {

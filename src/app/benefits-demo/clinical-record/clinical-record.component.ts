@@ -58,7 +58,7 @@ interface QuickLabResultOption {
   unitCode: string;
 }
 
-type ClinicalModule = 'clinical' | 'dentistry' | 'nursing' | 'data';
+type ClinicalModule = 'clinical' | 'dentistry' | 'nursing' | 'antenatal' | 'data';
 type ClinicalView = 'summary' | 'encounters' | 'ai-entry' | 'problems' | 'orders' | 'forms' | 'alerts';
 type DentalView = 'odontogram';
 type NursingView = 'vitals' | 'nutrition';
@@ -261,6 +261,21 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnInit(): void {
+    // The antenatal module is URL-driven (module, contact and form are query parameters),
+    // so a refresh or a shared link lands on the same screen.
+    this.subscriptions.push(
+      this.route.queryParamMap.subscribe((params) => {
+        if (params.get('module') === 'antenatal') {
+          this.selectedModule = 'antenatal';
+          this.expandOnly('antenatal');
+        } else if (this.selectedModule === 'antenatal') {
+          this.selectedModule = 'clinical';
+          this.selectedClinicalView = 'summary';
+          this.expandOnly('clinical');
+        }
+      })
+    );
+
     // Check for patientId in URL route parameters first
     const patientIdFromRoute = this.route.snapshot.paramMap.get('patientId');
     
@@ -333,6 +348,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   setSelectedModule(module: ClinicalModule): void {
+    this.syncAntenatalUrl(module);
     this.selectedModule = module;
     if (module === 'clinical') {
       this.selectedClinicalView = 'summary';
@@ -379,6 +395,28 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     this.setSelectedModule('dentistry');
   }
 
+  onAntenatalRootClick(): void {
+    // Clicking the module root always returns to the pregnancy overview.
+    this.selectedModule = 'antenatal';
+    this.expandOnly('antenatal');
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { module: 'antenatal', contact: null, form: null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  // Leaving the antenatal module drops its query parameters from the URL.
+  private syncAntenatalUrl(nextModule: ClinicalModule): void {
+    if (nextModule !== 'antenatal' && this.route.snapshot.queryParamMap.get('module') === 'antenatal') {
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { module: null, contact: null, form: null },
+        queryParamsHandling: 'merge'
+      });
+    }
+  }
+
   onDataRootClick(): void {
     if (this.selectedModule === 'data') {
       this.expandOnly('data');
@@ -403,6 +441,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   selectClinicalView(view: ClinicalView): void {
+    this.syncAntenatalUrl('clinical');
     this.selectedModule = 'clinical';
     this.selectedClinicalView = view;
     this.expandOnly('clinical');
@@ -412,18 +451,21 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   selectNursingView(view: NursingView): void {
+    this.syncAntenatalUrl('nursing');
     this.selectedModule = 'nursing';
     this.selectedNursingView = view;
     this.expandOnly('nursing');
   }
 
   selectDentalView(view: DentalView): void {
+    this.syncAntenatalUrl('dentistry');
     this.selectedModule = 'dentistry';
     this.selectedDentalView = view;
     this.expandOnly('dentistry');
   }
 
   selectDataView(view: DataView): void {
+    this.syncAntenatalUrl('data');
     this.selectedModule = 'data';
     this.selectedDataView = view;
     this.expandOnly('data');
@@ -438,6 +480,10 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return this.selectedNursingView === 'nutrition'
         ? 'content-theme-nursing-nutrition'
         : 'content-theme-nursing-vitals';
+    }
+
+    if (this.selectedModule === 'antenatal') {
+      return 'content-theme-antenatal';
     }
 
     if (this.selectedModule === 'data') {

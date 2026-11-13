@@ -8,6 +8,7 @@ export type FlatPatientResourceType =
   | 'Provenance'
   | 'Observation'
   | 'Encounter'
+  | 'EpisodeOfCare'
   | 'QuestionnaireResponse'
   | 'ServiceRequest';
 
@@ -95,6 +96,14 @@ export const FLAT_PATIENT_RESOURCE_CATALOG: FlatPatientResourceCatalogEntry[] = 
     patientServiceGetter: 'getPatientEncounters',
     fhirStorageGetter: 'getEncounters',
     exportFullUrlPrefix: 'encounter'
+  },
+  {
+    resourceType: 'EpisodeOfCare',
+    title: 'EpisodeOfCare',
+    icon: 'pregnant_woman',
+    patientServiceGetter: 'getPatientEpisodesOfCare',
+    fhirStorageGetter: 'getEpisodesOfCare',
+    exportFullUrlPrefix: 'episode-of-care'
   },
   {
     resourceType: 'QuestionnaireResponse',

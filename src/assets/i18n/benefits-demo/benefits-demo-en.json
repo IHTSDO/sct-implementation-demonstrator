@@ -199,7 +199,8 @@
       "dataSectionLabel": "Data",
       "data": "Data",
       "fhirRepository": "FHIR Repository",
-      "laboratory": "Laboratory"
+      "laboratory": "Laboratory",
+      "antenatalCare": "Antenatal Care"
     },
     "tooltips": {
       "expandSidebar": "Expand sidebar",
@@ -1134,6 +1135,55 @@
   "nursingRecord": {
     "sections": {
       "nursing": "Nursing"
+    }
+  },
+  "antenatalRecord": {
+    "title": "Antenatal care",
+    "start": {
+      "title": "Start a pregnancy",
+      "subtitle": "A pregnancy must be started before antenatal contacts can be recorded.",
+      "lmpHint": "Used to calculate the gestational age at each contact."
+    },
+    "labels": {
+      "lastMenstrualPeriod": "Last menstrual period",
+      "gestationalAge": "Gestational age",
+      "gestationalAgeToday": "Gestational age today",
+      "estimatedDateOfDelivery": "Estimated date of delivery",
+      "careStarted": "Antenatal care started",
+      "weeksAndDays": "{{weeks}} wk {{days}} d",
+      "weeks": "{{weeks}} weeks"
+    },
+    "contacts": {
+      "title": "Contacts",
+      "empty": "No contacts recorded for this pregnancy yet.",
+      "contactNumber": "Contact {{number}}",
+      "inProgress": "In progress",
+      "finished": "Finished",
+      "formsCompleted": "{{completed}} of {{total}} forms",
+      "closeOpenFirst": "Close the contact in progress before starting a new one."
+    },
+    "end": {
+      "title": "End of pregnancy",
+      "hint": "Saving this form closes the antenatal care record of this pregnancy."
+    },
+    "past": {
+      "title": "Previous pregnancies"
+    },
+    "actions": {
+      "startPregnancy": "Start pregnancy",
+      "newContact": "New contact",
+      "endPregnancy": "End pregnancy",
+      "closeContact": "Close contact",
+      "backToPregnancy": "Back to pregnancy",
+      "dismiss": "Close"
+    },
+    "messages": {
+      "loadFailed": "The antenatal care record could not be loaded.",
+      "pregnancyStarted": "Pregnancy started.",
+      "pregnancyEnded": "Pregnancy closed.",
+      "contactClosed": "Contact {{number}} closed.",
+      "formSaved": "{{title}} saved.",
+      "saveFailed": "The changes could not be saved."
     }
   },
   "nursingVitalCard": {

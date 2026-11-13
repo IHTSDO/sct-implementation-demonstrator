@@ -6,6 +6,7 @@ import type {
   Condition,
   DeathRecord,
   Encounter,
+  EpisodeOfCare,
   FhirObservation,
   Immunization,
   LaboratoryOrderGroup,
@@ -196,6 +197,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       'ehr_allergies_',
       'ehr_provenance_',
       'ehr_encounters_',
+      'ehr_episodes_of_care_',
       'ehr_questionnaire_responses_',
       'ehr_openehr_compositions_',
       'ehr_death_record_',
@@ -302,7 +304,12 @@ export class PatientLocalStorageService implements PatientStorageBackend {
 
   async getEncounters(patientId: string): Promise<Encounter[]> { return this.readArray(`ehr_encounters_${patientId}`); }
   async createEncounter(patientId: string, encounter: Encounter): Promise<Encounter> { return this.pushItem(`ehr_encounters_${patientId}`, encounter); }
+  async updateEncounter(patientId: string, encounterId: string, encounter: Encounter): Promise<Encounter> { return this.replaceItem(`ehr_encounters_${patientId}`, encounterId, encounter); }
   async deleteEncounter(patientId: string, encounterId: string): Promise<void> { this.removeItem(`ehr_encounters_${patientId}`, encounterId); }
+
+  async getEpisodesOfCare(patientId: string): Promise<EpisodeOfCare[]> { return this.readArray(`ehr_episodes_of_care_${patientId}`); }
+  async createEpisodeOfCare(patientId: string, episodeOfCare: EpisodeOfCare): Promise<EpisodeOfCare> { return this.pushItem(`ehr_episodes_of_care_${patientId}`, episodeOfCare); }
+  async updateEpisodeOfCare(patientId: string, episodeOfCareId: string, episodeOfCare: EpisodeOfCare): Promise<EpisodeOfCare> { return this.replaceItem(`ehr_episodes_of_care_${patientId}`, episodeOfCareId, episodeOfCare); }
 
   async clearAllPatientEvents(patientId: string): Promise<void> {
     [
@@ -317,6 +324,7 @@ export class PatientLocalStorageService implements PatientStorageBackend {
       `ehr_allergies_${patientId}`,
       `ehr_provenance_${patientId}`,
       `ehr_encounters_${patientId}`,
+      `ehr_episodes_of_care_${patientId}`,
       `ehr_questionnaire_responses_${patientId}`,
       `ehr_openehr_compositions_${patientId}`,
       `ehr_death_record_${patientId}`,

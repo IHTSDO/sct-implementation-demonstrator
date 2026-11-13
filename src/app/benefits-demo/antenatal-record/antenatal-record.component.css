@@ -1,0 +1,175 @@
+.section-header {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.antenatal-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.antenatal-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.antenatal-empty mat-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+}
+
+.antenatal-card {
+  margin-bottom: 16px;
+}
+
+.start-card {
+  max-width: 560px;
+}
+
+.start-card mat-card-content {
+  padding-top: 16px;
+}
+
+.lmp-field {
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 12px;
+}
+
+.start-card mat-card-actions {
+  padding: 8px 16px 16px;
+}
+
+.dating-preview,
+.pregnancy-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  margin: 0;
+}
+
+.dating-preview {
+  margin-top: 20px;
+}
+
+.pregnancy-card mat-card-content {
+  padding-top: 16px;
+}
+
+dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+dd {
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.antenatal-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 8px 0 12px;
+}
+
+.antenatal-toolbar h3,
+.past-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.past-title {
+  margin-top: 24px;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.toolbar-meta {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.contact-status {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 0.72rem;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.contact-status.open {
+  background: var(--mat-sys-primary-container, #dbe4f5);
+  color: var(--mat-sys-on-primary-container, #1a3a6b);
+}
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.step-list {
+  position: sticky;
+  top: 8px;
+  padding-top: 0;
+}
+
+.step-list mat-icon {
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.step-list mat-icon.step-done {
+  color: var(--mat-sys-primary, #3f51b5);
+}
+
+.form-panel {
+  min-width: 0;
+}
+
+.end-hint {
+  margin: 0 0 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 900px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .step-list {
+    position: static;
+  }
+}
+
+.step-list a.mdc-list-item--activated {
+  background: var(--mat-sys-secondary-container, rgba(63, 81, 181, 0.12));
+  border-radius: 8px;
+  font-weight: 600;
+}

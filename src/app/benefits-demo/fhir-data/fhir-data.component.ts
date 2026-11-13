@@ -486,6 +486,14 @@ export class FhirDataComponent implements OnChanges, OnDestroy {
         return this.toObservationItem(resource as FhirObservation);
       case 'Encounter':
         return this.toEncounterItem(resource as Encounter);
+      case 'EpisodeOfCare':
+        return {
+          resourceType: 'EpisodeOfCare',
+          id: resource.id,
+          label: resource.type?.[0]?.text || resource.type?.[0]?.coding?.[0]?.display || resource.id,
+          subtitle: [resource.status, resource.period?.start?.slice(0, 10)].filter(Boolean).join(' · '),
+          resource
+        };
       case 'QuestionnaireResponse':
         return this.toQuestionnaireItem(resource as QuestionnaireResponse);
       case 'ServiceRequest':

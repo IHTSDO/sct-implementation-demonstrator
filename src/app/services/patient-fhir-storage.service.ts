@@ -8,6 +8,7 @@ import type {
   Condition,
   DeathRecord,
   Encounter,
+  EpisodeOfCare,
   FhirObservation,
   Immunization,
   LaboratoryOrderGroup,
@@ -470,7 +471,15 @@ export class PatientFhirStorageService implements PatientStorageBackend {
     const savedEncounter = await firstValueFrom(this.fhirService.create('Encounter', this.prepareEncounterForFhir(encounter)));
     return this.hydrateEncounterFreeText(savedEncounter);
   }
+  async updateEncounter(patientId: string, encounterId: string, encounter: Encounter): Promise<Encounter> {
+    const savedEncounter = await firstValueFrom(this.fhirService.update('Encounter', encounterId, this.prepareEncounterForFhir(encounter)));
+    return this.hydrateEncounterFreeText(savedEncounter);
+  }
   async deleteEncounter(patientId: string, encounterId: string): Promise<void> { await firstValueFrom(this.fhirService.delete('Encounter', encounterId)); }
+
+  async getEpisodesOfCare(patientId: string): Promise<EpisodeOfCare[]> { return this.fetchPatientResources('EpisodeOfCare', { patient: this.getPatientReference(patientId), _count: '200' }); }
+  async createEpisodeOfCare(patientId: string, episodeOfCare: EpisodeOfCare): Promise<EpisodeOfCare> { return await firstValueFrom(this.fhirService.create('EpisodeOfCare', episodeOfCare)); }
+  async updateEpisodeOfCare(patientId: string, episodeOfCareId: string, episodeOfCare: EpisodeOfCare): Promise<EpisodeOfCare> { return await firstValueFrom(this.fhirService.update('EpisodeOfCare', episodeOfCareId, episodeOfCare)); }
 
   async getProvenance(patientId: string): Promise<Provenance[]> {
     return await this.fetchPatientResources<Provenance>('Provenance', {

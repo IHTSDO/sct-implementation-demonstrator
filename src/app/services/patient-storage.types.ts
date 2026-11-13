@@ -4,6 +4,7 @@ import type {
   Condition,
   DeathRecord,
   Encounter,
+  EpisodeOfCare,
   FhirObservation,
   Immunization,
   LaboratoryOrderGroup,
@@ -162,7 +163,12 @@ export interface PatientStorageBackend {
 
   getEncounters(patientId: string): Promise<Encounter[]>;
   createEncounter(patientId: string, encounter: Encounter): Promise<Encounter>;
+  updateEncounter(patientId: string, encounterId: string, encounter: Encounter): Promise<Encounter>;
   deleteEncounter(patientId: string, encounterId: string): Promise<void>;
+
+  getEpisodesOfCare(patientId: string): Promise<EpisodeOfCare[]>;
+  createEpisodeOfCare(patientId: string, episodeOfCare: EpisodeOfCare): Promise<EpisodeOfCare>;
+  updateEpisodeOfCare(patientId: string, episodeOfCareId: string, episodeOfCare: EpisodeOfCare): Promise<EpisodeOfCare>;
   saveAiAssistedEntryTransaction?(
     patientId: string,
     payload: AiAssistedEntryTransactionPayload

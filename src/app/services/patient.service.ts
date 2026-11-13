@@ -26,6 +26,7 @@ import type {
   DeathRecord,
   DeathRecordDiagnosis,
   Encounter,
+  EpisodeOfCare,
   FhirObservation,
   Immunization,
   LaboratoryOrderGroup,
@@ -144,6 +145,7 @@ export class PatientService {
     provenance: new Map<string, Provenance[]>(),
     questionnaireResponses: new Map<string, QuestionnaireResponse[]>(),
     encounters: new Map<string, Encounter[]>(),
+    episodesOfCare: new Map<string, EpisodeOfCare[]>(),
     deathRecords: new Map<string, DeathRecord | null>(),
   };
   private loadingResourceKeys = new Set<string>();
@@ -537,6 +539,7 @@ export class PatientService {
     this.fhirCache.provenance.delete(patientId);
     this.fhirCache.questionnaireResponses.delete(patientId);
     this.fhirCache.encounters.delete(patientId);
+    this.fhirCache.episodesOfCare.delete(patientId);
     this.fhirCache.deathRecords.delete(patientId);
   }
 
@@ -3302,6 +3305,83 @@ export class PatientService {
     }
 
     this.patientLocalStorageService.writeStoredArray(`ehr_encounters_${patientId}`, encounters);
+  }
+
+  // Creates an encounter and resolves with the stored resource (server-assigned id in
+  // FHIR mode). Unlike addPatientEncounter it does not dedupe by code: several encounters
+  // of the same type, such as the contacts of one pregnancy, are valid.
+  async createPatientEncounter(patientId: string, encounter: Encounter): Promise<Encounter> {
+    const encounters = this.getPatientEncounters(patientId);
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      const savedEncounter = await this.patientFhirStorageService.createEncounter(patientId, encounter);
+      this.setResourceCache(this.fhirCache.encounters, patientId, [...encounters, savedEncounter]);
+      return savedEncounter;
+    }
+
+    this.savePatientEncounters(patientId, [...encounters, encounter]);
+    this.notifyPatientDataChanged(patientId);
+    return encounter;
+  }
+
+  async updatePatientEncounter(patientId: string, encounterId: string, encounter: Encounter): Promise<Encounter> {
+    const savedEncounter = this.getCurrentPersistenceMode() === 'fhir'
+      ? await this.patientFhirStorageService.updateEncounter(patientId, encounterId, encounter)
+      : encounter;
+    const encounters = this.getPatientEncounters(patientId).map((existing) => existing.id === encounterId ? savedEncounter : existing);
+    this.savePatientEncounters(patientId, encounters);
+    this.notifyPatientDataChanged(patientId);
+    return savedEncounter;
+  }
+
+  // Episodes of care
+  getPatientEpisodesOfCare(patientId: string): EpisodeOfCare[] {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      return this.ensureFhirResourceLoaded(
+        this.fhirCache.episodesOfCare,
+        patientId,
+        () => this.patientFhirStorageService.getEpisodesOfCare(patientId),
+        []
+      );
+    }
+
+    return this.patientLocalStorageService.readStoredArray<EpisodeOfCare>(`ehr_episodes_of_care_${patientId}`);
+  }
+
+  // Loads the episodes from the active storage, waiting for the FHIR server when needed.
+  async loadPatientEpisodesOfCare(patientId: string): Promise<EpisodeOfCare[]> {
+    if (this.getCurrentPersistenceMode() === 'fhir' && !this.fhirCache.episodesOfCare.has(patientId)) {
+      const episodes = await this.patientFhirStorageService.getEpisodesOfCare(patientId);
+      this.setResourceCache(this.fhirCache.episodesOfCare, patientId, episodes, false);
+    }
+    return this.getPatientEpisodesOfCare(patientId);
+  }
+
+  async createPatientEpisodeOfCare(patientId: string, episodeOfCare: EpisodeOfCare): Promise<EpisodeOfCare> {
+    const episodes = this.getPatientEpisodesOfCare(patientId);
+    const savedEpisode = this.getCurrentPersistenceMode() === 'fhir'
+      ? await this.patientFhirStorageService.createEpisodeOfCare(patientId, episodeOfCare)
+      : episodeOfCare;
+    this.savePatientEpisodesOfCare(patientId, [...episodes, savedEpisode]);
+    return savedEpisode;
+  }
+
+  async updatePatientEpisodeOfCare(patientId: string, episodeOfCareId: string, episodeOfCare: EpisodeOfCare): Promise<EpisodeOfCare> {
+    const savedEpisode = this.getCurrentPersistenceMode() === 'fhir'
+      ? await this.patientFhirStorageService.updateEpisodeOfCare(patientId, episodeOfCareId, episodeOfCare)
+      : episodeOfCare;
+    const episodes = this.getPatientEpisodesOfCare(patientId).map((existing) => existing.id === episodeOfCareId ? savedEpisode : existing);
+    this.savePatientEpisodesOfCare(patientId, episodes);
+    return savedEpisode;
+  }
+
+  private savePatientEpisodesOfCare(patientId: string, episodes: EpisodeOfCare[]): void {
+    if (this.getCurrentPersistenceMode() === 'fhir') {
+      this.setResourceCache(this.fhirCache.episodesOfCare, patientId, episodes);
+      return;
+    }
+
+    this.patientLocalStorageService.writeStoredArray(`ehr_episodes_of_care_${patientId}`, episodes);
+    this.notifyPatientDataChanged(patientId);
   }
 
   // Public method to delete an encounter

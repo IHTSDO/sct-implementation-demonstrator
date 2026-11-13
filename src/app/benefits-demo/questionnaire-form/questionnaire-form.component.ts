@@ -14,6 +14,10 @@ export class QuestionnaireFormComponent implements OnChanges, AfterViewInit {
   @Input() questionnaire: any = null;
   @Input() questionnaireId: string = '';
   @Input() patientId: string | null = null;
+  /** FHIR QuestionnaireResponse to load into the form. When set it replaces SDC pre-population. */
+  @Input() initialResponse: any = null;
+  /** Set to false to skip SDC pre-population from the patient record. */
+  @Input() prePopulate = true;
   @Output() formSubmitted = new EventEmitter<any>();
   @Output() formCancelled = new EventEmitter<void>();
 
@@ -91,10 +95,11 @@ export class QuestionnaireFormComponent implements OnChanges, AfterViewInit {
 
       container.innerHTML = '';
 
-      let populatedQR: any = null;
-      if (this.patientId) {
+      let populatedQR: any = this.initialResponse?.item?.length ? this.initialResponse : null;
+      const populatedFromRecord = !populatedQR && this.prePopulate && !!this.patientId;
+      if (populatedFromRecord) {
         try {
-          populatedQR = this.sdcPopulationService.populate(this.questionnaire, this.patientId);
+          populatedQR = this.sdcPopulationService.populate(this.questionnaire, this.patientId as string);
         } catch {
           // Pre-population failure must never block form rendering
         }
@@ -116,7 +121,7 @@ export class QuestionnaireFormComponent implements OnChanges, AfterViewInit {
             LForms.Util.addFormToPage(this.questionnaire, this.formContainerId);
           }
           this.formRendered = true;
-          this.isPrePopulated = !!populatedQR;
+          this.isPrePopulated = populatedFromRecord && !!populatedQR;
           this.cdr.detectChanges();
         } catch (innerError) {
           // If merge/render fails, fall back to plain render without pre-population
@@ -140,12 +145,14 @@ export class QuestionnaireFormComponent implements OnChanges, AfterViewInit {
       try {
         // Get the form data as QuestionnaireResponse
         const formData = LForms.Util.getFormData(this.formContainerId, true, true, true);
+        const fhirResponse = LForms.Util.getFormFHIRData('QuestionnaireResponse', 'R4', this.formContainerId);
         
         // Emit the completed QuestionnaireResponse
         this.formSubmitted.emit({
           type: 'questionnaire-response',
           questionnaire: this.questionnaire,
           response: formData,
+          fhirResponse,
           timestamp: new Date().toISOString()
         });
       } catch (error) {

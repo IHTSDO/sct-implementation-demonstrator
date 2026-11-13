@@ -596,6 +596,11 @@
   background: linear-gradient(180deg, #ffffff 0%, #f5fff6 100%);
 }
 
+.record-section.content-theme-antenatal {
+  border-left-color: #8e44ad;
+  background: linear-gradient(180deg, #ffffff 0%, #faf5fd 100%);
+}
+
 .record-section.content-theme-data {
   border-left-color: #1e88e5;
   background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
