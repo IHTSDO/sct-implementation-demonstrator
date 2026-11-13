@@ -1,0 +1,551 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "ANCEnd",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "shareable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "computable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "publishable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeRepresentationLevel",
+      "valueCode": "structured"
+    }
+  ],
+  "url": "http://smart.who.int/anc/Questionnaire/ANCEnd",
+  "version": "0.3.0",
+  "name": "ANCEnd",
+  "title": "ANC.End End",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-10-16T07:42:33+00:00",
+  "publisher": "World Health Organization (WHO)",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.who.int"
+        }
+      ]
+    }
+  ],
+  "description": "Closing the antenatal care record",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+        "code": "task",
+        "display": "Workflow Task"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-activity-codes",
+            "code": "ANC.End",
+            "display": "End"
+          }
+        ]
+      }
+    }
+  ],
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+          "code": "001"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "system": "urn:sct-implementation-demonstrator:questionnaire-adaptation",
+        "code": "who-anc-sdc-adapted",
+        "display": "WHO SMART ANC Questionnaire adapted for SDC rendering and observation-based extraction"
+      }
+    ]
+  },
+  "contained": [
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-end-2",
+      "url": "http://smart.who.int/anc/ValueSet/anc-end-2",
+      "name": "ReasonforclosingANCrecordChoices",
+      "title": "Reason for closing ANC record Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.2",
+            "display": "Live birth"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.3",
+            "display": "Stillbirth"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.4",
+            "display": "Miscarriage"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.5",
+            "display": "Abortion"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.6",
+            "display": "Death"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.7",
+            "display": "Lost to follow-up"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.8",
+            "display": "Moved away"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.9",
+            "display": "False pregnancy"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.10",
+            "display": "Wrong entry"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.11",
+            "display": "Other (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-end-14",
+      "url": "http://smart.who.int/anc/ValueSet/anc-end-14",
+      "name": "PlaceofdeliveryChoices",
+      "title": "Place of delivery Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.14",
+            "display": "Health-care facility"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.15",
+            "display": "Home"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.16",
+            "display": "Other (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-end-19",
+      "url": "http://smart.who.int/anc/ValueSet/anc-end-19",
+      "name": "DeliverymodeChoices",
+      "title": "Delivery mode Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.19",
+            "display": "Normal"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.20",
+            "display": "Forceps"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.21",
+            "display": "Vacuum"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.22",
+            "display": "C-section"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-end-26",
+      "url": "http://smart.who.int/anc/ValueSet/anc-end-26",
+      "name": "DeliverycomplicationsChoices",
+      "title": "Delivery complications Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.26",
+            "display": "No complications"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.27",
+            "display": "Postpartum haemorrhage"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.28",
+            "display": "Antepartum haemorrhage"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.29",
+            "display": "Placenta praevia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.30",
+            "display": "Placental abruption"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.31",
+            "display": "Cord prolapse"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.32",
+            "display": "Obstructed labour"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.33",
+            "display": "Abnormal presentation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.34",
+            "display": "Pre-eclampsia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.35",
+            "display": "Eclampsia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.36",
+            "display": "Perineal tear (3rd, or 4th degree)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.37",
+            "display": "Other (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-end-41",
+      "url": "http://smart.who.int/anc/ValueSet/anc-end-41",
+      "name": "CauseofdeathChoices",
+      "title": "Cause of death Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.41",
+            "display": "Unknown"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.42",
+            "display": "Abortion-related complications"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.43",
+            "display": "Obstructed labour"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.44",
+            "display": "Pre-eclampsia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.45",
+            "display": "Eclampsia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.46",
+            "display": "Postpartum haemorrhage"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.47",
+            "display": "Antepartum haemorrhage"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.48",
+            "display": "Placental abruption"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.49",
+            "display": "Infection"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.End.50",
+            "display": "Other (specify)"
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-1#Observation.value[x]",
+      "text": "Reason for closing ANC record",
+      "type": "choice",
+      "answerValueSet": "#anc-end-2",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.1",
+          "display": "Reason for closing ANC record"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-12#Observation.value[x]",
+      "text": "Delivery date",
+      "type": "dateTime",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.12",
+          "display": "Delivery date"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-13#Encounter.location.location",
+      "text": "Place of delivery",
+      "type": "choice",
+      "answerValueSet": "#anc-end-14"
+    },
+    {
+      "linkId": "4",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-17#Observation.value[x]",
+      "text": "Preterm Birth",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.17",
+          "display": "Preterm Birth"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-18#Observation.value[x]",
+      "text": "Delivery mode",
+      "type": "choice",
+      "answerValueSet": "#anc-end-19",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.18",
+          "display": "Delivery mode"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "6",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-23#Observation.value[x]",
+      "text": "Birth weight",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.23",
+          "display": "Birth weight"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "g",
+            "display": "g"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "7",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-24#Observation.value[x]",
+      "text": "Exclusively breastfeeding",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.24",
+          "display": "Exclusively breastfeeding"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "8",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-25#Observation.value[x]",
+      "text": "Delivery complications",
+      "type": "choice",
+      "answerValueSet": "#anc-end-26",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.25",
+          "display": "Delivery complications"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "9",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-38#Observation.value[x]",
+      "text": "Date of miscarriage or abortion",
+      "type": "dateTime",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.38",
+          "display": "Date of miscarriage or abortion"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "10",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-39#Observation.value[x]",
+      "text": "Date of death",
+      "type": "dateTime",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.39",
+          "display": "Date of death"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "11",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-end-40#Observation.value[x]",
+      "text": "Cause of death",
+      "type": "choice",
+      "answerValueSet": "#anc-end-41",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.End.40",
+          "display": "Cause of death"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    }
+  ]
+}

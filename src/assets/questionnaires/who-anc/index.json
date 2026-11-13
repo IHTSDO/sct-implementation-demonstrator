@@ -1,0 +1,238 @@
+{
+  "source": {
+    "package": "smart.who.int.anc",
+    "version": "0.3.0",
+    "buildDate": "20261016074233",
+    "url": "https://build.fhir.org/ig/WorldHealthOrganization/smart-anc/",
+    "license": "CC0-1.0"
+  },
+  "questionnaires": [
+    {
+      "id": "ANCA",
+      "role": "contact",
+      "file": "ANCA.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCA",
+      "title": "ANC.A. Registration",
+      "items": 12,
+      "adaptations": {
+        "extractable": 1,
+        "repeating": [],
+        "retyped": [],
+        "noUnit": [],
+        "derivedCodes": []
+      }
+    },
+    {
+      "id": "ANCB4",
+      "role": "contact",
+      "firstContactOnly": true,
+      "file": "ANCB4.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB4",
+      "title": "ANC.B4 Confirm pregnancy",
+      "items": 1,
+      "adaptations": {
+        "extractable": 1,
+        "repeating": [],
+        "retyped": [],
+        "noUnit": [],
+        "derivedCodes": []
+      }
+    },
+    {
+      "id": "ANCB5",
+      "role": "contact",
+      "file": "ANCB5.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB5",
+      "title": "ANC.B5 Quick check",
+      "items": 3,
+      "adaptations": {
+        "extractable": 2,
+        "repeating": [
+          "4 Danger signs"
+        ],
+        "retyped": [],
+        "noUnit": [],
+        "derivedCodes": []
+      }
+    },
+    {
+      "id": "ANCB6",
+      "role": "contact",
+      "file": "ANCB6.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB6",
+      "title": "ANC.B6 Profile",
+      "items": 33,
+      "adaptations": {
+        "extractable": 30,
+        "repeating": [
+          "20 Existing chronic health conditions"
+        ],
+        "retyped": [
+          "21 choice -> date",
+          "26 choice -> boolean"
+        ],
+        "noUnit": [],
+        "derivedCodes": [
+          "ANC.B6.DE22",
+          "ANC.B6.DE25",
+          "ANC.B6.DE26",
+          "ANC.B6.DE99"
+        ]
+      }
+    },
+    {
+      "id": "ANCB7",
+      "role": "contact",
+      "file": "ANCB7.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB7",
+      "title": "ANC.B7 Symptoms & Follow-up",
+      "items": 7,
+      "adaptations": {
+        "extractable": 7,
+        "repeating": [],
+        "retyped": [
+          "6 choice -> boolean"
+        ],
+        "noUnit": [],
+        "derivedCodes": []
+      }
+    },
+    {
+      "id": "ANCB8",
+      "role": "contact",
+      "file": "ANCB8.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB8",
+      "title": "ANC.B8 Physical exam",
+      "items": 43,
+      "adaptations": {
+        "extractable": 43,
+        "repeating": [
+          "15 Symptoms of severe pre-eclampsia"
+        ],
+        "retyped": [
+          "36 quantity -> integer",
+          "37 quantity -> boolean"
+        ],
+        "noUnit": [],
+        "derivedCodes": []
+      }
+    },
+    {
+      "id": "ANCB9",
+      "role": "contact",
+      "file": "ANCB9.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB9",
+      "title": "ANC.B9 Lab tests & imaging",
+      "items": 91,
+      "adaptations": {
+        "extractable": 46,
+        "repeating": [],
+        "retyped": [
+          "14 choice -> boolean (no answer options published)",
+          "15 choice -> boolean (no answer options published)",
+          "35 choice -> boolean (no answer options published)",
+          "63 choice -> string (no answer options published)",
+          "91 choice -> string (no answer options published)"
+        ],
+        "noUnit": [],
+        "derivedCodes": [
+          "ANC.B9.DE33"
+        ]
+      }
+    },
+    {
+      "id": "ANCB10",
+      "role": "contact",
+      "file": "ANCB10.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB10",
+      "title": "ANC.B10 Counselling & treatment",
+      "items": 127,
+      "adaptations": {
+        "extractable": 11,
+        "repeating": [],
+        "retyped": [
+          "100 choice -> boolean",
+          "116 choice -> string (no answer options published)",
+          "119 choice -> boolean (no answer options published)"
+        ],
+        "noUnit": [],
+        "derivedCodes": [
+          "ANC.B10.DE217",
+          "ANC.B10.DE218",
+          "ANC.B10.DE219",
+          "ANC.B10.DE220",
+          "ANC.B10.DE221",
+          "ANC.B10.DE222"
+        ]
+      }
+    },
+    {
+      "id": "ANCB11",
+      "role": "contact",
+      "file": "ANCB11.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB11",
+      "title": "ANC.B11 Referral needed?",
+      "items": 2,
+      "adaptations": {
+        "extractable": 0,
+        "repeating": [],
+        "retyped": [],
+        "noUnit": [],
+        "derivedCodes": []
+      }
+    },
+    {
+      "id": "ANCB12",
+      "role": "contact",
+      "file": "ANCB12.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCB12",
+      "title": "ANC.B12 Scheduling",
+      "items": 1,
+      "adaptations": {
+        "extractable": 0,
+        "repeating": [],
+        "retyped": [],
+        "noUnit": [],
+        "derivedCodes": []
+      }
+    },
+    {
+      "id": "ANCC",
+      "role": "referral",
+      "file": "ANCC.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCC",
+      "title": "ANC.C. Referral",
+      "items": 11,
+      "adaptations": {
+        "extractable": 1,
+        "repeating": [],
+        "retyped": [
+          "1 choice -> boolean (no answer options published)"
+        ],
+        "noUnit": [],
+        "derivedCodes": [
+          "ANC.C.DE5"
+        ]
+      }
+    },
+    {
+      "id": "ANCEnd",
+      "role": "end-of-pregnancy",
+      "file": "ANCEnd.json",
+      "url": "http://smart.who.int/anc/Questionnaire/ANCEnd",
+      "title": "ANC.End End",
+      "items": 11,
+      "adaptations": {
+        "extractable": 10,
+        "repeating": [],
+        "retyped": [],
+        "noUnit": [],
+        "derivedCodes": [
+          "ANC.End.24",
+          "ANC.End.38",
+          "ANC.End.39"
+        ]
+      }
+    }
+  ]
+}

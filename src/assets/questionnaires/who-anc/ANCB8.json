@@ -1,0 +1,1707 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "ANCB8",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "shareable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "computable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "publishable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeRepresentationLevel",
+      "valueCode": "structured"
+    }
+  ],
+  "url": "http://smart.who.int/anc/Questionnaire/ANCB8",
+  "version": "0.3.0",
+  "name": "ANCB8",
+  "title": "ANC.B8 Physical exam",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-10-16T07:42:33+00:00",
+  "publisher": "World Health Organization (WHO)",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.who.int"
+        }
+      ]
+    }
+  ],
+  "description": "Health worker conducts a physical exam for weight, height (if first contact), maternal exam and fetal assessment.",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+        "code": "task",
+        "display": "Workflow Task"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-activity-codes",
+            "code": "ANC.B8",
+            "display": "Physical exam"
+          }
+        ]
+      }
+    }
+  ],
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+          "code": "001"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "system": "urn:sct-implementation-demonstrator:questionnaire-adaptation",
+        "code": "who-anc-sdc-adapted",
+        "display": "WHO SMART ANC Questionnaire adapted for SDC rendering and observation-based extraction"
+      }
+    ]
+  },
+  "contained": [
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de5-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de5-choices-grouper",
+      "name": "WeightcategoryChoicesGrouper",
+      "title": "Weight category Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE6",
+            "display": "Underweight"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE7",
+            "display": "Normal weight"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE8",
+            "display": "Overweight"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE9",
+            "display": "Obese"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de11",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de11",
+      "name": "ExpectedweightgainChoices",
+      "title": "Expected weight gain Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE11",
+            "display": "5-9 kg"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE12",
+            "display": "7-11.5 kg"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE13",
+            "display": "11.5-16 kg"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE14",
+            "display": "12.5-18 kg"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de24",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de24",
+      "name": "ReasonbloodpressurecannotbetakenChoices",
+      "title": "Reason blood pressure cannot be taken Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE24",
+            "display": "BP cuff (sphygmomanometer) not available"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE25",
+            "display": "BP cuff (sphygmomanometer) is broken"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE26",
+            "display": "Other (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de27-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de27-choices-grouper",
+      "name": "SymptomsofseverepreeclampsiaChoicesGrouper",
+      "title": "Symptoms of severe pre-eclampsia Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE28",
+            "display": "No symptoms of severe pre-eclampsia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE29",
+            "display": "Severe headache"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE30",
+            "display": "Visual disturbance"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE31",
+            "display": "Epigastric pain"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE32",
+            "display": "Dizziness"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE33",
+            "display": "Vomiting"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de39-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de39-choices-grouper",
+      "name": "RespiratoryexamresultChoicesGrouper",
+      "title": "Respiratory exam result Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE40",
+            "display": "Respiratory exam not done"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE41",
+            "display": "Normal respiratory exam result"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE42",
+            "display": "Dyspnoea"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE43",
+            "display": "Cough"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE44",
+            "display": "Rapid breathing"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE45",
+            "display": "Slow breathing"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE46",
+            "display": "Wheezing"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE47",
+            "display": "Rales"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE48",
+            "display": "Other abnormal respiratory exam result (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de50-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de50-choices-grouper",
+      "name": "CardiacexamresultChoicesGrouper",
+      "title": "Cardiac exam result Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE51",
+            "display": "Cardiac exam not done"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE52",
+            "display": "Normal cardiac exam result"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE53",
+            "display": "Heart murmur"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE54",
+            "display": "Weak pulse"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE55",
+            "display": "Tachycardia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE56",
+            "display": "Bradycardia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE57",
+            "display": "Arrhythmia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE58",
+            "display": "Peripheral cyanosis"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE59",
+            "display": "Cold sweats"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE60",
+            "display": "Other abnormal cardiac exam result (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de61-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de61-choices-grouper",
+      "name": "BreastexamresultChoicesGrouper",
+      "title": "Breast exam result Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE62",
+            "display": "Breast exam not done"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE63",
+            "display": "Normal breast exam result"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE64",
+            "display": "Nodule"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE65",
+            "display": "Discharge"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE66",
+            "display": "Flushing"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE67",
+            "display": "Local pain"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE68",
+            "display": "Bleeding"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE69",
+            "display": "Increased temperature"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE70",
+            "display": "Other breast exam result (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de71-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de71-choices-grouper",
+      "name": "AbdominalexamresultChoicesGrouper",
+      "title": "Abdominal exam result Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE72",
+            "display": "Abdominal exam result not done"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE73",
+            "display": "Normal abdominal exam result"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE74",
+            "display": "Mass/tumour"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE75",
+            "display": "Pain on superficial palpation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE76",
+            "display": "Pain on deep palpation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE77",
+            "display": "Painful decompression"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE78",
+            "display": "Other abnormal abdominal exam result (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de79-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de79-choices-grouper",
+      "name": "PelvicexamresultvisualChoicesGrouper",
+      "title": "Pelvic exam result (visual) Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE80",
+            "display": "Pelvic exam (visual) not done"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE81",
+            "display": "Normal pelvic exam (visual) result"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE82",
+            "display": "Abnormal vaginal discharge (physiological) (foul smelling) (curd like)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE83",
+            "display": "Evidence of amniotic fluid"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE84",
+            "display": "Clusters of erythematous papules"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE85",
+            "display": "Vesicles"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE86",
+            "display": "Genital ulcer"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE87",
+            "display": "Genital pain"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE88",
+            "display": "Lymphadenopathy (pelvic - unilateral or bilateral)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE89",
+            "display": "Cervical friability"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE90",
+            "display": "Mucopurulent cervicitis"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE91",
+            "display": "Other abnormal pelvic exam (visual) result (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de96",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de96",
+      "name": "OedematypeChoices",
+      "title": "Oedema type Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE96",
+            "display": "Pitting ankle oedema"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE97",
+            "display": "Oedema of the hands and feet"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE98",
+            "display": "Pitting lower back oedema"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE99",
+            "display": "Leg swelling"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de101",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de101",
+      "name": "OedemaseverityChoices",
+      "title": "Oedema severity Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE101",
+            "display": "+"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE102",
+            "display": "++"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE103",
+            "display": "+++"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE104",
+            "display": "++++"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de111-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de111-choices-grouper",
+      "name": "FetalpresentationChoicesGrouper",
+      "title": "Fetal presentation Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE112",
+            "display": "Unknown fetal presentation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE113",
+            "display": "Cephalic fetal presentation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE114",
+            "display": "Pelvic fetal presentation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE115",
+            "display": "Transverse fetal presentation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE116",
+            "display": "Other fetal presentation (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de118",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de118",
+      "name": "PresentingsignsconditionsforIPVChoices",
+      "title": "Presenting signs/conditions for IPV Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE118",
+            "display": "Injury to abdomen"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE119",
+            "display": "Injury - other (specify)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE120",
+            "display": "Any other presenting signs or symptoms indicative of violence (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de123",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de123",
+      "name": "ReasonclinicalenquirynotdoneChoices",
+      "title": "Reason clinical enquiry not done Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE123",
+            "display": "Client was referred"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE124",
+            "display": "Trained provider unavailable"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE125",
+            "display": "Private/safe space unavailable"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE126",
+            "display": "Confidentiality could not be assured"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE127",
+            "display": "Other reason clinical enquiry not done (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b8-de130",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b8-de130",
+      "name": "TypesofIPVChoices",
+      "title": "Types of IPV Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE130",
+            "display": "Physical violence (e.g. slapping, kicking, burning)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE131",
+            "display": "Sexual violence"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE132",
+            "display": "Psychological/emotional abuse (e.g. being threatened or intimidated, controlling behaviors, such as taking away money)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B8.DE133",
+            "display": "Violence by  other family members (not intimate partner)"
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de1#Observation.value[x]",
+      "text": "Height",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE1",
+          "display": "Height"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "cm",
+            "display": "cm"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de2#Observation.value[x]",
+      "text": "Pre-gestational weight",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE2",
+          "display": "Pre-gestational weight"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "kg",
+            "display": "kg"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de3#Observation.value[x]",
+      "text": "Current  weight",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE3",
+          "display": "Current  weight"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "kg",
+            "display": "kg"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de4#Observation.value[x]",
+      "text": "BMI",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE4",
+          "display": "BMI"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "kg/m2",
+            "display": "kg/m2"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de5#Observation.value[x]",
+      "text": "Weight category",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de5-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE5",
+          "display": "Weight category"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "6",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de10#Observation.value[x]",
+      "text": "Expected weight gain",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de11",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE10",
+          "display": "Expected weight gain"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "7",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de15#Observation.value[x]",
+      "text": "Average weight gain per week",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE15",
+          "display": "Average weight gain per week"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "kg/wk",
+            "display": "kg/wk"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "8",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de16#Observation.value[x]",
+      "text": "Total weight gain (kg)",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE16",
+          "display": "Total weight gain (kg)"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "kg",
+            "display": "kg"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "9",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de17#Observation.value[x]",
+      "text": "Systolic blood pressure",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE17",
+          "display": "Systolic blood pressure"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "mm[Hg]",
+            "display": "mm[Hg]"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "10",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de19#Observation.value[x]",
+      "text": "Diastolic blood pressure",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE19",
+          "display": "Diastolic blood pressure"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "mm[Hg]",
+            "display": "mm[Hg]"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "11",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de20#Observation.value[x]",
+      "text": "Repeat systolic blood pressure",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE20",
+          "display": "Repeat systolic blood pressure"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "mm[Hg]",
+            "display": "mm[Hg]"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "12",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de21#Observation.value[x]",
+      "text": "Repeat diastolic blood pressure",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE21",
+          "display": "Repeat diastolic blood pressure"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "mm[Hg]",
+            "display": "mm[Hg]"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "13",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de22#Observation.value[x]",
+      "text": "Blood pressure cannot be taken",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE22",
+          "display": "Blood pressure cannot be taken"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "14",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de23#Observation.value[x]",
+      "text": "Reason blood pressure cannot be taken",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de24",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE23",
+          "display": "Reason blood pressure cannot be taken"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "15",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de27#Observation.value[x]",
+      "text": "Symptoms of severe pre-eclampsia",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de27-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE27",
+          "display": "Symptoms of severe pre-eclampsia"
+        }
+      ],
+      "repeats": true,
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "16",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de34#Observation.value[x]",
+      "text": "Body temperature",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE34",
+          "display": "Body temperature"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "Cel",
+            "display": "Cel"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "17",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de35#Observation.value[x]",
+      "text": "Second body temperature",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE35",
+          "display": "Second body temperature"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "Cel",
+            "display": "Cel"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "18",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de36#Observation.value[x]",
+      "text": "Pulse rate",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE36",
+          "display": "Pulse rate"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "/min",
+            "display": "/min"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "19",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de37#Observation.value[x]",
+      "text": "Second pulse rate",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE37",
+          "display": "Second pulse rate"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "/min",
+            "display": "/min"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "20",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de38#Observation.value[x]",
+      "text": "Pallor present",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE38",
+          "display": "Pallor present"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "21",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de39#Observation.value[x]",
+      "text": "Respiratory exam result",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de39-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE39",
+          "display": "Respiratory exam result"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "22",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de49#Observation.value[x]",
+      "text": "Oximetry",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE49",
+          "display": "Oximetry"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "%",
+            "display": "%"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "23",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de50#Observation.value[x]",
+      "text": "Cardiac exam result",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de50-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE50",
+          "display": "Cardiac exam result"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "24",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de61#Observation.value[x]",
+      "text": "Breast exam result",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de61-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE61",
+          "display": "Breast exam result"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "25",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de71#Observation.value[x]",
+      "text": "Abdominal exam result",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de71-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE71",
+          "display": "Abdominal exam result"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "26",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de79#Observation.value[x]",
+      "text": "Pelvic exam result (visual)",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de79-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE79",
+          "display": "Pelvic exam result (visual)"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "27",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de92#Observation.value[x]",
+      "text": "Cervical exam conducted",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE92",
+          "display": "Cervical exam conducted"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "28",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de93#Observation.value[x]",
+      "text": "Cervical dilation",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE93",
+          "display": "Cervical dilation"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "cm",
+            "display": "cm"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "29",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de94#Observation.value[x]",
+      "text": "Oedema present",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE94",
+          "display": "Oedema present"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "30",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de95#Observation.value[x]",
+      "text": "Oedema type",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de96",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE95",
+          "display": "Oedema type"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "31",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de100#Observation.value[x]",
+      "text": "Oedema severity",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de101",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE100",
+          "display": "Oedema severity"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "32",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de105#Observation.value[x]",
+      "text": "Symphysis-fundal height (SFH)",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE105",
+          "display": "Symphysis-fundal height (SFH)"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "cm",
+            "display": "cm"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "33",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de106#Observation.value[x]",
+      "text": "Fetal heartbeat present",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE106",
+          "display": "Fetal heartbeat present"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "34",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de107#Observation.value[x]",
+      "text": "Fetal heart rate",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE107",
+          "display": "Fetal heart rate"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "/min",
+            "display": "/min"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "35",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de108#Observation.value[x]",
+      "text": "Second fetal heart rate",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE108",
+          "display": "Second fetal heart rate"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "/min",
+            "display": "/min"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "36",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de109#Observation.value[x]",
+      "text": "Number of fetuses",
+      "type": "integer",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE109",
+          "display": "Number of fetuses"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "37",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de110#Observation.value[x]",
+      "text": "Number of fetuses unknown",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE110",
+          "display": "Number of fetuses unknown"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "38",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de111#Observation.value[x]",
+      "text": "Fetal presentation",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de111-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE111",
+          "display": "Fetal presentation"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "39",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de117#Observation.value[x]",
+      "text": "Presenting signs/conditions for IPV",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de118",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE117",
+          "display": "Presenting signs/conditions for IPV"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "40",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de121#Observation.value[x]",
+      "text": "Clinical enquiry for IPV",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE121",
+          "display": "Clinical enquiry for IPV"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "41",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de122#Observation.value[x]",
+      "text": "Reason clinical enquiry not done",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de123",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE122",
+          "display": "Reason clinical enquiry not done"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "42",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de128#Observation.value[x]",
+      "text": "Has the woman  been subjected to intimate partner violence",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE128",
+          "display": "Has the woman  been subjected to intimate partner violence"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "43",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b8-de129#Observation.value[x]",
+      "text": "Types of IPV",
+      "type": "choice",
+      "answerValueSet": "#anc-b8-de130",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B8.DE129",
+          "display": "Types of IPV"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    }
+  ]
+}

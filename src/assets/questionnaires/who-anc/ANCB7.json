@@ -1,0 +1,769 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "ANCB7",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "shareable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "computable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "publishable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeRepresentationLevel",
+      "valueCode": "structured"
+    }
+  ],
+  "url": "http://smart.who.int/anc/Questionnaire/ANCB7",
+  "version": "0.3.0",
+  "name": "ANCB7",
+  "title": "ANC.B7 Symptoms & Follow-up",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-10-16T07:42:33+00:00",
+  "publisher": "World Health Organization (WHO)",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.who.int"
+        }
+      ]
+    }
+  ],
+  "description": "Health worker follows up on any previously reported behaviours, medications and symptoms. Steps 8–10 below are all conducted within the ANC assessment.",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+        "code": "task",
+        "display": "Workflow Task"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-activity-codes",
+            "code": "ANC.B7",
+            "display": "Symptoms & Follow-up"
+          }
+        ]
+      }
+    }
+  ],
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+          "code": "001"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "system": "urn:sct-implementation-demonstrator:questionnaire-adaptation",
+        "code": "who-anc-sdc-adapted",
+        "display": "WHO SMART ANC Questionnaire adapted for SDC rendering and observation-based extraction"
+      }
+    ]
+  },
+  "contained": [
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b7-de1-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b7-de1-choices-grouper",
+      "name": "MedicationfollowupChoicesGrouper",
+      "title": "Medication follow-up Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE2",
+            "display": "Taking calcium supplements"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE3",
+            "display": "Has side-effects from calcium supplements"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE4",
+            "display": "Taking iron and folic acid (IFA) tablets"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE6",
+            "display": "Taking aspirin tablets"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE7",
+            "display": "Taking vitamin A supplements"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE8",
+            "display": "Taking penicillin treatment for syphilis"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE5",
+            "display": "Has side-effects from iron and folic acid supplements"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b7-ded9-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b7-ded9-choices-grouper",
+      "name": "PersistentbehavioursChoicesGrouper",
+      "title": "Persistent behaviours Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE10",
+            "display": "High caffeine intake"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE11",
+            "display": "Tobacco use"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE12",
+            "display": "Recently quit tobacco products"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE13",
+            "display": "Exposure to second-hand smoke"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE14",
+            "display": "No condom use during sex"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE15",
+            "display": "Alcohol use"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE16",
+            "display": "Substance use"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE17",
+            "display": "No persistent behaviours"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b7-de18-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b7-de18-choices-grouper",
+      "name": "PersistentphysiologicalsymptomsChoicesGrouper",
+      "title": "Persistent physiological symptoms Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE19",
+            "display": "None"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE20",
+            "display": "Abnormal vaginal discharge (physiological) (foul smelling) (curd like)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE21",
+            "display": "Breathing difficulty"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE22",
+            "display": "Breathlessness during routine activities"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE23",
+            "display": "Constipation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE24",
+            "display": "Contractions"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE25",
+            "display": "Cough lasting more than 3 weeks"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE26",
+            "display": "Fever"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE27",
+            "display": "Gets tired easily"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE28",
+            "display": "Headache"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE29",
+            "display": "Heartburn"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE30",
+            "display": "Leg cramps"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE31",
+            "display": "Leg redness"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE32",
+            "display": "Nausea"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE42",
+            "display": "Vomiting"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE33",
+            "display": "Oedema"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE34",
+            "display": "Pain - during urination (dysuria)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE35",
+            "display": "Pain - Leg"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE36",
+            "display": "Pain - Low back"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE37",
+            "display": "Pain - Pelvic"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE38",
+            "display": "Pain - Extreme pelvic pain, cannot walk (symphysis pubis dysfunction)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE39",
+            "display": "Vaginal bleeding"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE40",
+            "display": "Varicose veins"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE41",
+            "display": "Visual disturbance"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b7-de43-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b7-de43-choices-grouper",
+      "name": "CurrentphysiologicalsymptomsChoicesGrouper",
+      "title": "Current physiological symptoms Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE44",
+            "display": "None"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE45",
+            "display": "Abnormal pulse rate"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE46",
+            "display": "Abnormal vaginal discharge (physiological) (foul smelling) (curd like)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE47",
+            "display": "Breathing difficulty"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE48",
+            "display": "Breathless during routine activities"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE49",
+            "display": "Constipation"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE50",
+            "display": "Contractions"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE51",
+            "display": "Cough lasting more than 3 weeks"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE52",
+            "display": "Fever"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE53",
+            "display": "Gets tired easily"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE54",
+            "display": "Headache"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE55",
+            "display": "Heartburn"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE56",
+            "display": "Leg cramps"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE57",
+            "display": "Leg redness"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE58",
+            "display": "Nausea"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE69",
+            "display": "Vomiting"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE59",
+            "display": "Oedema"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE60",
+            "display": "Pain - during urination (dysuria)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE61",
+            "display": "Pain - Leg"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE62",
+            "display": "Pain - Low back"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE63",
+            "display": "Pain - Pelvic"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE64",
+            "display": "Pain - Extreme pelvic pain/can't walk (symphysis pubis dysfunction)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE65",
+            "display": "Pain - Other"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE66",
+            "display": "Vaginal bleeding"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE67",
+            "display": "Varicose veins"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE68",
+            "display": "Visual disturbance"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE70",
+            "display": "Other current physiological symptoms (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b7-de71-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b7-de71-choices-grouper",
+      "name": "PresentingsignsandsymptomsthattriggersuspicionofIPVandclinicalinquiryChoicesGrouper",
+      "title": "Presenting signs and symptoms that trigger suspicion of IPV and clinical inquiry Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE72",
+            "display": "No presenting signs or symptoms indicative of IPV"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE73",
+            "display": "Ongoing stress"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE74",
+            "display": "Ongoing anxiety"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE75",
+            "display": "Ongoing depression"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE76",
+            "display": "Unspecified ongoing emotional health issues"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE77",
+            "display": "Misuse of alcohol"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE78",
+            "display": "Misuse of drugs"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE79",
+            "display": "Unspecified harmful behaviours"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE80",
+            "display": "Thoughts of self-harm or (attempted) suicide"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE81",
+            "display": "Plans of self-harm or (attempt) suicide"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE82",
+            "display": "Repeated sexually transmitted infections (STIs)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE83",
+            "display": "Unwanted pregnancies"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE84",
+            "display": "Unexplained chronic pain"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE85",
+            "display": "Unexplained chronic gastrointestinal symptoms"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE86",
+            "display": "Unexplained genitourinary symptoms"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE87",
+            "display": "Adverse reproductive outcomes"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE88",
+            "display": "Unexplained reproductive symptoms"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE89",
+            "display": "Repeated vaginal bleeding"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE90",
+            "display": "Injury to abdomen"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE91",
+            "display": "Injury other (specify)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE92",
+            "display": "Problems with central nervous system"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE93",
+            "display": "Repeated health consultations with no clear diagnosis"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE94",
+            "display": "Woman’s partner or husband is intrusive during consultations"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE95",
+            "display": "Woman often misses her own or her children’s health-care appointments"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE96",
+            "display": "Children have emotional and behavioural problems"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b7-de-99",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b7-de-99",
+      "name": "FetalmovementChoices",
+      "title": "Fetal movement Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE.99",
+            "display": "Normal fetal movement"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE100",
+            "display": "Reduced or poor fetal movement"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B7.DE101",
+            "display": "No fetal movement"
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b7-de1#Observation.value[x]",
+      "text": "Medication follow-up",
+      "type": "choice",
+      "answerValueSet": "#anc-b7-de1-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B7.DE1",
+          "display": "Medication follow-up"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b7-ded9#Observation.value[x]",
+      "text": "Persistent behaviours",
+      "type": "choice",
+      "answerValueSet": "#anc-b7-ded9-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B7.DED9",
+          "display": "Persistent behaviours"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b7-de18#Observation.value[x]",
+      "text": "Persistent physiological symptoms",
+      "type": "choice",
+      "answerValueSet": "#anc-b7-de18-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B7.DE18",
+          "display": "Persistent physiological symptoms"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b7-de43#Observation.value[x]",
+      "text": "Current physiological symptoms",
+      "type": "choice",
+      "answerValueSet": "#anc-b7-de43-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B7.DE43",
+          "display": "Current physiological symptoms"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b7-de71#Observation.value[x]",
+      "text": "Presenting signs and symptoms that trigger suspicion of IPV and clinical inquiry",
+      "type": "choice",
+      "answerValueSet": "#anc-b7-de71-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B7.DE71",
+          "display": "Presenting signs and symptoms that trigger suspicion of IPV and clinical inquiry"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "6",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b7-de97#Observation.value[x]",
+      "text": "Woman discloses or is suspected to be subjected to intimate partner violence",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B7.DE97",
+          "display": "Woman discloses or is suspected to be subjected to intimate partner violence"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "7",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b7-de98#Observation.value[x]",
+      "text": "Fetal movement",
+      "type": "choice",
+      "answerValueSet": "#anc-b7-de-99",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B7.DE98",
+          "display": "Fetal movement"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    }
+  ]
+}

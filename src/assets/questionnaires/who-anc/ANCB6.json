@@ -1,0 +1,1519 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "ANCB6",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "shareable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "computable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "publishable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeRepresentationLevel",
+      "valueCode": "structured"
+    }
+  ],
+  "url": "http://smart.who.int/anc/Questionnaire/ANCB6",
+  "version": "0.3.0",
+  "name": "ANCB6",
+  "title": "ANC.B6 Profile",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-10-16T07:42:33+00:00",
+  "publisher": "World Health Organization (WHO)",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.who.int"
+        }
+      ]
+    }
+  ],
+  "description": "If this is the woman’s first ANC contact, the health worker records information on her current pregnancy, past medical and obstetric history, medications, behaviour, immunization status and other background information.",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+        "code": "task",
+        "display": "Workflow Task"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-activity-codes",
+            "code": "ANC.B6",
+            "display": "Profile"
+          }
+        ]
+      }
+    }
+  ],
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+          "code": "001"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "system": "urn:sct-implementation-demonstrator:questionnaire-adaptation",
+        "code": "who-anc-sdc-adapted",
+        "display": "WHO SMART ANC Questionnaire adapted for SDC rendering and observation-based extraction"
+      }
+    ]
+  },
+  "contained": [
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de2",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de2",
+      "name": "HighestlevelofeducationachievedChoices",
+      "title": "Highest level of education achieved Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:22-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE2",
+            "display": "Does not know level of education"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE3",
+            "display": "No education"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE4",
+            "display": "Primary school"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE5",
+            "display": "Secondary school"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE6",
+            "display": "Higher education"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de7-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de7-choices-grouper",
+      "name": "OccupationChoicesGrouper",
+      "title": "Occupation Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE8",
+            "display": "Student"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE9",
+            "display": "Unemployed"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE10",
+            "display": "Formal employment"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE13",
+            "display": "Other (specify)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE11",
+            "display": "Employment that puts woman at increased risk for HIV (e.g. sex worker)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE12",
+            "display": "Informal employment (other)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de19",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de19",
+      "name": "SourceofgestationalageChoices",
+      "title": "Source of gestational age Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:22-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE19",
+            "display": "Last menstrual period (LMP)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE20",
+            "display": "Ultrasound"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE21",
+            "display": "Symphysis fundal height (SFH) or abdominal palpation"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de28",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de28",
+      "name": "WhetherlastlivebirthwaspretermChoices",
+      "title": "Whether last live birth was preterm Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:22-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE28",
+            "display": "Last live birth was preterm"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE29",
+            "display": "Last live birth was not preterm"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE30",
+            "display": "Don't know if last live birth was preterm"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de34-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de34-choices-grouper",
+      "name": "PastpregnancycomplicationsChoicesGrouper",
+      "title": "Past pregnancy complications Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE35",
+            "display": "No past pregnancy complications"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE36",
+            "display": "Does not know of any past pregnancy complications"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE39",
+            "display": "Alcohol use"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE40",
+            "display": "Baby died within 24 hours of birth"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE47",
+            "display": "Substance use"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE48",
+            "display": "Tobacco use"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE49",
+            "display": "Vacuum delivery"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE50",
+            "display": "Other past pregnancy problems (specify)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE37",
+            "display": "Pre-eclampsia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE38",
+            "display": "Eclampsia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE41",
+            "display": "Convulsions"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE42",
+            "display": "Forceps"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE43",
+            "display": "Gestational diabetes mellitus"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE44",
+            "display": "Heavy bleeding (during or after delivery)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE45",
+            "display": "Macrosomia"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE46",
+            "display": "Perineal tear (3rd or 4th degree)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de53",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de53",
+      "name": "SubstanceuseduringpastpregnancyspecificationChoices",
+      "title": "Substance use during past pregnancy specification Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE53",
+            "display": "Cocaine"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE54",
+            "display": "Injectable drugs"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE55",
+            "display": "Marijuana"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE56",
+            "display": "Other illicit substance use (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de58",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de58",
+      "name": "AllergiesChoices",
+      "title": "Allergies Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE58",
+            "display": "No known allergies"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE59",
+            "display": "Albendazole"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE60",
+            "display": "Aluminium hydroxide"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE61",
+            "display": "Calcium"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE62",
+            "display": "Chamomile"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE63",
+            "display": "Folic acid"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE64",
+            "display": "Ginger"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE65",
+            "display": "Iron"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE66",
+            "display": "Magnesium carbonate"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE67",
+            "display": "Malaria medication (sulfadoxine-pyrimethamine)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE68",
+            "display": "Mebendazole"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE69",
+            "display": "Penicillin"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE70",
+            "display": "PrEP tenofovir disoproxil fumarate (TDF)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE71",
+            "display": "Other allergies (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de73",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de73",
+      "name": "PastsurgeriesChoices",
+      "title": "Past surgeries Choices",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-11-30T07:11:23-07:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE73",
+            "display": "No known past surgeries"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE74",
+            "display": "Does not know of any past surgeries"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE75",
+            "display": "Dilation and curettage"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE76",
+            "display": "Myomectomy"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE77",
+            "display": "Removal of ovarian cysts"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE78",
+            "display": "Oophorectomy"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE79",
+            "display": "Salpingectomy"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE80",
+            "display": "Cervical cone"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE81",
+            "display": "Other gynecological procedures (specify)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE82",
+            "display": "Other surgeries (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de83-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de83-choices-grouper",
+      "name": "ExistingchronichealthconditionsChoicesGrouper",
+      "title": "Existing chronic health conditions Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE84",
+            "display": "No chronic or past health conditions"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE85",
+            "display": "Don't know if there are any chronic or past health conditions"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE87",
+            "display": "Blood disorder (e.g. sickle cell, anaemia, thalassemia)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE88",
+            "display": "Cancer - gynaecological"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE89",
+            "display": "Cancer - other site (specify)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE94",
+            "display": "Epilepsy"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE95",
+            "display": "HIV positive"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE98",
+            "display": "Other (specify)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE86",
+            "display": "Autoimmune disease"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE90",
+            "display": "Diabetes arising in pregnancy (gestational diabetes)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE91",
+            "display": "Diabetes, other or unspecified"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE92",
+            "display": "Diabetes, pre-existing type 1"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE93",
+            "display": "Diabetes, pre-existing type 2"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE96",
+            "display": "Hypertension"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE97",
+            "display": "Kidney disease"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de100-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de100-choices-grouper",
+      "name": "TetanustoxoidcontainingvaccineTTCVimmunizationhistoryChoicesGrouper",
+      "title": "Tetanus toxoid-containing vaccine (TTCV) immunization history Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE101",
+            "display": "Fully immunized"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE102",
+            "display": "Under-immunized"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE103",
+            "display": "No doses"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE104",
+            "display": "Unknown"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de105-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de105-choices-grouper",
+      "name": "FluimmunizationhistoryChoicesGrouper",
+      "title": "Flu immunization history Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE106",
+            "display": "Fully immunized"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE107",
+            "display": "No doses"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE108",
+            "display": "Unknown"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de109-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de109-choices-grouper",
+      "name": "CurrentmedicationsChoicesGrouper",
+      "title": "Current medications Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE110",
+            "display": "No medications"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE111",
+            "display": "Does not know of any current medications"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE112",
+            "display": "Analgesic"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE113",
+            "display": "Antacids"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE114",
+            "display": "Anti-convulsive"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE115",
+            "display": "Anti-diabetic"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE116",
+            "display": "Antihelmintic"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE117",
+            "display": "Anti-hypertensive"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE118",
+            "display": "Anti-malarials"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE119",
+            "display": "Antiretrovirals (ARVs)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE120",
+            "display": "Antitussive"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE121",
+            "display": "Antivirals"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE122",
+            "display": "Aspirin"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE123",
+            "display": "Asthma"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE124",
+            "display": "Calcium"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE126",
+            "display": "Doxylamine"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE127",
+            "display": "Folic acid"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE128",
+            "display": "Hematinic"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE129",
+            "display": "Hemorrhoidal medication"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE130",
+            "display": "Iron"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE131",
+            "display": "Magnesium"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE132",
+            "display": "Metoclopramide"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE133",
+            "display": "Multivitamin"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE134",
+            "display": "Oral pre-exposure prophylaxis (PrEP) for HIV"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE135",
+            "display": "Other antibiotics"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE136",
+            "display": "Thyroid medication"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE137",
+            "display": "Vitamin A"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE138",
+            "display": "Other medications (specify)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE125",
+            "display": "Co-trimoxazole"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de139-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de139-choices-grouper",
+      "name": "DailycaffeineintakeChoicesGrouper",
+      "title": "Daily caffeine intake Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE140",
+            "display": "More than 2 cups of coffee (brewed, filtered, instant or espresso)"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE141",
+            "display": "More than 4 cups of tea"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE142",
+            "display": "More than 12 bars (50 g) of chocolate"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE143",
+            "display": "More than one can of soda or energy drink"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE144",
+            "display": "None of the above daily caffeine intake"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de146-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de146-choices-grouper",
+      "name": "CurrentalcoholandorothersubstanceuseChoicesGrouper",
+      "title": "Current alcohol and/or other substance use Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE147",
+            "display": "No alcohol and/or substances"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE148",
+            "display": "Alcohol"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE149",
+            "display": "Cocaine"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE150",
+            "display": "Injectable drugs"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE151",
+            "display": "Marijuana"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE152",
+            "display": "Other substance use (specify)"
+          }
+        ]
+      }
+    },
+    {
+      "resourceType": "ValueSet",
+      "id": "anc-b6-de156-choices-grouper",
+      "url": "http://smart.who.int/anc/ValueSet/anc-b6-de156-choices-grouper",
+      "name": "PartnerHIVstatusreportedChoicesGrouper",
+      "title": "Partner HIV status (reported) Choices Grouper",
+      "status": "draft",
+      "expansion": {
+        "timestamp": "2021-09-07T20:15:19-06:00",
+        "contains": [
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE157",
+            "display": "HIV positive"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE158",
+            "display": "HIV negative"
+          },
+          {
+            "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+            "code": "ANC.B6.DE159",
+            "display": "Inconclusive"
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-patient#Patient.educationLevel",
+      "text": "Highest level of education achieved",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de2"
+    },
+    {
+      "linkId": "2",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-patient#Patient.occupation",
+      "text": "Occupation",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de7-choices-grouper"
+    },
+    {
+      "linkId": "3",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de14#Observation.value[x]",
+      "text": "Last menstrual period (LMP) date",
+      "type": "date",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE14",
+          "display": "Last menstrual period (LMP) date"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de15#Observation.value[x]",
+      "text": "Ultrasound done",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE15",
+          "display": "Ultrasound done"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "definition": "http://smart.who.int/anc/StructureDefinition/ultrasound#Procedure.performed[x]",
+      "text": "Ultrasound date",
+      "type": "date"
+    },
+    {
+      "linkId": "6",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de17#Observation.value[x]",
+      "text": "Gestational age",
+      "type": "quantity",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE17",
+          "display": "Gestational age"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+          "valueCoding": {
+            "system": "http://unitsofmeasure.org",
+            "code": "wk",
+            "display": "wk"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "7",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de18#Observation.value[x]",
+      "text": "Source of gestational age",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de19",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE18",
+          "display": "Source of gestational age"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "8",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de22#Observation.value[x]",
+      "text": "Expected date of delivery (EDD)",
+      "type": "date",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE22",
+          "display": "Expected date of delivery (EDD)"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "9",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de24#Observation.value[x]",
+      "text": "Number of pregnancies (gravida)",
+      "type": "integer",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE24",
+          "display": "Number of pregnancies (gravida)"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "10",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de25#Observation.value[x]",
+      "text": "Number of miscarriages and/or abortions",
+      "type": "integer",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE25",
+          "display": "Number of miscarriages and/or abortions"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "11",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de26#Observation.value[x]",
+      "text": "Number of live births",
+      "type": "integer",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE26",
+          "display": "Number of live births"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "12",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de27#Observation.value[x]",
+      "text": "Whether last live birth was preterm",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de28",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE27",
+          "display": "Whether last live birth was preterm"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "13",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de31#Observation.value[x]",
+      "text": "Number of stillbirths",
+      "type": "integer",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE31",
+          "display": "Number of stillbirths"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "14",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de32#Observation.value[x]",
+      "text": "Parity",
+      "type": "integer",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE32",
+          "display": "Parity"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "15",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de33#Observation.value[x]",
+      "text": "Number of caesarian sections",
+      "type": "integer",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE33",
+          "display": "Number of caesarian sections"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "16",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de34#Observation.value[x]",
+      "text": "Past pregnancy complications",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de34-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE34",
+          "display": "Past pregnancy complications"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "17",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de51#Observation.value[x]",
+      "text": "Substance use during past pregnancy specification",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de53",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE51",
+          "display": "Substance use during past pregnancy specification"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "18",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de57#Observation.value[x]",
+      "text": "Allergies",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de58",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE57",
+          "display": "Allergies"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "19",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de72#Observation.value[x]",
+      "text": "Past surgeries",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de73",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE72",
+          "display": "Past surgeries"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "20",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de83#Observation.value[x]",
+      "text": "Existing chronic health conditions",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de83-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE83",
+          "display": "Existing chronic health conditions"
+        }
+      ],
+      "repeats": true,
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "21",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de99#Observation.value[x]",
+      "text": "HIV diagnosis date",
+      "type": "date",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE99",
+          "display": "HIV diagnosis date"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "22",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de100#Observation.value[x]",
+      "text": "Tetanus toxoid-containing vaccine (TTCV) immunization history",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de100-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE100",
+          "display": "Tetanus toxoid-containing vaccine (TTCV) immunization history"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "23",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de105#Observation.value[x]",
+      "text": "Flu immunization history",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de105-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE105",
+          "display": "Flu immunization history"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "24",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de109#Observation.value[x]",
+      "text": "Current medications",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de109-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE109",
+          "display": "Current medications"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "25",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de139#Observation.value[x]",
+      "text": "Daily caffeine intake",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de139-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE139",
+          "display": "Daily caffeine intake"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "26",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de145#Observation.value[x]",
+      "text": "Clinical enquiry for alcohol and other substance use done",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE145",
+          "display": "Clinical enquiry for alcohol and other substance use done"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "27",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de146#Observation.value[x]",
+      "text": "Current alcohol and/or other substance use",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de146-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE146",
+          "display": "Current alcohol and/or other substance use"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "28",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de153#Observation.value[x]",
+      "text": "Tobacco use",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE153",
+          "display": "Tobacco use"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "29",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de154#Observation.value[x]",
+      "text": "Recently quit tobacco products",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE154",
+          "display": "Recently quit tobacco products"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "30",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de155#Observation.value[x]",
+      "text": "Exposure to second-hand smoke",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE155",
+          "display": "Exposure to second-hand smoke"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "31",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de156#Observation.value[x]",
+      "text": "Partner HIV status (reported)",
+      "type": "choice",
+      "answerValueSet": "#anc-b6-de156-choices-grouper",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE156",
+          "display": "Partner HIV status (reported)"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "32",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de160#Observation.value[x]",
+      "text": "Contraceptive use of male condoms",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE160",
+          "display": "Contraceptive use of male condoms"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "linkId": "33",
+      "definition": "http://smart.who.int/anc/StructureDefinition/anc-b6-de161#Observation.value[x]",
+      "text": "Contraceptive use of female condoms",
+      "type": "boolean",
+      "code": [
+        {
+          "system": "http://smart.who.int/anc/CodeSystem/anc-custom-codes",
+          "code": "ANC.B6.DE161",
+          "display": "Contraceptive use of female condoms"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        }
+      ]
+    }
+  ]
+}
