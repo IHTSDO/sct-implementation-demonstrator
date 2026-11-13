@@ -48,7 +48,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   };
   readonly patientSkeletonRows = Array.from({ length: 6 }, (_, index) => index);
   currentFhirServer = '';
-  activeCdsServerCount = 0;
+  activeCdsServerName: string | null = null;
   bookmarkedPatientIds = new Set<string>();
   isCreatingPatient = false;
   creatingPatientMessage = 'Creating patient...';
@@ -126,7 +126,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(
       this.cdsHooksServerConfigService.servers$.subscribe((servers) => {
-        this.activeCdsServerCount = servers.filter((server) => server.active).length;
+        this.activeCdsServerName = servers.find((server) => server.active)?.name ?? null;
       })
     );
 
@@ -296,11 +296,7 @@ export class BenefitsDemoComponent implements OnInit, OnDestroy {
   }
 
   getActiveCdsServerLabel(): string {
-    if (this.activeCdsServerCount === 0) {
-      return 'No active CDS servers configured';
-    }
-
-    return `${this.activeCdsServerCount} active CDS server${this.activeCdsServerCount === 1 ? '' : 's'}`;
+    return this.activeCdsServerName ? `Active: ${this.activeCdsServerName}` : 'No active CDS server';
   }
 
   showPatientListSkeleton(): boolean {

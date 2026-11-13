@@ -175,7 +175,11 @@ export class CdsHooksServerConfigService {
       normalizedServers.unshift(normalizedDefault);
     }
 
-    return normalizedServers;
+    // Only one server is active at a time. Older configurations could have several: keep the first.
+    const firstActiveIndex = normalizedServers.findIndex((server) => server.active);
+    return normalizedServers.map((server, index) =>
+      server.active && index !== firstActiveIndex ? { ...server, active: false } : server
+    );
   }
 
   private normalizeServer(rawServer: unknown): CdsHooksServerConfig | null {

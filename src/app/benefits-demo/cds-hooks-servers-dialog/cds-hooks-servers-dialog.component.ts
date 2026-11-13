@@ -14,7 +14,7 @@ import { CdsHooksServicesDialogComponent, CdsHooksServicesDialogData } from '../
       <h2 mat-dialog-title>CDS Hooks Servers</h2>
       <mat-dialog-content>
         <p class="dialog-copy">
-          Manage the CDS Hooks servers used by the medication decision support demo. Active servers are queried in parallel and results are shown grouped by server.
+          Manage the CDS Hooks servers used by the EHR. Only one server is active at a time; activating a server deactivates the others. Use Services to choose which of its services are called.
         </p>
 
         <div class="server-form">
@@ -268,17 +268,24 @@ export class CdsHooksServersDialogComponent {
           active: this.draftActive
         };
       });
+      if (this.draftActive) {
+        this.servers = this.withOnlyActive(this.editingServerId);
+      }
     } else {
+      const newServerId = this.generateId();
       this.servers = [
         ...this.servers,
         {
-          id: this.generateId(),
+          id: newServerId,
           name: this.draftName.trim(),
           baseUrl: normalizedBaseUrl,
           active: this.draftActive,
           isDefault: false
         }
       ];
+      if (this.draftActive) {
+        this.servers = this.withOnlyActive(newServerId);
+      }
     }
 
     this.persist();
@@ -286,8 +293,14 @@ export class CdsHooksServersDialogComponent {
   }
 
   toggleServer(serverId: string, active: boolean): void {
-    this.servers = this.servers.map((server) => server.id === serverId ? { ...server, active } : server);
+    this.servers = active
+      ? this.withOnlyActive(serverId)
+      : this.servers.map((server) => server.id === serverId ? { ...server, active: false } : server);
     this.persist();
+  }
+
+  private withOnlyActive(serverId: string): CdsHooksServerConfig[] {
+    return this.servers.map((server) => ({ ...server, active: server.id === serverId }));
   }
 
   deleteServer(serverId: string): void {
