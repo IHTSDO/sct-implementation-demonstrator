@@ -23,11 +23,14 @@ export class CdsHooksServerConfigService {
   };
 
   private static readonly STORAGE_KEY = 'cdsHooksServers';
+  private static readonly DISABLED_SERVICES_STORAGE_KEY = 'cdsHooksDisabledServices';
+  private disabledServices: Record<string, string[]> = {};
   private readonly serversSubject = new BehaviorSubject<CdsHooksServerConfig[]>([CdsHooksServerConfigService.DEFAULT_SERVER]);
   readonly servers$ = this.serversSubject.asObservable();
 
   constructor(private storageService: StorageService) {
     this.initialize();
+    this.disabledServices = this.readDisabledServices();
   }
 
   getServers(): CdsHooksServerConfig[] {
@@ -43,6 +46,73 @@ export class CdsHooksServerConfigService {
     this.serversSubject.next(normalizedServers);
     if (this.storageService.isLocalStorageSupported()) {
       this.storageService.saveItem(CdsHooksServerConfigService.STORAGE_KEY, JSON.stringify(normalizedServers));
+    }
+    this.pruneDisabledServices(normalizedServers);
+  }
+
+  /**
+   * Service ids the user switched off for a server. Disabled ids are stored (not enabled ones) so that
+   * services appearing later in discovery are enabled by default.
+   */
+  getDisabledServiceIds(serverId: string): Set<string> {
+    return new Set(this.disabledServices[serverId] || []);
+  }
+
+  setDisabledServiceIds(serverId: string, serviceIds: Iterable<string>): void {
+    const ids = Array.from(new Set(serviceIds)).filter((id) => typeof id === 'string' && id.length > 0).sort();
+    const next = { ...this.disabledServices };
+    if (ids.length > 0) {
+      next[serverId] = ids;
+    } else {
+      delete next[serverId];
+    }
+    this.writeDisabledServices(next);
+  }
+
+  private pruneDisabledServices(servers: CdsHooksServerConfig[]): void {
+    const serverIds = new Set(servers.map((server) => server.id));
+    const staleIds = Object.keys(this.disabledServices).filter((serverId) => !serverIds.has(serverId));
+    if (staleIds.length === 0) {
+      return;
+    }
+    const next = { ...this.disabledServices };
+    staleIds.forEach((serverId) => delete next[serverId]);
+    this.writeDisabledServices(next);
+  }
+
+  private readDisabledServices(): Record<string, string[]> {
+    try {
+      if (!this.storageService.isLocalStorageSupported()) {
+        return {};
+      }
+      const rawValue = this.storageService.getItem(CdsHooksServerConfigService.DISABLED_SERVICES_STORAGE_KEY);
+      const parsed = rawValue ? JSON.parse(rawValue) : null;
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return {};
+      }
+      const result: Record<string, string[]> = {};
+      Object.entries(parsed as Record<string, unknown>).forEach(([serverId, ids]) => {
+        if (Array.isArray(ids)) {
+          const validIds = ids.filter((id): id is string => typeof id === 'string' && id.length > 0);
+          if (validIds.length > 0) {
+            result[serverId] = validIds;
+          }
+        }
+      });
+      return result;
+    } catch {
+      return {};
+    }
+  }
+
+  private writeDisabledServices(value: Record<string, string[]>): void {
+    this.disabledServices = value;
+    try {
+      if (this.storageService.isLocalStorageSupported()) {
+        this.storageService.saveItem(CdsHooksServerConfigService.DISABLED_SERVICES_STORAGE_KEY, JSON.stringify(value));
+      }
+    } catch {
+      // Keep the in-memory selection when storage is unavailable.
     }
   }
 

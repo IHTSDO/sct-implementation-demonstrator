@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AppMaterialModule } from '../../shared/app-material.module';
 import { CdsHooksServerConfig, CdsHooksServerConfigService } from '../../services/cds-hooks-server-config.service';
+import { CdsHooksServicesDialogComponent, CdsHooksServicesDialogData } from '../cds-hooks-services-dialog/cds-hooks-services-dialog.component';
 
 @Component({
   selector: 'app-cds-hooks-servers-dialog',
@@ -69,6 +70,7 @@ import { CdsHooksServerConfig, CdsHooksServerConfigService } from '../../service
               </div>
 
               <div class="server-card-actions">
+                <button mat-button type="button" (click)="openServices(server)">Services</button>
                 <button mat-button type="button" (click)="editServer(server)">Edit</button>
                 <button
                   mat-button
@@ -207,13 +209,22 @@ export class CdsHooksServersDialogComponent {
 
   constructor(
     private cdsHooksServerConfigService: CdsHooksServerConfigService,
-    private dialogRef: MatDialogRef<CdsHooksServersDialogComponent>
+    private dialogRef: MatDialogRef<CdsHooksServersDialogComponent>,
+    private dialog: MatDialog
   ) {
     this.servers = this.cloneServers(this.cdsHooksServerConfigService.getServers());
   }
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  openServices(server: CdsHooksServerConfig): void {
+    this.dialog.open<CdsHooksServicesDialogComponent, CdsHooksServicesDialogData>(CdsHooksServicesDialogComponent, {
+      width: '820px',
+      maxWidth: '95vw',
+      data: { server }
+    });
   }
 
   editServer(server: CdsHooksServerConfig): void {

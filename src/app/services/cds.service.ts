@@ -248,15 +248,17 @@ export interface CDSDiscoveryService {
   hook?: string;
   title?: string;
   description?: string;
+  prefetch?: Record<string, string>;
 }
 
 interface CDSDiscoveryResponse {
   services?: CDSDiscoveryService[];
 }
 
-interface DiscoveryResult {
+export interface DiscoveryResult {
   services: CDSDiscoveryService[];
   failed: boolean;
+  errorMessage?: string;
 }
 
 interface DiscoveryCacheEntry {
@@ -799,7 +801,13 @@ export class CdsService {
   ): Observable<CDSServerExecutionResult[]> {
     return this.discoverServices(server.baseUrl, forceDiscoveryRefresh).pipe(
       switchMap((discovery) => {
-        const matchingServices = discovery.services.filter((service) => service.hook === hook && !EXCLUDED_SERVICE_IDS.has(service.id));
+        // Read the selection at call time so changes apply to the next hook execution.
+        const disabledServiceIds = this.cdsServerConfigService.getDisabledServiceIds(server.id);
+        const matchingServices = discovery.services.filter((service) =>
+          service.hook === hook
+          && !EXCLUDED_SERVICE_IDS.has(service.id)
+          && !disabledServiceIds.has(service.id)
+        );
         if (matchingServices.length > 0) {
           return forkJoin(
             matchingServices.map((service) =>
@@ -866,6 +874,19 @@ export class CdsService {
     );
   }
 
+  /**
+   * Discovery for the service selection screen. Returns the services the client may call, i.e. without
+   * the hard-excluded ones; user-disabled services are included so they can be switched back on.
+   */
+  discoverSelectableServices(baseUrl: string, forceRefresh: boolean = false): Observable<DiscoveryResult> {
+    return this.discoverServices(baseUrl, forceRefresh).pipe(
+      map((discovery) => ({
+        ...discovery,
+        services: discovery.services.filter((service) => !EXCLUDED_SERVICE_IDS.has(service.id))
+      }))
+    );
+  }
+
   private discoverServices(baseUrl: string, forceRefresh: boolean = false): Observable<DiscoveryResult> {
     const normalizedBaseUrl = this.normalizeBaseUrl(baseUrl);
     if (!forceRefresh) {
@@ -880,9 +901,10 @@ export class CdsService {
         services: response?.services || [],
         failed: false
       })),
-      catchError(() => of({
+      catchError((error) => of({
         services: [],
-        failed: true
+        failed: true,
+        errorMessage: this.formatHttpError(error)
       })),
       shareReplay(1)
     );
