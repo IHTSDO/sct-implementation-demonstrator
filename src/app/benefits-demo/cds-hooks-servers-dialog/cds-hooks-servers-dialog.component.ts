@@ -17,33 +17,42 @@ import { CdsHooksServicesDialogComponent, CdsHooksServicesDialogData } from '../
           Manage the CDS Hooks servers used by the EHR. Only one server is active at a time; activating a server deactivates the others. Use Services to choose which of its services are called.
         </p>
 
-        <div class="server-form">
-          <mat-form-field appearance="outline">
-            <mat-label>Server name</mat-label>
-            <input matInput [(ngModel)]="draftName" name="draftName" placeholder="My CDS server" />
-          </mat-form-field>
+        @if (formOpen) {
+          <div class="server-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Server name</mat-label>
+              <input matInput [(ngModel)]="draftName" name="draftName" placeholder="My CDS server" />
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Base URL</mat-label>
-            <input matInput [(ngModel)]="draftBaseUrl" name="draftBaseUrl" placeholder="https://example.org" />
-          </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Base URL</mat-label>
+              <input matInput [(ngModel)]="draftBaseUrl" name="draftBaseUrl" placeholder="https://example.org" />
+            </mat-form-field>
 
-          <mat-slide-toggle [(ngModel)]="draftActive" name="draftActive">
-            Active
-          </mat-slide-toggle>
+            <mat-slide-toggle [(ngModel)]="draftActive" name="draftActive">
+              Active
+            </mat-slide-toggle>
 
-          <div class="form-actions">
-            <button mat-button type="button" (click)="resetDraft()" *ngIf="editingServerId">Cancel edit</button>
-            <button
-              mat-flat-button
-              color="primary"
-              type="button"
-              (click)="saveDraft()"
-              [disabled]="!draftName.trim() || !draftBaseUrl.trim()">
-              {{ editingServerId ? 'Update server' : 'Add server' }}
+            <div class="form-actions">
+              <button mat-button type="button" (click)="resetDraft()">Cancel</button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="saveDraft()"
+                [disabled]="!draftName.trim() || !draftBaseUrl.trim()">
+                {{ editingServerId ? 'Update server' : 'Add server' }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="add-server-row">
+            <button mat-stroked-button color="primary" type="button" (click)="openAddForm()">
+              <mat-icon>add</mat-icon>
+              Add server
             </button>
           </div>
-        </div>
+        }
 
         <div class="servers-list">
           @for (server of servers; track server.id) {
@@ -121,6 +130,12 @@ import { CdsHooksServicesDialogComponent, CdsHooksServicesDialogData } from '../
       display: flex;
       justify-content: flex-end;
       gap: 8px;
+    }
+
+    .add-server-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
     }
 
     .servers-list {
@@ -206,6 +221,7 @@ export class CdsHooksServersDialogComponent {
   draftBaseUrl = '';
   draftActive = true;
   editingServerId: string | null = null;
+  formOpen = false;
 
   constructor(
     private cdsHooksServerConfigService: CdsHooksServerConfigService,
@@ -227,7 +243,13 @@ export class CdsHooksServersDialogComponent {
     });
   }
 
+  openAddForm(): void {
+    this.resetDraft();
+    this.formOpen = true;
+  }
+
   editServer(server: CdsHooksServerConfig): void {
+    this.formOpen = true;
     this.editingServerId = server.id;
     this.draftName = server.name;
     this.draftBaseUrl = server.baseUrl;
@@ -235,6 +257,7 @@ export class CdsHooksServersDialogComponent {
   }
 
   resetDraft(): void {
+    this.formOpen = false;
     this.editingServerId = null;
     this.draftName = '';
     this.draftBaseUrl = '';
