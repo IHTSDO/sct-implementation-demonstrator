@@ -710,7 +710,13 @@
       "notSpecified": "Ej angivet",
       "left": "Vänster",
       "right": "Höger",
-      "bilateral": "Bilateral"
+      "bilateral": "Bilateral",
+      "short": {
+        "left": "Vänster",
+        "right": "Höger",
+        "both": "Båda",
+        "none": "Nej"
+      }
     }
   },
   "fhirData": {

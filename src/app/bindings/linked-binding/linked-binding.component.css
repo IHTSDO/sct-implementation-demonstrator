@@ -5,3 +5,14 @@
 .linked-placeholder {
   width: 100%;
 }
+
+/* Same density as the autocomplete binding's compact mode. */
+.compact-field {
+  --mat-form-field-container-height: 44px;
+  --mat-form-field-container-vertical-padding: 10px;
+  font-size: 13px;
+}
+
+.compact-field mat-hint {
+  font-size: 11px;
+}

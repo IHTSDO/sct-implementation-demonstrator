@@ -714,7 +714,13 @@
       "notSpecified": "Not specified",
       "left": "Left",
       "right": "Right",
-      "bilateral": "Bilateral"
+      "bilateral": "Bilateral",
+      "short": {
+        "left": "Left",
+        "right": "Right",
+        "both": "Both",
+        "none": "No"
+      }
     }
   },
   "fhirData": {

@@ -164,13 +164,122 @@
   min-width: 0;
 }
 
-.laterality-section {
-  flex: 0 0 220px;
-  min-width: 220px;
+/* Denser than the shared compact mode: this field is secondary to the concept search. */
+.body-site-field ::ng-deep .compact-field {
+  --mat-form-field-container-height: 34px;
+  --mat-form-field-container-vertical-padding: 6px;
+  --mat-form-field-container-text-size: 12px;
+  --mat-form-field-outlined-label-text-size: 12px;
+  --mat-form-field-subscript-text-size: 10px;
+  font-size: 12px;
 }
 
-.laterality-section mat-form-field {
-  width: 100%;
+.body-site-field ::ng-deep .compact-field mat-hint {
+  font-size: 10px;
+}
+
+/* The standard 48px clear button would stretch the 34px field. */
+.body-site-field ::ng-deep .compact-field .mat-mdc-icon-button {
+  --mat-icon-button-state-layer-size: 26px;
+  --mdc-icon-button-state-layer-size: 26px;
+  width: 26px;
+  height: 26px;
+  padding: 1px;
+}
+
+.body-site-field ::ng-deep .compact-field .mat-mdc-icon-button .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.body-site-field ::ng-deep .compact-field .mat-mdc-icon-button .mat-mdc-button-touch-target {
+  width: 26px;
+  height: 26px;
+}
+
+/* Compact laterality: a small label, one row of dense radios and a one-line hint. */
+.laterality-section {
+  /* Fixed width so the block does not resize while the hint changes. */
+  flex: 0 0 250px;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /*
+   * Lift the block so the radios sit on the body site field's vertical center and the
+   * "Laterality" label lines up with the field's floating label (which sits above the row).
+   */
+  margin-top: -10px;
+  font-size: 12px;
+}
+
+.laterality-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 16px;
+  margin-bottom: 2px;
+}
+
+.laterality-label {
+  font-size: 10px;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+.laterality-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 6px;
+  --mat-radio-state-layer-size: 18px;
+  --mdc-radio-state-layer-size: 18px;
+  --mat-radio-label-text-size: 11px;
+}
+
+.laterality-options mat-radio-button {
+  font-size: 11px;
+}
+
+/* Smaller radio circles: shrink the 20px icon to 14px inside an 18px touch area. */
+.laterality-options ::ng-deep .mdc-radio {
+  padding: 2px;
+  width: 14px;
+  height: 14px;
+}
+
+.laterality-options ::ng-deep .mdc-radio__background {
+  width: 14px;
+  height: 14px;
+}
+
+.laterality-options ::ng-deep .mdc-radio__inner-circle {
+  border-width: 7px;
+}
+
+.laterality-options ::ng-deep .mdc-radio__native-control {
+  width: 18px;
+  height: 18px;
+  top: 0;
+  left: 0;
+}
+
+.laterality-options ::ng-deep .mdc-form-field > label {
+  padding-left: 2px;
+}
+
+.laterality-hint {
+  font-size: 10px;
+  line-height: 13px;
+  /* Room for two lines, the longest hint, so the row height stays put. */
+  min-height: 26px;
+  /* Puts the first line on the same baseline as the body site's "SNOMED CT: …" hint. */
+  margin-top: 14px;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+.laterality-disabled .laterality-label {
+  opacity: 0.7;
 }
 
 .dosage-row {
@@ -309,8 +418,6 @@
   }
 
   .laterality-section {
-    flex-basis: auto;
-    min-width: unset;
     width: 100%;
   }
 

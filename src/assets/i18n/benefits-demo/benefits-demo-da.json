@@ -710,7 +710,13 @@
       "notSpecified": "Ikke angivet",
       "left": "Venstre",
       "right": "Højre",
-      "bilateral": "Bilateral"
+      "bilateral": "Bilateral",
+      "short": {
+        "left": "Venstre",
+        "right": "Højre",
+        "both": "Begge",
+        "none": "Nej"
+      }
     }
   },
   "fhirData": {

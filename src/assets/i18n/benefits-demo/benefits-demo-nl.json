@@ -710,7 +710,13 @@
       "notSpecified": "Niet gespecificeerd",
       "left": "Links",
       "right": "Rechts",
-      "bilateral": "Bilateraal"
+      "bilateral": "Bilateraal",
+      "short": {
+        "left": "Links",
+        "right": "Rechts",
+        "both": "Beide",
+        "none": "Nee"
+      }
     }
   },
   "fhirData": {

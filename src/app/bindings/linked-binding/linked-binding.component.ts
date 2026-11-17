@@ -50,6 +50,8 @@ export class LinkedBindingComponent implements OnInit, OnChanges, OnDestroy {
   @Input() editionUri?: string;
   @Input() maxOptionsCount = 10;
   @Input() appearance: MatFormFieldAppearance = 'fill';
+  /** Denser field with a smaller font, as the autocomplete binding's compact mode. */
+  @Input() compact = false;
   /** Optional translated texts; the English defaults are used for any missing entry. */
   @Input() messages: LinkedBindingMessages | null = null;
   @Output() selectionChange = new EventEmitter<any>();
