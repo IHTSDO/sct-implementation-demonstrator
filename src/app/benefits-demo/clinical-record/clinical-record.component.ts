@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService } from '../../services/patient.service';
+import { AntenatalCareService } from '../../services/antenatal-care.service';
 import { AiAssistedEntryTransactionResult } from '../../services/patient-storage.types';
 import { CdsService, CDSCard, HookExecutionContextSnapshot } from '../../services/cds.service';
 import { AlertToastService } from '../../services/alert-toast.service';
@@ -244,7 +245,8 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
     private dialog: MatDialog,
     private translocoService: TranslocoService,
     private clinicBrandingService: ClinicBrandingService,
-    private snomedLocalization: SnomedCodingLocalizationService
+    private snomedLocalization: SnomedCodingLocalizationService,
+    private antenatalCareService: AntenatalCareService
   ) { }
 
   /** Name to show for a coded item: the selected edition's display when available, else its text. */
@@ -274,6 +276,11 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           this.expandOnly('clinical');
         }
       })
+    );
+
+    // Starting or ending a pregnancy re-emits the selected patient: keep the sidebar in sync.
+    this.subscriptions.push(
+      this.patientService.getSelectedPatient().subscribe(() => this.refreshAntenatalStatus())
     );
 
     // Check for patientId in URL route parameters first
@@ -322,6 +329,7 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
           return;
         }
         this.observations = this.patientService.getPatientObservations(this.patient.id);
+        this.refreshAntenatalStatus();
         this.dispatchCdsEvent({ type: 'patient-view' });
       })
     );
@@ -393,6 +401,16 @@ export class ClinicalRecordComponent implements OnInit, OnDestroy, AfterViewInit
       return;
     }
     this.setSelectedModule('dentistry');
+  }
+
+  // Shown on the Antenatal Care entry of the sidebar while a pregnancy is in course.
+  antenatalStatus: { gestationalAgeWeeks: number | null } | null = null;
+  // The Antenatal Care module is only offered to patients it applies to.
+  antenatalEligible = false;
+
+  private refreshAntenatalStatus(): void {
+    this.antenatalStatus = this.patient ? this.antenatalCareService.getActivePregnancyStatus(this.patient.id) : null;
+    this.antenatalEligible = this.antenatalCareService.isEligible(this.patient);
   }
 
   onAntenatalRootClick(): void {

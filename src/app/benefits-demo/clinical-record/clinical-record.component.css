@@ -2860,3 +2860,31 @@
 .order-item {
   border-left: 3px solid #4f8cff;
 }
+
+/* Antenatal Care entry: a pregnancy is in course */
+.module-status-pill {
+  margin-left: auto;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #8e44ad;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.sidebar-collapsed-icon-item.has-status-dot {
+  position: relative;
+}
+
+.sidebar-collapsed-icon-item.has-status-dot::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8e44ad;
+}

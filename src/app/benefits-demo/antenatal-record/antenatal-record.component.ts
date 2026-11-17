@@ -1,10 +1,14 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
 import type { Encounter, EpisodeOfCare, Patient } from '../../model';
-import { AncManifest, AncQuestionnaireEntry, AntenatalCareService } from '../../services/antenatal-care.service';
+import { AncContactPhase, AncManifest, AncQuestionnaireEntry, AntenatalCareService } from '../../services/antenatal-care.service';
+import { CdsService, EncounterCdsHook, EncounterHookResult } from '../../services/cds.service';
+import { CdsHooksServersDialogComponent } from '../cds-hooks-servers-dialog/cds-hooks-servers-dialog.component';
+import { CdsHooksServicesDialogComponent } from '../cds-hooks-services-dialog/cds-hooks-services-dialog.component';
 import { PatientService } from '../../services/patient.service';
 
 interface ContactRow {
@@ -18,6 +22,20 @@ interface ContactRow {
 interface FormStep {
   entry: AncQuestionnaireEntry;
   completed: boolean;
+  phase: AncContactPhase;
+  /** First step of its phase: the phase name is shown above it. */
+  firstOfPhase: boolean;
+}
+
+const SEVERITY_ORDER = ['critical', 'warning', 'info'] as const;
+
+interface DecisionSupportGroup {
+  hook: EncounterCdsHook;
+  titleKey: string;
+  /** False until the contact has the data the hook needs. */
+  enabled: boolean;
+  running: boolean;
+  result: EncounterHookResult | null;
 }
 
 interface ActiveForm {
@@ -63,6 +81,11 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
   steps: FormStep[] = [];
   activeForm: ActiveForm | null = null;
 
+  // WHO decision support for the selected contact. The cards are transient guidance for
+  // this contact: they live here, not in the patient-level CDS alert store.
+  decisionSupport: DecisionSupportGroup[] = this.emptyDecisionSupport();
+  private decisionSupportContactId: string | null = null;
+
   private subscriptions: Subscription[] = [];
   private loadedPatientId: string | null = null;
   private activeFormKey: string | null = null;
@@ -73,6 +96,8 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private cdsService: CdsService,
     private translocoService: TranslocoService
   ) {}
 
@@ -128,8 +153,22 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
     return { weeks: Math.floor(days / 7), days: days % 7, estimatedDateOfDelivery };
   }
 
+  /** Reached through a link or bookmark for a patient antenatal care does not apply to. */
+  get notApplicable(): boolean {
+    return !this.activePregnancy && !this.antenatalCareService.isEligible(this.patient);
+  }
+
   get openContact(): ContactRow | null {
     return this.contacts.find((row) => row.encounter.status === 'in-progress') || null;
+  }
+
+  /** 1-based position of the form on screen within the contact workflow. */
+  get activeStepNumber(): number {
+    return this.steps.findIndex((step) => step.entry.id === this.activeForm?.entry.id) + 1;
+  }
+
+  get isLastStep(): boolean {
+    return this.activeStepNumber === this.steps.length;
   }
 
   get isEndOfPregnancyForm(): boolean {
@@ -179,10 +218,13 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.saving = true;
     try {
+      const number = this.contact.number;
+      // Final check before the contact ends, on everything recorded in it.
+      await this.runHook('encounter-discharge');
       await this.antenatalCareService.closeContact(this.patient.id, this.contact.encounter);
       this.readRecord();
-      this.notify('messages.contactClosed', { number: this.contact.number });
-      this.backToPregnancy();
+      await this.syncSelection();
+      this.notify('messages.contactClosed', { number });
     } catch (error) {
       console.error('Error closing antenatal contact:', error);
       this.notify('messages.saveFailed');
@@ -221,12 +263,19 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
     try {
       if (this.contact) {
         this.antenatalCareService.saveResponse(this.patient, questionnaire, fhirResponse, this.contact.encounter);
-        await this.antenatalCareService.applyResponseToContact(this.patient.id, this.contact.encounter, questionnaire, fhirResponse);
+        const encounter = this.contact.encounter;
+        const extracted = this.antenatalCareService.extractContactObservations(this.patient, encounter, questionnaire, fhirResponse);
         this.readRecord();
-        this.notify('messages.formSaved', { title: entry.title });
+        this.notify(extracted > 0 ? 'messages.formSavedWithObservations' : 'messages.formSaved', {
+          title: this.translocoService.translate(`benefitsDemo.antenatalRecord.forms.${entry.id}`),
+          count: extracted
+        });
 
+        // Rebuilt after saving: the answers can add a step (the referral form).
+        this.steps = this.buildSteps(encounter.id);
         const index = this.steps.findIndex((step) => step.entry.id === entry.id);
         const next = this.steps[index + 1];
+        const hooks = this.antenatalCareService.hooksFedByForm(entry.id);
         if (next) {
           this.openForm(next.entry);
         } else {
@@ -234,6 +283,10 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
           this.activeFormKey = null;
           await this.syncSelection();
         }
+        // The decision services read what was just recorded: re-run the ones this form feeds.
+        this.contact = this.contacts.find((row) => row.encounter.id === encounter.id) || this.contact;
+        this.refreshDecisionSupportAvailability();
+        void Promise.all(hooks.map((hook) => this.runHook(hook)));
       } else if (this.activePregnancy) {
         this.antenatalCareService.saveResponse(this.patient, questionnaire, fhirResponse);
         await this.antenatalCareService.endPregnancy(this.patient.id, this.activePregnancy);
@@ -251,6 +304,97 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
 
   onFormCancelled(): void {
     this.backToPregnancy();
+  }
+
+  async runHook(hook: EncounterCdsHook): Promise<void> {
+    const group = this.decisionSupport.find((candidate) => candidate.hook === hook);
+    if (!this.patient || !this.contact || !group || !group.enabled || group.running) {
+      return;
+    }
+    const contactId = this.contact.encounter.id;
+    group.running = true;
+    try {
+      const result = await this.antenatalCareService.runContactHook(hook, this.patient, this.contact.encounter);
+      if (this.decisionSupportContactId === contactId) {
+        // Most severe first: an urgent referral must not sit below a routine test order.
+        const rank = (indicator: string) => SEVERITY_ORDER.indexOf(indicator as typeof SEVERITY_ORDER[number]);
+        group.result = { ...result, cards: [...result.cards].sort((a, b) => rank(a.card.indicator) - rank(b.card.indicator)) };
+      }
+    } catch (error) {
+      console.error(`Error running ${hook} decision support:`, error);
+      group.result = { hook, cards: [], errors: [String(error)], servicesCalled: 0, disabledServices: [], executedAt: new Date().toISOString() };
+    } finally {
+      group.running = false;
+    }
+  }
+
+  /**
+   * Opens the CDS configuration where the problem can be fixed: the service selection of
+   * the active server when the service is switched off there, the server list otherwise.
+   * The recommendations run again when the dialog closes.
+   */
+  openCdsSettings(group: DecisionSupportGroup): void {
+    const disabled = group.result?.disabledServices[0];
+    const server = disabled ? this.cdsService.getActiveServers().find((candidate) => candidate.id === disabled.serverId) : null;
+    const dialogRef = server
+      ? this.dialog.open(CdsHooksServicesDialogComponent, { data: { server }, width: '720px', maxWidth: '95vw' })
+      : this.dialog.open(CdsHooksServersDialogComponent, { width: '720px', maxWidth: '95vw' });
+    dialogRef.afterClosed().subscribe(() => {
+      this.decisionSupport.forEach((candidate) => void this.runHook(candidate.hook));
+    });
+  }
+
+  /**
+   * Splits a card detail into the guidance and the "Why" paragraph (the decision logic
+   * that was met). The guidance keeps everything else, the reference included.
+   */
+  splitCardDetail(detail: string | undefined): { guidance: string; why: string | null } {
+    if (!detail) {
+      return { guidance: '', why: null };
+    }
+    const paragraphs = detail.split(/\n{2,}/);
+    const whyIndex = paragraphs.findIndex((paragraph) => /^\s*\*\*Why:\*\*/.test(paragraph));
+    if (whyIndex === -1) {
+      return { guidance: detail, why: null };
+    }
+    const why = paragraphs[whyIndex].replace(/^\s*\*\*Why:\*\*\s*/, '').trim();
+    const guidance = paragraphs.filter((_, index) => index !== whyIndex).join('\n\n');
+    return { guidance, why: why || null };
+  }
+
+  severityIcon(indicator: string): string {
+    return indicator === 'critical' ? 'error' : indicator === 'warning' ? 'warning' : 'info';
+  }
+
+  /** Highest severity among the recommendations of a group, for its header. */
+  highestSeverity(group: DecisionSupportGroup): string | null {
+    const indicators = new Set((group.result?.cards || []).map((item) => item.card.indicator));
+    return SEVERITY_ORDER.find((indicator) => indicators.has(indicator)) || null;
+  }
+
+  get hasDecisionSupport(): boolean {
+    return this.decisionSupport.some((group) => group.enabled);
+  }
+
+  private emptyDecisionSupport(): DecisionSupportGroup[] {
+    return [
+      { hook: 'encounter-start', titleKey: 'decisionSupport.startOfContact', enabled: false, running: false, result: null },
+      { hook: 'encounter-discharge', titleKey: 'decisionSupport.endOfContact', enabled: false, running: false, result: null }
+    ];
+  }
+
+  /** Enables each hook once the contact has the forms it needs. */
+  private refreshDecisionSupportAvailability(): void {
+    if (!this.patient || !this.contact || !this.manifest) {
+      return;
+    }
+    const answeredUrls = new Set(
+      this.antenatalCareService.getContactResponses(this.patient.id, this.contact.encounter.id).map((response) => response.questionnaire)
+    );
+    const answered = this.manifest.questionnaires.filter((entry) => answeredUrls.has(entry.url)).map((entry) => entry.id);
+    for (const group of this.decisionSupport) {
+      group.enabled = this.antenatalCareService.isHookEnabled(group.hook, answered);
+    }
   }
 
   // ─── Loading ────────────────────────────────────────────────────────────────
@@ -306,17 +450,30 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
 
   private toContactRow(encounter: Encounter): ContactRow {
     const number = this.antenatalCareService.getContactNumber(encounter);
-    const forms = this.antenatalCareService.getContactForms(this.manifest!, number);
-    const answered = new Set(
-      this.antenatalCareService.getContactResponses(this.patient!.id, encounter.id).map((response) => response.questionnaire)
-    );
+    const steps = this.buildSteps(encounter.id);
     return {
       encounter,
       number,
       gestationalAgeWeeks: this.antenatalCareService.gestationalAgeWeeks(this.lastMenstrualPeriod, new Date(encounter.period.start)),
-      completedForms: forms.filter((form) => answered.has(form.url)).length,
-      totalForms: forms.length
+      completedForms: steps.filter((step) => step.completed).length,
+      totalForms: steps.length
     };
+  }
+
+  /** Forms of a contact with their completion state, from what is saved in it. */
+  private buildSteps(encounterId: string): FormStep[] {
+    const patientId = this.patient!.id;
+    const answered = new Set(
+      this.antenatalCareService.getContactResponses(patientId, encounterId).map((response) => response.questionnaire)
+    );
+    const referred = this.antenatalCareService.isReferralRecorded(patientId, encounterId);
+    let previousPhase: AncContactPhase | null = null;
+    return this.antenatalCareService.getContactForms(this.manifest!, referred).map((entry) => {
+      const phase = this.antenatalCareService.getFormPhase(entry);
+      const step: FormStep = { entry, completed: answered.has(entry.url), phase, firstOfPhase: phase !== previousPhase };
+      previousPhase = phase;
+      return step;
+    });
   }
 
   /** Resolves the contact, its steps and the form to show from the URL parameters. */
@@ -329,17 +486,23 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
 
     let entry: AncQuestionnaireEntry | null = null;
     if (this.contact) {
-      const answered = new Set(
-        this.antenatalCareService.getContactResponses(this.patient.id, this.contact.encounter.id).map((response) => response.questionnaire)
-      );
-      this.steps = this.antenatalCareService.getContactForms(this.manifest, this.contact.number)
-        .map((form) => ({ entry: form, completed: answered.has(form.url) }));
+      this.steps = this.buildSteps(this.contact.encounter.id);
       entry = this.steps.find((step) => step.entry.id === this.formId)?.entry
         || this.steps.find((step) => !step.completed)?.entry
         || this.steps[0]?.entry
         || null;
+
+      // Opening a contact shows its decision support for the data already recorded.
+      this.refreshDecisionSupportAvailability();
+      if (this.decisionSupportContactId !== this.contact.encounter.id) {
+        this.decisionSupportContactId = this.contact.encounter.id;
+        this.decisionSupport.forEach((group) => { group.result = null; group.running = false; });
+        void Promise.all(this.decisionSupport.map((group) => this.runHook(group.hook)));
+      }
     } else {
       this.steps = [];
+      this.decisionSupportContactId = null;
+      this.decisionSupport = this.emptyDecisionSupport();
       if (this.formId && this.activePregnancy) {
         entry = this.manifest.questionnaires.find((candidate) => candidate.id === this.formId && candidate.role === 'end-of-pregnancy') || null;
       }
@@ -369,7 +532,9 @@ export class AntenatalRecordComponent implements OnInit, OnChanges, OnDestroy {
         .find((response) => response.questionnaire === questionnaire.url);
       initialResponse = saved
         ? { resourceType: 'QuestionnaireResponse', status: saved.status, item: saved.item }
-        : this.antenatalCareService.buildInitialResponse(questionnaire, this.patient, this.contact.encounter, this.lastMenstrualPeriod);
+        : this.antenatalCareService.buildInitialResponse(
+            questionnaire, this.patient.id, this.contact.encounter, this.activePregnancy?.id || '', this.lastMenstrualPeriod
+          );
     }
 
     this.activeForm = { entry, questionnaire, initialResponse };

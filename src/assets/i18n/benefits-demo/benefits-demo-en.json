@@ -200,7 +200,9 @@
       "data": "Data",
       "fhirRepository": "FHIR Repository",
       "laboratory": "Laboratory",
-      "antenatalCare": "Antenatal Care"
+      "antenatalCare": "Antenatal Care",
+      "gestationalWeeks": "{{weeks}} wk",
+      "pregnancyActive": "Pregnant"
     },
     "tooltips": {
       "expandSidebar": "Expand sidebar",
@@ -217,7 +219,8 @@
       "deleteImmunization": "Delete immunization",
       "deleteOrder": "Delete order",
       "seedDiagnosticDemoData": "Adds a fasting glucose and a clinic blood pressure reading designed to trigger the new SNOMED CT diagnostic decision support cards for diabetes and hypertension.",
-      "deleteResult": "Delete result"
+      "deleteResult": "Delete result",
+      "activePregnancy": "Pregnancy in course"
     },
     "sections": {
       "summary": "Summary",
@@ -1142,7 +1145,8 @@
     "start": {
       "title": "Start a pregnancy",
       "subtitle": "A pregnancy must be started before antenatal contacts can be recorded.",
-      "lmpHint": "Used to calculate the gestational age at each contact."
+      "lmpHint": "Used to calculate the gestational age at each contact.",
+      "previewPlaceholder": "Enter the date to see the gestational age and the estimated date of delivery."
     },
     "labels": {
       "lastMenstrualPeriod": "Last menstrual period",
@@ -1151,7 +1155,8 @@
       "estimatedDateOfDelivery": "Estimated date of delivery",
       "careStarted": "Antenatal care started",
       "weeksAndDays": "{{weeks}} wk {{days}} d",
-      "weeks": "{{weeks}} weeks"
+      "weeks": "{{weeks}} weeks",
+      "stepOf": "Step {{step}} of {{total}}"
     },
     "contacts": {
       "title": "Contacts",
@@ -1160,7 +1165,8 @@
       "inProgress": "In progress",
       "finished": "Finished",
       "formsCompleted": "{{completed}} of {{total}} forms",
-      "closeOpenFirst": "Close the contact in progress before starting a new one."
+      "closeOpenFirst": "Close the contact in progress before starting a new one.",
+      "workflow": "Contact workflow"
     },
     "end": {
       "title": "End of pregnancy",
@@ -1173,17 +1179,58 @@
       "startPregnancy": "Start pregnancy",
       "newContact": "New contact",
       "endPregnancy": "End pregnancy",
-      "closeContact": "Close contact",
+      "closeContact": "Finish contact",
       "backToPregnancy": "Back to pregnancy",
-      "dismiss": "Close"
+      "dismiss": "Close",
+      "save": "Save",
+      "saveAndContinue": "Save and continue"
     },
     "messages": {
       "loadFailed": "The antenatal care record could not be loaded.",
       "pregnancyStarted": "Pregnancy started.",
       "pregnancyEnded": "Pregnancy closed.",
-      "contactClosed": "Contact {{number}} closed.",
+      "contactClosed": "Contact {{number}} finished.",
       "formSaved": "{{title}} saved.",
-      "saveFailed": "The changes could not be saved."
+      "saveFailed": "The changes could not be saved.",
+      "formSavedWithObservations": "{{title}} saved. Observations recorded: {{count}}.",
+      "notApplicable": "Antenatal care does not apply to this patient (sex or age)."
+    },
+    "decisionSupport": {
+      "startOfContact": "From the quick check",
+      "endOfContact": "From the exam and tests",
+      "runAgain": "Run again",
+      "noService": "The active CDS server does not offer this decision service.",
+      "noCards": "No recommendations for the data recorded so far. This does not rule a condition out.",
+      "source": "Source:",
+      "title": "Recommendations",
+      "subtitle": "WHO antenatal care guidance for what has been recorded in this contact",
+      "serviceDisabled": "\"{{service}}\" is switched off for {{server}}.",
+      "enableService": "Enable it",
+      "chooseServer": "Choose a CDS server",
+      "whyTooltip": "Why this recommendation",
+      "whyTitle": "Why this recommendation",
+      "whyIntro": "The WHO decision table logic that was met by the data recorded in this contact:",
+      "severity": {
+        "critical": "Critical",
+        "warning": "Warning",
+        "info": "Info"
+      }
+    },
+    "forms": {
+      "ANCB5": "Quick check",
+      "ANCB6": "Profile and history",
+      "ANCB7": "Symptoms and follow-up",
+      "ANCB8": "Physical exam",
+      "ANCB9": "Lab tests and imaging",
+      "ANCB10": "Counselling and treatment",
+      "ANCB11": "Referral decision",
+      "ANCC": "Referral",
+      "ANCB12": "Next visit",
+      "ANCEnd": "End of pregnancy"
+    },
+    "phases": {
+      "assessment": "Assessment",
+      "plan": "Plan"
     }
   },
   "nursingVitalCard": {

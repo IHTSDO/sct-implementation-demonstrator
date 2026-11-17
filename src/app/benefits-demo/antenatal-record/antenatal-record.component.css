@@ -37,25 +37,10 @@
   margin-bottom: 16px;
 }
 
-.start-card {
-  max-width: 560px;
-}
 
-.start-card mat-card-content {
-  padding-top: 16px;
-}
 
-.lmp-field {
-  width: 100%;
-  max-width: 360px;
-  margin-bottom: 12px;
-}
 
-.start-card mat-card-actions {
-  padding: 8px 16px 16px;
-}
 
-.dating-preview,
 .pregnancy-facts {
   display: flex;
   flex-wrap: wrap;
@@ -63,9 +48,6 @@
   margin: 0;
 }
 
-.dating-preview {
-  margin-top: 20px;
-}
 
 .pregnancy-card mat-card-content {
   padding-top: 16px;
@@ -135,20 +117,6 @@ dd {
   align-items: start;
 }
 
-.step-list {
-  position: sticky;
-  top: 8px;
-  padding-top: 0;
-}
-
-.step-list mat-icon {
-  color: rgba(0, 0, 0, 0.38);
-}
-
-.step-list mat-icon.step-done {
-  color: var(--mat-sys-primary, #3f51b5);
-}
-
 .form-panel {
   min-width: 0;
 }
@@ -163,13 +131,506 @@ dd {
     grid-template-columns: 1fr;
   }
 
-  .step-list {
+  .workflow {
     position: static;
   }
 }
 
-.step-list a.mdc-list-item--activated {
-  background: var(--mat-sys-secondary-container, rgba(63, 81, 181, 0.12));
-  border-radius: 8px;
+.decision-support {
+  margin-bottom: 16px;
+}
+
+.decision-group {
+  margin-bottom: 12px;
+}
+
+.decision-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.decision-group-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
   font-weight: 600;
+  color: #2c3e50;
+}
+
+.decision-group-header > mat-icon {
+  color: var(--mat-sys-primary, #3f51b5);
+}
+
+.decision-count {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--mat-sys-primary-container, #dbe4f5);
+  color: var(--mat-sys-on-primary-container, #1a3a6b);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.decision-time,
+.decision-note {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.85rem;
+}
+
+.decision-note {
+  margin: 0 0 8px 32px;
+}
+
+.decision-note.warn {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.decision-card mat-panel-title {
+  font-weight: 500;
+}
+
+/* The detail is rendered through innerHTML, outside this component's style scope. */
+:host ::ng-deep .decision-detail p {
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+
+.decision-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 0.85rem;
+}
+
+/* Contact header */
+.contact-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 8px 0 16px;
+}
+
+.contact-heading h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Workflow: numbered steps joined by a line, grouped by phase */
+.workflow {
+  position: sticky;
+  top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-phase {
+  margin: 4px 0 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.workflow-step + .workflow-phase {
+  margin-top: 18px;
+}
+
+.workflow-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.7);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.workflow-step:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.workflow-step:focus-visible {
+  outline: 2px solid var(--mat-sys-primary, #3f51b5);
+  outline-offset: 1px;
+}
+
+/* Connector to the next step of the same phase */
+.workflow-step + .workflow-step::before {
+  content: '';
+  position: absolute;
+  left: 23px;
+  top: -8px;
+  width: 2px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.workflow-marker {
+  display: flex;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(0, 0, 0, 0.26);
+  border-radius: 50%;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.workflow-marker mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+.workflow-step.done .workflow-marker {
+  border-color: var(--mat-sys-primary, #3f51b5);
+  background: var(--mat-sys-primary, #3f51b5);
+  color: var(--mat-sys-on-primary, #fff);
+}
+
+.workflow-step.current {
+  background: var(--mat-sys-secondary-container, rgba(63, 81, 181, 0.1));
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: 600;
+}
+
+.workflow-step.current:not(.done) .workflow-marker {
+  border-color: var(--mat-sys-primary, #3f51b5);
+  color: var(--mat-sys-primary, #3f51b5);
+}
+
+/* Form card */
+.form-card {
+  padding: 20px 24px 24px;
+}
+
+.form-card-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.form-card-header h3 {
+  margin: 2px 0 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-step {
+  font-size: 0.78rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* The card already names the form: hide the renderer's own title bar. */
+:host ::ng-deep .form-card .lhc-form-title {
+  display: none;
+}
+
+/* Recommendations */
+.decision-support {
+  padding: 14px 16px 6px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low, #f6f7fb);
+}
+
+.decision-support-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-bottom: 4px;
+}
+
+.decision-support-title h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.decision-support-title span {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Start pregnancy */
+.start-card {
+  max-width: 720px;
+  padding: 24px;
+}
+
+.start-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.start-icon {
+  display: flex;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f3e8f8;
+  color: #8e44ad;
+}
+
+.start-icon mat-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 28px;
+}
+
+.start-intro h3 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.start-intro p {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.start-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.lmp-field {
+  width: 100%;
+}
+
+.dating-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  min-height: 56px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-low, #f6f7fb);
+}
+
+.dating-preview > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.dating-preview.empty {
+  align-items: center;
+}
+
+.preview-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.preview-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.preview-placeholder {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.start-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 700px) {
+  .start-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.decision-fix {
+  margin-left: 4px;
+  vertical-align: baseline;
+}
+
+/* "Why" of a recommendation: info button and popover, as in the terminology bindings */
+.decision-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.decision-detail-row .decision-detail {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.info-button {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: #1976d2;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-button:hover {
+  opacity: 1;
+  background-color: rgba(25, 118, 210, 0.08);
+  transform: scale(1.05);
+}
+
+.info-button mat-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+::ng-deep .mat-mdc-menu-panel.info-menu {
+  max-width: 600px !important;
+  min-width: 420px !important;
+}
+
+.info-popover {
+  padding: 20px;
+  max-width: 600px;
+  background: white;
+  cursor: default;
+}
+
+.info-popover h3 {
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #1976d2;
+  color: #1976d2;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.info-popover > p {
+  margin: 0 0 12px;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.why-logic {
+  padding: 12px;
+  border-left: 3px solid #1976d2;
+  border-radius: 4px;
+  background: #f5f5f5;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* The popover renders in an overlay, outside :host. */
+::ng-deep .why-logic p {
+  margin: 0;
+}
+
+/* Severity of a recommendation, with the colours of the CDS alerts panel */
+.decision-card {
+  border-left: 4px solid #0891b2;
+}
+
+.decision-card.indicator-warning {
+  border-left-color: #e0a24a;
+  background-color: #fffdf5;
+}
+
+.decision-card.indicator-critical {
+  border-left-color: #dc3545;
+  background-color: #fff6f6;
+}
+
+.decision-card mat-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.decision-summary {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.severity-icon {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  color: #0891b2;
+}
+
+.indicator-warning .severity-icon {
+  color: #b26a00;
+}
+
+.indicator-critical .severity-icon {
+  color: #c62828;
+}
+
+.severity-badge {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.indicator-warning .severity-badge {
+  color: #8a5a00;
+  background-color: #ffe7ba;
+}
+
+.indicator-critical .severity-badge {
+  color: #b3261e;
+  background-color: #fbd9d6;
+}
+
+.decision-count.severity-warning {
+  color: #8a5a00;
+  background-color: #ffe7ba;
+}
+
+.decision-count.severity-critical {
+  color: #b3261e;
+  background-color: #fbd9d6;
 }

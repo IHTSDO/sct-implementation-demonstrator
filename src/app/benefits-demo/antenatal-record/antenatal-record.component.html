@@ -15,16 +15,24 @@
 
   <ng-container *ngIf="!loading && !loadError">
 
+    <div class="antenatal-empty" *ngIf="notApplicable">
+      <mat-icon>info</mat-icon>
+      <p>{{ t('antenatalRecord.messages.notApplicable') }}</p>
+    </div>
+
     <!-- No active pregnancy: a pregnancy must be started before contacts can be recorded -->
-    <ng-container *ngIf="!activePregnancy">
+    <ng-container *ngIf="!activePregnancy && !notApplicable">
       <mat-card appearance="outlined" class="antenatal-card start-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>pregnant_woman</mat-icon>
-          <mat-card-title>{{ t('antenatalRecord.start.title') }}</mat-card-title>
-          <mat-card-subtitle>{{ t('antenatalRecord.start.subtitle') }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="lmp-field">
+        <div class="start-intro">
+          <div class="start-icon"><mat-icon>pregnant_woman</mat-icon></div>
+          <div>
+            <h3>{{ t('antenatalRecord.start.title') }}</h3>
+            <p>{{ t('antenatalRecord.start.subtitle') }}</p>
+          </div>
+        </div>
+
+        <div class="start-form">
+          <mat-form-field appearance="outline" class="lmp-field" subscriptSizing="dynamic">
             <mat-label>{{ t('antenatalRecord.labels.lastMenstrualPeriod') }}</mat-label>
             <input matInput [matDatepicker]="lmpPicker" [max]="today" [(ngModel)]="lmpInput" name="lmp">
             <mat-datepicker-toggle matIconSuffix [for]="lmpPicker"></mat-datepicker-toggle>
@@ -32,23 +40,28 @@
             <mat-hint>{{ t('antenatalRecord.start.lmpHint') }}</mat-hint>
           </mat-form-field>
 
-          <dl class="dating-preview" *ngIf="lmpPreview as preview">
-            <div>
-              <dt>{{ t('antenatalRecord.labels.gestationalAge') }}</dt>
-              <dd>{{ t('antenatalRecord.labels.weeksAndDays', { weeks: preview.weeks, days: preview.days }) }}</dd>
-            </div>
-            <div>
-              <dt>{{ t('antenatalRecord.labels.estimatedDateOfDelivery') }}</dt>
-              <dd>{{ preview.estimatedDateOfDelivery | date:'mediumDate' }}</dd>
-            </div>
-          </dl>
-        </mat-card-content>
-        <mat-card-actions>
+          <div class="dating-preview" [class.empty]="!lmpPreview">
+            <ng-container *ngIf="lmpPreview as preview; else noPreview">
+              <div>
+                <span class="preview-label">{{ t('antenatalRecord.labels.gestationalAge') }}</span>
+                <span class="preview-value">{{ t('antenatalRecord.labels.weeksAndDays', { weeks: preview.weeks, days: preview.days }) }}</span>
+              </div>
+              <div>
+                <span class="preview-label">{{ t('antenatalRecord.labels.estimatedDateOfDelivery') }}</span>
+                <span class="preview-value">{{ preview.estimatedDateOfDelivery | date:'mediumDate' }}</span>
+              </div>
+            </ng-container>
+            <ng-template #noPreview>
+              <span class="preview-placeholder">{{ t('antenatalRecord.start.previewPlaceholder') }}</span>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="start-actions">
           <button mat-flat-button color="primary" [disabled]="!lmpInput || saving" (click)="startPregnancy()">
-            <mat-icon>play_arrow</mat-icon>
             {{ t('antenatalRecord.actions.startPregnancy') }}
           </button>
-        </mat-card-actions>
+        </div>
       </mat-card>
     </ng-container>
 
@@ -126,24 +139,26 @@
         </mat-nav-list>
       </ng-container>
 
-      <!-- A contact: its forms, in WHO workflow order -->
+      <!-- A contact: guided workflow, assessment first and then the plan -->
       <ng-container *ngIf="contact">
-        <div class="antenatal-toolbar">
+        <div class="contact-header">
           <button mat-icon-button (click)="backToPregnancy()" [matTooltip]="t('antenatalRecord.actions.backToPregnancy')">
             <mat-icon>arrow_back</mat-icon>
           </button>
-          <h3>
-            {{ t('antenatalRecord.contacts.contactNumber', { number: contact.number }) }}
-            <span class="contact-status" [class.open]="contact.encounter.status === 'in-progress'">
-              {{ contact.encounter.status === 'in-progress' ? t('antenatalRecord.contacts.inProgress') : t('antenatalRecord.contacts.finished') }}
+          <div class="contact-heading">
+            <h3>
+              {{ t('antenatalRecord.contacts.contactNumber', { number: contact.number }) }}
+              <span class="contact-status" [class.open]="contact.encounter.status === 'in-progress'">
+                {{ contact.encounter.status === 'in-progress' ? t('antenatalRecord.contacts.inProgress') : t('antenatalRecord.contacts.finished') }}
+              </span>
+            </h3>
+            <span class="toolbar-meta">
+              {{ contact.encounter.period.start | date:'mediumDate' }}
+              <ng-container *ngIf="contact.gestationalAgeWeeks !== null">
+                · {{ t('antenatalRecord.labels.weeks', { weeks: contact.gestationalAgeWeeks }) }}
+              </ng-container>
             </span>
-          </h3>
-          <span class="toolbar-meta">
-            {{ contact.encounter.period.start | date:'mediumDate' }}
-            <ng-container *ngIf="contact.gestationalAgeWeeks !== null">
-              · {{ t('antenatalRecord.labels.weeks', { weeks: contact.gestationalAgeWeeks }) }}
-            </ng-container>
-          </span>
+          </div>
           <span class="toolbar-spacer"></span>
           <button
             mat-flat-button
@@ -157,29 +172,129 @@
         </div>
 
         <div class="contact-layout">
-          <mat-nav-list class="step-list">
-            <a
-              mat-list-item
-              *ngFor="let step of steps"
-              [activated]="activeForm?.entry?.id === step.entry.id"
-              (click)="openForm(step.entry)">
-              <mat-icon matListItemIcon [class.step-done]="step.completed">
-                {{ step.completed ? 'check_circle' : 'radio_button_unchecked' }}
-              </mat-icon>
-              <span matListItemTitle>{{ step.entry.title }}</span>
-            </a>
-          </mat-nav-list>
+          <nav class="workflow" [attr.aria-label]="t('antenatalRecord.contacts.workflow')">
+            <ng-container *ngFor="let step of steps; let i = index">
+              <div class="workflow-phase" *ngIf="step.firstOfPhase">{{ t('antenatalRecord.phases.' + step.phase) }}</div>
+              <button
+                type="button"
+                class="workflow-step"
+                [class.current]="activeForm?.entry?.id === step.entry.id"
+                [class.done]="step.completed"
+                [attr.aria-current]="activeForm?.entry?.id === step.entry.id ? 'step' : null"
+                (click)="openForm(step.entry)">
+                <span class="workflow-marker">
+                  <mat-icon *ngIf="step.completed">check</mat-icon>
+                  <ng-container *ngIf="!step.completed">{{ i + 1 }}</ng-container>
+                </span>
+                <span class="workflow-label">{{ t('antenatalRecord.forms.' + step.entry.id) }}</span>
+              </button>
+            </ng-container>
+          </nav>
 
           <div class="form-panel">
-            <app-questionnaire-form
-              *ngIf="activeForm"
-              [questionnaire]="activeForm.questionnaire"
-              [patientId]="patient.id"
-              [initialResponse]="activeForm.initialResponse"
-              [prePopulate]="false"
-              (formSubmitted)="onFormSubmitted($event)"
-              (formCancelled)="onFormCancelled()">
-            </app-questionnaire-form>
+            <!-- WHO recommendations for the data recorded in this contact -->
+            <section class="decision-support" *ngIf="hasDecisionSupport">
+              <div class="decision-support-title">
+                <h4>{{ t('antenatalRecord.decisionSupport.title') }}</h4>
+                <span>{{ t('antenatalRecord.decisionSupport.subtitle') }}</span>
+              </div>
+              <ng-container *ngFor="let group of decisionSupport">
+                <div class="decision-group" *ngIf="group.enabled">
+                  <div class="decision-group-header">
+                    <mat-icon>tips_and_updates</mat-icon>
+                    <h4>{{ t('antenatalRecord.' + group.titleKey) }}</h4>
+                    <span class="decision-count" *ngIf="group.result" [ngClass]="'severity-' + (highestSeverity(group) || 'info')">{{ group.result.cards.length }}</span>
+                    <span class="toolbar-spacer"></span>
+                    <span class="decision-time" *ngIf="group.result && !group.running">
+                      {{ group.result.executedAt | date:'shortTime' }}
+                    </span>
+                    <mat-spinner diameter="18" *ngIf="group.running"></mat-spinner>
+                    <button
+                      mat-icon-button
+                      [disabled]="group.running"
+                      [matTooltip]="t('antenatalRecord.decisionSupport.runAgain')"
+                      (click)="runHook(group.hook)">
+                      <mat-icon>refresh</mat-icon>
+                    </button>
+                  </div>
+
+                  <ng-container *ngIf="group.result as result">
+                    <p class="decision-note warn" *ngFor="let error of result.errors">{{ error }}</p>
+                    <p class="decision-note" *ngIf="result.servicesCalled === 0 && result.errors.length === 0">
+                      <ng-container *ngIf="result.disabledServices.length > 0; else notOffered">
+                        {{ t('antenatalRecord.decisionSupport.serviceDisabled', { service: result.disabledServices[0].serviceTitle, server: result.disabledServices[0].serverName }) }}
+                      </ng-container>
+                      <ng-template #notOffered>{{ t('antenatalRecord.decisionSupport.noService') }}</ng-template>
+                      <button mat-button color="primary" class="decision-fix" (click)="openCdsSettings(group)">
+                        {{ result.disabledServices.length > 0 ? t('antenatalRecord.decisionSupport.enableService') : t('antenatalRecord.decisionSupport.chooseServer') }}
+                      </button>
+                    </p>
+                    <p class="decision-note" *ngIf="result.servicesCalled > 0 && result.cards.length === 0 && result.errors.length === 0">
+                      {{ t('antenatalRecord.decisionSupport.noCards') }}
+                    </p>
+
+                    <mat-accordion multi *ngIf="result.cards.length > 0">
+                      <mat-expansion-panel *ngFor="let item of result.cards" class="decision-card" [ngClass]="'indicator-' + item.card.indicator">
+                        <mat-expansion-panel-header>
+                          <mat-panel-title>
+                            <mat-icon class="severity-icon">{{ severityIcon(item.card.indicator) }}</mat-icon>
+                            <span class="decision-summary">{{ item.card.summary }}</span>
+                            <span class="severity-badge" *ngIf="item.card.indicator !== 'info'">{{ t('antenatalRecord.decisionSupport.severity.' + item.card.indicator) }}</span>
+                          </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <ng-container *ngIf="splitCardDetail(item.card.detail) as detail">
+                          <div class="decision-detail-row">
+                            <div class="decision-detail" [innerHTML]="detail.guidance | simpleMarkdown"></div>
+                            <button
+                              mat-icon-button
+                              class="info-button"
+                              *ngIf="detail.why"
+                              [matMenuTriggerFor]="whyMenu"
+                              [matTooltip]="t('antenatalRecord.decisionSupport.whyTooltip')"
+                              matTooltipPosition="above">
+                              <mat-icon>info_outline</mat-icon>
+                            </button>
+                          </div>
+                          <mat-menu #whyMenu="matMenu" class="info-menu">
+                            <div class="info-popover" (click)="$event.stopPropagation()">
+                              <h3>{{ t('antenatalRecord.decisionSupport.whyTitle') }}</h3>
+                              <p>{{ t('antenatalRecord.decisionSupport.whyIntro') }}</p>
+                              <div class="why-logic" [innerHTML]="detail.why | simpleMarkdown"></div>
+                            </div>
+                          </mat-menu>
+                        </ng-container>
+                        <div class="decision-links">
+                          <span class="decision-source">
+                            {{ t('antenatalRecord.decisionSupport.source') }}
+                            <a *ngIf="item.card.source.url; else sourceLabel" [href]="item.card.source.url" target="_blank" rel="noopener">{{ item.card.source.label }}</a>
+                            <ng-template #sourceLabel>{{ item.card.source.label }}</ng-template>
+                          </span>
+                          <a *ngFor="let link of item.card.links || []" [href]="link.url" target="_blank" rel="noopener">{{ link.label }}</a>
+                        </div>
+                      </mat-expansion-panel>
+                    </mat-accordion>
+                  </ng-container>
+                </div>
+              </ng-container>
+            </section>
+
+            <mat-card appearance="outlined" class="form-card" *ngIf="activeForm">
+              <div class="form-card-header">
+                <span class="form-step">{{ t('antenatalRecord.labels.stepOf', { step: activeStepNumber, total: steps.length }) }}</span>
+                <h3>{{ t('antenatalRecord.forms.' + activeForm.entry.id) }}</h3>
+              </div>
+              <app-questionnaire-form
+                [questionnaire]="activeForm.questionnaire"
+                [patientId]="patient.id"
+                [initialResponse]="activeForm.initialResponse"
+                [prePopulate]="false"
+                [showHeader]="false"
+                [showCancel]="false"
+                [submitLabel]="isLastStep ? t('antenatalRecord.actions.save') : t('antenatalRecord.actions.saveAndContinue')"
+                (formSubmitted)="onFormSubmitted($event)"
+                (formCancelled)="onFormCancelled()">
+              </app-questionnaire-form>
+            </mat-card>
           </div>
         </div>
       </ng-container>
@@ -193,15 +308,17 @@
           <h3>{{ t('antenatalRecord.end.title') }}</h3>
         </div>
         <p class="end-hint">{{ t('antenatalRecord.end.hint') }}</p>
-        <div class="form-panel">
+        <mat-card appearance="outlined" class="form-card">
           <app-questionnaire-form
             [questionnaire]="activeForm.questionnaire"
             [patientId]="patient.id"
             [prePopulate]="false"
+            [showHeader]="false"
+            [submitLabel]="t('antenatalRecord.actions.endPregnancy')"
             (formSubmitted)="onFormSubmitted($event)"
             (formCancelled)="onFormCancelled()">
           </app-questionnaire-form>
-        </div>
+        </mat-card>
       </ng-container>
     </ng-container>
 

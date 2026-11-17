@@ -18,6 +18,11 @@ export class QuestionnaireFormComponent implements OnChanges, AfterViewInit {
   @Input() initialResponse: any = null;
   /** Set to false to skip SDC pre-population from the patient record. */
   @Input() prePopulate = true;
+  /** Set to false when the host screen already shows the form title. */
+  @Input() showHeader = true;
+  @Input() showCancel = true;
+  /** Overrides the label of the submit button. */
+  @Input() submitLabel: string | null = null;
   @Output() formSubmitted = new EventEmitter<any>();
   @Output() formCancelled = new EventEmitter<void>();
 

@@ -47,9 +47,12 @@ const ADAPTATION_TAG = {
 };
 
 // WHO contact workflow order. `role` tells the ANC module where each form belongs.
+// Registration and pregnancy confirmation are generated for completeness but are not
+// steps of a contact: the EHR already holds the patient, creates the contact with its date
+// and number, and confirms the pregnancy when the pregnancy episode is started.
 const QUESTIONNAIRES = [
-  { id: 'ANCA', role: 'contact' },
-  { id: 'ANCB4', role: 'contact', firstContactOnly: true },
+  { id: 'ANCA', role: 'registration' },
+  { id: 'ANCB4', role: 'pregnancy-confirmation' },
   { id: 'ANCB5', role: 'contact' },
   { id: 'ANCB6', role: 'contact' },
   { id: 'ANCB7', role: 'contact' },

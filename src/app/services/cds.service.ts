@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, combineLatest, forkJoin, of, throwError } from 'rxjs';
 import { catchError, filter, map, scan, shareReplay, switchMap, tap } from 'rxjs/operators';
-import type { AllergyIntolerance, Condition, FhirObservation, MedicationStatement, Patient } from '../model';
+import type { AllergyIntolerance, Condition, Encounter, FhirObservation, MedicationStatement, Patient } from '../model';
 import { CdsHooksServerConfig, CdsHooksServerConfigService } from './cds-hooks-server-config.service';
 import { AcknowledgedAlertsService } from './acknowledged-alerts.service';
 
@@ -226,6 +226,42 @@ export interface CDSCard {
       resource?: unknown;
     }>;
   }>;
+  links?: Array<{
+    label: string;
+    url: string;
+    type?: string;
+  }>;
+}
+
+// Encounter workflow hooks. Unlike the standard hooks above, their cards are transient
+// guidance for one encounter: they are returned to the caller and never enter the
+// per-patient hook store, so they do not become persistent record alerts or toasts.
+export type EncounterCdsHook = 'encounter-start' | 'encounter-discharge';
+
+export interface EncounterHookContext {
+  patient: Patient;
+  encounter: Encounter;
+  /** Observations of this encounter, sent as recorded (no conversion). */
+  observations: FhirObservation[];
+  userId?: string;
+}
+
+export interface EncounterHookCard {
+  card: CDSCard;
+  serverName: string;
+  serviceId: string;
+  serviceTitle: string;
+}
+
+export interface EncounterHookResult {
+  hook: EncounterCdsHook;
+  cards: EncounterHookCard[];
+  errors: string[];
+  /** Number of CDS services that were called. */
+  servicesCalled: number;
+  /** Services of the active servers that subscribe to the hook but were switched off by the user. */
+  disabledServices: Array<{ serverId: string; serverName: string; serviceId: string; serviceTitle: string }>;
+  executedAt: string;
 }
 
 export interface CDSResponse {
@@ -788,6 +824,105 @@ export class CdsService {
         };
         this.updateHookSnapshot(patientId, hook, failedSnapshot);
         return of(failedSnapshot);
+      })
+    );
+  }
+
+  /**
+   * Calls every enabled service of the active CDS servers that subscribes to an encounter
+   * hook. The prefetch carries the Patient, the Encounter as a single resource and the
+   * encounter's Observations as a searchset Bundle.
+   */
+  invokeEncounterHook(hook: EncounterCdsHook, context: EncounterHookContext): Observable<EncounterHookResult> {
+    const request = {
+      hook,
+      hookInstance: this.generateId(),
+      context: {
+        userId: context.userId || `Practitioner/${this.generateId()}`,
+        patientId: context.patient.id,
+        encounterId: context.encounter.id
+      },
+      prefetch: {
+        patient: this.convertPatientToCdsFormat(context.patient),
+        encounter: context.encounter,
+        observation: {
+          resourceType: 'Bundle',
+          type: 'searchset',
+          total: context.observations.length,
+          entry: context.observations.map((resource) => ({ resource }))
+        }
+      }
+    };
+
+    const emptyResult = (): EncounterHookResult => ({
+      hook, cards: [], errors: [], servicesCalled: 0, disabledServices: [], executedAt: new Date().toISOString()
+    });
+
+    const activeServers = this.getActiveServers();
+    if (activeServers.length === 0) {
+      return of(emptyResult());
+    }
+
+    return forkJoin(activeServers.map((server) => this.callEncounterHookOnServer(server, hook, request))).pipe(
+      map((serverResults) => serverResults.reduce<EncounterHookResult>((result, serverResult) => ({
+        ...result,
+        cards: [...result.cards, ...serverResult.cards],
+        errors: [...result.errors, ...serverResult.errors],
+        servicesCalled: result.servicesCalled + serverResult.servicesCalled,
+        disabledServices: [...result.disabledServices, ...serverResult.disabledServices]
+      }), emptyResult()))
+    );
+  }
+
+  private callEncounterHookOnServer(
+    server: CdsHooksServerConfig,
+    hook: EncounterCdsHook,
+    request: unknown,
+    forceDiscoveryRefresh: boolean = false
+  ): Observable<Pick<EncounterHookResult, 'cards' | 'errors' | 'servicesCalled' | 'disabledServices'>> {
+    return this.discoverServices(server.baseUrl, forceDiscoveryRefresh).pipe(
+      switchMap((discovery) => {
+        if (discovery.failed) {
+          return of({ cards: [], errors: [`${server.name}: ${discovery.errorMessage || 'discovery failed'}`], servicesCalled: 0, disabledServices: [] });
+        }
+
+        const disabledServiceIds = this.cdsServerConfigService.getDisabledServiceIds(server.id);
+        const offered = discovery.services.filter((service) => service.hook === hook && !EXCLUDED_SERVICE_IDS.has(service.id));
+        const services = offered.filter((service) => !disabledServiceIds.has(service.id));
+        const disabledServices = offered
+          .filter((service) => disabledServiceIds.has(service.id))
+          .map((service) => ({ serverId: server.id, serverName: server.name, serviceId: service.id, serviceTitle: service.title || service.id }));
+
+        if (services.length === 0) {
+          // The cached discovery may predate the service: look once more before giving up.
+          return forceDiscoveryRefresh || disabledServices.length > 0
+            ? of({ cards: [], errors: [], servicesCalled: 0, disabledServices })
+            : this.callEncounterHookOnServer(server, hook, request, true);
+        }
+
+        return forkJoin(services.map((service) =>
+          this.http.post<CDSResponse>(this.buildServiceUrl(server.baseUrl, service.id), request, {
+            headers: this.createHttpHeaders()
+          }).pipe(
+            map((response) => ({
+              cards: (response?.cards || []).map((card) => ({
+                card,
+                serverName: server.name,
+                serviceId: service.id,
+                serviceTitle: service.title || service.id
+              })),
+              error: null as string | null
+            })),
+            catchError((error) => of({ cards: [] as EncounterHookCard[], error: `${service.title || service.id}: ${this.formatHttpError(error)}` }))
+          )
+        )).pipe(
+          map((serviceResults) => ({
+            cards: serviceResults.flatMap((serviceResult) => serviceResult.cards),
+            errors: serviceResults.map((serviceResult) => serviceResult.error).filter((error): error is string => !!error),
+            servicesCalled: services.length,
+            disabledServices
+          }))
+        );
       })
     );
   }

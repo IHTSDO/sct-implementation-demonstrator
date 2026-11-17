@@ -204,12 +204,19 @@
           </div>
 
           <button
+            *ngIf="antenatalEligible"
             mat-stroked-button
             class="sidebar-item module-root"
             [class.active]="selectedModule === 'antenatal'"
             (click)="onAntenatalRootClick()">
             <mat-icon>pregnant_woman</mat-icon>
             <span class="module-label">{{ t('clinicalRecord.nav.antenatalCare') }}</span>
+            <span
+              class="module-status-pill"
+              *ngIf="antenatalStatus as status"
+              [matTooltip]="t('clinicalRecord.tooltips.activePregnancy')">
+              {{ status.gestationalAgeWeeks !== null ? t('clinicalRecord.nav.gestationalWeeks', { weeks: status.gestationalAgeWeeks }) : t('clinicalRecord.nav.pregnancyActive') }}
+            </span>
           </button>
         </div>
 
@@ -273,7 +280,7 @@
           <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'nursing' && selectedNursingView === 'nutrition'" (click)="selectNursingView('nutrition')" [matTooltip]="t('clinicalRecord.tooltips.nursingNutritionalCareplan')" matTooltipPosition="right">
             <mat-icon>restaurant</mat-icon>
           </button>
-          <button mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'antenatal'" (click)="onAntenatalRootClick()" [matTooltip]="t('clinicalRecord.nav.antenatalCare')" matTooltipPosition="right">
+          <button *ngIf="antenatalEligible" mat-icon-button class="sidebar-collapsed-icon-item" [class.active]="selectedModule === 'antenatal'" [class.has-status-dot]="!!antenatalStatus" (click)="onAntenatalRootClick()" [matTooltip]="antenatalStatus ? t('clinicalRecord.tooltips.activePregnancy') : t('clinicalRecord.nav.antenatalCare')" matTooltipPosition="right">
             <mat-icon>pregnant_woman</mat-icon>
           </button>
         </div>

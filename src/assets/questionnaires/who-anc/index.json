@@ -9,7 +9,7 @@
   "questionnaires": [
     {
       "id": "ANCA",
-      "role": "contact",
+      "role": "registration",
       "file": "ANCA.json",
       "url": "http://smart.who.int/anc/Questionnaire/ANCA",
       "title": "ANC.A. Registration",
@@ -24,8 +24,7 @@
     },
     {
       "id": "ANCB4",
-      "role": "contact",
-      "firstContactOnly": true,
+      "role": "pregnancy-confirmation",
       "file": "ANCB4.json",
       "url": "http://smart.who.int/anc/Questionnaire/ANCB4",
       "title": "ANC.B4 Confirm pregnancy",

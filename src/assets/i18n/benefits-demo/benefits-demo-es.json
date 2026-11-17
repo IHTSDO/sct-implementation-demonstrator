@@ -200,7 +200,9 @@
       "data": "Datos",
       "fhirRepository": "Repositorio FHIR",
       "laboratory": "Laboratorio",
-      "antenatalCare": "Control prenatal"
+      "antenatalCare": "Control prenatal",
+      "gestationalWeeks": "{{weeks}} sem",
+      "pregnancyActive": "Embarazo"
     },
     "tooltips": {
       "expandSidebar": "Expandir barra lateral",
@@ -217,7 +219,8 @@
       "deleteImmunization": "Eliminar inmunización",
       "deleteOrder": "Eliminar orden",
       "seedDiagnosticDemoData": "Agrega un resultado de glucosa en ayunas y una lectura de presión arterial clínica diseñados para disparar las nuevas tarjetas de soporte diagnóstico SNOMED CT para diabetes e hipertensión.",
-      "deleteResult": "Eliminar resultado"
+      "deleteResult": "Eliminar resultado",
+      "activePregnancy": "Embarazo en curso"
     },
     "sections": {
       "summary": "Resumen",
@@ -1142,7 +1145,8 @@
     "start": {
       "title": "Iniciar un embarazo",
       "subtitle": "Es necesario iniciar un embarazo antes de registrar contactos prenatales.",
-      "lmpHint": "Se usa para calcular la edad gestacional en cada contacto."
+      "lmpHint": "Se usa para calcular la edad gestacional en cada contacto.",
+      "previewPlaceholder": "Ingrese la fecha para ver la edad gestacional y la fecha probable de parto."
     },
     "labels": {
       "lastMenstrualPeriod": "Fecha de última menstruación",
@@ -1151,7 +1155,8 @@
       "estimatedDateOfDelivery": "Fecha probable de parto",
       "careStarted": "Inicio del control prenatal",
       "weeksAndDays": "{{weeks}} sem {{days}} d",
-      "weeks": "{{weeks}} semanas"
+      "weeks": "{{weeks}} semanas",
+      "stepOf": "Paso {{step}} de {{total}}"
     },
     "contacts": {
       "title": "Contactos",
@@ -1160,7 +1165,8 @@
       "inProgress": "En curso",
       "finished": "Finalizado",
       "formsCompleted": "{{completed}} de {{total}} formularios",
-      "closeOpenFirst": "Cierre el contacto en curso antes de iniciar uno nuevo."
+      "closeOpenFirst": "Cierre el contacto en curso antes de iniciar uno nuevo.",
+      "workflow": "Flujo del contacto"
     },
     "end": {
       "title": "Fin del embarazo",
@@ -1173,17 +1179,58 @@
       "startPregnancy": "Iniciar embarazo",
       "newContact": "Nuevo contacto",
       "endPregnancy": "Finalizar embarazo",
-      "closeContact": "Cerrar contacto",
+      "closeContact": "Finalizar contacto",
       "backToPregnancy": "Volver al embarazo",
-      "dismiss": "Cerrar"
+      "dismiss": "Cerrar",
+      "save": "Guardar",
+      "saveAndContinue": "Guardar y continuar"
     },
     "messages": {
       "loadFailed": "No se pudo cargar el registro de control prenatal.",
       "pregnancyStarted": "Embarazo iniciado.",
       "pregnancyEnded": "Embarazo cerrado.",
-      "contactClosed": "Contacto {{number}} cerrado.",
+      "contactClosed": "Contacto {{number}} finalizado.",
       "formSaved": "{{title}} guardado.",
-      "saveFailed": "No se pudieron guardar los cambios."
+      "saveFailed": "No se pudieron guardar los cambios.",
+      "formSavedWithObservations": "{{title}} guardado. Observaciones registradas: {{count}}.",
+      "notApplicable": "El control prenatal no aplica a este paciente (sexo o edad)."
+    },
+    "decisionSupport": {
+      "startOfContact": "A partir de la evaluación rápida",
+      "endOfContact": "A partir del examen y los estudios",
+      "runAgain": "Ejecutar de nuevo",
+      "noService": "El servidor CDS activo no ofrece este servicio de decisión.",
+      "noCards": "Sin recomendaciones para los datos registrados hasta ahora. Esto no descarta una condición.",
+      "source": "Fuente:",
+      "title": "Recomendaciones",
+      "subtitle": "Guía de control prenatal de la OMS según lo registrado en este contacto",
+      "serviceDisabled": "\"{{service}}\" está deshabilitado en {{server}}.",
+      "enableService": "Habilitarlo",
+      "chooseServer": "Elegir un servidor CDS",
+      "whyTooltip": "Por qué esta recomendación",
+      "whyTitle": "Por qué esta recomendación",
+      "whyIntro": "La lógica de la tabla de decisión de la OMS que se cumplió con los datos registrados en este contacto:",
+      "severity": {
+        "critical": "Crítico",
+        "warning": "Advertencia",
+        "info": "Info"
+      }
+    },
+    "forms": {
+      "ANCB5": "Evaluación rápida",
+      "ANCB6": "Perfil y antecedentes",
+      "ANCB7": "Síntomas y seguimiento",
+      "ANCB8": "Examen físico",
+      "ANCB9": "Laboratorio e imágenes",
+      "ANCB10": "Consejería y tratamiento",
+      "ANCB11": "Decisión de derivación",
+      "ANCC": "Derivación",
+      "ANCB12": "Próxima visita",
+      "ANCEnd": "Fin del embarazo"
+    },
+    "phases": {
+      "assessment": "Evaluación",
+      "plan": "Plan"
     }
   },
   "nursingVitalCard": {

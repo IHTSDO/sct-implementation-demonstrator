@@ -1,6 +1,6 @@
 <ng-container *transloco="let t; prefix: 'benefitsDemo'">
 <div class="questionnaire-form-container">
-  @if (questionnaire) {
+  @if (questionnaire && showHeader) {
     <div class="questionnaire-header">
       <h3>{{ questionnaire.title }}</h3>
       @if (questionnaire.description) {
@@ -48,12 +48,14 @@
     <div class="form-actions">
       <button mat-flat-button color="primary" (click)="submitForm()">
         <mat-icon>save</mat-icon>
-        {{ t('questionnaireForm.actions.submitResponse') }}
+        {{ submitLabel || t('questionnaireForm.actions.submitResponse') }}
       </button>
-      <button mat-stroked-button (click)="cancel()">
-        <mat-icon>close</mat-icon>
-        {{ t('questionnaireForm.actions.cancel') }}
-      </button>
+      @if (showCancel) {
+        <button mat-stroked-button (click)="cancel()">
+          <mat-icon>close</mat-icon>
+          {{ t('questionnaireForm.actions.cancel') }}
+        </button>
+      }
     </div>
   }
 </div>

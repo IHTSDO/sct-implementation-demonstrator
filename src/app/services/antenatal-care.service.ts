@@ -2,7 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import type { Condition, Encounter, EpisodeOfCare, FhirObservation, Patient, QuestionnaireResponse } from '../model';
+import { CdsService, EncounterCdsHook, EncounterHookResult } from './cds.service';
 import { PatientService } from './patient.service';
+import { SdcObservationExtractionService } from './sdc-observation-extraction.service';
 
 const ASSETS_BASE = 'assets/questionnaires/who-anc';
 
@@ -24,15 +26,53 @@ const ANC_LMP_CODE = 'ANC.B6.DE14';
 const ANC_GESTATIONAL_AGE_CODE = 'ANC.B6.DE17';
 const ANC_EDD_CODE = 'ANC.B6.DE22';
 
+// "Referral needed?" (ANC.B11) answered with "Referred to hospital" opens the referral form.
+const REFERRAL_DECISION_FORM_ID = 'ANCB11';
+const ANC_REFERRED_CODE = 'ANC.B10.DE256';
+
+// Forms whose answers feed each WHO decision service. Saving one of them re-runs the hook.
+const FORMS_FEEDING_HOOK: Record<EncounterCdsHook, string[]> = {
+  // ANCContactStart: danger signs (B5), gestational age (B6), HIV and syphilis status (B9).
+  'encounter-start': ['ANCB5', 'ANCB6', 'ANCB9'],
+  // ANCContactDischarge: gestational age and chronic conditions (B6), examination (B8), tests (B9).
+  'encounter-discharge': ['ANCB6', 'ANCB8', 'ANCB9']
+};
+
+// A hook is only worth calling once its first decisive form has been answered.
+const FORMS_ENABLING_HOOK: Record<EncounterCdsHook, string[]> = {
+  'encounter-start': ['ANCB5'],
+  'encounter-discharge': ['ANCB8', 'ANCB9']
+};
+
+// Carry-forward. The WHO decision logic only reads what is recorded in the current contact,
+// so answers that do not change between contacts are proposed again from the previous one
+// and become Observations of the new contact when the clinician saves the form.
+// - The whole history form (ANC.B6): obstetric history, allergies, chronic conditions...
+// - In the tests form (ANC.B9), only the standing results: HIV status and syphilis diagnosis.
+const CARRIED_FORWARD_FORM_IDS = ['ANCB6'];
+const CARRIED_FORWARD_ITEM_CODES = ['ANC.B9.DE45', 'ANC.B9.DE110'];
+// Never carried: they are recalculated for the date of each contact.
+const RECALCULATED_ITEM_CODES = ['ANC.B6.DE17'];
+
+// Forms that record what is decided and done; the ones before them assess the woman.
+const PLAN_FORM_IDS = ['ANCB10', 'ANCB11', 'ANCC', 'ANCB12'];
+
+// Who can have an antenatal care record. Male patients are excluded; patients whose sex is
+// other or unknown are not, as the record cannot tell. The age range is broad on purpose:
+// it covers adolescent pregnancies (WHO counts 10-19) and late reproductive age.
+const ANTENATAL_MIN_AGE_YEARS = 10;
+const ANTENATAL_MAX_AGE_YEARS = 55;
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PREGNANCY_LENGTH_DAYS = 280;
 
-export type AncQuestionnaireRole = 'contact' | 'referral' | 'end-of-pregnancy';
+export type AncQuestionnaireRole = 'registration' | 'pregnancy-confirmation' | 'contact' | 'referral' | 'end-of-pregnancy';
+
+export type AncContactPhase = 'assessment' | 'plan';
 
 export interface AncQuestionnaireEntry {
   id: string;
   role: AncQuestionnaireRole;
-  firstContactOnly?: boolean;
   file: string;
   url: string;
   title: string;
@@ -56,7 +96,9 @@ export class AntenatalCareService {
 
   constructor(
     private http: HttpClient,
-    private patientService: PatientService
+    private patientService: PatientService,
+    private extractionService: SdcObservationExtractionService,
+    private cdsService: CdsService
   ) {}
 
   // ─── Questionnaires ─────────────────────────────────────────────────────────
@@ -75,10 +117,34 @@ export class AntenatalCareService {
     return this.questionnairePromises.get(entry.id)!;
   }
 
-  /** Forms of one contact, in WHO workflow order. "Confirm pregnancy" is first-contact only. */
-  getContactForms(manifest: AncManifest, contactNumber: number): AncQuestionnaireEntry[] {
-    return manifest.questionnaires.filter(
-      (entry) => entry.role === 'contact' && (!entry.firstContactOnly || contactNumber === 1)
+  /**
+   * Forms of a contact, in WHO workflow order. Registration and pregnancy confirmation are
+   * not among them: the record already holds the patient, the module sets the contact date
+   * and number, and the pregnancy is confirmed when it is started. The referral form
+   * (ANC.C) follows "Referral needed?" only when a referral was recorded there.
+   */
+  getContactForms(manifest: AncManifest, referred: boolean): AncQuestionnaireEntry[] {
+    const forms = manifest.questionnaires.filter((entry) => entry.role === 'contact');
+    const referral = referred ? manifest.questionnaires.find((entry) => entry.role === 'referral') : null;
+    if (!referral) {
+      return forms;
+    }
+    const decisionIndex = forms.findIndex((entry) => entry.id === REFERRAL_DECISION_FORM_ID);
+    const insertAt = decisionIndex === -1 ? forms.length : decisionIndex + 1;
+    return [...forms.slice(0, insertAt), referral, ...forms.slice(insertAt)];
+  }
+
+  /** Stage of the contact a form belongs to, used to group the workflow steps. */
+  getFormPhase(entry: AncQuestionnaireEntry): AncContactPhase {
+    return PLAN_FORM_IDS.includes(entry.id) ? 'plan' : 'assessment';
+  }
+
+  /** Whether "Referred to hospital" was recorded in the contact's "Referral needed?" form. */
+  isReferralRecorded(patientId: string, encounterId: string): boolean {
+    return this.getContactResponses(patientId, encounterId).some((response) =>
+      (response.item || []).some((item: any) =>
+        (item.answer || []).some((answer: any) => answer.valueCoding?.code === ANC_REFERRED_CODE)
+      )
     );
   }
 
@@ -89,6 +155,53 @@ export class AntenatalCareService {
     return episodes
       .filter((episode) => this.isAntenatalCase(episode))
       .sort((a, b) => (b.period?.start || '').localeCompare(a.period?.start || ''));
+  }
+
+  /**
+   * Whether antenatal care applies to the patient. A pregnancy already in course always
+   * counts, so its record stays reachable if the demographics are edited later.
+   */
+  isEligible(patient: Patient | null): boolean {
+    if (!patient) {
+      return false;
+    }
+    if (this.getActivePregnancyStatus(patient.id)) {
+      return true;
+    }
+    if ((patient.gender || '').toLowerCase() === 'male') {
+      return false;
+    }
+    const age = this.ageInYears(patient.birthDate);
+    return age === null || (age >= ANTENATAL_MIN_AGE_YEARS && age <= ANTENATAL_MAX_AGE_YEARS);
+  }
+
+  private ageInYears(birthDate: string | undefined): number | null {
+    if (!birthDate) {
+      return null;
+    }
+    const birth = this.parseDateOnly(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) {
+      age -= 1;
+    }
+    return Number.isFinite(age) ? age : null;
+  }
+
+  /**
+   * The pregnancy in course, from what is already loaded for the patient, with the
+   * completed weeks of gestation today. Null when there is none.
+   */
+  getActivePregnancyStatus(patientId: string): { episode: EpisodeOfCare; gestationalAgeWeeks: number | null } | null {
+    const episode = this.patientService.getPatientEpisodesOfCare(patientId)
+      .find((candidate) => candidate.status === 'active' && this.isAntenatalCase(candidate));
+    if (!episode) {
+      return null;
+    }
+    return {
+      episode,
+      gestationalAgeWeeks: this.gestationalAgeWeeks(this.getLastMenstrualPeriod(patientId, episode.id))
+    };
   }
 
   async startPregnancy(patient: Patient, lastMenstrualPeriod: Date): Promise<EpisodeOfCare> {
@@ -285,23 +398,88 @@ export class AntenatalCareService {
   }
 
   /**
-   * Answers the module already knows for a form that has not been filled in this contact:
-   * the registration data of the contact and the pregnancy dating derived from the last
-   * menstrual period. The clinician can change any of them before saving.
+   * Records the answers of a form as Observations of the contact (SDC observation-based
+   * extraction). Observations previously extracted from the same form in this contact are
+   * replaced, so saving a form again does not leave stale values behind.
+   * Returns the number of Observations recorded.
+   */
+  extractContactObservations(patient: Patient, encounter: Encounter, questionnaire: any, fhirResponse: any): number {
+    const formCodes = this.extractionService.extractableCodeKeys(questionnaire);
+    if (formCodes.size === 0) {
+      return 0;
+    }
+
+    for (const previous of this.getContactObservations(patient.id, encounter.id)) {
+      if (previous.code?.coding?.some((coding) => formCodes.has(`${coding.system}|${coding.code}`))) {
+        this.patientService.deletePatientObservation(patient.id, previous.id);
+      }
+    }
+
+    const observations = this.extractionService.extract(questionnaire, fhirResponse, {
+      patientId: patient.id,
+      patientDisplay: this.patientDisplay(patient),
+      encounterId: encounter.id
+    });
+    observations.forEach((observation) => this.patientService.addPatientObservation(patient.id, observation));
+    return observations.length;
+  }
+
+  getContactObservations(patientId: string, encounterId: string): FhirObservation[] {
+    const reference = `Encounter/${encounterId}`;
+    return this.patientService.getPatientObservations(patientId)
+      .filter((observation) => observation.encounter?.reference === reference);
+  }
+
+  // ─── Decision support (CDS Hooks) ───────────────────────────────────────────
+
+  /** Hooks to re-run after a form is saved. */
+  hooksFedByForm(questionnaireId: string): EncounterCdsHook[] {
+    return (Object.keys(FORMS_FEEDING_HOOK) as EncounterCdsHook[])
+      .filter((hook) => FORMS_FEEDING_HOOK[hook].includes(questionnaireId));
+  }
+
+  /** Whether the contact already has the data a hook needs to say anything useful. */
+  isHookEnabled(hook: EncounterCdsHook, answeredQuestionnaireIds: string[]): boolean {
+    return FORMS_ENABLING_HOOK[hook].some((id) => answeredQuestionnaireIds.includes(id));
+  }
+
+  /** Calls the WHO decision services with the contact and the Observations recorded in it. */
+  runContactHook(hook: EncounterCdsHook, patient: Patient, encounter: Encounter): Promise<EncounterHookResult> {
+    return firstValueFrom(this.cdsService.invokeEncounterHook(hook, {
+      patient,
+      encounter,
+      observations: this.getContactObservations(patient.id, encounter.id)
+    }));
+  }
+
+  /**
+   * Answers proposed for a form that has not been filled in this contact: what was recorded
+   * in the previous contacts of the pregnancy and does not change (see the carry-forward
+   * constants), and the pregnancy dating derived from the last menstrual period.
+   * The clinician can change any of them; nothing is recorded until the form is saved.
    */
   buildInitialResponse(
     questionnaire: any,
-    patient: Patient,
+    patientId: string,
     encounter: Encounter,
+    episodeId: string,
     lastMenstrualPeriod: string | null
   ): any | null {
     const contactDate = new Date(encounter.period.start);
+    const previousAnswers = this.previousContactAnswers(questionnaire, patientId, encounter, episodeId);
+    const carriesWholeForm = CARRIED_FORWARD_FORM_IDS.includes(questionnaire?.id);
     const items: any[] = [];
 
     for (const item of questionnaire?.item || []) {
-      const answer = this.knownAnswer(item, patient, encounter, contactDate, lastMenstrualPeriod);
-      if (answer) {
-        items.push({ linkId: item.linkId, text: item.text, answer: [answer] });
+      const code: string | undefined = item.code?.[0]?.code;
+      const known = this.knownAnswer(item, contactDate, lastMenstrualPeriod);
+      const carried = (carriesWholeForm || (!!code && CARRIED_FORWARD_ITEM_CODES.includes(code)))
+        && !(code && RECALCULATED_ITEM_CODES.includes(code))
+        ? previousAnswers.get(item.linkId)
+        : undefined;
+      const answer = known ? [known] : carried;
+      if (answer?.length) {
+        items.push({ linkId: item.linkId, text: item.text, answer });
       }
     }
 
@@ -312,55 +490,33 @@ export class AntenatalCareService {
   }
 
   /**
-   * Applies the registration answers that belong to the Encounter (contact date and
-   * contact number) and resolves with the updated contact. Other forms leave it untouched.
+   * Latest answer of each item of a form in the earlier contacts of the pregnancy.
+   * Each item is taken from the most recent contact that answered it.
    */
-  async applyResponseToContact(patientId: string, encounter: Encounter, questionnaire: any, fhirResponse: any): Promise<Encounter> {
-    let updated: Encounter | null = null;
+  private previousContactAnswers(questionnaire: any, patientId: string, encounter: Encounter, episodeId: string): Map<string, any[]> {
+    const answers = new Map<string, any[]>();
+    const currentNumber = this.getContactNumber(encounter);
+    const previousContacts = this.getContacts(patientId, episodeId)
+      .filter((contact) => contact.id !== encounter.id && this.getContactNumber(contact) < currentNumber)
+      .reverse();
 
-    for (const item of questionnaire?.item || []) {
-      const answer = (fhirResponse?.item || []).find((responseItem: any) => responseItem.linkId === item.linkId)?.answer?.[0];
-      if (!answer) {
-        continue;
-      }
-      const definition: string = item.definition || '';
-      if (definition.endsWith('#Encounter.period.start')) {
-        const start = answer.valueDateTime || answer.valueDate;
-        if (start && start !== encounter.period.start) {
-          updated = { ...(updated || encounter), period: { ...encounter.period, start } };
-        }
-      } else if (definition.endsWith('#Encounter.contactNumber') && Number.isInteger(answer.valueInteger)) {
-        if (answer.valueInteger !== this.getContactNumber(encounter)) {
-          const otherExtensions = (encounter.extension || []).filter((extension) => !CONTACT_NUMBER_EXTENSION_URLS.includes(extension.url));
-          updated = { ...(updated || encounter), extension: [...otherExtensions, ...this.contactNumberExtensions(answer.valueInteger)] };
+    for (const contact of previousContacts) {
+      const response = this.getContactResponses(patientId, contact.id)
+        .find((candidate) => candidate.questionnaire === questionnaire?.url);
+      for (const item of response?.item || []) {
+        if (item.answer?.length && !answers.has(item.linkId)) {
+          answers.set(item.linkId, item.answer);
         }
       }
     }
-
-    return updated ? this.patientService.updatePatientEncounter(patientId, encounter.id, updated) : encounter;
+    return answers;
   }
 
   // ─── Helpers ────────────────────────────────────────────────────────────────
 
-  private knownAnswer(item: any, patient: Patient, encounter: Encounter, contactDate: Date, lastMenstrualPeriod: string | null): any | null {
-    const definition: string = item.definition || '';
+  private knownAnswer(item: any, contactDate: Date, lastMenstrualPeriod: string | null): any | null {
     const code: string | undefined = item.code?.[0]?.code;
 
-    if (definition.endsWith('#Encounter.period.start')) {
-      return { valueDateTime: encounter.period.start };
-    }
-    if (definition.endsWith('#Encounter.contactNumber')) {
-      return { valueInteger: this.getContactNumber(encounter) };
-    }
-    if (definition.endsWith('#Patient.name.given') && patient.name?.[0]?.given?.[0]) {
-      return { valueString: patient.name[0].given[0] };
-    }
-    if (definition.endsWith('#Patient.name.family') && patient.name?.[0]?.family) {
-      return { valueString: patient.name[0].family };
-    }
-    if (definition.endsWith('#Patient.birthDate') && patient.birthDate) {
-      return { valueDateTime: patient.birthDate };
-    }
     if (code === ANC_LMP_CODE && lastMenstrualPeriod) {
       return { valueDate: lastMenstrualPeriod };
     }
