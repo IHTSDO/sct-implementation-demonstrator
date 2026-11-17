@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { PatientService } from '../../services/patient.service';
 import { TerminologyService } from '../../services/terminology.service';
 import { TranslocoService } from '@jsverse/transloco';
@@ -60,9 +60,45 @@ export interface Encounter {
       reference: string;
     };
   }>;
-  // Additional property for display purposes (not part of FHIR spec)
+  /** Existing Condition or Procedure resources that are the reason for the encounter. */
+  reasonReference?: Array<{
+    reference: string;
+    display?: string;
+  }>;
+  // Additional properties for display purposes (not part of FHIR spec)
   linkedProcedures?: Procedure[];
+  /** Diagnosis entries that reference a Condition (procedure references are listed with procedures). */
+  conditionDiagnoses?: Encounter['diagnosis'];
+  /** Existing procedures referenced by the encounter (picked from the patient record). */
+  referencedProcedures?: Procedure[];
 }
+
+/** Where an encounter entry picked from the patient record comes from. */
+export interface RecordReference {
+  resourceType: 'Condition' | 'Procedure';
+  id: string;
+}
+
+/** A condition or procedure of the patient offered by the "from patient record" menus. */
+export interface RecordPick {
+  ref: RecordReference;
+  code: string;
+  display: string;
+  /** Date shown in the menu (onset / performed / recorded). */
+  date: string;
+  /** Condition clinical status key, e.g. active / resolved; empty for procedures. */
+  statusKey: string;
+  bodySite: string | null;
+  /** Resolved or inactive problems, and procedures not done; listed last and dimmed. */
+  inactive: boolean;
+  /** Laterality code carried by a procedure's body site, if any. */
+  laterality: string;
+}
+
+const ACTIVE_CONDITION_STATUSES = ['active', 'recurrence', 'relapse'];
+const INACTIVE_PROCEDURE_STATUSES = ['not-done', 'entered-in-error', 'stopped'];
+/** Filter box appears in the record menus above this many entries. */
+const RECORD_FILTER_THRESHOLD = 8;
 
 // FHIR Condition Resource Interface (enhanced)
 export interface Condition {
@@ -217,8 +253,11 @@ export interface Procedure {
   styleUrls: ['./encounter-record.component.css'],
   standalone: false
 })
-export class EncounterRecordComponent implements OnInit, OnDestroy {
+export class EncounterRecordComponent implements OnInit, OnDestroy, OnChanges {
   @Input() patient: Patient | null = null;
+  /** The patient's conditions and procedures, offered as shortcuts next to each field. */
+  @Input() patientConditions: any[] = [];
+  @Input() patientProcedures: any[] = [];
   @Output() conditionAdded = new EventEmitter<Condition>();
   @Output() procedureAdded = new EventEmitter<Procedure>();
   @Output() encounterAdded = new EventEmitter<any>();
@@ -230,15 +269,22 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
   encounterDate: string = '';
   encounterTime: string = '';
   
-  // Multiple entries support
+  // Multiple entries support. `recordRef` marks an entry picked from the patient record:
+  // it is referenced on save instead of creating a new resource.
   reasonsForEncounter: any[] = [];
   currentReasonForEncounter: any = null;
   
-  diagnoses: Array<{concept: any, note: string}> = [];
+  diagnoses: Array<{concept: any, note: string, recordRef?: RecordReference}> = [];
   currentDiagnosis: any = null;
   currentDiagnosisNote: string = '';
   
-  procedures: Array<{concept: any, laterality: string}> = [];
+  procedures: Array<{concept: any, laterality: string, recordRef?: RecordReference}> = [];
+
+  // "From patient record" shortcuts
+  conditionPicks: RecordPick[] = [];
+  procedurePicks: RecordPick[] = [];
+  recordFilter = '';
+  readonly recordFilterThreshold = RECORD_FILTER_THRESHOLD;
   currentProcedure: any = null;
   currentProcedureLaterality: string = '';
   
@@ -312,6 +358,169 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['patientConditions']) {
+      this.conditionPicks = this.buildConditionPicks(this.patientConditions || []);
+    }
+    if (changes['patientProcedures']) {
+      this.procedurePicks = this.buildProcedurePicks(this.patientProcedures || []);
+      this.refreshEncounterDisplay();
+    }
+  }
+
+  // ---- "From patient record" shortcuts ----
+
+  private buildConditionPicks(conditions: any[]): RecordPick[] {
+    const picks = conditions
+      .map((condition): RecordPick | null => {
+        const coding = this.getSnomedCoding(condition.code);
+        if (!condition?.id || !coding) {
+          return null;
+        }
+        const statusKey = `${condition.clinicalStatus?.coding?.[0]?.code || ''}`.toLowerCase();
+        return {
+          ref: { resourceType: 'Condition', id: condition.id },
+          code: coding.code,
+          display: condition.code?.text || coding.display || coding.code,
+          date: condition.onsetDateTime || condition.recordedDate || '',
+          statusKey,
+          bodySite: this.patientService.getBodySiteText(condition),
+          inactive: !!statusKey && !ACTIVE_CONDITION_STATUSES.includes(statusKey),
+          laterality: ''
+        };
+      })
+      .filter((pick): pick is RecordPick => !!pick);
+    return this.sortPicks(picks);
+  }
+
+  private buildProcedurePicks(procedures: any[]): RecordPick[] {
+    const picks = procedures
+      .map((procedure): RecordPick | null => {
+        const coding = this.getSnomedCoding(procedure.code);
+        if (!procedure?.id || !coding) {
+          return null;
+        }
+        return {
+          ref: { resourceType: 'Procedure', id: procedure.id },
+          code: coding.code,
+          display: procedure.code?.text || coding.display || coding.code,
+          date: procedure.performedDateTime || procedure.performedPeriod?.start || '',
+          statusKey: '',
+          bodySite: this.patientService.getBodySiteText(procedure),
+          inactive: INACTIVE_PROCEDURE_STATUSES.includes(procedure.status),
+          laterality: this.getRecordedLaterality(procedure)
+        };
+      })
+      .filter((pick): pick is RecordPick => !!pick);
+    return this.sortPicks(picks);
+  }
+
+  /** Active entries first, then newest first. */
+  private sortPicks(picks: RecordPick[]): RecordPick[] {
+    const time = (date: string) => {
+      const value = date ? new Date(date).getTime() : 0;
+      return Number.isNaN(value) ? 0 : value;
+    };
+    return picks.sort((a, b) =>
+      Number(a.inactive) - Number(b.inactive) || time(b.date) - time(a.date)
+    );
+  }
+
+  private getSnomedCoding(code: any): { code: string; display: string } | null {
+    const coding = (code?.coding || []).find((c: any) => c?.system === 'http://snomed.info/sct' && c?.code)
+      || code?.coding?.[0];
+    return coding?.code ? { code: `${coding.code}`, display: coding.display || '' } : null;
+  }
+
+  /**
+   * Laterality recorded on a procedure: the side of a postcoordinated body site
+   * (`<site>:272741003=<side>`) or, for encounter procedures, a side code stored as body site.
+   */
+  private getRecordedLaterality(procedure: any): string {
+    const sideCodes = this.lateralityOptions.map(option => option.value).filter(Boolean);
+    for (const site of procedure?.bodySite || []) {
+      for (const coding of site?.coding || []) {
+        if (coding?.system !== 'http://snomed.info/sct' || !coding?.code) {
+          continue;
+        }
+        const code = `${coding.code}`;
+        const match = code.match(/272741003\s*=\s*(\d+)/);
+        if (match && sideCodes.includes(match[1])) {
+          return match[1];
+        }
+        if (sideCodes.includes(code)) {
+          return code;
+        }
+      }
+    }
+    return '';
+  }
+
+  /** Entries matching the menu's filter box (by name or code). */
+  filterPicks(picks: RecordPick[]): RecordPick[] {
+    const term = this.recordFilter.trim().toLowerCase();
+    if (!term) {
+      return picks;
+    }
+    return picks.filter(pick => pick.display.toLowerCase().includes(term) || pick.code.includes(term));
+  }
+
+  get reasonPickCount(): number {
+    return this.conditionPicks.length + this.procedurePicks.length;
+  }
+
+  isReasonPicked(pick: RecordPick): boolean {
+    return this.reasonsForEncounter.some(reason => reason.code === pick.code);
+  }
+
+  isDiagnosisPicked(pick: RecordPick): boolean {
+    return this.diagnoses.some(diagnosis => diagnosis.concept.code === pick.code);
+  }
+
+  isProcedurePicked(pick: RecordPick): boolean {
+    return this.procedures.some(procedure => procedure.concept.code === pick.code);
+  }
+
+  pickReason(pick: RecordPick): void {
+    if (this.isReasonPicked(pick)) {
+      return;
+    }
+    this.reasonsForEncounter.push({ code: pick.code, display: pick.display, recordRef: { ...pick.ref } });
+  }
+
+  pickDiagnosis(pick: RecordPick): void {
+    if (this.isDiagnosisPicked(pick)) {
+      return;
+    }
+    this.diagnoses.push({ concept: { code: pick.code, display: pick.display }, note: '', recordRef: { ...pick.ref } });
+  }
+
+  pickProcedure(pick: RecordPick): void {
+    if (this.isProcedurePicked(pick)) {
+      return;
+    }
+    this.procedures.push({
+      concept: { code: pick.code, display: pick.display },
+      laterality: pick.laterality,
+      recordRef: { ...pick.ref }
+    });
+  }
+
+  formatPickDate(date: string): string {
+    if (!date) {
+      return '';
+    }
+    const parsed = new Date(date);
+    if (Number.isNaN(parsed.getTime())) {
+      return '';
+    }
+    return parsed.toLocaleDateString(this.translocoService.getActiveLang() || 'en', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   }
 
 
@@ -495,15 +704,34 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
       const encounterId = this.generateId();
       this.currentEncounterId = encounterId;
 
-      const reasonConditions = reasonsForEncounter.map(reason =>
-        this.buildEncounterCondition(reason, 'Reason for encounter')
+      // Entries picked from the patient record are referenced, not created again.
+      const reasonConditions = reasonsForEncounter
+        .filter(reason => !reason.recordRef)
+        .map(reason => this.buildEncounterCondition(reason, 'Reason for encounter'));
+      const diagnosisEntries = diagnoses.map(diag => diag.recordRef
+        ? { reference: `Condition/${diag.recordRef.id}`, display: diag.concept.display, condition: null as Condition | null }
+        : (() => {
+            const condition = this.buildEncounterCondition(diag.concept, diag.note);
+            return { reference: `Condition/${condition.id}`, display: condition.code.text, condition };
+          })()
       );
-      const diagnosisConditions = diagnoses.map(diag =>
-        this.buildEncounterCondition(diag.concept, diag.note)
-      );
-      const encounterProcedures = procedures.map(proc =>
-        this.buildEncounterProcedure(proc.concept, proc.laterality)
-      );
+      const diagnosisConditions = diagnosisEntries
+        .map(entry => entry.condition)
+        .filter((condition): condition is Condition => !!condition);
+      const encounterProcedures = procedures
+        .filter(proc => !proc.recordRef)
+        .map(proc => this.buildEncounterProcedure(proc.concept, proc.laterality));
+      // R4 Encounter.diagnosis.condition accepts Procedure: used for existing procedures
+      // that are relevant to this encounter but were not performed in it.
+      const referencedProcedures = procedures
+        .filter(proc => !!proc.recordRef)
+        .map(proc => ({ reference: `Procedure/${proc.recordRef!.id}`, display: proc.concept.display }));
+      const reasonReference = reasonsForEncounter
+        .filter(reason => !!reason.recordRef)
+        .map(reason => ({
+          reference: `${reason.recordRef.resourceType}/${reason.recordRef.id}`,
+          display: reason.display
+        }));
 
       // Build reasonCode array from multiple reasons
       const reasonCode = reasonsForEncounter.length > 0 
@@ -517,22 +745,24 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
           }))
         : undefined;
 
-      // Build diagnosis array from multiple diagnoses
-      const diagnosis = diagnosisConditions.length > 0
-        ? diagnosisConditions.map((condition, index) => ({
-            condition: {
-              reference: `Condition/${condition.id}`,
-              display: condition.code.text
-            },
-            use: {
-              coding: [{
-                system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
-                code: 'active',
-                display: 'Active'
-              }]
-            },
-            rank: index + 1
-          }))
+      // Build diagnosis array from multiple diagnoses (new or existing conditions)
+      const conditionDiagnoses = diagnosisEntries.map((entry, index) => ({
+        condition: {
+          reference: entry.reference,
+          display: entry.display
+        },
+        use: {
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+            code: 'active',
+            display: 'Active'
+          }]
+        },
+        rank: index + 1
+      }));
+      const procedureDiagnoses = referencedProcedures.map(procedure => ({ condition: procedure }));
+      const diagnosis = conditionDiagnoses.length + procedureDiagnoses.length > 0
+        ? [...conditionDiagnoses, ...procedureDiagnoses]
         : undefined;
 
       const encounterRecord: Encounter = {
@@ -551,6 +781,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
           start: `${this.encounterDate}T${this.encounterTime}:00Z`
         },
         reasonCode,
+        reasonReference: reasonReference.length > 0 ? reasonReference : undefined,
         diagnosis,
         note: this.encounterNotes ? [{
           text: this.encounterNotes
@@ -693,7 +924,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     return reasons;
   }
 
-  private getPendingDiagnoses(): Array<{concept: any, note: string}> {
+  private getPendingDiagnoses(): Array<{concept: any, note: string, recordRef?: RecordReference}> {
     const diagnoses = [...this.diagnoses];
 
     if (this.currentDiagnosis &&
@@ -707,7 +938,7 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     return diagnoses;
   }
 
-  private getPendingProcedures(): Array<{concept: any, laterality: string}> {
+  private getPendingProcedures(): Array<{concept: any, laterality: string, recordRef?: RecordReference}> {
     const procedures = [...this.procedures];
 
     if (this.currentProcedure &&
@@ -730,10 +961,10 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         return this.getEncounterSortTimestamp(b) - this.getEncounterSortTimestamp(a);
       });
       
-      // Enhance encounters with linked procedures and diagnosis display terms
+      // Enhance encounters with diagnosis display terms and linked procedures
       this.previousEncounters.forEach(encounter => {
-        this.addLinkedProceduresToEncounter(encounter);
         this.enhanceDiagnosisDisplay(encounter);
+        this.addLinkedProceduresToEncounter(encounter);
       });
     }
   }
@@ -750,6 +981,30 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
     const linkedProcedures = this.getProceduresForEncounter(encounter.id);
     // Add procedures to encounter object for display purposes
     (encounter as any).linkedProcedures = linkedProcedures;
+
+    // Split diagnosis entries: Condition references stay as diagnoses, Procedure
+    // references (picked from the patient record) are listed with the procedures.
+    const diagnoses = encounter.diagnosis || [];
+    encounter.conditionDiagnoses = diagnoses.filter(d => !`${d.condition?.reference || ''}`.startsWith('Procedure/'));
+    const procedureIds = diagnoses
+      .map(d => `${d.condition?.reference || ''}`)
+      .filter(reference => reference.startsWith('Procedure/'))
+      .map(reference => reference.slice('Procedure/'.length));
+    const allProcedures = this.patient ? this.patientService.getPatientProcedures(this.patient.id) : [];
+    encounter.referencedProcedures = procedureIds.map(id => {
+      const stored = allProcedures.find(proc => proc.id === id);
+      if (stored) {
+        return this.convertToLocalProcedure(stored);
+      }
+      const entry = diagnoses.find(d => d.condition?.reference === `Procedure/${id}`);
+      return {
+        resourceType: 'Procedure',
+        id,
+        status: 'unknown',
+        code: { coding: [], text: entry?.condition?.display || '' },
+        subject: { reference: `Patient/${this.patient?.id}` }
+      } as Procedure;
+    });
   }
 
   private enhanceDiagnosisDisplay(encounter: Encounter): void {
@@ -885,11 +1140,8 @@ export class EncounterRecordComponent implements OnInit, OnDestroy {
         // Use PatientService method to ensure consistent storage and notifications
         this.patientService.deletePatientEncounter(this.patient.id, encounterId);
 
-        // Update local state and sort encounters by date
-        this.previousEncounters = this.patientService.getPatientEncounters(this.patient.id);
-        this.previousEncounters.sort((a, b) => {
-          return this.getEncounterSortTimestamp(b) - this.getEncounterSortTimestamp(a);
-        });
+        // Reload, sort and enhance the remaining encounters
+        this.loadPreviousEncounters();
 
         alert(this.translocoService.translate('benefitsDemo.encounterRecord.messages.deleteSuccess'));
       }

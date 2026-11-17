@@ -369,6 +369,26 @@
         "p4": "Het veld Lateraliteit wordt vooraf ingevuld als u een verrichtingsconcept selecteert waarvan de verrichtingslocatie is gemodelleerd met een lateraliteit (bijv. 735085002 | Excisie van linker borststuk |).",
         "p5": "De lateraliteit wordt ook ingeschakeld voor gebruikersinvoer wanneer een verrichtingsconcept een verrichtingslocatie heeft, maar geen lateraliteit is opgegeven (bijv. 392021009 | Lumpectomie van borst |). Dit zal verder worden verfijnd om activering te beperken tot verrichtingslocaties in de SNOMED CT-referentieset voor lateraliseerbare concepten."
       }
+    },
+    "recordPicker": {
+      "tooltip": "Toevoegen uit het patiëntdossier",
+      "empty": "Het patiëntdossier is nog leeg",
+      "problems": "Problemen",
+      "procedures": "Verrichtingen",
+      "filter": "Filteren…",
+      "noMatches": "Geen resultaten",
+      "alreadyAdded": "Al toegevoegd",
+      "fromRecord": "Uit dossier",
+      "fromRecordTooltip": "Gekozen uit het patiëntdossier: het contact verwijst naar het bestaande item",
+      "referencedTooltip": "Bestaande verrichting waarnaar dit contact verwijst",
+      "status": {
+        "active": "Actief",
+        "recurrence": "Recidief",
+        "relapse": "Terugval",
+        "inactive": "Inactief",
+        "remission": "Remissie",
+        "resolved": "Opgelost"
+      }
     }
   },
   "interoperability": {

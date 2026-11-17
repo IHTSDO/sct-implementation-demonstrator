@@ -482,27 +482,18 @@
       <div class="record-section content-section" [ngClass]="getActiveContentThemeClass()" *ngIf="selectedModule !== 'clinical' || selectedClinicalView !== 'summary'">
         <ng-container [ngSwitch]="selectedModule">
           <ng-container *ngSwitchCase="'clinical'">
-            <div *ngIf="selectedClinicalView === 'encounters'" class="tab-content with-problems-layout">
+            <div *ngIf="selectedClinicalView === 'encounters'" class="tab-content">
               <div class="main-pane">
                 <app-encounter-record
                   #encounterRecord
                   [patient]="patient"
+                  [patientConditions]="conditions"
+                  [patientProcedures]="procedures"
                   (conditionAdded)="onConditionAdded($event)"
                   (procedureAdded)="onProcedureAdded($event)"
                   (encounterAdded)="onEncounterAdded($event)">
                 </app-encounter-record>
               </div>
-              <aside class="problems-pane">
-                <app-problems-list-simplified
-                  [conditions]="conditions"
-                  [procedures]="procedures"
-                  [medications]="medications"
-                  [immunizations]="immunizations"
-                  [allergies]="allergies"
-                  [cdsCards]="cdsCards"
-                  (openProblemsList)="selectClinicalView('problems')">
-                </app-problems-list-simplified>
-              </aside>
             </div>
 
             <div *ngIf="selectedClinicalView === 'ai-entry'" class="tab-content with-problems-layout ai-entry-layout">

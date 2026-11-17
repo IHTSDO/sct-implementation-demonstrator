@@ -373,6 +373,26 @@
         "p4": "The Laterality field will pre-populate if you select a procedure concept whose procedure site has been modelled with a laterality (e.g. 735085002 | Excision of left breast lump |).",
         "p5": "The laterality will also become enabled for user input when a procedure concept has a procedure site, but no laterality has been specified (e.g. 392021009 | Lumpectomy of breast |). This will be further refined to restrict enablement to procedure sites in the SNOMED CT lateralisable concept reference set."
       }
+    },
+    "recordPicker": {
+      "tooltip": "Add from patient record",
+      "empty": "Nothing in the patient record yet",
+      "problems": "Problems",
+      "procedures": "Procedures",
+      "filter": "Filter…",
+      "noMatches": "No matches",
+      "alreadyAdded": "Already added",
+      "fromRecord": "From record",
+      "fromRecordTooltip": "Picked from the patient record: the encounter will reference the existing entry",
+      "referencedTooltip": "Existing procedure referenced by this encounter",
+      "status": {
+        "active": "Active",
+        "recurrence": "Recurrence",
+        "relapse": "Relapse",
+        "inactive": "Inactive",
+        "remission": "Remission",
+        "resolved": "Resolved"
+      }
     }
   },
   "interoperability": {

@@ -369,6 +369,26 @@
         "p4": "Lateralitetsfeltet forudfyldes, hvis du vælger et procedurebegreb, hvis procedurested er modelleret med en lateralitet (f.eks. 735085002 | Excision of left breast lump |).",
         "p5": "Lateraliteten aktiveres også for brugerinput, når et procedurebegreb har et procedurested, men ingen lateralitet er angivet (f.eks. 392021009 | Lumpectomy of breast |). Dette vil blive yderligere afgrænset til at begrænse aktivering til proceduresteder i SNOMED CT's lateraliserbare begrebsreferencesæt."
       }
+    },
+    "recordPicker": {
+      "tooltip": "Tilføj fra patientjournalen",
+      "empty": "Patientjournalen er endnu tom",
+      "problems": "Problemer",
+      "procedures": "Procedurer",
+      "filter": "Filtrer…",
+      "noMatches": "Ingen resultater",
+      "alreadyAdded": "Allerede tilføjet",
+      "fromRecord": "Fra journal",
+      "fromRecordTooltip": "Valgt fra patientjournalen: kontakten henviser til den eksisterende post",
+      "referencedTooltip": "Eksisterende procedure, som denne kontakt henviser til",
+      "status": {
+        "active": "Aktiv",
+        "recurrence": "Recidiv",
+        "relapse": "Tilbagefald",
+        "inactive": "Inaktiv",
+        "remission": "Remission",
+        "resolved": "Afsluttet"
+      }
     }
   },
   "interoperability": {

@@ -931,3 +931,176 @@
     width: calc(100% - 44px);
   }
 }
+
+/* ---- "From patient record" shortcut ---- */
+.record-pick-wrapper {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* Same footprint as the (i) info buttons next to it. */
+.record-pick-button {
+  margin-top: 8px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mat-sys-primary, #1976d2);
+}
+
+.record-pick-button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.record-pick-button:disabled {
+  color: rgba(0, 0, 0, 0.26);
+}
+
+.item-from-record {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+.item-from-record mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.encounter-detail-badge.referenced-procedure {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-style: italic;
+}
+
+.encounter-detail-badge.referenced-procedure .referenced-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+::ng-deep .mat-mdc-menu-panel.record-pick-menu {
+  min-width: 300px;
+  max-width: 440px;
+  max-height: 420px;
+}
+
+::ng-deep .record-pick-menu .record-pick-item.mat-mdc-menu-item {
+  min-height: 44px;
+  height: auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+::ng-deep .record-pick-menu .record-pick-item .mat-mdc-menu-item-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+::ng-deep .record-pick-menu .record-pick-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+::ng-deep .record-pick-menu .record-pick-name {
+  font-size: 13px;
+  line-height: 18px;
+  white-space: normal;
+}
+
+::ng-deep .record-pick-menu .record-pick-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+::ng-deep .record-pick-menu .record-pick-status {
+  color: var(--mat-sys-primary, #1976d2);
+  font-weight: 500;
+}
+
+::ng-deep .record-pick-menu .record-pick-status.inactive {
+  color: inherit;
+}
+
+::ng-deep .record-pick-menu .record-pick-site {
+  display: inline-flex;
+  align-items: center;
+}
+
+::ng-deep .record-pick-menu .record-pick-site mat-icon,
+::ng-deep .record-pick-menu .record-pick-item .record-pick-site mat-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+  margin-right: 1px;
+}
+
+::ng-deep .record-pick-menu .record-pick-inactive .record-pick-text {
+  opacity: 0.6;
+}
+
+::ng-deep .record-pick-menu .record-pick-added.mat-icon {
+  margin: 0;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-primary, #1976d2);
+}
+
+::ng-deep .record-pick-menu .record-pick-group {
+  padding: 8px 16px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+::ng-deep .record-pick-menu .record-pick-empty {
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+::ng-deep .record-pick-menu .record-pick-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 12px 6px;
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+::ng-deep .record-pick-menu .record-pick-filter mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+::ng-deep .record-pick-menu .record-pick-filter input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+}

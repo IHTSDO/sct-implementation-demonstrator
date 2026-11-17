@@ -1010,6 +1010,12 @@ export interface Encounter {
     }>;
     text: string;
   }>;
+  /** Existing Condition or Procedure resources that are the reason for the encounter. */
+  reasonReference?: Array<{
+    reference: string;
+    display?: string;
+  }>;
+  /** R4 allows Condition or Procedure references; procedures picked from the record use this. */
   diagnosis?: Array<{
     condition: {
       reference: string;

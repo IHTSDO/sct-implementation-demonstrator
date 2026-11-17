@@ -373,6 +373,26 @@
         "p4": "El campo Lateralidad se pre-llenará si selecciona un concepto de procedimiento cuyo sitio de procedimiento ha sido modelado con lateralidad (p.ej. 735085002 | Excisión del bulto de mama izquierda |).",
         "p5": "La lateralidad también se habilitará para la entrada del usuario cuando un concepto de procedimiento tiene un sitio de procedimiento, pero no se ha especificado lateralidad (p.ej. 392021009 | Tumorectomía de mama |). Esto se refinará aún más para restringir la habilitación a sitios de procedimiento en el conjunto de referencia de conceptos lateralizables de SNOMED CT."
       }
+    },
+    "recordPicker": {
+      "tooltip": "Agregar desde la historia del paciente",
+      "empty": "La historia del paciente todavía no tiene registros",
+      "problems": "Problemas",
+      "procedures": "Procedimientos",
+      "filter": "Filtrar…",
+      "noMatches": "Sin coincidencias",
+      "alreadyAdded": "Ya agregado",
+      "fromRecord": "De la historia",
+      "fromRecordTooltip": "Elegido de la historia del paciente: el encuentro referenciará el registro existente",
+      "referencedTooltip": "Procedimiento existente referenciado por este encuentro",
+      "status": {
+        "active": "Activo",
+        "recurrence": "Recurrencia",
+        "relapse": "Recaída",
+        "inactive": "Inactivo",
+        "remission": "Remisión",
+        "resolved": "Resuelto"
+      }
     }
   },
   "interoperability": {

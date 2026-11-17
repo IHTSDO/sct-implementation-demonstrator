@@ -369,6 +369,26 @@
         "p4": "Lateralitetsfältet fylls i automatiskt om du väljer ett åtgärdsbegrepp vars procedurlokal har modellerats med lateralitet (t.ex. 735085002 | Excision av vänster bröstknöl |).",
         "p5": "Lateraliteten aktiveras även för användarinmatning när ett åtgärdsbegrepp har en procedurlokal men ingen lateralitet har angetts (t.ex. 392021009 | Lumpektomi av bröst |). Detta kommer att förfinas ytterligare för att begränsa aktiveringen till procedurplatser i SNOMED CT:s referensuppsättning för lateraliserbara begrepp."
       }
+    },
+    "recordPicker": {
+      "tooltip": "Lägg till från patientjournalen",
+      "empty": "Patientjournalen är ännu tom",
+      "problems": "Problem",
+      "procedures": "Åtgärder",
+      "filter": "Filtrera…",
+      "noMatches": "Inga träffar",
+      "alreadyAdded": "Redan tillagd",
+      "fromRecord": "Från journal",
+      "fromRecordTooltip": "Vald från patientjournalen: besöket hänvisar till den befintliga posten",
+      "referencedTooltip": "Befintlig åtgärd som detta besök hänvisar till",
+      "status": {
+        "active": "Aktiv",
+        "recurrence": "Recidiv",
+        "relapse": "Återfall",
+        "inactive": "Inaktiv",
+        "remission": "Remission",
+        "resolved": "Löst"
+      }
     }
   },
   "interoperability": {

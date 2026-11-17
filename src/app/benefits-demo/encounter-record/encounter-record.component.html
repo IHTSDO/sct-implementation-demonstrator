@@ -40,6 +40,17 @@
                       matTooltipPosition="above">
                       <mat-icon>info_outline</mat-icon>
                     </button>
+                    <span class="record-pick-wrapper"
+                      [matTooltip]="reasonPickCount ? t('encounterRecord.recordPicker.tooltip') : t('encounterRecord.recordPicker.empty')"
+                      matTooltipPosition="above">
+                      <button mat-icon-button
+                        class="record-pick-button"
+                        [matMenuTriggerFor]="reasonRecordMenu"
+                        [disabled]="!reasonPickCount"
+                        [attr.aria-label]="t('encounterRecord.recordPicker.tooltip')">
+                        <mat-icon>assignment_ind</mat-icon>
+                      </button>
+                    </span>
                   </div>
                   <button mat-raised-button
                     color="accent"
@@ -58,6 +69,11 @@
                         <div class="item-main">
                           <span class="item-display">{{ reason.display }}</span>
                           <span class="item-code">{{ reason.code }}</span>
+                          @if (reason.recordRef) {
+                            <span class="item-from-record" [matTooltip]="t('encounterRecord.recordPicker.fromRecordTooltip')">
+                              <mat-icon>assignment_ind</mat-icon>{{ t('encounterRecord.recordPicker.fromRecord') }}
+                            </span>
+                          }
                         </div>
                         <button mat-icon-button
                           (click)="removeReasonForEncounter(i)"
@@ -107,6 +123,17 @@
                         matTooltipPosition="above">
                         <mat-icon>info_outline</mat-icon>
                       </button>
+                    <span class="record-pick-wrapper"
+                        [matTooltip]="conditionPicks.length ? t('encounterRecord.recordPicker.tooltip') : t('encounterRecord.recordPicker.empty')"
+                        matTooltipPosition="above">
+                        <button mat-icon-button
+                          class="record-pick-button"
+                          [matMenuTriggerFor]="diagnosisRecordMenu"
+                          [disabled]="!conditionPicks.length"
+                          [attr.aria-label]="t('encounterRecord.recordPicker.tooltip')">
+                          <mat-icon>assignment_ind</mat-icon>
+                        </button>
+                      </span>
                     </div>
                   </div>
                   <div class="diagnosis-note-field">
@@ -144,6 +171,11 @@
                         <div class="item-main">
                           <span class="item-display">{{ diag.concept.display }}</span>
                           <span class="item-code">{{ diag.concept.code }}</span>
+                          @if (diag.recordRef) {
+                            <span class="item-from-record" [matTooltip]="t('encounterRecord.recordPicker.fromRecordTooltip')">
+                              <mat-icon>assignment_ind</mat-icon>{{ t('encounterRecord.recordPicker.fromRecord') }}
+                            </span>
+                          }
                         </div>
                         @if (diag.note) {
                           <div class="item-note">
@@ -207,6 +239,17 @@
                         matTooltipPosition="above">
                         <mat-icon>info_outline</mat-icon>
                       </button>
+                    <span class="record-pick-wrapper"
+                        [matTooltip]="procedurePicks.length ? t('encounterRecord.recordPicker.tooltip') : t('encounterRecord.recordPicker.empty')"
+                        matTooltipPosition="above">
+                        <button mat-icon-button
+                          class="record-pick-button"
+                          [matMenuTriggerFor]="procedureRecordMenu"
+                          [disabled]="!procedurePicks.length"
+                          [attr.aria-label]="t('encounterRecord.recordPicker.tooltip')">
+                          <mat-icon>assignment_ind</mat-icon>
+                        </button>
+                      </span>
                     </div>
                   </div>
                   <div class="laterality-field">
@@ -257,6 +300,11 @@
                           @if (proc.laterality) {
                             <span class="item-laterality">{{ getLateralityDisplay(proc.laterality) }}</span>
                           }
+                          @if (proc.recordRef) {
+                            <span class="item-from-record" [matTooltip]="t('encounterRecord.recordPicker.fromRecordTooltip')">
+                              <mat-icon>assignment_ind</mat-icon>{{ t('encounterRecord.recordPicker.fromRecord') }}
+                            </span>
+                          }
                         </div>
                         <button mat-icon-button
                           (click)="removeProcedure(i)"
@@ -302,6 +350,93 @@
                 <p>{{ t('encounterRecord.infoMenus.laterality.p4') }}</p>
                 <p>{{ t('encounterRecord.infoMenus.laterality.p5') }}</p>
               </div>
+            </mat-menu>
+            <!-- "From patient record" menus -->
+            <ng-template #recordPickLabel let-pick let-added="added">
+              <span class="record-pick-text">
+                <span class="record-pick-name">{{ pick.display }}</span>
+                <span class="record-pick-meta">
+                  @if (pick.statusKey) {
+                    <span class="record-pick-status" [class.inactive]="pick.inactive">{{ t('encounterRecord.recordPicker.status.' + pick.statusKey) }}</span>
+                  }
+                  @if (formatPickDate(pick.date)) {
+                    <span>{{ formatPickDate(pick.date) }}</span>
+                  }
+                  @if (pick.bodySite) {
+                    <span class="record-pick-site"><mat-icon>location_on</mat-icon>{{ pick.bodySite }}</span>
+                  }
+                </span>
+              </span>
+              @if (added) {
+                <mat-icon class="record-pick-added" [matTooltip]="t('encounterRecord.recordPicker.alreadyAdded')">check</mat-icon>
+              }
+            </ng-template>
+            <ng-template #recordPickFilter>
+              <div class="record-pick-filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+                <mat-icon>search</mat-icon>
+                <input type="text"
+                  [(ngModel)]="recordFilter"
+                  [placeholder]="t('encounterRecord.recordPicker.filter')"
+                  autocomplete="off">
+              </div>
+            </ng-template>
+            <mat-menu #reasonRecordMenu="matMenu" class="record-pick-menu" (closed)="recordFilter = ''">
+              <ng-template matMenuContent>
+                @if (reasonPickCount > recordFilterThreshold) {
+                  <ng-container *ngTemplateOutlet="recordPickFilter"></ng-container>
+                }
+                @if (filterPicks(conditionPicks).length > 0) {
+                  <div class="record-pick-group">{{ t('encounterRecord.recordPicker.problems') }}</div>
+                  @for (pick of filterPicks(conditionPicks); track pick.ref.id) {
+                    <button mat-menu-item class="record-pick-item" [class.record-pick-inactive]="pick.inactive"
+                      [disabled]="isReasonPicked(pick)" (click)="pickReason(pick)">
+                      <ng-container *ngTemplateOutlet="recordPickLabel; context: { $implicit: pick, added: isReasonPicked(pick) }"></ng-container>
+                    </button>
+                  }
+                }
+                @if (filterPicks(procedurePicks).length > 0) {
+                  <div class="record-pick-group">{{ t('encounterRecord.recordPicker.procedures') }}</div>
+                  @for (pick of filterPicks(procedurePicks); track pick.ref.id) {
+                    <button mat-menu-item class="record-pick-item" [class.record-pick-inactive]="pick.inactive"
+                      [disabled]="isReasonPicked(pick)" (click)="pickReason(pick)">
+                      <ng-container *ngTemplateOutlet="recordPickLabel; context: { $implicit: pick, added: isReasonPicked(pick) }"></ng-container>
+                    </button>
+                  }
+                }
+                @if (filterPicks(conditionPicks).length + filterPicks(procedurePicks).length === 0) {
+                  <div class="record-pick-empty">{{ t('encounterRecord.recordPicker.noMatches') }}</div>
+                }
+              </ng-template>
+            </mat-menu>
+            <mat-menu #diagnosisRecordMenu="matMenu" class="record-pick-menu" (closed)="recordFilter = ''">
+              <ng-template matMenuContent>
+                @if (conditionPicks.length > recordFilterThreshold) {
+                  <ng-container *ngTemplateOutlet="recordPickFilter"></ng-container>
+                }
+                @for (pick of filterPicks(conditionPicks); track pick.ref.id) {
+                  <button mat-menu-item class="record-pick-item" [class.record-pick-inactive]="pick.inactive"
+                    [disabled]="isDiagnosisPicked(pick)" (click)="pickDiagnosis(pick)">
+                    <ng-container *ngTemplateOutlet="recordPickLabel; context: { $implicit: pick, added: isDiagnosisPicked(pick) }"></ng-container>
+                  </button>
+                } @empty {
+                  <div class="record-pick-empty">{{ t('encounterRecord.recordPicker.noMatches') }}</div>
+                }
+              </ng-template>
+            </mat-menu>
+            <mat-menu #procedureRecordMenu="matMenu" class="record-pick-menu" (closed)="recordFilter = ''">
+              <ng-template matMenuContent>
+                @if (procedurePicks.length > recordFilterThreshold) {
+                  <ng-container *ngTemplateOutlet="recordPickFilter"></ng-container>
+                }
+                @for (pick of filterPicks(procedurePicks); track pick.ref.id) {
+                  <button mat-menu-item class="record-pick-item" [class.record-pick-inactive]="pick.inactive"
+                    [disabled]="isProcedurePicked(pick)" (click)="pickProcedure(pick)">
+                    <ng-container *ngTemplateOutlet="recordPickLabel; context: { $implicit: pick, added: isProcedurePicked(pick) }"></ng-container>
+                  </button>
+                } @empty {
+                  <div class="record-pick-empty">{{ t('encounterRecord.recordPicker.noMatches') }}</div>
+                }
+              </ng-template>
             </mat-menu>
             <!-- Bottom Section - Encounter Notes -->
             <div class="form-bottom">
@@ -382,11 +517,11 @@
                     </div>
                   }
                   <!-- Diagnoses -->
-                  @if (encounter.diagnosis && encounter.diagnosis.length > 0) {
+                  @if ((encounter.conditionDiagnoses ?? encounter.diagnosis)?.length) {
                     <div class="encounter-detail-item">
                       <strong>{{ t('encounterRecord.labels.diagnosis') }}</strong>
                       <div class="encounter-detail-list">
-                        @for (diag of encounter.diagnosis; track diag) {
+                        @for (diag of (encounter.conditionDiagnoses ?? encounter.diagnosis); track diag) {
                           <span class="encounter-detail-badge">
                             {{ getDiagnosisDisplay(diag) }}
                           </span>
@@ -395,7 +530,7 @@
                     </div>
                   }
                   <!-- Procedures -->
-                  @if (encounter.linkedProcedures && encounter.linkedProcedures.length > 0) {
+                  @if (encounter.linkedProcedures?.length || encounter.referencedProcedures?.length) {
                     <div class="encounter-detail-item">
                       <strong>{{ t('encounterRecord.labels.procedures') }}</strong>
                       <div class="encounter-detail-list">
@@ -412,11 +547,23 @@
                             </span>
                           </span>
                         }
+                        @for (proc of encounter.referencedProcedures ?? []; track proc.id) {
+                          <span class="encounter-detail-badge referenced-procedure"
+                            [matTooltip]="t('encounterRecord.recordPicker.referencedTooltip')">
+                            <mat-icon class="referenced-icon">assignment_ind</mat-icon>
+                            {{ getProcedureDisplay(proc) }}
+                            @if (getProcedureLaterality(proc)) {
+                              <span class="procedure-laterality-badge">
+                                {{ getProcedureLaterality(proc) }}
+                              </span>
+                            }
+                          </span>
+                        }
                       </div>
                     </div>
                   }
                   <!-- No Procedures Message -->
-                  @if (!encounter.linkedProcedures || encounter.linkedProcedures.length === 0) {
+                  @if (!encounter.linkedProcedures?.length && !encounter.referencedProcedures?.length) {
                     <div class="encounter-detail-item">
                       <strong>{{ t('encounterRecord.labels.procedures') }}</strong> <em>{{ t('encounterRecord.messages.noProcedures') }}</em>
                     </div>
