@@ -698,7 +698,9 @@
     },
     "actions": {
       "saving": "Gemmer...",
-      "cancel": "Annuller"
+      "cancel": "Annuller",
+      "showBodySite": "Lokalisation og lateralitet",
+      "hideBodySite": "Fjern lokalisation"
     },
     "tooltips": {
       "infoButton": "Klik for mere information om dette felt"

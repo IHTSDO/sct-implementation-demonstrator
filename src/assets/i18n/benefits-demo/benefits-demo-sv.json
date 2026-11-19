@@ -698,7 +698,9 @@
     },
     "actions": {
       "saving": "Sparar...",
-      "cancel": "Avbryt"
+      "cancel": "Avbryt",
+      "showBodySite": "Lokalisation och lateralitet",
+      "hideBodySite": "Ta bort lokalisation"
     },
     "tooltips": {
       "infoButton": "Klicka för mer information om det här fältet"

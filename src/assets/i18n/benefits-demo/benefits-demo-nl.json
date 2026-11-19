@@ -698,7 +698,9 @@
     },
     "actions": {
       "saving": "Opslaan...",
-      "cancel": "Annuleren"
+      "cancel": "Annuleren",
+      "showBodySite": "Lichaamslocatie en lateraliteit",
+      "hideBodySite": "Lichaamslocatie verwijderen"
     },
     "tooltips": {
       "infoButton": "Klik voor meer informatie over dit veld"

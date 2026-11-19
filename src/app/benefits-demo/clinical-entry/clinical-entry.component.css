@@ -153,6 +153,32 @@
   width: 100%;
 }
 
+/* Mini link under the concept search that reveals the optional body site details. */
+.body-site-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 2px 0 0 12px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  color: var(--mat-sys-primary, #1976d2);
+}
+
+.body-site-toggle:hover,
+.body-site-toggle:focus-visible {
+  text-decoration: underline;
+}
+
+.body-site-toggle mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
 .body-site-row {
   display: flex;
   gap: 16px;

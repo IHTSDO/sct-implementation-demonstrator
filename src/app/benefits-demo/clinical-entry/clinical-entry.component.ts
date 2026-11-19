@@ -129,6 +129,8 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
   /** Condition concept the body site options derive from (its finding site). */
   bodySiteSource: LinkedConcept | null = null;
   selectedBodySite: LinkedConcept | null = null;
+  /** Body site and laterality are optional details, collapsed until the user asks for them. */
+  showBodySiteDetails = false;
   lateralityState: LateralityState = 'none';
   /** Side carried by the selected body site itself, shown read-only. */
   inherentLaterality: LinkedConcept | null = null;
@@ -307,7 +309,10 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
       if (source?.code !== this.bodySiteSource?.code) {
         this.bodySiteSource = source;
         this.conceptSiteCodes = null;
-        this.bodySiteSourceChange$.next(source);
+        // While collapsed, no site lookups: they run when the details are opened.
+        if (this.showBodySiteDetails) {
+          this.bodySiteSourceChange$.next(source);
+        }
       }
     }
     this.emitDraftMedicationIfNeeded();
@@ -385,8 +390,20 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
     this.itemAdded.emit(newCondition);
   }
 
+  /** Shows or hides the optional body site details; hiding discards what was picked. */
+  toggleBodySiteDetails(): void {
+    this.showBodySiteDetails = !this.showBodySiteDetails;
+    if (this.showBodySiteDetails) {
+      this.bodySiteSourceChange$.next(this.bodySiteSource);
+    } else {
+      this.conceptSiteCodes = null;
+      this.bodySiteSourceChange$.next(null);
+      this.onBodySiteSelected(null);
+    }
+  }
+
   private buildBodySite(): ClinicalEntryBodySite | null {
-    if (!this.selectedBodySite?.code) {
+    if (!this.showBodySiteDetails || !this.selectedBodySite?.code) {
       return null;
     }
     const laterality = this.lateralityState === 'lateralizable' && this.selectedLaterality
@@ -479,6 +496,7 @@ export class ClinicalEntryComponent implements AfterViewInit, OnDestroy {
     this.conceptSiteCodes = null;
     this.bodySiteSourceChange$.next(null);
     this.onBodySiteSelected(null);
+    this.showBodySiteDetails = false;
     this.showAddForm = false;
     this.medicationDraftId = '';
     this.draftMedicationChanged.emit(null);

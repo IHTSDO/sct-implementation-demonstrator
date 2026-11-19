@@ -28,6 +28,15 @@
                 <mat-icon>info_outline</mat-icon>
               </button>
             </div>
+            @if (hasBodySite) {
+              <button type="button"
+                class="body-site-toggle"
+                [attr.aria-expanded]="showBodySiteDetails"
+                (click)="toggleBodySiteDetails()">
+                <mat-icon>{{ showBodySiteDetails ? 'remove' : 'add' }}</mat-icon>
+                {{ showBodySiteDetails ? t('clinicalEntry.actions.hideBodySite') : t('clinicalEntry.actions.showBodySite') }}
+              </button>
+            }
           </div>
           <!-- Association dropdown for medications -->
           @if (entryType === 'medication' && (availableConditions.length > 0 || availableProcedures.length > 0)) {
@@ -94,7 +103,7 @@
             </div>
           }
         </div>
-        @if (hasBodySite) {
+        @if (hasBodySite && showBodySiteDetails) {
           <div class="body-site-row">
             <div class="body-site-field">
               <app-linked-binding

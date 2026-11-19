@@ -702,7 +702,9 @@
     },
     "actions": {
       "saving": "Guardando...",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "showBodySite": "Localización y lateralidad",
+      "hideBodySite": "Quitar localización"
     },
     "tooltips": {
       "infoButton": "Haga clic para más información sobre este campo"

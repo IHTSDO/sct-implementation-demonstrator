@@ -702,7 +702,9 @@
     },
     "actions": {
       "saving": "Saving...",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "showBodySite": "Body site & laterality",
+      "hideBodySite": "Remove body site"
     },
     "tooltips": {
       "infoButton": "Click for more information about this field"
