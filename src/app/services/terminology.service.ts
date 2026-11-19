@@ -501,7 +501,7 @@ export class TerminologyService {
       terms = '';
     }
     let langParam = this.getComputedLanguageContext();
-    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${terms}&displayLanguage=${langParam}`;
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${this.fhirUrlParam}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${encodeURIComponent(terms)}&displayLanguage=${langParam}`;
   }
 
   getDerivativesValueSetExpansionUrl(ecl: string, terms: string, offset?: number, count?:number) {
@@ -512,7 +512,7 @@ export class TerminologyService {
     }
     let langParam = this.getComputedLanguageContext();
     const derivativesUri = 'http://snomed.info/sct/705115006';
-    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${derivativesUri}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${terms}&displayLanguage=${langParam}`;
+    return `${this.snowstormFhirBase}/ValueSet/$expand?url=${derivativesUri}?fhir_vs=ecl/${encodeURIComponent(this.stripEclTermAnnotations(ecl))}&count=${count}&offset=${offset}&filter=${encodeURIComponent(terms)}&displayLanguage=${langParam}`;
   }
 
   expandDerivativesValueSet(ecl: string, terms: string, offset?: number, count?:number): Observable<any> {
